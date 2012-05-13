@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 12 04:16:15 EDT 2012
+// Date:	Sun May 13 12:27:56 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11290,8 +11290,8 @@ namespace min {
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
 	    SET_GEN_FORMAT,
-	    SET_FLAGS,
-	    CLEAR_FLAGS,
+	    SET_FORMAT_FLAGS,
+	    CLEAR_FORMAT_FLAGS,
 	    VERBATIM,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
@@ -11435,14 +11435,14 @@ namespace min {
         return op ( op::SET_INDENT, indent );
     }
 
-    inline op set_flags ( uns32 flags )
+    inline op set_format_flags ( uns32 flags )
     {
-        return op ( op::SET_FLAGS, flags );
+        return op ( op::SET_FORMAT_FLAGS, flags );
     }
 
-    inline op clear_flags ( uns32 flags )
+    inline op clear_format_flags ( uns32 flags )
     {
-        return op ( op::CLEAR_FLAGS, flags );
+        return op ( op::CLEAR_FORMAT_FLAGS, flags );
     }
 
     inline op set_gen_format

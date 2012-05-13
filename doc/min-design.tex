@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 11, 2012}
+\date{May 13, 2012}
  
 \maketitle
 
@@ -5805,7 +5805,7 @@ no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
 In error messages, file lines are printed with these
 flags set as in {\tt print\_\EOL flags} and with
 both {\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
-off (see printer format flags at \pagref{FORMAT_FLAGS}).
+off (see print format flags at \pagref{PRINT_FORMAT_FLAGS}).
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt 0}
@@ -6431,34 +6431,72 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::file printer| & \TTARMKEY{file}{in {\tt min::printer}}
+\verb|min::file printer->| & \TTMKEY{file}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_FILE} \\
-\verb|const min::uns32 printer| & \TTARMKEY{column}{in {\tt min::printer}}
+\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 printer|
-    & \TTARMKEY{break\_offset}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_BREAK_OFFSET} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{break\_column}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_BREAK_COLUMN} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{line\_length}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE_LENGTH} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{indent}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_INDENT} \\
+\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
+\verb|struct    min::| & \MINKEY{line\_\EOL break}
+\LABEL{MIN::LINE_BREAK_STRUCT} \\
+\verb|{              | \\
+\verb|    min::uns32 | & \TTMKEY{offset}{in {\tt min::line\_break}}
+			   & \verb|// Default 0|
+\LABEL{MIN::OFFSET_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{column}{in {\tt min::line\_break}}
+			   & \verb|// Default 0|
+\LABEL{MIN::COLUMN_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{line\_length}{in {\tt min::line\_break}}
+			   & \verb|// Default 72|
+\LABEL{MIN::LINE_LENGTH_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{indent}{in {\tt min::line\_break}}
+			   & \verb|// Default 4|
+\LABEL{MIN::INDENT_IN_LINE_BREAK} \\
+\verb|}              | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 printer|
-    & \TTARMKEY{format\_flags}{in {\tt min::printer}}
-\LABEL{MIN::FORMAT_FLAGS} \\
-\verb|min::pgen_format printer_format|
-    & \TTARMKEY{pgen\_format}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_PGEN_FORMAT} \\
+\verb|const min::line_break printer->|
+    & \TTMKEY{line\_break}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_BREAK} \\
+\verb|const min::line_break min::|
+    & \TTKEY{default\_\EOL line\_\EOL break}
+\LABEL{MIN::DEFAULT_LINE_BREAK} \\
+\verb|const min::packed_vec_insptr<min::line_break>  | \\
+\verb|printer->|
+    & \TTMKEY{line\_break\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~}l}
+\verb|struct           min::| & \MINKEY{print\_\EOL format}
+\LABEL{MIN::PRINT_FORMAT_STRUCT} \\
+\verb|{                     | \\
+\verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
+			          & \verb|// Default:| \\
+			      &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
+			      &   & \verb|//  + min::HBREAK_FLAG|
+\LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::gen_format * | & \TTMKEY{gen\_format}%
+                                           {in {\tt min::print\_format}}
+			          & \verb|// Default:| \\
+			      &   & \verb|//    & min::default_gen_format|
+\LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
+\verb|}                     | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::print_format printer->|
+    & \TTMKEY{print\_format}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_PRINT_FORMAT} \\
+\verb|const min::print_format min::|
+    & \TTKEY{default\_\EOL print\_\EOL format}
+\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
+\verb|const min::packed_vec_insptr<min::print_format>  | \\
+\verb|printer->|
+    & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_PRINT_FORMAT_STACK} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6501,41 +6539,6 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::packed_vec_insptr<min::break> printer|
-    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
-\verb|const min::packed_vec_insptr<min::format> printer|
-    & \TTARMKEY{format\_stack}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_FORMAT_STACK} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{break}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 break_offset;|\ARGBREAK
-    \verb|  min::uns32 break_column;|\ARGBREAK
-    \verb|  min::uns32 line_length;|\ARGBREAK
-    \verb|  min::uns32 indent;|\ARGBREAK
-    \verb|};|
-\ttmindex{line\_length}{in {\tt min::break}}
-\ttmindex{indent}{in {\tt min::break}}
-\ttmindex{break\_offset}{in {\tt min::break}}
-\ttmindex{break\_column}{in {\tt min::break}}
-\LABEL{MIN::BREAK_STRUCT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{format}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 flags;|\ARGBREAK
-    \verb|  const min::pgen_format * pgen_format;|\ARGBREAK
-    \verb|};|
-\ttmindex{flags}{in {\tt min::format}}
-\ttmindex{pgen\_format}{in {\tt min::format}}
-\LABEL{MIN::FORMAT_STRUCT} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::}\MINKEY{init} function both re-initializes existing
@@ -6584,20 +6587,20 @@ printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
 
 \end{itemlist}
 
-\begin{itemlist}[1.2in]
+\begin{itemlist}[0.6in]
 
-\item[\ttmkey{break\_\EOL column}{in {\tt min::printer}}]
+\item[\ttmkey{line\_\EOL break.column}{in {\tt min::printer}}]~\\
 The column of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
-\item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
+\item[\ttmkey{line\_\EOL break.offset}{in {\tt min::printer}}]~\\
 The {\tt file->buffer} index of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
-\item[\ttmkey{line\_length}{in {\tt min::printer}}]%
-\label{LINE-LENGTH}
+\item[\ttmkey{line\_\EOL break.line\_length}{in {\tt min::printer}}]%
+\label{LINE-LENGTH}~\\
 Nominal maximum line length in columns.  Initialized to {\tt 72}.
 
 More specifically,
@@ -6605,32 +6608,33 @@ when a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, then if
 \begin{center}
-\tt break\_column > indent
+\tt line\_break.column > line\_break.indent
 \end{center}
-a break, consisting of a line end followed by {\tt indent}
+a break, consisting of a line end followed by {\tt line\_break.indent}
 spaces,
 is inserted into the printer file buffer just after the break point
-(i.e., at {\tt break\_\EOL offset}).
+(i.e., is inserted at {\tt line\_\EOL break.offset}).
 
 Horizontal space
 characters immediately before the inserted line end are deleted.
-After the break is inserted, {\tt break\_\EOL column} is reset to
+After the break is inserted, {\tt line\_\EOL break.column} is reset to
 the number of indentation spaces
-and {\tt break\_\EOL offset} to the first position after
+and {\tt line\_\EOL break.offset} to the first position after
 the inserted indentation spaces.
 
 Break points may be inserted automatically by using
 {\tt min::\EOL HBREAK\_\EOL FLAG} or
 {\tt min::\EOL GBREAK\_\EOL FLAG}: see below.
 
-If a non-empty {\tt break\_stack} exists
-because a {\tt min::\EOL save\_\EOL break} was executed,
-then elements of the break stack may override
-{\tt break\_\EOL column}, {\tt break\_\EOL offset}, and
-{\tt indent} (but not {\tt line\_length}).
-See \pagref{BREAK-STACK} for details.
+If a non-empty {\tt line\_break\_stack} exists
+because a {\tt min::\EOL save\_\EOL line\_\EOL break} was executed,
+then an element of the break stack may provide overrides for the
+{\tt column}, {\tt offset}, and
+{\tt indent} members, but not the {\tt line\_\EOL length} member,
+of {\tt printer->\EOL line\_\EOL break}.
+See \pagref{LINE-BREAK-STACK} for details.
 
-\item[\ttmkey{ indent}{in {\tt min::printer}}]
+\item[\ttmkey{line\_\EOL break.indent}{in {\tt min::printer}}]~\\
 Indention of a new line created by automatic break insertion.
 Also used by the {\tt min::\EOL indent} operation (\pagref{MIN::INDENT}).
 Initialized to {\tt 4}.
@@ -6640,18 +6644,19 @@ a line break is automatically pushed into a printer file buffer, the
 break consists of a line end ({\tt NUL} character) followed by
 {\tt indent} single space characters.
 
-\item[\ttmkey{break\_\EOL stack}{in {\tt min::printer}}]
-Used with {\tt min::save\_break} and {\tt min::restore\_break} to set
+\item[\ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}]~\\
+Used with {\tt min::save\_\EOL line\_\EOL break}
+and {\tt min::\EOL restore\_\EOL line\_\EOL break} to set
 multiple break points when printing nested lists.
-See \pagref{BREAK-STACK} for details.
-Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
+See \pagref{LINE-BREAK-STACK} for details.
+Initialized to and empty stack.
 
 \end{itemlist}
 
-\begin{itemlist}
+\begin{itemlist}[0.6in]
 
-\item[\ttmkey{format\_flags}{in {\tt min::printer}}]%
-\label{FORMAT_FLAGS}
+\item[\ttmkey{print\_format.flags}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_FLAGS}~\\
 The following flag bits control printing.  Some of these
 flags affect only certain categories of characters, which are
 defined as follows:
@@ -6663,7 +6668,7 @@ defined as follows:
     Vertical Space Characters: form feed, vertical tab
 \item[\ttnbmkey{NSPACE}{character category}]
     Non-Space Control Characters: all other characters
-with codes {\tt < 0x20}, including line feed and carriage return, \\
+with codes {\tt <~0x20}, including line feed and carriage return,
 plus the delete character with code {\tt 0x7f}
 \item[\ttnbmkey{ASCII}{character category}] ASCII Characters: characters
 with codes {\tt <= 0x7F}.
@@ -6671,14 +6676,17 @@ with codes {\tt <= 0x7F}.
 
 \end{itemlist}
 
-\begin{indpar}\begin{itemlist}[1.4in]
+\begin{indpar}\begin{itemlist}[0.4in]
 
-\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]
-\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
+\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]
+\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
+\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-{\raggedright~\\}
+~\\
 {\tt GRAPHIC\_XXX} causes all characters in class {\tt XXX} to be
 represented by `graphic' characters that print some mark.
 This is referred to as `\key{graphic mode}'.
@@ -6707,8 +6715,8 @@ For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
-\item[\ttnbmkey{GRAPHIC\_FLAGS}{in printer {\tt format\_\EOL flags}}]
-The sum of the {\tt min::GRAPHIC\_XXX} format flags:
+\item[\ttnbmkey{GRAPHIC\_FLAGS}{in printer {\tt print\_\EOL format.flags}}]~\\
+The sum of the {\tt min::GRAPHIC\_XXX\_FLAG}'s:
 \begin{indpar}
 \tt
 min::GRAPHIC\_HSPACE \\
@@ -6716,7 +6724,7 @@ min::GRAPHIC\_VSPACE \\
 min::GRAPHIC\_NSPACE
 \end{indpar}
 
-\item[\ttnbmkey{ASCII\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{ASCII\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 Used in graphics mode to control the printing of ASCII control characters:
 see {\tt GRAPHIC\_XXX\_FLAG}'s above.
 
@@ -6746,12 +6754,15 @@ the `\key{white frowning face}%
 \index{face, white frowning}',
 \ILLEGALCHAR.
 
-\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]
-\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
+\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]
+\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
+\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-{\raggedright~\\}
+~\\
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is off,
 printing of characters of class {\tt XXX} is controlled by the
 {\tt ALLOW\_\EOL XXX\_\EOL FLAG}, which
@@ -6772,13 +6783,14 @@ by the empty string: i.e., they do not output anything.
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
 {\tt ALLOW\_\EOL XXX\_\EOL FLAG} has no affect.
 
-\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}%
+               {in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, the end of line prints as a graphic mode control
 character (even if the {\tt GRAPHIC\_FLAG} is off).
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a line break is automatically set
 before every character representation that
 follows a single space or horizontal tab character,
@@ -6786,7 +6798,7 @@ except for representations of ASCII control characters in non-graphic mode
 (this includes horizontal and vertical spaces)
 and UNICODE \skey{diacritical combining mark}s in non-ASCII mode.
 
-\item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a line break is automatically set
 before every character representation
 except for representations of ASCII vertical space and non-space
@@ -6797,23 +6809,24 @@ if these are preceded by representations of ASCII horizontal control
 characters in non-graphic mode,
 and UNICODE diacritical combining marks in non-ASCII mode.
 
-\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of a {\tt min::\EOL eol} or
 {\tt min::\EOL eom} printer operation.
 
 \end{itemlist}\end{indpar}
 
-\begin{itemlist}
-\item[\ttmkey{pgen\_format}{in printer {\tt format\_\EOL flags}}]
+\begin{itemlist}[0.6in]
+\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]~\\
 Controls the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
-\item[\ttmkey{format\_\EOL stack}{in {\tt min::printer}}]
-Used with {\tt min::save\_format} and {\tt min::restore\_format} to save and
-restore format parameters.
-See \pagref{FORMAT-STACK} for details.
-Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
+\item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
+Used with {\tt min::save\_print\_format} and
+{\tt min::\EOL restore\_\EOL print\_\EOL format} to save and
+restore the print format parameters.
+See \pagref{PRINT-FORMAT-STACK} for details.
+Initialized to and empty stack.
 
 \end{itemlist}
 
@@ -6886,7 +6899,7 @@ the {\tt min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} off,
 the horizontal tab is converted to between 1 and 8 single space characters.
 
 When a \ttnbkey{NUL} is copied into a printer file buffer, which can only happen
-in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE} on,
+in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE\_\EOL FLAG} on,
 it is encoded as the overlong UTF-8 encoding {\tt 0xC0},{\tt 0x80}.
 
 Values of types other than `\verb|const char *|'
@@ -6982,8 +6995,8 @@ can be used to explicitly set a break point:
 More specifically, {\tt printer<<min::setbreak} sets a break point after
 the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
-printer->break_offset = printer->buffer->length;
-printer->break_column = printer->column;
+printer->line_break.offset = printer->buffer->length;
+printer->line_break.column = printer->column;
 \end{verbatim}\end{indpar}
 
 Recall from the description of {\tt line\_\EOL length} on
@@ -6992,12 +7005,12 @@ that when a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, then if
 \begin{center}
-\tt break\_column > indent
+\tt line\_break.column > line\_break.indent
 \end{center}
 a break, consisting of a line end followed by {\tt indent}
 spaces,
 is inserted into the printer file buffer just after the break point
-(i.e., at {\tt break\_offset}).  Also
+(i.e., at {\tt line\_\EOL break.offset}).  Also
 horizontal spaces
 characters immediately before the inserted line end are deleted.
 
@@ -7043,16 +7056,16 @@ these would never be used.
 
 The break point is said to be `\mkey{enabled}{break point}' whenever
 \begin{center}
-\tt break\_column > indent
+\tt line\_break.column > indent
 \end{center}
 and `\mkey{disabled}{break point}' whenever
 \begin{center}
-\tt break\_column <= indent
+\tt line\_break.column <= indent
 \end{center}
 A break point must be enabled to be used.
 Whenever a line end is inserted, the break point is
 disabled by either setting it to be at the beginning of the line
-(so {\tt break\_\EOL column} is {\tt 0}) or setting it to
+(so {\tt line\_break.column} is {\tt 0}) or setting it to
 just after the {\tt indent} spaces if these are inserted after the
 line end.
 Thus {\tt min::\EOL eol} and the {\tt min::\EOL indent} operation
@@ -7072,7 +7085,7 @@ The {\tt min::left} and {\tt min::right} operations:
 
 can be used to left or right adjust text in a line.
 These operations add spaces to make the current printer column
-equal to {\tt break\_\EOL column + width}.
+equal to {\tt line\_\EOL break.column + width}.
 The {\tt min::\EOL left} operation simply appends spaces to the
 current line.  The {\tt min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
@@ -7118,52 +7131,53 @@ ends by setting a break as per {\tt min::setbreak}.
 
 The format parameters of a printer
 may be saved in the
-\ttmkey{format\_\EOL stack}{in {\tt min::printer}}\label{FORMAT-STACK}
+\ttmkey{format\_\EOL stack}{in {\tt min::printer}}\label{PRINT-FORMAT-STACK}
 of the printer, and restored from that stack.
 This may be done explicitly by the following
 operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::|
-    & \MINKEY{save\_format}
-\LABEL{MIN::SAVE_FORMAT} \\
+    & \MINKEY{save\_print\_format}
+\LABEL{MIN::SAVE_PRINT_FORMAT} \\
 \verb|const min::op min::|
-    & \MINKEY{restore\_format}
-\LABEL{MIN::RESTORE_FORMAT} \\
+    & \MINKEY{restore\_print\_format}
+\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
 \end{tabular}\end{indpar}
 
-{\tt min::save\_format} pushes into the format stack a new element containing
-the current values of
-{\tt format\_\EOL flags} and {\tt pgen\_\EOL format}.
-{\tt min::\EOL restore\_\EOL format}
-resets these values from the top format stack element and then
+{\tt min::save\_print\_format}
+pushes into the format stack a new element containing
+the current {\tt print\_\EOL format}.
+{\tt min::\EOL restore\_\EOL print\_\EOL format}
+resets the {\tt print\_\EOL format} from the top format stack element and then
 pops this element from the stack.
 
 Similarly the break parameters of a printer
 may be saved in the
-\ttmkey{break\_\EOL stack}{in {\tt min::printer}}\label{BREAK-STACK}
+\ttmkey{break\_\EOL stack}{in {\tt min::printer}}\label{LINE-BREAK-STACK}
 of the printer, and restored from that stack.
 This may be done explicitly by the following
 operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::|
-    & \MINKEY{save\_break}
-\LABEL{MIN::SAVE_BREAK} \\
+    & \MINKEY{save\_line\_break}
+\LABEL{MIN::SAVE_LINE_BREAK} \\
 \verb|const min::op min::|
-    & \MINKEY{restore\_break}
-\LABEL{MIN::RESTORE_BREAK} \\
+    & \MINKEY{restore\_line\_break}
+\LABEL{MIN::RESTORE_LINE_BREAK} \\
 \end{tabular}\end{indpar}
 
-{\tt min::save\_break} pushes into the format stack a new element containing
+{\tt min::save\_line\_break}
+pushes into the format stack a new element containing
 the current values of
-{\tt break\_\EOL offset}, {\tt break\_\EOL column},
+{\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column},
 {\tt indent}, and {\tt line\_\EOL length}.
-{\tt min::\EOL restore\_\EOL break}
+{\tt min::\EOL restore\_\EOL line\_\EOL break}
 resets these values from the top break stack element and then
 pops this element from the stack.
 
-However, {\tt min::\EOL save\_\EOL break}, after it
+However, {\tt min::\EOL save\_\EOL line\_\EOL break}, after it
 pushes the new break stack element, resets {\tt indent} to equal the printer
 {\tt column}.  In addition, a non-empty break stack modifies break
 behavior in the following way.
@@ -7171,10 +7185,10 @@ When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the printer {\tt line\_length} parameter,
 then if any break stack entry is enabled, the first such entry's
-{\tt break\_\EOL offset}, {\tt break\_\EOL column}, and {\tt indent},
+{\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column}, and {\tt indent},
 are used in place of the similarly named printer parameters.
 If this happens, then all later entries
-and the {\tt break\_\EOL offset}, {\tt break\_\EOL column},
+and the {\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column},
 and {\tt indent} printer parameters are adjusted by adding to offsets
 the change in offset of the character following the break and adding to
 columns and indents the change in column of this character.
@@ -7182,29 +7196,30 @@ columns and indents the change in column of this character.
 To be a bit more specific, we say that a break stack
 entry {\tt break\_\EOL stack[i]} is `\key{enabled}' if
 \begin{center}
-\tt break\_stack[i].break\_column > break\_stack[i].indent
+\tt break\_stack[i].column > break\_stack[i].indent
 \end{center}
 and `\key{disabled}' otherwise.  The entries are ordered by {\tt i},
 so the `first enabled entry' means the enabled entry with lowest {\tt i},
 which is the bottommost (not topmost) enabled element of the break stack.
 The `later entries' are entries with larger {\tt i}.  Note that
 after using an entry to insert a line end, that entry's
-{\tt break\_\EOL offset}
-and {\tt break\_\EOL column} are reset to make its break point
+{\tt line\_\EOL break.offset}
+and {\tt line\_\EOL break.column} are reset to make its break point
 be just after the indentation spaces that are inserted after the line end,
 just as would happen if a break stack entry were not used.  This sets
-{\tt break\_stack[i].break\_column} equal to {\tt break\_stack[i].indent}.
+{\tt break\_stack[i].column} equal to {\tt break\_stack[i].indent}.
 Note also
 that if \underline{no} break stack entry is enabled, break operation proceeds
 using printer parameters as if the break stack did not exist.
 
-Also the {\tt min::restore\_break} operation ends by executing an
+Also the {\tt min::restore\_line\_\EOL break} operation ends by executing an
 implied {\tt min::\EOL indent} operation if the break stack element
 it popped was disabled and was not the first element of the stack.
 
-The {\tt min::save\_break} operation is intended to be use just
+The {\tt min::save\_line\_break} operation is intended to be use just
 after printing the header of a list, and
-the {\tt min::restore\_break} operation is intended to be use just
+the {\tt min::\EOL restore\_\EOL line\_\EOL break}
+operation is intended to be use just
 after printing the trailer of a list.
 Suppose we print the following
 with {\tt line\_\EOL length} equal to 72:
@@ -7213,22 +7228,22 @@ with {\tt line\_\EOL length} equal to 72:
 \end{center}
 by using code equivalent to the statement:
 \begin{indpar}\begin{verbatim}
-    printer << min::setbreak << "{ " << min::save_break
+    printer << min::setbreak << "{ " << min::save_line_break
             << min::setbreak << "aaa, "
             << min::setbreak << "bbb, "
-            << min::setbreak << "[ " << min::save_break 
+            << min::setbreak << "[ " << min::save_line_break 
             << min::setbreak << "ccc, "
             << min::setbreak << "ddd, "
             << min::setbreak << "eee, "
-            << min::setbreak << "( " << min::save_break 
+            << min::setbreak << "( " << min::save_line_break 
             << min::setbreak << "fff, "
             << min::setbreak << "ggg "
-            << " ), " << min::restore_break 
+            << " ), " << min::restore_line_break 
             << min::setbreak << "hhh "
-            << " ], " << min::restore_break 
+            << " ], " << min::restore_line_break 
             << min::setbreak << "iii, "
             << min::setbreak << "jjj "
-            << " } " << min::restore_break 
+            << " } " << min::restore_line_break 
             << min::eol;
 \end{verbatim}\end{indpar}
 Then if instead {\tt line\_\EOL length} was just 34 the same output would
@@ -7275,7 +7290,7 @@ When the first element is popped,
 {\tt min::\EOL indent} is not executed, because the element was the first
 element of the stack, and it is expected that
 {\tt min::\EOL eol} will be explicitly executed after
-{\tt min::\EOL restore\_\EOL break}.
+{\tt min::\EOL restore\_\EOL line\_\EOL break}.
 
 The \key{begin message} and {\tt end message} operations can be used
 to surround the body of an error message or other message:
@@ -7288,11 +7303,11 @@ to surround the body of an error message or other message:
 \end{tabular}\end{indpar}
 
 {\tt min::bom} executes both
-a {\tt min::\EOL save\_\EOL break}
-and a {\tt min::\EOL save\_\EOL format} operation.
+a {\tt min::\EOL save\_\EOL line\_\EOL break}
+and a {\tt min::\EOL save\_\EOL print\_\EOL format} operation.
 {\tt min::\EOL eom} executes in order a
-{\tt min::\EOL restore\_\EOL break}, {\tt min::\EOL eol},
-and {\tt min::\EOL restore\_\EOL format}.
+{\tt min::\EOL restore\_\EOL line\_\EOL break}, {\tt min::\EOL eol},
+and {\tt min::\EOL restore\_\EOL print\_\EOL format}.
 operations until the break stack is empty, then executes a {\tt min::\EOL eol}
 operation, then
 Note that format flags in effect just before {\tt min::\EOL eom}
@@ -7319,7 +7334,7 @@ but if a smaller indent is desired, it can be set by following
 (\pagref{MIN::SET_INDENT}).
 
 {\tt min::gen} values may be printed under the control of a
-{\tt min::\EOL pgen\_\EOL format}.  As printing objects
+{\tt min::\EOL gen\_\EOL format}.  As printing objects
 can be complex, printing {\tt min::gen} values is
 described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
 
@@ -7413,9 +7428,9 @@ by the following operations:
     & \MINKEY{clear\_format\_flags}\verb| ( min::uns32 format_flags )|
 \LABEL{MIN::CLEAR_FORMAT_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL pgen\_\EOL format}%
-      \verb| ( min::printer_format * format )|
-\LABEL{MIN::SET_PGEN_FORMAT} \\
+    & \MINKEY{set\_\EOL gen\_\EOL format}%
+      \verb| ( min::printer_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::set\_flags(min::ASCII\_FLAG)}'
@@ -7551,7 +7566,7 @@ the format).
 \label{PRINTING-GENERAL-VALUES}
 
 {\tt min::gen} values are printed using a
-{\tt min::\EOL printer\_\EOL format}.
+{\tt min::\EOL gen\_\EOL format}.
 The {\tt min::\EOL pgen} printer operation can specify
 this format explicitly:
 
@@ -7559,16 +7574,16 @@ this format explicitly:
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb| ( min::gen v,|\ARGBREAK
-	  \verb|   const min::printer_format * format = NULL )|
+	  \verb|   const min::gen_format * gen_format = NULL )|
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
 The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
 value \verb|v| to the printer {\tt printer} using the
-{\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL}, {\tt printer->\EOL format\_EOL flags} is used
+{\tt min::\EOL gen\_\EOL format} value pointed at by {\tt f}.
+If {\tt f} is {\tt NULL}, {\tt printer->\EOL format\_\EOL flags} is used
 instead.  If that is also {\tt NULL},
-{\tt \&\,min::default\_\EOL printer\_\EOL format} is used.
+{\tt \&\,min::default\_\EOL gen\_\EOL format} is used.
 
 `{\tt printer<<v}' can also used as the equivalent of
 `{\tt printer<<min::pgen(v)}':
@@ -7581,11 +7596,11 @@ instead.  If that is also {\tt NULL},
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-Note that a {\tt min::printer\_format} \underline{cannot} be stored
+Note that a {\tt min::gen\_format} \underline{cannot} be stored
 in a relocatable body.  Its structure is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
+\verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::uns32             flags;|\ARGBREAK
     \verb|  const char *           number_format;|\ARGBREAK
@@ -7604,27 +7619,27 @@ in a relocatable body.  Its structure is as follows:
     \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
     \verb|  min::printer &     ( * pstub )|\ARGBREAK
     \verb|       ( min::printer & printer,|\ARGBREAK
-    \verb|         const min::printer_format * g );|\ARGBREAK
+    \verb|         const min::gen_format * g );|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
-\ttmindex{flags}{in {\tt min::printer\_format}}
-\ttmindex{number\_format}{in {\tt min::printer\_format}}
-\ttmindex{str\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{str\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{str\_ascii\_quote}{in {\tt min::printer\_format}}
-\ttmindex{str\_utf8\_quote}{in {\tt min::printer\_format}}
-\ttmindex{lab\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{lab\_separator}{in {\tt min::printer\_format}}
-\ttmindex{lab\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{special\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{special\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{special\_names}{in {\tt min::printer\_format}}
-\ttmindex{special\_names\_size}{in {\tt min::printer\_format}}
-\ttmindex{space\_prefix\_mask}{in {\tt min::printer\_format}}
-\ttmindex{space\_postfix\_mask}{in {\tt min::printer\_format}}
-\ttmindex{pstub}{in {\tt min::printer\_format}}
-\LABEL{MIN::PRINTER_FORMAT} \\
+\ttmindex{flags}{in {\tt min::gen\_format}}
+\ttmindex{number\_format}{in {\tt min::gen\_format}}
+\ttmindex{str\_prefix}{in {\tt min::gen\_format}}
+\ttmindex{str\_postfix}{in {\tt min::gen\_format}}
+\ttmindex{str\_ascii\_quote}{in {\tt min::gen\_format}}
+\ttmindex{str\_utf8\_quote}{in {\tt min::gen\_format}}
+\ttmindex{lab\_prefix}{in {\tt min::gen\_format}}
+\ttmindex{lab\_separator}{in {\tt min::gen\_format}}
+\ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
+\ttmindex{special\_prefix}{in {\tt min::gen\_format}}
+\ttmindex{special\_postfix}{in {\tt min::gen\_format}}
+\ttmindex{special\_names}{in {\tt min::gen\_format}}
+\ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
+\ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
+\ttmindex{space\_postfix\_mask}{in {\tt min::gen\_format}}
+\ttmindex{pstub}{in {\tt min::gen\_format}}
+\LABEL{MIN::GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7648,8 +7663,8 @@ in a relocatable body.  Its structure is as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::printer\_format
-                       min::\MINKEY{default\_printer\_format} =}\ARGBREAK
+\multicolumn{2}{l}{\tt const min::gen\_format
+                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  0,           // flags|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
@@ -7661,31 +7676,31 @@ in a relocatable body.  Its structure is as follows:
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
     \verb|};|
-\LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\
+\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::printer\_format} members are:
+The {\tt min::gen\_format} members are:
 
 \begin{itemlist}
 
-\item[\ttmkey{flags}{in {\tt min::printer\_format}}]
+\item[\ttmkey{flags}{in {\tt min::gen\_format}}]
 
 \end{itemlist}
 
 \begin{indpar}\begin{itemlist}[1.4in]
 
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::printer\_format} flag}]
+\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
 printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
 
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_format} flag}]
+\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]
 \item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
-    {{\tt min::printer\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_format} flag}]%
+    {{\tt min::gen\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::gen\_format} flag}]%
 \vspace{-1ex}
 These flags control the printing of objects.  Note that a `\key{subobject}'
 is an object that is a vector element or attribute value of an object
@@ -7731,18 +7746,18 @@ the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
 
 \begin{itemlist}[1.6in]
 
-\item[\ttmkey{number\_format}{in {\tt min::printer\_format}}]
+\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]
 The {\tt number\_format} member is used as a {\tt printf} format
 for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
 
-\item[\ttmkey{str\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{str\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
 The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
 
-\item[\ttmkey{str\_ascii\_quote}{in {\tt min::printer\_format}}]
-\item[\ttmkey{str\_utf8\_quote}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{str\_ascii\_quote}{in {\tt min::gen\_format}}]
+\item[\ttmkey{str\_utf8\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}
 Which one of these fields is active depends upon whether the printer
 {\tt ASCII\_\EOL FLAG} is set:
 if it is set, the {\tt str\_\EOL ascii\_\EOL quote} member is active, and
@@ -7758,28 +7773,28 @@ each \verb|"| in any {\tt min::gen} string that is printed (but of course not
 in {\tt str\_\EOL postfix} when that is printed just after the
 {\tt min::gen} string is printed).
 
-\item[\ttmkey{lab\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{lab\_separator}{in {\tt min::printer\_format}}]\vspace{-2ex}
-\item[\ttmkey{lab\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
 The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the elements of a label {\tt min::gen} value,
 and the {\tt lab\_\EOL separa\-tor} member followed by a single space
 is printed between elements.
 
-\item[\ttmkey{special\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{special\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
-\item[\ttmkey{special\_names}{in {\tt min::printer\_format}}]
-\item[\ttmkey{special\_names\_size}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
+\item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}
 {\tt special\_names[i]} is printed as the representation of
 a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
 {\tt 0 <= i < special\_\EOL names\_\EOL size}.
 
-\item[\ttmkey{space\_prefix\_mask}{in {\tt min::printer\_format}}]
-\item[\ttmkey{space\_postfix\_mask}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{space\_prefix\_mask}{in {\tt min::gen\_format}}]
+\item[\ttmkey{space\_postfix\_mask}{in {\tt min::gen\_format}}]\vspace{-2ex}
 The space normally output after a {\tt lab\_\EOL separator} or between object
 vector elements is suppressed if
 \begin{center}
@@ -7807,14 +7822,14 @@ The following flags are used in these masks:
 
 \begin{indpar}\begin{itemlist}[1.9in]
 
-\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}{{\tt min::printer\_format} flag}]
+\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}{{\tt min::gen\_format} flag}]
 In the {\tt space\_\EOL prefix\_\EOL mask} this flag means that a character
 is a prefix separator character that may be adjacent to a following character,
 and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately preceding prefix separator
 character.
 
-\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}{{\tt min::printer\_format} flag}]
+\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}{{\tt min::gen\_format} flag}]
 In the {\tt space\_\EOL postfix\_\EOL mask} this flag means that a character
 is a postfix separator character that may be adjacent to a preceding character,
 and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
@@ -7825,7 +7840,7 @@ character.
 
 \begin{itemlist}
 
-\item[\ttmkey{pstub}{in {\tt min::printer\_format}}]
+\item[\ttmkey{pstub}{in {\tt min::gen\_format}}]
 The {\tt pstub} function, if it is not {\tt NULL}, is called
 with any {\tt min::stub} that is not a number, label, string, or object.
 
@@ -7833,7 +7848,7 @@ Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
 and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
 also called for object stubs.
 
-Note that the {\tt min::\EOL printer\_\EOL format}, taken from the
+Note that the {\tt min::\EOL gen\_\EOL format}, taken from the
 printer operation if it is supplied there or from the printer otherwise,
 is passed as an argument to the {\tt pstub} function,
 and may or may not be be ignored by that function.
@@ -13855,35 +13870,83 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{3.0in}
-\verb|min::file printer| & \TTARMKEY{file}{in {\tt min::printer}}
+\begin{TABULAR}{2.4in}
+\verb|min::file printer->| & \TTMKEY{file}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_FILE} \\
-\verb|const min::uns32 printer| & \TTARMKEY{column}{in {\tt min::printer}}
+\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
 \end{TABULAR}
 
-\begin{TABULAR}{3.0in}
-\verb|const min::uns32 printer|
-    & \TTARMKEY{break\_offset}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_BREAK_OFFSET} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{break\_column}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_BREAK_COLUMN} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{line\_length}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE_LENGTH} \\
-\verb|const min::uns32 printer|
-    & \TTARMKEY{indent}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_INDENT} \\
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|struct    min::| & \MINKEY{line\_\EOL break}
+\LABEL{MIN::LINE_BREAK_STRUCT} \\
+\verb|{              | \\
+\verb|    min::uns32 | & \TTMKEY{offset}{in {\tt min::line\_break}}
+\LABEL{MIN::OFFSET_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{column}{in {\tt min::line\_break}}
+\LABEL{MIN::COLUMN_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{line\_length}{in {\tt min::line\_break}}
+\LABEL{MIN::LINE_LENGTH_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{indent}{in {\tt min::line\_break}}
+\LABEL{MIN::INDENT_IN_LINE_BREAK} \\
+\verb|}              | \\
 \end{TABULAR}
 
-\begin{TABULAR}{3.0in}
-\verb|min::uns32 printer|
-    & \TTARMKEY{format\_flags}{in {\tt min::printer}}
-\LABEL{MIN::FORMAT_FLAGS} \\
-\verb|min::pgen_format printer_format|
-    & \TTARMKEY{pgen\_format}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_PGEN_FORMAT} \\
+\bigskip
+
+\begin{TABULAR}{4.0in}
+\verb|const min::line_break printer->|
+    & \TTMKEY{line\_break}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_BREAK} \\
+\verb|const min::packed_vec_insptr<min::line_break>  | \\
+\verb|printer->|
+    & \TTMKEY{line\_break\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|const min::line_break min::|
+    & \TTKEY{default\_\EOL line\_\EOL break}
+\LABEL{MIN::DEFAULT_LINE_BREAK} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|struct           min::| & \MINKEY{print\_\EOL format}
+\LABEL{MIN::PRINT_FORMAT_STRUCT} \\
+\verb|{                     | \\
+\verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
+\LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::gen_format * | & \TTMKEY{gen\_format}%
+                                           {in {\tt min::print\_format}}
+\LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
+\verb|}                     | \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{3.6in}
+\verb|const min::print_format printer->|
+    & \TTMKEY{print\_format}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_PRINT_FORMAT} \\
+\verb|const min::packed_vec_insptr    | \\
+\verb|<min::print_format>  | \\
+\verb|printer->|
+    & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_PRINT_FORMAT_STACK} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.8in}
+\verb|const min::print_format min::|
+    & \TTKEY{default\_\EOL print\_\EOL format}
+\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
@@ -13928,43 +13991,6 @@ In loose implementation: \\
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{4.2in}
-\verb|const min::packed_vec_insptr<min::break> printer|
-    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
-\verb|const min::packed_vec_insptr<min::format> printer|
-    & \TTARMKEY{format\_stack}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_FORMAT_STACK} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{break}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 break_offset;|\ARGBREAK
-    \verb|  min::uns32 break_column;|\ARGBREAK
-    \verb|  min::uns32 line_length;|\ARGBREAK
-    \verb|  min::uns32 indent;|\ARGBREAK
-    \verb|};|
-\ttmindex{line\_length}{in {\tt min::break}}
-\ttmindex{indent}{in {\tt min::break}}
-\ttmindex{break\_offset}{in {\tt min::break}}
-\ttmindex{break\_column}{in {\tt min::break}}
-\LABEL{MIN::BREAK_STRUCT} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{format}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 flags;|\ARGBREAK
-    \verb|  const min::pgen_format * pgen_format;|\ARGBREAK
-    \verb|};|
-\ttmindex{flags}{in {\tt min::format}}
-\ttmindex{pgen\_format}{in {\tt min::format}}
-\LABEL{MIN::FORMAT_STRUCT} \\
 \end{TABULAR}
 
 \bigskip
@@ -14076,11 +14102,11 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::|
-    & \MINKEY{save\_format}
-\LABEL{MIN::SAVE_FORMAT} \\
+    & \MINKEY{save\_print\_format}
+\LABEL{MIN::SAVE_PRINT_FORMAT} \\
 \verb|const min::op min::|
-    & \MINKEY{restore\_format}
-\LABEL{MIN::RESTORE_FORMAT} \\
+    & \MINKEY{restore\_print\_format}
+\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -14141,9 +14167,9 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL pgen\_\EOL format}%
-      \verb| ( min::printer_format * format )|
-\LABEL{MIN::SET_PGEN_FORMAT} \\
+    & \MINKEY{set\_\EOL gen\_\EOL format}%
+      \verb| ( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::SET_LINE_LENGTH} \\
@@ -14241,7 +14267,7 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb| ( min::gen v,|\ARGBREAK
-	  \verb|   const min::printer_format * format =|\ARGBREAK
+	  \verb|   const min::gen_format * gen_format =|\ARGBREAK
 	  \verb|                                 NULL )|
 \LABEL{MIN::PGEN} \\
 \end{TABULAR}
@@ -14255,7 +14281,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
+\verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::uns32             flags;|\ARGBREAK
     \verb|  const char *           number_format;|\ARGBREAK
@@ -14274,11 +14300,11 @@ In loose implementation: \\
     \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
     \verb|  min::printer &     ( * pstub )|\ARGBREAK
     \verb|       ( min::printer & printer,|\ARGBREAK
-    \verb|         const min::printer_format * g );|\ARGBREAK
+    \verb|         const min::gen_format * g );|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
-\LABEL{MIN::PRINTER_FORMAT} \\
+\LABEL{MIN::GEN_FORMAT} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
@@ -14302,8 +14328,8 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\multicolumn{2}{l}{\tt const min::printer\_format
-                       min::\MINKEY{default\_printer\_format} =}\ARGBREAK
+\multicolumn{2}{l}{\tt const min::gen\_format
+                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  0,           // flags|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
@@ -14315,7 +14341,7 @@ In loose implementation: \\
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
     \verb|};|
-\LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\
+\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{TABULAR}
 
 \end{indpar}
