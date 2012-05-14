@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 13, 2012}
+\date{May 14, 2012}
  
 \maketitle
 
@@ -5760,7 +5760,7 @@ that defaults to {\tt min::\EOL ALL\_\EOL LINES}
 by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
-These are some of the printer {\tt parameters->\EOL flags} used to print
+These are some of the printer {\tt print\_EOL format.flags} used to print
 a file line for error message purposes,
 in particular by the {\tt min::\EOL print\_\EOL line}
 function (\pagref{MIN::PRINT_LINE}).
@@ -5805,7 +5805,7 @@ no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
 In error messages, file lines are printed with these
 flags set as in {\tt print\_\EOL flags} and with
 both {\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
-off (see print format flags at \pagref{PRINT_FORMAT_FLAGS}).
+off (see {\tt print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}).
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt 0}
@@ -6628,7 +6628,7 @@ Break points may be inserted automatically by using
 
 If a non-empty {\tt line\_break\_stack} exists
 because a {\tt min::\EOL save\_\EOL line\_\EOL break} was executed,
-then an element of the break stack may provide overrides for the
+then an element of the line break stack may provide overrides for the
 {\tt column}, {\tt offset}, and
 {\tt indent} members, but not the {\tt line\_\EOL length} member,
 of {\tt printer->\EOL line\_\EOL break}.
@@ -6657,7 +6657,12 @@ Initialized to an empty stack.
 
 \item[\ttmkey{print\_format.flags}{in {\tt min::printer}}]%
 \label{PRINT_FORMAT_FLAGS}~\\
-The following flag bits control printing.  Some of these
+These are flag bits that control printing.  When passed as
+function arguments they are referred to as the
+{\tt print\_\EOL flags}.
+
+The flags are listed immediately below.
+Some of these
 flags affect only certain categories of characters, which are
 defined as follows:
 
@@ -6791,7 +6796,7 @@ If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
 \item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, a line break is automatically set
+If this flag is on, a break point is automatically set
 before every character representation that
 follows a single space or horizontal tab character,
 except for representations of ASCII control characters in non-graphic mode
@@ -6799,7 +6804,7 @@ except for representations of ASCII control characters in non-graphic mode
 and UNICODE \skey{diacritical combining mark}s in non-ASCII mode.
 
 \item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, a line break is automatically set
+If this flag is on, a break point is automatically set
 before every character representation
 except for representations of ASCII vertical space and non-space
 control characters in non-graphic mode,
@@ -6849,6 +6854,9 @@ Copying characters into a printer is done by the
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, const min::str_ptr & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
@@ -6999,15 +7007,16 @@ printer->line_break.offset = printer->buffer->length;
 printer->line_break.column = printer->column;
 \end{verbatim}\end{indpar}
 
-Recall from the description of {\tt line\_\EOL length} on
+Recall from the description of {\tt line\_\EOL break.line\_\EOL length} on
 \pagref{LINE-LENGTH}
 that when a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the {\tt line\_length}, then if
+of columns in the line to exceed {\tt line\_\EOL break.line\_\EOL length},
+then if
 \begin{center}
 \tt line\_break.column > line\_break.indent
 \end{center}
-a break, consisting of a line end followed by {\tt indent}
+a break, consisting of a line end followed by {\tt line\_\EOL break.indent}
 spaces,
 is inserted into the printer file buffer just after the break point
 (i.e., at {\tt line\_\EOL break.offset}).  Also
@@ -7018,18 +7027,20 @@ One typically sets a break point just before printing text that one wants
 to appear all on one line.  Then if
 a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the {\tt line\_length}, a line end
-will be inserted at the break point.  See {\tt line\_\EOL length}
+of columns in the line to exceed the {\tt line\_\EOL break.line\_\EOL length},
+a line end will be inserted at the break point.
+See {\tt line\_\EOL break.line\_\EOL length}
 on \pagref{LINE-LENGTH} for details.
 
-For example, if {\tt line\_length} is 72 one might
+For example, if {\tt line\_\EOL break.line\_\EOL length} is 72 one might
 print
 \begin{center}
 \tt [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 \end{center}
 in which {\tt min::\EOL set\_\EOL break} was called after every single space
 character (which could be done automatically via the {\tt HBREAK\_\EOL FLAG}).
-If instead {\tt line\_\EOL length} was just 14 and {\tt indent} was 2,
+If instead {\tt line\_\EOL break.line\_\EOL length}
+was just 14 and {\tt line\_\EOL break.indent} was 2,
 the same output would
 print as
 \begin{center}
@@ -7056,24 +7067,24 @@ these would never be used.
 
 The break point is said to be `\mkey{enabled}{break point}' whenever
 \begin{center}
-\tt line\_break.column > indent
+\tt line\_break.column > line\_break.indent
 \end{center}
 and `\mkey{disabled}{break point}' whenever
 \begin{center}
-\tt line\_break.column <= indent
+\tt line\_break.column <= line\_break.indent
 \end{center}
 A break point must be enabled to be used.
 Whenever a line end is inserted, the break point is
 disabled by either setting it to be at the beginning of the line
-(so {\tt line\_break.column} is {\tt 0}) or setting it to
-just after the {\tt indent} spaces if these are inserted after the
-line end.
+(so {\tt line\_\EOL break.column} is {\tt 0}) or setting it to
+just after the {\tt line\_\EOL break.indent} spaces
+if these are inserted after the line end.
 Thus {\tt min::\EOL eol} and the {\tt min::\EOL indent} operation
 (see \pagref{MIN::INDENT}) both end by executing
 an implied {\tt min::\EOL set\_\EOL break},
 and an implied {\tt min::\EOL set\_\EOL break}
-is also executed just after inserting a line end and {\tt indent} spaces
-at a break point.
+is also executed just after inserting a line end
+and {\tt line\_\EOL break.indent} spaces at a break point.
 
 The {\tt min::left} and {\tt min::right} operations:
 
@@ -7108,13 +7119,13 @@ The {\tt min::reserve} operation:
 can be used to force a line break if there are fewer than {\tt width}
 columns remaining in a line.
 Here the line break consists of a {\tt min::eol} end of line followed
-by {\tt indent} single spaces followed by setting a break
+by {\tt line\_\EOL break.indent} single spaces followed by setting a break
 as per {\tt min::\EOL set\_\EOL break}.
 
 When you set a break point for a {\tt min::left} or {\tt min::\EOL right}
 operation you may want to do a {\tt min::\EOL reserve} first.
-An adjustment that extends
-beyond the printer {\tt line\_\EOL length} will format badly if
+An adjustment that extends beyond the printer
+{\tt line\_\EOL break.line\_\EOL length} will format badly if
 any breaks are enabled.
 
 The {\tt min::indent} operation:
@@ -7125,17 +7136,16 @@ The {\tt min::indent} operation:
 \end{tabular}\end{indpar}
 
 produces a line break if the current printer
-column is greater than {\tt indent}, and then inserts
+column is greater than {\tt line\_\EOL break.indent}, and then inserts
 single spaces until the current printer column is equal to
-{\tt indent}.  The operation
-ends by setting a break as per {\tt min::\EOL set\_\EOL break}.
+{\tt line\_\EOL break.indent}.  The operation
+ends by setting a break point as per {\tt min::\EOL set\_\EOL break}.
 
-The format parameters of a printer
-may be saved in the
-\ttmkey{format\_\EOL stack}{in {\tt min::printer}}\label{PRINT-FORMAT-STACK}
+The format parameters of a printer may be saved in the
+\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}%
+\label{PRINT-FORMAT-STACK}
 of the printer, and restored from that stack.
-This may be done explicitly by the following
-operations:
+This may be done by the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::|
@@ -7148,17 +7158,17 @@ operations:
 
 {\tt min::save\_print\_format}
 pushes into the format stack a new element containing
-the current {\tt print\_\EOL format}.
+the current {\tt print\_\EOL format}, while
 {\tt min::\EOL restore\_\EOL print\_\EOL format}
-resets the {\tt print\_\EOL format} from the top format stack element and then
+resets {\tt print\_\EOL format} from the top format stack element and then
 pops this element from the stack.
 
-Similarly the break parameters of a printer
+Similarly the line break parameters of a printer
 may be saved in the
-\ttmkey{break\_\EOL stack}{in {\tt min::printer}}\label{LINE-BREAK-STACK}
+\ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}%
+\label{LINE-BREAK-STACK}
 of the printer, and restored from that stack.
-This may be done explicitly by the following
-operations:
+This may be done by the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::|
@@ -7170,52 +7180,62 @@ operations:
 \end{tabular}\end{indpar}
 
 {\tt min::save\_line\_break}
-pushes into the format stack a new element containing
-the current values of
-{\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column},
-{\tt indent}, and {\tt line\_\EOL length}.
+pushes into the line break stack a new element containing
+the current value of {\tt line\_\EOL break}, while
 {\tt min::\EOL restore\_\EOL line\_\EOL break}
-resets these values from the top break stack element and then
+resets {\tt line\_\EOL break} from the top line break stack element and then
 pops this element from the stack.
 
 However, {\tt min::\EOL save\_\EOL line\_\EOL break}, after it
-pushes the new break stack element, resets {\tt indent} to equal the printer
-{\tt column}.  In addition, a non-empty break stack modifies break
+pushes the new line break stack element,
+resets {\tt line\_\EOL break.indent} to equal the printer
+{\tt column}.  In addition, a non-empty line break stack modifies break point
 behavior in the following way.
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the printer {\tt line\_length} parameter,
+of columns in the line to exceed
+the printer {\tt line\_\EOL break.line\_\EOL length} parameter,
 then if any break stack entry is enabled, the first such entry's
-{\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column}, and {\tt indent},
-are used in place of the similarly named printer parameters.
-If this happens, then all later entries
-and the {\tt line\_\EOL break.offset}, {\tt line\_\EOL break.column},
-and {\tt indent} printer parameters are adjusted by adding to offsets
+{\tt offset}, {\tt column}, and {\tt indent},
+are used in place of the printer
+{\tt line\_\EOL break.offset},
+{\tt line\_\EOL break.column}, and
+{\tt line\_\EOL break.indent} parameters.
+If this happens, then all later line break stack entries
+and the printer {\tt line\_\EOL break}
+are adjusted by adding to offsets
 the change in offset of the character following the break and adding to
 columns and indents the change in column of this character.
 
-To be a bit more specific, we say that a break stack
+To be more specific, we say that a line break stack
 entry {\tt break\_\EOL stack[i]} is `\key{enabled}' if
 \begin{center}
 \tt break\_stack[i].column > break\_stack[i].indent
 \end{center}
 and `\key{disabled}' otherwise.  The entries are ordered by {\tt i},
 so the `first enabled entry' means the enabled entry with lowest {\tt i},
-which is the bottommost (not topmost) enabled element of the break stack.
+which is the bottommost (not topmost) enabled element of the line break stack.
 The `later entries' are entries with larger {\tt i}.  Note that
 after using an entry to insert a line end, that entry's
 {\tt line\_\EOL break.offset}
 and {\tt line\_\EOL break.column} are reset to make its break point
 be just after the indentation spaces that are inserted after the line end,
-just as would happen if a break stack entry were not used.  This sets
+just as would happen if a line break stack entry were not used.  This sets
 {\tt break\_stack[i].column} equal to {\tt break\_stack[i].indent}.
-Note also
-that if \underline{no} break stack entry is enabled, break operation proceeds
-using printer parameters as if the break stack did not exist.
+Note also that if \underline{no} line break stack entry is enabled,
+break point operation proceeds using the printer {\tt line\_\EOL break}
+as if the line break stack did not exist.
 
 Also the {\tt min::restore\_line\_\EOL break} operation ends by executing an
-implied {\tt min::\EOL indent} operation if the break stack element
+implied {\tt min::\EOL indent} operation if the line break stack element
 it popped was disabled and was not the first element of the stack.
+It does this because it assumes the disabled element was used and
+printing the text bracketed by the {\tt min::\EOL save\_\EOL line\_\EOL break}
+that pushed the element and the {\tt min::\EOL restore\_\EOL line\_\EOL break}
+that is being executed was preceded by an actual line break and should be
+ended by a {\tt min::indent}.  However, if the popped element was the
+first in the stack, it is assumed that instead an explicit {\tt min::\EOL eol}
+will be executed next.
 
 The {\tt min::save\_line\_break} operation is intended to be use just
 after printing the header of a list, and
@@ -7225,7 +7245,7 @@ after printing the trailer of a list.
 Suppose we print the following
 with {\tt line\_\EOL length} equal to 72:
 \begin{center}
-\tt \BRA aaa, bbb, [ ccc, ddd, eee, ( fff, ggg ), hhh ], iii, jjj \KET
+\tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff,~ggg~),~hhh~],~iii,~jjj~\KET
 \end{center}
 by using code equivalent to the statement:
 \begin{indpar}\begin{verbatim}
@@ -7244,7 +7264,7 @@ by using code equivalent to the statement:
             << " ], " << min::restore_line_break 
             << min::set_break << "iii, "
             << min::set_break << "jjj "
-            << " } " << min::restore_line_break 
+            << " }" << min::restore_line_break 
             << min::eol;
 \end{verbatim}\end{indpar}
 Then if instead {\tt line\_\EOL length} was just 34 the same output would
@@ -7263,10 +7283,10 @@ After printing the 34 characters
 \begin{center}
 \tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff
 \end{center}
-a break is triggered just before printing the `{\tt ,}' following
-`{\tt fff)}'.  The first element in the break stack was pushed
+a line break is triggered just before printing the `{\tt ,}' following
+`{\tt fff)}'.  The first element in the line break stack was pushed
 just after printing `{\tt \BRA~}'% }
-and is disabled as it is at the beginning of line.
+and is disabled as it is at the beginning of the line.
 The second element was pushed just after printing `{\tt [~}' and is
 enabled, so it is used, and in the process it is disabled.
 At this point the output is
@@ -7283,7 +7303,7 @@ reflects the point just after `{\tt (~}'.  When the third element
 of the stack is popped, it is enabled, and {\tt min::\EOL indent}
 is not executed.
 When the second `{\tt h}' is about to be printed, there are no
-enabled break points left in the break stack, so the non-stack
+enabled break points left in the line break stack, so the non-stack
 break point before the first `{\tt h}' is used.
 When the second element is popped, it is
 disabled, so {\tt min::\EOL indent} is executed.
@@ -7307,11 +7327,10 @@ to surround the body of an error message or other message:
 a {\tt min::\EOL save\_\EOL line\_\EOL break}
 and a {\tt min::\EOL save\_\EOL print\_\EOL format} operation.
 {\tt min::\EOL eom} executes in order a
-{\tt min::\EOL restore\_\EOL line\_\EOL break}, {\tt min::\EOL eol},
-and {\tt min::\EOL restore\_\EOL print\_\EOL format}.
-operations until the break stack is empty, then executes a {\tt min::\EOL eol}
-operation, then
-Note that format flags in effect just before {\tt min::\EOL eom}
+{\tt min::\EOL restore\_\EOL line\_\EOL break} without any implied
+{\tt min::\EOL indent}, a {\tt min::\EOL eol},
+and a {\tt min::\EOL restore\_\EOL print\_\EOL format}.
+Note that print format flags in effect just before {\tt min::\EOL eom}
 is executed govern the {\tt min::\EOL eol} operation executed by
 {\tt min::\EOL eom}.
 
@@ -7329,8 +7348,9 @@ consumed by `{\tt ERROR:~}', and any format parameters changed
 while printing the error message body will be restored at the end
 of the message by the {\tt min::\EOL eom}.
 
-{\tt min::bom} will set {\tt indent} to the current value of {\tt column},
-but if a smaller indent is desired, it can be set by following
+{\tt min::bom} will set {\tt line\_\EOL break.indent}
+to the current value of {\tt column},
+but if a different indent is desired, it can be set by following
 {\tt min::\EOL bom} with {\tt min::\EOL set\_\EOL indent}
 (\pagref{MIN::SET_INDENT}).
 
@@ -7356,22 +7376,23 @@ can be printed using the following operations:
 
 Sometimes it is desirable to find out how many columns a
 single UNICODE character will take for a given value of
-{\tt format\_\EOL flags}.  For the horizontal tab character,
+{\tt print\_\EOL format.flags}.  For the horizontal tab character,
 this depends upon the column the character is printed in.
 So the following function updates a {\tt column} variable
 whose initial value is that of {\tt printer->column}
 before a UNICODE character is printed with
 {\tt printer << min::\EOL punicode~(~c~)}
 and whose final value is {\tt printer->\EOL column}
-after the character is printed.  Here {\tt printer->\EOL format\_\EOL flags}
-must be input to the function.
+after the character is printed.  Here {\tt print\_\EOL format.flags}
+is input to the function as the
+\ttkey{print\_\EOL flags} argument.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb| ( min::uns32 & column,|\ARGBREAK
          \verb|   min::uns32 c,|\ARGBREAK
-         \verb|   min::uns32 flags )|
+         \verb|   min::uns32 print_flags )|
 \LABEL{MIN::PWIDTH} \\
 \end{tabular}\end{indpar}
 
@@ -7383,7 +7404,7 @@ encoded string, the following can be used:
     & \MINKEY{pwidth}\ARGBREAK
          \verb| ( min::uns32 & column,|\ARGBREAK
          \verb|   const char * s, min::unsptr n,|\ARGBREAK
-         \verb|   min::uns32 flags )|
+         \verb|   min::uns32 print_flags )|
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{tabular}\end{indpar}
 
@@ -7423,21 +7444,23 @@ by the following operations:
     & \MINKEY{set\_\EOL indent}\verb| ( min::uns32 indent )|
 \LABEL{MIN::SET_INDENT} \\
 \verb|min::op min::|
-    & \MINKEY{set\_format\_flags}\verb| ( min::uns32 format_flags )|
-\LABEL{MIN::SET_FORMAT_FLAGS} \\
+    & \MINKEY{set\_print\_flags}\verb| ( min::uns32 print_flags )|
+\LABEL{MIN::SET_PRINT_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_format\_flags}\verb| ( min::uns32 format_flags )|
-\LABEL{MIN::CLEAR_FORMAT_FLAGS} \\
+    & \MINKEY{clear\_print\_flags}\verb| ( min::uns32 print_flags )|
+\LABEL{MIN::CLEAR_PRINT_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL gen\_\EOL format}%
       \verb| ( min::printer_format * gen_format )|
 \LABEL{MIN::SET_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt printer<<min::set\_flags(min::ASCII\_FLAG)}'
-sets the {\tt ASCII\_FLAG} of {\tt for\-mat\_\EOL flags}.
+For example, `{\tt printer<<min::set\_print\_flags(min::ASCII\_FLAG)}'
+sets the {\tt ASCII\_FLAG} of {\tt printer->\EOL print\_\EOL format.flags}
+(recall that {\tt print\_\EOL format.flags} are also referred to as
+{\tt print\_\EOL flags} when used as arguments to functions).
 
-Particular {\tt format\_\EOL flags} may be set and cleared by the
+Particular {\tt print\_format.flags} may be set and cleared by the
 following
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7503,7 +7526,8 @@ following
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::ascii}' sets the
-{\tt printer->\EOL format\_\EOL flags} {\tt min::\EOL ASCII\_\EOL FLAG}
+{\tt min::\EOL ASCII\_\EOL FLAG} in
+{\tt printer->\EOL print\_\EOL for\-mat.flags},
 and `{\tt printer<<\EOL min::\EOL noascii}' clears this flag.
 
 There are several operations that set and clear several flags each:
@@ -7528,7 +7552,7 @@ min::GBREAK\_FLAG
 
 and the {\tt min::\EOL nographic} operation clears these flags.
 {\tt min::\EOL graphic} permits all characters to be represented
-by a graphic, i.e., a printed mark, and automatically sets line breaks
+by a graphic, i.e., a printed mark, and automatically sets break points
 just before
 and just after each of these character representations, in order to
 enforce line length limits.
@@ -7561,7 +7585,7 @@ line terminating NULs are translated to {\tt min::\EOL eol}
 operations on the target printer.
 Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must push and pop
-the format).
+{\tt print\_\EOL format}).
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -7582,8 +7606,9 @@ this format explicitly:
 The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
 value \verb|v| to the printer {\tt printer} using the
 {\tt min::\EOL gen\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL}, {\tt printer->\EOL format\_\EOL flags} is used
-instead.  If that is also {\tt NULL},
+If {\tt f} is {\tt NULL},
+{\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
+is used instead.  If that is also {\tt NULL},
 {\tt \&\,min::default\_\EOL gen\_\EOL format} is used.
 
 `{\tt printer<<v}' can also used as the equivalent of
@@ -14178,11 +14203,11 @@ In loose implementation: \\
     & \MINKEY{set\_\EOL indent}\verb| ( min::uns32 indent )|
 \LABEL{MIN::SET_INDENT} \\
 \verb|min::op min::|
-    & \MINKEY{set\_format\_flags}\verb| ( min::uns32 format_flags )|
-\LABEL{MIN::SET_FORMAT_FLAGS} \\
+    & \MINKEY{set\_print\_flags}\verb| ( min::uns32 print_flags )|
+\LABEL{MIN::SET_PRINT_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_format\_flags}\verb| ( min::uns32 format_flags )|
-\LABEL{MIN::CLEAR_FORMAT_FLAGS} \\
+    & \MINKEY{clear\_print\_flags}\verb| ( min::uns32 print_flags )|
+\LABEL{MIN::CLEAR_PRINT_FLAGS} \\
 \end{TABULAR}
 
 \bigskip

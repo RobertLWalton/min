@@ -1425,6 +1425,11 @@ The line being flushed
 a       <2400><ILL>
 a<SOH><SP><HT><DEL><2400><ILL>
 a␁␣␉␡␀☹
+[ aaa, bbb, ccc, ddd, eee, fff, ggg ]
+[ aaa, bbb,
+  ccc, ddd,
+  eee, fff,
+  ggg ]
 { aaa, bbb, [ ccc, ddd, eee, ( fff, ggg ), hhh ], iii, jjj }
 
 { aaa, bbb,

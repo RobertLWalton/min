@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 13 22:01:05 EDT 2012
+// Date:	Mon May 14 02:46:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2582,7 +2582,35 @@ void test_printer ( void )
 
     printer << min::restore_print_format;
 
-    // Tests of mutiple simultaneous line breaks.
+    // Test of non-simultaneous line breaks.
+
+    printer << min::bom << min::set_indent ( 2 )
+            << min::set_line_length ( 72 ) << min::hbreak
+            << "[ "
+            << "aaa, "
+            << "bbb, "
+            << "ccc, "
+            << "ddd, "
+            << "eee, "
+            << "fff, "
+            << "ggg"
+            << " ]"
+	    << min::eom;
+
+    printer << min::bom << min::set_indent ( 2 )
+            << min::set_line_length ( 14 ) << min::hbreak
+            << "[ "
+            << "aaa, "
+            << "bbb, "
+            << "ccc, "
+            << "ddd, "
+            << "eee, "
+            << "fff, "
+            << "ggg"
+            << " ]"
+	    << min::eom;
+
+    // Test of mutiple simultaneous line breaks.
 
     printer << min::bom << min::set_line_length ( 72 )
             << min::set_break << "{ " << min::save_line_break
@@ -2600,7 +2628,7 @@ void test_printer ( void )
             << " ], " << min::restore_line_break 
             << min::set_break << "iii, "
             << min::set_break << "jjj"
-            << " } " << min::restore_line_break 
+            << " }" << min::restore_line_break 
             << min::eom;
     printer << min::bom << min::set_line_length ( 34 )
             << min::set_break << "{ " << min::save_line_break
@@ -2618,7 +2646,7 @@ void test_printer ( void )
             << " ], " << min::restore_line_break 
             << min::set_break << "iii, "
             << min::set_break << "jjj"
-            << " } " << min::restore_line_break 
+            << " }" << min::restore_line_break 
             << min::eom;
 
     // Tests of files and printers.
