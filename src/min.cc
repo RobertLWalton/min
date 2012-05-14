@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 01:41:36 EDT 2012
+// Date:	Mon May 14 03:29:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1904,7 +1904,7 @@ min::uns32 min::print_line
     }
 
     printer << min::save_print_format
-            << min::clear_format_flags
+            << min::clear_print_flags
 	            (   min::HBREAK_FLAG
 		      + min::GBREAK_FLAG
 		      + min::GRAPHIC_HSPACE_FLAG
@@ -1915,7 +1915,7 @@ min::uns32 min::print_line
 		      + min::ALLOW_NSPACE_FLAG
 		      + min::ASCII_FLAG
 		      + min::DISPLAY_EOL_FLAG )
-	    << min::set_format_flags
+	    << min::set_print_flags
 	    	    (   (   min::GRAPHIC_HSPACE_FLAG
 			  + min::GRAPHIC_VSPACE_FLAG
 			  + min::GRAPHIC_NSPACE_FLAG
@@ -7094,10 +7094,10 @@ min::printer operator <<
 	printer->print_format.gen_format =
 	    (const min::gen_format *) op.v1.p;
 	return printer;
-    case min::op::SET_FORMAT_FLAGS:
+    case min::op::SET_PRINT_FLAGS:
 	printer->print_format.flags |= op.v1.u32;
 	return printer;
-    case min::op::CLEAR_FORMAT_FLAGS:
+    case min::op::CLEAR_PRINT_FLAGS:
 	printer->print_format.flags &= ~ op.v1.u32;
 	return printer;
     case min::op::VERBATIM:
@@ -7269,80 +7269,80 @@ const min::op min::set_break ( min::op::SET_BREAK );
 const min::op min::indent ( min::op::INDENT );
 
 const min::op min::ascii
-    ( min::op::SET_FORMAT_FLAGS, min::ASCII_FLAG );
+    ( min::op::SET_PRINT_FLAGS, min::ASCII_FLAG );
 const min::op min::noascii
-    ( min::op::CLEAR_FORMAT_FLAGS, min::ASCII_FLAG );
+    ( min::op::CLEAR_PRINT_FLAGS, min::ASCII_FLAG );
 
 const min::op min::graphic_hspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::GRAPHIC_HSPACE_FLAG );
 const min::op min::nographic_hspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::GRAPHIC_HSPACE_FLAG );
 const min::op min::graphic_vspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::GRAPHIC_VSPACE_FLAG );
 const min::op min::nographic_vspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::GRAPHIC_VSPACE_FLAG );
 const min::op min::graphic_nspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::GRAPHIC_NSPACE_FLAG );
 const min::op min::nographic_nspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::GRAPHIC_NSPACE_FLAG );
 
 const min::op min::allow
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::ALLOW_FLAGS );
 const min::op min::noallow
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::ALLOW_FLAGS );
 const min::op min::allow_hspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::ALLOW_HSPACE_FLAG );
 const min::op min::noallow_hspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::ALLOW_HSPACE_FLAG );
 const min::op min::allow_vspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::ALLOW_VSPACE_FLAG );
 const min::op min::noallow_vspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::ALLOW_VSPACE_FLAG );
 const min::op min::allow_nspace
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::ALLOW_NSPACE_FLAG );
 const min::op min::noallow_nspace
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::ALLOW_NSPACE_FLAG );
 
 const min::op min::display_eol
-    ( min::op::SET_FORMAT_FLAGS,
+    ( min::op::SET_PRINT_FLAGS,
       min::DISPLAY_EOL_FLAG );
 const min::op min::nodisplay_eol
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::DISPLAY_EOL_FLAG );
 
 const min::op min::hbreak
-    ( min::op::SET_FORMAT_FLAGS, min::HBREAK_FLAG );
+    ( min::op::SET_PRINT_FLAGS, min::HBREAK_FLAG );
 const min::op min::nohbreak
-    ( min::op::CLEAR_FORMAT_FLAGS, min::HBREAK_FLAG );
+    ( min::op::CLEAR_PRINT_FLAGS, min::HBREAK_FLAG );
 const min::op min::gbreak
-    ( min::op::SET_FORMAT_FLAGS, min::GBREAK_FLAG );
+    ( min::op::SET_PRINT_FLAGS, min::GBREAK_FLAG );
 const min::op min::nogbreak
-    ( min::op::CLEAR_FORMAT_FLAGS, min::GBREAK_FLAG );
+    ( min::op::CLEAR_PRINT_FLAGS, min::GBREAK_FLAG );
 
 const min::op min::eol_flush
-    ( min::op::SET_FORMAT_FLAGS, min::EOL_FLUSH_FLAG );
+    ( min::op::SET_PRINT_FLAGS, min::EOL_FLUSH_FLAG );
 const min::op min::noeol_flush
-    ( min::op::CLEAR_FORMAT_FLAGS,
+    ( min::op::CLEAR_PRINT_FLAGS,
       min::EOL_FLUSH_FLAG );
 
 const min::op min::graphic
-    ( min::op::SET_FORMAT_FLAGS, min::GRAPHIC_FLAGS );
+    ( min::op::SET_PRINT_FLAGS, min::GRAPHIC_FLAGS );
 const min::op min::nographic
-    ( min::op::CLEAR_FORMAT_FLAGS, min::GRAPHIC_FLAGS );
+    ( min::op::CLEAR_PRINT_FLAGS, min::GRAPHIC_FLAGS );
 const min::op min::verbatim
     ( min::op::VERBATIM );
 
@@ -7811,7 +7811,7 @@ std::ostream & operator <<
 
 void MINT::pwidth
     ( min::uns32 & column,
-      min::uns32 c, min::uns32 flags )
+      min::uns32 c, min::uns32 print_flags )
 {
     // Continuation of inline min::pwidth.
 
@@ -7821,21 +7821,21 @@ void MINT::pwidth
     //
     if ( c == '\f' || c == '\v' )
     {
-        if ( flags & min::GRAPHIC_VSPACE_FLAG )
+        if ( print_flags & min::GRAPHIC_VSPACE_FLAG )
 	    ; // Fall through
 	else
 	    return;
     }
     else if ( c < 0x20 || c == 0x7F )
     {
-        if ( flags & min::GRAPHIC_NSPACE_FLAG )
+        if ( print_flags & min::GRAPHIC_NSPACE_FLAG )
 	    ; // Fall through
 	else
 	    return;
     }
     else // c > 0x7F
     {
-	if ( flags & min::ASCII_FLAG )
+	if ( print_flags & min::ASCII_FLAG )
 	{
 	    if ( c == min::ILLEGAL_UTF8 ) \
 	        column += 
@@ -7856,7 +7856,7 @@ void MINT::pwidth
 
     // We have fallen through.
     //
-    if ( flags & min::ASCII_FLAG )
+    if ( print_flags & min::ASCII_FLAG )
     {
 	if ( c == 0x7F ) c = DEL_REP;
 	column += ::strlen ( asciigraphic[c] );
@@ -7866,10 +7866,10 @@ void MINT::pwidth
 
 void min::pwidth ( min::uns32 & column,
                    const char * s, min::unsptr n,
-		   min::uns32 flags )
+		   min::uns32 print_flags )
 {
     const char * ends = s + n;
     while ( s < ends )
         pwidth ( column, utf8_to_unicode ( s, ends ),
-	         flags );
+	         print_flags );
 }

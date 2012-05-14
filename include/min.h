@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 13 21:52:43 EDT 2012
+// Date:	Mon May 14 03:06:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11290,8 +11290,8 @@ namespace min {
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
 	    SET_GEN_FORMAT,
-	    SET_FORMAT_FLAGS,
-	    CLEAR_FORMAT_FLAGS,
+	    SET_PRINT_FLAGS,
+	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
@@ -11435,14 +11435,15 @@ namespace min {
         return op ( op::SET_INDENT, indent );
     }
 
-    inline op set_format_flags ( uns32 flags )
+    inline op set_print_flags ( uns32 print_flags )
     {
-        return op ( op::SET_FORMAT_FLAGS, flags );
+        return op ( op::SET_PRINT_FLAGS, print_flags );
     }
 
-    inline op clear_format_flags ( uns32 flags )
+    inline op clear_print_flags ( uns32 print_flags )
     {
-        return op ( op::CLEAR_FORMAT_FLAGS, flags );
+        return op ( op::CLEAR_PRINT_FLAGS,
+	            print_flags );
     }
 
     inline op set_gen_format
@@ -11510,7 +11511,8 @@ namespace min {
     namespace internal
     {
 	void pwidth
-	    ( uns32 & column, uns32 c, uns32 flags );
+	    ( uns32 & column, uns32 c,
+	      uns32 print_flags );
 
         min::printer print_unicode
 		( min::printer printer,
@@ -11519,7 +11521,7 @@ namespace min {
 
     inline void pwidth
 	( min::uns32 & column,
-	  min::uns32 c, min::uns32 flags )
+	  min::uns32 c, min::uns32 print_flags )
     {
 	// Handle common cases and call out-of-line for
 	// less common cases.
@@ -11531,7 +11533,8 @@ namespace min {
 	}
 	else if ( c == ' ' )
 	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+	    if (   print_flags
+	         & min::GRAPHIC_HSPACE_FLAG )
 		; // Fall through
 	    else
 	    {
@@ -11541,7 +11544,8 @@ namespace min {
 	}
 	else if ( c == '\t' )
 	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+	    if (   print_flags
+	         & min::GRAPHIC_HSPACE_FLAG )
 		; // Fall through
 	    else
 	    {
@@ -11550,13 +11554,14 @@ namespace min {
 	    }
 	}
 
-	return internal::pwidth ( column, c, flags );
+	return internal::pwidth
+	    ( column, c, print_flags );
     }
 
     void pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
-	  min::uns32 flags );
+	  min::uns32 print_flags );
 }
 
 min::printer operator <<
