@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 12 05:21:44 EDT 2012
+// Date:	Sun May 13 22:01:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2407,15 +2407,15 @@ void test_printer ( void )
     	    << min::set_line_length ( 20 )
             << min::nohbreak
             <<  "int32 -1 = " << (min::int32) -1
-	    << " " << min::setbreak
+	    << " " << min::set_break
             << "int64 -2 = " << (min::int64) -2
-	    << " " << min::setbreak
+	    << " " << min::set_break
             << "uns32 1 = " << (min::uns32) 1
-	    << " " << min::setbreak
+	    << " " << min::set_break
             << "uns64 2 = " << (min::uns64) 2
-	    << " " << min::setbreak
+	    << " " << min::set_break
             << "float64 1.23 = " << (min::float64) 1.23
-	    << " " << min::setbreak
+	    << " " << min::set_break
             << "char 'A' = " << (char) 'A'
             << min::eom;
 
@@ -2424,10 +2424,10 @@ void test_printer ( void )
             << min::nohbreak
             <<  "pint ( -3, \"%05d\" ) = "
 	    <<  min::pint ( -3, "%05d" )
-	    << " " << min::setbreak
+	    << " " << min::set_break
             <<  "puns ( 3, \"%05u\" ) = "
 	    <<  min::puns ( 3, "%05u" )
-	    << " " << min::setbreak
+	    << " " << min::set_break
             <<  "pfloat ( 1.2345, \"%04.2f\" ) = "
 	    <<  min::pfloat ( 1.2345, "%04.2f" )
             << min::eom;
@@ -2581,6 +2581,45 @@ void test_printer ( void )
     printer << min::eol;
 
     printer << min::restore_print_format;
+
+    // Tests of mutiple simultaneous line breaks.
+
+    printer << min::bom << min::set_line_length ( 72 )
+            << min::set_break << "{ " << min::save_line_break
+            << min::set_break << "aaa, "
+            << min::set_break << "bbb, "
+            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "ccc, "
+            << min::set_break << "ddd, "
+            << min::set_break << "eee, "
+            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "fff, "
+            << min::set_break << "ggg"
+            << " ), " << min::restore_line_break 
+            << min::set_break << "hhh"
+            << " ], " << min::restore_line_break 
+            << min::set_break << "iii, "
+            << min::set_break << "jjj"
+            << " } " << min::restore_line_break 
+            << min::eom;
+    printer << min::bom << min::set_line_length ( 34 )
+            << min::set_break << "{ " << min::save_line_break
+            << min::set_break << "aaa, "
+            << min::set_break << "bbb, "
+            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "ccc, "
+            << min::set_break << "ddd, "
+            << min::set_break << "eee, "
+            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "fff, "
+            << min::set_break << "ggg"
+            << " ), " << min::restore_line_break 
+            << min::set_break << "hhh"
+            << " ], " << min::restore_line_break 
+            << min::set_break << "iii, "
+            << min::set_break << "jjj"
+            << " } " << min::restore_line_break 
+            << min::eom;
 
     // Tests of files and printers.
 

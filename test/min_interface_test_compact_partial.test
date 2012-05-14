@@ -1425,6 +1425,13 @@ The line being flushed
 a       <2400><ILL>
 a<SOH><SP><HT><DEL><2400><ILL>
 a␁␣␉␡␀☹
+{ aaa, bbb, [ ccc, ddd, eee, ( fff, ggg ), hhh ], iii, jjj }
+
+{ aaa, bbb,
+  [ ccc, ddd, eee, ( fff, ggg ),
+    hhh ],
+  iii, jjj }
+
 The file has lines: test_file: lines 1-4
 The last line is: test_file: line 4
 Line 1
