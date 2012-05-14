@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 13 12:28:36 EDT 2012
+// Date:	Mon May 14 01:41:36 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7122,6 +7122,20 @@ min::printer operator <<
     case min::op::RESTORE_LINE_BREAK:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
+	if (    printer->line_break.column
+	     <= printer->line_break.indent
+	     &&
+	     printer->line_break_stack->length > 0 )
+	{
+	    ::end_line ( printer );
+	    while (   printer->column
+		    < printer->line_break.indent )
+	    {
+		++ printer->column;
+		min::push(printer->file->buffer) = ' ';
+	    }
+	    goto set_break;
+	}
 	return printer;
     case min::op::SAVE_PRINT_FORMAT:
         min::push ( printer->print_format_stack ) =
@@ -7150,8 +7164,8 @@ min::printer operator <<
     case min::op::FLUSH:
 	min::flush_file ( printer->file );
 	return printer;
-    case min::op::SETBREAK:
-    setbreak:
+    case min::op::SET_BREAK:
+    set_break:
 	printer->line_break.offset =
 	    printer->file->buffer->length;
 	printer->line_break.column = printer->column;
@@ -7164,7 +7178,7 @@ min::printer operator <<
 	    ++ printer->column;
 	    min::push(printer->file->buffer) = ' ';
 	}
-	goto setbreak;
+	goto set_break;
     case min::op::RIGHT:
         if (   printer->column
 	     < printer->line_break.column + op.v1.u32 )
@@ -7216,7 +7230,7 @@ min::printer operator <<
 	    printer->column += n;
 	    while ( n -- ) buffer[offset++] = ' ';
 	}
-	goto setbreak;
+	goto set_break;
     case min::op::RESERVE:
         if (    printer->column + op.v1.u32
 	     <= printer->line_break.line_length )
@@ -7232,7 +7246,7 @@ min::printer operator <<
 	    ++ printer->column;
 	    min::push(printer->file->buffer) = ' ';
 	}
-	goto setbreak;
+	goto set_break;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
     }
@@ -7251,7 +7265,7 @@ const min::op min::eol ( min::op::EOL );
 const min::op min::flush ( min::op::FLUSH );
 const min::op min::bom ( min::op::BOM );
 const min::op min::eom ( min::op::EOM );
-const min::op min::setbreak ( min::op::SETBREAK );
+const min::op min::set_break ( min::op::SET_BREAK );
 const min::op min::indent ( min::op::INDENT );
 
 const min::op min::ascii

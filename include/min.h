@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 13 12:27:56 EDT 2012
+// Date:	Sun May 13 21:52:43 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11301,7 +11301,7 @@ namespace min {
 	    FLUSH,
 	    BOM,
 	    EOM,
-	    SETBREAK,
+	    SET_BREAK,
 	    LEFT,
 	    RIGHT,
 	    RESERVE,
@@ -11475,7 +11475,7 @@ namespace min {
     extern const op flush;
     extern const op bom;
     extern const op eom;
-    extern const op setbreak;
+    extern const op set_break;
     extern const op indent;
 
     extern const op ascii;

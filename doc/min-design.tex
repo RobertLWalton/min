@@ -6606,7 +6606,7 @@ Nominal maximum line length in columns.  Initialized to {\tt 72}.
 More specifically,
 when a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the {\tt line\_length}, then if
+of columns in the line to exceed {\tt line\_\EOL break.line\_length}, then if
 \begin{center}
 \tt line\_break.column > line\_break.indent
 \end{center}
@@ -6642,14 +6642,14 @@ Initialized to {\tt 4}.
 Specifically, when
 a line break is automatically pushed into a printer file buffer, the
 break consists of a line end ({\tt NUL} character) followed by
-{\tt indent} single space characters.
+{\tt line\_\EOL break.indent} single space characters.
 
 \item[\ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with {\tt min::save\_\EOL line\_\EOL break}
 and {\tt min::\EOL restore\_\EOL line\_\EOL break} to set
 multiple break points when printing nested lists.
 See \pagref{LINE-BREAK-STACK} for details.
-Initialized to and empty stack.
+Initialized to an empty stack.
 
 \end{itemlist}
 
@@ -6824,9 +6824,9 @@ Controls the printing of
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with {\tt min::save\_print\_format} and
 {\tt min::\EOL restore\_\EOL print\_\EOL format} to save and
-restore the print format parameters.
+restore the {\tt print\_\EOL format} parameters.
 See \pagref{PRINT-FORMAT-STACK} for details.
-Initialized to and empty stack.
+Initialized to an empty stack.
 
 \end{itemlist}
 
@@ -6984,15 +6984,15 @@ into another {\tt min::\EOL printer}:
 In general {\ldots{} \tt << printer} is equivalent to
 {\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
-The {\tt min::setbreak} printer operation:
+The {\tt min::set\_\EOL break} printer operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{setbreak}
-\LABEL{MIN::SETBREAK} \\
+\verb|const min::op min::| & \MINKEY{set\_\EOL break}
+\LABEL{MIN::SET_BREAK} \\
 \end{tabular}\end{indpar}
 
 can be used to explicitly set a break point:
-More specifically, {\tt printer<<min::setbreak} sets a break point after
+More specifically, {\tt printer<<min::set\_\EOL break} sets a break point after
 the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
 printer->line_break.offset = printer->buffer->length;
@@ -7027,7 +7027,7 @@ print
 \begin{center}
 \tt [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 \end{center}
-in which {\tt min::setbreak} was called after every single space
+in which {\tt min::\EOL set\_\EOL break} was called after every single space
 character (which could be done automatically via the {\tt HBREAK\_\EOL FLAG}).
 If instead {\tt line\_\EOL length} was just 14 and {\tt indent} was 2,
 the same output would
@@ -7070,7 +7070,8 @@ just after the {\tt indent} spaces if these are inserted after the
 line end.
 Thus {\tt min::\EOL eol} and the {\tt min::\EOL indent} operation
 (see \pagref{MIN::INDENT}) both end by executing
-an implied {\tt min::\EOL setbreak}, and an implied {\tt min::\EOL setbreak}
+an implied {\tt min::\EOL set\_\EOL break},
+and an implied {\tt min::\EOL set\_\EOL break}
 is also executed just after inserting a line end and {\tt indent} spaces
 at a break point.
 
@@ -7089,7 +7090,7 @@ equal to {\tt line\_\EOL break.column + width}.
 The {\tt min::\EOL left} operation simply appends spaces to the
 current line.  The {\tt min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
-{\tt min::\EOL setbreak} that resets the breakpoint.
+{\tt min::\EOL set\_\EOL break} that resets the breakpoint.
 Both operations behave exactly as if spaces were inserted at the
 appropriate point by {\tt printer << "~"}, except that
 {\tt min::right} will give undefined results if a horizontal
@@ -7108,7 +7109,7 @@ can be used to force a line break if there are fewer than {\tt width}
 columns remaining in a line.
 Here the line break consists of a {\tt min::eol} end of line followed
 by {\tt indent} single spaces followed by setting a break
-as per {\tt min::\EOL setbreak}.
+as per {\tt min::\EOL set\_\EOL break}.
 
 When you set a break point for a {\tt min::left} or {\tt min::\EOL right}
 operation you may want to do a {\tt min::\EOL reserve} first.
@@ -7127,7 +7128,7 @@ produces a line break if the current printer
 column is greater than {\tt indent}, and then inserts
 single spaces until the current printer column is equal to
 {\tt indent}.  The operation
-ends by setting a break as per {\tt min::setbreak}.
+ends by setting a break as per {\tt min::\EOL set\_\EOL break}.
 
 The format parameters of a printer
 may be saved in the
@@ -7228,21 +7229,21 @@ with {\tt line\_\EOL length} equal to 72:
 \end{center}
 by using code equivalent to the statement:
 \begin{indpar}\begin{verbatim}
-    printer << min::setbreak << "{ " << min::save_line_break
-            << min::setbreak << "aaa, "
-            << min::setbreak << "bbb, "
-            << min::setbreak << "[ " << min::save_line_break 
-            << min::setbreak << "ccc, "
-            << min::setbreak << "ddd, "
-            << min::setbreak << "eee, "
-            << min::setbreak << "( " << min::save_line_break 
-            << min::setbreak << "fff, "
-            << min::setbreak << "ggg "
+    printer << min::set_break << "{ " << min::save_line_break
+            << min::set_break << "aaa, "
+            << min::set_break << "bbb, "
+            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "ccc, "
+            << min::set_break << "ddd, "
+            << min::set_break << "eee, "
+            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "fff, "
+            << min::set_break << "ggg "
             << " ), " << min::restore_line_break 
-            << min::setbreak << "hhh "
+            << min::set_break << "hhh "
             << " ], " << min::restore_line_break 
-            << min::setbreak << "iii, "
-            << min::setbreak << "jjj "
+            << min::set_break << "iii, "
+            << min::set_break << "jjj "
             << " } " << min::restore_line_break 
             << min::eol;
 \end{verbatim}\end{indpar}
@@ -14088,8 +14089,8 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{setbreak}
-\LABEL{MIN::SETBREAK} \\
+\verb|const min::op min::| & \MINKEY{set\_\EOL break}
+\LABEL{MIN::SET_BREAK} \\
 \verb|const min::op min::| & \MINKEY{left} \verb|( min::uns32 width )|
 \LABEL{MIN::LEFT} \\
 \verb|const min::op min::| & \MINKEY{right} \verb|( min::uns32 width )|
