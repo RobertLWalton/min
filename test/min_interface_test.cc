@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 02:46:30 EDT 2012
+// Date:	Tue May 15 21:37:45 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2613,40 +2613,40 @@ void test_printer ( void )
     // Test of mutiple simultaneous line breaks.
 
     printer << min::bom << min::set_line_length ( 72 )
-            << min::set_break << "{ " << min::save_line_break
+            << min::set_break << "{ " << min::save_indent
             << min::set_break << "aaa, "
             << min::set_break << "bbb, "
-            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "[ " << min::save_indent 
             << min::set_break << "ccc, "
             << min::set_break << "ddd, "
             << min::set_break << "eee, "
-            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "( " << min::save_indent 
             << min::set_break << "fff, "
             << min::set_break << "ggg"
-            << " ), " << min::restore_line_break 
+            << " ), " << min::restore_indent 
             << min::set_break << "hhh"
-            << " ], " << min::restore_line_break 
+            << " ], " << min::restore_indent 
             << min::set_break << "iii, "
             << min::set_break << "jjj"
-            << " }" << min::restore_line_break 
+            << " }" << min::restore_indent 
             << min::eom;
     printer << min::bom << min::set_line_length ( 34 )
-            << min::set_break << "{ " << min::save_line_break
+            << min::set_break << "{ " << min::save_indent
             << min::set_break << "aaa, "
             << min::set_break << "bbb, "
-            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "[ " << min::save_indent 
             << min::set_break << "ccc, "
             << min::set_break << "ddd, "
             << min::set_break << "eee, "
-            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "( " << min::save_indent 
             << min::set_break << "fff, "
             << min::set_break << "ggg"
-            << " ), " << min::restore_line_break 
+            << " ), " << min::restore_indent 
             << min::set_break << "hhh"
-            << " ], " << min::restore_line_break 
+            << " ], " << min::restore_indent 
             << min::set_break << "iii, "
             << min::set_break << "jjj"
-            << " }" << min::restore_line_break 
+            << " }" << min::restore_indent 
             << min::eom;
 
     // Tests of files and printers.

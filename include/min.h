@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 03:06:50 EDT 2012
+// Date:	Tue May 15 21:32:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11289,12 +11289,15 @@ namespace min {
 	    PFLOAT,
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
+	    PLACE_INDENT,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
+	    SAVE_INDENT,
+	    RESTORE_INDENT,
 	    SAVE_PRINT_FORMAT,
 	    RESTORE_PRINT_FORMAT,
 	    EOL,
@@ -11332,6 +11335,9 @@ namespace min {
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
 	    : opcode ( opcode ) { v1.u32 = u; }
+	op ( op::OPCODE opcode,
+	     min::int32 i )
+	    : opcode ( opcode ) { v1.i32 = i; }
 	op ( op::OPCODE opcode,
 	     min::unsptr length,
 	     const uns32 * buffer )
@@ -11435,6 +11441,11 @@ namespace min {
         return op ( op::SET_INDENT, indent );
     }
 
+    inline op place_indent ( int32 offset )
+    {
+        return op ( op::PLACE_INDENT, offset );
+    }
+
     inline op set_print_flags ( uns32 print_flags )
     {
         return op ( op::SET_PRINT_FLAGS, print_flags );
@@ -11469,6 +11480,8 @@ namespace min {
 
     extern const op save_line_break;
     extern const op restore_line_break;
+    extern const op save_indent;
+    extern const op restore_indent;
     extern const op save_print_format;
     extern const op restore_print_format;
 

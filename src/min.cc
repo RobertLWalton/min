@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 14 03:29:29 EDT 2012
+// Date:	Tue May 15 21:33:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7090,6 +7090,16 @@ min::printer operator <<
     case min::op::SET_INDENT:
 	printer->line_break.indent = op.v1.u32;
 	return printer;
+    case min::op::PLACE_INDENT:
+	if ( op.v1.i32 < 0
+	     &&
+	       printer->column
+	     < (min::uns32) - op.v1.i32 )
+	    printer->line_break.indent = 0;
+	else
+	    printer->line_break.indent =
+	        printer->column + op.v1.i32;
+	return printer;
     case min::op::SET_GEN_FORMAT:
 	printer->print_format.gen_format =
 	    (const min::gen_format *) op.v1.p;
@@ -7114,12 +7124,20 @@ min::printer operator <<
 	        + min::ASCII_FLAG );
 	return printer;
     case min::op::SAVE_LINE_BREAK:
-    save_line_break:
+        min::push ( printer->line_break_stack ) =
+	    printer->line_break;
+	return printer;
+    case min::op::RESTORE_LINE_BREAK:
+	printer->line_break =
+	    min::pop ( printer->line_break_stack );
+	return printer;
+    case min::op::SAVE_INDENT:
+    save_indent:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
 	printer->line_break.indent = printer->column;
 	return printer;
-    case min::op::RESTORE_LINE_BREAK:
+    case min::op::RESTORE_INDENT:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
 	if (    printer->line_break.column
@@ -7149,7 +7167,7 @@ min::printer operator <<
     case min::op::BOM:
         min::push ( printer->print_format_stack ) =
 	    printer->print_format;
-	goto save_line_break;
+	goto save_indent;
     case min::op::EOM:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
@@ -7256,6 +7274,10 @@ const min::op min::save_line_break
     ( min::op::SAVE_LINE_BREAK );
 const min::op min::restore_line_break
     ( min::op::RESTORE_LINE_BREAK );
+const min::op min::save_indent
+    ( min::op::SAVE_INDENT );
+const min::op min::restore_indent
+    ( min::op::RESTORE_INDENT );
 const min::op min::save_print_format
     ( min::op::SAVE_PRINT_FORMAT );
 const min::op min::restore_print_format

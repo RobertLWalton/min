@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 14, 2012}
+\date{May 16, 2012}
  
 \maketitle
 
@@ -6627,7 +6627,8 @@ Break points may be inserted automatically by using
 {\tt min::\EOL GBREAK\_\EOL FLAG}: see below.
 
 If a non-empty {\tt line\_break\_stack} exists
-because a {\tt min::\EOL save\_\EOL line\_\EOL break} was executed,
+because a {\tt min::\EOL save\_\EOL line\_\EOL break} or 
+{\tt min::\EOL save\_\EOL indent} was executed,
 then an element of the line break stack may provide overrides for the
 {\tt column}, {\tt offset}, and
 {\tt indent} members, but not the {\tt line\_\EOL length} member,
@@ -6645,8 +6646,8 @@ break consists of a line end ({\tt NUL} character) followed by
 {\tt line\_\EOL break.indent} single space characters.
 
 \item[\ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}]~\\
-Used with {\tt min::save\_\EOL line\_\EOL break}
-and {\tt min::\EOL restore\_\EOL line\_\EOL break} to set
+Used with {\tt min::\EOL save\_\EOL line\_\EOL break} and
+{\tt min::\EOL save\_\EOL indent} to set
 multiple break points when printing nested lists.
 See \pagref{LINE-BREAK-STACK} for details.
 Initialized to an empty stack.
@@ -7186,10 +7187,7 @@ the current value of {\tt line\_\EOL break}, while
 resets {\tt line\_\EOL break} from the top line break stack element and then
 pops this element from the stack.
 
-However, {\tt min::\EOL save\_\EOL line\_\EOL break}, after it
-pushes the new line break stack element,
-resets {\tt line\_\EOL break.indent} to equal the printer
-{\tt column}.  In addition, a non-empty line break stack modifies break point
+In addition, a non-empty line break stack modifies break point
 behavior in the following way.
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
@@ -7226,8 +7224,26 @@ Note also that if \underline{no} line break stack entry is enabled,
 break point operation proceeds using the printer {\tt line\_\EOL break}
 as if the line break stack did not exist.
 
-Also the {\tt min::restore\_line\_\EOL break} operation ends by executing an
-implied {\tt min::\EOL indent} operation if the line break stack element
+Management of nested list indentation can be done with the help of
+the {\tt line\_\EOL break\_\EOL stack} using the operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::|
+    & \MINKEY{save\_indent}
+\LABEL{MIN::SAVE_INDENT} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_indent}
+\LABEL{MIN::RESTORE_INDENT} \\
+\end{tabular}\end{indpar}
+
+{\tt min::save\_indent} first executes
+{\tt min::\EOL save\_\EOL line\_\EOL break} and then
+sets {\tt line\_\EOL break.indent} to equal the printer
+{\tt column}.
+{\tt min::restore\_\EOL indent} first
+executes {\tt min::\EOL restore\_\EOL line\_\EOL break} and
+then executes
+{\tt min::\EOL indent} if the line break stack element
 it popped was disabled and was not the first element of the stack.
 It does this because it assumes the disabled element was used and
 printing the text bracketed by the {\tt min::\EOL save\_\EOL line\_\EOL break}
@@ -7237,9 +7253,9 @@ ended by a {\tt min::indent}.  However, if the popped element was the
 first in the stack, it is assumed that instead an explicit {\tt min::\EOL eol}
 will be executed next.
 
-The {\tt min::save\_line\_break} operation is intended to be use just
+The {\tt min::save\_indent} operation is intended to be use just
 after printing the header of a list, and
-the {\tt min::\EOL restore\_\EOL line\_\EOL break}
+the {\tt min::\EOL restore\_\EOL indent}
 operation is intended to be use just
 after printing the trailer of a list.
 Suppose we print the following
@@ -7249,22 +7265,22 @@ with {\tt line\_\EOL length} equal to 72:
 \end{center}
 by using code equivalent to the statement:
 \begin{indpar}\begin{verbatim}
-    printer << min::set_break << "{ " << min::save_line_break
+    printer << min::set_break << "{ " << min::save_indent
             << min::set_break << "aaa, "
             << min::set_break << "bbb, "
-            << min::set_break << "[ " << min::save_line_break 
+            << min::set_break << "[ " << min::save_indent 
             << min::set_break << "ccc, "
             << min::set_break << "ddd, "
             << min::set_break << "eee, "
-            << min::set_break << "( " << min::save_line_break 
+            << min::set_break << "( " << min::save_indent 
             << min::set_break << "fff, "
             << min::set_break << "ggg "
-            << " ), " << min::restore_line_break 
+            << " ), " << min::restore_indent 
             << min::set_break << "hhh "
-            << " ], " << min::restore_line_break 
+            << " ], " << min::restore_indent 
             << min::set_break << "iii, "
             << min::set_break << "jjj "
-            << " }" << min::restore_line_break 
+            << " }" << min::restore_indent 
             << min::eol;
 \end{verbatim}\end{indpar}
 Then if instead {\tt line\_\EOL length} was just 34 the same output would
@@ -7311,7 +7327,7 @@ When the first element is popped,
 {\tt min::\EOL indent} is not executed, because the element was the first
 element of the stack, and it is expected that
 {\tt min::\EOL eol} will be explicitly executed after
-{\tt min::\EOL restore\_\EOL line\_\EOL break}.
+{\tt min::\EOL restore\_\EOL indent}.
 
 The \key{begin message} and {\tt end message} operations can be used
 to surround the body of an error message or other message:
@@ -7352,7 +7368,17 @@ of the message by the {\tt min::\EOL eom}.
 to the current value of {\tt column},
 but if a different indent is desired, it can be set by following
 {\tt min::\EOL bom} with {\tt min::\EOL set\_\EOL indent}
-(\pagref{MIN::SET_INDENT}).
+(\pagref{MIN::SET_INDENT}) or with the operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{place\_\EOL indent}\verb| ( min::int32 offset )|
+\LABEL{MIN::PLACE_INDENT} \\
+\end{tabular}\end{indpar}
+
+This operation stores the sum of `{\tt offset}' and the printer `{\tt column}'
+in {\tt line\_\EOL break.indent}.  If the
+value stored would be negative, {\tt 0} is stored instead.
 
 {\tt min::gen} values may be printed under the control of a
 {\tt min::\EOL gen\_\EOL format}.  As printing objects
