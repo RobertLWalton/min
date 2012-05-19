@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 21:37:45 EDT 2012
+// Date:	Sat May 19 17:53:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2178,7 +2178,7 @@ void test_file ( void )
     min::init_input_stream ( file3, istream );
     min::init_input ( file4 );
     min::init_spool_lines ( file4, min::ALL_LINES );
-    min::init_output_file ( file3, file4 );
+    min::init_ofile ( file3, file4 );
     min::flush_file ( file3 );
     MIN_ASSERT ( data_length == file3->buffer->length );
     MIN_ASSERT ( data_length == file4->buffer->length );
@@ -2202,13 +2202,13 @@ void test_file ( void )
         (std::ostringstream::out);
     min::locatable_var<min::file> file5;
     min::init_input_file ( file5, file4 );
-    min::init_output_stream ( file5, ostream );
+    min::init_ostream ( file5, ostream );
     min::rewind ( file4 );
     min::flush_file ( file5 );
     MIN_ASSERT ( data == ostream.str() );
 
     min::rewind ( file4 );
-    min::init_output_stream
+    min::init_ostream
         ( file5, * (std::ostream *) NULL );
     min::flush_file ( file5 );
     MIN_ASSERT (    file4->buffer->length
@@ -2251,7 +2251,7 @@ void test_printer ( void )
     cout << "Start Printer Test!" << endl;
     min_assert_print = false;
 
-    min::init_output_stream ( printer, std::cout );
+    min::init_ostream ( printer, std::cout );
     min::resize ( printer->file->buffer, 16*1024 );
 
     printer << min::bom << min::set_indent ( 4 )
@@ -2289,7 +2289,8 @@ void test_printer ( void )
     MIN_ASSERT ( printer->file->end_offset == 83 );
     MIN_ASSERT ( printer->column == 5 );
     printer << min::eom;
-    MIN_ASSERT ( printer->file->spool_lines == 0 );
+    MIN_ASSERT (    printer->file->spool_lines
+                 == min::ALL_LINES );
     MIN_ASSERT (    printer->file->next_offset
                  == printer->file->buffer->length );
     MIN_ASSERT ( printer->column == 0 );
@@ -2652,7 +2653,7 @@ void test_printer ( void )
     // Tests of files and printers.
 
     min::locatable_var<min::file> file;
-    min::init_output_printer ( file, printer);
+    min::init_printer ( file, printer);
     min::init_input_string
         ( file,
 	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n\n" )
