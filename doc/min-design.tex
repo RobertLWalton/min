@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 16, 2012}
+\date{May 19, 2012}
  
 \maketitle
 
@@ -5661,7 +5661,8 @@ noted below.  They are:
 
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of {\tt char}'s that contains the lines of the file.  Each
-line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated incomplete
+line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated, UTF-8
+encoded, incomplete
 last line, called a \key{partial line}, may appear at the end of the buffer.
 
 Note that in general functions that load data into files do \underline{not}
@@ -5670,20 +5671,28 @@ loaded into the buffer as if they were newline characters, and in any
 case must avoid NUL characters in the buffer that are not intended
 to be line-terminating.
 
-Initialized to the empty vector when the file is created and by
-{\tt min::\EOL init\_\EOL input\ldots} functions.
-Some of these functions then fill the buffer with the complete file.
+Initialized to an empty buffer when the file is created.  The
+{\tt min::\EOL init\_\EOL input\ldots} functions arrange for filling
+the buffer.
+Some of these functions fill the buffer with the complete file.
+Others arrange for the buffer to be filled as needed from
+the file {\tt istream} or {\tt ifile} members.  The 1-argument
+{\tt min::\EOL init\_\EOL input} function creates an empty buffer
+or empties an existing buffer and expects the user to fill the
+buffer using {\tt min::\EOL push} and {\tt min::\EOL end\_\EOL line}
+functions (see \pagref{WRITING-FILE-BUFFER}).
 
 \item[\ttmkey{buffer-\GT length}{in {\tt min::file}}]
 The number of {\tt char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
-Initialized to {\tt 0} when the buffer is set empty.
+This is {\tt 0} when the buffer empty.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
 The offset of the {\tt buffer} element just \underline{after} the last
 line-terminating NUL character in the {\tt buffer}.  Or {\tt 0} if there
 are no line-terminating NUL characters.
-Initialized to {\tt 0} when the file is created and by
+This is {\tt 0} when the buffer is empty.
+Initialized to {\tt 0} when the file is created and set by
 {\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
@@ -5719,9 +5728,9 @@ Specifically,
 that character is {\tt buffer[next\_\EOL offset]}.
 Or the offset in the {\tt buffer} of the first character of the
 partial line at the end of the buffer
-that has not been previously returned by
-the {\tt min::\EOL remaining\_\EOL length} and
-{\tt min::\EOL remaining\_\EOL offset} functions,
+that has not been previously skipped by
+the {\tt min::\EOL skip\_\EOL remaining} function
+(see \pagref{MIN::SKIP_REMAINING}),
 in the case where the {\tt min::\EOL next\_\EOL line}
 function returns {\tt NO\_\EOL LINE}.
 Set to {\tt 0} when the file is rewound.
@@ -6033,7 +6042,7 @@ You \underline{cannot} append to a file initialized by any
 {\tt min::\EOL init\_\EOL input\ldots} function other than
 the 1-argument {\tt min::\EOL init\_\EOL input} function.
 If you use this function you can write your own code to append
-to the file buffer, as for example:
+to the file buffer, as for example:\label{WRITING-FILE-BUFFER}
 \begin{indpar}\begin{verbatim}
 min::locatable_ptr<min::file> file;
 init_input ( file );
