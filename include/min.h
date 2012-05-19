@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 15 21:32:05 EDT 2012
+// Date:	Sat May 19 16:49:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6499,8 +6499,7 @@ namespace min {
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
-    void init_output ( min::ref<min::file> file );
-    void init_input ( min::ref<min::file> file );
+    void init ( min::ref<min::file> file );
 
     void init_print_flags
 	    ( min::ref<min::file> file,
@@ -6514,17 +6513,22 @@ namespace min {
 	    ( min::ref<min::file> file,
 	      min::gen file_name );
 
-    void init_output_stream
+    void init_ostream
 	    ( min::ref<min::file> file,
 	      std::ostream & ostream );
 
-    void init_output_file
+    void init_ofile
 	    ( min::ref<min::file> file,
 	      min::file ofile );
 
-    void init_output_printer
+    void init_printer
 	    ( min::ref<min::file> file,
 	      min::printer printer );
+
+    void init_input
+            ( min::ref<min::file> file,
+	      min::uns32 print_flags = 0,
+	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
 	    ( min::ref<min::file> file,
@@ -6560,7 +6564,6 @@ namespace min {
 	    ( file, (min::ptr<const char>) data,
 	       print_flags, spool_lines );
     }
-	             
 
     min::uns32 next_line ( min::file file );
     min::uns32 line
@@ -11386,7 +11389,7 @@ namespace min {
 	    ( min::ref<min::printer> printer,
               min::file file = min::NULL_STUB );
 
-    min::printer init_output_stream
+    min::printer init_ostream
 	    ( min::ref<min::printer> printer,
 	      std::ostream & ostream );
 

@@ -5649,7 +5649,7 @@ The data types and members of a file are:
 \LABEL{MIN::FILE_PRINTER} \\
 \verb|min::file file| & \TTARMKEY{ofile}{in {\tt min::file}}
 \LABEL{MIN::FILE_OFILE} \\
-\verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
+\verb|min::gen file| & \TTARMKEY{file\_name}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILENAME} \\
 \end{tabular}\end{indpar}
 
@@ -5752,10 +5752,12 @@ If {\tt spool\_lines~==~min::ALL\_LINES}, then
 and {\tt m~==~n}.
 Otherwise, if {\tt spool\_lines~>~0}, the past history
 of calls to {\tt min::\EOL flush\_\EOL spool} determine
-{\tt line\_\EOL index->\EOL length}.
+{\tt line\_\EOL index->\EOL length} (see \pagref{LINE-INDEX-LENGTH}).
 
 Created when {\tt spool\_\EOL lines} is set to a non-{\tt 0} value,
 and reset to {\tt NULL\_STUB} when {\tt spool\_\EOL lines} is set to {\tt 0}.
+{\tt line\_\EOL index->\EOL length} is set to {\tt 0}
+when the file is rewound.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 If {\tt 0}, {\tt line\_index~==~min::NULL\_STUB} and there is
@@ -5766,10 +5768,10 @@ line number {\tt n} are deleted.
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt min::\EOL ALL\_\EOL LINES}
-by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
+by {\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
-These are some of the printer {\tt print\_EOL format.flags} used to print
+These are some of the printer {\tt print\_\EOL format.flags} used to print
 a file line for error message purposes,
 in particular by the {\tt min::\EOL print\_\EOL line}
 function (\pagref{MIN::PRINT_LINE}).
@@ -5788,10 +5790,12 @@ min::DISPLAY\_EOL\_FLAG
 \end{tabular}
 \end{indpar}
 
-These flags determine the number of columns required to display a
-UNICODE character, and are therefore also used by input routines
-that keep track of the column numbers of input characters for
-the purposes of printing error messages.  For example, the carriage
+These flags also determine the column position of each character representative
+in the line, and are used to this end by the
+by the {\tt min::\EOL print\_\EOL line\_\EOL column}
+function (\pagref{MIN::PRINT_LINE_COLUMN}).
+
+For example, the carriage
 return prints as follows with the given flags:
 \begin{center}
 \begin{tabular}{l@{~~~~}l}
@@ -5811,14 +5815,15 @@ no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
 \end{tabular}
 \end{center}
 
-In error messages, file lines are printed with these
-flags set as in {\tt print\_\EOL flags} and with
-both {\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
+The {\tt min::print\_line} function and the other functions that use
+it print file lines with the printer {\tt print\_\EOL format.flags}
+set as in this {\tt print\_\EOL flags} file member, but with
+{\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
 off (see {\tt print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}).
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt 0}
-by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
+by {\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{istream}{in {\tt min::file}}]
 If not {\tt NULL}, the {\tt min::\EOL next\_\EOL line} function
@@ -5865,7 +5870,7 @@ line-terminating NUL elements are translated into calls to
 {\tt min::\EOL line\_\EOL end~(~ofile~)}.
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
-\item[\ttmkey{filename}{in {\tt min::file}}]
+\item[\ttmkey{file\_name}{in {\tt min::file}}]
 If not {\tt min::MISSING()}, this
 is the name of this file used for printing error messages
 concerning file lines, in particular by the
@@ -5879,12 +5884,9 @@ Creation, initialization, and parametrization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}%
+\verb|void min::| & \MINKEY{init\RESIZE}%
     \verb| ( min::ref<min::file> file )|
-\LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output\RESIZE}%
-    \verb| ( min::ref<min::file> file )|
-\LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
+\LABEL{MIN::INIT_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5907,25 +5909,33 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_output\_ostream\REL}\ARGBREAK
+    & \MINKEY{init\_ostream\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::ostream & ostream )|
-\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\LABEL{MIN::INIT_OSTREAM_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_file\REL}\ARGBREAK
+    & \MINKEY{init\_ofile\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ofile )|
-\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\LABEL{MIN::INIT_OFILE_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_printer\REL}\ARGBREAK
+    & \MINKEY{init\_printer\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::printer printer )|
-\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
+\LABEL{MIN::INIT_PRINTER_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
 \LABEL{MIN::ALL_LINES} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}%
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5952,7 +5962,7 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
-	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::gen file_name,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
@@ -5975,48 +5985,47 @@ accomplished by the following:
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-These {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
-files and create new ones.  They take a reference to a variable as their
-first argument, and if the variable value is {\tt min::\EOL
-NULL\_\EOL STUB}, then a new file is created and the
-variable is set to point at the new file.
-The different forms of {\tt min::\EOL init\ldots} set different
-file members.
-
-In general, the {\tt min::\EOL init\_\EOL input\ldots} functions
-reinitialize all members, while all the other initialization functions
-just perform an equivalent of a {\tt min::rewind}, resetting
-{\tt next\_\EOL line\_\EOL number}
+All these {\tt min::}\MINKEY{init\ldots} functions create a {\tt file}
+if their first argument has the value {\tt min::\EOL NULL\_\EOL STUB},
+and rewind the file otherwise,
+resetting {\tt next\_\EOL line\_\EOL number}
 and {\tt next\_\EOL offset} to {\tt 0} and emptying
-{\tt line\_\EOL index} if it exists, and otherwise
-only resetting members from arguments given explicitly to the
-initialization function.
-For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
-rewinds the file and sets {\tt print\_\EOL flags},
-and {\tt min::\EOL init\_\EOL output\_\EOL stream} just
-rewinds the file and sets {\tt ostream}.
+{\tt line\_\EOL index} if it exists.
 
-The {\tt min::init\_input} function initializes the file assuming
-input to the file will come from some outside source.  For example,
+The non-{\tt init\_\EOL input\ldots} functions just do this and set
+a file member.
+For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
+creates or rewinds the file and sets {\tt print\_\EOL flags},
+and {\tt min::\EOL init\_\EOL ostream} just
+creates or rewinds the file and sets {\tt ostream}.
+
+The {\tt min::\EOL init\_\EOL input\ldots} functions
+reinitialize all members except {\tt ostream}, {\tt ofile},
+and {\tt printer}.  Like all file {\tt init} functions, these
+rewind the file, so successive calls the {\tt min::\EOL next\_\EOL line}
+will return successive lines of the file.
+
+The {\tt min::init\_input} function assumes
+input to the file will come from some outside source.  It empties the
+{\tt buffer} and sets
+{\tt istream} to {\tt NULL}, {\tt ifile} to {\tt min::\EOL NULL\_\EOL STUB},
+and {\tt file\_\EOL name} to {\tt min::\EOL MISSING()}.  For example,
 given the code:
 \begin{indpar}\begin{verbatim}
 min::locatable_ptr<min::file> file1, file2;
 init_input ( file1 );
 init_input_... ( file2, ... );
-init_output_file ( file2, file1 );
+init_ofile ( file2, file1 );
 \end{verbatim}\end{indpar}
 then applying {\tt min::\EOL flush\_\EOL file} to {\tt file2} will write
-its contents to the end of {\tt file1}
+{\tt file2}'s contents to the end of {\tt file1}
 (see \pagref{MIN::FLUSH_FILE}).
 
-The {\tt min::init\_input\_named\_file} function loads the contents
-of the operating system
-file with the given {\tt file\_\EOL name} into the {\tt min::file}.  The
-{\tt min::file}
-is rewound, so successive calls the {\tt min::\EOL next\_\EOL line}
-will return successive lines of the file.  After loading the contents
-of the named operating system file
-into the {\tt min::file} {\tt buffer}, newline characters in the buffer
+The {\tt min::init\_input\_named\_file} function
+sets the {\tt file\_\EOL name} member and
+loads the contents of the named operating system file into the
+{\tt buffer}.
+After loading the file contents, newline characters in the buffer
 are converted to line-terminating NUL's.  NUL characters loaded into the
 buffer are also treated as line-terminating NUL's.  If there is no error in
 reading the operating system file, {\tt true} is returned by this function.  If
@@ -6028,19 +6037,26 @@ The {\tt min::init\_input\_string} function similarly loads the contents
 of the file with the value of a given NUL-terminated {\tt data} string.
 Newline characters are converted to line-terminating NUL's.
 There is no possibility of error in this case.
+{\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
 
 The {\tt min::init\_input\_stream} function does not load data into
-the file {\tt buffer}, but instead sets the file {\tt istream} member
+the file {\tt buffer}, but instead empties the {\tt buffer}
+and sets the file {\tt istream} member
 which causes {\tt min::\EOL next\_\EOL line} to load lines into the
 file from the {\tt istream} as new lines are required.  Similarly
 the {\tt min::\EOL init\_\EOL input\_\EOL file} function sets
 {\tt ifile} which causes {\tt min::\EOL next\_\EOL line} to load lines
 into the file from the {\tt ifile} as new lines are required.
-See {\tt min::\EOL next\_\EOL line} below for details.
+In both cases, {\tt file\_lines} is initialized
+to {\tt min::\EOL NO\_\EOL LINE}, and not changed until
+an end of file is read from {\tt istream} or {\tt ifile}, at which time
+{\tt file\_\EOL line} is set to the number of lines in the file.
+In both cases, {\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
+See {\tt min::\EOL next\_\EOL line} below for more details.
 
 You \underline{cannot} append to a file initialized by any
 {\tt min::\EOL init\_\EOL input\ldots} function other than
-the 1-argument {\tt min::\EOL init\_\EOL input} function.
+{\tt min::\EOL init\_\EOL input}.
 If you use this function you can write your own code to append
 to the file buffer, as for example:\label{WRITING-FILE-BUFFER}
 \begin{indpar}\begin{verbatim}
@@ -6057,6 +6073,8 @@ min::end_line ( file );
 You can also append to such a file by making it the {\tt ofile}
 of another file and flushing this other file
 (see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
+
+TBD
 
 Initializing a file rewinds it.  Then calls to
 {\tt min::\EOL next\_\EOL line} sequence through the file
@@ -6200,7 +6218,8 @@ and
 is required.  If these conditions are not met, {\tt min::\EOL line}
 returns {\tt min::\EOL NO\_\EOL LINE}.
 
-The required conditions are determined in part
+The\label{LINE-INDEX-LENGTH}
+required conditions are determined in part
 by {\tt file->\EOL spool\_\EOL lines}.  If this equals {\tt 0}, the
 default for output files, {\tt file->\EOL line\_\EOL index} does not
 exist.  If it equals
@@ -6433,10 +6452,10 @@ accomplished by the following:
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
-\verb|min::printer min::| & \MINKEY{init\_output\_stream\RESIZE}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\_ostream\RESIZE}\ARGBREAK
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
-\LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
+\LABEL{MIN::INIT_OSTREAM_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6563,11 +6582,11 @@ and empty it if it already exists; but if the argument is
 not {\tt min::\EOL NULL\_\EOL STUB} then {\tt printer->file} is set
 to the argument and the file is \underline{not} emptied or changed.
 
-The {\tt min::}\MINKEY{init\_\EOL output\_\EOL stream}
+The {\tt min::}\MINKEY{init\_\EOL ostream}
 function just executes
 \begin{indpar}\begin{verbatim}
 min::init ( printer );
-min::init_output_stream ( printer->file, ostream );
+min::init_ostream ( printer->file, ostream );
 printer << min::eol_flush;
 \end{verbatim}\end{indpar}
 
@@ -13669,18 +13688,15 @@ In loose implementation: \\
 \LABEL{MIN::FILE_PRINTER} \\
 \verb|min::file file| & \TTARMKEY{ofile}{in {\tt min::file}}
 \LABEL{MIN::FILE_OFILE} \\
-\verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
+\verb|min::gen file| & \TTARMKEY{file\_name}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILENAME} \\
 \end{TABULAR}
 
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
+\verb|void min::| & \MINKEY{init\RESIZE}\ARGBREAK
     \verb| ( min::ref<min::file> file )|
-\LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output\RESIZE}\ARGBREAK
-    \verb| ( min::ref<min::file> file )|
-\LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
+\LABEL{MIN::INIT_OF_FILE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
@@ -13703,20 +13719,20 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|void min::|
-    & \MINKEY{init\_output\_ostream\REL}\ARGBREAK
+    & \MINKEY{init\_ostream\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::ostream & ostream )|
-\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\LABEL{MIN::INIT_OSTREAM_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_file\REL}\ARGBREAK
+    & \MINKEY{init\_ofile\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ofile )|
-\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\LABEL{MIN::INIT_OFILE_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_printer\REL}\ARGBREAK
+    & \MINKEY{init\_printer\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::printer printer )|
-\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
+\LABEL{MIN::INIT_PRINTER_OF_FILE} \\
 \end{TABULAR}
 
 \bigskip
@@ -13727,6 +13743,14 @@ In loose implementation: \\
 \end{TABULAR}
 
 \bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_OF_FILE} \\
+\end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::|
@@ -13752,7 +13776,7 @@ In loose implementation: \\
 \verb|void min::|
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
-	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::gen file_name,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
@@ -13923,10 +13947,10 @@ In loose implementation: \\
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
-\verb|min::printer min::| & \MINKEY{init\_output\_stream\RESIZE}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\_ostream\RESIZE}\ARGBREAK
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
-\LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
+\LABEL{MIN::INIT_OSTREAM_OF_PRINTER} \\
 \end{TABULAR}
 
 \bigskip
