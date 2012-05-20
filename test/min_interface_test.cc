@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 19 17:53:34 EDT 2012
+// Date:	Sun May 20 19:39:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2609,6 +2609,38 @@ void test_printer ( void )
             << "fff, "
             << "ggg"
             << " ]"
+	    << min::eom;
+
+    // Test of adjustments with line breaks.
+
+    printer << min::bom << min::set_line_length ( 12 )
+            << min::set_break << "0" << min::left ( 5 )
+            << min::set_break << "1" << min::left ( 5 )
+            << min::set_break << "2" << min::left ( 5 )
+            << min::set_break << "3" << min::left ( 5 )
+            << min::set_break << "4" << min::left ( 5 )
+            << min::set_break << "555"
+	                      << min::left ( 5 )
+            << min::set_break << "666"
+	                      << min::left ( 5 )
+            << min::set_break << "777"
+	                      << min::left ( 5 )
+	    << min::eom;
+
+    printer << min::bom << min::set_line_length ( 12 )
+            << min::set_break << "A" << min::right ( 5 )
+            << min::set_break << "B" << min::right ( 5 )
+            << min::set_break << "C" << min::right ( 5 )
+            << min::set_break << "D" << min::right ( 5 )
+            << min::set_break << "E" << min::right ( 5 )
+            << min::set_break << "FFF"
+	                      << min::right ( 5 )
+            << min::set_break << "GGG"
+	                      << min::right ( 5 )
+            << min::set_break << "HHH"
+	                      << min::right ( 5 )
+            << min::set_break << "III"
+	                      << min::right ( 5 )
 	    << min::eom;
 
     // Test of mutiple simultaneous line breaks.

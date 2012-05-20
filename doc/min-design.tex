@@ -6744,11 +6744,11 @@ with codes {\tt <= 0x7F}.
                {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
 ~\\
-{\tt GRAPHIC\_XXX} causes all characters in class {\tt XXX} to be
+{\tt GRAPHIC\_XXX\_FLAG} causes all characters in class {\tt XXX} to be
 represented by `graphic' characters that print some mark.
 This is referred to as `\key{graphic mode}'.
 
-If both the {\tt ASCII\_FLAG} and a {\tt GRAPHIC\_XXX} are on,
+If both {\tt ASCII\_FLAG} and {\tt GRAPHIC\_XXX\_FLAG} are on,
 the characters in class {\tt XXX} are printed as `{\tt <YY>}',
 where {\tt YY} is the 2 or 3 letter ASCII standard character name.
 The possibilities are:
@@ -6764,7 +6764,7 @@ The possibilities are:
 For example, `{\tt <FF>}' represents the form-feed characters, and
 `{\tt <SP>}' represents the single space character.
 
-If the {\tt GRAPHIC\_XXX\_FLAG} is on and the {\tt ASCII\_FLAG} is
+If {\tt GRAPHIC\_XXX\_FLAG} is on and {\tt ASCII\_FLAG} is
 \underline{off}, control and space characters are
 printed as UNICODE Control Picture script characters,
 range 2400-243F (hexadecimal).
@@ -6792,7 +6792,7 @@ non-ASCII characters are printed as `{\tt <XXXX>}', where
 {\tt XXXX} represents the character code in hexadecimal,
 and consists of some non-zero number of hexadecimal digits.
 {\tt XXXX} begins with
-one of the digits {\tt 0},\dots,{\tt 9}, so as to avoid
+one of the digits {\tt 0}, {\tt 1}, \dots, {\tt 9}, to avoid
 ambiguity with representations of control characters.  Thus
 {\tt <0FF>} represents the character whose code in decimal is
 {\tt 255}, whereas {\tt <FF>} represents the form feed character.
@@ -6843,7 +6843,7 @@ If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
 \item[\ttnbmkey{DISPLAY\_EOL\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, the end of line prints as a graphic mode control
-character (even if the {\tt GRAPHIC\_FLAG} is off).
+character, even if {\tt GRAPHIC\_\EOL NSPACE\_\EOL FLAG} is off.
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
@@ -6861,7 +6861,7 @@ before every character representation
 except for representations of ASCII vertical space and non-space
 control characters in non-graphic mode,
 representations of ASCII horizontal control characters (single space
-and horizontal tab) in non-graphic
+and horizontal tab) in non-graphic mode
 if these are preceded by representations of ASCII horizontal control
 characters in non-graphic mode,
 and UNICODE diacritical combining marks in non-ASCII mode.
@@ -7081,8 +7081,6 @@ a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_\EOL break.line\_\EOL length},
 a line end will be inserted at the break point.
-See {\tt line\_\EOL break.line\_\EOL length}
-on \pagref{LINE-LENGTH} for details.
 
 For example, if {\tt line\_\EOL break.line\_\EOL length} is 72 one might
 print
@@ -7174,12 +7172,6 @@ Here the line break consists of a {\tt min::eol} end of line followed
 by {\tt line\_\EOL break.indent} single spaces followed by setting a break
 as per {\tt min::\EOL set\_\EOL break}.
 
-When you set a break point for a {\tt min::left} or {\tt min::\EOL right}
-operation you may want to do a {\tt min::\EOL reserve} first.
-An adjustment that extends beyond the printer
-{\tt line\_\EOL break.line\_\EOL length} will format badly if
-any breaks are enabled.
-
 The {\tt min::indent} operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7190,7 +7182,8 @@ The {\tt min::indent} operation:
 produces a line break if the current printer
 column is greater than {\tt line\_\EOL break.indent}, and then inserts
 single spaces until the current printer column is equal to
-{\tt line\_\EOL break.indent}.  The operation
+{\tt line\_\EOL break.indent} (whether or not a line break was inserted).
+The operation
 ends by setting a break point as per {\tt min::\EOL set\_\EOL break}.
 
 The format parameters of a printer may be saved in the
