@@ -1508,6 +1508,15 @@ a␁␣␉␡␀☹
   ccc, ddd,
   eee, fff,
   ggg ]
+0    1    2
+3    4
+555  666
+777
+    A    B
+    C    D
+    E  FFF
+  GGG  HHH
+  III
 { aaa, bbb, [ ccc, ddd, eee, ( fff, ggg ), hhh ], iii, jjj }
 
 { aaa, bbb,

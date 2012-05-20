@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 20 09:06:17 EDT 2012
+// Date:	Sun May 20 19:38:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7255,7 +7255,10 @@ min::printer operator <<
 
 		if (    i > offset
 		     && column + n > line_length )
+		{
 		    ::insert_line_break ( printer );
+		    offset = printer->line_break.offset;
+		}
 	    }
 
 	    min::push ( buffer, n );
