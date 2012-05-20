@@ -5986,17 +5986,18 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 All these {\tt min::}\MINKEY{init\ldots} functions create a {\tt file}
-if their first argument has the value {\tt min::\EOL NULL\_\EOL STUB},
-and rewind the file otherwise,
-resetting {\tt next\_\EOL line\_\EOL number}
-and {\tt next\_\EOL offset} to {\tt 0} and emptying
-{\tt line\_\EOL index} if it exists.
+and set their first argument if that argument initially
+has the value {\tt min::\EOL NULL\_\EOL STUB},
+and just rewind the file otherwise,
+resetting {\tt next\_\EOL line\_\EOL number},
+{\tt next\_\EOL offset}, and {\tt line\_\EOL index->\EOL length} if it
+exists to {\tt 0}.
 
 The non-{\tt init\_\EOL input\ldots} functions just do this and set
 a file member.
 For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
 creates or rewinds the file and sets {\tt print\_\EOL flags},
-and {\tt min::\EOL init\_\EOL ostream} just
+while {\tt min::\EOL init\_\EOL ostream} just
 creates or rewinds the file and sets {\tt ostream}.
 
 The {\tt min::\EOL init\_\EOL input\ldots} functions
@@ -6004,30 +6005,70 @@ reinitialize all members except {\tt ostream}, {\tt ofile},
 and {\tt printer}.  Like all file {\tt init} functions, these
 rewind the file, so successive calls the {\tt min::\EOL next\_\EOL line}
 will return successive lines of the file.
+All these functions take arguments that initialize {\tt print\_\EOL flags}
+and {\tt spool\_\EOL lines}.
 
 The {\tt min::init\_input} function assumes
 input to the file will come from some outside source.  It empties the
 {\tt buffer} and sets
 {\tt istream} to {\tt NULL}, {\tt ifile} to {\tt min::\EOL NULL\_\EOL STUB},
-and {\tt file\_\EOL name} to {\tt min::\EOL MISSING()}.  For example,
-given the code:
+and {\tt file\_\EOL name} to {\tt min::\EOL MISSING()}.
+For example,\label{WRITING-FILE-BUFFER}
+\begin{indpar}\begin{verbatim}
+min::locatable_ptr<min::file> file;
+init_input ( file );
+...
+const char * my_string = ...;
+int length = ::strlen ( my_string );
+min::push ( file->buffer, length, my_string );
+min::end_line ( file );
+...
+\end{verbatim}\end{indpar}
+Here {\tt min::push} is just the packed vector push function
+(\pagref{MIN::PACKED_VEC_PUSH}) applied
+to push character representatives
+to the end of the file {\tt buffer}, and the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{end\_line\RESIZE}\verb| ( min::file file )|
+\LABEL{MIN::END_LINE_FILE} \\
+\end{tabular}\end{indpar}
+
+just pushes a line terminating NUL character to the end of
+{\tt buffer} and updates {\tt end\_\EOL offset} to equal the
+new buffer length.
+
+You can also append to such a file by making it the {\tt ofile}
+of another file and flushing this other file
+(see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
+For example,
 \begin{indpar}\begin{verbatim}
 min::locatable_ptr<min::file> file1, file2;
 init_input ( file1 );
 init_input_... ( file2, ... );
 init_ofile ( file2, file1 );
+. . . . .
+min::flush_file ( file2 );
 \end{verbatim}\end{indpar}
-then applying {\tt min::\EOL flush\_\EOL file} to {\tt file2} will write
-{\tt file2}'s contents to the end of {\tt file1}
-(see \pagref{MIN::FLUSH_FILE}).
+Here {\tt min::\EOL flush\_\EOL file} copies any portion of
+{\tt file2} not previously flushed to the end of {\tt file1}.
+
+You \underline{cannot} push characters to a file initialized by any
+{\tt min::\EOL init\_\EOL input\ldots} function other than
+{\tt min::\EOL init\_\EOL input}.
 
 The {\tt min::init\_input\_named\_file} function
 sets the {\tt file\_\EOL name} member and
-loads the contents of the named operating system file into the
+loads the contents of the operating system file this names into the
 {\tt buffer}.
 After loading the file contents, newline characters in the buffer
 are converted to line-terminating NUL's.  NUL characters loaded into the
-buffer are also treated as line-terminating NUL's.  If there is no error in
+buffer are also treated as line-terminating NUL's.
+The {\tt file\_\EOL lines} member is set to the number of line-terminating NUL's
+that end up in the buffer, and {\tt end\_\EOL offset} is set to point
+just after the last NUL.  Note that the file remains rewound.
+If there is no error in
 reading the operating system file, {\tt true} is returned by this function.  If
 there is an error, {\tt false} is returned, and an error message
 is written into {\tt min::\EOL error\_\EOL message}
@@ -6036,7 +6077,7 @@ is written into {\tt min::\EOL error\_\EOL message}
 The {\tt min::init\_input\_string} function similarly loads the contents
 of the file with the value of a given NUL-terminated {\tt data} string.
 Newline characters are converted to line-terminating NUL's.
-There is no possibility of error in this case.
+There is no possibility of error in this case, and
 {\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
 
 The {\tt min::init\_input\_stream} function does not load data into
@@ -6053,28 +6094,6 @@ an end of file is read from {\tt istream} or {\tt ifile}, at which time
 {\tt file\_\EOL line} is set to the number of lines in the file.
 In both cases, {\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
 See {\tt min::\EOL next\_\EOL line} below for more details.
-
-You \underline{cannot} append to a file initialized by any
-{\tt min::\EOL init\_\EOL input\ldots} function other than
-{\tt min::\EOL init\_\EOL input}.
-If you use this function you can write your own code to append
-to the file buffer, as for example:\label{WRITING-FILE-BUFFER}
-\begin{indpar}\begin{verbatim}
-min::locatable_ptr<min::file> file;
-init_input ( file );
-...
-const char * my_string = ...;
-int length = ::strlen ( my_string );
-min::push ( file->buffer, length, my_string );
-min::end_line ( file );
-...
-\end{verbatim}\end{indpar}
-
-You can also append to such a file by making it the {\tt ofile}
-of another file and flushing this other file
-(see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
-
-TBD
 
 Initializing a file rewinds it.  Then calls to
 {\tt min::\EOL next\_\EOL line} sequence through the file
@@ -6094,11 +6113,51 @@ is the first character of the next NUL-terminated line.
 If there is no such line, because we are at the end of the file,
 {\tt min::\EOL NO\_\EOL LINE} is returned instead.  In this case
 there may still be a non-NUL-terminated partial line at the end
-of the file.
+of the file (see \pagref{PARTIAL-LINE}).
 
-After the last line has been returned by
-{\tt min::\EOL next\_\EOL line}, bytes of the partial line at the
-end of the buffer will be returned by the functions:
+A file is complete, in the sense the no more characters will be
+appended to its {\tt buffer}, if {\tt file\_\EOL lines} contains
+the number of complete lines in the file, and is not equal to
+{\tt min::\EOL NO\_\EOL LINE}.  This can be tested by
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
+\LABEL{MIN::FILE_IS_COMPLETE} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::\EOL next\_\EOL line} function does not return
+{\tt min::\EOL NO\_\EOL LINE} unless the file is complete.
+
+If {\tt istream} is not {\tt NULL}, then when
+{\tt min::\EOL next\_\EOL line} encounters the
+end of {\tt buffer} and the file is not complete,
+{\tt min::\EOL next\_\EOL line}
+reads from {\tt istream} and pushes the characters read to
+the end of {\tt buffer}, until a linefeed, NUL, or end of file
+is read.  Both linefeeds and NUL's invoke {\tt min::\EOL end\_\EOL line}
+to terminate the line.  If instead an end of file is read,
+the file is completed by setting
+{\tt file\_\EOL lines} to {\tt next\_\EOL line\_\EOL number},
+and no further use of {\tt istream} is made on this or subsequent calls to
+{\tt min::\EOL next\_\EOL line}.  In this case
+a partial line may have been
+produced at the end of {\tt buffer}.
+
+If instead the {\tt ifile} member of the file is not
+{\tt min::\EOL NULL\_\EOL STUB}, 
+{\tt min::\EOL next\_\EOL line} behaves similarly but gets
+more characters by calling
+{\tt min::\EOL next\_\EOL line(ifile)} instead of by using
+the {\tt istream} member.  If {\tt ifile} is complete, any
+characters in an {\tt ifile} partial line are also gotten, and the file
+is completed just as it would be if an end-of-file had been read
+from {\tt istream}.
+
+When {\tt min::\EOL next\_\EOL line} returns {\tt min::\EOL NO\_\EOL LINE},
+there may still be a non-NUL-terminated partial line\label{PARTIAL-LINE}
+at the end of the file.
+Bytes of this partial can be returned by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -6155,43 +6214,6 @@ function returns the offset in the file buffer of the first of these
 bytes, if there are any.  The results of these functions are not
 affected by calls to {\tt min::\EOL next\_\EOL line} or
 {\tt min::\EOL skip\_\EOL remaining}.
-
-A file is complete, in the sense the no more characters will be
-appended to its {\tt buffer}, if {\tt file\_\EOL lines} contains
-the number of complete lines in the file, and is not equal to
-{\tt min::\EOL NO\_\EOL LINE}.  This can be tested by
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
-\LABEL{MIN::FILE_IS_COMPLETE} \\
-\end{tabular}\end{indpar}
-
-The {\tt min::\EOL next\_\EOL line} function does not return
-{\tt min::\EOL NO\_\EOL LINE} unless the file is complete.
-
-If the {\tt min::\EOL next\_\EOL line} function encounters the
-end of the file {\tt buffer} when the file is not complete
-and when {\tt istream} is not {\tt NULL},
-then {\tt min::\EOL next\_\EOL line} gets another line from
-{\tt istream}, or gets a partial line if {\tt istream} produces
-an end-of-file before it produces a line terminating linefeed
-or NUL character (NUL characters produced by {\tt istream}
-are interpreted as line terminators).  If {\tt istream} produces
-a end-of-file, then the file is completed by setting
-{\tt file\_\EOL lines} to {\tt next\_\EOL line\_\EOL number},
-and no further use of {\tt istream} is made on this or subsequent calls to
-{\tt min::\EOL next\_\EOL line}.
-
-If instead the {\tt ifile} member of the file is not
-{\tt min::\EOL NULL\_\EOL STUB}, 
-{\tt min::\EOL next\_\EOL line} behaves similarly but gets
-more characters by calling
-{\tt min::\EOL next\_\EOL line(ifile)} instead of by using
-the {\tt istream} member.  If {\tt ifile} is complete, any
-characters in an {\tt ifile} partial line are also gotten, and the file
-is completed just as it would be if an end-of-file had been read
-from {\tt istream}.
 
 
 A main reason why {\tt min::file} type exists is to allow lines
@@ -6276,22 +6298,6 @@ It is a \underline{programming} \underline{error}
 for {\tt min::\EOL rewind} to fail.  Normally rewind is only
 used with files whose {\tt spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
 which eliminates the possibility of failure.
-
-If a {\tt file} does not have an input {\tt istream} or
-{\tt ifile}, a line can be added to the end of the file
-by using the packed vector {\tt min::push\RESIZE} function
-(\pagref{MIN::PACKED_VEC_PUSH}) to push the characters of
-the line to {\tt file->buffer},
-and then using the following function to push the
-the line ending NUL character to {\tt file->buffer}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{end\_line\RESIZE}\verb| ( min::file file )|
-\LABEL{MIN::END_LINE_FILE} \\
-\end{tabular}\end{indpar}
-
-Examples using this {\tt min::end\_line} function were given above.
 
 If the last line in {\tt file->buffer} is a partial line,
 the following function may be used to split this into
