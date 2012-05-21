@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 20, 2012}
+\date{May 21, 2012}
  
 \maketitle
 
@@ -7263,7 +7263,8 @@ after using an entry to insert a line end, that entry's
 and {\tt line\_\EOL break.column} are reset to make its break point
 be just after the indentation spaces that are inserted after the line end,
 just as would happen if a line break stack entry were not used.  This sets
-{\tt break\_stack[i].column} equal to {\tt break\_stack[i].indent}.
+{\tt break\_\EOL stack[i].column} equal to {\tt break\_\EOL stack[i].indent},
+and thus disables {\tt break\_\EOL stack[i]} so it will not be reused.
 Note also that if \underline{no} line break stack entry is enabled,
 break point operation proceeds using the printer {\tt line\_\EOL break}
 as if the line break stack did not exist.
@@ -7280,29 +7281,33 @@ the {\tt line\_\EOL break\_\EOL stack} using the operations:
 \LABEL{MIN::RESTORE_INDENT} \\
 \end{tabular}\end{indpar}
 
+It is indended that a list header will be printed by first
+executing a {\tt min::\EOL set\_\EOL break}, then printing the
+header (e.g.~{\tt "[ "}), then executing
+{\tt min::save\_indent}, while the list trailer will be printed
+by first \underline{not} executing {\tt min::\EOL set\_\EOL break},
+then printing the trailer (e.g.~{\tt " ]"}), then executing
+{\tt min::\EOL restore\_\EOL indent}.
+
 {\tt min::save\_indent} first executes
 {\tt min::\EOL save\_\EOL line\_\EOL break} and then
 sets {\tt line\_\EOL break.indent} to equal the printer
 {\tt column}.
-{\tt min::restore\_\EOL indent} first
+~{\tt min::restore\_\EOL indent} first
 executes {\tt min::\EOL restore\_\EOL line\_\EOL break} and
 then executes
 {\tt min::\EOL indent} if the line break stack element
 it popped was disabled and was not the first element of the stack.
-It does this because it assumes the disabled element was used and
-printing the text bracketed by the {\tt min::\EOL save\_\EOL line\_\EOL break}
+It executes {\tt min::\EOL indent}
+because it assumes a disabled element is a used element so
+the printed text bracketed by the {\tt min::\EOL save\_\EOL line\_\EOL break}
 that pushed the element and the {\tt min::\EOL restore\_\EOL line\_\EOL break}
-that is being executed was preceded by an actual line break and should be
+that is popping the element was preceded by an actual line break and should be
 ended by a {\tt min::indent}.  However, if the popped element was the
 first in the stack, it is assumed that instead an explicit {\tt min::\EOL eol}
 will be executed next.
 
-The {\tt min::save\_indent} operation is intended to be use just
-after printing the header of a list, and
-the {\tt min::\EOL restore\_\EOL indent}
-operation is intended to be use just
-after printing the trailer of a list.
-Suppose we print the following
+For example, suppose we print the following
 with {\tt line\_\EOL length} equal to 72:
 \begin{center}
 \tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff,~ggg~),~hhh~],~iii,~jjj~\KET
@@ -7344,7 +7349,7 @@ After printing the 34 characters
 \tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff
 \end{center}
 a line break is triggered just before printing the `{\tt ,}' following
-`{\tt fff)}'.  The first element in the line break stack was pushed
+`{\tt fff}'.  The first element in the line break stack was pushed
 just after printing `{\tt \BRA~}'% }
 and is disabled as it is at the beginning of the line.
 The second element was pushed just after printing `{\tt [~}' and is
@@ -7384,13 +7389,14 @@ to surround the body of an error message or other message:
 \end{tabular}\end{indpar}
 
 {\tt min::bom} executes both
-a {\tt min::\EOL save\_\EOL line\_\EOL break}
+a {\tt min::\EOL save\_\EOL indent}
 and a {\tt min::\EOL save\_\EOL print\_\EOL format} operation.
 {\tt min::\EOL eom} executes in order a
-{\tt min::\EOL restore\_\EOL line\_\EOL break} without any implied
-{\tt min::\EOL indent}, a {\tt min::\EOL eol},
+{\tt min::\EOL restore\_\EOL line\_\EOL break} (i.e., a
+{\tt min::\EOL restore\_\EOL indent} without any implied
+{\tt min::\EOL indent}), a {\tt min::\EOL eol},
 and a {\tt min::\EOL restore\_\EOL print\_\EOL format}.
-Note that print format flags in effect just before {\tt min::\EOL eom}
+Note that the print format flags in effect just before {\tt min::\EOL eom}
 is executed govern the {\tt min::\EOL eol} operation executed by
 {\tt min::\EOL eom}.
 
@@ -7654,7 +7660,7 @@ from some {\tt printer->\EOL file}
 line terminating NULs are translated to {\tt min::\EOL eol}
 operations on the target printer.
 Also note that the operation to undo the results
-of {\tt min::\EOL verbatim} does not exist (you must push and pop
+of {\tt min::\EOL verbatim} does not exist (you must save and restore
 {\tt print\_\EOL format}).
 
 \subsection{Printing General Values}
