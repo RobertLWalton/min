@@ -7709,12 +7709,14 @@ in a relocatable body.  Its structure is as follows:
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
     \verb|  const char *           str_ascii_quote;|\ARGBREAK
-    \verb|  const char *           str_utf8_quote;|\ARGBREAK
+    \verb|  const char *           str_quote;|\ARGBREAK
     \verb|  const char *           lab_prefix;|\ARGBREAK
     \verb|  const char *           lab_separator;|\ARGBREAK
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
+    \verb|  const char *           implied_prefix;|\ARGBREAK
+    \verb|  const char *           implied_postfix;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -7771,9 +7773,10 @@ in a relocatable body.  Its structure is as follows:
     \verb|  0,           // flags|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,NULL,   // str_ascii/utf8_quote|\ARGBREAK
+    \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // implied_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
@@ -14395,12 +14398,14 @@ In loose implementation: \\
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
     \verb|  const char *           str_ascii_quote;|\ARGBREAK
-    \verb|  const char *           str_utf8_quote;|\ARGBREAK
+    \verb|  const char *           str_quote;|\ARGBREAK
     \verb|  const char *           lab_prefix;|\ARGBREAK
     \verb|  const char *           lab_separator;|\ARGBREAK
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
+    \verb|  const char *           implied_prefix;|\ARGBREAK
+    \verb|  const char *           implied_postfix;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -14441,9 +14446,10 @@ In loose implementation: \\
     \verb|  0,           // flags|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,NULL,   // str_ascii/utf8_quote|\ARGBREAK
+    \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // implied_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
