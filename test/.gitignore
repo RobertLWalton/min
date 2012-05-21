@@ -1,6 +1,7 @@
 *.out
 *_test
 *_loose
+*_no_aux
 *_compact
 *_stretch
 *_partial
