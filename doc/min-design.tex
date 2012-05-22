@@ -7708,15 +7708,14 @@ in a relocatable body.  Its structure is as follows:
     \verb|  const char *           number_format;|\ARGBREAK
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
-    \verb|  const char *           str_ascii_quote;|\ARGBREAK
     \verb|  const char *           str_quote;|\ARGBREAK
     \verb|  const char *           lab_prefix;|\ARGBREAK
     \verb|  const char *           lab_separator;|\ARGBREAK
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implied_prefix;|\ARGBREAK
-    \verb|  const char *           implied_postfix;|\ARGBREAK
+    \verb|  const char *           implied_initiator;|\ARGBREAK
+    \verb|  const char *           implied_terminator;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -7731,13 +7730,14 @@ in a relocatable body.  Its structure is as follows:
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{str\_ascii\_quote}{in {\tt min::gen\_format}}
-\ttmindex{str\_utf8\_quote}{in {\tt min::gen\_format}}
+\ttmindex{str\_quote}{in {\tt min::gen\_format}}
 \ttmindex{lab\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{lab\_separator}{in {\tt min::gen\_format}}
 \ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{special\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{special\_postfix}{in {\tt min::gen\_format}}
+\ttmindex{implied\_initiator}{in {\tt min::gen\_format}}
+\ttmindex{implied\_terminator}{in {\tt min::gen\_format}}
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
@@ -7776,7 +7776,7 @@ in a relocatable body.  Its structure is as follows:
     \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implied_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // implied_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
@@ -7861,19 +7861,14 @@ The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
 
-\item[\ttmkey{str\_ascii\_quote}{in {\tt min::gen\_format}}]
-\item[\ttmkey{str\_utf8\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}
-Which one of these fields is active depends upon whether the printer
-{\tt ASCII\_\EOL FLAG} is set:
-if it is set, the {\tt str\_\EOL ascii\_\EOL quote} member is active, and
-if it is clear, the {\tt str\_\EOL utf8\_\EOL quote} member is active.
-If the active member is not {\tt NULL}, then any {\tt min::gen} string
+\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]
+If not {\tt NULL}, then any {\tt min::gen} string
 subsequence of characters equal to {\tt str\_\EOL postfix} is replaced
-by the characters of the active member.
+by the characters of {\tt str\_\EOL quote}.
 
-For example, if the {\tt ASCII\_\EOL FLAG} is set, if
-{\tt str\_\EOL postfix} is \verb|"\""|, and if
-{\tt str\_\EOL ascii\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
+For example, if
+{\tt str\_\EOL postfix} is \verb|"\""|, and
+{\tt str\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
 each \verb|"| in any {\tt min::gen} string that is printed (but of course not
 in {\tt str\_\EOL postfix} when that is printed just after the
 {\tt min::gen} string is printed).
@@ -7891,6 +7886,17 @@ is printed between elements.
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
+
+\item[\ttmkey{implied\_initiator}{in {\tt min::gen\_format}}]
+\item[\ttmkey{implied\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}
+If not {\tt NULL},
+the {\tt implied\_\EOL \BRA initiator,terminator\KET} members
+are treated as
+the {\tt .initiator} and {\tt .terminator} of an object that is being
+printed with both {\tt EXPRESSION\_\EOL FLAG} and {\tt IMPLICIT\_\EOL
+PAREN\-THESIS\_\EOL FLAG} on, provided that
+the object has \underline{neither}
+an {\tt .initia\-tor} or a {\tt .terminator} attribute of its own.
 
 \item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
 \item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}
@@ -14397,15 +14403,14 @@ In loose implementation: \\
     \verb|  const char *           number_format;|\ARGBREAK
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
-    \verb|  const char *           str_ascii_quote;|\ARGBREAK
     \verb|  const char *           str_quote;|\ARGBREAK
     \verb|  const char *           lab_prefix;|\ARGBREAK
     \verb|  const char *           lab_separator;|\ARGBREAK
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implied_prefix;|\ARGBREAK
-    \verb|  const char *           implied_postfix;|\ARGBREAK
+    \verb|  const char *           implied_initiator;|\ARGBREAK
+    \verb|  const char *           implied_terminator;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -14449,7 +14454,7 @@ In loose implementation: \\
     \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implied_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // implied_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
