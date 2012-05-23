@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 21 17:43:13 EDT 2012
+// Date:	Tue May 22 19:16:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1358,74 +1358,6 @@ const min::stub * MINT::packed_struct_new_stub
     * tp = psd->subtype;
     MUP::set_type_of ( s, PACKED_STRUCT );
     return s;
-}
-
-const min::stub * MINT::packed_vec_new_stub
-	( MINT::packed_vec_descriptor * pvd,
-	  min::uns32 max_length,
-	  min::uns32 length,
-	  const void * vp )
-{
-    min::stub * s = MUP::new_acc_stub();
-    uns32 size = pvd->header_size
-	       +   max_length
-	         * pvd->element_size;
-    MUP::new_body ( s, size );
-    uns8 * bodyp = (uns8 *) MUP::ptr_of ( s );
-    memset ( bodyp, 0, size );
-    * (uns32 *) bodyp = pvd->subtype;
-    * (uns32 *) ( bodyp + pvd->length_disp ) = length;
-    * (uns32 *) ( bodyp + pvd->max_length_disp ) =
-        max_length;
-    if ( vp )
-        memcpy ( bodyp + pvd->header_size,
-	         vp, length * pvd->element_size);
-    MUP::set_type_of ( s, PACKED_VEC );
-    return s;
-}
-
-void MINT::packed_vec_resize
-        ( const min::stub * s,
-	  min::uns32 max_length )
-{
-    uns32 t = MUP::packed_subtype_of ( s );
-    packed_vec_descriptor * pvdescriptor =
-	(packed_vec_descriptor *)
-	(*packed_subtypes)[t];
-    packed_vec_resize ( s, pvdescriptor, max_length );
-}
-
-void MINT::packed_vec_resize
-        ( const min::stub * s,
-	  min::internal::packed_vec_descriptor * pvd,
-	  min::uns32 max_length )
-{
-    uns8 * & old_p = * (uns8 ** )
-        & MUP::ptr_ref_of ( (min::stub *) s );
-    uns32 length =
-        * (uns32 *) ( old_p + pvd->length_disp );
-    uns32 old_max_length =
-        * (uns32 *) ( old_p + pvd->max_length_disp );
-    unsptr copy_size = pvd->header_size
-		     +   length
-                       * pvd->element_size;
-    unsptr old_size = pvd->header_size
-		    +   old_max_length
-                      * pvd->element_size;
-    unsptr new_size = pvd->header_size
-		    +   max_length
-                      * pvd->element_size;
-    if ( copy_size > new_size ) copy_size = new_size;
-    MUP::resize_body r
-	( (min::stub *) s, new_size, old_size );
-    uns8 * & new_p =
-        * (uns8 **) & MUP::new_body_ptr_ref ( r );
-    memcpy ( new_p, old_p, copy_size );
-    * (uns32 *) ( new_p + pvd->max_length_disp ) =
-        max_length;
-    if ( length > max_length )
-	* (uns32 *) ( new_p + pvd->length_disp ) =
-	    max_length;
 }
 
 // Files
