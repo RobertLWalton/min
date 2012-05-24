@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 23 16:10:19 EDT 2012
+// Date:	Thu May 24 09:19:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11326,19 +11326,33 @@ namespace min {
 
     extern const gen_format default_gen_format;
 
-    typedef min::packed_vec_insptr < const min::stub * >
-	stub_vec;
-    typedef min::packed_vec_insptr < min::uns32 >
-	uns32_vec;
-
+    template < typename L >
     struct obj_id_map_struct
     {
-        const uns32 control;
-	uns32 next_id;
-	const min::stub_vec hash_table;
-	const min::uns32_vec id_table;
-	const min::stub_vec translate_table;
+        const min::uns32 control;
+
+	const L length;
+	const L max_length;
+
+	L next_id;
+
+	const min::packed_vec_insptr<L> hash_table;
+	    // Given a stub,ID pair (s,id) then
+	    //    stub_table[id] == s
+	    //    hash_table[h] == id
+	    // where h is a hash of s obtained by
+	    //    h = uns64(s) % hash_table_size
+	    //    while ( hash_table[h] == OCCUPIED )
+	    //		h = ( h + 1 ) % hash_table_size
+	    // when
+	    //   stub_table_size > hash_table_size / 2
+	    // the hash_table_size is doubled.
     };
+
+    typedef min::packed_vec_insptr
+		< const min::stub *,
+		  min::obj_id_map_struct<min::uns32> >
+	    obj_id_map;
 
     struct line_break
     {
