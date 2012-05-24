@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 22 19:15:54 EDT 2012
+// Date:	Wed May 23 16:10:19 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6101,7 +6101,7 @@ namespace min {
     };
 
     template < typename E, typename H, typename B,
-               typename L >
+               typename L = min::uns32 >
     class packed_vec_with_base
 	: public packed_vec<E,H,L>
     {
