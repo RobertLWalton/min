@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 22, 2012}
+\date{May 23, 2012}
  
 \maketitle
 
@@ -4293,27 +4293,48 @@ either the \verb|min::hash| and \verb|min::compare| function.
 \subsection{Packed Structures}
 \label{PACKED-STRUCTURES}
 
-A \key{packed structure} is a C `struct' stored in a body associated
+A \key{packed structure} is a class datum stored in a body associated
 with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
 stub type code.
 
-The C type of a packed structure must be a C \verb|struct|
-initializable by setting all bytes to zero and copyable
-by \verb|memcpy|.
-Its \underline{first} member must be
-\begin{center}
-\verb|const min::uns32 control;|
-\end{center}
-This first member holds subtype information and flags.
-\verb|min::gen| and \verb|min::stub *| values are permitted as members
-of the \verb|struct|.
-C++ classes are not permitted, as member types must \underline{not}
-have constructors or destructors and must be copyable with
-a simple `{\tt =}' operator or with the \verb|memcpy| function.
+The class type must be such that:
+\begin{enumerate}
+\item Construction\label{PACKED-STRUCTURE-TYPE-REQUIREMENTS}
+of a datum of the type
+by a zero argument constructor does not
+set any datum byte to a non-zero value.  Note that bytes need not be
+set to any value, but zero must be an acceptable value for all bytes
+of a newly constructed datum.
 
-There is one exception to the rule that a packed structure type must be
-a C type: it may have a public base structure, as long as that is an
-admissible packed structure type.  In this case the
+When a packed structure is created it is zeroed and then one special
+header member described below, the {\tt control} member,
+is given a value.
+\item
+Destruction of a datum of the type does nothing.
+
+When a packed structure is destroyed, no destructor is called.
+\item
+Assignment of a datum of the type from another datum of the same type
+is equivalent to a {\tt memcpy} operation.
+
+When a packed structure is moved by the copying part of
+the ACC, it is moved by {\tt memcpy}.
+\end{enumerate}
+
+Numeric, \verb|min::gen|, and \verb|min::stub *| values are permitted as
+packed structure class members.
+
+The type of a packed structure
+must have as its first member
+(that is, the member at displacement {\tt 0});
+\begin{indpar}
+\verb|const min::uns32 control;|
+\end{indpar}
+This first member holds subtype information and flags.
+
+The packed structure type
+may have a public base structure, as long as that also follows the above
+rules.  In this case the
 `{\tt control}' member must be the first member of the base structure.
 This rule can be applied recursively to get, for example, a `{\tt struct}'
 based on a public `{\tt struct}'
@@ -4325,19 +4346,19 @@ access members of packed structures:
 \verb|min::packed_struct_ptr<S>| & \verb|min::packed_struct<S>::ptr| \\
 \verb|min::packed_struct_updptr<S>| & \verb|min::packed_struct<S>::updptr|
 \end{tabular}\end{indpar}
-where \verb|S| is the C type of the structure.
+where \verb|S| is the class type of the structure.
 The first \mkey{read-only pointer}{to packed structure} type
 permits read-only access to packed structure members,
 while the second \mkey{updatable pointer}{to packed structure} type
 permits read-write access.
 These pointers are like the type `\verb|const min::stub *|' but with with extra
 clothes.
-Pointers of these types can also be included as members in C packed structures
-and packed vector headers and elements (see \itemref{PACKED-VECTORS}).
+Pointers of these types can also be included as members in packed structures
+and in packed vector headers and elements (see \itemref{PACKED-VECTORS}).
 
-The C type of a packed structure is described at run-time by a
+The type of a packed structure is described at run-time by a
 {\tt min::packed\_\EOL struct\SARG} C++ static object, where
-\verb|S| is the C type of the structure.
+\verb|S| is the type of the structure.
 The {\tt new\_gen} and {\tt new\_stub}
 member functions of this C++ static object can be
 used to create new packed structures of the described type.
@@ -4390,36 +4411,35 @@ where
 \begin{itemlist}[0.5in]
 
 \item[{\tt S}]
-The C type of the body of packed structures of the type being
-declared.  This C type must be a C \verb|struct| whose first
+The type of the body of packed structures of the type being
+declared.  This type must be a class whose first
 member is
 \begin{center}
 \verb|const min::uns32 control;|
 \end{center}
-This member holds a code effectively
+This member holds a code that effectively
 points at \verb|pstype|, and also holds some flags.
-This member is initialized by \verb|new_gen| and must not
+This member is initialized by \verb|new_gen| or \verb|new_stub| and must not
 be changed by the user.
+This type must meet the requirements given on
+\pagref{PACKED-STRUCTURE-TYPE-REQUIREMENTS}.
 
-Only C language syntax may be used in defining the type {\tt S},
-except that a single base type may be be used, as in
+\item[{\tt B}]
+{\tt S} may have a single base type {\tt B} as in
 \begin{indpar}\begin{verbatim}
 struct S : public struct B { ... }
 \end{verbatim}\end{indpar}
-provided that {\tt B} is also a C language structure in this sense.
+where {\tt B} is a packed structure type meeting the requirements given
+on \pagref{PACKED-STRUCTURE-TYPE-REQUIREMENTS}.
 In this case {\tt S} does
 \underline{not} have a `{\tt control}' member, as
 the `{\tt control}' member of {\tt B} serves as
 the `{\tt control}' member of {\tt S}.
-
-\item[{\tt B}]
-The C type of the base of {\tt S}, as indicated above.  If {\tt B}
-is also the type of a packed \underline{structure} body, use
-{\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
-in order to enable conversion of
+If {\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
+is used to define the packed structure type, conversion of
 {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
 to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
-pointers.
+pointers is enabled.
 
 \end{itemlist}
 
@@ -4458,20 +4478,17 @@ displacements vector must be given for garbage collection purposes.
 \verb|const min::gen| members are treated like \verb|min::gen|
 members for these purposes.
 
-\item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]
-Ditto but for \verb|min::stub *| members of \verb|S|
+\item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]\label{STUB_DISP}
+Ditto but for \verb|const min::stub *| members of \verb|S|
 instead of \verb|min::gen| members.
-
-Pointer-to-packed-struct and pointer-to-packed-vector
-\label{STUB_DISP}
-members, i.e. {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} and
-{\tt min::\EOL packed\_\EOL vec\EHLARG::\EOL xxxptr} members,
-are treated like `{\tt const min::\EOL stub~*}' values in that they
-must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
 
 Members of the types `\verb|const min::stub *|', `\verb|min::stub const *|', and
 `{\tt const min::\EOL stub \EOL const~*}' are treated like
 `{\tt min::\EOL stub~*}' members for these purposes.
+
+{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~~and~~
+{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG} members
+are also treated as {\tt const min::\EOL stub~*} members.
 
 \end{itemlist}
 
@@ -4492,7 +4509,7 @@ the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
 
 \verb|pstype.subtype|, \verb|pstype.name|,
 {\tt pstype.gen\_\EOL disp},
-and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
+and {\tt pstype.stub\_\EOL disp}
 can be used to retrieve the subtype, name, and displacement
 information associated with \verb|pstype|.
 
@@ -4759,19 +4776,22 @@ that follows the structure,
 and with a \minnbkey{PACKED\_VEC}\LABEL{MIN::PACKED_VEC}
 stub type code instead of a {\tt min::\EOL PACKED\_\EOL STRUCT} type code.
 
-The structure is called the packed vector \mkey{header}{of packed vector}
+The structure at the beginning of a packed vector
+is called the packed vector \mkey{header}{of packed vector}
 and the vector elements that follow the header are called the
 packed vector \smkey{element}s{of packed vector}.
 The types of both the header and the vector elements must be such that:
 \begin{enumerate}
-\item Construction of a datum of the type
+\item Construction\label{PACKED-VECTOR-TYPE-REQUIREMENTS}
+of a datum of the type
 by a zero argument constructor does not
 set any datum byte to a non-zero value.  Note that bytes need not be
 set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
 
 When a packed vector is created it is zeroed and then a few special
-header elements described below are given values.
+header members described below, the {\tt control}, {\tt length},
+and {\tt max\_\EOL length} members, are given values.
 \item
 Destruction of a datum of the type does nothing.
 
@@ -4795,7 +4815,7 @@ must be a class whose first member
 \verb|const min::uns32 control;|
 \end{indpar}
 The header must also have the following two other members,
-at no particular offset:
+at no particular displacement:
 \begin{indpar}
 \verb|const L length;| \\
 \verb|const L max_length;|
@@ -4812,9 +4832,10 @@ There are also three pointer-to-packed-vector types:
 where \verb|H| is the type of the packed vector header struct,
 \verb|E| is the type of the packed vector element, and
 \verb|L| is the unsigned integer type of the {\tt length}
-and {\tt max\_\EOL length} members of the header.
+and {\tt max\_\EOL length} members of the header, and also of the
+subscripts used to access vector elements.
 The first \mkey{read-only pointer}{to packed vector} type
-permits read-only access to packed structure members,
+permits read-only access to packed vector members and elements,
 the second \mkey{updatable pointer}{to packed vector} type
 permits read-write access, while the
 the third \mkey{insertable pointer}{to packed vector} type
@@ -4825,7 +4846,7 @@ These pointers are like the type `\verb|const min::stub *|' but with with extra
 clothes.
 These pointer types can also be used as the types of packed vector
 elements or as members of classes that are the types of packed vector
-elements or headers.
+elements or headers or of packed structures.
 
 A packed vector type is described at run-time by a
 {\tt min::packed\_\EOL vec\EHLARG} C++ static object, where
@@ -4862,7 +4883,7 @@ named \verb|pvtype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B,L}}
+	& \MINKEY{packed\_vec\_with\_base}\BRACKETED{E,H,B,L=min::uns32}
 		\verb|pvtype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
@@ -4925,66 +4946,62 @@ where
 \begin{itemlist}[0.5in]
 
 \item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
-The C type of the elements in the vector part of the
+The type of the elements in the vector part of the
 bodies of packed vectors of the type being
-declared.  This need not be a \verb|struct| type; it can
-be \verb|min::gen|, \verb|min::stub *|,
-any pointer-to-packed-struct or pointer-to-packed-vector
-type, or any numeric type.
+declared.  This must meet the requirements given on
+\pagref{PACKED-VECTOR-TYPE-REQUIREMENTS}.
 
-However, {\tt E} must \underline{not} be a {\tt const} type.
-Also, if it has a zero argument constructor, that may not
-be used to initialize the element, but instead the element
-bytes may be zeroed.  Similarly an assignment or copy operator
-may not be used, but {\tt memcpy} may be used instead,
-and a destructor may not be used.  Lastly, the element may
-be relocated in memory using {\tt memcpy}.
+Also, {\tt E} must \underline{not} be a {\tt const} type.
 
 \item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
-The C \verb|struct| type of the header data at the beginning of the
+The type of the header at the beginning of the
 bodies of packed vectors of the type being
-declared.  The first member of this \verb|struct| type must be
+declared.  This must meet the requirements given on
+\pagref{PACKED-VECTOR-TYPE-REQUIREMENTS}.
+
+This must be a class (or \verb|struct|) type
+whose first member is
 \begin{indpar}
 \verb|const min::uns32 control;|
 \end{indpar}
-and the \verb|struct| type must also have the two members
+and which must also have the two members
 \begin{indpar}
-\verb|const min::uns32 length;| \\
-\verb|const min::uns32 max_length;|
+\verb|const L length;| \\
+\verb|const L max_length;|
 \end{indpar}
+where {\tt L} is an unsigned integer type.
 These members are initialized by \verb|new_gen| or \verb|new_stub|
 and must not
 be changed by the user.
 
-\verb|H| defaults to \verb|min::packed_vec_header| which
+\verb|H| defaults to \verb|min::packed_vec_header<min::uns32>| which
 has just the require header members: \verb|control|, \verb|length|, and
-{\tt max\_\EOL length}.  Because of this default,
+{\tt max\_\EOL length} with {\tt L=min::uns32}.  Because of this default,
 \verb|H| is the \underline{second} template parameter,
 even though is precedes the vector elements in memory.
 
-Only C language syntax may be used in defining the type {\tt H},
-except that a single base type may be be used, as in
+\item[{\tt L}]
+The unsigned integer type of the vector length and vector element subscripts
+of the vector.  Defaults to {\tt min::\EOL uns32}.
+Other sensible values for {\tt L} are
+{\tt min::\EOL uns16} and {\tt min::\EOL unsptr}.
+
+\item[{\tt B}]
+{\tt H} may have a single base type {\tt B} as in
 \begin{indpar}\begin{verbatim}
 struct H : public struct B { ... }
 \end{verbatim}\end{indpar}
-provided that {\tt B} is also a C language structure in this sense.
+where {\tt B} is a packed structure type (see \itemref{PACKED-STRUCTURES}).
 In this case {\tt H} does
 \underline{not} have a `{\tt control}' member, as
 the `{\tt control}' member of {\tt B} serves as
 the `{\tt control}' member of {\tt H}.  The `{\tt length}' and
 `{\tt max\_length}' members may be in either {\tt H} or {\tt B}.
-
-\item[{\tt B}]
-The C type of the base of {\tt H}, as indicated above.  If {\tt B}
-is also the type of a packed \underline{structure} body, use
-{\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B}}
-in order to enable conversion of
+If {\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B,L}}
+is used to define the packed vector type, conversion of
 {\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} pointers
 to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
-pointers.
-
-Note that {\tt B} must be the type of a packed
-structure and \underline{not} of a packed vector header.
+pointers is enabled.
 
 \end{itemlist}
 
@@ -5008,7 +5025,7 @@ output.
 \begin{itemlist}[1.6in]
 
 \item[\ttmkey{header\_\EOL gen\_\EOL disp}{in {\tt min::packed\_vec}}]
-This C vector is a list of the displacements (in bytes) of all
+This vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|H|,
 terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
 This displacements vector should not
@@ -5031,9 +5048,9 @@ See \pagref{STUB_DISP} for more details.
 
 \verb|pvtype.name|,~~
 {\tt pvtype.header\_\EOL gen\_\EOL disp},
-{\tt pvtype.header\_\EOL stub\_\EOL ptr\_\EOL disp},
+{\tt pvtype.header\_\EOL stub\_\EOL disp},
 ~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
-and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
+and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL disp}
 can be used to retrieve the name and displacement
 information associated with \verb|pvtype|.
 In addition the parameters
