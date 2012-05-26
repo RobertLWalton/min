@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 25 20:50:49 EDT 2012
+// Date:	Sat May 26 00:51:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11334,8 +11334,8 @@ namespace min {
 	const L length;
 	const L max_length;
 
-	L hash_mask;
-	L hash_multiplier;
+	min::uns32 hash_mask;
+	min::uns32 hash_multiplier;
 	L hash_max_offset;
 	const min::packed_vec_insptr<L> hash_table;
 	    // Given a stub,ID pair (s,id) then
@@ -11343,25 +11343,29 @@ namespace min {
 	    //    hash_table[h] == id
 	    // where h is obtained by entering (s,id)
 	    // in the hash table using the algorithm:
-	    //    h0 = uns64(s) % hash_mask;
-	    //	  h0 *= hash_multiplier;
-	    //	  h0 %= hash_table->length;
-	    //	  h = h0;
+	    //	  h = ::hash ( this_map, s );
+	    //		// see min.cc for details
 	    //    offset = 0;
 	    //    while ( hash_table[h] != 0; )
 	    //    {
-	    //          h = ( h + 1 ) % hash_table_size;
+	    //          h = ( h + 1 )
+	    //            % hash_table->length;
 	    //		++ offset;
 	    //	  }
 	    //    id = this->length;
+	    //    push ( * this_map ) = s;
 	    //    hash_table[h] = id;
-	    //    push ( * this ) = s;
 	    //    if ( max_offset < offset )
 	    //	      max_offset = offset;
 	    //
-	    // When
+	    // The hash_table is created by `find' if it
+	    // does not exist.  When
+	    //
 	    //   hash_table->length < 2 * this->length
-	    // then hash_table->length is doubled.
+	    //
+	    // the hash_table is reset to NULL_STUB so
+	    // it will be recreated with a longer length
+	    // by the next `find'.
     };
     
     typedef min::packed_vec_insptr
@@ -11375,9 +11379,13 @@ namespace min {
     uns32 find
             ( min::obj_id_map map,
 	      const min::stub * s );
-    uns32 add
+    uns32 find_or_add
             ( min::obj_id_map map,
 	      const min::stub * s );
+    uns32 insert
+            ( min::obj_id_map map,
+	      const min::stub * s,
+	      min::uns32 id );
 
     struct line_break
     {

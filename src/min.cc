@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 25 20:40:26 EDT 2012
+// Date:	Sat May 26 01:04:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6823,16 +6823,20 @@ static void new_hash_table
 		min::obj_id_map_struct<L> > map )
 {
     L length = map->length;
-    if ( length < 64 ) length = 64;
+    if ( length < 32 ) length = 32;
     assert (   length
-	     < ( (L) 1 << ( 8 * sizeof ( L ) - 1 ) ) );
-    length *= 2;
+	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
+    length *= 4;
 
     hash_table_ref ( map ) =
 	::hash_table_type.new_stub ( length );
     min::packed_vec_insptr<min::uns32> hash_table =
         map->hash_table;
 
+    map->hash_mask = (min::uns32) -1;
+    map->hash_multiplier = 1103515245;
+        // Used by gcc for linear congrential random
+	// number generator with modulus 2^32.
     map->hash_max_offset = 0;
     for ( L id = 0; id < map->length; ++ id )
     {
@@ -6881,7 +6885,7 @@ template min::uns32 find
 	  const min::stub * s );
 
 template < typename L >
-min::uns32 add
+min::uns32 find_or_add
 	( min::packed_vec_insptr
 	      < const min::stub *,
 		min::obj_id_map_struct<L> > map,
@@ -6903,15 +6907,55 @@ min::uns32 add
     }
     L id = map->length;
     min::push ( map ) = s;
-    hash_table[id] = id;
+    hash_table[h] = id;
     if ( map->hash_max_offset < offset )
         map->hash_max_offset = offset;
     return id;
 }
 
-template min::uns32 add
+template min::uns32 find_or_add
 	( min::obj_id_map map,
 	  const min::stub * s );
+
+template < typename L >
+void insert
+	( min::packed_vec_insptr
+	      < const min::stub *,
+		min::obj_id_map_struct<L> > map,
+	  const min::stub * s,
+	  min::uns32 id )
+{
+    map[id] = s;
+
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+
+    if ( hash_table == NULL_STUB ) return;
+    else if ( hash_table->length < 2 * map->length )
+    {
+        hash_table_ref ( map ) = min::NULL_STUB;
+	    // Defer creation of a new hash table
+	    // to the next find or find_or_add.
+	return;
+    }
+        
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        if ( hash_table[h] == 0 ) break;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+    hash_table[h] = id;
+    if ( map->hash_max_offset < offset )
+        map->hash_max_offset = offset;
+}
+
+template void insert
+	( min::obj_id_map map,
+	  const min::stub * s,
+	  min::uns32 id );
 
 }
 
