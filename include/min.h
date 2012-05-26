@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 24 09:19:07 EDT 2012
+// Date:	Fri May 25 20:50:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4907,7 +4907,7 @@ namespace min {
 
     namespace internal {
 
-	// An packed struct/vect body begins with a
+	// An packed struct/vec body begins with a
 	// min::uns32 control word whose low order MIN_
 	// PACKED_CONTROL_SUBTYPE_BITS bits are a
 	// subtype t such that (*packed_subtypes)[t] is
@@ -11334,25 +11334,50 @@ namespace min {
 	const L length;
 	const L max_length;
 
-	L next_id;
-
+	L hash_mask;
+	L hash_multiplier;
+	L hash_max_offset;
 	const min::packed_vec_insptr<L> hash_table;
 	    // Given a stub,ID pair (s,id) then
 	    //    stub_table[id] == s
 	    //    hash_table[h] == id
-	    // where h is a hash of s obtained by
-	    //    h = uns64(s) % hash_table_size
-	    //    while ( hash_table[h] == OCCUPIED )
-	    //		h = ( h + 1 ) % hash_table_size
-	    // when
-	    //   stub_table_size > hash_table_size / 2
-	    // the hash_table_size is doubled.
+	    // where h is obtained by entering (s,id)
+	    // in the hash table using the algorithm:
+	    //    h0 = uns64(s) % hash_mask;
+	    //	  h0 *= hash_multiplier;
+	    //	  h0 %= hash_table->length;
+	    //	  h = h0;
+	    //    offset = 0;
+	    //    while ( hash_table[h] != 0; )
+	    //    {
+	    //          h = ( h + 1 ) % hash_table_size;
+	    //		++ offset;
+	    //	  }
+	    //    id = this->length;
+	    //    hash_table[h] = id;
+	    //    push ( * this ) = s;
+	    //    if ( max_offset < offset )
+	    //	      max_offset = offset;
+	    //
+	    // When
+	    //   hash_table->length < 2 * this->length
+	    // then hash_table->length is doubled.
     };
-
+    
     typedef min::packed_vec_insptr
 		< const min::stub *,
 		  min::obj_id_map_struct<min::uns32> >
 	    obj_id_map;
+
+    MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
+              obj_id_map );
+
+    uns32 find
+            ( min::obj_id_map map,
+	      const min::stub * s );
+    uns32 add
+            ( min::obj_id_map map,
+	      const min::stub * s );
 
     struct line_break
     {
