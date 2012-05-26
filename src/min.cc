@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 26 01:04:48 EDT 2012
+// Date:	Sat May 26 07:45:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6784,7 +6784,7 @@ static min::packed_vec<min::uns32> hash_table_type
     ( "hash_table_type" );
 
 static min::uns32 obj_id_map_stub_disp[2] =
-    { min::DISP ( & min::obj_id_map_struct<min::uns32>
+    { min::DISP ( & min::obj_id_map_header<min::uns32>
                        ::hash_table ),
       min::DISP_END };
 
@@ -6793,17 +6793,34 @@ static min::uns32 stub_element_stub_disp[2] =
 
 static min::packed_vec
 	< const min::stub *,
-	  min::obj_id_map_struct<min::uns32> >
+	  min::obj_id_map_header<min::uns32> >
     obj_id_map_type
     ( "obj_id_map_type",
       NULL, stub_element_stub_disp,
       NULL, obj_id_map_stub_disp );
 
+min::obj_id_map min::init
+	( min::ref<min::obj_id_map> map )
+{
+    if ( map == min::NULL_STUB )
+	map = ::obj_id_map_type.new_stub ( 16 );
+    else
+    {
+        hash_table_ref(map) = min::NULL_STUB;
+	min::pop ( (min::obj_id_map) map,
+	           (min::unsptr) map->length );
+	min::resize ( (min::obj_id_map) map, 16 );
+    }
+    min::push ( (min::obj_id_map) map ) =
+        min::NULL_STUB;
+    return map;
+}
+
 template < typename L >
 inline L hash
 	( min::packed_vec_insptr
 	      < const min::stub *,
-		min::obj_id_map_struct<L> > map,
+		min::obj_id_map_header<L> > map,
 	  const min::stub * s )
 {
     min::packed_vec_insptr<min::uns32> hash_table =
@@ -6820,13 +6837,13 @@ template < typename L >
 static void new_hash_table
 	( min::packed_vec_insptr
 	      < const min::stub *,
-		min::obj_id_map_struct<L> > map )
+		min::obj_id_map_header<L> > map )
 {
     L length = map->length;
-    if ( length < 32 ) length = 32;
     assert (   length
 	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
     length *= 4;
+    if ( length < 128) length = 128;
 
     hash_table_ref ( map ) =
 	::hash_table_type.new_stub ( length );
@@ -6860,9 +6877,11 @@ template < typename L >
 min::uns32 find
 	( min::packed_vec_insptr
 	      < const min::stub *,
-		min::obj_id_map_struct<L> > map,
+		min::obj_id_map_header<L> > map,
 	  const min::stub * s )
 {
+    if ( s == min::NULL_STUB ) return 0;
+
     if ( map->hash_table == NULL_STUB )
 	::new_hash_table ( map );
     min::packed_vec_insptr<min::uns32> hash_table =
@@ -6888,9 +6907,11 @@ template < typename L >
 min::uns32 find_or_add
 	( min::packed_vec_insptr
 	      < const min::stub *,
-		min::obj_id_map_struct<L> > map,
+		min::obj_id_map_header<L> > map,
 	  const min::stub * s )
 {
+    if ( s == min::NULL_STUB ) return 0;
+
     if ( map->hash_table == NULL_STUB )
 	::new_hash_table ( map );
     min::packed_vec_insptr<min::uns32> hash_table =
@@ -6921,10 +6942,15 @@ template < typename L >
 void insert
 	( min::packed_vec_insptr
 	      < const min::stub *,
-		min::obj_id_map_struct<L> > map,
+		min::obj_id_map_header<L> > map,
 	  const min::stub * s,
 	  min::uns32 id )
 {
+    assert ( id != 0 );
+    assert ( s != min::NULL_STUB );
+
+    if ( id >= map->length )
+        min::push ( map, id + 1 - map->length );
     map[id] = s;
 
     min::packed_vec_insptr<min::uns32> hash_table =
@@ -6957,6 +6983,21 @@ template void insert
 	  const min::stub * s,
 	  min::uns32 id );
 
+}
+
+min::obj_id_map min::set_obj_id_map
+	( min::printer printer,
+	  min::obj_id_map map )
+{
+    if ( map == min::NULL_STUB )
+    {
+        if ( printer->obj_id_map == min::NULL_STUB )
+	    min::init ( obj_id_map_ref(printer) );
+    }
+    else
+	obj_id_map_ref(printer) = map;
+
+    return printer->obj_id_map;
 }
 
 static min::packed_vec<min::line_break>
