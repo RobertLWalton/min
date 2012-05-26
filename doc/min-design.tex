@@ -6620,6 +6620,12 @@ accomplished by the following:
 \LABEL{MIN::GRAPHIC_FLAGS} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::file printer->|
+    & \TTMKEY{obj\_\EOL id\_\EOL map}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_OBJ_ID_MAP} \\
+\end{tabular}\end{indpar}
+
 The {\tt min::}\MINKEY{init} function both re-initializes existing
 printers and creates new ones.  It takes a variable as its
 first argument, and if the variable value is {\tt min::\EOL
@@ -6912,6 +6918,10 @@ Used with {\tt min::save\_print\_format} and
 restore the {\tt print\_\EOL format} parameters.
 See \pagref{PRINT-FORMAT-STACK} for details.
 Initialized to an empty stack.
+
+\item[\ttmkey{obj\_\EOL id\_\EOL map}{in {\tt min::printer}}]~\\
+Used to find or create object IDs when printing
+{\tt min::gen} object values.  See \pagref{OBJ-ID-MAP}.
 
 \end{itemlist}
 
@@ -7826,7 +7836,7 @@ The {\tt min::gen\_format} members are:
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
+printing of {\tt str\_\EOL pre/\EOL post\-fix/\EOL quote} (see below).
 
 \item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]
 \item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
@@ -7859,14 +7869,17 @@ Otherwise no parentheses are printed surrounding such objects.
 If the {\tt DATA\_\EOL FLAG} is set objects are printed on
 one or more lines using the format:
 \begin{indpar}
-\verb|@|\verb|<|{\em number}\verb|> =| \ldots
+\verb|@|\verb|<|{\em id}\verb|> =| \ldots
 \end{indpar}
 
+where {\em id} is an object ID.
 These lines are all indented by the current printer indent (the
 object output begins with the {\tt min::\EOL indent} printer operation).
-Complex subobjects and non-published subobjects are
-referenc\-ed by \verb|@|\verb|<|{\em number}\verb|>|'s and
+Complex subobjects and non-pub\-lish\-ed subobjects are
+referenc\-ed by \verb|@|\verb|<|{\em id}\verb|>|'s and
 printed separately from their containing objects.
+Object IDs are choosen using the printer {\tt obj\_\EOL id\_\EOL map}:
+see below (\pagref{OBJ-ID-MAP}).
 
 If the {\tt RAW\_\EOL FLAG} is set,
 the output of an object vector element that is
@@ -7993,6 +8006,114 @@ is passed as an argument to the {\tt pstub} function,
 and may or may not be be ignored by that function.
 
 \end{itemlist}
+
+When objects are printed using lines of the form
+\begin{indpar}
+\verb|@|\verb|<|{\em id}\verb|> =| \ldots
+\end{indpar}
+the {\em ids} are choosen using an \key{object ID map}:\label{OBJ-ID-MAP}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_insptr|\ARGBREAK
+	  \verb|    < const min::stub *,|\ARGBREAK
+	  \verb|      min::obj_id_map_header<min::uns32> >|\ARGBREAK
+	  \verb|min::|\MINKEY{obj\_\EOL id\_\EOL map}
+\LABEL{MIN::OBJ_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::obj_id_map min::| & \MINKEY{init\REL}
+    \verb|( min::ref<min::obj_id_map> map )|
+\LABEL{MIN::INIT_OF_OBJ_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::stub * map| & \TTBMKEY{id}{of {\tt min::obj\_id\_map}}
+\LABEL{MIN::OBJ_ID_MAP_[]} \\
+\verb|min::uns32 min::| & \MINKEY{find\REL}\ARGBREAK
+    \verb|( min::ref<min::obj_id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s )|
+\LABEL{MIN::FIND_OF_OBJ_ID_MAP} \\
+\verb|min::uns32 min::| & \MINKEY{find\_\EOL or\_\EOL add\REL}\ARGBREAK
+    \verb|( min::ref<min::obj_id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s )|
+\LABEL{MIN::FIND_OR_ADD_OF_OBJ_ID_MAP} \\
+\verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
+    \verb|( min::ref<min::obj_id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s,|\ARGBREAK
+    \verb|  min::uns32 id )|
+\LABEL{MIN::INSERT_OF_OBJ_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+An object ID map maintains a 1-1 correspondence between pointers to
+{\tt min::\EOL stub}'s
+and IDs that are small strictly positive integers.  
+If {\tt map} is a {\tt min::\EOL obj\_\EOL id\_\EOL map},
+and {\tt (s,id)} is a correspondence stored in {\tt map} between
+a `{\tt const min::stub *}' pointer {\tt s} and a {\tt min::\EOL uns32}
+ID {\tt id}, then
+\begin{center}
+\tt
+s == map[id] \\
+id == min::find ( map, s )
+\end{center}
+
+The ID value {\tt 0} denotes a missing ID, and cannot be part of the
+correspondence stored in an object ID map.
+
+The {\tt min::init} function may be used to create or reset a {\tt map}
+so that {\tt map->length == 1}.  {\tt map[0]} is set to equal
+{\tt min::\EOL NULL\_\EOL STUB}, and this {\tt map} element cannot
+be changed.
+
+If stubs are being output, the {\tt min::find\_\EOL or\_\EOL add}
+function can be used to find the ID of a stub.  If {\tt s} is already
+in the {\tt map}, its associated ID is returned.  Otherwise the {\tt s}
+is pushed to the end of the {\tt map} vector and assigned an ID which
+is returned.  However, as a special case,
+{\tt min::\EOL find\_\EOL or\_\EOL add} returns
+zero if its stub pointer argument is {\tt min::\EOL NULL\_\EOL stub}.
+
+If stubs IDs are being input, {\tt map[id]} can be used to find the stub
+associated with {\tt id}, unless {\tt id >= map->length}, in which case
+there is no such stub.  Also, there is no stub if
+{\tt map[id] == min::\EOL NULL\_\EOL STUB}.  If there is no stub associated
+with {\tt id}, a stub {\tt s}
+can be created and inserted into the map with the {\tt min::\EOL insert}
+function, which will increase the length of the map if necessary to
+accomodate {\tt id}.
+
+The {\tt min::find} function is not needed for either input or output.
+It merely returns the ID associated with a stub {\tt s} if one exists,
+or returns {\tt 0} if no such ID exists.  {\tt min::\EOL find} also returns
+zero if its stub pointer argument is {\tt min::\EOL NULL\_\EOL stub}.
+
+Part of an object ID map is a hash table that permits
+{\tt min::\EOL find\ldots} functions to work quickly.  This
+hash table is created by the first call to a
+{\tt min::\EOL find\ldots} function.
+The hash table, if it exists, is maintained by {\tt min::\EOL insert},
+unless the hash table has become too small to be efficient, in which case
+{\tt min::\EOL insert} discards it so a larger hash table will be created
+by the next call to a {\tt min::\EOL find\ldots} function.
+
+A printer's {\tt obj\_id\_map} member is initialized automatically when
+needed.  However, it can also be set by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::obj_id_map min::|
+    & \MINKEY{set\_\EOL obj\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
+    \verb|( <min::printer printer,|\ARGBREAK
+    \verb|  min::obj_id_map map = min::NULL_STUB )|
+\LABEL{MIN::SET_OBJ_ID_MAP_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+which permits maps to be shared among printers.  If no second argument
+is given, an object ID map is created for the printer if none previously
+exists.  This can then be shared with other printers.  The final
+{\tt obj\_\EOL id\_\EOL map} member of the printer is returned, and this
+is never {\tt min::\EOL NULL\_\EOL STUB}.
 
 \subsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
@@ -14033,6 +14154,12 @@ In loose implementation: \\
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|min::file printer->|
+    & \TTMKEY{obj\_\EOL id\_\EOL map}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_OBJ_ID_MAP} \\
 \end{TABULAR}
 
 \bigskip

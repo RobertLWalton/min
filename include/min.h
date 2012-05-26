@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 26 00:51:39 EDT 2012
+// Date:	Sat May 26 09:02:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11327,7 +11327,7 @@ namespace min {
     extern const gen_format default_gen_format;
 
     template < typename L >
-    struct obj_id_map_struct
+    struct obj_id_map_header
     {
         const min::uns32 control;
 
@@ -11370,12 +11370,14 @@ namespace min {
     
     typedef min::packed_vec_insptr
 		< const min::stub *,
-		  min::obj_id_map_struct<min::uns32> >
+		  min::obj_id_map_header<min::uns32> >
 	    obj_id_map;
 
     MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
               obj_id_map );
 
+    min::obj_id_map init
+            ( min::ref<min::obj_id_map> map );
     uns32 find
             ( min::obj_id_map map,
 	      const min::stub * s );
@@ -11386,6 +11388,9 @@ namespace min {
             ( min::obj_id_map map,
 	      const min::stub * s,
 	      min::uns32 id );
+    min::obj_id_map set_obj_id_map
+            ( min::printer printer,
+	      min::obj_id_map map = min::NULL_STUB );
 
     struct line_break
     {
@@ -11423,6 +11428,8 @@ namespace min {
 
 	min::line_break_stack line_break_stack;
 	min::print_format_stack print_format_stack;
+
+	const min::obj_id_map obj_id_map;
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11430,6 +11437,8 @@ namespace min {
               line_break_stack, min::printer )
     MIN_REF ( min::print_format_stack,
               print_format_stack, min::printer )
+    MIN_REF ( min::obj_id_map,
+              obj_id_map, min::printer )
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
