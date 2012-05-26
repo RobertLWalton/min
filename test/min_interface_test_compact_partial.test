@@ -1140,14 +1140,14 @@ min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 10
+upv1->control = 12
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-upv2->control = 11
+upv2->control = 13
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:

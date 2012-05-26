@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 22 19:16:06 EDT 2012
+// Date:	Fri May 25 20:40:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6779,6 +6779,141 @@ static void init_utf8graphic ( void )
 }
 
 static char NUL_UTF8_ENCODING[2] = { 0xC0, 0x80 };
+
+static min::packed_vec<min::uns32> hash_table_type
+    ( "hash_table_type" );
+
+static min::uns32 obj_id_map_stub_disp[2] =
+    { min::DISP ( & min::obj_id_map_struct<min::uns32>
+                       ::hash_table ),
+      min::DISP_END };
+
+static min::uns32 stub_element_stub_disp[2] =
+    { 0, min::DISP_END };
+
+static min::packed_vec
+	< const min::stub *,
+	  min::obj_id_map_struct<min::uns32> >
+    obj_id_map_type
+    ( "obj_id_map_type",
+      NULL, stub_element_stub_disp,
+      NULL, obj_id_map_stub_disp );
+
+template < typename L >
+inline L hash
+	( min::packed_vec_insptr
+	      < const min::stub *,
+		min::obj_id_map_struct<L> > map,
+	  const min::stub * s )
+{
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    assert ( hash_table != min::NULL_STUB );
+    min::uns64 h0 = ( s - ( const min::stub * ) 0 );
+    h0 &= map->hash_mask;
+    h0 *= map->hash_multiplier;
+    h0 %= hash_table->length;
+    return (L) h0;
+}
+
+template < typename L >
+static void new_hash_table
+	( min::packed_vec_insptr
+	      < const min::stub *,
+		min::obj_id_map_struct<L> > map )
+{
+    L length = map->length;
+    if ( length < 64 ) length = 64;
+    assert (   length
+	     < ( (L) 1 << ( 8 * sizeof ( L ) - 1 ) ) );
+    length *= 2;
+
+    hash_table_ref ( map ) =
+	::hash_table_type.new_stub ( length );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+
+    map->hash_max_offset = 0;
+    for ( L id = 0; id < map->length; ++ id )
+    {
+	const min::stub * s = map[id];
+	L h = ::hash ( map, s );
+	L offset = 0;
+	while ( hash_table[h] != 0 )
+	{
+	    h = ( h + 1 ) % hash_table->length;
+	    ++ offset;
+	}
+	hash_table[h] = id;
+	if ( map->hash_max_offset < offset )
+	    map->hash_max_offset = offset;
+    }
+}
+
+namespace min {
+
+template < typename L >
+min::uns32 find
+	( min::packed_vec_insptr
+	      < const min::stub *,
+		min::obj_id_map_struct<L> > map,
+	  const min::stub * s )
+{
+    if ( map->hash_table == NULL_STUB )
+	::new_hash_table ( map );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        L id = hash_table[h];
+	if ( id == 0 ) return 0;
+	if ( map[id] == s ) return id;
+	if ( offset >= map->hash_max_offset ) return 0;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+}
+
+template min::uns32 find
+	( min::obj_id_map map,
+	  const min::stub * s );
+
+template < typename L >
+min::uns32 add
+	( min::packed_vec_insptr
+	      < const min::stub *,
+		min::obj_id_map_struct<L> > map,
+	  const min::stub * s )
+{
+    if ( map->hash_table == NULL_STUB )
+	::new_hash_table ( map );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        L id = hash_table[h];
+	if ( id == 0 ) break;
+	if ( map[id] == s ) return id;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+    L id = map->length;
+    min::push ( map ) = s;
+    hash_table[id] = id;
+    if ( map->hash_max_offset < offset )
+        map->hash_max_offset = offset;
+    return id;
+}
+
+template min::uns32 add
+	( min::obj_id_map map,
+	  const min::stub * s );
+
+}
 
 static min::packed_vec<min::line_break>
     line_break_stack_type
