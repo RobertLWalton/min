@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 22:35:36 EST 2012
+// Date:	Sun May 27 04:33:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -326,7 +326,9 @@ static void stub_allocator_initializer ( void )
 #   ifndef MIN_STUB_BASE
 	MINT::null_stub = (min::stub *) stubs;
 	MINT::stub_base = (min::unsptr) stubs;
-#   else
+#   elif MIN_STUB_BASE != 0
+        // Above elif avoids warning that following
+	// conditional is always false.
 	if ( (min::unsptr) stubs < MIN_STUB_BASE )
 	{
 	    // Oops, stub vector too low in memory.

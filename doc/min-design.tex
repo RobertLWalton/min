@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 23, 2012}
+\date{May 27, 2012}
  
 \maketitle
 
@@ -1433,7 +1433,7 @@ values, and must only be used as specified by documentation.
 They are used as return or argument values by some functions.
 
 For reasons given below, special values are defined by {\tt inline}
-functions of zero arguments.
+functions of no-arguments.
 The special values defined by MIN are:
 
 \begin{indpar}
@@ -4297,11 +4297,11 @@ A \key{packed structure} is a class datum stored in a body associated
 with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
 stub type code.
 
-The class type must be such that:
+The class type must be similar to a C-language {\tt struct} in that:
 \begin{enumerate}
 \item Construction\label{PACKED-STRUCTURE-TYPE-REQUIREMENTS}
 of a datum of the type
-by a zero argument constructor does not
+by a no-argument constructor does not
 set any datum byte to a non-zero value.  Note that bytes need not be
 set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
@@ -4309,6 +4309,7 @@ of a newly constructed datum.
 When a packed structure is created it is zeroed and then one special
 header member described below, the {\tt control} member,
 is given a value.
+No constructor is called.
 \item
 Destruction of a datum of the type does nothing.
 
@@ -4492,9 +4493,9 @@ are also treated as {\tt const min::\EOL stub~*} members.
 
 \end{itemlist}
 
-The \verb|pstype.new_gen| or \verb|pstype.new_stub|
+The \verb|pstype.new_gen| and \verb|pstype.new_stub|
 functions create a new packed structure
-datum of the C type described by \verb|pstype| and returns a
+datum of the type described by \verb|pstype| and return a
 \verb|min::gen| or {\tt const min::\EOL stub~*} value pointing at it.
 The new packed structure is set to all zeros, except for its
 `\verb|control|' member.
@@ -4780,11 +4781,12 @@ The structure at the beginning of a packed vector
 is called the packed vector \mkey{header}{of packed vector}
 and the vector elements that follow the header are called the
 packed vector \smkey{element}s{of packed vector}.
-The types of both the header and the vector elements must be such that:
+The types of both the vector header and the vector elements must be
+similar to C-language {\tt struct}, number, or pointer types in that:
 \begin{enumerate}
 \item Construction\label{PACKED-VECTOR-TYPE-REQUIREMENTS}
 of a datum of the type
-by a zero argument constructor does not
+by a no-argument constructor does not
 set any datum byte to a non-zero value.  Note that bytes need not be
 set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
@@ -4792,6 +4794,7 @@ of a newly constructed datum.
 When a packed vector is created it is zeroed and then a few special
 header members described below, the {\tt control}, {\tt length},
 and {\tt max\_\EOL length} members, are given values.
+No constructor is called.
 \item
 Destruction of a datum of the type does nothing.
 
@@ -5079,9 +5082,9 @@ The maximum increment of the maximum length computable by the
 
 \end{itemlist}
 
-The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function creates a new packed vector
-datum of the C type described by \verb|pvtype| and returns a
+The \verb|pvtype.new_gen| and \verb|pvtype.new_stub|
+functions create a new packed vector
+datum of the type described by \verb|pvtype| and return a
 \verb|min::gen| or \verb|const min::stub *|
 value pointing at it.  A packed vector has a
 \mkey{length}{of packed vector} which is the number of elements
@@ -7752,8 +7755,8 @@ in a relocatable body.  Its structure is as follows:
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implied_initiator;|\ARGBREAK
-    \verb|  const char *           implied_terminator;|\ARGBREAK
+    \verb|  const char *           implicit_initiator;|\ARGBREAK
+    \verb|  const char *           implicit_terminator;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -7774,8 +7777,8 @@ in a relocatable body.  Its structure is as follows:
 \ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{special\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{special\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{implied\_initiator}{in {\tt min::gen\_format}}
-\ttmindex{implied\_terminator}{in {\tt min::gen\_format}}
+\ttmindex{implicit\_initiator}{in {\tt min::gen\_format}}
+\ttmindex{implicit\_terminator}{in {\tt min::gen\_format}}
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
@@ -7814,7 +7817,7 @@ in a relocatable body.  Its structure is as follows:
     \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implied_initiator/terminator|\ARGBREAK
+    \verb|  "","",       // implicit_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
@@ -7830,63 +7833,79 @@ The {\tt min::gen\_format} members are:
 
 \end{itemlist}
 
-\begin{indpar}\begin{itemlist}[1.4in]
+\begin{indpar}[0.1in]\begin{itemlist}[1.4in]
 
 \item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of {\tt str\_\EOL pre/\EOL post\-fix/\EOL quote} (see below).
+printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
 
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]
-\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
-    {{\tt min::gen\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]\vspace{-1ex}
-\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::gen\_format} flag}]%
-\vspace{-1ex}
+\item[\ttnbkey{EXPRESSION\_FLAG}]
+\item[\ttnbkey{IMPLICIT\_PARENTHESES\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{DATA\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{OBJ\_PSTUB\_FLAG}]\vspace{-1ex}
 These flags control the printing of objects.  Note that a `\key{subobject}'
 is an object that is a vector element or attribute value of an object
 being printed.
+\end{itemlist}\end{indpar}
+\begin{indpar}[0.3in]\begin{itemlist}[0.4in]
 
-If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
-an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
+\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, only the vector elements of
+an object and the \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
+\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
 attributes are printed, and other attributes are ignored.
 
 Also, the special parsing {\tt .initiator}'s {\tt \#} and {\tt "} are
-unwrapped (i.e., \verb/"foo" {| .initiator "<Q>" |}/ prints as
-\verb|"foo"|), and the special parsing {\tt .separator} {\tt "<NL>"}
+unwrapped, that is,
+\begin{center}
+\verb/"foo" {| .initiator "<Q>" |}/
+\end{center}
+prints as
+\verb|"foo"|, and the special parsing {\tt .separator} {\tt "<NL>"}
 is treated as signaling an indentation mark line list.
 
 If this flag is off, all attributes are printed, along with the vector elements,
 and special parsing attributes are not recognized.
 
-If the {\tt IMPLICIT\_\EOL PARENTHESIS\_\EOL FLAG} is set,
-implicit parentheses are printed surrounding subobjects
-that have no attributes (and only vector elements).
+\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, and if in addition {\tt implicit\_\EOL initiator} and
+{\tt implicit\_\EOL terminator} are both non-{\tt NULL},
+and if the {\tt EXPRESSION\_\EOL FLAG} is set,
+then subobjects
+that have no {\tt .initiator} or {\tt .terminator} attributes
+are printed surrounded by {\tt implicit\_\EOL initiator}
+and {\tt implicit\_\EOL terminator}.
 Otherwise no parentheses are printed surrounding such objects.
 
-If the {\tt DATA\_\EOL FLAG} is set objects are printed on
+\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, objects are printed on
 one or more lines using the format:
 \begin{indpar}
 \verb|@|\verb|<|{\em id}\verb|> =| \ldots
 \end{indpar}
 
 where {\em id} is an object ID.
-These lines are all indented by the current printer indent (the
-object output begins with the {\tt min::\EOL indent} printer operation).
+These lines are all indented by the current printer column.
 Complex subobjects and non-pub\-lish\-ed subobjects are
 referenc\-ed by \verb|@|\verb|<|{\em id}\verb|>|'s and
 printed separately from their containing objects.
-Object IDs are choosen using the printer {\tt obj\_\EOL id\_\EOL map}:
+Object IDs are created or found by
+using the printer {\tt obj\_\EOL id\_\EOL map}:
 see below (\pagref{OBJ-ID-MAP}).
 
-If the {\tt RAW\_\EOL FLAG} is set,
+\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set,
 the output of an object vector element that is
 a string is surrounded by {\tt str\_\EOL pre/postfix}, and
 subobjects are all printed separately and referenced by
 \verb|@<|{\em number}\verb|>|'s.  If subobjects are being printed,
 the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
+
+\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, TBD
 
 \end{itemlist}\end{indpar}
 
@@ -7928,10 +7947,10 @@ The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
-\item[\ttmkey{implied\_initiator}{in {\tt min::gen\_format}}]
-\item[\ttmkey{implied\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{implicit\_initiator}{in {\tt min::gen\_format}}]
+\item[\ttmkey{implicit\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}
 If not {\tt NULL},
-the {\tt implied\_\EOL \BRA initiator,terminator\KET} members
+the {\tt implicit\_\EOL \BRA initiator,terminator\KET} members
 are treated as
 the {\tt .initiator} and {\tt .terminator} of an object that is being
 printed with both {\tt EXPRESSION\_\EOL FLAG} and {\tt IMPLICIT\_\EOL
@@ -14462,8 +14481,8 @@ In loose implementation: \\
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implied_initiator;|\ARGBREAK
-    \verb|  const char *           implied_terminator;|\ARGBREAK
+    \verb|  const char *           implicit_initiator;|\ARGBREAK
+    \verb|  const char *           implicit_terminator;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -14507,7 +14526,7 @@ In loose implementation: \\
     \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implied_initiator/terminator|\ARGBREAK
+    \verb|  "","",       // implicit_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
