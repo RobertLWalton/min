@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 26 07:45:49 EDT 2012
+// Date:	Sat May 26 20:48:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6813,6 +6813,7 @@ min::obj_id_map min::init
     }
     min::push ( (min::obj_id_map) map ) =
         min::NULL_STUB;
+    map->occupied = 0;
     return map;
 }
 
@@ -6839,7 +6840,7 @@ static void new_hash_table
 	      < const min::stub *,
 		min::obj_id_map_header<L> > map )
 {
-    L length = map->length;
+    L length = map->occupied;
     assert (   length
 	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
     length *= 4;
@@ -6929,8 +6930,14 @@ min::uns32 find_or_add
     L id = map->length;
     min::push ( map ) = s;
     hash_table[h] = id;
+
     if ( map->hash_max_offset < offset )
         map->hash_max_offset = offset;
+
+    ++ map->occupied;
+    if ( hash_table->length < 2 * map->occupied )
+        hash_table_ref ( map ) = min::NULL_STUB;
+
     return id;
 }
 
@@ -6952,12 +6959,13 @@ void insert
     if ( id >= map->length )
         min::push ( map, id + 1 - map->length );
     map[id] = s;
+    ++ map->occupied;
 
     min::packed_vec_insptr<min::uns32> hash_table =
         map->hash_table;
 
     if ( hash_table == NULL_STUB ) return;
-    else if ( hash_table->length < 2 * map->length )
+    else if ( hash_table->length < 2 * map->occupied )
     {
         hash_table_ref ( map ) = min::NULL_STUB;
 	    // Defer creation of a new hash table

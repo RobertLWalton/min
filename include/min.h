@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 26 09:02:17 EDT 2012
+// Date:	Sun May 27 07:58:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11298,8 +11298,8 @@ namespace min {
 	const char *         lab_postfix;
 	const char *         special_prefix;
 	const char *         special_postfix;
-	const char *         implied_prefix;
-	const char *         implied_postfix;
+	const char *         implicit_prefix;
+	const char *         implicit_postfix;
 	const char * const * special_names;
 	uns32                special_names_size;
 	const uns32 *        space_prefix_mask;
@@ -11334,6 +11334,10 @@ namespace min {
 	const L length;
 	const L max_length;
 
+	L occupied;
+	    // Number of map elements not equal to
+	    // NULL_STUB.
+
 	min::uns32 hash_mask;
 	min::uns32 hash_multiplier;
 	L hash_max_offset;
@@ -11359,9 +11363,9 @@ namespace min {
 	    //	      max_offset = offset;
 	    //
 	    // The hash_table is created by `find' if it
-	    // does not exist.  When
+	    // does not exist.  If
 	    //
-	    //   hash_table->length < 2 * this->length
+	    //   hash_table->length < 2 * occupied
 	    //
 	    // the hash_table is reset to NULL_STUB so
 	    // it will be recreated with a longer length
