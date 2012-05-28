@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 20 19:39:52 EDT 2012
+// Date:	Mon May 28 04:01:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -632,8 +632,8 @@ void test_general_value_functions ( void )
 	 << min::unsptr ( stub )
 	 << dec << endl;
     min::gen stubgen = MUP::new_stub_gen ( stub );
-    cout << "stubgen: " << MTEST::ogen ( stubgen )
-	 << endl;
+    cout << "stubgen: " << min::pgen ( stubgen )
+	 << min::eol;
     MIN_ASSERT ( min::is_stub ( stubgen ) );
     MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
     MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
@@ -651,8 +651,8 @@ void test_general_value_functions ( void )
 	int i = -8434;
 	min::gen igen =
 	    MUP::new_direct_int_gen ( i );
-	cout << "igen: " << MTEST::ogen ( igen )
-	     << endl;
+	cout << "igen: " << min::pgen ( igen )
+	     << min::eol;
 	MIN_ASSERT ( min::is_direct_int ( igen ) );
 	MIN_ASSERT
 	    ( count_gen_tests ( igen ) == 1 );
@@ -695,8 +695,8 @@ void test_general_value_functions ( void )
 	min::float64 f = -8.245324897;
 	min::gen fgen =
 	    MUP::new_direct_float_gen ( f );
-	cout << "fgen: " << MTEST::ogen ( fgen )
-	     << endl;
+	cout << "fgen: " << min::pgen ( fgen )
+	     << min::eol;
 	MIN_ASSERT
 	    ( min::is_direct_float ( fgen ) );
 	MIN_ASSERT
@@ -736,8 +736,8 @@ void test_general_value_functions ( void )
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
-    cout << "strgen: " << MTEST::ogen ( strgen )
-	 << endl;
+    cout << "strgen: " << min::pgen ( strgen )
+	 << min::eol;
     MIN_ASSERT ( min::is_direct_str ( strgen ) );
     MIN_ASSERT ( count_gen_tests ( strgen ) == 1 );
     MIN_ASSERT (    min::gen_subtype_of ( strgen )
@@ -754,8 +754,8 @@ void test_general_value_functions ( void )
 
     min::gen strngen =
 	MUP::new_direct_str_gen ( str, 2 );
-    cout << "strngen: " << MTEST::ogen ( strngen )
-	 << endl;
+    cout << "strngen: " << min::pgen ( strngen )
+	 << min::eol;
     MIN_ASSERT ( min::is_direct_str ( strngen ) );
     MIN_ASSERT ( count_gen_tests ( strngen ) == 1 );
     MIN_ASSERT (    min::gen_subtype_of ( strngen )
@@ -781,7 +781,7 @@ void test_general_value_functions ( void )
     min::gen listauxgen =
 	MUP::new_list_aux_gen ( aux );
     cout << "listauxgen: "
-	 << MTEST::ogen ( listauxgen ) << endl;
+	 << min::pgen ( listauxgen ) << min::eol;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -801,7 +801,7 @@ void test_general_value_functions ( void )
     listauxgen =
 	MUP::renew_gen ( listauxgen, reaux );
     cout << "re-listauxgen: "
-	 << MTEST::ogen ( listauxgen ) << endl;
+	 << min::pgen ( listauxgen ) << min::eol;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -815,7 +815,7 @@ void test_general_value_functions ( void )
     min::gen sublistauxgen =
 	MUP::new_sublist_aux_gen ( aux );
     cout << "sublistauxgen: "
-	 << MTEST::ogen ( sublistauxgen ) << endl;
+	 << min::pgen ( sublistauxgen ) << min::eol;
     MIN_ASSERT
 	( min::is_sublist_aux ( sublistauxgen ) );
     MIN_ASSERT
@@ -841,7 +841,7 @@ void test_general_value_functions ( void )
     min::gen indirectauxgen =
 	MUP::new_indirect_aux_gen ( aux );
     cout << "indirectauxgen: "
-	 << MTEST::ogen ( indirectauxgen ) << endl;
+	 << min::pgen ( indirectauxgen ) << min::eol;
     MIN_ASSERT
 	( min::is_indirect_aux
 		    ( indirectauxgen ) );
@@ -869,7 +869,7 @@ void test_general_value_functions ( void )
     min::gen indexgen =
 	MUP::new_index_gen ( index );
     cout << "indexgen: "
-	 << MTEST::ogen ( indexgen ) << endl;
+	 << min::pgen ( indexgen ) << min::eol;
     MIN_ASSERT ( min::is_index ( indexgen ) );
     MIN_ASSERT
 	( count_gen_tests ( indexgen ) == 1 );
@@ -893,7 +893,7 @@ void test_general_value_functions ( void )
     min::gen codegen =
 	MUP::new_control_code_gen ( code );
     cout << "codegen: "
-	 << MTEST::ogen ( codegen ) << endl;
+	 << min::pgen ( codegen ) << min::eol;
     MIN_ASSERT ( min::is_control_code ( codegen ) );
     MIN_ASSERT ( count_gen_tests ( codegen ) == 1 );
     MIN_ASSERT
@@ -945,7 +945,7 @@ void test_general_value_functions ( void )
     min::gen specialgen =
 	MUP::new_special_gen ( special );
     cout << "specialgen: "
-	 << MTEST::ogen ( specialgen ) << endl;
+	 << min::pgen ( specialgen ) << min::eol;
     MIN_ASSERT ( min::is_special ( specialgen ) );
     MIN_ASSERT
 	( count_gen_tests ( specialgen ) == 1 );
@@ -1409,7 +1409,7 @@ void test_numbers ( void )
 	    " functions:" << endl;
 
     min::gen n1 = min::new_num_gen ( 12345 );
-    cout << "n1: " << MTEST::ogen ( n1 ) << endl;
+    cout << "n1: " << min::pgen ( n1 ) << min::eol;
     MIN_ASSERT ( min::is_num ( n1 ) );
     MIN_ASSERT ( min::is_name ( n1 ) );
     MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
@@ -1426,7 +1426,7 @@ void test_numbers ( void )
 
     min::gen n2 = min::new_num_gen ( 1.2345 );
 #   if MIN_IS_LOOSE
-	cout << "n2: " << MTEST::ogen ( n2 ) << endl;
+	cout << "n2: " << min::pgen ( n2 ) << min::eol;
 #   endif
     MIN_ASSERT ( min::is_num ( n2 ) );
     MIN_ASSERT ( min::is_name ( n2 ) );
@@ -1444,7 +1444,7 @@ void test_numbers ( void )
 
     min::gen n3 = min::new_num_gen ( 1 << 30 );
 #   if MIN_IS_LOOSE
-	cout << "n3: " << MTEST::ogen ( n3 ) << endl;
+	cout << "n3: " << min::pgen ( n3 ) << min::eol;
 #   endif
     MIN_ASSERT ( min::is_num ( n3 ) );
     MIN_ASSERT ( min::is_name ( n3 ) );
@@ -3492,9 +3492,9 @@ static bool check_attr_info
         if ( aivp[i].name != aip[i].name )
 	{
 	    cout << i << ": BAD NAME: "
-	         << MTEST::ogen ( aivp[i].name )
+	         << min::pgen ( aivp[i].name )
 		 << " != "
-		 << MTEST::ogen ( aip[i].name )
+		 << min::pgen ( aip[i].name )
 		 << endl;
 	    ok = false;
 	    continue;
@@ -3502,7 +3502,7 @@ static bool check_attr_info
         if ( aivp[i].value_count != aip[i].value_count)
 	{
 	    cout << i << ": "
-	         << MTEST::ogen ( aivp[i].name )
+	         << min::pgen ( aivp[i].name )
 	         << ": BAD VALUE COUNT: "
 	         << aivp[i].value_count << " != "
 		 << aip[i].value_count << endl;
@@ -3511,7 +3511,7 @@ static bool check_attr_info
         if ( aivp[i].flag_count != aip[i].flag_count)
 	{
 	    cout << i << ": "
-	         << MTEST::ogen ( aivp[i].name )
+	         << min::pgen ( aivp[i].name )
 	         << ": BAD FLAG COUNT: "
 	         << aivp[i].flag_count << " != "
 		 << aip[i].flag_count << endl;
@@ -3521,7 +3521,7 @@ static bool check_attr_info
 	     != aip[i].reverse_attr_count)
 	{
 	    cout << i << ": "
-	         << MTEST::ogen ( aivp[i].name )
+	         << min::pgen ( aivp[i].name )
 	         << ": BAD REVERSE ATTR COUNT: "
 	         << aivp[i].reverse_attr_count << " != "
 		 << aip[i].reverse_attr_count << endl;
@@ -3573,9 +3573,9 @@ static bool check_values
 	    if ( values[i] != p[i] )
 	    {
 	        cout << i << ": BAD VALUE: "
-		    << MTEST::ogen ( values[i] )
+		    << min::pgen ( values[i] )
 		    << " != "
-		    << MTEST::ogen ( p[i] )
+		    << min::pgen ( p[i] )
 		    << endl;
 		ok = false;
 		break;
@@ -3600,8 +3600,8 @@ void test_attribute_values
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE VALUES ( "
-         << MTEST::ogen ( label1 ) << ", "
-         << MTEST::ogen ( label2 ) << ")" << endl;
+         << min::pgen ( label1 ) << ", "
+         << min::pgen ( label2 ) << ")" << endl;
 
     min::gen val1 = min::new_num_gen ( 1 );
     min::gen val2 = min::new_num_gen ( 2 );
@@ -3730,9 +3730,9 @@ void test_attribute_flags
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE FLAGS ( "
-         << MTEST::ogen ( label1 ) << ", "
-         << MTEST::ogen ( label2 ) << ", "
-         << MTEST::ogen ( label3 ) << ")" << endl;
+         << min::pgen ( label1 ) << ", "
+         << min::pgen ( label2 ) << ", "
+         << min::pgen ( label3 ) << ")" << endl;
 
     min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
     min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
@@ -3850,9 +3850,9 @@ void test_reverse_attribute_values
     min_assert_print = false;
 
     cout << "TEST REVERSE ATTRIBUTE VALUES ( "
-         << MTEST::ogen ( label1 ) << ", "
-         << MTEST::ogen ( rlabel1 ) << ", "
-         << MTEST::ogen ( label2 ) << ")" << endl;
+         << min::pgen ( label1 ) << ", "
+         << min::pgen ( rlabel1 ) << ", "
+         << min::pgen ( label2 ) << ")" << endl;
 
     min::gen values1[3] = { obj1, obj2, obj3 };
     min::locate ( ap, label1 );
