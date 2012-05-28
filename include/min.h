@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 09:53:24 EDT 2012
+// Date:	Mon May 28 17:56:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11482,6 +11482,7 @@ namespace min {
         enum OPCODE
 	{
             PGEN = 1,
+	    PGEN_WITH_FLAGS,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT,
@@ -11525,12 +11526,18 @@ namespace min {
 	op ( op::OPCODE opcode )
 	    : opcode ( opcode ) {}
 	op ( op::OPCODE opcode,
-	     min::gen v,
-	     const gen_format * f )
+	     min::gen v )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
-	    v2.p = (void *) f;
+	}
+	op ( op::OPCODE opcode,
+	     min::gen v,
+	     min::uns32 gen_flags )
+	    : opcode ( opcode )
+	{
+	    v1.g = unprotected::value_of ( v );
+	    v2.u32 = gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11591,11 +11598,16 @@ namespace min {
 	      std::ostream & ostream );
 
     inline op pgen
-	    ( min::gen v,
-              const min::gen_format * gen_format =
-	          NULL )
+	    ( min::gen v )
     {
-        return op ( op::PGEN, v, gen_format );
+        return op ( op::PGEN, v );
+    }
+
+    inline op pgen
+	    ( min::gen v,
+              min::uns32 gen_flags )
+    {
+        return op ( op::PGEN_WITH_FLAGS, v, gen_flags );
     }
 
     inline op punicode ( min::uns32 c )

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 10:03:49 EDT 2012
+// Date:	Mon May 28 17:56:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7249,15 +7249,24 @@ min::printer operator <<
     case min::op::PGEN:
     {
 	const min::gen_format * f =
-	    (min::gen_format *) op.v2.p;
-	if  ( f == NULL )
-	    f = printer->print_format.gen_format;
+	    printer->print_format.gen_format;
 	if  ( f == NULL )
 	    f = & min::default_gen_format;
 
 	return ( * f->pgen )
 	    ( printer, MUP::new_gen ( op.v1.g ),
 	      printer->print_format.gen_flags, f );
+    }
+    case min::op::PGEN_WITH_FLAGS:
+    {
+	const min::gen_format * f =
+	    printer->print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ( * f->pgen )
+	    ( printer, MUP::new_gen ( op.v1.g ),
+	      op.v2.u32, f );
     }
     case min::op::PUNICODE1:
 	return MINT::print_unicode
@@ -7481,15 +7490,24 @@ std::ostream & operator <<
     case min::op::PGEN:
     {
 	const min::gen_format * f =
-	    (min::gen_format *) op.v2.p;
-	if  ( f == NULL )
-	    f = min::ostream_print_format.gen_format;
+	    min::ostream_print_format.gen_format;
 	if  ( f == NULL )
 	    f = & min::default_gen_format;
 
 	return ::ostream_pgen
 	    ( out, MUP::new_gen ( op.v1.g ),
 	      min::ostream_print_format.gen_flags, f );
+    }
+    case min::op::PGEN_WITH_FLAGS:
+    {
+	const min::gen_format * f =
+	    min::ostream_print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ::ostream_pgen
+	    ( out, MUP::new_gen ( op.v1.g ),
+	      op.v2.u32, f );
     }
     case min::op::PUNICODE1:
 	return ::ostream_unicode

@@ -7720,7 +7720,7 @@ can be presented to a {\tt std::\EOL ostream} by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}{of {\tt std::ostream \&}}\ARGBREAK
+    & \TTOMKEY{<<}{\LT\LT}{of {\tt std::ostream \&}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  const min::op & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
@@ -7751,26 +7751,34 @@ default {\tt pgen}.
 \label{PRINTING-GENERAL-VALUES}
 
 {\tt min::gen} values are printed using a
-{\tt min::\EOL gen\_\EOL format}.
-The {\tt min::\EOL pgen} printer operation can specify
-this format explicitly:
+{\tt min::\EOL gen\_\EOL format} enabled by a set of {\tt gen\_\EOL flags}.
+The {\tt min::\EOL pgen} printer operation can specify the flags
+explicitly or use defaults equal to
+{\tt printer->\EOL print\_\EOL format.gen\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  const min::gen_format * gen_format = NULL )|
+	  \verb|  min::uns32 gen_flags )|
+\LABEL{MIN::PGEN_WITH_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
-value \verb|v| to the printer {\tt printer} using the
-{\tt min::\EOL gen\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL},
+The expression `{\tt printer<<min::pgen(v,gen\_flags)}'
+prints the {\tt min::gen} value \verb|v| to the
+{\tt printer} using the given {\tt gen\_\EOL flags}.
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
-is used instead.  If that is also {\tt NULL},
+is used, unless that is {\tt NULL}, in which case
 {\tt \&\,min::default\_\EOL gen\_\EOL format} is used.
+If the {\tt gen\_flags} argument is omitted,
+{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}
+is used in its place.
 
+The expression
 `{\tt printer<<v}' can also used as the equivalent of
 `{\tt printer<<min::pgen(v)}':
 
@@ -7788,7 +7796,15 @@ in a relocatable body.  Its structure is as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32             flags;|\ARGBREAK
+    \verb|  min::printer ( * pgen )|\ARGBREAK
+    \verb|       ( min::printer printer,|\ARGBREAK
+    \verb|         min::gen v,|\ARGBREAK
+    \verb|         min::uns32 gen_flags,|\ARGBREAK
+    \verb|         const min::gen_format * g );|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  // Members beyond this point may be moved and|\ARGBREAK
+    \verb|  // new members may be added.|\ARGBREAK
+    \verb||\ARGBREAK
     \verb|  const char *           number_format;|\ARGBREAK
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
@@ -7804,13 +7820,8 @@ in a relocatable body.  Its structure is as follows:
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
     \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
-    \verb|  min::printer &     ( * pstub )|\ARGBREAK
-    \verb|       ( min::printer & printer,|\ARGBREAK
-    \verb|         const min::gen_format * g );|\ARGBREAK
-    \verb|         const min::stub * s );|\ARGBREAK
-    \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
-\ttmindex{flags}{in {\tt min::gen\_format}}
+\ttmindex{gen}{in {\tt min::gen\_format}}
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
@@ -7826,7 +7837,6 @@ in a relocatable body.  Its structure is as follows:
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
 \ttmindex{space\_postfix\_mask}{in {\tt min::gen\_format}}
-\ttmindex{pstub}{in {\tt min::gen\_format}}
 \LABEL{MIN::GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -7854,16 +7864,15 @@ in a relocatable body.  Its structure is as follows:
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  0,           // flags|\ARGBREAK
-    \verb|  "%.15g",     // number_format|\ARGBREAK
-    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,        // str_quote|\ARGBREAK
-    \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implicit_initiator/terminator|\ARGBREAK
-    \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
-    \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
-    \verb|  NULL         // pstub|\ARGBREAK
+    \verb|  min::default_pgen    // pgen|\ARGBREAK
+    \verb|  "%.15g",             // number_format|\ARGBREAK
+    \verb|  "`","'",             // str_prefix/postfix|\ARGBREAK
+    \verb|  NULL,                // str_quote|\ARGBREAK
+    \verb|  "[","","]",          // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "","",               // special_prefix/postfix|\ARGBREAK
+    \verb|  "","",               // implicit_initiator/terminator|\ARGBREAK
+    \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
+    \verb|  NULL,NULL,           // space_pre/postfix_mask|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -14491,6 +14500,29 @@ In loose implementation: \\
 \LABEL{MIN::VERBATIM} \\
 \end{TABULAR}
 
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT}{of {\tt std::ostream \&}}\ARGBREAK
+      \verb|( std::ostream & out,|\ARGBREAK
+      \verb|  const min::op & op )|
+\LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.8in}
+\multicolumn{2}{l}{\tt min::print\_format
+                       min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
+    \verb|  min::EXPRESSION_FLAG,               // gen_flags|\ARGBREAK
+    \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
+\end{TABULAR}
+
 \end{indpar}
 
 \INDEXHEADER{Printing General Values}
@@ -14501,8 +14533,11 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  const min::gen_format * gen_format =|\ARGBREAK
-	  \verb|                                NULL )|
+	  \verb|  min::uns32 gen_flags )|
+\LABEL{MIN::PGEN_WITH_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
 \end{TABULAR}
 
@@ -14562,7 +14597,7 @@ In loose implementation: \\
 \LABEL{MIN::POSTFIX_SEPARATOR_FLAG} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{0.8in}
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
