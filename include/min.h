@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 27 07:58:17 EDT 2012
+// Date:	Mon May 28 01:45:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11288,7 +11288,15 @@ namespace min {
 
     struct gen_format
     {
-    	uns32	             flags;
+	min::printer     ( * pgen )
+	    ( min::printer printer,
+	      min::gen v,
+	      min::uns32 gen_flags,
+	      const min::gen_format * gen_format );
+
+	// Members beyond this point may be moved and
+	// new members may be added.
+
         const char *         number_format;
 	const char *         str_prefix;
 	const char *         str_postfix;
@@ -11304,25 +11312,18 @@ namespace min {
 	uns32                special_names_size;
 	const uns32 *        space_prefix_mask;
 	const uns32 *        space_postfix_mask;
-	min::printer     ( * pstub )
-	    ( min::printer printer,
-	      const min::gen_format * gen_format,
-	      const min::stub * s );
-	// Additional members may be added.
-    };
-
-    enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
-	EXPRESSION_FLAG			= ( 1 << 1 ),
-	DATA_FLAG			= ( 1 << 2 ),
-	RAW_FLAG			= ( 1 << 3 ),
-	OBJ_PSTUB_FLAG			= ( 1 << 4 )
     };
 
     enum {
         PREFIX_SEPARATOR_FLAG		= ( 1 << 0 ),
 	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
     };
+
+    min::printer default_pgen
+	    ( min::printer printer,
+	      min::gen v,
+	      min::uns32 gen_flags,
+	      const min::gen_format * gen_format );
 
     extern const gen_format default_gen_format;
 
@@ -11412,6 +11413,7 @@ namespace min {
     struct print_format
     {
 	uns32 flags;
+	uns32 gen_flags;
         const min::gen_format * gen_format;
     };
 
@@ -11465,6 +11467,13 @@ namespace min {
         GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
 	                        + GRAPHIC_VSPACE_FLAG
 	                        + GRAPHIC_NSPACE_FLAG
+    };
+
+    enum {
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+	EXPRESSION_FLAG			= ( 1 << 1 ),
+	DATA_FLAG			= ( 1 << 2 ),
+	RAW_FLAG			= ( 1 << 3 ),
     };
 
     struct op
@@ -11851,41 +11860,15 @@ inline min::printer operator <<
     return oprinter << iprinter->file;
 }
 
-namespace min { namespace test {
-
-    struct ogen
-    {
-        min::gen g;
-	const min::gen_format * gen_format;
-	ogen ( min::gen g,
-	       const min::gen_format * gen_format
-	           = & min::default_gen_format )
-	    : g ( g ), gen_format ( gen_format ) {}
-    };
-} }
-
-// out << ogen ( g, gen_format ) is used only for test
-// purposes in contexts where
-//
-//	printer < pgen ( g, gen_format )
-//
-// should not be used because packed vectors have not
-// been tested or may be defective.  Asside from the
-// difference between `out' and `printer', the other
-// differences are that for ogen (1) the format must
-// be given or it will default to min:default_printer_
-// format, and (2), the format pstub function is ignored
-// (treated as NULL).
-//
 std::ostream & operator <<
 	( std::ostream & out,
-	  const min::test::ogen & og );
+	  const min::op & op );
 
 inline std::ostream & operator <<
 	( std::ostream & out,
 	  min::gen g )
 {
-    return out << min::test::ogen ( g );
+    return out << min::pgen ( g );
 }
 
 // More Allocator/Collector/Compactor Interface

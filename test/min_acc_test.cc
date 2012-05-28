@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 02:06:33 EST 2012
+// Date:	Mon May 28 04:15:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -202,9 +202,9 @@ static bool check_vec_of_objects ( min::gen obj )
 		cout << "check_vec_of_objects FAILURE:"
 		     << endl
 		     << "   object[" << i << "][0] = "
-		     << min::test::ogen ( value )
+		     << min::pgen ( value )
 		     << " != "
-		     << min::test::ogen
+		     << min::pgen
 			    ( min::attr ( ep, j ) )
 		     << " = object[" << i << "][" << j
 		     << "]" << endl;

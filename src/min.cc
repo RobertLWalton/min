@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 26 20:48:11 EDT 2012
+// Date:	Mon May 28 01:56:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,10 +43,6 @@
 # include <iostream>
 # include <iomanip>
 # include <cmath>
-using std::hex;
-using std::dec;
-using std::cout;
-using std::endl;
 
 // Initialization
 // --------------
@@ -6667,7 +6663,7 @@ min::locatable_var<min::printer> min::error_message;
 
 const min::gen_format min::default_gen_format =
 {
-    0,
+    min::default_pgen,
     "%.15g",
     "`","'",
     NULL,
@@ -6676,7 +6672,6 @@ const min::gen_format min::default_gen_format =
     "", "",
     NULL, 0,
     NULL, NULL,
-    NULL
 };
 
 const min::line_break min::default_line_break =
@@ -6687,6 +6682,7 @@ const min::line_break min::default_line_break =
 const min::print_format min::default_print_format =
 {
     min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG,
+    0,
     & min::default_gen_format
 };
 
@@ -6778,7 +6774,7 @@ static void init_utf8graphic ( void )
 	      min::ILLEGAL_UTF8 );
 }
 
-static char NUL_UTF8_ENCODING[2] = { 0xC0, 0x80 };
+static char NUL_UTF8_ENCODING[3] = { 0xC0, 0x80, 0 };
 
 static min::packed_vec<min::uns32> hash_table_type
     ( "hash_table_type" );
@@ -7075,29 +7071,16 @@ min::printer min::init_ostream
 }
 
 template < typename T >
-static void print_obj
-	( T out,
-	  const min::stub * s,
-	  const min::gen_format * f, 
-	  T (*pstub) ( T, const min::gen_format * f,
-	                  const min::stub *) )
-{
-    int type = min::type_of ( s );
-    const char * type_name = min::type_name[type];
-    if ( type_name != NULL )
-	out << type_name;
-    else
-	out << "TYPE(" << type << ")";
-    if ( pstub != NULL ) (* pstub ) ( out, f, s );
-}
-
-template < typename T >
-static T print_gen
+static T pgen
 	( T out,
 	  min::gen v,
-	  const min::gen_format * f, 
-	  T (*pstub) ( T, const min::gen_format * f,
-	                  const min::stub *) )
+	  min::uns32 flags,
+	  const min::gen_format * f,
+	  T ( * pgen )
+	      ( T out,
+	        min::gen v,
+		min::uns32 flags,
+		const min::gen_format * f ) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -7126,7 +7109,7 @@ static T print_gen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) out << f->lab_separator;
-	    ::print_gen<T> ( out, labp[i], f, pstub );
+	    pgen ( out, labp[i], flags, f );
 	}
 	return out << f->lab_postfix;
     }
@@ -7151,7 +7134,12 @@ static T print_gen
     else if ( min::is_stub ( v ) )
     {
         const min::stub * s = MUP::stub_of ( v );
-        ::print_obj<T> ( out, s, f, pstub );
+	int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    out << type_name;
+	else
+	    out << "TYPE(" << type << ")";
 	return out;
     }
     else if ( min::is_list_aux ( v ) )
@@ -7183,6 +7171,26 @@ static T print_gen
 	return out << buffer;
     }
 
+}
+
+min::printer min::default_pgen
+	( min::printer printer,
+	  min::gen v,
+	  min::uns32 flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<min::printer>
+    		( printer, v, flags, f, f->pgen );
+}
+
+static std::ostream & ostream_pgen
+	( std::ostream & out,
+	  min::gen v,
+	  min::uns32 flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<std::ostream &>
+    		( out, v, flags, f, ::ostream_pgen );
 }
 
 static void end_line ( min::printer printer )
@@ -7240,10 +7248,9 @@ min::printer operator <<
 	if  ( f == NULL )
 	    f = & min::default_gen_format;
 
-	return print_gen<min::printer>
-	    ( printer,
-	      MUP::new_gen ( op.v1.g ),
-	      f, f->pstub );
+	return ( * f->pgen )
+	    ( printer, MUP::new_gen ( op.v1.g ),
+	      printer->print_format.gen_flags, f );
     }
     case min::op::PUNICODE1:
 	return MINT::print_unicode
@@ -7450,6 +7457,59 @@ min::printer operator <<
 	goto set_break;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
+    }
+}
+
+static std::ostream & ostream_unicode
+	( std::ostream & out, min::uns32 flags,
+	  min::unsptr n, const min::uns32 * str );
+
+static const min::uns32 OSTREAM_FLAGS =
+    min::ASCII_FLAG + min::GRAPHIC_FLAGS;
+std::ostream & operator <<
+	( std::ostream & out,
+	  const min::op & op )
+{
+    char buffer[256];
+    switch ( op.opcode )
+    {
+    case min::op::PGEN:
+    {
+	const min::gen_format * f =
+	    (min::gen_format *) op.v2.p;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ::ostream_pgen
+	    ( out, MUP::new_gen ( op.v1.g ),
+	      min::EXPRESSION_FLAG, f );
+    }
+    case min::op::PUNICODE1:
+	return ::ostream_unicode
+	    ( out, ::OSTREAM_FLAGS, 1, & op.v1.u32 );
+    case min::op::PUNICODE2:
+	return ::ostream_unicode
+	    ( out, ::OSTREAM_FLAGS, op.v1.uptr,
+		(const min::uns32 *) op.v2.p );
+    case min::op::PINT:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.i64 );
+	return out << buffer;
+    case min::op::PUNS:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.u64 );
+	return out << buffer;
+    case min::op::PFLOAT:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.f64 );
+	return out << buffer;
+    case min::op::EOM:
+    case min::op::EOL:
+	return out << std::endl;
+    case min::op::FLUSH:
+	return out << std::flush;
+    default:
+        return out;
     }
 }
 
@@ -7977,6 +8037,145 @@ min::printer MINT::print_unicode
     return printer;
 }
 
+static std::ostream & ostream_unicode
+	( std::ostream & out, min::uns32 flags,
+	  min::unsptr n, const min::uns32 * str )
+{
+    bool ascii = 
+	( ( flags & min::ASCII_FLAG ) != 0 );
+
+    char temp[32];
+
+    while ( n -- )
+    {
+        min::uns32 c = * str ++;
+
+	// Divide into cases.  For each, either process
+	// and continue, or fall through to output
+	// utf8graphic[c] or asciigraphic[c].
+	//
+	if ( 0x20 < c && c < 0x7F )
+	{
+	    /* Common case: ASCII graphic character. */
+
+	    out << (char) c;
+
+	    continue;
+	}
+	else if ( c == ' ' )
+	{
+	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+	        ; // Drop through
+	    else
+	    {
+		out << ' ';
+		
+		continue;
+	    }
+	}
+	else if ( c == '\t' )
+	{
+	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+	        ; // Drop through
+	    else
+	    {
+	        out << '\t';
+
+		continue;
+	    }
+	}
+	else if ( c == '\f' || c == '\v' )
+	{
+	    if ( flags & min::GRAPHIC_VSPACE_FLAG )
+	        ; // Drop through
+	    else
+	    {
+	        if ( flags & min::ALLOW_VSPACE_FLAG )
+		    out << (char) c;
+
+		continue;
+	    }
+	}
+	else if ( c < 0x20 || c == 0x7F )
+	{
+	    /* Non-Space Control Character */
+	   
+	    if ( flags & min::GRAPHIC_NSPACE_FLAG )
+	        ; // Drop through
+	    else
+	    {
+		if ( flags & min::ALLOW_NSPACE_FLAG )
+		{
+		    if ( c == 0 )
+			out << NUL_UTF8_ENCODING;
+		    else
+			out << (char) c;
+		}
+
+		continue;
+	    }
+	}
+	else
+	{
+	    /* Non-ASCII UNICODE Character. */
+	   
+	    const char * rep;
+	    if( ascii )
+	    {
+		if ( c == min::ILLEGAL_UTF8 )
+		    rep = asciigraphic[ILL_REP];
+		else
+		{
+		    sprintf ( temp+1, "<%X>", c );
+		    char * p = temp + 1;
+		    if ( p[1] < '0' || '9' < p[1] )
+		    {
+			* p -- = '0';
+			* p = '<';
+		    }
+		    rep = p;
+		}
+	    }
+	    else /* not ascii mode */
+	    {
+		if ( c == min::ILLEGAL_UTF8 )
+		    rep = utf8graphic[ILL_REP];
+		else
+		{
+		    char * p = temp;
+		    min::unsptr len =
+		        min::unicode_to_utf8 ( p, c );
+		    temp[len] = 0;
+		    rep = temp;
+		}
+	    }
+
+	   
+	    out << rep;
+
+	    continue;
+	}
+
+	// Output c as utf8graphic[c] or
+	// asciigraphic[c].
+
+	// Recode DEL as DEL_REP.
+	//
+	if ( c == 0x7F ) c = DEL_REP;
+       
+	const char * rep;
+	if ( ascii )
+	    rep = asciigraphic[c];
+	else
+	    rep = utf8graphic[c];
+
+       
+        out << rep;
+    }
+
+    return out;
+}
+
 min::printer operator <<
 	( min::printer printer, min::int64 i )
 {
@@ -7999,19 +8198,6 @@ min::printer operator <<
     char buffer[64];
     sprintf ( buffer, "%.15g", f );
     return printer << buffer;
-}
-
-std::ostream & operator <<
-	( std::ostream & out,
-	  const min::test::ogen & og )
-{
-    return print_gen<std::ostream &>
-        ( out, og.g, og.gen_format,
-	  (std::ostream & (*)
-	      ( std::ostream &,
-	        const min::gen_format *,
-		const min::stub * ) )
-	  NULL );
 }
 
 void MINT::pwidth
