@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 01:56:54 EDT 2012
+// Date:	Mon May 28 10:03:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6682,7 +6682,14 @@ const min::line_break min::default_line_break =
 const min::print_format min::default_print_format =
 {
     min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG,
-    0,
+    min::EXPRESSION_FLAG,
+    & min::default_gen_format
+};
+
+min::print_format min::ostream_print_format =
+{
+    min::ASCII_FLAG + min::GRAPHIC_FLAGS,
+    min::EXPRESSION_FLAG,
     & min::default_gen_format
 };
 
@@ -7074,12 +7081,12 @@ template < typename T >
 static T pgen
 	( T out,
 	  min::gen v,
-	  min::uns32 flags,
+	  min::uns32 gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
-		min::uns32 flags,
+		min::uns32 gen_flags,
 		const min::gen_format * f ) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
@@ -7109,7 +7116,7 @@ static T pgen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) out << f->lab_separator;
-	    pgen ( out, labp[i], flags, f );
+	    pgen ( out, labp[i], gen_flags, f );
 	}
 	return out << f->lab_postfix;
     }
@@ -7176,21 +7183,21 @@ static T pgen
 min::printer min::default_pgen
 	( min::printer printer,
 	  min::gen v,
-	  min::uns32 flags,
+	  min::uns32 gen_flags,
 	  const min::gen_format * f )
 {
     return ::pgen<min::printer>
-    		( printer, v, flags, f, f->pgen );
+	    ( printer, v, gen_flags, f, f->pgen );
 }
 
 static std::ostream & ostream_pgen
 	( std::ostream & out,
 	  min::gen v,
-	  min::uns32 flags,
+	  min::uns32 gen_flags,
 	  const min::gen_format * f )
 {
     return ::pgen<std::ostream &>
-    		( out, v, flags, f, ::ostream_pgen );
+	    ( out, v, gen_flags, f, ::ostream_pgen );
 }
 
 static void end_line ( min::printer printer )
@@ -7464,8 +7471,6 @@ static std::ostream & ostream_unicode
 	( std::ostream & out, min::uns32 flags,
 	  min::unsptr n, const min::uns32 * str );
 
-static const min::uns32 OSTREAM_FLAGS =
-    min::ASCII_FLAG + min::GRAPHIC_FLAGS;
 std::ostream & operator <<
 	( std::ostream & out,
 	  const min::op & op )
@@ -7478,19 +7483,23 @@ std::ostream & operator <<
 	const min::gen_format * f =
 	    (min::gen_format *) op.v2.p;
 	if  ( f == NULL )
+	    f = min::ostream_print_format.gen_format;
+	if  ( f == NULL )
 	    f = & min::default_gen_format;
 
 	return ::ostream_pgen
 	    ( out, MUP::new_gen ( op.v1.g ),
-	      min::EXPRESSION_FLAG, f );
+	      min::ostream_print_format.gen_flags, f );
     }
     case min::op::PUNICODE1:
 	return ::ostream_unicode
-	    ( out, ::OSTREAM_FLAGS, 1, & op.v1.u32 );
+	    ( out, min::ostream_print_format.flags,
+	      1, & op.v1.u32 );
     case min::op::PUNICODE2:
 	return ::ostream_unicode
-	    ( out, ::OSTREAM_FLAGS, op.v1.uptr,
-		(const min::uns32 *) op.v2.p );
+	    ( out, min::ostream_print_format.flags,
+	      op.v1.uptr,
+	      (const min::uns32 *) op.v2.p );
     case min::op::PINT:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
