@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 01:45:14 EDT 2012
+// Date:	Mon May 28 09:53:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11418,6 +11418,7 @@ namespace min {
     };
 
     extern const print_format default_print_format;
+    extern print_format ostream_print_format;
 
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;

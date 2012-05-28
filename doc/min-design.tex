@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 27, 2012}
+\date{May 28, 2012}
  
 \maketitle
 
@@ -6560,6 +6560,11 @@ accomplished by the following:
 			      &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
 			      &   & \verb|//  + min::HBREAK_FLAG|
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+			          & \verb|// Default:| \\
+			      &   & \verb|//    min::EXPRESSION_FLAG|
+\LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
 \verb|    min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 			          & \verb|// Default:| \\
@@ -6580,6 +6585,14 @@ accomplished by the following:
     & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT_STACK} \\
 \end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::file printer->|
+    & \TTMKEY{obj\_\EOL id\_\EOL map}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_OBJ_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+{\tt print\_format.flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_HSPACE\_FLAG}
@@ -6621,12 +6634,6 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::file printer->|
-    & \TTMKEY{obj\_\EOL id\_\EOL map}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_OBJ_ID_MAP} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::}\MINKEY{init} function both re-initializes existing
@@ -6911,8 +6918,10 @@ executed at the very end of a {\tt min::\EOL eol} or
 \end{itemlist}\end{indpar}
 
 \begin{itemlist}[0.6in]
-\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]~\\
-Controls the printing of
+\item[\ttmkey{print\_format.gen\_flags}{in {\tt min::printer}}]
+\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
+\vspace{-2ex}~\\
+These control the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
@@ -7703,6 +7712,40 @@ operations on the target printer.
 Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must save and restore
 {\tt print\_\EOL format}).
+
+Strictly for testing purposes, in situations where {\tt min::printer}'s
+are not working, printer operations ({\tt min::}\MINKEY{op}'s)
+can be presented to a {\tt std::\EOL ostream} by the
+{\tt <<} operator:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}{of {\tt std::ostream \&}}\ARGBREAK
+      \verb|( std::ostream & out,|\ARGBREAK
+      \verb|  const min::op & op )|
+\LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
+\end{tabular}\end{indpar}
+
+The parts of printer operations that change {\tt min::\EOL printer}
+parameters or read {\tt line\_\EOL break} parameters
+are treated as no-operations, and parts that just
+use the {\tt print\_\EOL format} parameters are executed using
+the value of {\tt min::\EOL ostream\_\EOL print\_\EOL format}
+instead, where this is a global variable initialized by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt min::print\_format
+                       min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
+    \verb|  min::EXPRESSION_FLAG,               // gen_flags|\ARGBREAK
+    \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
+\end{tabular}\end{indpar}
+
+Also, {\tt gen\_format->pgen} is ignored, and so cannot override the
+default {\tt pgen}.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -14104,6 +14147,9 @@ In loose implementation: \\
 \verb|{                     | \\
 \verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+\LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
 \verb|    min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
