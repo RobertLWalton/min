@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 29 04:56:59 EDT 2012
+// Date:	Tue May 29 17:17:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3106,7 +3106,7 @@ namespace min {
 	    ( container, container->name ); \
     }
 
-#   define MIN_STACKCOPY(T,buffer,length,source) \
+#   define MIN_STACK_COPY(T,buffer,length,source) \
     T buffer[length]; \
     memcpy ( buffer, (T const *) (source), \
              sizeof ( T ) * (length) )
@@ -11496,6 +11496,7 @@ namespace min {
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
 	    PLACE_INDENT,
+	    SET_GEN_FLAGS,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
@@ -11672,6 +11673,12 @@ namespace min {
     {
         return op ( op::CLEAR_PRINT_FLAGS,
 	            print_flags );
+    }
+
+    inline op set_gen_flags
+	    ( min::uns32 gen_flags )
+    {
+        return op ( op::SET_GEN_FLAGS, gen_flags );
     }
 
     inline op set_gen_format

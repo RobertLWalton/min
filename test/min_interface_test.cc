@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 18:04:42 EDT 2012
+// Date:	Tue May 29 17:30:53 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -733,6 +733,9 @@ void test_general_value_functions ( void )
 	min::uns64 u64;
 	char str[8];
     } value;
+
+    min::ostream_print_format.gen_flags =
+        min::BRACKET_STR_FLAG;
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
@@ -2442,8 +2445,13 @@ void test_printer ( void )
     printer << min::new_num_gen ( 1.23456789012345 )
             << min::eol;
 
+    printer << min::save_print_format
+            << min::set_gen_flags
+	           ( min::BRACKET_STR_FLAG );
+
     printer << min::pgen ( min::new_str_gen
-    			        ( "this is a string" ) )
+    			        ( "this is a string"
+				  " with a quote (')" ) )
             << min::eol;
 
     min::gen lab1[2] =
@@ -2456,6 +2464,8 @@ void test_printer ( void )
     printer << min::pgen
                     ( min::new_lab_gen ( lab2, 3 ) )
             << min::eol;
+
+    printer << min::restore_print_format;
 
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;

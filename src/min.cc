@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 29 04:56:50 EDT 2012
+// Date:	Tue May 29 17:18:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7122,11 +7122,11 @@ static T pgen
 	    {
 		min::uns32 length = min::strlen ( sp );
 
-	        MIN_STACKCOPY
+	        MIN_STACK_COPY
 		    ( char, str, length + 1, & sp[0] );
 
 		const char * p = str;
-		length = std::strlen ( f->str_quote );
+		length = std::strlen ( f->str_postfix );
 
 	        out << f->str_prefix;
 		while ( ( first = std::strstr
@@ -7338,6 +7338,9 @@ min::printer operator <<
 	else
 	    printer->line_break.indent =
 	        printer->column + op.v1.i32;
+	return printer;
+    case min::op::SET_GEN_FLAGS:
+	printer->print_format.gen_flags = op.v1.u32;
 	return printer;
     case min::op::SET_GEN_FORMAT:
 	printer->print_format.gen_format =
@@ -7829,7 +7832,7 @@ min::printer operator <<
 	( min::printer printer, min::ptr<const char> s )
 {
     min::unsptr length = strlen ( s ) + 1;
-    MIN_STACKCOPY ( char, buffer, length, s );
+    MIN_STACK_COPY ( char, buffer, length, s );
     return printer << buffer;
 }
 
