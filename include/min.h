@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 17:56:11 EDT 2012
+// Date:	Tue May 29 04:56:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11471,10 +11471,15 @@ namespace min {
     };
 
     enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
-	EXPRESSION_FLAG			= ( 1 << 1 ),
-	DATA_FLAG			= ( 1 << 2 ),
-	RAW_FLAG			= ( 1 << 3 ),
+        BRACKET_STR_FLAG		= ( 1 << 0 ),
+        GRAPHIC_STR_FLAG		= ( 1 << 1 ),
+        BRACKET_LAB_FLAG		= ( 1 << 2 ),
+        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
+        NAME_SPECIAL_FLAG		= ( 1 << 4 ),
+        BRACKET_IMPLICIT_FLAG		= ( 1 << 5 ),
+	EXPRESSION_FLAG			= ( 1 << 6 ),
+	DATA_FLAG			= ( 1 << 7 ),
+	RAW_FLAG			= ( 1 << 8 ),
     };
 
     struct op
