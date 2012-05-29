@@ -7576,8 +7576,12 @@ by the following operations:
     & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
 \LABEL{MIN::CLEAR_PRINT_FLAGS} \\
 \verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL flags}
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::SET_GEN_FLAGS} \\
+\verb|min::op min::|
     & \MINKEY{set\_\EOL gen\_\EOL format}
-      \verb|( min::printer_format * gen_format )|
+      \verb|( min::gen_format * gen_format )|
 \LABEL{MIN::SET_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -7585,6 +7589,13 @@ For example, `{\tt printer<<min::set\_print\_flags(min::ASCII\_FLAG)}'
 sets the {\tt ASCII\_FLAG} of {\tt printer->\EOL print\_\EOL format.flags}
 (recall that {\tt print\_\EOL format.flags} are also referred to as
 {\tt print\_\EOL flags} when used as arguments to functions).
+
+Note that {\tt min::\EOL set\_\EOL print\_\EOL flags} logically OR's
+its argument into {\tt print\_\EOL format.flags},
+and {\tt min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
+the bitwise complement of its argument into {\tt print\_\EOL format.flags},
+whereas {\tt min::\EOL set\_\EOL gen\_\EOL flags} stores its argument
+into {\tt print\_\EOL for\-mat.gen\_\EOL flags}.
 
 Particular {\tt print\_format.flags} may be set and cleared by the
 following
@@ -14419,10 +14430,6 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}
-       \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
-\verb|min::op min::|
     & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
 \LABEL{MIN::SET_LINE_LENGTH} \\
 \verb|min::op min::|
@@ -14434,6 +14441,14 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
 \LABEL{MIN::CLEAR_PRINT_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL flags}
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::SET_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL format}
+      \verb|( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
