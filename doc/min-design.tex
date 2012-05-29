@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 28, 2012}
+\date{May 29, 2012}
  
 \maketitle
 
@@ -7840,18 +7840,7 @@ in a relocatable body.  Its structure is as follows:
 \LABEL{MIN::GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
-\LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
-\LABEL{MIN::DATA_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
-\LABEL{MIN::RAW_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_PSTUB\_FLAG}
-\LABEL{MIN::OBJ_PSTUB_FLAG} \\
-\end{tabular}\end{indpar}
+{\tt space\_prefix/postfix\_mask} flags:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{PREFIX\_SEPARATOR\_FLAG}
@@ -7866,9 +7855,8 @@ in a relocatable body.  Its structure is as follows:
     \verb|{|\ARGBREAK
     \verb|  min::default_pgen    // pgen|\ARGBREAK
     \verb|  "%.15g",             // number_format|\ARGBREAK
-    \verb|  "`","'",             // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,                // str_quote|\ARGBREAK
-    \verb|  "[","","]",          // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
+    \verb|  "["," ","]",         // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",               // special_prefix/postfix|\ARGBREAK
     \verb|  "","",               // implicit_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
@@ -7877,89 +7865,32 @@ in a relocatable body.  Its structure is as follows:
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
+{\tt print\_format.gen\_flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{NAME\_SPECIAL\_FLAG}
+\LABEL{MIN::NAME_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DELETE\_SPACES\_FLAG}
+\LABEL{MIN::DELETE_SPACES_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
+\LABEL{MIN::EXPRESSION_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
+\LABEL{MIN::DATA_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
+\LABEL{MIN::RAW_FLAG} \\
+\end{tabular}\end{indpar}
+
 The {\tt min::gen\_format} members are:
-
-\begin{itemlist}
-
-\item[\ttmkey{flags}{in {\tt min::gen\_format}}]
-
-\end{itemlist}
-
-\begin{indpar}[0.1in]\begin{itemlist}[1.4in]
-
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]
-This flag causes {\tt min::gen} string value characters to be printed
-in graphic mode, as per the {\tt min::graphic} printer operation
-(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
-
-\item[\ttnbkey{EXPRESSION\_FLAG}]
-\item[\ttnbkey{IMPLICIT\_PARENTHESES\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{DATA\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{OBJ\_PSTUB\_FLAG}]\vspace{-1ex}
-These flags control the printing of objects.  Note that a `\key{subobject}'
-is an object that is a vector element or attribute value of an object
-being printed.
-\end{itemlist}\end{indpar}
-\begin{indpar}[0.3in]\begin{itemlist}[0.4in]
-
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, only the vector elements of
-an object and the \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
-\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
-attributes are printed, and other attributes are ignored.
-
-Also, the special parsing {\tt .initiator}'s {\tt \#} and {\tt "} are
-unwrapped, that is,
-\begin{center}
-\verb/"foo" {| .initiator "<Q>" |}/
-\end{center}
-prints as
-\verb|"foo"|, and the special parsing {\tt .separator} {\tt "<NL>"}
-is treated as signaling an indentation mark line list.
-
-If this flag is off, all attributes are printed, along with the vector elements,
-and special parsing attributes are not recognized.
-
-\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, and if in addition {\tt implicit\_\EOL initiator} and
-{\tt implicit\_\EOL terminator} are both non-{\tt NULL},
-and if the {\tt EXPRESSION\_\EOL FLAG} is set,
-then subobjects
-that have no {\tt .initiator} or {\tt .terminator} attributes
-are printed surrounded by {\tt implicit\_\EOL initiator}
-and {\tt implicit\_\EOL terminator}.
-Otherwise no parentheses are printed surrounding such objects.
-
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, objects are printed on
-one or more lines using the format:
-\begin{indpar}
-\verb|@|\verb|<|{\em id}\verb|> =| \ldots
-\end{indpar}
-
-where {\em id} is an object ID.
-These lines are all indented by the current printer column.
-Complex subobjects and non-pub\-lish\-ed subobjects are
-referenc\-ed by \verb|@|\verb|<|{\em id}\verb|>|'s and
-printed separately from their containing objects.
-Object IDs are created or found by
-using the printer {\tt obj\_\EOL id\_\EOL map}:
-see below (\pagref{OBJ-ID-MAP}).
-
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set,
-the output of an object vector element that is
-a string is surrounded by {\tt str\_\EOL pre/postfix}, and
-subobjects are all printed separately and referenced by
-\verb|@<|{\em number}\verb|>|'s.  If subobjects are being printed,
-the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
-
-\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, TBD
-
-\end{itemlist}\end{indpar}
 
 \begin{itemlist}[1.6in]
 
@@ -7969,29 +7900,37 @@ for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
 
 \item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}
+These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
+and none of these three members is {\tt NULL}.
+
 The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
 
-\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]
-If not {\tt NULL}, then any {\tt min::gen} string
-subsequence of characters equal to {\tt str\_\EOL postfix} is replaced
+Any {\tt min::gen} string
+subsequence of characters equal to {\tt str\_\EOL post\-fix} is replaced
 by the characters of {\tt str\_\EOL quote}.
 
 For example, if
 {\tt str\_\EOL postfix} is \verb|"\""|, and
 {\tt str\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
-each \verb|"| in any {\tt min::gen} string that is printed (but of course not
-in {\tt str\_\EOL postfix} when that is printed just after the
-{\tt min::gen} string is printed).
+each \verb|"| in the {\tt min::gen} string that is being printed
+(but of course not in {\tt str\_\EOL postfix}
+when that is printed just after the {\tt min::gen} string is printed).
 
 \item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
 \item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
+These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
+and none of these three members is {\tt NULL}.
+
 The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the elements of a label {\tt min::gen} value,
-and the {\tt lab\_\EOL separa\-tor} member followed by a single space
-is printed between elements.
+and the {\tt lab\_\EOL separa\-tor} member
+is printed between elements.  Note that the {\tt lab\_\EOL sep\-ara\-tor}
+member must include any single space characters that are to be placed between
+elements.
 
 \item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
@@ -8061,15 +8000,85 @@ character.
 
 \end{itemlist}\end{indpar}
 
+Printer {\tt print\_format.gen\_flags}:
+
+\begin{indpar}[0.1in]\begin{itemlist}[1.4in]
+
+\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]
+This flag causes {\tt min::gen} string value characters to be printed
+in graphic mode, as per the {\tt min::graphic} printer operation
+(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
+printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
+
+\item[\ttnbkey{EXPRESSION\_FLAG}]
+\item[\ttnbkey{IMPLICIT\_PARENTHESES\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{DATA\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}
+These flags control the printing of objects.  Note that a `\key{subobject}'
+is an object that is a vector element or attribute value of an object
+being printed.
+\end{itemlist}\end{indpar}
+\begin{indpar}[0.3in]\begin{itemlist}[0.4in]
+
+\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, only the vector elements of
+an object and the \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
+\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
+attributes are printed, and other attributes are ignored.
+
+Also, the special parsing {\tt .initiator}'s {\tt \#} and {\tt "} are
+unwrapped, that is,
+\begin{center}
+\verb/"foo" {| .initiator "<Q>" |}/
+\end{center}
+prints as
+\verb|"foo"|, and the special parsing {\tt .separator} {\tt "<NL>"}
+is treated as signaling an indentation mark line list.
+
+If this flag is off, all attributes are printed, along with the vector elements,
+and special parsing attributes are not recognized.
+
+\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, and if in addition {\tt implicit\_\EOL initiator} and
+{\tt implicit\_\EOL terminator} are both non-{\tt NULL},
+and if the {\tt EXPRESSION\_\EOL FLAG} is set,
+then subobjects
+that have no {\tt .initiator} or {\tt .terminator} attributes
+are printed surrounded by {\tt implicit\_\EOL initiator}
+and {\tt implicit\_\EOL terminator}.
+Otherwise no parentheses are printed surrounding such objects.
+
+\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, objects are printed on
+one or more lines using the format:
+\begin{indpar}
+\verb|@|\verb|<|{\em id}\verb|> =| \ldots
+\end{indpar}
+
+where {\em id} is an object ID.
+These lines are all indented by the current printer column.
+Complex subobjects and non-pub\-lish\-ed subobjects are
+referenc\-ed by \verb|@|\verb|<|{\em id}\verb|>|'s and
+printed separately from their containing objects.
+Object IDs are created or found by
+using the printer {\tt obj\_\EOL id\_\EOL map}:
+see below (\pagref{OBJ-ID-MAP}).
+
+\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set,
+the output of an object vector element that is
+a string is surrounded by {\tt str\_\EOL pre/postfix}, and
+subobjects are all printed separately and referenced by
+\verb|@<|{\em number}\verb|>|'s.  If subobjects are being printed,
+the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
+
+\end{itemlist}\end{indpar}
+
 \begin{itemlist}
 
 \item[\ttmkey{pstub}{in {\tt min::gen\_format}}]
 The {\tt pstub} function, if it is not {\tt NULL}, is called
 with any {\tt min::stub} that is not a number, label, string, or object.
-
-Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
-and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
-also called for object stubs.
 
 Note that the {\tt min::\EOL gen\_\EOL format}, taken from the
 printer operation if it is supplied there or from the printer otherwise,
@@ -14586,8 +14595,6 @@ In loose implementation: \\
 \LABEL{MIN::DATA_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
 \LABEL{MIN::RAW_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_PSTUB\_FLAG}
-\LABEL{MIN::OBJ_PSTUB_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 17:56:25 EDT 2012
+// Date:	Tue May 29 04:56:50 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6665,8 +6665,7 @@ const min::gen_format min::default_gen_format =
 {
     min::default_pgen,
     "%.15g",
-    "`","'",
-    NULL,
+    "`","'","<Q>",
     "[", " ", "]",
     "", "",
     "", "",
@@ -7104,9 +7103,46 @@ static T pgen
     else if ( min::is_str ( v ) )
     {
         MUP::str_ptr sp ( v );
-        return out << f->str_prefix
-	           << min::begin_ptr_of ( sp )
-		   << f->str_postfix;
+	if ( ( gen_flags & min::BRACKET_STR_FLAG )
+	     &&
+	     f->str_prefix != NULL
+	     &&
+	     f->str_postfix != NULL
+	     &&
+	     f->str_quote != NULL
+	    )
+	{
+	    char * first =
+	        std::strstr ( & sp[0], f->str_postfix );
+	    if ( first == NULL )
+		return out << f->str_prefix
+			   << min::begin_ptr_of ( sp )
+			   << f->str_postfix;
+	    else
+	    {
+		min::uns32 length = min::strlen ( sp );
+
+	        MIN_STACKCOPY
+		    ( char, str, length + 1, & sp[0] );
+
+		const char * p = str;
+		length = std::strlen ( f->str_quote );
+
+	        out << f->str_prefix;
+		while ( ( first = std::strstr
+			    ( p, f->str_postfix ) ) )
+		{
+		    * first = 0;
+		    out << p;
+		    out << f->str_quote;
+		    p = first + length;
+		}
+
+		return out << p << f->str_postfix;
+	    }
+	}
+	else
+	    return out << min::begin_ptr_of ( sp );
     }
     else if ( min::is_lab ( v ) )
     {
