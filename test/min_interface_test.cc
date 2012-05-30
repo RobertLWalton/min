@@ -735,7 +735,7 @@ void test_general_value_functions ( void )
     } value;
 
     min::ostream_print_format.gen_flags =
-        min::BRACKET_STR_FLAG;
+        min::BRACKET_STR_FLAG + min::BRACKET_LAB_FLAG;
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
@@ -2447,7 +2447,8 @@ void test_printer ( void )
 
     printer << min::save_print_format
             << min::set_gen_flags
-	           ( min::BRACKET_STR_FLAG );
+	           (   min::BRACKET_STR_FLAG
+		     + min::BRACKET_LAB_FLAG );
 
     printer << min::pgen ( min::new_str_gen
     			        ( "this is a string"
