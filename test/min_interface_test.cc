@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 03:32:08 EDT 2012
+// Date:	Wed May 30 14:39:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1373,24 +1373,26 @@ void test_acc_interface ( void )
 	( find_gen_locator
 	      ( & (min::gen &) staticg2[0] )
 	  == MIN_IS_COMPACT );
-    MIN_ASSERT
-	(    count_gen_locators()
-	  == 4 + 2 * MIN_IS_COMPACT );
+
+    int locatable_gen_count = count_gen_locators();
     {
-        min::locatable_gen staticg3[5];
+        min::locatable_gen g3[5];
+        min::locatable_num_gen g4[3];
+	g3[0] = g4[0];
 	MIN_ASSERT
 	    ( find_gen_locator
 	          ( & (min::gen &) staticg1[2] ) );
 	MIN_ASSERT
 	    ( find_gen_locator
-	          ( & (min::gen &) staticg3[4] ) );
+	          ( & (min::gen &) g3[4] ) );
 	MIN_ASSERT
 	    (    count_gen_locators()
-	      == 9 + 2 * MIN_IS_COMPACT );
+	      == 5 + 3 * MIN_IS_COMPACT
+	       + locatable_gen_count );
     }
     MIN_ASSERT
 	(    count_gen_locators()
-	  == 4 + 2 * MIN_IS_COMPACT );
+	  == locatable_gen_count );
 
     memory_debug = memory_debug_save;
 
@@ -2451,9 +2453,10 @@ void test_printer ( void )
 		     + min::GRAPHIC_STR_FLAG
 		     + min::BRACKET_LAB_FLAG );
 
-    printer << min::pgen ( min::new_str_gen
-    			        ( "this is a string"
-				  " with a quote (')" ) )
+    printer << min::pgen
+                   ( min::new_str_gen
+			 ( "this is a string with a"
+			   " quote (')" ) )
             << min::eol;
 
     min::gen lab1[2] =
@@ -2595,7 +2598,8 @@ void test_printer ( void )
     // Test of non-simultaneous line breaks.
 
     printer << min::bom << min::set_indent ( 2 )
-            << min::set_line_length ( 72 ) << min::hbreak
+            << min::set_line_length ( 72 )
+	    << min::hbreak
             << "[ "
             << "aaa, "
             << "bbb, "
@@ -2608,7 +2612,8 @@ void test_printer ( void )
 	    << min::eom;
 
     printer << min::bom << min::set_indent ( 2 )
-            << min::set_line_length ( 14 ) << min::hbreak
+            << min::set_line_length ( 14 )
+	    << min::hbreak
             << "[ "
             << "aaa, "
             << "bbb, "
@@ -2655,14 +2660,17 @@ void test_printer ( void )
     // Test of mutiple simultaneous line breaks.
 
     printer << min::bom << min::set_line_length ( 72 )
-            << min::set_break << "{ " << min::save_indent
+            << min::set_break << "{ "
+	    << min::save_indent
             << min::set_break << "aaa, "
             << min::set_break << "bbb, "
-            << min::set_break << "[ " << min::save_indent 
+            << min::set_break << "[ "
+	    << min::save_indent 
             << min::set_break << "ccc, "
             << min::set_break << "ddd, "
             << min::set_break << "eee, "
-            << min::set_break << "( " << min::save_indent 
+            << min::set_break << "( "
+	    << min::save_indent 
             << min::set_break << "fff, "
             << min::set_break << "ggg"
             << " ), " << min::restore_indent 
@@ -2673,14 +2681,17 @@ void test_printer ( void )
             << " }" << min::restore_indent 
             << min::eom;
     printer << min::bom << min::set_line_length ( 34 )
-            << min::set_break << "{ " << min::save_indent
+            << min::set_break << "{ "
+	    << min::save_indent
             << min::set_break << "aaa, "
             << min::set_break << "bbb, "
-            << min::set_break << "[ " << min::save_indent 
+            << min::set_break << "[ "
+	    << min::save_indent 
             << min::set_break << "ccc, "
             << min::set_break << "ddd, "
             << min::set_break << "eee, "
-            << min::set_break << "( " << min::save_indent 
+            << min::set_break << "( "
+	    << min::save_indent 
             << min::set_break << "fff, "
             << min::set_break << "ggg"
             << " ), " << min::restore_indent 
