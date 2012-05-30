@@ -545,15 +545,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg2[0] ) == MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 4 + 2 * MIN_IS_COMPACT true.
-min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg1[2] ) true.
 min_interface_test.cc:XXXX assert:
-    find_gen_locator ( & (min::gen &) staticg3[4] ) true.
+    find_gen_locator ( & (min::gen &) g3[4] ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 9 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == 5 + 3 * MIN_IS_COMPACT + locatable_gen_count true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 4 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == locatable_gen_count true.
 
 Finish Allocator/Collector/Compactor Interface Test!
 

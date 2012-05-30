@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 03:24:22 EDT 2012
+// Date:	Wed May 30 14:39:04 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7074,6 +7074,74 @@ min::printer min::init_ostream
     init ( printer );
     init_ostream ( file_ref(printer), ostream );
     return printer << min::eol_flush;
+}
+
+static min::locatable_gen initiator;
+static min::locatable_gen terminator;
+static min::locatable_gen separator;
+
+// Execute pgen (below) in the case an object is to be
+// printed with the EXPRESSION_FLAG.
+//
+template < typename T >
+static T pgen_expression
+	( T out,
+	  min::obj_vec_ptr & vp,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f,
+	  T ( * pgen )
+	      ( T out,
+	        min::gen v,
+		min::uns32 gen_flags,
+		const min::gen_format * f ) )
+{
+    if ( ::initiator == min::MISSING() )
+    {
+        ::initiator =
+	    min::new_dot_lab_gen ( "initiator" );
+        ::terminator =
+	    min::new_dot_lab_gen ( "terminator" );
+        ::separator =
+	    min::new_dot_lab_gen ( "separator" );
+    }
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, ::initiator );
+    min::gen initiator = min::get ( ap );
+    min::locate ( ap, ::terminator );
+    min::gen terminator = min::get ( ap );
+    min::locate ( ap, ::separator );
+    min::gen separator = min::get ( ap );
+
+    const char * prefix = "";
+    const char * postfix = "";
+    if ( !  min::is_name ( initiator )
+         ||
+	 ! min::is_name ( terminator ) )
+    {
+        if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
+	     &&
+	     f->implicit_prefix != NULL
+	     &&
+	     f->implicit_postfix != NULL )
+	{
+	    prefix = f->implicit_prefix;
+	    postfix = f->implicit_postfix;
+	}
+	out << min::set_break << prefix
+	    << min::save_indent;
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 ) out << " ";
+	    out << min::set_break;
+	    pgen ( out, vp[i], gen_flags, f );
+	}
+	return out << postfix << min::restore_indent;
+    }
+    else
+    {
+        // TBD
+    }
 }
 
 template < typename T >
