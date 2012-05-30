@@ -1399,7 +1399,7 @@ pint ( -3, "%05d" ) = -0003
 1.23456789
 1.23456789012345
 `this is a string with a quote (<Q>)'
-[5.6 [1.234 `str 1'] `str 2']
+[: 5.6 [: 1.234 `str 1' :] `str 2' :]
 MISSING
 NONE
 ANY
@@ -1418,7 +1418,7 @@ INDIRECT_AUX(30)
 INDEX(40)
 CONTROL_CODE(0xfedcba)
 UNDEFINED_GEN(0xf4000000)
-MISSING {MISSING} MISSING
+MISSING [$ MISSING $] MISSING
 A flush is next:
 The line being flushed
 a       ␀☹
@@ -3385,7 +3385,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-TEST ATTRIBUTE VALUES ( [1 `label1'], [1 `label2'])
+TEST ATTRIBUTE VALUES ( [: 1 `label1' :], [: 1 `label2' :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3414,7 +3414,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 9 ) true.
-TEST ATTRIBUTE VALUES ( [1 `label2'], [1 `label1'])
+TEST ATTRIBUTE VALUES ( [: 1 `label2' :], [: 1 `label1' :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3443,7 +3443,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 10 ) true.
-TEST ATTRIBUTE VALUES ( [`label1' 1], [`label1' 2])
+TEST ATTRIBUTE VALUES ( [: `label1' 1 :], [: `label1' 2 :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3472,7 +3472,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 11 ) true.
-TEST ATTRIBUTE VALUES ( [`label1' 2], [`label1' 1])
+TEST ATTRIBUTE VALUES ( [: `label1' 2 :], [: `label1' 1 :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
