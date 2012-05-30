@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 29 17:18:13 EDT 2012
+// Date:	Wed May 30 01:49:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7146,15 +7146,32 @@ static T pgen
     }
     else if ( min::is_lab ( v ) )
     {
+	const char * prefix = "";
+	const char * postfix = "";
+	const char * separator = " ";
+	if ( ( gen_flags & min::BRACKET_LAB_FLAG )
+	     &&
+	     f->lab_prefix != NULL
+	     &&
+	     f->lab_separator != NULL
+	     &&
+	     f->lab_postfix != NULL
+	    )
+	{
+	    prefix = f->lab_prefix;
+	    separator = f->lab_separator;
+	    postfix = f->lab_postfix;
+	}
+
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
-	out << f->lab_prefix;
+	out << prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
-	    if ( i != 0 ) out << f->lab_separator;
+	    if ( i != 0 ) out << separator;
 	    pgen ( out, labp[i], gen_flags, f );
 	}
-	return out << f->lab_postfix;
+	return out << postfix;
     }
     else if ( min::is_special ( v ) )
     {
