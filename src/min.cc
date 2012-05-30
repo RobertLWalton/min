@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 01:49:18 EDT 2012
+// Date:	Wed May 30 03:24:22 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6666,9 +6666,9 @@ const min::gen_format min::default_gen_format =
     min::default_pgen,
     "%.15g",
     "`","'","<Q>",
-    "[", " ", "]",
-    "", "",
-    "", "",
+    "[: ", " ", " :]",
+    "[$ ", " $]",
+    "[. ", " .]",
     NULL, 0,
     NULL, NULL,
 };
@@ -7102,6 +7102,9 @@ static T pgen
     }
     else if ( min::is_str ( v ) )
     {
+        min::uns32 graphic_flags =
+	    ( gen_flags & min::GRAPHIC_STR_FLAG ?
+	      min::GRAPHIC_FLAGS : 0 );
         MUP::str_ptr sp ( v );
 	if ( ( gen_flags & min::BRACKET_STR_FLAG )
 	     &&
@@ -7116,7 +7119,11 @@ static T pgen
 	        std::strstr ( & sp[0], f->str_postfix );
 	    if ( first == NULL )
 		return out << f->str_prefix
+			   << min::save_print_format
+			   << min::set_print_flags
+			       ( graphic_flags )
 			   << min::begin_ptr_of ( sp )
+			   << min::restore_print_format
 			   << f->str_postfix;
 	    else
 	    {
@@ -7133,7 +7140,11 @@ static T pgen
 			    ( p, f->str_postfix ) ) )
 		{
 		    * first = 0;
-		    out << p;
+		    out << min::save_print_format
+			<< min::set_print_flags
+			     ( graphic_flags )
+		        << p
+		        << min::restore_print_format;
 		    out << f->str_quote;
 		    p = first + length;
 		}
@@ -7142,7 +7153,11 @@ static T pgen
 	    }
 	}
 	else
-	    return out << min::begin_ptr_of ( sp );
+	    return out << min::save_print_format
+		       << min::set_print_flags
+		              ( graphic_flags )
+		       << min::begin_ptr_of ( sp )
+		       << min::restore_print_format;
     }
     else if ( min::is_lab ( v ) )
     {
@@ -7175,20 +7190,39 @@ static T pgen
     }
     else if ( min::is_special ( v ) )
     {
+	const char * prefix = "";
+	const char * postfix = "";
+	if ( ( gen_flags & min::BRACKET_SPECIAL_FLAG )
+	     &&
+	     f->special_prefix != NULL
+	     &&
+	     f->special_postfix != NULL
+	    )
+	{
+	    prefix = f->special_prefix;
+	    postfix = f->special_postfix;
+	}
+
         min::unsgen index = MUP::special_index_of ( v );
 	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
-	    return out << f->special_prefix
+	    return out << prefix
 	        << min::special_name[0xFFFFFF - index]
-		<< f->special_postfix;
+		<< postfix;
+	else if ( index < f->special_names_size
+	          &&
+		  f->special_names != NULL )
+	    return out << prefix
+	        << f->special_names[index]
+		<< postfix;
 	else
 	{
 	    char buffer[64];
 	    sprintf ( buffer, "SPECIAL(0x%llx)",
 		              (min::uns64) index );
-	    return out << buffer;
+	    return out << prefix << buffer << postfix;
 	}
     }
     else if ( min::is_stub ( v ) )

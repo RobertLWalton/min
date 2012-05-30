@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 29 17:30:53 EDT 2012
+// Date:	Wed May 30 03:32:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2448,6 +2448,7 @@ void test_printer ( void )
     printer << min::save_print_format
             << min::set_gen_flags
 	           (   min::BRACKET_STR_FLAG
+		     + min::GRAPHIC_STR_FLAG
 		     + min::BRACKET_LAB_FLAG );
 
     printer << min::pgen ( min::new_str_gen
@@ -2515,15 +2516,12 @@ void test_printer ( void )
 		        << min::VSIZE ) )
             << min::eol;
 
-    min::gen_format f = min::default_gen_format;
-    f.special_prefix = "{";
-    f.special_postfix = "}";
     printer << min::bom
-            << min::pgen ( min::MISSING() ) << " "
-            << min::set_gen_format ( & f )
-	    << min::pgen ( min::MISSING() ) << " "
-            << min::set_gen_format
-		   ( & min::default_gen_format )
+            << min::pgen ( min::MISSING() )
+	    << " "
+	    << min::pgen ( min::MISSING(),
+	                   min::BRACKET_SPECIAL_FLAG )
+	    << " "
 	    << min::pgen ( min::MISSING() )
             << min::eom;
 
