@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 30, 2012}
+\date{May 31, 2012}
  
 \maketitle
 
@@ -7343,19 +7343,8 @@ then printing the trailer (e.g.~{\tt " ]"}), then executing
 {\tt min::\EOL save\_\EOL line\_\EOL break} and then
 sets {\tt line\_\EOL break.indent} to equal the printer
 {\tt column}.
-~{\tt min::restore\_\EOL indent} first
-executes {\tt min::\EOL restore\_\EOL line\_\EOL break} and
-then executes
-{\tt min::\EOL indent} if the line break stack element
-it popped was disabled and was not the first element of the stack.
-It executes {\tt min::\EOL indent}
-because it assumes a disabled element is a used element so
-the printed text bracketed by the {\tt min::\EOL save\_\EOL line\_\EOL break}
-that pushed the element and the {\tt min::\EOL restore\_\EOL line\_\EOL break}
-that is popping the element was preceded by an actual line break and should be
-ended by a {\tt min::indent}.  However, if the popped element was the
-first in the stack, it is assumed that instead an explicit {\tt min::\EOL eol}
-will be executed next.
+~{\tt min::restore\_\EOL indent} just
+executes {\tt min::\EOL restore\_\EOL line\_\EOL break}.
 
 For example, suppose we print the following
 with {\tt line\_\EOL length} equal to 72:
@@ -7389,8 +7378,7 @@ print as
 \begin{tabular}{l}
 \BRA~aaa,~bbb, \\
 ~~[~ccc,~ddd,~eee,~(~fff,~ggg~), \\
-~~~~hhh~], \\
-~~iii,~jjj~\KET \\
+~~~~hhh~],~iii,~jjj~\KET \\
 \end{tabular}
 \end{center}
 
@@ -7414,19 +7402,10 @@ At this point the output is
 \end{center}
 The third element was pushed after printing `{\tt (~}' and it
 is updated when the second element is used so it still faithfully
-reflects the point just after `{\tt (~}'.  When the third element
-of the stack is popped, it is enabled, and {\tt min::\EOL indent}
-is not executed.
+reflects the point just after `{\tt (~}'.
 When the second `{\tt h}' is about to be printed, there are no
 enabled break points left in the line break stack, so the non-stack
 break point before the first `{\tt h}' is used.
-When the second element is popped, it is
-disabled, so {\tt min::\EOL indent} is executed.
-When the first element is popped,
-{\tt min::\EOL indent} is not executed, because the element was the first
-element of the stack, and it is expected that
-{\tt min::\EOL eol} will be explicitly executed after
-{\tt min::\EOL restore\_\EOL indent}.
 
 The \key{begin message} and {\tt end message} operations can be used
 to surround the body of an error message or other message:

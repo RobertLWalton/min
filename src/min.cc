@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 14:39:04 EDT 2012
+// Date:	Wed May 30 21:33:52 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7086,7 +7086,7 @@ static min::locatable_gen separator;
 template < typename T >
 static T pgen_expression
 	( T out,
-	  min::obj_vec_ptr & vp,
+	  min::gen v,
 	  min::uns32 gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
@@ -7104,6 +7104,7 @@ static T pgen_expression
         ::separator =
 	    min::new_dot_lab_gen ( "separator" );
     }
+    min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
     min::locate ( ap, ::initiator );
     min::gen initiator = min::get ( ap );
@@ -7127,8 +7128,7 @@ static T pgen_expression
 	    prefix = f->implicit_prefix;
 	    postfix = f->implicit_postfix;
 	}
-	out << min::set_break << prefix
-	    << min::save_indent;
+	out << prefix << min::save_indent;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -7140,7 +7140,22 @@ static T pgen_expression
     }
     else
     {
-        // TBD
+	out << min::pgen ( initiator, 0 )
+	    << min::save_indent;
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 )
+	    {
+	        if ( min::is_name ( separator ) )
+		    out << min::pgen ( separator, 0 );
+	        out << " ";
+		out << min::set_break;
+	    }
+	    pgen ( out, vp[i], gen_flags, f );
+	}
+	return out << min::pgen ( terminator, 0 )
+	           << min::restore_indent;
     }
 }
 
@@ -7295,6 +7310,15 @@ static T pgen
     }
     else if ( min::is_stub ( v ) )
     {
+        if ( ( gen_flags & min::EXPRESSION_FLAG )
+	     &&
+	     min::is_obj ( v ) )
+	{
+	    ::pgen_expression<T>
+	        ( out, v, gen_flags, f, pgen );
+	    return out;
+	}
+
         const min::stub * s = MUP::stub_of ( v );
 	int type = min::type_of ( s );
 	const char * type_name = min::type_name[type];
@@ -7489,6 +7513,7 @@ min::printer operator <<
 	    printer->line_break;
 	return printer;
     case min::op::RESTORE_LINE_BREAK:
+    case min::op::RESTORE_INDENT:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
 	return printer;
@@ -7497,24 +7522,6 @@ min::printer operator <<
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
 	printer->line_break.indent = printer->column;
-	return printer;
-    case min::op::RESTORE_INDENT:
-	printer->line_break =
-	    min::pop ( printer->line_break_stack );
-	if (    printer->line_break.column
-	     <= printer->line_break.indent
-	     &&
-	     printer->line_break_stack->length > 0 )
-	{
-	    ::end_line ( printer );
-	    while (   printer->column
-		    < printer->line_break.indent )
-	    {
-		++ printer->column;
-		min::push(printer->file->buffer) = ' ';
-	    }
-	    goto set_break;
-	}
 	return printer;
     case min::op::SAVE_PRINT_FORMAT:
         min::push ( printer->print_format_stack ) =
@@ -7579,7 +7586,7 @@ min::printer operator <<
 
 	    // See if inserting n spaces will put a
 	    // non-space character past line_length, and
-	    // if yes, call insert_break_line.  Note
+	    // if yes, call insert_line_break.  Note
 	    // that buffer may end in space characters,
 	    // which we have to discount.
 	    //

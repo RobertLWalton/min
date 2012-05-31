@@ -1410,6 +1410,11 @@ AUX_FREE
 RELOCATE_BODY
 TYPE(0)
 TINY_OBJ
+1 2 3
+[. 1 2 3 .]
+{1, 2, 3, 4, 5}
+[{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
+ {1, 2, 3, 4, 5}]
 LIST_AUX(10)
 SUBLIST_AUX(20)
 INDIRECT_AUX(30)
@@ -1438,12 +1443,9 @@ a␁␣␉␡␀☹
   GGG  HHH
   III
 { aaa, bbb, [ ccc, ddd, eee, ( fff, ggg ), hhh ], iii, jjj }
-
 { aaa, bbb,
   [ ccc, ddd, eee, ( fff, ggg ),
-    hhh ],
-  iii, jjj }
-
+    hhh ], iii, jjj }
 The file has lines: test_file: lines 1-4
 The last line is: test_file: line 4
 Line 1
@@ -3607,8 +3609,6 @@ min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 14:39:44 EDT 2012
+// Date:	Thu May 31 08:35:35 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2495,7 +2495,67 @@ void test_printer ( void )
     printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
 
-    printer << min::pgen ( min::new_obj_gen ( 5, 5 ) )
+    min::gen obj = min::new_obj_gen ( 5, 5 );
+    printer << min::pgen ( obj, 0 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_push ( vp, 3 );
+	vp[0] = min::new_num_gen ( 1 );
+	vp[1] = min::new_num_gen ( 2 );
+	vp[2] = min::new_num_gen ( 3 );
+    }
+    printer << min::pgen ( obj, min::EXPRESSION_FLAG )
+            << min::eol;
+    printer << min::pgen
+                   ( obj,   min::EXPRESSION_FLAG
+			  + min::BRACKET_IMPLICIT_FLAG )
+            << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen initiator
+	    ( min::new_dot_lab_gen ( "initiator" ) );
+	min::locate ( ap, initiator );
+	min::set ( ap, min::new_str_gen ( "{" ) );
+	min::locatable_gen separator
+	    ( min::new_dot_lab_gen ( "separator" ) );
+	min::locate ( ap, separator );
+	min::set ( ap, min::new_str_gen ( "," ) );
+	min::locatable_gen terminator
+	    ( min::new_dot_lab_gen ( "terminator" ) );
+	min::locate ( ap, terminator );
+	min::set ( ap, min::new_str_gen ( "}" ) );
+	min::attr_push ( vp, 2 );
+	vp[3] = min::new_num_gen ( 4 );
+	vp[4] = min::new_num_gen ( 5 );
+    }
+    printer << min::pgen ( obj, min::EXPRESSION_FLAG )
+            << min::eol;
+
+    min::gen obj2 = min::new_obj_gen ( 5, 5 );
+    {
+	min::obj_vec_insptr vp ( obj2 );
+	min::attr_push ( vp, 5 );
+	vp[0] = obj;
+	vp[1] = obj;
+	vp[2] = obj;
+	vp[3] = obj;
+	vp[4] = obj;
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen initiator
+	    ( min::new_dot_lab_gen ( "initiator" ) );
+	min::locate ( ap, initiator );
+	min::set ( ap, min::new_str_gen ( "[" ) );
+	min::locatable_gen separator
+	    ( min::new_dot_lab_gen ( "separator" ) );
+	min::locate ( ap, separator );
+	min::set ( ap, min::new_str_gen ( ";" ) );
+	min::locatable_gen terminator
+	    ( min::new_dot_lab_gen ( "terminator" ) );
+	min::locate ( ap, terminator );
+	min::set ( ap, min::new_str_gen ( "]" ) );
+    }
+    printer << min::pgen ( obj2, min::EXPRESSION_FLAG )
             << min::eol;
 
     printer << min::pgen
