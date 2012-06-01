@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 31, 2012}
+\date{June 1, 2012}
  
 \maketitle
 
@@ -7796,7 +7796,7 @@ and then change particular members in the copy, because one cannot
 count on all the members being organized in a particular way.
 
 The detailed structure of {\tt min::gen\_format} and the
-flags in {\tt min:;gen\_\EOL flags} are as follows:
+flags in {\tt min::gen\_\EOL flags} are as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
@@ -7845,6 +7845,15 @@ flags in {\tt min:;gen\_\EOL flags} are as follows:
 \LABEL{MIN::GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const char * const * min::|
+    & \TTKEY{standard\_\EOL special\_\EOL names}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\verb|const min::uns32 ::|
+    & \TTKEY{standard\_\EOL special\_\EOL names\_\EOL size}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
+\end{tabular}\end{indpar}
+
 {\tt space\_prefix/postfix\_mask} flags:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7861,9 +7870,9 @@ flags in {\tt min:;gen\_\EOL flags} are as follows:
     \verb|  min::default_pgen    // pgen|\ARGBREAK
     \verb|  "%.15g",             // number_format|\ARGBREAK
     \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
-    \verb|  "["," ","]",         // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "","",               // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",               // implicit_initiator/terminator|\ARGBREAK
+    \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
+    \verb|  "[.",".]",           // implicit_initiator/terminator|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,           // space_pre/postfix_mask|\ARGBREAK
     \verb|};|
@@ -7882,11 +7891,13 @@ flags in {\tt min:;gen\_\EOL flags} are as follows:
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
 \LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{NAME\_SPECIAL\_FLAG}
-\LABEL{MIN::NAME_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
 \LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DELETE\_SPACES\_FLAG}
-\LABEL{MIN::DELETE_SPACES_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACES\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACES_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACES\_FLAG}
+\LABEL{MIN::SUPPRESS_OBJ_SPACES_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
 \LABEL{MIN::EXPRESSION_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
