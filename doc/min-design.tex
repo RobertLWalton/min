@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 1, 2012}
+\date{June 2, 2012}
  
 \maketitle
 
@@ -7882,22 +7882,22 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 {\tt print\_format.gen\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
 \LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
 \LABEL{MIN::BRACKET_LAB_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
 \LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{NAME\_SPECIAL\_FLAG}
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
 \LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
 \LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACES\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACES_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACES\_FLAG}
-\LABEL{MIN::SUPPRESS_OBJ_SPACES_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
 \LABEL{MIN::EXPRESSION_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
@@ -7908,15 +7908,15 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 
 The {\tt min::gen\_format} members are:
 
-\begin{itemlist}[1.6in]
+\begin{itemlist}[0.4in]
 
-\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]
+\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]~\\
 The {\tt number\_format} member is used as a {\tt printf} format
 for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
 
 \item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
 These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
 and none of these three members is {\tt NULL}.
 
@@ -7937,7 +7937,7 @@ when that is printed just after the {\tt min::gen} string is printed).
 
 \item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
 These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
 and none of these three members is {\tt NULL}.
 
@@ -7949,32 +7949,48 @@ member must include any single space characters that are to be placed between
 elements.
 
 \item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if {\tt BRACKET\_\EOL SPECIAL\_\EOL FLAG} is on
+and neither of these two members is {\tt NULL}.
+
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
 \item[\ttmkey{implicit\_initiator}{in {\tt min::gen\_format}}]
-\item[\ttmkey{implicit\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}
-If not {\tt NULL},
-the {\tt implicit\_\EOL \BRA initiator,terminator\KET} members
+\item[\ttmkey{implicit\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if both the
+{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt EXPRES\-SION\_\EOL FLAG}
+are on and neither of these two members is {\tt NULL}.
+
+The {\tt implicit\_\EOL \BRA initiator,terminator\KET} members
 are treated as
-the {\tt .initiator} and {\tt .terminator} of an object that is being
-printed with both {\tt EXPRESSION\_\EOL FLAG} and {\tt IMPLICIT\_\EOL
-PAREN\-THESIS\_\EOL FLAG} on, provided that
+the {\tt .initiator} and {\tt .ter\-min\-ator} of an object being
+printed, provided that
 the object has \underline{neither}
-an {\tt .initia\-tor} or a {\tt .terminator} attribute of its own.
+an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute of its own.
 
 \item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
-\item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if
+{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
+and {\tt spec\-ial\_\EOL names} is not {\tt NULL}.
+
 {\tt special\_names[i]} is printed as the representation of
 a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
 {\tt 0 <= i < special\_\EOL names\_\EOL size}.
 
 \item[\ttmkey{space\_prefix\_mask}{in {\tt min::gen\_format}}]
-\item[\ttmkey{space\_postfix\_mask}{in {\tt min::gen\_format}}]\vspace{-2ex}
-The space normally output after a {\tt lab\_\EOL separator} or between object
-vector elements is suppressed if
+\item[\ttmkey{space\_postfix\_mask}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if both are not {\tt NULL} and
+{\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on for labels or
+{\tt SUPPRESS\_\EOL OBJ\_\EOL SPACE\_\EOL FLAG} is on for objects.
+In addition, {\tt lab\_\EOL separator} must not be being used for labels
+(which will be the case if {\tt BRACKET\_\EOL LAB\_\EOL FLAG}
+is \underline{off}).
+
+Then the space normally output between label elements
+or between object vector elements is suppressed if
 \begin{center}
 \tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
 \end{center}
@@ -7989,25 +8005,26 @@ a = {\rm the UNICODE character after the space} \\
 \end{tabular}
 \end{center}
 
-provided neither {\tt space\_\EOL prefix\_\EOL mask}
-or {\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL}.
-If these are not {\tt NULL}, they must be the addresses of
+{\tt space\_prefix\_mask} and {\tt space\_postfix\_mask} must both be
+addresses of
 C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
 
 The following flags are used in these masks:
 
 \end{itemlist}
 
-\begin{indpar}\begin{itemlist}[1.9in]
+\begin{indpar}\begin{itemlist}[0.2in]
 
-\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}{{\tt min::gen\_format} flag}]
+\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}%
+    {{\tt min::gen\_format} flag}]{\tt = 1}\\
 In the {\tt space\_\EOL prefix\_\EOL mask} this flag means that a character
 is a prefix separator character that may be adjacent to a following character,
 and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately preceding prefix separator
 character.
 
-\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}{{\tt min::gen\_format} flag}]
+\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}%
+    {{\tt min::gen\_format} flag}]{\tt = 2}\\
 In the {\tt space\_\EOL postfix\_\EOL mask} this flag means that a character
 is a postfix separator character that may be adjacent to a preceding character,
 and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
@@ -8018,18 +8035,60 @@ character.
 
 Printer {\tt print\_format.gen\_flags}:
 
-\begin{indpar}[0.1in]\begin{itemlist}[1.4in]
+\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
 
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]
+\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
 printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
 
+\item[\ttnbkey{BRACKET\_STR\_FLAG}]
+\item[\ttnbkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
+These flags enable use of the following members which are described above:
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}l}
+{\tt BRACKET\_STR\_FLAG}	& {\tt str\_prefix},
+				  {\tt str\_postfix},
+				  {\tt str\_quote}
+\\
+{\tt BRACKET\_LAB\_FLAG}	& {\tt lab\_prefix},
+				  {\tt lab\_postfix}
+\\
+{\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
+				  {\tt special\_postfix}
+\\
+{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_initiator},
+				  {\tt implicit\_terminator}
+
+\end{tabular}
+\end{center}
+
+\item[\ttnbkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
+This flag controls the printing of a
+{\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
+
+If the flag is \underline{off}, if {\tt special\_\EOL names}
+is not {\tt NULL}, and if
+{\tt 0 <= i < special\_\EOL names\_\EOL size}, then
+the value prints as {\tt special\_\EOL names[i]}.
+
+If the flag is \underline{off} and
+{\tt 0 <= 0xFFFFFF\,-\,i
+       < min::\EOL standard\_\EOL special\_\EOL names\_\EOL size}, then
+the value prints as {\tt min::\EOL standard\_\EOL special\_\EOL names[i]}.
+
+Otherwise the value prints as `{\tt SPECIAL(i)}'.
+
+\item[\ttnbkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
+\item[\ttnbkey{SUPPRESS\_OBJ\_SPACE\_FLAG}]\vspace{-1ex}~\\
+See {\tt space\_prefix/postfix\_mask} above.
+
 \item[\ttnbkey{EXPRESSION\_FLAG}]
-\item[\ttnbkey{IMPLICIT\_PARENTHESES\_FLAG}]\vspace{-1ex}
 \item[\ttnbkey{DATA\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}
+\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}~\\
 These flags control the printing of objects.  Note that a `\key{subobject}'
 is an object that is a vector element or attribute value of an object
 being printed.
@@ -8053,16 +8112,6 @@ is treated as signaling an indentation mark line list.
 
 If this flag is off, all attributes are printed, along with the vector elements,
 and special parsing attributes are not recognized.
-
-\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, and if in addition {\tt implicit\_\EOL initiator} and
-{\tt implicit\_\EOL terminator} are both non-{\tt NULL},
-and if the {\tt EXPRESSION\_\EOL FLAG} is set,
-then subobjects
-that have no {\tt .initiator} or {\tt .terminator} attributes
-are printed surrounded by {\tt implicit\_\EOL initiator}
-and {\tt implicit\_\EOL terminator}.
-Otherwise no parentheses are printed surrounding such objects.
 
 \item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, objects are printed on
