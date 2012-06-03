@@ -7819,8 +7819,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implicit_initiator;|\ARGBREAK
-    \verb|  const char *           implicit_terminator;|\ARGBREAK
+    \verb|  const char *           implicit_prefix;|\ARGBREAK
+    \verb|  const char *           implicit_postfix;|\ARGBREAK
     \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -7836,8 +7836,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{special\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{special\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{implicit\_initiator}{in {\tt min::gen\_format}}
-\ttmindex{implicit\_terminator}{in {\tt min::gen\_format}}
+\ttmindex{implicit\_prefix}{in {\tt min::gen\_format}}
+\ttmindex{implicit\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
@@ -7872,7 +7872,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
     \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
-    \verb|  "[.",".]",           // implicit_initiator/terminator|\ARGBREAK
+    \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,           // space_pre/postfix_mask|\ARGBREAK
     \verb|};|
@@ -7909,6 +7909,15 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 The {\tt min::gen\_format} members are:
 
 \begin{itemlist}[0.4in]
+
+\item[\ttmkey{pgen}{in {\tt min::gen\_format}}]
+The {\tt pgen} function is called to by {\tt min::pgen} to print
+the general value {\tt v} on the given {\tt printer} using
+the given {\tt gen\_\EOL flags} and {\tt gen\_\EOL format}.
+The function must return the {\tt printer}.  The description of
+{\tt gen\_\EOL flags} and the {\tt gen\_\EOL format} members in
+this section apply only to {\tt min::\EOL default\_\EOL pgen},
+the default value of this {\tt pgen} member.
 
 \item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]~\\
 The {\tt number\_format} member is used as a {\tt printf} format
@@ -7957,18 +7966,16 @@ The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
-\item[\ttmkey{implicit\_initiator}{in {\tt min::gen\_format}}]
-\item[\ttmkey{implicit\_terminator}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+\item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
 These members are only enabled if both the
 {\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt EXPRES\-SION\_\EOL FLAG}
 are on and neither of these two members is {\tt NULL}.
 
-The {\tt implicit\_\EOL \BRA initiator,terminator\KET} members
-are treated as
-the {\tt .initiator} and {\tt .ter\-min\-ator} of an object being
+The {\tt implicit\_\EOL prefix/postfix} members surround an object being
 printed, provided that
 the object has \underline{neither}
-an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute of its own.
+an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
 
 \item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
 \item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
@@ -7991,6 +7998,8 @@ is \underline{off}).
 
 Then the space normally output between label elements
 or between object vector elements is suppressed if
+both elements are names (as per {\tt min::\EOL is\_\EOL name},
+\pagref{MIN::IS_NAME}) and
 \begin{center}
 \tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
 \end{center}
@@ -8000,16 +8009,22 @@ where
 \begin{tabular}{l}
 B = min::unicode\_class ( b ) \\
 A = min::unicode\_class ( a ) \\
-b = {\rm the UNICODE character before the space} \\
-a = {\rm the UNICODE character after the space} \\
+b = {\rm the last UNICODE character of the previous element} \\
+a = {\rm the first UNICODE character of the next element} \\
 \end{tabular}
 \end{center}
+
+Here the last UNICODE character of a number is assumed to be a digit,
+and the first UNICODE character of a non-negative number is assumed
+to be a digit, while the first UNICODE character of a negative number
+is assumed to be `{\tt -}'.
+
 
 {\tt space\_prefix\_mask} and {\tt space\_postfix\_mask} must both be
 addresses of
 C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
 
-The following flags are used in these masks:
+The following flags may be used in these masks:
 
 \end{itemlist}
 
@@ -8060,8 +8075,8 @@ These flags enable use of the following members which are described above:
 {\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
 				  {\tt special\_postfix}
 \\
-{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_initiator},
-				  {\tt implicit\_terminator}
+{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_prefix},
+				  {\tt implicit\_postfix}
 
 \end{tabular}
 \end{center}
@@ -8138,19 +8153,6 @@ subobjects are all printed separately and referenced by
 the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
 
 \end{itemlist}\end{indpar}
-
-\begin{itemlist}
-
-\item[\ttmkey{pstub}{in {\tt min::gen\_format}}]
-The {\tt pstub} function, if it is not {\tt NULL}, is called
-with any {\tt min::stub} that is not a number, label, string, or object.
-
-Note that the {\tt min::\EOL gen\_\EOL format}, taken from the
-printer operation if it is supplied there or from the printer otherwise,
-is passed as an argument to the {\tt pstub} function,
-and may or may not be be ignored by that function.
-
-\end{itemlist}
 
 When objects are printed using lines of the form
 \begin{indpar}
@@ -14640,8 +14642,8 @@ In loose implementation: \\
     \verb|  const char *           lab_postfix;|\ARGBREAK
     \verb|  const char *           special_prefix;|\ARGBREAK
     \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implicit_initiator;|\ARGBREAK
-    \verb|  const char *           implicit_terminator;|\ARGBREAK
+    \verb|  const char *           implicit_prefix;|\ARGBREAK
+    \verb|  const char *           implicit_postfix;|\ARGBREAK
     \verb|  const char * cont *    special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
@@ -14683,7 +14685,7 @@ In loose implementation: \\
     \verb|  NULL,        // str_quote|\ARGBREAK
     \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implicit_initiator/terminator|\ARGBREAK
+    \verb|  "","",       // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
     \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
     \verb|  NULL         // pstub|\ARGBREAK
