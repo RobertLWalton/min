@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 30 05:39:10 EDT 2012
+// Date:	Sun Jun  3 00:36:58 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4554,6 +4554,18 @@ namespace min {
 	    c = 0x80;
 	}
 	return s - initial_s;
+    }
+
+    namespace internal {
+        extern min::uns8 unicode_class[1<<16];
+    }
+
+    inline min::uns8 unicode_class ( uns32 c )
+    {
+	return
+	    c <= 0xFFFF ? internal::unicode_class[c] :
+	    c < 0xF0000 && ( c & 0x0FFFE ) != 0xFFFE ?
+	    	'L' : 'U';
     }
 }
 
@@ -11437,6 +11449,16 @@ namespace min {
 	min::print_format_stack print_format_stack;
 
 	const min::obj_id_map obj_id_map;
+
+	const min::uns32 * space_postfix_mask;
+	min::uns32 space_prefix_mask;
+	    // If space_postfix_mask != NULL and the
+	    // next character to be printed is b and
+	    // B = min::unicode_class ( b ) and space_
+	    // postfix_mask[B] & space_prefix_mask == 0,
+	    // then insert a single space before b.
+	    // Printing any character resets space_
+	    // postfix_mask to NULL.
     };
 
     MIN_REF ( min::file, file, min::printer )
