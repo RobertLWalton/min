@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 00:31:30 EDT 2012
+// Date:	Sun Jun  3 06:45:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,73 +77,6 @@ static void obj_scavenger_routine
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
-
-    // Set as per WG21/N3146 2010-10-04
-    //
-    for ( min::uns32 i = 0; i <= 0xFFFF ; ++ i )
-        MINT::unicode_class[i] =
-            'a' <= i && i <= 'z' ? 'a':
-            'A' <= i && i <= 'Z' ? 'A':
-            '0' <= i && i <= '9' ? '0':
-            0x20D0 <= i && i <= 0x20FF ? 'D':
-
-            i == 0x00A8 ? 'L':	// diaeresis
-            i == 0x00AA ? 'L':	// feminine ordinal
-	    		      	// indicator
-            i == 0x00AD ? 'L':	// soft (discretionary)
-	    		   	// hyphen
-            i == 0x00AF ? 'L':  // macron (overline)
-            i == 0x00B2 ? 'L':  // superscript 2
-            i == 0x00B3 ? 'L':  // superscript 3
-            i == 0x00B4 ? 'L':  // acute accent
-            i == 0x00B5 ? 'L':  // micro sign (mu)
-            i == 0x00B7 ? 'L':  // middle dot
-            i == 0x00B8 ? 'L':  // cedilla
-            i == 0x00B9 ? 'L':  // superscript 1
-            i == 0x00BA ? 'L':  // masculine ordinal
-	    			// indicator
-            i == 0x00BC ? 'L':  // 1/4
-            i == 0x00BD ? 'L':  // 1/2
-            i == 0x00BE ? 'L':  // 3/4
-
-            0x00C0 <= i && i <= 0x00D6 ? 'L':
-            0x00D8 <= i && i <= 0x00F6 ? 'L':
-            0x00F8 <= i && i <= 0x00FF ? 'L':
-	        // Latin letters;
-		// Multiplication and division signs
-		// omitted.
-
-            0x0100 <= i && i <= 0x167F ? 'L':
-	        // Omitted: 1680; Ogham space mark
-            0x1681 <= i && i <= 0x180D ? 'L':
-	        // Omitted: 180E; Mongolian vowel
-		// separator
-            0x180F <= i && i <= 0x1FFF ? 'L':
-
-            0x200B <= i && i <= 0x200D ? 'L':
-	        // Zero width space, non-joiner, joiner
-
-            0x202A <= i && i <= 0x202E ? 'L':
-            0x203F <= i && i <= 0x2040 ? 'L':
-            i == 0x2054 ? 'L':
-            0x2060 <= i && i <= 0x206F ? 'L':
-            0x2070 <= i && i <= 0x218F ? 'L':
-
-            0x2460 <= i && i <= 0x24FF ? 'L':
-	        // Enclosed Alphanumerics
-
-            0x2776 <= i && i <= 0x2793 ? 'L':
-            0x2C00 <= i && i <= 0x2DFF ? 'L':
-            0x2E80 <= i && i <= 0x2FFF ? 'L':
-            0x3004 <= i && i <= 0x3007 ? 'L':
-            0x3021 <= i && i <= 0x302F ? 'L':
-            0x3031 <= i && i <= 0x303F ? 'L':
-            0x3040 <= i && i <= 0xD7FF ? 'L':
-            0xF900 <= i && i <= 0xFD3D ? 'L':
-            0xFD40 <= i && i <= 0xFDCF ? 'L':
-            0xFDF0 <= i && i <= 0xFE44 ? 'L':
-            0xFE47 <= i && i <= 0xFFFD ? 'L':
-            'U';
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );
