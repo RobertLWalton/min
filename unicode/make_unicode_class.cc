@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_class.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 04:20:27 EDT 2012
+// Date:	Mon Jun  4 07:10:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,7 +18,10 @@ using std::endl;
 using std::hex;
 using std::dec;
 using std::ifstream;
+using std::ofstream;
 using std::ostream;
+using std::setiosflags;
+using std::ios_base;
 
 const unsigned unicode_class_size = 0x30000;
 char unicode_class[unicode_class_size];
@@ -112,7 +115,7 @@ bool read_line ( void )
         if ( strlen ( line ) <= line_size ) return true;
 	line_error ( "line too long" );
     }
-    else return false;
+    return false;
 }
 
 // Given a pointer to a character in a line, return a
@@ -195,7 +198,7 @@ void read_general_category ( void )
 	if ( r.high >= unicode_class_size )
 	{
 	    char message[200];
-	    sprintf ( message, "code above 0x%x used",
+	    sprintf ( message, "code above 0x%X used",
 	                       unicode_class_size - 1 );
 	    if ( strncmp ( "Cn", p, 2 ) != 0
 	         &&
@@ -211,7 +214,7 @@ void read_general_category ( void )
 	    strncmp ( "Ll", p, 2 ) == 0 ? 'L' :
 	    strncmp ( "Lt", p, 2 ) == 0 ? 'T' :
 	    strncmp ( "Lm", p, 2 ) == 0 ? 'M' :
-	    strncmp ( "Lo", p, 2 ) == 0 ? 'o' :
+	    strncmp ( "Lo", p, 2 ) == 0 ? 'O' :
 
 	    strncmp ( "Mn", p, 2 ) == 0 ? 'N' :
 	    strncmp ( "Mc", p, 2 ) == 0 ? 'S' :
@@ -300,7 +303,7 @@ void read_combining_class ( void )
 	if ( r.high >= unicode_class_size )
 	{
 	    char message[200];
-	    sprintf ( message, "code above 0x%x used",
+	    sprintf ( message, "code above 0x%X used",
 	                       unicode_class_size - 1 );
 	    line_error ( message, false );
 	    if ( r.low >= unicode_class_size )
@@ -342,16 +345,108 @@ void read_combining_class ( void )
     ::close();
 }
 
-void output_header ( ostream & out )
+// Read DerivedNumericValues.txt
+//
+void read_numeric_values ( void )
 {
+    ::open ( "DerivedNumericValues.txt" );
+
+    while ( read_line() )
+    {
+        const char * p = line;
+	p = skip ( p );
+	if ( * p == 0 ) continue;
+
+	range r;
+	p = read_range ( p, r, 0xFFFFFF );
+	if ( p == NULL )
+	    line_error ( "bad range" );
+
+	if ( r.high >= unicode_class_size )
+	{
+	    char message[200];
+	    sprintf ( message, "code above 0x%X used",
+	                       unicode_class_size - 1 );
+	    line_error ( message, false );
+	    if ( r.low >= unicode_class_size )
+	        continue;
+	    else r.high = unicode_class_size - 1;
+	}
+
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "`;' not found" );
+
+	while ( * p && * p != ';' ) ++ p;
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "third field not found" );
+
+	while ( * p && * p != ';' ) ++ p;
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "fourth field not found" );
+
+	p = skip ( p );
+	const char * q = p;
+	while ( * q && ! isspace ( * q )
+	            && * q != ';' && * q != '#' ) ++ q;
+
+	const char * s = skip ( q );
+	if ( * s && * s != ';' )
+	    line_error ( "bad numeric value field" );
+
+	if ( ! isdigit ( * p ) || q != p + 1 )
+	    continue;
+
+	for ( unsigned i = r.low; i <= r.high; ++ i )
+	{
+	    if ( unicode_class[i] != 'D'
+	         &&
+		 unicode_class[i] != 'R'
+	         &&
+		 unicode_class[i] != 'H'
+	         &&
+		 unicode_class[i] != 'O' )
+
+	    {
+		cout << "ERROR: for character code 0x"
+		     << hex << i << dec
+		     << " decimal value"
+		     << " conflicts with UNICODE class "
+		     << unicode_class[i] << endl;
+		line_error ( "above error", false );
+	    }
+	    else
+	        unicode_class[i] = * p;
+	}
+    }
+
+    ::close();
+}
+
+void output ( void )
+{
+    ofstream out ( "unicode_class.h" );
+    if ( ! out )
+    {
+        cout << "ERROR: could not open unicode_class.h"
+	        " for output" << endl;
+	exit ( 1 );
+    }
+    out << setiosflags ( ios_base::uppercase );
+
     out <<
       "// UNICODE Character Class Data\n"
       "//\n"
       "// File:	unicode_class.h\n"
       "\n"
-      "// The c+1'st character in the following\n"
+      "// The c+1'st character in UNICODE_CLASS\n"
       "// is the character class of the UNICODE\n"
-      "// characer with code c.\n"
+      "// character with code c.\n"
+      "\n"
+      "// UNICODE_CLASS_SIZE is the number of\n"
+      "// characters in UNICODE_CLASS.\n"
       "\n"
       "// Character Classes:\n"
       "//\n"
@@ -393,12 +488,33 @@ void output_header ( ostream & out )
       "//     u    Unassigned.\n"
       "//\n"
       "//     w    Unspecified.\n"
-      "//\n";
+      "\n";
+
+    out << "# define UNICODE_CLASS_SIZE 0x"
+        << hex << unicode_class_size << dec
+	<< endl << endl;
+
+    out << "# define UNICODE_CLASS \\\n";
+    for ( unsigned i = 0; i < unicode_class_size; ++ i )
+    {
+        if ( i % 64 == 0 )
+	{
+	    if ( i > 0 ) out << "\" \\" << endl;
+	    out << "    \"";
+	}
+	out << unicode_class[i];
+    }
+    out << "\"";
+
+    out.close();
 }
 
 int main ( int argc )
 {
+    cout << setiosflags ( ios_base::uppercase );
     read_general_category();
-    find_missing_classes ( 0x20000 );
+    find_missing_classes();
     read_combining_class();
+    read_numeric_values();
+    output();
 }

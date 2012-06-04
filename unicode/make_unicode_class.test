@@ -1,0 +1,24 @@
+ERROR: code above 0x2FFFF used
+       in line 2469 of DerivedGeneralCategory.txt:
+E0100..E01EF  ; Mn # [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
+ERROR: code above 0x2FFFF used
+       in line 2790 of DerivedGeneralCategory.txt:
+E0001         ; Cf #       LANGUAGE TAG
+ERROR: code above 0x2FFFF used
+       in line 2791 of DerivedGeneralCategory.txt:
+E0020..E007F  ; Cf #  [96] TAG SPACE..CANCEL TAG
+ERROR: code above 0x2FFFF used
+       in line 1511 of DerivedCombiningClass.txt:
+E0001         ; 0 # Cf       LANGUAGE TAG
+ERROR: code above 0x2FFFF used
+       in line 1512 of DerivedCombiningClass.txt:
+E0020..E007F  ; 0 # Cf  [96] TAG SPACE..CANCEL TAG
+ERROR: code above 0x2FFFF used
+       in line 1513 of DerivedCombiningClass.txt:
+E0100..E01EF  ; 0 # Mn [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
+ERROR: code above 0x2FFFF used
+       in line 1514 of DerivedCombiningClass.txt:
+F0000..FFFFD  ; 0 # Co [65534] <private-use-F0000>..<private-use-FFFFD>
+ERROR: code above 0x2FFFF used
+       in line 1515 of DerivedCombiningClass.txt:
+100000..10FFFD; 0 # Co [65534] <private-use-100000>..<private-use-10FFFD>
