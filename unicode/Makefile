@@ -15,15 +15,32 @@ WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
 	 -Wno-char-subscripts
 
-all:	unicode_class.h
+all:	make_unicode_class.diff
 
 make_unicode_class:	make_unicode_class.cc
 	rm -f make_unicode_class
 	g++ ${WFLAGS} -o make_unicode_class \
 	    make_unicode_class.cc
 
-unicode_class.h:	make_unicode_class
-	rm -f unicode_class.h
-	make_unicode_class
+make_unicode_class.out:	make_unicode_class
+	rm -f unicode_class.h make_unicode_class.out
+	make_unicode_class > make_unicode_class.out
+	cat make_unicode_class.out
+
+make_unicode_class.test:	make_unicode_class.out
+	rm -f make_unicode_class.test
+	cp -p make_unicode_class.out \
+	      make_unicode_class.test
+
+make_unicode_class.diff:	make_unicode_class.out
+	echo DIFFING make_unicode_class.test \
+	             make_unicode_class.out
+	@diff make_unicode_class.test \
+	      make_unicode_class.out
+
+clean:
+	rm -f make_unicode_class.out make_unicode_class
+
+
 
 
