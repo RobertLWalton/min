@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 06:45:30 EDT 2012
+// Date:	Mon Jun  4 20:51:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,6 +32,7 @@
 # include <min.h>
 # include <min_os.h>
 # include <cerrno>
+# include <cctype>
 # define MUP min::unprotected
 # define MINT min::internal
 
@@ -50,7 +51,12 @@
 min::initializer * MINT::last_initializer = NULL;
 bool MINT::initialization_done = false;
 
-min::uns8 MINT::unicode_class[1 << 16];
+# include "../unicode/unicode_class.h"
+
+min::uns8 MINT::unicode_class[UNICODE_CLASS_SIZE+1] =
+    UNICODE_CLASS;
+min::uns32 MINT::unicode_class_size =
+    UNICODE_CLASS_SIZE;
 
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
@@ -77,6 +83,13 @@ static void obj_scavenger_routine
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
+
+    for ( min::uns32 i = 0; i < 128; ++ i )
+    {
+        if ( isalpha ( i ) || isdigit ( i ) )
+	    continue;
+	MINT::unicode_class[i] = i;
+    }
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );
