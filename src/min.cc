@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 20:51:30 EDT 2012
+// Date:	Tue Jun  5 08:30:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,9 +84,11 @@ void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
-    for ( min::uns32 i = 0; i < 128; ++ i )
+    for ( min::uns32 i = 0; i < 256; ++ i )
     {
-        if ( isalpha ( i ) || isdigit ( i ) )
+        if ( MINT::unicode_class[i] == 'L' )
+	    continue;
+        if ( MINT::unicode_class[i] == 'U' )
 	    continue;
 	MINT::unicode_class[i] = i;
     }
