@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  3 00:36:58 EDT 2012
+// Date:	Mon Jun  4 20:43:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4557,15 +4557,15 @@ namespace min {
     }
 
     namespace internal {
-        extern min::uns8 unicode_class[1<<16];
+        extern min::uns8 unicode_class[];
+	extern min::uns32 unicode_class_size;
     }
 
     inline min::uns8 unicode_class ( uns32 c )
     {
 	return
-	    c <= 0xFFFF ? internal::unicode_class[c] :
-	    c < 0xF0000 && ( c & 0x0FFFE ) != 0xFFFE ?
-	    	'L' : 'U';
+	    c < internal::unicode_class_size ?
+	        internal::unicode_class[c] : 'w';
     }
 }
 
