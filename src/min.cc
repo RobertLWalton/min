@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  6 08:14:33 EDT 2012
+// Date:	Wed Jun  6 17:42:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,8 +61,8 @@ min::uns32 MINT::unicode_class_size =
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
 
-char const * min::special_name
-                      [min::SPECIAL_NAME_LENGTH] =
+char const * min::standard_special_names
+		  [min::standard_special_names_size] =
     { "MISSING", "NONE", "ANY", "MULTI_VALUED",
       "UNDEFINED", "SUCCESS", "FAILURE", "ERROR" };
 
@@ -80,6 +80,7 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
+static void init_default_space_masks ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
@@ -92,6 +93,8 @@ void MINT::initialize ( void )
 	    continue;
 	MINT::unicode_class[i] = i;
     }
+
+    init_default_space_masks();
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );
@@ -6678,6 +6681,31 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
+min::uns32 min::default_space_prefix_mask[256];
+min::uns32 min::default_space_postfix_mask[256];
+
+static void init_default_space_masks ( void )
+{
+    min::uns32 * p = min::default_space_prefix_mask;
+    p['('] |= min::PREFIX_SEPARATOR_FLAG;
+    p['['] |= min::PREFIX_SEPARATOR_FLAG;
+    p['{'] |= min::PREFIX_SEPARATOR_FLAG;
+    p[0xAB] |= min::PREFIX_SEPARATOR_FLAG; // <<
+    min::uns32 * q = min::default_space_postfix_mask;
+    q[')'] |= min::POSTFIX_SEPARATOR_FLAG;
+    q[']'] |= min::POSTFIX_SEPARATOR_FLAG;
+    q['}'] |= min::POSTFIX_SEPARATOR_FLAG;
+    q[0xB8] |= min::POSTFIX_SEPARATOR_FLAG; // >>
+    q[','] |= min::POSTFIX_SEPARATOR_FLAG;
+    q[';'] |= min::POSTFIX_SEPARATOR_FLAG;
+
+    for ( int i = 0; i < 256; ++ i )
+    {
+        p[i] |= min::POSTFIX_SEPARATOR_FLAG;
+        q[i] |= min::PREFIX_SEPARATOR_FLAG;
+    }
+}
+
 const min::gen_format min::default_gen_format =
 {
     min::default_pgen,
@@ -6687,7 +6715,8 @@ const min::gen_format min::default_gen_format =
     "[$ ", " $]",
     "[. ", " .]",
     NULL, 0,
-    NULL, NULL,
+    min::default_space_prefix_mask,
+    min::default_space_postfix_mask
 };
 
 const min::line_break min::default_line_break =
@@ -7304,12 +7333,13 @@ static T pgen
 	}
 
         min::unsgen index = MUP::special_index_of ( v );
-	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
+	if ( 0xFFFFFF - min::standard_special_names_size
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
 	    return out << prefix
-	        << min::special_name[0xFFFFFF - index]
+	        << min::standard_special_names
+		            [0xFFFFFF - index]
 		<< postfix;
 	else if ( index < f->special_names_size
 	          &&

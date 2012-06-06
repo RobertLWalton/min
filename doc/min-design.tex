@@ -7914,8 +7914,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  const char *           implicit_postfix;|\ARGBREAK
     \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
-    \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
-    \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
+    \verb|  const min::uns32       space_prefix_mask[256];|\ARGBREAK
+    \verb|  const min::uns32       space_postfix_mask[256];|\ARGBREAK
     \verb|};|
 \ttmindex{gen}{in {\tt min::gen\_format}}
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
@@ -7945,6 +7945,15 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{default\_\EOL space\_\EOL prefix\_\EOL mask}{\tt [256]}
+\LABEL{MIN::DEFAULT_SPACE_PREFIX_MASK} \\
+\verb|min::uns32 min::|
+    & \MINKEY{default\_\EOL space\_\EOL postfix\_\EOL mask}{\tt [256]}
+\LABEL{MIN::DEFAULT_SPACE_POSTFIX_MASK} \\
+\end{tabular}\end{indpar}
+
 {\tt space\_prefix/postfix\_mask} flags:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7965,7 +7974,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  NULL,NULL,           // space_pre/postfix_mask|\ARGBREAK
+    \verb|  min::default_space_prefix_mask,     // space_prefix_mask|\ARGBREAK
+    \verb|  min::default_space_postfix_mask,    // space_postfix_mask|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -8128,6 +8138,11 @@ is a prefix separator character that may be adjacent to a following character,
 and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately preceding prefix separator
 character.
+Set in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
+for the classes `{\tt (}', `{\tt [}', `{\tt \BRA}', and
+`{\tt \guillemotleft}'
+and in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
+for all classes.
 
 \item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}%
     {{\tt min::gen\_format} flag}]{\tt = 2}\\
@@ -8136,6 +8151,12 @@ is a postfix separator character that may be adjacent to a preceding character,
 and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately following postfix separator
 character.
+Set in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
+for the classes `{\tt )}', `{\tt ]}', `{\tt \KET}', `{\tt \guillemotright}',
+`{\tt ,}', and `{\tt ;}'
+and in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
+for all classes.
+
 
 \end{itemlist}\end{indpar}
 
@@ -14722,7 +14743,15 @@ In loose implementation: \\
 \begin{TABULAR}{1.2in}
 \verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32             flags;|\ARGBREAK
+    \verb|  min::printer ( * pgen )|\ARGBREAK
+    \verb|       ( min::printer printer,|\ARGBREAK
+    \verb|         min::gen v,|\ARGBREAK
+    \verb|         min::uns32 gen_flags,|\ARGBREAK
+    \verb|         const min::gen_format * g );|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  // Members beyond this point may be moved and|\ARGBREAK
+    \verb|  // new members may be added.|\ARGBREAK
+    \verb||\ARGBREAK
     \verb|  const char *           number_format;|\ARGBREAK
     \verb|  const char *           str_prefix;|\ARGBREAK
     \verb|  const char *           str_postfix;|\ARGBREAK
@@ -14734,29 +14763,35 @@ In loose implementation: \\
     \verb|  const char *           special_postfix;|\ARGBREAK
     \verb|  const char *           implicit_prefix;|\ARGBREAK
     \verb|  const char *           implicit_postfix;|\ARGBREAK
-    \verb|  const char * cont *    special_names;|\ARGBREAK
+    \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
-    \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
-    \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
-    \verb|  min::printer &     ( * pstub )|\ARGBREAK
-    \verb|       ( min::printer & printer,|\ARGBREAK
-    \verb|         const min::gen_format * g );|\ARGBREAK
-    \verb|         const min::stub * s );|\ARGBREAK
-    \verb|  // Additional members may be added.|\ARGBREAK
+    \verb|  const min::uns32       space_prefix_mask[256];|\ARGBREAK
+    \verb|  const min::uns32       space_postfix_mask[256];|\ARGBREAK
     \verb|};|
 \LABEL{MIN::GEN_FORMAT} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
-\LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
-\LABEL{MIN::DATA_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
-\LABEL{MIN::RAW_FLAG} \\
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|const char * const * min::|
+    & \TTKEY{standard\_\EOL special\_\EOL names}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\verb|const min::uns32 ::|
+    & \TTKEY{standard\_\EOL special\_\EOL names\_\EOL size}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
 \end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::uns32 min::|
+    & \MINKEY{default\_\EOL space\_\EOL prefix\_\EOL mask}{\tt [256]}
+\LABEL{MIN::DEFAULT_SPACE_PREFIX_MASK} \\
+\verb|min::uns32 min::|
+    & \MINKEY{default\_\EOL space\_\EOL postfix\_\EOL mask}{\tt [256]}
+\LABEL{MIN::DEFAULT_SPACE_POSTFIX_MASK} \\
+\end{TABULAR}
+
+{\tt space\_prefix/postfix\_mask} flags:
 
 \begin{TABULAR}{2.2in}
 \verb|const min::uns32 min::| & \MINNBKEY{PREFIX\_SEPARATOR\_FLAG}
@@ -14769,18 +14804,44 @@ In loose implementation: \\
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  0,           // flags|\ARGBREAK
-    \verb|  "%.15g",     // number_format|\ARGBREAK
-    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,        // str_quote|\ARGBREAK
-    \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  "","",       // implicit_prefix/postfix|\ARGBREAK
-    \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
-    \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
-    \verb|  NULL         // pstub|\ARGBREAK
+    \verb|  min::default_pgen,   // pgen|\ARGBREAK
+    \verb|  "%.15g",             // number_format|\ARGBREAK
+    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
+    \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
+    \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
+    \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
+    \verb|  min::default_space_prefix_mask,     // space_prefix_mask|\ARGBREAK
+    \verb|  min::default_space_postfix_mask,    // space_postfix_mask|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\end{TABULAR}
+
+{\tt print\_format.gen\_flags}:
+
+\begin{TABULAR}{2.2in}
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
+\LABEL{MIN::EXPRESSION_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
+\LABEL{MIN::DATA_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
+\LABEL{MIN::RAW_FLAG} \\
 \end{TABULAR}
 
 \end{indpar}

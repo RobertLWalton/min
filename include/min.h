@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 20:43:25 EDT 2012
+// Date:	Wed Jun  6 17:42:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -329,12 +329,9 @@ namespace min {
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF8 ); }
 
-    const unsigned SPECIAL_NAME_LENGTH = 8;
-    extern const char * special_name
-                            [SPECIAL_NAME_LENGTH];
-        // special_name[0xFFFFFF-i] is the name of
-	// min::new_special_gen ( i ).  E.g.,
-	// special_name[0] == "MISSING".
+    const unsigned standard_special_names_size = 8;
+    extern const char * standard_special_names
+			[standard_special_names_size];
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
@@ -11330,6 +11327,12 @@ namespace min {
         PREFIX_SEPARATOR_FLAG		= ( 1 << 0 ),
 	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
     };
+
+    extern min::uns32 default_space_prefix_mask[256];
+    extern min::uns32 default_space_postfix_mask[256];
+        // Cannot be const because these are initialized
+	// by code and const data is stored in readonly
+	// pages.
 
     min::printer default_pgen
 	    ( min::printer printer,
