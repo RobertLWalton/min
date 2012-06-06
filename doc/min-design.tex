@@ -6,6 +6,7 @@
   
 \documentclass[12pt]{article}
 
+\usepackage[T1]{fontenc}
 \usepackage{makeidx}
 \usepackage{pictex}
 \usepackage{upquote}
@@ -236,7 +237,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 2, 2012}
+\date{June 5, 2012}
  
 \maketitle
 
@@ -1036,12 +1037,12 @@ All these macros are defined in
 
 The macros set by the programmer are:
 
-\begin{indpar}\begin{tabular}{p{2.0in}p{3.5in}}
+\begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
 \TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
 				  defaults to 0.
 \LABEL{MIN_IS_COMPACT}
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{p{2.0in}p{3.5in}}
+\begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
 \TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
 				& Maximum number of garbage collector
 				  ephemeral levels allowed in
@@ -3523,38 +3524,119 @@ At most 7 bytes will be output, and
 \verb|s| must point to a byte string buffer with at least 7 bytes.
 
 It is sometimes useful to divide UNICODE characters into
-\skey{unicode class}{es}.  The function
+\skey{UNICODE class}{es}.  The function
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns8 min::| & \MINKEY{unicode\_class} \verb|( min::uns32 c )|
 \LABEL{MIN::UNICODE_CLASS}
 \end{tabular}\end{indpar}
 
-returns the unicode class of the UNICODE character {\tt c}.
-The unicode classes of all
-ASCII characters are the characters themselves, e.g., the unicode class of
+returns the UNICODE class of the UNICODE character {\tt c}.
+The UNICODE classes of all
+ASCII and LATIN-1\footnote{
+Note that some possibly useful LATIN-1 non-letter characters
+and their compose key sequences for keyboard entry are:
+\textquestiondown(??), \textexclamdown(!!), \textsection(so),
+% \textparagraph(PP),
+\textregistered(OR), \textcopyright(OC),
+\textcent(/c), \textsterling(-L), \textcurrency(xo), \textyen(=Y),
+\guillemotleft({\tt <{}<})
+\guillemotright({\tt >{}>}),
+$\pm$(+-), $\times$(xx), $\div$(-:),
+$\neg$(-,).  At the moment (2012), other non-ASCII, non-letter
+characters are not well supported by Linux.  LATIN-1 letters
+are supported via the compose key, but other non-ASCII letters are not.
+Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
+are considered to be lower case letters and \AE(AE)
+is considered to be an upper case letter, while the other LATIN-1
+letters may be made by composing
+{\tt `},
+{\tt '},
+{\tt \textasciicircum},
+{\tt \textasciitilde},
+{\tt "},
+{\tt ,},
+{\tt -}, or
+{\tt /} with a letter, as in
+\`A({\tt `A}),
+\'A({\tt 'A}),
+\^A({\tt \textasciicircum A}),
+\~A({\tt \textasciitilde A}),
+\"A({\tt "A}),
+\c{C}({\tt ,C}),
+\DH({\tt -D}), and
+\O({\tt /O}).}
+characters (characters with codes {\tt < 256})
+are the characters themselves, e.g., the UNICODE class of
 `{\tt *}' is \verb|'*'|, \underline{except}:
 \begin{center}
 \begin{tabular}{l@{~is the class of~}l}
-\verb|'A'| & ASCII upper case letters; \verb|'A'| through \verb|'Z'|. \\
-\verb|'a'| & ASCII lower case letters; \verb|'a'| through \verb|'z'|. \\
-\verb|'0'| & ASCII digits; \verb|'0'| through \verb|'9'|. \\
+\verb|'U'| & upper case letters; \verb|'A'| \ldots \verb|'Z'|,
+                                 {\tt \`A} \ldots {\tt \'Y}. \\
+\verb|'L'| & lower case letters; \verb|'a'| \dots \verb|'z'|,
+                                 {\tt \`a} \ldots {\tt \"y}. \\
 \end{tabular}
 \end{center}
 
-The unicode classes of non-ASCII UNICODE characters are:
+The UNICODE class of a character with code {\tt >= 256} is determined
+by the UNICODE character `\mkey{general category}{UNICODE}' and the
+UNICODE character numeric value.  If the numeric value is a single
+decimal digit, this becomes the UNICODE class of the character.
+Otherwise the general category of the character is encoded
+in a UNICODE class that is a single ASCII letter as indicated
+on Figure~\ref{UNICODE-CLASSES}.
+
+\begin{boxedfigure}
+\small
 \begin{center}
-\raggedright
-\begin{tabular}{l@{~}l@{~}l}
-\verb|'L'| & is the unicode class of
-	   & non-ASCII characters considered to be letters by C++ \\
-\verb|'D'| & is the unicode class of
-	   & combining diacritical marks \\
-\verb|'U'| & is the unicode class of
-	   & any UNICODE character not otherwise assigned \\
-	   & &  a unicode class \\
+\begin{tabular}{l@{\hspace*{0.3in}}l}
+\begin{tabular}[t]{l@{~denotes~}l}
+\tt U & upper case letter \\
+\tt L & lower case letter \\
+\tt T & title case letter \\
+\tt M & modifier letter \\
+\tt O & other letter
+\\[2ex]
+\tt N & nonspacing mark \\
+\tt S & spacing mark \\
+\tt E & enclosing mark \\
+\\[2ex]
+\tt D & decimal number \\
+\tt R & letter number \\
+\tt H & other number
+\\[2ex]
+\tt n & connector punctuation \\
+\tt d & dash punctuation \\
+\tt o & open punctuation \\
+\tt c & close punctuation \\
+\tt i & initial punctuation \\
+\tt f & final punctuation \\
+\tt h & other punctuation
+\end{tabular}
+&
+\begin{tabular}[t]{l@{~denotes~}l}
+\tt m & math symbol \\
+\tt y & currency symbol \\
+\tt r & modifier symbol \\
+\tt t & other symbol
+\\[2ex]
+\tt s & space separator \\
+\tt l & line separator \\
+\tt p & paragraph separator \\
+\\[2ex]
+\tt x & control \\
+\tt z & format \\
+\tt g & surrogate \\
+\tt v & private use \\
+\tt u & unassigned
+\\[2ex]
+\tt w & unspecified
+\end{tabular}
 \end{tabular}
 \end{center}
+\caption{{\tt min::unicode\_class} values}
+\label{UNICODE-CLASSES}
+\end{boxedfigure}
 
 The following functions test a \verb|min::gen| value to see if it
 is a string and obtain information from
@@ -4015,7 +4097,7 @@ returns the number of elements in the label.
 The {\tt min::\EOL hash\_\EOL of} function returns the hash of the label.
 
 The {\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
-{\tt min::\EOL end\_\EOL ptr\_\EOL of} and
+{\tt min::\EOL end\_\EOL ptr\_\EOL of}
 functions return {\tt min::\EOL ptr<const min::\EOL gen>} values that
 point at the first label element and the location just after the
 last label element, respectively.  Unlike `{\tt \& labp[0]}',
@@ -4487,7 +4569,7 @@ Members of the types `\verb|const min::stub *|', `\verb|min::stub const *|', and
 `{\tt const min::\EOL stub \EOL const~*}' are treated like
 `{\tt min::\EOL stub~*}' members for these purposes.
 
-{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~~and~~
+{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~and~
 {\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG} members
 are also treated as {\tt const min::\EOL stub~*} members.
 
@@ -4650,9 +4732,10 @@ it can be defined without defining \verb|S|, and therefore can be
 used to build recursive structures.
 
 The read-write {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
-pointer type has the
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer type as its
-{\tt public} base class, so that it can be implicitly converted to
+pointer type has 
+as its {\tt public} base class the
+{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer type,
+so that it can be implicitly converted to
 a read-only pointer.  The new code defined for this read-write
 pointer type is:
 
@@ -5341,8 +5424,9 @@ for locatable elements of a packed vector header.
 
 The insertable {\tt min::\EOL packed\_\EOL vec\_\EOL insptr\EHLARG}
 pointer type, which permits elements to be added to a packed vector,
-has as its {\tt public} base class the
-{\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG} pointer type,
+has the
+{\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG} pointer type
+as its {\tt public} base class,
 so that insertable pointers can be implicitly converted to
 read-write or read-only pointers.  The new code defined for the insertable
 pointer type is:
@@ -8091,8 +8175,7 @@ is not {\tt NULL}, and if
 the value prints as {\tt special\_\EOL names[i]}.
 
 If the flag is \underline{off} and
-{\tt 0 <= 0xFFFFFF\,-\,i
-       < min::\EOL standard\_\EOL special\_\EOL names\_\EOL size}, then
+{\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL names\_\EOL size}, then
 the value prints as {\tt min::\EOL standard\_\EOL special\_\EOL names[i]}.
 
 Otherwise the value prints as `{\tt SPECIAL(i)}'.

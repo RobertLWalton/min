@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_class.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  4 20:42:53 EDT 2012
+// Date:	Wed Jun  6 00:08:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,20 +30,32 @@ char unicode_class[unicode_class_size];
 struct range { unsigned low; unsigned high; };
 
 // Store c into the given range.  If anything already
-// stored there, complain.  Return count of complaints.
+// stored there, complain, unless digit_ok is true and
+// what is already stored is a digit 0-9.  In this
+// do nothing.  Return count of complaints.
 //
-unsigned store ( char c, range & r )
+enum { COMPLAIN_IF_DIGIT, REPLACE_DIGIT, LEAVE_DIGIT };
+unsigned store
+	( char c, range & r,
+	  unsigned digit_op = COMPLAIN_IF_DIGIT )
 {
     unsigned count = 0;
     for ( unsigned i = r.low; i <= r.high; ++ i )
     {
         if ( unicode_class[i] != 0 )
 	{
-	    cout << "ERROR: class conflict between "
-	         << c << " and " << unicode_class[i]
-		 << " for character code 0x"
-		 << hex << i << dec << endl;
-	    ++ count;
+	    if ( ! isdigit ( unicode_class[i] )
+	         ||
+		 digit_op == COMPLAIN_IF_DIGIT )
+	    {
+		cout << "ERROR: class conflict between "
+		     << c << " and " << unicode_class[i]
+		     << " for character code 0x"
+		     << hex << i << dec << endl;
+		++ count;
+	    }
+	    else if ( digit_op == REPLACE_DIGIT )
+		unicode_class[i] = c;
 	}
 	else unicode_class[i] = c;
     }
@@ -160,7 +172,152 @@ const char * read_range
     return line;
 }
 
-// Read DerivedGeneralCategory.txt
+// Read DerivedNumericValues.txt.  For each with a
+// single decimal digit value, if `note' is NULL, just
+// store the value in unicode_class, and complain if
+// the unicode_class is already set non-zero.  However,
+// if `note' is non-NULL, just announce lines for which
+// the unicode_class does not match the line value,
+// beginning each announcement with `note'.
+//
+void read_numeric_values ( const char * note = NULL )
+{
+    ::open ( "DerivedNumericValues.txt" );
+
+    while ( read_line() )
+    {
+        const char * p = line;
+	p = skip ( p );
+	if ( * p == 0 ) continue;
+
+	range r;
+	p = read_range ( p, r, 0xFFFFFF );
+	if ( p == NULL )
+	    line_error ( "bad range" );
+
+	if ( r.high >= unicode_class_size )
+	{
+	    char message[200];
+	    sprintf ( message, "code above 0x%X used",
+	                       unicode_class_size - 1 );
+	    line_error ( message, false );
+	    if ( r.low >= unicode_class_size )
+	        continue;
+	    else r.high = unicode_class_size - 1;
+	}
+
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "`;' not found" );
+
+	while ( * p && * p != ';' ) ++ p;
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "third field not found" );
+
+	while ( * p && * p != ';' ) ++ p;
+	p = skip ( p );
+	if ( * p ++ != ';' )
+	    line_error ( "fourth field not found" );
+
+	p = skip ( p );
+	const char * q = p;
+	while ( * q && ! isspace ( * q )
+	            && * q != ';' && * q != '#' ) ++ q;
+
+	const char * s = skip ( q );
+	if ( * s && * s != ';' )
+	    line_error ( "bad numeric value field" );
+
+	if ( ! isdigit ( * p ) || q != p + 1 )
+	    continue;
+
+	if ( note == NULL )
+	{
+	    if ( store ( * p, r ) > 0 )
+		line_error
+		    ( "conflicting numeric values"
+		      " (see above ERRORs)", false );
+	}
+	else
+	{
+	    unsigned count = 0;
+	    for ( unsigned i = r.low;
+	          i <= r.high; ++ i )
+	        count += ( unicode_class[i] != * p );
+	    if ( count > 0 )
+	    {
+	        unsigned total = r.high + 1 - r.low;
+		if ( count == total )
+		    cout << note << " (affects "
+		         << total << " codes):"
+			 << endl << line << endl;
+		else
+		    cout << note << " (affects "
+		         << count << " out of "
+			 << total << " codes):"
+			 << endl << line << endl;
+	    }
+	}
+    }
+
+    ::close();
+}
+
+// Reset to zero the unicode_class of all characters
+// that with non-zero class that do not appear
+// in one of the sequences 0123456789 or 1234567890.
+//
+void weed_numeric_classes ( void )
+{
+    for ( unsigned i = 0; i < unicode_class_size; ++ i )
+    {
+	char c = unicode_class[i];
+	if ( c == 0 ) continue;
+
+	if ( i + 9 < unicode_class_size
+	     &&
+	     strncmp ( & unicode_class[i],
+	               "0123456789", 10 ) == 0 )
+	{
+	    i += 9;
+	    continue;
+	}
+
+	if ( i + 9 < unicode_class_size
+	     &&
+	     strncmp ( & unicode_class[i],
+	               "1234567890", 10 ) == 0 )
+	{
+	    i += 9;
+	    continue;
+	}
+
+#	ifdef OTHER_WEED
+
+	if ( i + 8 < unicode_class_size
+	     &&
+	     strncmp ( & unicode_class[i],
+	               "123456789", 9 ) == 0 )
+	{
+	    i += 8;
+	    continue;
+	}
+
+	if ( unicode_class[i] == '0' )
+	    continue;
+
+#	endif
+
+	unicode_class[i] = 0;
+    }
+}
+
+// Read DerivedGeneralCategory.txt.  Set character
+// classes that are not already set.  Check that
+// the classes of already set characters would be
+// D, R, H, or O but for the class already having
+// been set to 0 ... 9.
 //
 void read_general_category ( void )
 {
@@ -251,10 +408,18 @@ void read_general_category ( void )
 	if ( c == 0 )
 	    line_error
 	        ( "unknown general category" );
-	if ( store ( c, r ) > 0 )
+
+	unsigned digit_op =
+	    ( c == 'D' ? LEAVE_DIGIT :
+	      c == 'R' ? LEAVE_DIGIT :
+	      c == 'H' ? LEAVE_DIGIT :
+	      c == 'O' ? LEAVE_DIGIT :
+	      		 COMPLAIN_IF_DIGIT );
+
+	if ( store ( c, r, digit_op ) > 0 )
 	    line_error
 	        ( "conflicting general categories"
-		  " (see above ERRORs)", true );
+		  " (see above ERRORs)", false );
     }
 
     ::close();
@@ -339,86 +504,6 @@ void read_combining_class ( void )
 		     << " combining class " << cc
 		     << " conflicts with UNICODE class "
 		     << unicode_class[i] << endl;
-	}
-    }
-
-    ::close();
-}
-
-// Read DerivedNumericValues.txt
-//
-void read_numeric_values ( void )
-{
-    ::open ( "DerivedNumericValues.txt" );
-
-    while ( read_line() )
-    {
-        const char * p = line;
-	p = skip ( p );
-	if ( * p == 0 ) continue;
-
-	range r;
-	p = read_range ( p, r, 0xFFFFFF );
-	if ( p == NULL )
-	    line_error ( "bad range" );
-
-	if ( r.high >= unicode_class_size )
-	{
-	    char message[200];
-	    sprintf ( message, "code above 0x%X used",
-	                       unicode_class_size - 1 );
-	    line_error ( message, false );
-	    if ( r.low >= unicode_class_size )
-	        continue;
-	    else r.high = unicode_class_size - 1;
-	}
-
-	p = skip ( p );
-	if ( * p ++ != ';' )
-	    line_error ( "`;' not found" );
-
-	while ( * p && * p != ';' ) ++ p;
-	p = skip ( p );
-	if ( * p ++ != ';' )
-	    line_error ( "third field not found" );
-
-	while ( * p && * p != ';' ) ++ p;
-	p = skip ( p );
-	if ( * p ++ != ';' )
-	    line_error ( "fourth field not found" );
-
-	p = skip ( p );
-	const char * q = p;
-	while ( * q && ! isspace ( * q )
-	            && * q != ';' && * q != '#' ) ++ q;
-
-	const char * s = skip ( q );
-	if ( * s && * s != ';' )
-	    line_error ( "bad numeric value field" );
-
-	if ( ! isdigit ( * p ) || q != p + 1 )
-	    continue;
-
-	for ( unsigned i = r.low; i <= r.high; ++ i )
-	{
-	    if ( unicode_class[i] != 'D'
-	         &&
-		 unicode_class[i] != 'R'
-	         &&
-		 unicode_class[i] != 'H'
-	         &&
-		 unicode_class[i] != 'O' )
-
-	    {
-		cout << "ERROR: for character code 0x"
-		     << hex << i << dec
-		     << " decimal value"
-		     << " conflicts with UNICODE class "
-		     << unicode_class[i] << endl;
-		line_error ( "above error", false );
-	    }
-	    else
-	        unicode_class[i] = * p;
 	}
     }
 
@@ -512,9 +597,20 @@ void output ( void )
 int main ( int argc )
 {
     cout << setiosflags ( ios_base::uppercase );
+
+#   ifdef TRY_WEEDING
+    read_numeric_values();
+    weed_numeric_classes();
+    read_numeric_values
+        ( "NOTE: decimal digits that maybe should"
+	  " not be" );
+    memset ( unicode_class, 0,
+             sizeof ( unicode_class ) );
+#   endif
+
+    read_numeric_values();
     read_general_category();
     find_missing_classes();
     read_combining_class();
-    read_numeric_values();
     output();
 }
