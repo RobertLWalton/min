@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_class.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  6 00:08:30 EDT 2012
+// Date:	Wed Jun  6 07:28:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 # include <fstream>
 # include <cstdlib>
 # include <cctype>
+# include <cstring>
 using std::cout;
 using std::endl;
 using std::hex;
@@ -319,7 +320,12 @@ void weed_numeric_classes ( void )
 // D, R, H, or O but for the class already having
 // been set to 0 ... 9.
 //
-void read_general_category ( void )
+// However, if print_classes != NULL do not set classes,
+// but instead just print the file lines that specify
+// the classes included in print_classes.
+//
+void read_general_category
+        ( const char * print_classes = NULL )
 {
     ::open ( "DerivedGeneralCategory.txt" );
 
@@ -351,20 +357,6 @@ void read_general_category ( void )
 	if ( * s  && * s != ';' )
 	    line_error
 	        ( "bad stuff after general category" );
-
-	if ( r.high >= unicode_class_size )
-	{
-	    char message[200];
-	    sprintf ( message, "code above 0x%X used",
-	                       unicode_class_size - 1 );
-	    if ( strncmp ( "Cn", p, 2 ) != 0
-	         &&
-	         strncmp ( "Co", p, 2 ) != 0 )
-		line_error ( message, false );
-	    if ( r.low >= unicode_class_size )
-		continue;
-	    r.high = unicode_class_size - 1;
-	}
 
 	char c =
 	    strncmp ( "Lu", p, 2 ) == 0 ? 'U' :
@@ -408,6 +400,28 @@ void read_general_category ( void )
 	if ( c == 0 )
 	    line_error
 	        ( "unknown general category" );
+
+    	if ( print_classes != NULL )
+	{
+	    if ( index ( print_classes, c ) != NULL )
+	        cout << line << endl;
+
+	    continue;
+	}
+
+	if ( r.high >= unicode_class_size )
+	{
+	    char message[200];
+	    sprintf ( message, "code above 0x%X used",
+	                       unicode_class_size - 1 );
+	    if ( strncmp ( "Cn", p, 2 ) != 0
+	         &&
+	         strncmp ( "Co", p, 2 ) != 0 )
+		line_error ( message, false );
+	    if ( r.low >= unicode_class_size )
+		continue;
+	    r.high = unicode_class_size - 1;
+	}
 
 	unsigned digit_op =
 	    ( c == 'D' ? LEAVE_DIGIT :
@@ -594,7 +608,7 @@ void output ( void )
     out.close();
 }
 
-int main ( int argc )
+int main ( int argc, const char ** argv )
 {
     cout << setiosflags ( ios_base::uppercase );
 
@@ -612,5 +626,11 @@ int main ( int argc )
     read_general_category();
     find_missing_classes();
     read_combining_class();
+
+    if ( argc > 1 )
+    {
+        cout << endl << endl;
+	read_general_category ( argv[1] );
+    }
     output();
 }

@@ -237,7 +237,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 5, 2012}
+\date{June 6, 2012}
  
 \maketitle
 
@@ -3548,7 +3548,7 @@ characters are not well supported by Linux.  LATIN-1 letters
 are supported via the compose key, but other non-ASCII letters are not.
 Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
 are considered to be lower case letters and \AE(AE)
-is considered to be an upper case letter, while the other LATIN-1
+is considered to be an upper case letter, other LATIN-1
 letters may be made by composing
 {\tt `},
 {\tt '},
@@ -3565,22 +3565,29 @@ letters may be made by composing
 \"A({\tt "A}),
 \c{C}({\tt ,C}),
 \DH({\tt -D}), and
-\O({\tt /O}).}
+\O({\tt /O}), and the remaining two cases
+\AA({\tt AA}), and
+\aa({\tt aa}) use a compose sequence consisting of just the letter doubled.
+Note that LATIN-1 control codes cannot currently be input and have
+no special MIN support for output.}
 characters (characters with codes {\tt < 256})
 are the characters themselves, e.g., the UNICODE class of
 `{\tt *}' is \verb|'*'|, \underline{except}:
 \begin{center}
-\begin{tabular}{l@{~is the class of~}l}
-\verb|'U'| & upper case letters; \verb|'A'| \ldots \verb|'Z'|,
-                                 {\tt \`A} \ldots {\tt \'Y}. \\
-\verb|'L'| & lower case letters; \verb|'a'| \dots \verb|'z'|,
-                                 {\tt \`a} \ldots {\tt \"y}. \\
+\begin{tabular}{l@{~}l}
+\verb|'U'| & is the class of upper case letters; \\
+           & {\tt A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
+	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
+\verb|'L'| & is the class of lower case letters; \\
+           & {\tt a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
+	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
 \end{tabular}
 \end{center}
 
 The UNICODE class of a character with code {\tt >= 256} is determined
 by the UNICODE character `\mkey{general category}{UNICODE}' and the
-UNICODE character numeric value.  If the numeric value is a single
+UNICODE character `\mkey{numeric value}{UNICODE}'.
+If the numeric value is a single
 decimal digit, this becomes the UNICODE class of the character.
 Otherwise the general category of the character is encoded
 in a UNICODE class that is a single ASCII letter as indicated
@@ -7951,7 +7958,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::default_pgen    // pgen|\ARGBREAK
+    \verb|  min::default_pgen,   // pgen|\ARGBREAK
     \verb|  "%.15g",             // number_format|\ARGBREAK
     \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
     \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK

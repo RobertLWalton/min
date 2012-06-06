@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  5 08:30:48 EDT 2012
+// Date:	Wed Jun  6 08:14:33 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6709,11 +6709,11 @@ min::print_format min::ostream_print_format =
     & min::default_gen_format
 };
 
-// Return true iff c is combining diacritic.
+// Return true iff c is non-spacing combining mark.
 //
-inline bool is_diacritic ( min::uns32 c )
+inline bool is_non_spacing ( min::uns32 c )
 {
-    return 0x20D0 <= c && c <= 0x20FF;
+    return min::unicode_class ( c ) == 'N';
 }
 
 // Representations for printing control characters in
@@ -8149,7 +8149,8 @@ min::printer MINT::print_unicode
 	    const char * rep;
 	    int len;
 	    int columns;
-	    bool is_diacritic = ::is_diacritic ( c );
+	    bool is_non_spacing =
+	        ::is_non_spacing ( c );
 	    if( ascii )
 	    {
 		if ( c == min::ILLEGAL_UTF8 )
@@ -8175,7 +8176,7 @@ min::printer MINT::print_unicode
 	    }
 	    else /* not ascii mode */
 	    {
-		columns = ! is_diacritic;
+		columns = ! is_non_spacing;
 		if ( c == min::ILLEGAL_UTF8 )
 		{
 		    rep = utf8graphic[ILL_REP];
@@ -8465,7 +8466,7 @@ void MINT::pwidth
 		column += 3;
 	    }
 	}
-	else if ( ! ::is_diacritic ( c ) )
+	else if ( ! ::is_non_spacing ( c ) )
 	    ++ column;
 
 	return;
