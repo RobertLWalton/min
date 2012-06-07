@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  6 17:42:49 EDT 2012
+// Date:	Thu Jun  7 04:24:45 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11525,6 +11525,7 @@ namespace min {
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
+	    MASKABLE_SPACE,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
@@ -11768,6 +11769,8 @@ namespace min {
     extern const op graphic;
     extern const op nographic;
     extern const op verbatim;
+
+    extern const op maskable_space;
 
     namespace internal
     {
