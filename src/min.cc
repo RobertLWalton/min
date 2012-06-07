@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  6 17:42:41 EDT 2012
+// Date:	Thu Jun  7 04:18:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6738,6 +6738,8 @@ min::print_format min::ostream_print_format =
     & min::default_gen_format
 };
 
+static min::uns32 space[1] = { ' ' };
+
 // Return true iff c is non-spacing combining mark.
 //
 inline bool is_non_spacing ( min::uns32 c )
@@ -7428,6 +7430,8 @@ static std::ostream & ostream_pgen
 
 static void end_line ( min::printer printer )
 {
+    printer->space_postfix_mask = NULL;
+
     // Remove line ending horizontal spaces.
     //
     min::packed_vec_insptr<char> buffer =
@@ -7555,6 +7559,60 @@ min::printer operator <<
 	        + min::GBREAK_FLAG
 	        + min::ASCII_FLAG );
 	return printer;
+    case min::op::MASKABLE_SPACE:
+	{
+	    const min::uns32 * prefix_mask =
+	        printer->print_format.gen_format
+		       ->space_prefix_mask;
+	    const min::uns32 * postfix_mask =
+	        printer->print_format.gen_format
+		       ->space_postfix_mask;
+	    if ( prefix_mask == NULL
+	         ||
+		 postfix_mask == NULL )
+	    {
+		MINT::print_unicode
+		    ( printer, 1, ::space );
+		return printer;
+	    }
+	    min::packed_vec_insptr<char> buffer =
+	        printer->file->buffer;
+	    min::unsptr length = buffer->length;
+	    min::uns32 c = '\n';
+	    if ( length > 0 )
+	    {
+	        // Code to set c to the last UNICODE
+		// character in buffer.  This code
+		// contains relocatable pointers.
+
+	        const char * p =
+		    min::end_ptr_of ( buffer );
+		const char * q = p;
+		if ( p[-1] != 0 ) while ( true )
+		{
+		    assert ( length > 0 );
+
+		    -- q;
+		    -- length;
+
+		    if ( ( * q & 0x80 ) == 0 )
+		    {
+			c = min::utf8_to_unicode
+			        ( q, p );
+			assert ( q == p );
+		        break;
+		    }
+		}
+	    }
+
+	    min::uns8 A = min::unicode_class ( c );
+	    printer->space_prefix_mask =
+		prefix_mask[A];
+	    printer->space_postfix_mask =
+		postfix_mask;
+		    
+	    return printer;
+	}
     case min::op::SAVE_LINE_BREAK:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
@@ -7849,6 +7907,8 @@ const min::op min::nographic
     ( min::op::CLEAR_PRINT_FLAGS, min::GRAPHIC_FLAGS );
 const min::op min::verbatim
     ( min::op::VERBATIM );
+const min::op min::maskable_space
+    ( min::op::MASKABLE_SPACE );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
@@ -8008,8 +8068,6 @@ min::printer operator <<
     MIN_STACK_COPY ( char, buffer, length, s );
     return printer << buffer;
 }
-
-static min::uns32 space[1] = { ' ' };
 
 min::printer MINT::print_unicode
 	( min::printer printer,

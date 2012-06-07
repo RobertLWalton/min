@@ -237,7 +237,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 6, 2012}
+\date{June 7, 2012}
  
 \maketitle
 
@@ -7015,6 +7015,8 @@ executed at the very end of a {\tt min::\EOL eol} or
 These control the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
+Note: {\tt gen\_format} must \underline{not} be {\tt NULL}.
+
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with {\tt min::save\_print\_format} and
 {\tt min::\EOL restore\_\EOL print\_\EOL format} to save and
@@ -8090,36 +8092,39 @@ a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
 
 \item[\ttmkey{space\_prefix\_mask}{in {\tt min::gen\_format}}]
 \item[\ttmkey{space\_postfix\_mask}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if both are not {\tt NULL} and
-{\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on for labels or
-{\tt SUPPRESS\_\EOL OBJ\_\EOL SPACE\_\EOL FLAG} is on for objects.
-In addition, {\tt lab\_\EOL separator} must not be being used for labels
-(which will be the case if {\tt BRACKET\_\EOL LAB\_\EOL FLAG}
-is \underline{off}).
+These members control the {\tt min::maskable\_space} operation, which
+may or may not output a single space character, and which is used
+to put the space between label elements
+if {\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on
+and {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is \underline{off},
+and which is also used to put the space between object attribute vector elements
+if {\tt SUPPRESS\_\EOL OBJ\_\EOL SPACE\_\EOL FLAG} is on.
+If the flags are not set as indicated,
+{\tt min::\EOL maskable\_\EOL space} is not used for printing labels or
+objects.
 
-Then the space normally output between label elements
-or between object vector elements is suppressed if
-both elements are names (as per {\tt min::\EOL is\_\EOL name},
-\pagref{MIN::IS_NAME}) and
+If either {\tt space\_\EOL prefix\_\EOL mask} or
+{\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL},
+{\tt min::\EOL maskable\_\EOL space} outputs a single space character.
+Otherwise it outputs a single space character if and only if
 \begin{center}
-\tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
+\tt space\_prefix\_mask[A] \& space\_postfix\_mask[B] == 0
 \end{center}
 where
 \begin{center}
 \tt
 \begin{tabular}{l}
-B = min::unicode\_class ( b ) \\
 A = min::unicode\_class ( a ) \\
-b = {\rm the last UNICODE character of the previous element} \\
-a = {\rm the first UNICODE character of the next element} \\
+B = min::unicode\_class ( b ) \\
+a = {\rm the previous printed UNICODE character} \\
+b = {\rm the following printed UNICODE character} \\
 \end{tabular}
 \end{center}
 
-Here the last UNICODE character of a number is assumed to be a digit,
-and the first UNICODE character of a non-negative number is assumed
-to be a digit, while the first UNICODE character of a negative number
-is assumed to be `{\tt -}'.
-
+If we are at the beginning of printing, or if we are at the beginning
+of a line, the previous printed UNICODE character
+is assumed to be a newline character.  A space is
+never output if it would be at the end of a line.
 
 {\tt space\_prefix\_mask} and {\tt space\_postfix\_mask} must both be
 addresses of
@@ -8139,10 +8144,10 @@ and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately preceding prefix separator
 character.
 Set in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
-for the classes `{\tt (}', `{\tt [}', `{\tt \BRA}', and
+for the UNICODE classes `{\tt (}', `{\tt [}', `{\tt \BRA}', and
 `{\tt \guillemotleft}'
 and in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
-for all classes.
+for all UNICODE classes.
 
 \item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}%
     {{\tt min::gen\_format} flag}]{\tt = 2}\\
@@ -8152,10 +8157,11 @@ and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately following postfix separator
 character.
 Set in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
-for the classes `{\tt )}', `{\tt ]}', `{\tt \KET}', `{\tt \guillemotright}',
+for the UNICODE classes
+`{\tt )}', `{\tt ]}', `{\tt \KET}', `{\tt \guillemotright}',
 `{\tt ,}', and `{\tt ;}'
 and in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
-for all classes.
+for all UNICODE classes.
 
 
 \end{itemlist}\end{indpar}
