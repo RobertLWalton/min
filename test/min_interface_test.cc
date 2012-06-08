@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 31 08:35:35 EDT 2012
+// Date:	Fri Jun  8 01:41:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2466,8 +2466,20 @@ void test_printer ( void )
         { min::new_num_gen ( 5.6 ),
 	  min::new_lab_gen ( lab1, 2 ),
 	  min::new_str_gen ( "str 2" ) };
+    min::gen lab3[3] =
+        { min::new_str_gen ( "A" ),
+	  min::new_str_gen ( "," ),
+	  min::new_str_gen ( "B" ) };
     printer << min::pgen
                     ( min::new_lab_gen ( lab2, 3 ) )
+            << min::eol;
+    printer << min::pgen
+                    ( min::new_lab_gen ( lab3, 3 ),
+		      min::SUPPRESS_LAB_SPACE_FLAG )
+	    << " / "
+            << min::pgen
+                    ( min::new_lab_gen ( lab3, 3 ),
+		      0 )
             << min::eol;
 
     printer << min::restore_print_format;
@@ -2483,6 +2495,10 @@ void test_printer ( void )
     printer << min::pgen ( min::FAILURE() ) << min::eol;
     printer << min::pgen
                     ( min::new_special_gen (0xABCDEF) )
+            << min::eol;
+    printer << min::pgen
+                   ( min::MISSING(),
+		     min::SUPPRESS_SPECIAL_NAME_FLAG )
             << min::eol;
     
     min::stub * s = MUP::new_aux_stub();
