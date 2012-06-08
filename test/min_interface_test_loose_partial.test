@@ -1476,6 +1476,7 @@ pint ( -3, "%05d" ) = -0003
 1.23456789012345
 `this␣is␣a␣string␣with␣a␣quote␣(<Q>)'
 [: 5.6 [: 1.234 `str␣1' :] `str␣2' :]
+A, B / A , B
 MISSING
 NONE
 ANY
@@ -1484,6 +1485,7 @@ UNDEFINED
 SUCCESS
 FAILURE
 SPECIAL(0xabcdef)
+SPECIAL(0xffffff)
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)

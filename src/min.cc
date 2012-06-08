@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  7 04:18:06 EDT 2012
+// Date:	Thu Jun  7 18:38:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7294,7 +7294,9 @@ static T pgen
     {
 	const char * prefix = "";
 	const char * postfix = "";
-	const char * separator = " ";
+	const char * separator =
+	    ( gen_flags & min::SUPPRESS_LAB_SPACE_FLAG ?
+	      NULL : " " );
 	if ( ( gen_flags & min::BRACKET_LAB_FLAG )
 	     &&
 	     f->lab_prefix != NULL
@@ -7314,7 +7316,13 @@ static T pgen
 	out << prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
-	    if ( i != 0 ) out << separator;
+	    if ( i != 0 )
+	    {
+		if ( separator == NULL)
+		    out << min::suppressible_space;
+		else
+		    out << separator;
+	    }
 	    pgen ( out, labp[i], gen_flags, f );
 	}
 	return out << postfix;
@@ -7335,7 +7343,14 @@ static T pgen
 	}
 
         min::unsgen index = MUP::special_index_of ( v );
-	if ( 0xFFFFFF - min::standard_special_names_size
+	bool allow_special_name =
+	    (    (   gen_flags
+	           & min::SUPPRESS_SPECIAL_NAME_FLAG )
+	      == 0 );
+
+	if ( allow_special_name
+	     &&
+	     0xFFFFFF - min::standard_special_names_size
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
@@ -7343,7 +7358,9 @@ static T pgen
 	        << min::standard_special_names
 		            [0xFFFFFF - index]
 		<< postfix;
-	else if ( index < f->special_names_size
+	else if ( allow_special_name
+	          &&
+		  index < f->special_names_size
 	          &&
 		  f->special_names != NULL )
 	    return out << prefix
@@ -7559,7 +7576,7 @@ min::printer operator <<
 	        + min::GBREAK_FLAG
 	        + min::ASCII_FLAG );
 	return printer;
-    case min::op::MASKABLE_SPACE:
+    case min::op::SUPPRESSIBLE_SPACE:
 	{
 	    const min::uns32 * prefix_mask =
 	        printer->print_format.gen_format
@@ -7907,8 +7924,8 @@ const min::op min::nographic
     ( min::op::CLEAR_PRINT_FLAGS, min::GRAPHIC_FLAGS );
 const min::op min::verbatim
     ( min::op::VERBATIM );
-const min::op min::maskable_space
-    ( min::op::MASKABLE_SPACE );
+const min::op min::suppressible_space
+    ( min::op::SUPPRESSIBLE_SPACE );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character

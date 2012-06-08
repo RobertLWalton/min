@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  7 04:24:45 EDT 2012
+// Date:	Thu Jun  7 18:37:40 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11350,6 +11350,8 @@ namespace min {
 	const L length;
 	const L max_length;
 
+	L printed;
+
 	L occupied;
 	    // Number of map elements not equal to
 	    // NULL_STUB.
@@ -11496,14 +11498,18 @@ namespace min {
     };
 
     enum {
-        BRACKET_STR_FLAG		= ( 1 << 0 ),
-        GRAPHIC_STR_FLAG		= ( 1 << 1 ),
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+        BRACKET_STR_FLAG		= ( 1 << 1 ),
         BRACKET_LAB_FLAG		= ( 1 << 2 ),
         BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
         BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
-	EXPRESSION_FLAG			= ( 1 << 5 ),
-	DATA_FLAG			= ( 1 << 6 ),
-	RAW_FLAG			= ( 1 << 7 ),
+        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
+        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
+        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
+	EXPRESSION_FLAG			= ( 1 << 8 ),
+	SUBOBJ_ID_FLAG			= ( 1 << 9 ),
+	OBJ_ID_FLAG			= ( 1 << 10 ),
+	FLUSH_ID_FLAG			= ( 1 << 11 ),
     };
 
     struct op
@@ -11525,7 +11531,7 @@ namespace min {
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
-	    MASKABLE_SPACE,
+	    SUPPRESSIBLE_SPACE,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
@@ -11770,7 +11776,7 @@ namespace min {
     extern const op nographic;
     extern const op verbatim;
 
-    extern const op maskable_space;
+    extern const op suppressible_space;
 
     namespace internal
     {
