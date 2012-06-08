@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  7 18:38:18 EDT 2012
+// Date:	Fri Jun  8 07:48:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -80,7 +80,7 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-static void init_default_space_masks ( void );
+static void init_default_suppress_matrix ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
@@ -94,7 +94,7 @@ void MINT::initialize ( void )
 	MINT::unicode_class[i] = i;
     }
 
-    init_default_space_masks();
+    init_default_suppress_matrix();
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );
@@ -6681,28 +6681,27 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
-min::uns32 min::default_space_prefix_mask[256];
-min::uns32 min::default_space_postfix_mask[256];
+static bool default_suppress_matrix[256][256];
 
-static void init_default_space_masks ( void )
+min::suppress_matrix min::default_suppress_matrix =
+    & ::default_suppress_matrix;
+
+static void init_default_suppress_matrix ( void )
 {
-    min::uns32 * p = min::default_space_prefix_mask;
-    p['('] |= min::PREFIX_SEPARATOR_FLAG;
-    p['['] |= min::PREFIX_SEPARATOR_FLAG;
-    p['{'] |= min::PREFIX_SEPARATOR_FLAG;
-    p[0xAB] |= min::PREFIX_SEPARATOR_FLAG; // <<
-    min::uns32 * q = min::default_space_postfix_mask;
-    q[')'] |= min::POSTFIX_SEPARATOR_FLAG;
-    q[']'] |= min::POSTFIX_SEPARATOR_FLAG;
-    q['}'] |= min::POSTFIX_SEPARATOR_FLAG;
-    q[0xB8] |= min::POSTFIX_SEPARATOR_FLAG; // >>
-    q[','] |= min::POSTFIX_SEPARATOR_FLAG;
-    q[';'] |= min::POSTFIX_SEPARATOR_FLAG;
-
-    for ( int i = 0; i < 256; ++ i )
+    for ( unsigned i = 0; i < 256; ++ i )
     {
-        p[i] |= min::POSTFIX_SEPARATOR_FLAG;
-        q[i] |= min::PREFIX_SEPARATOR_FLAG;
+        ::default_suppress_matrix['('][i] = true;
+        ::default_suppress_matrix['['][i] = true;
+        ::default_suppress_matrix['{'][i] = true;
+        ::default_suppress_matrix[0xAB][i] = true;
+		// <<
+
+        ::default_suppress_matrix[i][')'] = true;
+        ::default_suppress_matrix[i][']'] = true;
+        ::default_suppress_matrix[i]['}'] = true;
+        ::default_suppress_matrix[i][0xB8] = true;
+        ::default_suppress_matrix[i][','] = true;
+        ::default_suppress_matrix[i][';'] = true;
     }
 }
 
@@ -6715,8 +6714,7 @@ const min::gen_format min::default_gen_format =
     "[$ ", " $]",
     "[. ", " .]",
     NULL, 0,
-    min::default_space_prefix_mask,
-    min::default_space_postfix_mask
+    min::default_suppress_matrix
 };
 
 const min::line_break min::default_line_break =
@@ -7447,7 +7445,7 @@ static std::ostream & ostream_pgen
 
 static void end_line ( min::printer printer )
 {
-    printer->space_postfix_mask = NULL;
+    printer->suppress_matrix = NULL;
 
     // Remove line ending horizontal spaces.
     //
@@ -7578,15 +7576,10 @@ min::printer operator <<
 	return printer;
     case min::op::SUPPRESSIBLE_SPACE:
 	{
-	    const min::uns32 * prefix_mask =
+	    printer->suppress_matrix =
 	        printer->print_format.gen_format
-		       ->space_prefix_mask;
-	    const min::uns32 * postfix_mask =
-	        printer->print_format.gen_format
-		       ->space_postfix_mask;
-	    if ( prefix_mask == NULL
-	         ||
-		 postfix_mask == NULL )
+		       ->suppress_matrix;
+	    if ( printer->suppress_matrix == NULL )
 	    {
 		MINT::print_unicode
 		    ( printer, 1, ::space );
@@ -7595,12 +7588,12 @@ min::printer operator <<
 	    min::packed_vec_insptr<char> buffer =
 	        printer->file->buffer;
 	    min::unsptr length = buffer->length;
-	    min::uns32 c = '\n';
+	    min::uns32 b = '\n';
 	    if ( length > 0 )
 	    {
-	        // Code to set c to the last UNICODE
-		// character in buffer.  This code
-		// contains relocatable pointers.
+	        // Code to set b to the last UNICODE
+		// character in buffer.  This block of
+		// code contains relocatable pointers.
 
 	        const char * p =
 		    min::end_ptr_of ( buffer );
@@ -7614,7 +7607,7 @@ min::printer operator <<
 
 		    if ( ( * q & 0x80 ) == 0 )
 		    {
-			c = min::utf8_to_unicode
+			b = min::utf8_to_unicode
 			        ( q, p );
 			assert ( q == p );
 		        break;
@@ -7622,11 +7615,8 @@ min::printer operator <<
 		}
 	    }
 
-	    min::uns8 A = min::unicode_class ( c );
-	    printer->space_prefix_mask =
-		prefix_mask[A];
-	    printer->space_postfix_mask =
-		postfix_mask;
+	    printer->previous_unicode_class =
+		min::unicode_class ( b );
 		    
 	    return printer;
 	}
@@ -8096,18 +8086,17 @@ min::printer MINT::print_unicode
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
 
-    const uns32 * space_postfix_mask =
-        printer->space_postfix_mask;
-    if ( space_postfix_mask != NULL )
+    if ( printer->suppress_matrix != NULL )
     {
         if ( n == 0 ) return printer;
 
-        printer->space_postfix_mask = NULL;
-	uns8 B = min::unicode_class ( str[0] );
-	if ( ( space_postfix_mask[B]
-	       &
-	       printer->space_prefix_mask )
-	     == 0 )
+	uns8 B = printer->previous_unicode_class;
+	uns8 C = min::unicode_class ( str[0] );
+	bool suppress =
+	    ( * printer->suppress_matrix )[B][C];
+
+        printer->suppress_matrix = NULL;
+	if ( ! suppress )
 	    MINT::print_unicode ( printer, 1, ::space );
     }
 

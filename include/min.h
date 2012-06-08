@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  7 18:37:40 EDT 2012
+// Date:	Fri Jun  8 10:30:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11295,6 +11295,8 @@ namespace min {
 
 namespace min {
 
+    typedef const bool ( * suppress_matrix )[256][256];
+
     struct gen_format
     {
 	min::printer     ( * pgen )
@@ -11319,8 +11321,7 @@ namespace min {
 	const char *         implicit_postfix;
 	const char * const * special_names;
 	uns32                special_names_size;
-	const uns32 *        space_prefix_mask;
-	const uns32 *        space_postfix_mask;
+	min::suppress_matrix suppress_matrix;
     };
 
     enum {
@@ -11328,11 +11329,7 @@ namespace min {
 	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
     };
 
-    extern min::uns32 default_space_prefix_mask[256];
-    extern min::uns32 default_space_postfix_mask[256];
-        // Cannot be const because these are initialized
-	// by code and const data is stored in readonly
-	// pages.
+    extern min::suppress_matrix default_suppress_matrix;
 
     min::printer default_pgen
 	    ( min::printer printer,
@@ -11455,15 +11452,21 @@ namespace min {
 
 	const min::obj_id_map obj_id_map;
 
-	const min::uns32 * space_postfix_mask;
-	min::uns32 space_prefix_mask;
-	    // If space_postfix_mask != NULL and the
-	    // next character to be printed is b and
-	    // B = min::unicode_class ( b ) and space_
-	    // postfix_mask[B] & space_prefix_mask == 0,
-	    // then insert a single space before b.
-	    // Printing any character resets space_
-	    // postfix_mask to NULL.
+	min::suppress_matrix suppress_matrix;
+	min::uns8 previous_unicode_class;
+	    // Let the next character to be printed be
+	    // c, C = min::unicode_class ( c ), and
+	    // B = previous_unicode_class (if
+	    // suppress_matrix != NULL and the previous
+	    // printed character is b then B = min::
+	    // unicode_class ( b ) ).
+	    //
+	    // Then just before the next character to be
+	    // printed is output, a single space
+	    // character is printed if suppress_matrix
+	    // == NULL or suppress_matrix[B][C] ==
+	    // false.  In any case, suppress_matrix is
+	    // reset to NULL.
     };
 
     MIN_REF ( min::file, file, min::printer )
