@@ -85,6 +85,18 @@
 \end{lrbox}
 \newcommand{\KET}{\usebox{\KETBOX}}
 
+\newsavebox{\LAQUOTEBOX}
+\begin{lrbox}{\LAQUOTEBOX}
+{\tt \guillemotleft}
+\end{lrbox}
+\newcommand{\LAQUOTE}{\usebox{\LAQUOTEBOX}}
+
+\newsavebox{\RAQUOTEBOX}
+\begin{lrbox}{\RAQUOTEBOX}
+{\tt \guillemotright}
+\end{lrbox}
+\newcommand{\RAQUOTE}{\usebox{\RAQUOTEBOX}}
+
 \newcommand{\CN}[2]%	Change Notice.
     {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
      $^{\mbox{#1}}$#2}}
@@ -237,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 7, 2012}
+\date{June 9, 2012}
  
 \maketitle
 
@@ -7892,50 +7904,69 @@ The detailed structure of {\tt min::gen\_format} and the
 flags in {\tt min::gen\_\EOL flags} are as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::printer ( * pgen )|\ARGBREAK
-    \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::gen v,|\ARGBREAK
-    \verb|         min::uns32 gen_flags,|\ARGBREAK
-    \verb|         const min::gen_format * g );|\ARGBREAK
-    \verb||\ARGBREAK
-    \verb|  // Members beyond this point may be moved and|\ARGBREAK
-    \verb|  // new members may be added.|\ARGBREAK
-    \verb||\ARGBREAK
-    \verb|  const char *           number_format;|\ARGBREAK
-    \verb|  const char *           str_prefix;|\ARGBREAK
-    \verb|  const char *           str_postfix;|\ARGBREAK
-    \verb|  const char *           str_quote;|\ARGBREAK
-    \verb|  const char *           lab_prefix;|\ARGBREAK
-    \verb|  const char *           lab_separator;|\ARGBREAK
-    \verb|  const char *           lab_postfix;|\ARGBREAK
-    \verb|  const char *           special_prefix;|\ARGBREAK
-    \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implicit_prefix;|\ARGBREAK
-    \verb|  const char *           implicit_postfix;|\ARGBREAK
-    \verb|  const char * const *   special_names;|\ARGBREAK
-    \verb|  min::uns32             special_names_size;|\ARGBREAK
-    \verb|  const min::uns32       space_prefix_mask[256];|\ARGBREAK
-    \verb|  const min::uns32       space_postfix_mask[256];|\ARGBREAK
-    \verb|};|
-\ttmindex{gen}{in {\tt min::gen\_format}}
+\verb|typedef const bool ( min::|
+	& \MINKEY{suppress\_matrix}\verb| )[256][256]|
+\LABEL{MIN::SUPPRESS_MATRIX} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|struct min::|\MINKEY{gen\_format}\\
+\LABEL{MIN::GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|{|\\
+    \verb|  min::printer ( * pgen )|\\
+    \verb|       ( min::printer printer,|\\
+    \verb|         min::gen v,|\\
+    \verb|         min::uns32 gen_flags,|\\
+    \verb|         const min::gen_format * g );|\\
+\ttmindex{pgen}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  // Members beyond this point may be moved and|\\
+    \verb|  // new members may be added.|\\
+    \verb||\\
+    \verb|  const char *             number_format;|\\
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  const char *             str_prefix;|\\
+    \verb|  const char *             str_postfix;|\\
+    \verb|  const char *             str_quote;|\\
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{str\_quote}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  const char *             lab_prefix;|\\
+    \verb|  const char *             lab_separator;|\\
+    \verb|  const char *             lab_postfix;|\\
 \ttmindex{lab\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{lab\_separator}{in {\tt min::gen\_format}}
 \ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  const char *             special_prefix;|\\
+    \verb|  const char *             special_postfix;|\\
 \ttmindex{special\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{special\_postfix}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  const char *             implicit_prefix;|\\
+    \verb|  const char *             implicit_postfix;|\\
 \ttmindex{implicit\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{implicit\_postfix}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  const char * const *     special_names;|\\
+    \verb|  min::uns32               special_names_size;|\\
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
-\ttmindex{space\_prefix\_mask}{in {\tt min::gen\_format}}
-\ttmindex{space\_postfix\_mask}{in {\tt min::gen\_format}}
-\LABEL{MIN::GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  min::suppression_matrix  suppression_matrix;|\\
+    \verb|};|
+\ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7947,37 +7978,26 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{default\_\EOL space\_\EOL prefix\_\EOL mask}{\tt [256]}
-\LABEL{MIN::DEFAULT_SPACE_PREFIX_MASK} \\
-\verb|min::uns32 min::|
-    & \MINKEY{default\_\EOL space\_\EOL postfix\_\EOL mask}{\tt [256]}
-\LABEL{MIN::DEFAULT_SPACE_POSTFIX_MASK} \\
-\end{tabular}\end{indpar}
-
-{\tt space\_prefix/postfix\_mask} flags:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{PREFIX\_SEPARATOR\_FLAG}
-\LABEL{MIN::PREFIX_SEPARATOR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{POSTFIX\_SEPARATOR\_FLAG}
-\LABEL{MIN::POSTFIX_SEPARATOR_FLAG} \\
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::suppress_matrix min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
+\LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
+\verb|    // All entries false except:|\\
+\verb|    //     [B][.] for B == '(', '[', '{', 0A8 (|\LAQUOTE\verb|)| \\
+\verb|    //     [.][C] for C == ')', ']', '}', 0B8 (|\RAQUOTE\verb|), ',', ';'|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::default_pgen,   // pgen|\ARGBREAK
+    \verb|  min::default_pgen,|\ARGBREAK
     \verb|  "%.15g",             // number_format|\ARGBREAK
     \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
     \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  min::default_space_prefix_mask,     // space_prefix_mask|\ARGBREAK
-    \verb|  min::default_space_postfix_mask,    // space_postfix_mask|\ARGBREAK
+    \verb|  min::default_suppression_matrix|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -8090,9 +8110,8 @@ and {\tt spec\-ial\_\EOL names} is not {\tt NULL}.
 a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
 {\tt 0 <= i < special\_\EOL names\_\EOL size}.
 
-\item[\ttmkey{space\_prefix\_mask}{in {\tt min::gen\_format}}]
-\item[\ttmkey{space\_postfix\_mask}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members control the {\tt min::maskable\_space} operation, which
+\item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
+This member controls the {\tt min::suppressible\_space} operation, which
 may or may not output a single space character, and which is used
 to put the space between label elements
 if {\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on
@@ -8100,24 +8119,23 @@ and {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is \underline{off},
 and which is also used to put the space between object attribute vector elements
 if {\tt SUPPRESS\_\EOL OBJ\_\EOL SPACE\_\EOL FLAG} is on.
 If the flags are not set as indicated,
-{\tt min::\EOL maskable\_\EOL space} is not used for printing labels or
+{\tt min::\EOL suppressible\_\EOL space} is not used for printing labels or
 objects.
 
-If either {\tt space\_\EOL prefix\_\EOL mask} or
-{\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL},
-{\tt min::\EOL maskable\_\EOL space} outputs a single space character.
+If {\tt suppress\_\EOL matrix} is {\tt NULL},
+{\tt min::\EOL suppressible\_\EOL space} outputs a single space character.
 Otherwise it outputs a single space character if and only if
 \begin{center}
-\tt space\_prefix\_mask[A] \& space\_postfix\_mask[B] == 0
+\tt ! suppress\_space[B][C]
 \end{center}
 where
 \begin{center}
 \tt
 \begin{tabular}{l}
-A = min::unicode\_class ( a ) \\
 B = min::unicode\_class ( b ) \\
-a = {\rm the previous printed UNICODE character} \\
-b = {\rm the following printed UNICODE character} \\
+C = min::unicode\_class ( c ) \\
+b = {\rm the previous printed UNICODE character} \\
+c = {\rm the following printed UNICODE character} \\
 \end{tabular}
 \end{center}
 
@@ -8126,45 +8144,10 @@ of a line, the previous printed UNICODE character
 is assumed to be a newline character.  A space is
 never output if it would be at the end of a line.
 
-{\tt space\_prefix\_mask} and {\tt space\_postfix\_mask} must both be
-addresses of
-C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
-
-The following flags may be used in these masks:
+{\tt suppress\_matrix} must be a matrix of
+{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX}).
 
 \end{itemlist}
-
-\begin{indpar}\begin{itemlist}[0.2in]
-
-\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}%
-    {{\tt min::gen\_format} flag}]{\tt = 1}\\
-In the {\tt space\_\EOL prefix\_\EOL mask} this flag means that a character
-is a prefix separator character that may be adjacent to a following character,
-and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
-a character may be adjacent to an immediately preceding prefix separator
-character.
-Set in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
-for the UNICODE classes `{\tt (}', `{\tt [}', `{\tt \BRA}', and
-`{\tt \guillemotleft}'
-and in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
-for all UNICODE classes.
-
-\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}%
-    {{\tt min::gen\_format} flag}]{\tt = 2}\\
-In the {\tt space\_\EOL postfix\_\EOL mask} this flag means that a character
-is a postfix separator character that may be adjacent to a preceding character,
-and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
-a character may be adjacent to an immediately following postfix separator
-character.
-Set in {\tt min::\EOL default\_\EOL space\_\EOL postfix\_\EOL mask}
-for the UNICODE classes
-`{\tt )}', `{\tt ]}', `{\tt \KET}', `{\tt \guillemotright}',
-`{\tt ,}', and `{\tt ;}'
-and in {\tt min::\EOL default\_\EOL space\_\EOL prefix\_\EOL mask}
-for all UNICODE classes.
-
-
-\end{itemlist}\end{indpar}
 
 Printer {\tt print\_format.gen\_flags}:
 
@@ -14746,6 +14729,12 @@ In loose implementation: \\
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{TABULAR}
 
+\begin{TABULAR}{2.4in}
+\verb|typedef const bool ( min::|
+	& \MINKEY{suppress\_matrix}\verb| )[256][256]|
+\LABEL{MIN::SUPPRESS_MATRIX} \\
+\end{TABULAR}
+
 \begin{TABULAR}{1.2in}
 \verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -14771,8 +14760,7 @@ In loose implementation: \\
     \verb|  const char *           implicit_postfix;|\ARGBREAK
     \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
-    \verb|  const min::uns32       space_prefix_mask[256];|\ARGBREAK
-    \verb|  const min::uns32       space_postfix_mask[256];|\ARGBREAK
+    \verb|  min::suppress_matrix   suppress_matrix;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::GEN_FORMAT} \\
 \end{TABULAR}
@@ -14789,36 +14777,23 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
-\verb|min::uns32 min::|
-    & \MINKEY{default\_\EOL space\_\EOL prefix\_\EOL mask}{\tt [256]}
-\LABEL{MIN::DEFAULT_SPACE_PREFIX_MASK} \\
-\verb|min::uns32 min::|
-    & \MINKEY{default\_\EOL space\_\EOL postfix\_\EOL mask}{\tt [256]}
-\LABEL{MIN::DEFAULT_SPACE_POSTFIX_MASK} \\
-\end{TABULAR}
-
-{\tt space\_prefix/postfix\_mask} flags:
-
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{PREFIX\_SEPARATOR\_FLAG}
-\LABEL{MIN::PREFIX_SEPARATOR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{POSTFIX\_SEPARATOR\_FLAG}
-\LABEL{MIN::POSTFIX_SEPARATOR_FLAG} \\
+\multicolumn{2}{l}{\tt min::suppress\_matrix}\ARGBREAK
+    \verb|min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
+\LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \end{TABULAR}
 
 \begin{TABULAR}{0.8in}
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::default_pgen,   // pgen|\ARGBREAK
+    \verb|  min::default_pgen,|\ARGBREAK
     \verb|  "%.15g",             // number_format|\ARGBREAK
     \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
     \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  min::default_space_prefix_mask,     // space_prefix_mask|\ARGBREAK
-    \verb|  min::default_space_postfix_mask,    // space_postfix_mask|\ARGBREAK
+    \verb|  min::default_suppress_matrix|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{TABULAR}
