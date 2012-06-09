@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  8 10:30:29 EDT 2012
+// Date:	Fri Jun  8 16:20:33 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11512,7 +11512,7 @@ namespace min {
 	EXPRESSION_FLAG			= ( 1 << 8 ),
 	SUBOBJ_ID_FLAG			= ( 1 << 9 ),
 	OBJ_ID_FLAG			= ( 1 << 10 ),
-	FLUSH_ID_FLAG			= ( 1 << 11 ),
+	FLUSH_ID_MAP_FLAG		= ( 1 << 11 ),
     };
 
     struct op

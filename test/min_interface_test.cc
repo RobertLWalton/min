@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  8 01:41:17 EDT 2012
+// Date:	Sat Jun  9 00:20:36 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1788,6 +1788,8 @@ void test_labels ( void )
     MIN_ASSERT ( labp1 == min::NULL_STUB );
     min::lab_ptr labp2 ( labv1[0] );
     MIN_ASSERT ( labp2 == min::NULL_STUB );
+
+    cout << "LABEL " << min::pgen ( lab ) << endl;
     
     cout << endl;
     cout << "Finish Labels Test!" << endl;
