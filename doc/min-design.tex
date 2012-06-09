@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 9, 2012}
+\date{June 8, 2012}
  
 \maketitle
 
@@ -8023,10 +8023,12 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
 \LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
-\LABEL{MIN::DATA_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
-\LABEL{MIN::RAW_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUBOBJ\_ID\_FLAG}
+\LABEL{MIN::SUBOBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::gen\_format} members are:
@@ -8199,16 +8201,7 @@ Otherwise the value prints as `{\tt SPECIAL(i)}'.
 
 \item[\ttnbkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
 \item[\ttnbkey{SUPPRESS\_OBJ\_SPACE\_FLAG}]\vspace{-1ex}~\\
-See {\tt space\_prefix/postfix\_mask} above.
-
-\item[\ttnbkey{EXPRESSION\_FLAG}]
-\item[\ttnbkey{DATA\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{RAW\_FLAG}]\vspace{-1ex}~\\
-These flags control the printing of objects.  Note that a `\key{subobject}'
-is an object that is a vector element or attribute value of an object
-being printed.
-\end{itemlist}\end{indpar}
-\begin{indpar}[0.3in]\begin{itemlist}[0.4in]
+See {\tt surpress\_matrix} above.
 
 \item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, only the vector elements of
@@ -8226,31 +8219,18 @@ prints as
 is treated as signaling an indentation mark line list.
 
 If this flag is off, all attributes are printed, along with the vector elements,
-and special parsing attributes are not recognized.
+and no attributes are treated specially.
 
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, objects are printed on
-one or more lines using the format:
-\begin{indpar}
-\verb|@|\verb|<|{\em id}\verb|> =| \ldots
-\end{indpar}
+\item[\ttnbmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, an object is printed as an `\verb|@|\verb|<|{\em id}\verb|>|'
+object identifier.  The identifier is retrived using the printer
+{\tt obj\_\EOL id\_\EOL map}, and if the object is not alread in
+in the map, it is first pushed into the map.
 
-where {\em id} is an object ID.
-These lines are all indented by the current printer column.
-Complex subobjects and non-pub\-lish\-ed subobjects are
-referenc\-ed by \verb|@|\verb|<|{\em id}\verb|>|'s and
-printed separately from their containing objects.
-Object IDs are created or found by
-using the printer {\tt obj\_\EOL id\_\EOL map}:
-see below (\pagref{OBJ-ID-MAP}).
-
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set,
-the output of an object vector element that is
-a string is surrounded by {\tt str\_\EOL pre/postfix}, and
-subobjects are all printed separately and referenced by
-\verb|@<|{\em number}\verb|>|'s.  If subobjects are being printed,
-the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
+\item[\ttnbmkey{SUBOBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, subobjects that are parts of object elements or attribute
+values are printed as if the {\tt OBJ\_\EOL ID\_\EOL FLAG} were set
+when they are printed.
 
 \end{itemlist}\end{indpar}
 
@@ -14819,10 +14799,12 @@ In loose implementation: \\
 \LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
 \LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
-\LABEL{MIN::DATA_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
-\LABEL{MIN::RAW_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUBOBJ\_ID\_FLAG}
+\LABEL{MIN::SUBOBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{TABULAR}
 
 \end{indpar}

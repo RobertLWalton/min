@@ -961,6 +961,7 @@ min_interface_test.cc:XXXX assert:
     labp1 == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
     labp2 == min::NULL_STUB true.
+LABEL [: `Hello' 55 `End' :]
 
 Finish Labels Test!
 

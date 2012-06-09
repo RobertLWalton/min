@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  8 07:48:17 EDT 2012
+// Date:	Sat Jun  9 00:20:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7807,6 +7807,8 @@ std::ostream & operator <<
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.f64 );
 	return out << buffer;
+    case min::op::SUPPRESSIBLE_SPACE:
+	return out << " ";
     case min::op::EOM:
     case min::op::EOL:
 	return out << std::endl;
