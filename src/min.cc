@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  9 00:20:48 EDT 2012
+// Date:	Sun Jun 10 19:52:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 //	Labels
 //	Packed Structures and Vectors
 //	Files
+//	Identifier Maps
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -1347,14 +1348,26 @@ min::gen min::new_lab_gen
     return new_stub_gen ( s2 );
 }
 
-min::gen min::new_dot_lab_gen ( const char * s )
+min::gen min::new_lab_gen
+	( const char * s1,
+	  const char * s2 )
 {
-    min::locatable_gen dot ( min::new_str_gen ( "." ) );
-    min::locatable_gen tmp ( min::new_str_gen ( s ) );
-    min::gen elements[2];
-    elements[0] = dot;
-    elements[1] = tmp;
+    min::locatable_gen g1 ( min::new_str_gen ( s1 ) );
+    min::locatable_gen g2 ( min::new_str_gen ( s2 ) );
+    min::gen elements[2] = { g1, g2 };
     return min::new_lab_gen ( elements, 2 );
+}
+
+min::gen min::new_lab_gen
+	( const char * s1,
+	  const char * s2,
+	  const char * s3 )
+{
+    min::locatable_gen g1 ( min::new_str_gen ( s1 ) );
+    min::locatable_gen g2 ( min::new_str_gen ( s2 ) );
+    min::locatable_gen g3 ( min::new_str_gen ( s3 ) );
+    min::gen elements[3] = { g1, g2, g3 };
+    return min::new_lab_gen ( elements, 3 );
 }
 
 // Packed Structures and Vectors
@@ -2268,11 +2281,292 @@ min::phrase_position_vec min::position_of
 {
     if ( ::position == MISSING() )
         ::position =
-	    min::new_dot_lab_gen ( "position" );
+	    min::new_lab_gen ( ".", "position" );
     min::attr_ptr ap ( vp );
     min::locate ( ap, ::position );
     min::gen v = min::get ( ap );
     return min::phrase_position_vec ( v );
+}
+
+// Identifier Maps
+// ---------- ----
+
+static min::packed_vec<min::uns32> hash_table_type
+    ( "hash_table_type" );
+
+static min::uns32 id_map_stub_disp[2] =
+    { min::DISP ( & min::id_map_header<min::uns32>
+                       ::hash_table ),
+      min::DISP_END };
+
+static min::uns32 stub_element_stub_disp[2] =
+    { 0, min::DISP_END };
+
+static min::packed_vec
+	< const min::stub *,
+	  min::id_map_header<min::uns32> >
+    id_map_type
+    ( "id_map_type",
+      NULL, stub_element_stub_disp,
+      NULL, id_map_stub_disp );
+
+template < typename L >
+inline L hash
+	( min::packed_vec_ptr
+	      < const min::stub *,
+		min::id_map_header<L> > map,
+	  const min::stub * s )
+{
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    assert ( hash_table != min::NULL_STUB );
+    min::uns64 h0 = ( s - ( const min::stub * ) 0 );
+    h0 &= map->hash_mask;
+    h0 *= map->hash_multiplier;
+    h0 %= hash_table->length;
+    return (L) h0;
+}
+
+template < typename L >
+static void new_hash_table
+	( min::packed_vec_ptr
+	      < const min::stub *,
+		min::id_map_header<L> > map )
+{
+    typedef min::packed_vec_insptr
+    		< const min::stub *,
+		  min::id_map_header<L> > id_map_insptr;
+
+    id_map_insptr map_insptr = (id_map_insptr) map;
+
+    L length = map->occupied;
+    assert (   length
+	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
+    length *= 4;
+    if ( length < 128) length = 128;
+
+    hash_table_ref ( map ) =
+	::hash_table_type.new_stub ( length );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    min::push ( hash_table, length );
+
+    map_insptr->hash_mask = (min::uns32) -1;
+    map_insptr->hash_multiplier = 1103515245;
+        // Used by gcc for linear congrential random
+	// number generator with modulus 2^32.
+    map_insptr->hash_max_offset = 0;
+    for ( L id = 0; id < map->length; ++ id )
+    {
+	const min::stub * s = map[id];
+	L h = ::hash ( map, s );
+	L offset = 0;
+	while ( hash_table[h] != 0 )
+	{
+	    h = ( h + 1 ) % hash_table->length;
+	    ++ offset;
+	}
+	hash_table[h] = id;
+	if ( map->hash_max_offset < offset )
+	    map_insptr->hash_max_offset = offset;
+    }
+}
+
+template < typename L >
+inline min::packed_vec_ptr
+	< const min::stub *,
+	  min::id_map_header<L>, L > init
+	( min::ref<min::packed_vec_ptr
+		       < const min::stub *,
+			 min::id_map_header<L>, L > >
+	      map )
+{
+    typedef min::packed_vec_insptr
+    		< const min::stub *,
+		  min::id_map_header<L>, L >
+	    id_map_insptr;
+
+    id_map_insptr map_insptr =
+        (id_map_insptr) (min::id_map) map;
+    if ( map_insptr == min::NULL_STUB )
+    {
+	map_insptr = ::id_map_type.new_stub ( 16 );
+	map = map_insptr;
+    }
+    else
+    {
+        hash_table_ref((min::id_map) map) =
+	    min::NULL_STUB;
+	min::pop ( map_insptr,
+	           (min::unsptr) map->length );
+	min::resize ( map_insptr, 16 );
+    }
+    min::push ( map_insptr ) = min::NULL_STUB;
+    map_insptr->occupied = 0;
+    map_insptr->next = 1;
+    return map;
+}
+
+template < typename L >
+inline min::uns32 find
+	( min::packed_vec_ptr
+	      < const min::stub *,
+		min::id_map_header<L>, L > map,
+	  const min::stub * s )
+{
+    if ( s == min::NULL_STUB ) return 0;
+
+    if ( map->hash_table == min::NULL_STUB )
+	::new_hash_table ( map );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        L id = hash_table[h];
+	if ( id == 0 ) return 0;
+	if ( map[id] == s ) return id;
+	if ( offset >= map->hash_max_offset ) return 0;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+}
+
+template < typename L >
+inline min::uns32 find_or_add
+	( min::packed_vec_ptr
+	      < const min::stub *,
+		min::id_map_header<L>, L > map,
+	  const min::stub * s )
+{
+    typedef min::packed_vec_insptr
+    		< const min::stub *,
+		  min::id_map_header<L>, L >
+	id_map_insptr;
+
+    if ( s == min::NULL_STUB ) return 0;
+
+    if ( map->hash_table == min::NULL_STUB )
+	::new_hash_table ( map );
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        L id = hash_table[h];
+	if ( id == 0 ) break;
+	if ( map[id] == s ) return id;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+    L id = map->length;
+    id_map_insptr map_insptr =
+        (id_map_insptr) (min::id_map) map;
+    min::push ( map_insptr ) = s;
+    hash_table[h] = id;
+
+    if ( map->hash_max_offset < offset )
+        map_insptr->hash_max_offset = offset;
+
+    ++ map_insptr->occupied;
+    if ( hash_table->length < 2 * map->occupied )
+        hash_table_ref ( map ) = min::NULL_STUB;
+
+    return id;
+}
+
+template < typename L >
+inline void insert
+	( min::packed_vec_ptr
+	      < const min::stub *,
+		min::id_map_header<L> > map,
+	  const min::stub * s,
+	  L id )
+{
+    typedef min::packed_vec_insptr
+    		< const min::stub *,
+		  min::id_map_header<L>, L >
+        id_map_insptr;
+
+    id_map_insptr map_insptr = (id_map_insptr) map;
+
+    assert ( id != 0 );
+    assert ( s != min::NULL_STUB );
+
+    if ( id >= map->length )
+        min::push ( map_insptr, id + 1 - map->length );
+    map_insptr[id] = s;
+    ++ map_insptr->occupied;
+
+    min::packed_vec_insptr<min::uns32> hash_table =
+        map->hash_table;
+
+    if ( hash_table == min::NULL_STUB ) return;
+    else if ( hash_table->length < 2 * map->occupied )
+    {
+        hash_table_ref ( map ) = min::NULL_STUB;
+	    // Defer creation of a new hash table
+	    // to the next find or find_or_add.
+	return;
+    }
+        
+    L h = ::hash ( map, s );
+    L offset = 0;
+    while ( true )
+    {
+        if ( hash_table[h] == 0 ) break;
+	h = ( h + 1 ) % hash_table->length;
+	++ offset;
+    }
+    hash_table[h] = id;
+    if ( map->hash_max_offset < offset )
+        map_insptr->hash_max_offset = offset;
+}
+
+min::id_map min::init
+	( min::ref<min::id_map> map )
+{
+    return ::init ( map );
+}
+
+min::uns32 min::find
+	( min::id_map map,
+	  const min::stub * s )
+{
+    return ::find ( map, s );
+}
+
+min::uns32 min::find_or_add
+	( min::id_map map,
+	  const min::stub * s )
+{
+    return ::find_or_add ( map, s );
+}
+
+void min::insert
+	( min::id_map map,
+	  const min::stub * s,
+	  min::uns32 id )
+{
+    ::insert ( map, s, id );
+}
+
+
+min::id_map min::set_id_map
+	( min::printer printer,
+	  min::id_map map )
+{
+    if ( map == min::NULL_STUB )
+    {
+        if ( printer->id_map == min::NULL_STUB )
+	    min::init ( id_map_ref(printer) );
+    }
+    else
+	id_map_ref(printer) = map;
+
+    return printer->id_map;
 }
 
 // Objects
@@ -6828,234 +7122,6 @@ static void init_utf8graphic ( void )
 
 static char NUL_UTF8_ENCODING[3] = { 0xC0, 0x80, 0 };
 
-static min::packed_vec<min::uns32> hash_table_type
-    ( "hash_table_type" );
-
-static min::uns32 obj_id_map_stub_disp[2] =
-    { min::DISP ( & min::obj_id_map_header<min::uns32>
-                       ::hash_table ),
-      min::DISP_END };
-
-static min::uns32 stub_element_stub_disp[2] =
-    { 0, min::DISP_END };
-
-static min::packed_vec
-	< const min::stub *,
-	  min::obj_id_map_header<min::uns32> >
-    obj_id_map_type
-    ( "obj_id_map_type",
-      NULL, stub_element_stub_disp,
-      NULL, obj_id_map_stub_disp );
-
-min::obj_id_map min::init
-	( min::ref<min::obj_id_map> map )
-{
-    if ( map == min::NULL_STUB )
-	map = ::obj_id_map_type.new_stub ( 16 );
-    else
-    {
-        hash_table_ref(map) = min::NULL_STUB;
-	min::pop ( (min::obj_id_map) map,
-	           (min::unsptr) map->length );
-	min::resize ( (min::obj_id_map) map, 16 );
-    }
-    min::push ( (min::obj_id_map) map ) =
-        min::NULL_STUB;
-    map->occupied = 0;
-    return map;
-}
-
-template < typename L >
-inline L hash
-	( min::packed_vec_insptr
-	      < const min::stub *,
-		min::obj_id_map_header<L> > map,
-	  const min::stub * s )
-{
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
-    assert ( hash_table != min::NULL_STUB );
-    min::uns64 h0 = ( s - ( const min::stub * ) 0 );
-    h0 &= map->hash_mask;
-    h0 *= map->hash_multiplier;
-    h0 %= hash_table->length;
-    return (L) h0;
-}
-
-template < typename L >
-static void new_hash_table
-	( min::packed_vec_insptr
-	      < const min::stub *,
-		min::obj_id_map_header<L> > map )
-{
-    L length = map->occupied;
-    assert (   length
-	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
-    length *= 4;
-    if ( length < 128) length = 128;
-
-    hash_table_ref ( map ) =
-	::hash_table_type.new_stub ( length );
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
-
-    map->hash_mask = (min::uns32) -1;
-    map->hash_multiplier = 1103515245;
-        // Used by gcc for linear congrential random
-	// number generator with modulus 2^32.
-    map->hash_max_offset = 0;
-    for ( L id = 0; id < map->length; ++ id )
-    {
-	const min::stub * s = map[id];
-	L h = ::hash ( map, s );
-	L offset = 0;
-	while ( hash_table[h] != 0 )
-	{
-	    h = ( h + 1 ) % hash_table->length;
-	    ++ offset;
-	}
-	hash_table[h] = id;
-	if ( map->hash_max_offset < offset )
-	    map->hash_max_offset = offset;
-    }
-}
-
-namespace min {
-
-template < typename L >
-min::uns32 find
-	( min::packed_vec_insptr
-	      < const min::stub *,
-		min::obj_id_map_header<L> > map,
-	  const min::stub * s )
-{
-    if ( s == min::NULL_STUB ) return 0;
-
-    if ( map->hash_table == NULL_STUB )
-	::new_hash_table ( map );
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
-    L h = ::hash ( map, s );
-    L offset = 0;
-    while ( true )
-    {
-        L id = hash_table[h];
-	if ( id == 0 ) return 0;
-	if ( map[id] == s ) return id;
-	if ( offset >= map->hash_max_offset ) return 0;
-	h = ( h + 1 ) % hash_table->length;
-	++ offset;
-    }
-}
-
-template min::uns32 find
-	( min::obj_id_map map,
-	  const min::stub * s );
-
-template < typename L >
-min::uns32 find_or_add
-	( min::packed_vec_insptr
-	      < const min::stub *,
-		min::obj_id_map_header<L> > map,
-	  const min::stub * s )
-{
-    if ( s == min::NULL_STUB ) return 0;
-
-    if ( map->hash_table == NULL_STUB )
-	::new_hash_table ( map );
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
-    L h = ::hash ( map, s );
-    L offset = 0;
-    while ( true )
-    {
-        L id = hash_table[h];
-	if ( id == 0 ) break;
-	if ( map[id] == s ) return id;
-	h = ( h + 1 ) % hash_table->length;
-	++ offset;
-    }
-    L id = map->length;
-    min::push ( map ) = s;
-    hash_table[h] = id;
-
-    if ( map->hash_max_offset < offset )
-        map->hash_max_offset = offset;
-
-    ++ map->occupied;
-    if ( hash_table->length < 2 * map->occupied )
-        hash_table_ref ( map ) = min::NULL_STUB;
-
-    return id;
-}
-
-template min::uns32 find_or_add
-	( min::obj_id_map map,
-	  const min::stub * s );
-
-template < typename L >
-void insert
-	( min::packed_vec_insptr
-	      < const min::stub *,
-		min::obj_id_map_header<L> > map,
-	  const min::stub * s,
-	  min::uns32 id )
-{
-    assert ( id != 0 );
-    assert ( s != min::NULL_STUB );
-
-    if ( id >= map->length )
-        min::push ( map, id + 1 - map->length );
-    map[id] = s;
-    ++ map->occupied;
-
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
-
-    if ( hash_table == NULL_STUB ) return;
-    else if ( hash_table->length < 2 * map->occupied )
-    {
-        hash_table_ref ( map ) = min::NULL_STUB;
-	    // Defer creation of a new hash table
-	    // to the next find or find_or_add.
-	return;
-    }
-        
-    L h = ::hash ( map, s );
-    L offset = 0;
-    while ( true )
-    {
-        if ( hash_table[h] == 0 ) break;
-	h = ( h + 1 ) % hash_table->length;
-	++ offset;
-    }
-    hash_table[h] = id;
-    if ( map->hash_max_offset < offset )
-        map->hash_max_offset = offset;
-}
-
-template void insert
-	( min::obj_id_map map,
-	  const min::stub * s,
-	  min::uns32 id );
-
-}
-
-min::obj_id_map min::set_obj_id_map
-	( min::printer printer,
-	  min::obj_id_map map )
-{
-    if ( map == min::NULL_STUB )
-    {
-        if ( printer->obj_id_map == min::NULL_STUB )
-	    min::init ( obj_id_map_ref(printer) );
-    }
-    else
-	obj_id_map_ref(printer) = map;
-
-    return printer->obj_id_map;
-}
-
 static min::packed_vec<min::line_break>
     line_break_stack_type
         ( "min::line_break_stack_type" );
@@ -7144,11 +7210,11 @@ static T pgen_expression
     if ( ::initiator == min::MISSING() )
     {
         ::initiator =
-	    min::new_dot_lab_gen ( "initiator" );
+	    min::new_lab_gen ( ".", "initiator" );
         ::terminator =
-	    min::new_dot_lab_gen ( "terminator" );
+	    min::new_lab_gen ( ".", "terminator" );
         ::separator =
-	    min::new_dot_lab_gen ( "separator" );
+	    min::new_lab_gen ( ".", "separator" );
     }
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
