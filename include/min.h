@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun  8 16:20:33 EDT 2012
+// Date:	Sun Jun 10 19:52:19 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@
 //	Packed Structures
 //	Packed Vectors
 //	Files
+//	Identifier Maps
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -4847,7 +4848,13 @@ namespace min {
 	return type_of ( s ) == LABEL;
     }
 
-    min::gen new_dot_lab_gen ( const char * s );
+    min::gen new_lab_gen
+        ( const char * s1,
+	  const char * s2 );
+    min::gen new_lab_gen
+        ( const char * s1,
+	  const char * s2,
+	  const char * s2 );
 }
 
 // Names
@@ -6854,6 +6861,79 @@ min::file operator <<
         ( min::file ofile, min::file ifile );
 min::printer operator <<
         ( min::printer printer, min::file file );
+
+// Identifier Maps
+// ---------- ----
+
+namespace min {
+
+    template < typename L >
+    struct id_map_header
+    {
+        const min::uns32 control;
+
+	const L length;
+	const L max_length;
+
+	L next;
+	L occupied;
+
+	min::uns32 hash_mask;
+	min::uns32 hash_multiplier;
+	L hash_max_offset;
+	const min::packed_vec_insptr<L> hash_table;
+	    // Given a stub,ID pair (s,id) then
+	    //    stub_table[id] == s
+	    //    hash_table[h] == id
+	    // where h is obtained by entering (s,id)
+	    // in the hash table using the algorithm:
+	    //	  h = ::hash ( this_map, s );
+	    //		// see min.cc for details
+	    //    offset = 0;
+	    //    while ( hash_table[h] != 0; )
+	    //    {
+	    //          h = ( h + 1 )
+	    //            % hash_table->length;
+	    //		++ offset;
+	    //	  }
+	    //    id = this->length;
+	    //    push ( * this_map ) = s;
+	    //    hash_table[h] = id;
+	    //    if ( max_offset < offset )
+	    //	      max_offset = offset;
+	    //
+	    // The hash_table is created by `find' if it
+	    // does not exist.  If
+	    //
+	    //   hash_table->length < 2 * occupied
+	    //
+	    // the hash_table is reset to NULL_STUB so
+	    // it will be recreated with a longer length
+	    // by the next `find'.
+    };
+    
+    typedef min::packed_vec_ptr
+		< const min::stub *,
+		  min::id_map_header<min::uns32>,
+		  min::uns32 >
+	    id_map;
+
+    MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
+              id_map );
+
+    min::id_map init
+            ( min::ref<min::id_map> map );
+    uns32 find
+            ( min::id_map map,
+	      const min::stub * s );
+    uns32 find_or_add
+            ( min::id_map map,
+	      const min::stub * s );
+    void insert
+            ( min::id_map map,
+	      const min::stub * s,
+	      min::uns32 id );
+}
 
 // Objects
 // -------
@@ -11339,78 +11419,6 @@ namespace min {
 
     extern const gen_format default_gen_format;
 
-    template < typename L >
-    struct obj_id_map_header
-    {
-        const min::uns32 control;
-
-	const L length;
-	const L max_length;
-
-	L printed;
-
-	L occupied;
-	    // Number of map elements not equal to
-	    // NULL_STUB.
-
-	min::uns32 hash_mask;
-	min::uns32 hash_multiplier;
-	L hash_max_offset;
-	const min::packed_vec_insptr<L> hash_table;
-	    // Given a stub,ID pair (s,id) then
-	    //    stub_table[id] == s
-	    //    hash_table[h] == id
-	    // where h is obtained by entering (s,id)
-	    // in the hash table using the algorithm:
-	    //	  h = ::hash ( this_map, s );
-	    //		// see min.cc for details
-	    //    offset = 0;
-	    //    while ( hash_table[h] != 0; )
-	    //    {
-	    //          h = ( h + 1 )
-	    //            % hash_table->length;
-	    //		++ offset;
-	    //	  }
-	    //    id = this->length;
-	    //    push ( * this_map ) = s;
-	    //    hash_table[h] = id;
-	    //    if ( max_offset < offset )
-	    //	      max_offset = offset;
-	    //
-	    // The hash_table is created by `find' if it
-	    // does not exist.  If
-	    //
-	    //   hash_table->length < 2 * occupied
-	    //
-	    // the hash_table is reset to NULL_STUB so
-	    // it will be recreated with a longer length
-	    // by the next `find'.
-    };
-    
-    typedef min::packed_vec_insptr
-		< const min::stub *,
-		  min::obj_id_map_header<min::uns32> >
-	    obj_id_map;
-
-    MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
-              obj_id_map );
-
-    min::obj_id_map init
-            ( min::ref<min::obj_id_map> map );
-    uns32 find
-            ( min::obj_id_map map,
-	      const min::stub * s );
-    uns32 find_or_add
-            ( min::obj_id_map map,
-	      const min::stub * s );
-    uns32 insert
-            ( min::obj_id_map map,
-	      const min::stub * s,
-	      min::uns32 id );
-    min::obj_id_map set_obj_id_map
-            ( min::printer printer,
-	      min::obj_id_map map = min::NULL_STUB );
-
     struct line_break
     {
 	uns32 offset;
@@ -11450,7 +11458,7 @@ namespace min {
 	min::line_break_stack line_break_stack;
 	min::print_format_stack print_format_stack;
 
-	const min::obj_id_map obj_id_map;
+	const min::id_map id_map;
 
 	min::suppress_matrix suppress_matrix;
 	min::uns8 previous_unicode_class;
@@ -11474,8 +11482,7 @@ namespace min {
               line_break_stack, min::printer )
     MIN_REF ( min::print_format_stack,
               print_format_stack, min::printer )
-    MIN_REF ( min::obj_id_map,
-              obj_id_map, min::printer )
+    MIN_REF ( min::id_map, id_map, min::printer )
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
@@ -11636,6 +11643,10 @@ namespace min {
     min::printer init_ostream
 	    ( min::ref<min::printer> printer,
 	      std::ostream & ostream );
+
+    min::id_map set_id_map
+            ( min::printer printer,
+	      min::id_map map = min::NULL_STUB );
 
     inline op pgen
 	    ( min::gen v )

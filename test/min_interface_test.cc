@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  9 00:20:36 EDT 2012
+// Date:	Mon Jun 11 03:23:42 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,6 +28,7 @@
 //	Packed Structures
 //	Packed Vectors
 //	Files
+//	Identifier Maps
 //	Printers
 //	Objects
 //	Object Vector Level
@@ -2247,6 +2248,66 @@ void test_file ( void )
 
 }
 
+// Identifier Maps
+// ---------- ----
+
+static min::locatable_var<min::id_map> id_map;
+
+void test_identifier_map ( void )
+{
+    cout << endl;
+    cout << "Start Identifier Map Test!" << endl;
+
+    min::init ( ::id_map );
+    MIN_ASSERT ( ::id_map->length == 1 );
+    MIN_ASSERT ( ::id_map->occupied == 0 );
+    MIN_ASSERT ( ::id_map->next == 1 );
+
+    min::locatable_gen g1
+        ( min::new_str_gen
+	      ( "this is a long string" ) );
+    min::locatable_gen g2
+        ( min::new_lab_gen ( "a", "label" ) );
+    min::locatable_gen g3
+        ( min::new_obj_gen ( 10 ) );
+    const min::stub * s1 = min::stub_of ( g1 );
+    const min::stub * s2 = min::stub_of ( g2 );
+    const min::stub * s3 = min::stub_of ( g3 );
+
+    MIN_ASSERT
+        ( min::find ( ::id_map, s1 ) == 0 );
+    MIN_ASSERT
+        ( min::find_or_add ( ::id_map, s1 ) == 1 );
+    MIN_ASSERT
+        ( min::find ( ::id_map, s2 ) == 0 );
+    min::insert ( ::id_map, s2, 3 );
+    MIN_ASSERT
+        ( min::find ( ::id_map, s3 ) == 0 );
+    MIN_ASSERT
+        ( min::find_or_add ( ::id_map, s3 ) == 4 );
+
+    MIN_ASSERT ( ::id_map->length == 5 );
+    MIN_ASSERT ( ::id_map[0] == min::NULL_STUB );
+    MIN_ASSERT ( ::id_map[1] == s1 );
+    MIN_ASSERT ( ::id_map[2] == min::NULL_STUB );
+    MIN_ASSERT ( ::id_map[3] == s2 );
+    MIN_ASSERT ( ::id_map[4] == s3 );
+
+    MIN_ASSERT ( ::id_map->occupied == 3 );
+    MIN_ASSERT ( ::id_map->next == 1 );
+
+    MIN_ASSERT
+        ( min::find ( ::id_map, s1 ) == 1 );
+    MIN_ASSERT
+        ( min::find ( ::id_map, s2 ) == 3 );
+    MIN_ASSERT
+        ( min::find_or_add ( ::id_map, s3 ) == 4 );
+
+
+    cout << endl;
+    cout << "Finish Identifier Map Test!" << endl;
+}
+
 // Printers
 // --------
 
@@ -2532,15 +2593,15 @@ void test_printer ( void )
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
 	min::locatable_gen initiator
-	    ( min::new_dot_lab_gen ( "initiator" ) );
+	    ( min::new_lab_gen ( ".", "initiator" ) );
 	min::locate ( ap, initiator );
 	min::set ( ap, min::new_str_gen ( "{" ) );
 	min::locatable_gen separator
-	    ( min::new_dot_lab_gen ( "separator" ) );
+	    ( min::new_lab_gen ( ".", "separator" ) );
 	min::locate ( ap, separator );
 	min::set ( ap, min::new_str_gen ( "," ) );
 	min::locatable_gen terminator
-	    ( min::new_dot_lab_gen ( "terminator" ) );
+	    ( min::new_lab_gen ( ".", "terminator" ) );
 	min::locate ( ap, terminator );
 	min::set ( ap, min::new_str_gen ( "}" ) );
 	min::attr_push ( vp, 2 );
@@ -2561,15 +2622,15 @@ void test_printer ( void )
 	vp[4] = obj;
 	min::attr_insptr ap  ( vp );
 	min::locatable_gen initiator
-	    ( min::new_dot_lab_gen ( "initiator" ) );
+	    ( min::new_lab_gen ( ".", "initiator" ) );
 	min::locate ( ap, initiator );
 	min::set ( ap, min::new_str_gen ( "[" ) );
 	min::locatable_gen separator
-	    ( min::new_dot_lab_gen ( "separator" ) );
+	    ( min::new_lab_gen ( ".", "separator" ) );
 	min::locate ( ap, separator );
 	min::set ( ap, min::new_str_gen ( ";" ) );
 	min::locatable_gen terminator
-	    ( min::new_dot_lab_gen ( "terminator" ) );
+	    ( min::new_lab_gen ( ".", "terminator" ) );
 	min::locate ( ap, terminator );
 	min::set ( ap, min::new_str_gen ( "]" ) );
     }
@@ -4185,6 +4246,7 @@ int main ( int argc )
 	test_packed_structs();
 	test_packed_vectors();
 	test_file();
+	test_identifier_map();
 	test_printer();
 	test_objects();
 	test_object_vector_level();

@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 10, 2012}
+\date{June 11, 2012}
  
 \maketitle
 
@@ -4258,14 +4258,18 @@ label.  Thus two \verb|min::gen| label values with \verb|==| elements are
 \verb|==|.
 
 For convenience in generating frequently used labels,
-a 2-element label whose first element is the
-string \verb|"."| and whose second element is the string given by \verb|s|
-may be created by
+2 and 3 element labels whose elements are strings may be created by
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}
-     \verb|( const char * s )|
-\LABEL{MIN::NEW_DOT_LAB_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_2_STRS} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2,|\ARGBREAK
+     \verb|  const char * s3 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_3_STRS} \\
 \end{tabular}\end{indpar}
 
 The following function returns true if and only if its argument is
@@ -6556,7 +6560,7 @@ these {\tt <<} operators interact with each other and with the
 is avoided by using only one of the {\tt <<} operators or only
 the {\tt min::\EOL flush\_\EOL file} function on a given file.
 
-\subsection{Identifier MAPS}
+\subsection{Identifier Maps}
 \label{IDENTIFIER-MAPS}
 
 \ikey{Identifier Maps}{identifier map} are used on input/output
@@ -6595,7 +6599,7 @@ Creation and use of id maps is accomplished by the following:
 \LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
-\verb|const min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
+\verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_OCCUPIED} \\
 \verb|min::uns32 map->| & \TTMKEY{next}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_NEXT} \\
@@ -6651,7 +6655,7 @@ in the {\tt map}, its associated identifier is returned.  Otherwise {\tt s}
 is pushed to the end of the {\tt map} vector and assigned an identifier which
 is returned.  However, as a special case,
 {\tt min::\EOL find\_\EOL or\_\EOL add} returns
-{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL stub}.
+{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL STUB}.
 
 When a stub is to be output, {\tt min::\EOL find\_\EOL and\_\EOL add}
 may assign it an identifier so it can be
@@ -6678,7 +6682,7 @@ The {\tt min::find} function is not needed for either input or output.
 It merely returns the identifier associated with a stub {\tt s} if one exists,
 or returns {\tt 0} if no such identifier exists.
 {\tt min::\EOL find} also returns
-{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL stub}.
+{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL STUB}.
 
 Part of an identifier map is a hash table that permits
 {\tt min::\EOL find\ldots} functions to work quickly.  This
@@ -13417,9 +13421,15 @@ In loose implementation: \\
     \verb|( min::ptr<min::gen> p,|\ARGBREAK
     \verb|  min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
-\verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}
-    \verb|( const char * s )|
-\LABEL{MIN::NEW_DOT_LAB_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_2_STRS} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2,|\ARGBREAK
+     \verb|  const char * s3 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_3_STRS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -14278,6 +14288,54 @@ In loose implementation: \\
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Identifier Maps}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.2in}
+\verb|typedef min::|
+	& \verb|packed_vec_ptr|\ARGBREAK
+	  \verb|    < const min::stub *,|\ARGBREAK
+	  \verb|      min::id_map_header<min::uns32> >|\ARGBREAK
+	  \verb|min::|\MINKEY{id\_\EOL map}
+\LABEL{MIN::ID_MAP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::id_map min::| & \MINKEY{init\REL}
+    \verb|( min::ref<min::id_map> map )|
+\LABEL{MIN::INIT_OF_ID_MAP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::stub * map| & \TTBMKEY{id}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_[]} \\
+\verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_LENGTH} \\
+\verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_OCCUPIED} \\
+\verb|min::uns32 map->| & \TTMKEY{next}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_NEXT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::uns32 min::| & \MINKEY{find\REL}\ARGBREAK
+    \verb|( min::ref<min::id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s )|
+\LABEL{MIN::FIND_OF_ID_MAP} \\
+\verb|min::uns32 min::| & \MINKEY{find\_\EOL or\_\EOL add\REL}\ARGBREAK
+    \verb|( min::ref<min::id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s )|
+\LABEL{MIN::FIND_OR_ADD_OF_ID_MAP} \\
+\verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
+    \verb|( min::ref<min::id_map> map,|\ARGBREAK
+    \verb|  const min::stub * s,|\ARGBREAK
+    \verb|  min::uns32 id )|
+\LABEL{MIN::INSERT_OF_ID_MAP} \\
 \end{TABULAR}
 
 \end{indpar}
