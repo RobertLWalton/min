@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 11, 2012}
+\date{June 13, 2012}
  
 \maketitle
 
@@ -6808,7 +6808,7 @@ accomplished by the following:
 \verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
 			          & \verb|// Default:| \\
-			      &   & \verb|//    min::EXPRESSION_FLAG|
+			      &   & \verb|//    min::OBJ_EXP_FLAG|
 \LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
 \verb|    min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
@@ -8000,7 +8000,7 @@ instead, where this is a global variable initialized by:
                        min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
-    \verb|  min::EXPRESSION_FLAG,               // gen_flags|\ARGBREAK
+    \verb|  min::OBJ_EXP_FLAG,                  // gen_flags|\ARGBREAK
     \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
     \verb|};|
 \LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
@@ -8131,7 +8131,12 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  min::suppression_matrix  suppression_matrix;|\\
+    \verb|  min::suppress_matrix     suppress_matrix;|\\
+\ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  min::uns32               str_max_length;|\\
+    \verb|  min::packed_vec_ptr<min::gen>  exp_ok_attrs;|\\
     \verb|};|
 \ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
@@ -8164,7 +8169,9 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  min::default_suppression_matrix|\ARGBREAK
+    \verb|  min::default_suppress_matrix,|\ARGBREAK
+    \verb|  8,                   // str_max_length|\ARGBREAK
+    \verb|  min::default_exp_ok_attrs|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -8174,6 +8181,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
 \LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
 \LABEL{MIN::BRACKET_STR_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
@@ -8182,20 +8191,24 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
 \LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
 \LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
-\LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUBOBJ\_ID\_FLAG}
-\LABEL{MIN::SUBOBJ_ID_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
-\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::gen\_format} members are:
@@ -8261,7 +8274,7 @@ just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 \item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
 These members are only enabled if both the
-{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt EXPRES\-SION\_\EOL FLAG}
+{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt OBJ\_\EOL EXP\_\EOL FLAG}
 are on and neither of these two members is {\tt NULL}.
 
 The {\tt implicit\_\EOL prefix/postfix} members surround an object being
@@ -8315,6 +8328,27 @@ never output if it would be at the end of a line.
 
 {\tt suppress\_matrix} must be a matrix of
 {\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX}).
+
+\item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
+This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
+In this case {\tt min::gen} string values that have length greater
+than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
+in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+
+\item[\ttmkey{exp\_ok\_attrs}{in {\tt min::gen\_format}}]~\\
+This member is only enabled if {\tt OBJ\_\EOL EXP\_\EOL FLAG} is on.
+Then if an object is to be printed that all of whose attributes have
+names that are elements of {\tt exp\_\EOL ok\_\EOL attrs}, that object
+is printed as an expression.  See {\tt OBJ\_\EOL EXP\_\EOL FLAG} below.
+
+WARNING: The {\tt exp\_ok\_attrs} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt exp\_\EOL ok\_\EOL attrs} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
+
+
 
 \end{itemlist}
 
@@ -8370,34 +8404,38 @@ Otherwise the value prints as `{\tt SPECIAL(i)}'.
 \item[\ttnbkey{SUPPRESS\_OBJ\_SPACE\_FLAG}]\vspace{-1ex}~\\
 See {\tt surpress\_matrix} above.
 
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, only the vector elements of
-an object and the \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
+\item[\ttnbmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set and if all attributes of an object have names listed in
+{\tt exp\_\EOL ok\_\EOL attrs} (see above), then the object is
+printed as an expression.  In this case attributes other than
+ \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
 \ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
-attributes are printed, and other attributes are ignored.
+are ignored.
 
-Also, the special parsing {\tt .initiator}'s {\tt \#} and {\tt "} are
-unwrapped, that is,
+Note that objects with the {\tt .initiator}'s {\tt \#} and {\tt "} are
+printed unwrapped; for example,
 \begin{center}
 \verb/"foo" {| .initiator "<Q>" |}/
 \end{center}
 prints as
-\verb|"foo"|, and the special parsing {\tt .separator} {\tt "<NL>"}
-is treated as signaling an indentation mark line list.
-
-If this flag is off, all attributes are printed, along with the vector elements,
-and no attributes are treated specially.
+\verb|"foo"|.
 
 \item[\ttnbmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, an object is printed as an `\verb|@|\verb|<|{\em id}\verb|>|'
-object identifier.  The identifier is retrived using the printer
-{\tt id\_\EOL map}, and if the object is not alread in
-in the map, it is first pushed into the map.
+If set, and if an object is not being printed as an expression as
+per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
+then an identifier i will be allocated for the object
+in {\tt printer->\EOL id\_\EOL map} and the object will be
+printed as `{\tt @}i'.
 
-\item[\ttnbmkey{SUBOBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, subobjects that are parts of object elements or attribute
-values are printed as if the {\tt OBJ\_\EOL ID\_\EOL FLAG} were set
-when they are printed.
+If \underline{not} set,
+and if an object is not being printed as an expression as
+per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
+then the object will be printed in the general form:
+\begin{center}
+\verb/{|/ {\em element} \ldots\verb|;| {\em attribute-name} \verb|=|
+                                       {\em attribute-value}\verb|;|
+				       \ldots{} \verb/|}/
+\end{center}
 
 \end{itemlist}\end{indpar}
 
@@ -14795,7 +14833,7 @@ In loose implementation: \\
                        min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
-    \verb|  min::EXPRESSION_FLAG,               // gen_flags|\ARGBREAK
+    \verb|  min::OBJ_EXP_FLAG,                  // gen_flags|\ARGBREAK
     \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
     \verb|};|
 \LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
@@ -14859,6 +14897,8 @@ In loose implementation: \\
     \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
     \verb|  min::suppress_matrix   suppress_matrix;|\ARGBREAK
+    \verb|  min::uns32             str_max_length;|\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::gen>  exp_ok_attrs;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::GEN_FORMAT} \\
 \end{TABULAR}
@@ -14892,6 +14932,8 @@ In loose implementation: \\
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
     \verb|  min::default_suppress_matrix|\ARGBREAK
+    \verb|  8,                   // str_max_length|\ARGBREAK
+    \verb|  min::default_exp_ok_attrs|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{TABULAR}
@@ -14915,14 +14957,12 @@ In loose implementation: \\
 \LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
-\LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUBOBJ\_ID\_FLAG}
-\LABEL{MIN::SUBOBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
-\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
 \end{TABULAR}
 
 \end{indpar}
