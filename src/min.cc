@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 10 19:52:34 EDT 2012
+// Date:	Wed Jun 13 17:48:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 //	Object List Level
 //	Object Attribute Level
 //	Printers
+//	Printing General values
 
 // Setup
 // -----
@@ -7188,327 +7189,6 @@ min::printer min::init_ostream
     return printer << min::eol_flush;
 }
 
-static min::locatable_gen initiator;
-static min::locatable_gen terminator;
-static min::locatable_gen separator;
-
-// Execute pgen (below) in the case an object is to be
-// printed with the EXPRESSION_FLAG.
-//
-template < typename T >
-static T pgen_expression
-	( T out,
-	  min::gen v,
-	  min::uns32 gen_flags,
-	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
-	        min::gen v,
-		min::uns32 gen_flags,
-		const min::gen_format * f ) )
-{
-    if ( ::initiator == min::MISSING() )
-    {
-        ::initiator =
-	    min::new_lab_gen ( ".", "initiator" );
-        ::terminator =
-	    min::new_lab_gen ( ".", "terminator" );
-        ::separator =
-	    min::new_lab_gen ( ".", "separator" );
-    }
-    min::obj_vec_ptr vp ( v );
-    min::attr_ptr ap ( vp );
-    min::locate ( ap, ::initiator );
-    min::gen initiator = min::get ( ap );
-    min::locate ( ap, ::terminator );
-    min::gen terminator = min::get ( ap );
-    min::locate ( ap, ::separator );
-    min::gen separator = min::get ( ap );
-
-    const char * prefix = "";
-    const char * postfix = "";
-    if ( !  min::is_name ( initiator )
-         ||
-	 ! min::is_name ( terminator ) )
-    {
-        if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
-	     &&
-	     f->implicit_prefix != NULL
-	     &&
-	     f->implicit_postfix != NULL )
-	{
-	    prefix = f->implicit_prefix;
-	    postfix = f->implicit_postfix;
-	}
-	out << prefix << min::save_indent;
-	for ( min::unsptr i = 0;
-	      i < min::size_of ( vp ); ++ i )
-	{
-	    if ( i != 0 ) out << " ";
-	    out << min::set_break;
-	    pgen ( out, vp[i], gen_flags, f );
-	}
-	return out << postfix << min::restore_indent;
-    }
-    else
-    {
-	out << min::pgen ( initiator, 0 )
-	    << min::save_indent;
-	for ( min::unsptr i = 0;
-	      i < min::size_of ( vp ); ++ i )
-	{
-	    if ( i != 0 )
-	    {
-	        if ( min::is_name ( separator ) )
-		    out << min::pgen ( separator, 0 );
-	        out << " ";
-		out << min::set_break;
-	    }
-	    pgen ( out, vp[i], gen_flags, f );
-	}
-	return out << min::pgen ( terminator, 0 )
-	           << min::restore_indent;
-    }
-}
-
-template < typename T >
-static T pgen
-	( T out,
-	  min::gen v,
-	  min::uns32 gen_flags,
-	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
-	        min::gen v,
-		min::uns32 gen_flags,
-		const min::gen_format * f ) )
-{
-    if ( v == min::new_stub_gen ( MINT::null_stub ) )
-    {
-        return
-	    out << "new_stub_gen ( MINT::null_stub )";
-    }
-    else if ( min::is_num ( v ) )
-    {
-        min::float64 vf = MUP::float_of ( v );
-	char buffer[128];
-	sprintf ( buffer, f->number_format, vf );
-	return out << buffer;
-    }
-    else if ( min::is_str ( v ) )
-    {
-        min::uns32 graphic_flags =
-	    ( gen_flags & min::GRAPHIC_STR_FLAG ?
-	      min::GRAPHIC_FLAGS : 0 );
-        MUP::str_ptr sp ( v );
-	if ( ( gen_flags & min::BRACKET_STR_FLAG )
-	     &&
-	     f->str_prefix != NULL
-	     &&
-	     f->str_postfix != NULL
-	     &&
-	     f->str_quote != NULL
-	    )
-	{
-	    char * first =
-	        std::strstr ( & sp[0], f->str_postfix );
-	    if ( first == NULL )
-		return out << f->str_prefix
-			   << min::save_print_format
-			   << min::set_print_flags
-			       ( graphic_flags )
-			   << min::begin_ptr_of ( sp )
-			   << min::restore_print_format
-			   << f->str_postfix;
-	    else
-	    {
-		min::uns32 length = min::strlen ( sp );
-
-	        MIN_STACK_COPY
-		    ( char, str, length + 1, & sp[0] );
-
-		const char * p = str;
-		length = std::strlen ( f->str_postfix );
-
-	        out << f->str_prefix;
-		while ( ( first = std::strstr
-			    ( p, f->str_postfix ) ) )
-		{
-		    * first = 0;
-		    out << min::save_print_format
-			<< min::set_print_flags
-			     ( graphic_flags )
-		        << p
-		        << min::restore_print_format;
-		    out << f->str_quote;
-		    p = first + length;
-		}
-
-		return out << p << f->str_postfix;
-	    }
-	}
-	else
-	    return out << min::save_print_format
-		       << min::set_print_flags
-		              ( graphic_flags )
-		       << min::begin_ptr_of ( sp )
-		       << min::restore_print_format;
-    }
-    else if ( min::is_lab ( v ) )
-    {
-	const char * prefix = "";
-	const char * postfix = "";
-	const char * separator =
-	    ( gen_flags & min::SUPPRESS_LAB_SPACE_FLAG ?
-	      NULL : " " );
-	if ( ( gen_flags & min::BRACKET_LAB_FLAG )
-	     &&
-	     f->lab_prefix != NULL
-	     &&
-	     f->lab_separator != NULL
-	     &&
-	     f->lab_postfix != NULL
-	    )
-	{
-	    prefix = f->lab_prefix;
-	    separator = f->lab_separator;
-	    postfix = f->lab_postfix;
-	}
-
-	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
-        min::uns32 len = min::length_of ( labp );
-	out << prefix;
-	for ( min::unsptr i = 0; i < len; ++ i )
-	{
-	    if ( i != 0 )
-	    {
-		if ( separator == NULL)
-		    out << min::suppressible_space;
-		else
-		    out << separator;
-	    }
-	    pgen ( out, labp[i], gen_flags, f );
-	}
-	return out << postfix;
-    }
-    else if ( min::is_special ( v ) )
-    {
-	const char * prefix = "";
-	const char * postfix = "";
-	if ( ( gen_flags & min::BRACKET_SPECIAL_FLAG )
-	     &&
-	     f->special_prefix != NULL
-	     &&
-	     f->special_postfix != NULL
-	    )
-	{
-	    prefix = f->special_prefix;
-	    postfix = f->special_postfix;
-	}
-
-        min::unsgen index = MUP::special_index_of ( v );
-	bool allow_special_name =
-	    (    (   gen_flags
-	           & min::SUPPRESS_SPECIAL_NAME_FLAG )
-	      == 0 );
-
-	if ( allow_special_name
-	     &&
-	     0xFFFFFF - min::standard_special_names_size
-	     < index
-	     &&
-	     index <= 0xFFFFFF )
-	    return out << prefix
-	        << min::standard_special_names
-		            [0xFFFFFF - index]
-		<< postfix;
-	else if ( allow_special_name
-	          &&
-		  index < f->special_names_size
-	          &&
-		  f->special_names != NULL )
-	    return out << prefix
-	        << f->special_names[index]
-		<< postfix;
-	else
-	{
-	    char buffer[64];
-	    sprintf ( buffer, "SPECIAL(0x%llx)",
-		              (min::uns64) index );
-	    return out << prefix << buffer << postfix;
-	}
-    }
-    else if ( min::is_stub ( v ) )
-    {
-        if ( ( gen_flags & min::EXPRESSION_FLAG )
-	     &&
-	     min::is_obj ( v ) )
-	{
-	    ::pgen_expression<T>
-	        ( out, v, gen_flags, f, pgen );
-	    return out;
-	}
-
-        const min::stub * s = MUP::stub_of ( v );
-	int type = min::type_of ( s );
-	const char * type_name = min::type_name[type];
-	if ( type_name != NULL )
-	    out << type_name;
-	else
-	    out << "TYPE(" << type << ")";
-	return out;
-    }
-    else if ( min::is_list_aux ( v ) )
-        return out << "LIST_AUX("
-	           << MUP::list_aux_of ( v ) << ")";
-    else if ( min::is_sublist_aux ( v ) )
-        return out << "SUBLIST_AUX("
-	           << MUP::sublist_aux_of ( v ) << ")";
-    else if ( min::is_indirect_aux ( v ) )
-        return out << "INDIRECT_AUX("
-	           << MUP::indirect_aux_of ( v )
-		   << ")";
-    else if ( min::is_index ( v ) )
-        return out << "INDEX("
-	           << MUP::index_of ( v ) << ")";
-    else if ( min::is_control_code ( v ) )
-    {
-	char buffer[64];
-	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
-		          (min::uns64)
-		          MUP::control_code_of ( v ) );
-	return out << buffer;
-    }
-    else
-    {
-	char buffer[64];
-	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
-		  (min::uns64) MUP::value_of ( v ) );
-	return out << buffer;
-    }
-
-}
-
-min::printer min::default_pgen
-	( min::printer printer,
-	  min::gen v,
-	  min::uns32 gen_flags,
-	  const min::gen_format * f )
-{
-    return ::pgen<min::printer>
-	    ( printer, v, gen_flags, f, f->pgen );
-}
-
-static std::ostream & ostream_pgen
-	( std::ostream & out,
-	  min::gen v,
-	  min::uns32 gen_flags,
-	  const min::gen_format * f )
-{
-    return ::pgen<std::ostream &>
-	    ( out, v, gen_flags, f, ::ostream_pgen );
-}
-
 static void end_line ( min::printer printer )
 {
     printer->suppress_matrix = NULL;
@@ -7822,6 +7502,12 @@ min::printer operator <<
 static std::ostream & ostream_unicode
 	( std::ostream & out, min::uns32 flags,
 	  min::unsptr n, const min::uns32 * str );
+
+static std::ostream & ostream_pgen
+	( std::ostream & out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f );
 
 std::ostream & operator <<
 	( std::ostream & out,
@@ -8652,4 +8338,329 @@ void min::pwidth ( min::uns32 & column,
     while ( s < ends )
         pwidth ( column, utf8_to_unicode ( s, ends ),
 	         print_flags );
+}
+
+
+// Printing General values
+// -------- ------- ------
+
+static min::locatable_gen initiator;
+static min::locatable_gen terminator;
+static min::locatable_gen separator;
+
+// Execute pgen (below) in the case an object is to be
+// printed with the EXPRESSION_FLAG.
+//
+template < typename T >
+static T pgen_expression
+	( T out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f,
+	  T ( * pgen )
+	      ( T out,
+	        min::gen v,
+		min::uns32 gen_flags,
+		const min::gen_format * f ) )
+{
+    if ( ::initiator == min::MISSING() )
+    {
+        ::initiator =
+	    min::new_lab_gen ( ".", "initiator" );
+        ::terminator =
+	    min::new_lab_gen ( ".", "terminator" );
+        ::separator =
+	    min::new_lab_gen ( ".", "separator" );
+    }
+    min::obj_vec_ptr vp ( v );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, ::initiator );
+    min::gen initiator = min::get ( ap );
+    min::locate ( ap, ::terminator );
+    min::gen terminator = min::get ( ap );
+    min::locate ( ap, ::separator );
+    min::gen separator = min::get ( ap );
+
+    const char * prefix = "";
+    const char * postfix = "";
+    if ( !  min::is_name ( initiator )
+         ||
+	 ! min::is_name ( terminator ) )
+    {
+        if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
+	     &&
+	     f->implicit_prefix != NULL
+	     &&
+	     f->implicit_postfix != NULL )
+	{
+	    prefix = f->implicit_prefix;
+	    postfix = f->implicit_postfix;
+	}
+	out << prefix << min::save_indent;
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 ) out << " ";
+	    out << min::set_break;
+	    pgen ( out, vp[i], gen_flags, f );
+	}
+	return out << postfix << min::restore_indent;
+    }
+    else
+    {
+	out << min::pgen ( initiator, 0 )
+	    << min::save_indent;
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 )
+	    {
+	        if ( min::is_name ( separator ) )
+		    out << min::pgen ( separator, 0 );
+	        out << " ";
+		out << min::set_break;
+	    }
+	    pgen ( out, vp[i], gen_flags, f );
+	}
+	return out << min::pgen ( terminator, 0 )
+	           << min::restore_indent;
+    }
+}
+
+template < typename T >
+static T pgen
+	( T out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f,
+	  T ( * pgen )
+	      ( T out,
+	        min::gen v,
+		min::uns32 gen_flags,
+		const min::gen_format * f ) )
+{
+    if ( v == min::new_stub_gen ( MINT::null_stub ) )
+    {
+        return
+	    out << "new_stub_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( v ) )
+    {
+        min::float64 vf = MUP::float_of ( v );
+	char buffer[128];
+	sprintf ( buffer, f->number_format, vf );
+	return out << buffer;
+    }
+    else if ( min::is_str ( v ) )
+    {
+        min::uns32 graphic_flags =
+	    ( gen_flags & min::GRAPHIC_STR_FLAG ?
+	      min::GRAPHIC_FLAGS : 0 );
+        MUP::str_ptr sp ( v );
+	if ( ( gen_flags & min::BRACKET_STR_FLAG )
+	     &&
+	     f->str_prefix != NULL
+	     &&
+	     f->str_postfix != NULL
+	     &&
+	     f->str_quote != NULL
+	    )
+	{
+	    char * first =
+	        std::strstr ( & sp[0], f->str_postfix );
+	    if ( first == NULL )
+		return out << f->str_prefix
+			   << min::save_print_format
+			   << min::set_print_flags
+			       ( graphic_flags )
+			   << min::begin_ptr_of ( sp )
+			   << min::restore_print_format
+			   << f->str_postfix;
+	    else
+	    {
+		min::uns32 length = min::strlen ( sp );
+
+	        MIN_STACK_COPY
+		    ( char, str, length + 1, & sp[0] );
+
+		const char * p = str;
+		length = std::strlen ( f->str_postfix );
+
+	        out << f->str_prefix;
+		while ( ( first = std::strstr
+			    ( p, f->str_postfix ) ) )
+		{
+		    * first = 0;
+		    out << min::save_print_format
+			<< min::set_print_flags
+			     ( graphic_flags )
+		        << p
+		        << min::restore_print_format;
+		    out << f->str_quote;
+		    p = first + length;
+		}
+
+		return out << p << f->str_postfix;
+	    }
+	}
+	else
+	    return out << min::save_print_format
+		       << min::set_print_flags
+		              ( graphic_flags )
+		       << min::begin_ptr_of ( sp )
+		       << min::restore_print_format;
+    }
+    else if ( min::is_lab ( v ) )
+    {
+	const char * prefix = "";
+	const char * postfix = "";
+	const char * separator =
+	    ( gen_flags & min::SUPPRESS_LAB_SPACE_FLAG ?
+	      NULL : " " );
+	if ( ( gen_flags & min::BRACKET_LAB_FLAG )
+	     &&
+	     f->lab_prefix != NULL
+	     &&
+	     f->lab_separator != NULL
+	     &&
+	     f->lab_postfix != NULL
+	    )
+	{
+	    prefix = f->lab_prefix;
+	    separator = f->lab_separator;
+	    postfix = f->lab_postfix;
+	}
+
+	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
+        min::uns32 len = min::length_of ( labp );
+	out << prefix;
+	for ( min::unsptr i = 0; i < len; ++ i )
+	{
+	    if ( i != 0 )
+	    {
+		if ( separator == NULL)
+		    out << min::suppressible_space;
+		else
+		    out << separator;
+	    }
+	    pgen ( out, labp[i], gen_flags, f );
+	}
+	return out << postfix;
+    }
+    else if ( min::is_special ( v ) )
+    {
+	const char * prefix = "";
+	const char * postfix = "";
+	if ( ( gen_flags & min::BRACKET_SPECIAL_FLAG )
+	     &&
+	     f->special_prefix != NULL
+	     &&
+	     f->special_postfix != NULL
+	    )
+	{
+	    prefix = f->special_prefix;
+	    postfix = f->special_postfix;
+	}
+
+        min::unsgen index = MUP::special_index_of ( v );
+	bool allow_special_name =
+	    (    (   gen_flags
+	           & min::SUPPRESS_SPECIAL_NAME_FLAG )
+	      == 0 );
+
+	if ( allow_special_name
+	     &&
+	     0xFFFFFF - min::standard_special_names_size
+	     < index
+	     &&
+	     index <= 0xFFFFFF )
+	    return out << prefix
+	        << min::standard_special_names
+		            [0xFFFFFF - index]
+		<< postfix;
+	else if ( allow_special_name
+	          &&
+		  index < f->special_names_size
+	          &&
+		  f->special_names != NULL )
+	    return out << prefix
+	        << f->special_names[index]
+		<< postfix;
+	else
+	{
+	    char buffer[64];
+	    sprintf ( buffer, "SPECIAL(0x%llx)",
+		              (min::uns64) index );
+	    return out << prefix << buffer << postfix;
+	}
+    }
+    else if ( min::is_stub ( v ) )
+    {
+        if ( ( gen_flags & min::EXPRESSION_FLAG )
+	     &&
+	     min::is_obj ( v ) )
+	{
+	    ::pgen_expression<T>
+	        ( out, v, gen_flags, f, pgen );
+	    return out;
+	}
+
+        const min::stub * s = MUP::stub_of ( v );
+	int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    out << type_name;
+	else
+	    out << "TYPE(" << type << ")";
+	return out;
+    }
+    else if ( min::is_list_aux ( v ) )
+        return out << "LIST_AUX("
+	           << MUP::list_aux_of ( v ) << ")";
+    else if ( min::is_sublist_aux ( v ) )
+        return out << "SUBLIST_AUX("
+	           << MUP::sublist_aux_of ( v ) << ")";
+    else if ( min::is_indirect_aux ( v ) )
+        return out << "INDIRECT_AUX("
+	           << MUP::indirect_aux_of ( v )
+		   << ")";
+    else if ( min::is_index ( v ) )
+        return out << "INDEX("
+	           << MUP::index_of ( v ) << ")";
+    else if ( min::is_control_code ( v ) )
+    {
+	char buffer[64];
+	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
+		          (min::uns64)
+		          MUP::control_code_of ( v ) );
+	return out << buffer;
+    }
+    else
+    {
+	char buffer[64];
+	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
+		  (min::uns64) MUP::value_of ( v ) );
+	return out << buffer;
+    }
+
+}
+
+min::printer min::default_pgen
+	( min::printer printer,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<min::printer>
+	    ( printer, v, gen_flags, f, f->pgen );
+}
+
+static std::ostream & ostream_pgen
+	( std::ostream & out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<std::ostream &>
+	    ( out, v, gen_flags, f, ::ostream_pgen );
 }
