@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 10 19:52:19 EDT 2012
+// Date:	Wed Jun 13 20:04:21 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,7 @@
 //	Object List Level
 //	Object Attribute Level
 //	Printers
+//	Printing General Values
 //	More Allocator/Collector/Compactor Interface
 
 // Namespaces:
@@ -11377,47 +11378,7 @@ namespace min {
 
     typedef const bool ( * suppress_matrix )[256][256];
 
-    struct gen_format
-    {
-	min::printer     ( * pgen )
-	    ( min::printer printer,
-	      min::gen v,
-	      min::uns32 gen_flags,
-	      const min::gen_format * gen_format );
-
-	// Members beyond this point may be moved and
-	// new members may be added.
-
-        const char *         number_format;
-	const char *         str_prefix;
-	const char *         str_postfix;
-	const char *         str_quote;
-	const char *         lab_prefix;
-	const char *         lab_separator;
-	const char *         lab_postfix;
-	const char *         special_prefix;
-	const char *         special_postfix;
-	const char *         implicit_prefix;
-	const char *         implicit_postfix;
-	const char * const * special_names;
-	uns32                special_names_size;
-	min::suppress_matrix suppress_matrix;
-    };
-
-    enum {
-        PREFIX_SEPARATOR_FLAG		= ( 1 << 0 ),
-	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
-    };
-
     extern min::suppress_matrix default_suppress_matrix;
-
-    min::printer default_pgen
-	    ( min::printer printer,
-	      min::gen v,
-	      min::uns32 gen_flags,
-	      const min::gen_format * gen_format );
-
-    extern const gen_format default_gen_format;
 
     struct line_break
     {
@@ -11432,6 +11393,7 @@ namespace min {
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;
 
+    struct gen_format;
     struct print_format
     {
 	uns32 flags;
@@ -11505,21 +11467,6 @@ namespace min {
         GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
 	                        + GRAPHIC_VSPACE_FLAG
 	                        + GRAPHIC_NSPACE_FLAG
-    };
-
-    enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
-        BRACKET_STR_FLAG		= ( 1 << 1 ),
-        BRACKET_LAB_FLAG		= ( 1 << 2 ),
-        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
-        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
-        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
-        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
-        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
-	EXPRESSION_FLAG			= ( 1 << 8 ),
-	SUBOBJ_ID_FLAG			= ( 1 << 9 ),
-	OBJ_ID_FLAG			= ( 1 << 10 ),
-	FLUSH_ID_MAP_FLAG		= ( 1 << 11 ),
     };
 
     struct op
@@ -11941,6 +11888,63 @@ inline std::ostream & operator <<
 	  min::gen g )
 {
     return out << min::pgen ( g );
+}
+
+
+// Printing General Values
+// -------- ------- ------
+
+namespace min {
+
+    struct gen_format
+    {
+	min::printer     ( * pgen )
+	    ( min::printer printer,
+	      min::gen v,
+	      min::uns32 gen_flags,
+	      const min::gen_format * gen_format );
+
+	// Members beyond this point may be moved and
+	// new members may be added.
+
+        const char *         number_format;
+	const char *         str_prefix;
+	const char *         str_postfix;
+	const char *         str_quote;
+	const char *         lab_prefix;
+	const char *         lab_separator;
+	const char *         lab_postfix;
+	const char *         special_prefix;
+	const char *         special_postfix;
+	const char *         implicit_prefix;
+	const char *         implicit_postfix;
+	const char * const * special_names;
+	uns32                special_names_size;
+	min::suppress_matrix suppress_matrix;
+    };
+
+    extern const gen_format default_gen_format;
+
+    enum {
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+        BRACKET_STR_FLAG		= ( 1 << 1 ),
+        BRACKET_LAB_FLAG		= ( 1 << 2 ),
+        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
+        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
+        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
+        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
+        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
+	EXPRESSION_FLAG			= ( 1 << 8 ),
+	SUBOBJ_ID_FLAG			= ( 1 << 9 ),
+	OBJ_ID_FLAG			= ( 1 << 10 ),
+	FLUSH_ID_MAP_FLAG		= ( 1 << 11 ),
+    };
+
+    min::printer default_pgen
+	    ( min::printer printer,
+	      min::gen v,
+	      min::uns32 gen_flags,
+	      const min::gen_format * gen_format );
 }
 
 // More Allocator/Collector/Compactor Interface
