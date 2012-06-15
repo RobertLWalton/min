@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 11 03:23:42 EDT 2012
+// Date:	Fri Jun 15 08:14:31 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3638,55 +3638,89 @@ void test_object_list_level ( void )
 //
 static bool check_attr_info
         ( min::attr_insptr & ap,
-	  min::attr_info * aip, unsigned n )
+	  min::attr_info * aip, unsigned n,
+	  bool include_attr_vec = true )
 {
     bool save_min_assert_print = min_assert_print;
     min_assert_print = false;
-    min::gen aiv = min::get_attrs ( ap );
-    min::sort_attr_info ( aiv );
-    min::attr_info_ptr aivp ( aiv );
+    min::attr_info aiv[n+100];
+    min::unsptr m = min::get_attrs
+        ( ap, aiv, n+100, include_attr_vec );
+    min::sort_attr_info ( aiv, m );
+
+    if ( m != n )
+        cout << "ACTUAL NUMBER OF ATTRIBUTES " << m
+	     << " != EXPECTED NUMBER " << n << endl;
+
     bool ok = true;
-    for ( unsigned i = 0; i < aivp->length; ++ i )
+    for ( unsigned i = 0; i < m; ++ i )
     {
-        if ( aivp[i].name != aip[i].name )
+        if ( i >= n ) continue;
+
+        if ( aiv[i].name != aip[i].name )
 	{
 	    cout << i << ": BAD NAME: "
-	         << min::pgen ( aivp[i].name )
+	         << min::pgen ( aiv[i].name )
 		 << " != "
 		 << min::pgen ( aip[i].name )
 		 << endl;
 	    ok = false;
 	    continue;
 	}
-        if ( aivp[i].value_count != aip[i].value_count)
+        if ( aiv[i].value_count != aip[i].value_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aivp[i].name )
+	         << min::pgen ( aiv[i].name )
 	         << ": BAD VALUE COUNT: "
-	         << aivp[i].value_count << " != "
+	         << aiv[i].value_count << " != "
 		 << aip[i].value_count << endl;
 	    ok = false;
 	}
-        if ( aivp[i].flag_count != aip[i].flag_count)
+        if ( aiv[i].flag_count != aip[i].flag_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aivp[i].name )
+	         << min::pgen ( aiv[i].name )
 	         << ": BAD FLAG COUNT: "
-	         << aivp[i].flag_count << " != "
+	         << aiv[i].flag_count << " != "
 		 << aip[i].flag_count << endl;
 	    ok = false;
 	}
-        if (    aivp[i].reverse_attr_count
-	     != aip[i].reverse_attr_count)
+        if (    aiv[i].reverse_attr_count
+	     != aip[i].reverse_attr_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aivp[i].name )
+	         << min::pgen ( aiv[i].name )
 	         << ": BAD REVERSE ATTR COUNT: "
-	         << aivp[i].reverse_attr_count << " != "
+	         << aiv[i].reverse_attr_count << " != "
 		 << aip[i].reverse_attr_count << endl;
 	    ok = false;
 	}
+        if ( aiv[i].value != aip[i].value )
+	{
+	    cout << i << ": "
+	         << min::pgen ( aiv[i].name )
+	         << ": BAD VALUE: "
+	         << aiv[i].value << " != "
+		 << aip[i].value << endl;
+	    ok = false;
+	}
+        if ( aiv[i].flags != aip[i].flags )
+	{
+	    cout << i << ": "
+	         << min::pgen ( aiv[i].name )
+	         << ": BAD FLAGS: " << hex
+	         << aiv[i].flags << " != "
+		 << aip[i].flags
+		 << dec << endl;
+	    ok = false;
+	}
     }
+    if ( m > n )
+        cout << "AN EXTRA ATTRIBUTE MAY BE "
+	     << min::pgen ( aiv[n].name ) << endl;
+    else if ( m < n )
+        cout << "A MISSING ATTRIBUTE MAY BE "
+	     << min::pgen ( aip[m].name ) << endl;
 
     min_assert_print = save_min_assert_print;
     return ok;
@@ -3878,6 +3912,17 @@ static bool check_flags
 // Set, clear, flip, and test flags for the attributes
 // with label1 and label2.  Exit with 4 control non-zero
 // flag control words for label1 and 0 for label 2.
+// The low order flags for label1 on exit are
+//
+static min::uns64 test_flags =
+	( 1 << 0 ) + ( 1ull << (   min::VSIZE + 3 ) )
+#		if MIN_IS_COMPACT
+		// This avoids warning about shift
+		// being too long.
+		   + ( 1ull << ( 2*min::VSIZE + 5 ) )
+#		endif
+		;
+//	
 // Switch temporarily to the attribute with label3
 // occassionally, but do not change that attribute.
 //
@@ -3998,7 +4043,7 @@ void test_attribute_flags
 // but do not change that attribute.  Use obj1, obj2,
 // and obj3 as values and leave each with one value
 // with attribute name rlabel1 and reverse attribute
-// name rlabel2.
+// name label1.
 //
 void test_reverse_attribute_values
 	( min::attr_insptr & ap,
@@ -4157,48 +4202,57 @@ void test_object_attribute_level ( void )
     min::locate ( ap, int4 );
     MIN_ASSERT ( min::get ( ap ) == lab4 );
 
+    min::gen MULTI = min::MULTI_VALUED();
     min::attr_info ai[12] = {
-        { int1, 1, 0, 0 },
-        { int2, 1, 0, 0 },
-        { int3, 1, 0, 0 },
-        { int4, 1, 0, 0 },
-        { lab1, 1, 0, 0 },
-        { lab2, 1, 0, 0 },
-        { lab3, 1, 0, 0 },
-        { lab4, 1, 0, 0 },
-	{ int1lab1, 0, 0, 0 },
-	{ int1lab2, 0, 0, 0 },
-	{ lab1int1, 0, 0, 0 },
-	{ lab1int2, 0, 0, 0 } };
+        { int1, lab1, 0, 1, 0, 0 },
+        { int2, lab2, 0, 1, 0, 0 },
+        { int3, lab3, 0, 1, 0, 0 },
+        { int4, lab4, 0, 1, 0, 0 },
+        { lab1, int1, 0, 1, 0, 0 },
+        { lab2, int2, 0, 1, 0, 0 },
+        { lab3, int3, 0, 1, 0, 0 },
+        { lab4, int4, 0, 1, 0, 0 },
+	{ int1lab1, MULTI, 0, 0, 0, 0 },
+	{ int1lab2, MULTI, 0, 0, 0, 0 },
+	{ lab1int1, MULTI, 0, 0, 0, 0 },
+	{ lab1int2, MULTI, 0, 0, 0, 0 } };
 
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, lab1, lab2 );
     ai[4].value_count = 6;
+    ai[4].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, int3, lab1 );
     ai[2].value_count = 6;
+    ai[2].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, int1lab1, int1lab2 );
     ai[8].value_count = 6;
+    ai[8].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 9 ) );
     test_attribute_values ( ap, int1lab2, int1lab1 );
     ai[9].value_count = 6;
+    ai[9].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 10 ) );
     test_attribute_values ( ap, lab1int1, lab1int2 );
     ai[10].value_count = 6;
+    ai[10].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 11 ) );
     test_attribute_values ( ap, lab1int2, lab1int1 );
     ai[11].value_count = 6;
+    ai[11].value = MULTI;
     MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
 
     test_attribute_flags ( ap, lab1, lab2, lab3 );
     ai[4].flag_count = 4;
+    ai[4].flags = ::test_flags;
     test_attribute_flags ( ap, lab2, int1, int2 );
     ai[5].flag_count = 4;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+    ai[5].flags = ::test_flags;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
 
     min::gen obj1 = min::new_obj_gen ( 40, 10 );
     min::gen obj2 = min::new_obj_gen ( 40, 10 );
@@ -4206,6 +4260,8 @@ void test_object_attribute_level ( void )
 
     test_reverse_attribute_values
 	( ap, lab1, lab2, int1, obj1, obj2, obj3 );
+    ai[4].reverse_attr_count = 1;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"

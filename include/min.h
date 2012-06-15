@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 13 20:04:21 EDT 2012
+// Date:	Fri Jun 15 02:53:37 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9788,6 +9788,8 @@ namespace min {
     struct attr_info
     {
         min::gen    name;
+	min::gen    value;
+	min::uns64  flags;
 	min::unsptr value_count;
 	min::unsptr flag_count;
 	min::unsptr reverse_attr_count;
@@ -9795,30 +9797,29 @@ namespace min {
     struct reverse_attr_info
     {
         min::gen    name;
+	min::gen    value;
 	min::unsptr value_count;
     };
-    typedef min::packed_vec<attr_info>
-	    attr_info_vec;
-    typedef min::packed_vec<reverse_attr_info>
-	    reverse_attr_info_vec;
-    extern attr_info_vec attr_info_vec_type;
-    extern reverse_attr_info_vec
-           reverse_attr_info_vec_type;
-    typedef attr_info_vec::ptr
-        attr_info_ptr;
-    typedef reverse_attr_info_vec::ptr
-        reverse_attr_info_ptr;
-    void sort_attr_info ( min::gen v );
-    void sort_reverse_attr_info ( min::gen v );
+    void sort_attr_info
+	    ( min::attr_info * out,
+	      min::unsptr n );
+    void sort_reverse_attr_info
+	    ( min::reverse_attr_info * out,
+	      min::unsptr n );
 
     template < class vecpt >
-    min::gen get_attrs
+    min::unsptr get_attrs
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap );
+	          < vecpt > & ap,
+	      min::attr_info * out,
+	      min::unsptr n,
+	      bool include_attr_vec = false );
     template < class vecpt >
-    min::gen get_reverse_attrs
+    min::unsptr get_reverse_attrs
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap );
+	          < vecpt > & ap,
+	      min::reverse_attr_info * out,
+	      min::unsptr n );
     template < class vecpt >
     min::gen update
 	    ( unprotected::attr_ptr_type
@@ -10231,12 +10232,17 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_ptr_type<vecpt> & ap,
 		  unsigned n );
-	friend min::gen min::get_attrs<>
+	friend min::unsptr min::get_attrs<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
-	friend min::gen min::get_reverse_attrs<>
+		     ::attr_ptr_type<vecpt> & ap,
+	          min::attr_info * out,
+		  min::unsptr n,
+	          bool include_attr_vec );
+	friend min::unsptr min::get_reverse_attrs<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecpt> & ap,
+	          min::reverse_attr_info * out,
+		  min::unsptr n );
 	friend min::gen min::update<>
 		( min::attr_updptr & ap,
 		  min::gen v );
@@ -11489,6 +11495,7 @@ namespace min {
 	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
 	    SUPPRESSIBLE_SPACE,
+	    SPACE,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
@@ -11738,6 +11745,7 @@ namespace min {
     extern const op verbatim;
 
     extern const op suppressible_space;
+    extern const op space;
 
     namespace internal
     {
