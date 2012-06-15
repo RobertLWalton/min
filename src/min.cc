@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 13 17:48:24 EDT 2012
+// Date:	Fri Jun 15 04:27:32 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4650,20 +4650,6 @@ void min::compact
 // Object Attribute Level
 // ------ --------- -----
 
-static min::uns32 attr_info_gen_disp[2] =
-    { min::DISP ( & min::attr_info::name ),
-      min::DISP_END };
-static min::uns32 reverse_attr_info_gen_disp[2] =
-    { min::DISP ( & min::reverse_attr_info::name ),
-      min::DISP_END };
-min::attr_info_vec min::attr_info_vec_type
-       ( "min::attr_info_vec_type",
-         attr_info_gen_disp, NULL );
- min::reverse_attr_info_vec
-     min::reverse_attr_info_vec_type
-       ( "min::reverse_attr_info_vec_type",
-         reverse_attr_info_gen_disp, NULL );
-
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     template < class vecpt >
@@ -5769,9 +5755,10 @@ static min::unsptr count_reverse_attrs
 
 // Called with current(lp) equal to attribute-/node-
 // descriptor for attribute.  Compute counts for
-// attribute in info.  Does NOT set info.name.
-// Return true if some count is non-zero and false if
-// all counts are zero.
+// attribute in info, and also the value and flags
+// members.  Does NOT set info.name.  Return true if
+// some count is non-zero and false if all counts are
+// zero.
 //
 static bool compute_counts
 	( min::list_ptr & lp,
@@ -5780,11 +5767,14 @@ static bool compute_counts
     info.value_count = 0;
     info.flag_count = 0;
     info.reverse_attr_count = 0;
+    info.value = min::NONE();
+    info.flags = 0;
 
     min::gen c = min::current ( lp );
     if ( ! min::is_sublist ( c ) )
     {
         ++ info.value_count;
+	info.value = c;
 	return true;
     }
     else if ( c == min::EMPTY_SUBLIST() )
@@ -5814,12 +5804,22 @@ static bool compute_counts
 		    count_reverse_attrs ( lpv );
 	    else if ( min::is_control_code ( c ) )
 	    {
+		min::unsptr shift =
+		    flag_count * min::VSIZE;
+		if ( shift < 64 )
+		    info.flags |=
+			(min::uns64)
+			MUP::control_code_of ( c )
+			<<
+			shift;
 	        ++ flag_count;
 		if ( c != zero_cc )
 	            info.flag_count = flag_count;
 	    }
+	    else if ( ++ info.value_count == 1 )
+	        info.value = c;
 	    else
-	        ++ info.value_count;
+		info.value = min::MULTI_VALUED();
 	}
 
 	return (    info.value_count > 0
@@ -5833,12 +5833,15 @@ static bool compute_counts
     // the node whose node-descriptor is pointed at
     // by lp.  The node label is
     //		components[0 .. depth-1].
-    // Output is goes into aip.
+    //
+    // Output is stored in out[m] if m < n and m is
+    // incremented.
     //
     static void compute_children
 	( min::list_ptr & lp,
 	  min::gen * components, min::unsptr depth,
-	  min::attr_info_vec::insptr & aip )
+	  min::attr_info * out, min::unsptr n,
+	  min::unsptr & m )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
@@ -5871,20 +5874,22 @@ static bool compute_counts
 		info.name = new_label =
 		    min::new_lab_gen
 			  ( labvec, depth + 1 );
-		min::push(aip) = info;
+		if ( m < n ) out[m] = info;
+		++ m;
 	    }
 	    compute_children
-	        ( lpv, labvec, depth + 1, aip );
+	        ( lpv, labvec, depth + 1, out, n, m );
 	}
     }
 # endif
 
 template < class vecpt >
-min::gen min::get_attrs
-	( MUP::attr_ptr_type < vecpt > & ap )
+min::unsptr min::get_attrs
+	( MUP::attr_ptr_type < vecpt > & ap,
+	  min::attr_info * out, min::unsptr n,
+	  bool include_attr_vec )
 {
-    min::gen airv = attr_info_vec_type.new_gen();
-    min::attr_info_vec::insptr aip ( airv );
+    min::unsptr m = 0;  // Return value.
     attr_info info;
 
     vecpt & vp = obj_vec_ptr_of ( ap.locate_dlp );
@@ -5911,12 +5916,18 @@ min::gen min::get_attrs
 #	    endif
 	    next ( lp );
 	    if ( compute_counts ( lp, info ) )
-		push(aip) = info;
+	    {
+		if ( m < n ) out[m] = info;
+		++ m;
+	    }
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		compute_children ( lp, & c, 1, aip );
+		compute_children
+		    ( lp, & c, 1, out, n, m );
 #	    endif
 	}
     }
+
+    if ( include_attr_vec )
     for ( unsptr i = 0;
           i < attr_size_of ( vp );
 	  ++ i )
@@ -5927,31 +5938,38 @@ min::gen min::get_attrs
 
 	info.name = new_num_gen ( i );
 	if ( compute_counts ( lp, info ) )
-	    push(aip) = info;
+	{
+	    if ( m < n ) out[m] = info;
+	    ++ m;
+	}
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    compute_children
-	        ( lp, & info.name, 1, aip );
+	        ( lp, & info.name, 1, out, n, m );
 #	endif
     }
 
-    return airv;
+    return m;
 }
-template min::gen min::get_attrs
-	( min::attr_ptr & ap );
-template min::gen min::get_attrs
-	( min::attr_updptr & ap );
-template min::gen min::get_attrs
-	( min::attr_insptr & ap );
+template min::unsptr min::get_attrs
+	( min::attr_ptr & ap,
+	  min::attr_info * out, min::unsptr n,
+	  bool include_attr_vec );
+template min::unsptr min::get_attrs
+	( min::attr_updptr & ap,
+	  min::attr_info * out, min::unsptr n,
+	  bool include_attr_vec );
+template min::unsptr min::get_attrs
+	( min::attr_insptr & ap,
+	  min::attr_info * out, min::unsptr n,
+	  bool include_attr_vec );
 
 template < class vecpt >
-min::gen min::get_reverse_attrs
-	( MUP::attr_ptr_type < vecpt > & ap )
+min::unsptr min::get_reverse_attrs
+	( MUP::attr_ptr_type < vecpt > & ap,
+	  min::reverse_attr_info * out, min::unsptr n )
 {
-    min::gen rairv =
-        reverse_attr_info_vec_type.new_gen();
-    min::reverse_attr_info_vec::insptr raip ( rairv );
-
     typedef MUP::attr_ptr_type<vecpt> ap_type;
+    min::unsptr m = 0;  // Return value
 
     switch ( ap.state )
     {
@@ -5960,11 +5978,11 @@ min::gen min::get_reverse_attrs
 	    ( "min::get_reverse_attrs called before"
 	      " locate" );
     case ap_type::LOCATE_FAIL:
-        return rairv;
+        return m;
     }
 
     min::gen c = update_refresh ( ap.locate_dlp );
-    if ( ! is_sublist ( c ) ) return rairv;
+    if ( ! is_sublist ( c ) ) return m;
     start_sublist ( ap.lp, ap.locate_dlp );
     for ( c = current ( ap.lp );
              ! is_sublist ( c )
@@ -5972,10 +5990,10 @@ min::gen min::get_reverse_attrs
 	  c = next ( ap.lp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	if ( ! is_sublist ( c ) ) return rairv;
+	if ( ! is_sublist ( c ) ) return m;
         next ( ap.lp );
 #   endif
-    if ( ! is_sublist ( c ) ) return rairv;
+    if ( ! is_sublist ( c ) ) return m;
     start_sublist ( ap.lp );
 
     list_ptr lpv ( obj_vec_ptr_of ( ap.lp ) );
@@ -5988,7 +6006,10 @@ min::gen min::get_reverse_attrs
 	info.value_count = 0;
 	c = next ( ap.lp );
 	if ( ! is_sublist ( c ) )
+	{
 	    ++ info.value_count;
+	    info.value = c;
+	}
 	else if ( c == min::EMPTY_SUBLIST() )
 	    continue;
 	else
@@ -5997,19 +6018,28 @@ min::gen min::get_reverse_attrs
 	    for ( c = current ( lpv );
 	          ! is_list_end ( c );
 		  c = next ( lpv ) )
-	        ++ info.value_count;
+	    {
+	        if ( ++ info.value_count == 1 )
+		    info.value = c;
+		else
+		    info.value = min::MULTI_VALUED();
+	    }
 	}
-	push(raip) = info;
+	if ( m < n ) out[m] = info;
+	++ m;
     }
 
-    return rairv;
+    return m;
 }
-template min::gen min::get_reverse_attrs
-	( min::attr_ptr & ap );
-template min::gen min::get_reverse_attrs
-	( min::attr_updptr & ap );
-template min::gen min::get_reverse_attrs
-	( min::attr_insptr & ap );
+template min::unsptr min::get_reverse_attrs
+	( min::attr_ptr & ap,
+	  min::reverse_attr_info * out, min::unsptr n );
+template min::unsptr min::get_reverse_attrs
+	( min::attr_updptr & ap,
+	  min::reverse_attr_info * out, min::unsptr n );
+template min::unsptr min::get_reverse_attrs
+	( min::attr_insptr & ap,
+	  min::reverse_attr_info * out, min::unsptr n );
 
 // Compare function to qsort attr_info packed vector.
 //
@@ -6020,11 +6050,10 @@ static int compare_attr_info
     min::gen name2 = ( (min::attr_info *) aip2 )->name;
     return min::compare ( name1, name2 );
 }
-void min::sort_attr_info ( min::gen v )
+void min::sort_attr_info
+	( min::attr_info * out, min::unsptr n )
 {
-    min::attr_info_vec::updptr aiup ( v );
-    qsort ( & aiup[0], aiup->length,
-            sizeof ( min::attr_info ),
+    qsort ( out, n, sizeof ( min::attr_info ),
 	    compare_attr_info );
 }
 
@@ -6040,11 +6069,10 @@ static int compare_reverse_attr_info
         ( (min::reverse_attr_info *) aip2 )->name;
     return min::compare ( name1, name2 );
 }
-void min::sort_reverse_attr_info ( min::gen v )
+void min::sort_reverse_attr_info
+	( min::reverse_attr_info * out, min::unsptr n )
 {
-    min::reverse_attr_info_vec::updptr raiup ( v );
-    qsort ( & raiup[0], raiup->length,
-            sizeof ( min::reverse_attr_info ),
+    qsort ( out, n, sizeof ( min::reverse_attr_info ),
 	    compare_reverse_attr_info );
 }
 
@@ -7366,6 +7394,9 @@ min::printer operator <<
 		    
 	    return printer;
 	}
+    case min::op::SPACE:
+	MINT::print_unicode ( printer, 1, ::space );
+	return printer;
     case min::op::SAVE_LINE_BREAK:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
@@ -7560,6 +7591,7 @@ std::ostream & operator <<
 			  op.v1.f64 );
 	return out << buffer;
     case min::op::SUPPRESSIBLE_SPACE:
+    case min::op::SPACE:
 	return out << " ";
     case min::op::EOM:
     case min::op::EOL:
@@ -8344,12 +8376,47 @@ void min::pwidth ( min::uns32 & column,
 // Printing General values
 // -------- ------- ------
 
+// Execute pgen (below) in the case an object is to be
+// printed without an effective OBJ_EXP_FLAG or
+// OBJ_ID_FLAG.
+//
+template < typename T >
+static T pgen_obj
+	( T out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  const min::gen_format * f,
+	  T ( * pgen )
+	      ( T out,
+	        min::gen v,
+		min::uns32 gen_flags,
+		const min::gen_format * f ) )
+{
+    min::obj_vec_ptr vp ( v );
+    min::attr_ptr ap ( vp );
+
+    return out << "{| " << min::save_indent;
+
+    for ( min::unsptr i = 0;
+	  i < min::size_of ( vp ); ++ i )
+    {
+	if ( i != 0 )
+	{
+	    out << " ";
+	    out << min::set_break;
+	}
+	pgen ( out, vp[i], gen_flags, f );
+    }
+
+    return out << " |}" << min::restore_indent;
+}
+
 static min::locatable_gen initiator;
 static min::locatable_gen terminator;
 static min::locatable_gen separator;
 
 // Execute pgen (below) in the case an object is to be
-// printed with the EXPRESSION_FLAG.
+// printed with the OBJ_EXP_FLAG.
 //
 template < typename T >
 static T pgen_expression

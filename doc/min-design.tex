@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 13, 2012}
+\date{June 15, 2012}
  
 \maketitle
 
@@ -11320,7 +11320,7 @@ are:
     \verb|  min::attr_ptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_ptr wap,|\ARGBREAK
+    \verb|( min::attr_ptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR} \\
 \end{tabular}\end{indpar}
@@ -11329,31 +11329,29 @@ are:
 \verb|struct min::| & \MINKEY{attr\_info}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::gen    value;|\ARGBREAK
+    \verb|  min::gen    flags;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|  min::unsptr flag_count;|\ARGBREAK
     \verb|  min::unsptr reverse_attr_count;|\ARGBREAK
     \verb|};|
+\LABEL{MIN::ATTR_INFO} \\
 \ttmindex{name}{in {\tt min::attr\_info}}
+\ttmindex{value}{in {\tt min::attr\_info}}
+\ttmindex{flags}{in {\tt min::attr\_info}}
 \ttmindex{value\_count}{in {\tt min::attr\_info}}
 \ttmindex{flag\_count}{in {\tt min::attr\_info}}
 \ttmindex{reverse\_attr\_count}{in {\tt min::attr\_info}}
-\LABEL{MIN::ATTR_INFO} \\
-\verb|typedef | & \verb|min::packed_vec<attr_info>|
-                       \verb|min::|\MINKEY{attr\_info\_vec}
-\LABEL{MIN::ATTR_INFO_VEC} \\
-\verb|min::attr_info_vec | & 
-                       \verb|min::|\MINKEY{attr\_info\_vec\_type}
-\LABEL{MIN::ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::attr_info_vec::ptr|
-                       \verb|min::|\MINKEY{attr\_info\_ptr}
-\LABEL{MIN::ATTR_INFO_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{get\_attrs}
-     \verb|( min::attr_ptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_ptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS} \\
-\verb|void min::| & \MINKEY{sort\_attr\_info} \verb|( min::gen v )|
+\verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
+    \verb|( min::attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_ATTR_INFO} \\
 \end{tabular}\end{indpar}
 
@@ -11361,27 +11359,21 @@ are:
 \verb|struct min::| & \MINKEY{reverse\_attr\_info}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::gen    value;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|};|
+\LABEL{MIN::REVERSE_ATTR_INFO} \\
 \ttmindex{name}{in {\tt min::reverse\_attr\_info}}
 \ttmindex{value\_count}{in {\tt min::reverse\_attr\_info}}
-\LABEL{MIN::REVERSE_ATTR_INFO} \\
-\verb|typedef | & \verb|min::packed_vec<reverse_attr_info>|\ARGBREAK
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec}
-\LABEL{MIN::REVERSE_ATTR_INFO_VEC} \\
-\verb|min::reverse_attr_info_vec | & 
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec\_type}
-\LABEL{MIN::REVERSE_ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::reverse_attr_info_vec::ptr|\ARGBREAK
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_ptr}
-\LABEL{MIN::REVERSE_ATTR_INFO_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}
-     \verb|( min::attr_ptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_ptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out, min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
-\verb|void min::| & \MINKEY{sort\_reverse\_attr\_info} \verb|( min::gen v )|
+\verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
+     \verb|( min::reverse_attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_REVERSE_ATTR_INFO} \\
 \end{tabular}\end{indpar}
 
@@ -11540,8 +11532,16 @@ member, the number of control codes in the attribute flag set in
 the {\tt flag\_count} member, and the number of associated
 reverse attribute names which have non-empty value multisets in the
 {\tt reverse\_attr\_count} member.
-If a name as only one component that is an {\em atom}, the name is returned
+
+In addition, the {\tt value} member is set to the attribute value if there
+is exactly one value, or to {\tt min::\EOL NONE()} if there is no value,
+or to {\tt min::\EOL MULTI\_\EOL VALUED()} if there is more than one value,
+and the {\tt flags} member is set to the low order 64 bits of the flags
+(or to {\tt 0} if there are no flags).
+
+If a name has only one component that is an {\em atom}, the name is returned
 as that {\em atom}; all other names are returned as {\em labels}.
+
 At least one of the three counts must be
 non-zero for an attribute, or else the attribute is treated as if it
 were not in the list of all attribute names.  In computing
@@ -11549,45 +11549,45 @@ were not in the list of all attribute names.  In computing
 did not exist, and the value of {\tt flag\_count} is the
 same as the value that would be returned by {\tt min::\EOL get\_\EOL flags}.
 
-The {\tt min::\EOL attr\_\EOL info} structs are stored in a packed vector
-returned by the {\tt min::\EOL get\_\EOL attrs} function
-as a \verb|min::gen| value.  This can be accessed by a read-only
-packed vector pointer (\pagref{MIN::PACKED_VEC_PTR_OF_GEN})
-of {\tt min::\EOL attr\_\EOL info\_\EOL ptr} type.
-Sample usage is:
-\begin{indpar}\begin{verbatim}
-min::gen airv = min::get_attrs ( ... );
-min::attr_info_ptr aip ( airv );
-for ( min::unsptr i = 0; i < aip->length; ++ i )
-{
-    min::attr_info ai = aip[i];
-    . . . . . . . . . . . . . .
-}
-\end{verbatim}\end{indpar}\label{ATTR-INFO-POINTER-EXAMPLE}
+Attributes accessed through the attribute vector are not returned unless
+the {\tt include\_\EOL attr\_\EOL vec} argument is {\tt true}.  These are
+just the attributes whose name is a small integer
+{\tt i} with {\tt 0 <= i < m}, where {\tt m} is the size of the object
+attribute vector.
+If the {\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
+macro is set to {\tt 1}, any attribute whose name is a label beginning
+with such an integer is also included.
+
+The {\tt min::\EOL attr\_\EOL info} structs are stored in an {\tt n}
+element vector `{\tt out}'
+that should be allocated to the stack.  If there are more than
+{\tt n} structs, only the first {\tt n}
+are returned, but the total number available is returned as the value of
+the {\tt min::\EOL get\_\EOL attrs} function, and this should be used
+to retry with a larger `{\tt out}' vector.
 
 The implementation dependent order of the \verb|attr_info|
 values returned by {\tt min::\EOL get\_\EOL attrs} may change if attribute
 values are added to or removed from the object or
 attribute flags are set or cleared, or if the object is reorganized.
 The {\tt min::\EOL sort\_\EOL attr\_\EOL info} function can be used
-to sort by attribute name
-the packed vector returned by {\tt min::\EOL get\_\EOL attrs}.
-A {\tt min::\EOL attr\_\EOL info} packed vector can be manipulated in other
-ways using its packed vector type information in
-{\tt min::\EOL attr\_\EOL info\_\EOL vec}
-and {\tt min::\EOL attr\_\EOL info\_\EOL vec\_\EOL type}:
-see Section~\itemref{PACKED-VECTORS}.
+to sort by attribute name the
+vector returned by {\tt min::\EOL get\_\EOL attrs}.
 
 The {\tt min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
 reverse attribute names associated
 with a particular object and attribute name stored in the attribute
-pointer.  In this case there is a {\tt min::\EOL reverse\_\EOL
+pointer.
+{\tt min::locate\ldots} must be used to set the attribute name to be used.
+There is a {\tt min::\EOL reverse\_\EOL
 attr\_\EOL info} struct for each reverse attribute name, and there is only
 one count member in this, the {\tt value\_count} member that is the number
 of values in the value multiset of the reverse attribute pointed at.
 A reverse attribute name with an empty value multiset is treated as if it
 were not in the list of reverse attribute names.
+The {\tt value} member is the reverse attribute value if there is only one
+value, or is {\tt min::\EOL MULTI\_\EOL VALUED()} otherwise.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
@@ -11647,23 +11647,26 @@ are:
     \verb|  min::attr_updptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR_UPDPTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_updptr wap,|\ARGBREAK
+    \verb|( min::attr_updptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb|( min::attr_updptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_updptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb|( min::attr_updptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_updptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out, min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{update}\ARGBREAK
-    \verb|( min::attr_updptr wap,|\ARGBREAK
+    \verb|( min::attr_updptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::UPDATE_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -11741,106 +11744,109 @@ are:
     \verb|  min::attr_insptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR_INSPTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb|( min::attr_insptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_insptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb|( min::attr_insptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_insptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out, min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{update}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::UPDATE_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::SET_OF_ATTR_INSPTR} \\
 \verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::SET1_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::ADD1_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::ADD1_TO_MULTISET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ONE} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::REMOVE_ONE1} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ALL} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::REMOVE_ALL1} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_FLAGS_OF_ATTR_INSPTR} \\
 \verb|void min::| & \MINKEY{set\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{clear\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{flip\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{set\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::SET_FLAG} \\
 \verb|bool min::| & \MINKEY{clear\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|bool min::| & \MINKEY{flip\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
 \end{tabular}\end{indpar}
@@ -16067,7 +16073,7 @@ In loose implementation: \\
     \verb|  min::attr_ptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_ptr wap,|\ARGBREAK
+    \verb|( min::attr_ptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR} \\
 \end{TABULAR}
@@ -16078,6 +16084,8 @@ In loose implementation: \\
 \verb|struct min::| & \MINKEY{attr\_info}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::gen    value;|\ARGBREAK
+    \verb|  min::gen    flags;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|  min::unsptr flag_count;|\ARGBREAK
     \verb|  min::unsptr reverse_attr_count;|\ARGBREAK
@@ -16088,24 +16096,13 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|typedef | & \verb|min::packed_vec<attr_info>|\ARGBREAK
-                       \verb|min::|\MINKEY{attr\_info\_vec}
-\LABEL{MIN::ATTR_INFO_VEC} \\
-\verb|min::attr_info_vec | & 
-                       \verb|min::|\MINKEY{attr\_info\_vec\_type}
-\LABEL{MIN::ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::attr_info_vec::ptr|\ARGBREAK
-                       \verb|min::|\MINKEY{attr\_info\_ptr}
-\LABEL{MIN::ATTR_INFO_PTR} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{get\_attrs}
-    \verb|( min::attr_ptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_ptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS} \\
-\verb|void min::| & \MINKEY{sort\_attr\_info} \verb|( min::gen v )|
+\verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
+    \verb|( min::attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_ATTR_INFO} \\
 \end{TABULAR}
 
@@ -16115,6 +16112,7 @@ In loose implementation: \\
 \verb|struct min::| & \MINKEY{reverse\_attr\_info}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::gen    value;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::REVERSE_ATTR_INFO} \\
@@ -16122,25 +16120,15 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
-\verb|typedef | & \verb|min::packed_vec<reverse_attr_info>|\ARGBREAK
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec}
-\LABEL{MIN::REVERSE_ATTR_INFO_VEC} \\
-\verb|min::reverse_attr_info_vec | & 
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec\_type}
-\LABEL{MIN::REVERSE_ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::reverse_attr_info_vec::ptr|\ARGBREAK
-                       \verb|min::|\MINKEY{reverse\_attr\_info\_ptr}
-\LABEL{MIN::REVERSE_ATTR_INFO_PTR} \\
-\end{TABULAR}
-
-\bigskip
-
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb|( min::attr_ptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_ptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
-\verb|void min::| & \MINKEY{sort\_reverse\_attr\_info} \verb|( min::gen v )|
+\verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
+     \verb|( min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n )|
 \LABEL{MIN::SORT_REVERSE_ATTR_INFO} \\
 \end{TABULAR}
 
@@ -16205,23 +16193,27 @@ In loose implementation: \\
     \verb|  min::attr_updptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR_UPDPTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_updptr wap,|\ARGBREAK
+    \verb|( min::attr_updptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb|( min::attr_updptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_updptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb|( min::attr_updptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_updptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{update}\ARGBREAK
-    \verb|( min::attr_updptr wap,|\ARGBREAK
+    \verb|( min::attr_updptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::UPDATE_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
@@ -16287,17 +16279,21 @@ In loose implementation: \\
     \verb|  min::attr_insptr ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTR_INSPTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_ATTR_INSPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb|( min::attr_insptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+     \verb|( min::attr_insptr ap,|\ARGBREAK
+     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
-\verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb|( min::attr_insptr ap )|
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+     \verb|( min::attr_insptr ap,|\ARGBREAK
+     \verb|  min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
 \end{TABULAR}
 
@@ -16305,7 +16301,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{update}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::UPDATE_OF_ATTR_INSPTR} \\
 \end{TABULAR}
@@ -16314,11 +16310,11 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::SET_OF_ATTR_INSPTR} \\
 \verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::SET1_OF_ATTR_INSPTR} \\
 \end{TABULAR}
@@ -16327,19 +16323,19 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::ADD1_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::ADD1_TO_MULTISET} \\
 \end{TABULAR}
@@ -16348,19 +16344,19 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ONE} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::REMOVE_ONE1} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ALL} \\
 \verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  min::gen v )|
 \LABEL{MIN::REMOVE_ALL1} \\
 \end{TABULAR}
@@ -16369,34 +16365,34 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|void min::| & \MINKEY{set\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_FLAGS_OF_ATTR_INSPTR} \\
 \verb|void min::| & \MINKEY{set\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{clear\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{flip\_some\_flags\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  const min::gen * in, unsigned n )|
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{set\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::SET_FLAG} \\
 \verb|bool min::| & \MINKEY{clear\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|bool min::| & \MINKEY{flip\_flag\RESIZE}\ARGBREAK
-    \verb|( min::attr_insptr wap,|\ARGBREAK
+    \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
 \end{TABULAR}
