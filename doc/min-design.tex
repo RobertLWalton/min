@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 15, 2012}
+\date{June 16, 2012}
  
 \maketitle
 
@@ -10948,11 +10948,9 @@ the object lists have the syntax:
 \begin{indpar}
 \emkey{hash-table-entry} ::= {\em hash-list}
 \\[1ex]
-\emkey{attribute-vector-entry} ::= {\em vector-list}
+\emkey{attribute-vector-entry} ::= {\em attribute-descriptor}
 \\[1ex]
 \emkey{hash-list} ::= {\em attribute-name-descriptor-pair}$\,^\star$
-\\[1ex]
-\emkey{vector-list} ::= {\em attribute-descriptor-option}
 \\[1ex]
 \emkey{attribute-name-descriptor-pair} ::=
     {\em attribute-name } {\em attribute-descriptor}
@@ -11033,11 +11031,11 @@ The long form of an {\em attribute-descriptor} is an
 {\em attribute-sublist} that gives  a possibly empty list of {\em values},
 an optional {\em double-arrow-sublist}, and a possibly empty
 list of flag control codes.
-If the {\em attribute-sublist}
-would be nothing but a one element list containing
-a single {\em value}, a common case, the {\em attribute-sublist}
-may be replaced by this single
-{\em value}, in the interests of optimizing memory.
+An {\em attribute-sublist} may be empty.
+The short form of an {\em attribute-descriptor} is just a single
+{\em value}, and is equivalent to an {\em attribute-sublist}
+that contains nothing but that {\em value}.
+This is a common case, and is optimized to conserve memory.
 
 An empty {\em attribute-sublist} is equivalent to a missing
 {\em attribute-name-descriptor-pair}.
@@ -11045,21 +11043,15 @@ An empty {\em attribute-sublist} is equivalent to a missing
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
-A {\em vector-list} may either be empty or have exactly one element.
-If it has one element, that element is
-the {\em attribute-descriptor} which is associated with the
-{\em attribute-name} that equals the vector index of the
-attribute vector element in which the {\em vector-list} is stored.
-If a vector index has no associated attribute, either its
-{\em vector-list} can be empty, or its
-{\em attribute-descriptor} can be the empty sublist.
+An {\em attribute-vector-entry} is just an {\em attribute-descriptor}
+stored in an attribute vector element whose index is the
+{\em attribute-name} associated with the {\em attribute-descriptor}.
 
 {\em Attribute-names} can be either {\em atoms} or {\em labels}.
 If an {\em attribute-name} is an integer {\em atom}
 that is in the range of a legal
-attribute vector index then a {\em vector-list} with one element that is
-an {\em attribute-descriptor}
-is put in the attribute vector element
+attribute vector index then the associated
+{\em attribute-descriptor} is put in the attribute vector element
 indexed by the integer.
 Otherwise an {\em attribute-name-descriptor-pair} containing
 the {\em attribute-name} is put
@@ -11101,11 +11093,9 @@ the object lists have the following alternative syntax:
 \begin{indpar}
 \emkey{hash-table-entry} ::= {\em node-list}
 \\[1ex]
-\emkey{attribute-vector-entry} ::= {\em vector-list}
+\emkey{attribute-vector-entry} ::= {\em node-descriptor}
 \\[1ex]
 \emkey{node-list} ::= {\em node-name-descriptor-pair}$\,^\star$
-\\[1ex]
-\emkey{vector-list} ::= {\em node-descriptor-option}
 \\[1ex]
 \emkey{node-name-descriptor-pair} ::=
     {\em attribute-name-component } {\em node-descriptor}
@@ -11166,19 +11156,17 @@ which describes the children of the node in the tree.
 A {\em hash-table-entry} is a {\em node-list} that gives alternating
 {\em attribute-name-component}/\EOL {\em node-\EOL de\-scrip\-tor} pairs for
 children of the object root node.  A {\em attribute-vector-entry}
-just describes one node that is a child of the root, namely the node
-whose {\em attribute-name-component} equals the vector index of the
-{\em attribute-vector-entry} in the object's attribute vector.
+is just a {\em node-descriptor} whose associated {\em attribute-name-component}
+is the index of the attribute vector element that contains the
+{\em attribute-vector-entry}.
 For a node that is a child of the object root,
 if the child node's {\em attribute-name-component} is an integer in the legal
 range of the object's attribute vector indices, then the child node's
-{\em node-descriptor} is stored in the {\em vector-list}
-that is stored in the object's attribute vector element.
-A {\em vector-list} is either empty or is a one element list whose element is a
-{\em node-descriptor}.  If a vector index is not the first component of
-any of the object's attribute names, then the corresponding {\em vector-list}
-can either be empty or can consist of just an empty {\em node-descriptor}
-{\em node-sublist}.
+{\em node-descriptor} is stored in
+the indexed vector element.
+If a vector index is not the first component of
+any of the object's attribute names, then the corresponding
+{\em attribute-vector-entry} must be an empty {\em node-sublist}.
 
 For a child of the root whose name component is not a legal attribute
 vector index, its {\em attribute-name-component}/{\em node-descriptor}

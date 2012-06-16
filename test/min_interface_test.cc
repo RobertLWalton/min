@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 15 08:14:31 EDT 2012
+// Date:	Fri Jun 15 20:33:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3748,7 +3748,7 @@ static bool check_values
     min_assert_print = false;
     bool ok = true;
 
-    min::gen values[n];
+    min::gen values[n], sortedp[n];
     min::unsptr m = min::get ( values, n, ap );
 
     if ( m != n )
@@ -3761,14 +3761,17 @@ static bool check_values
     {
         qsort ( values, n, sizeof ( min::gen ),
 	        compare_gen );
+	memcpy ( sortedp, p, n * sizeof ( min::gen ) );
+        qsort ( sortedp, n, sizeof ( min::gen ),
+	        compare_gen );
 	for ( min::unsptr i = 0; i < n; ++ i )
 	{
-	    if ( values[i] != p[i] )
+	    if ( values[i] != sortedp[i] )
 	    {
 	        cout << i << ": BAD VALUE: "
 		    << min::pgen ( values[i] )
 		    << " != "
-		    << min::pgen ( p[i] )
+		    << min::pgen ( sortedp[i] )
 		    << endl;
 		ok = false;
 		break;
@@ -4058,20 +4061,26 @@ void test_reverse_attribute_values
          << min::pgen ( rlabel1 ) << ", "
          << min::pgen ( label2 ) << ")" << endl;
 
-    min::gen values1[3] = { obj1, obj2, obj3 };
+    min::gen values1[8] =
+        { obj1, obj2, obj3,
+	  obj3, obj2, obj1,
+	  obj1, obj2 };
     min::locate ( ap, label1 );
     min::locate_reverse ( ap, rlabel1 );
     min::set ( ap, values1, 3 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 3 ) );
-#ifdef UNDEFINED_FOO
-    min::add_to_multiset ( ap, values1 + 3, 3 );
+    min::add_to_multiset ( ap, values1, 3 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 6 ) );
-    min::add_to_set ( ap, values1 + 4, 2 );
+    min::add_to_set ( ap, values1, 2 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 6 ) );
-    min::add_to_multiset ( ap, values1 + 6, 2 );
+    min::add_to_multiset ( ap, values1, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    // min::locate ( ap, label1 );
+    // min::locate_reverse ( ap, rlabel1 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 8 ) );
     min::add_to_set ( ap, values1, 8 );
@@ -4082,6 +4091,7 @@ void test_reverse_attribute_values
 	 << endl;
     min::locate ( ap, label2 );
     min::locate ( ap, label1 );
+    min::locate_reverse ( ap, rlabel1 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 7 ) );
     cout << "REMOVED "
@@ -4090,27 +4100,26 @@ void test_reverse_attribute_values
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1+1, 6 ) );
     cout << "REMOVED "
-         << min::remove_all ( ap, values1+7, 1 )
+         << min::remove_all ( ap, values1, 1 )
 	 << endl;
-    min::locate ( ap, label2 );
-    min::locate ( ap, label1 );
+    // min::locate ( ap, label2 );
+    // min::locate ( ap, label1 );
+    // min::locate_reverse ( ap, rlabel1 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1+1, 4 ) );
     cout << "REMOVED "
-         << min::remove_all ( ap, val2 )
+         << min::remove_all ( ap, obj2 )
 	 << endl;
-    min::gen values2[6] = { val1, val1,
-                            val5, val6, val6, val6 };
     PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2+1, 2 ) );
-    min::add_to_set ( ap, values2+1, 3 );
+        ( check_values ( ap, values1+2, 2 ) );
+    min::add_to_set ( ap, values1, 2 );
     PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2+1, 3 ) );
-    min::add_to_multiset ( ap, values2+3, 2 );
-    min::add_to_multiset ( ap, val1 );
+        ( check_values ( ap, values1, 4 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, obj3 )
+	 << endl;
     PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2, 6 ) );
-#endif // UNDEFINED_FOO
+        ( check_values ( ap, values1, 3 ) );
 
     min_assert_print = true;
 }
@@ -4176,11 +4185,11 @@ void test_object_attribute_level ( void )
 
     min_assert_print = false;
     for ( unsigned i = 0; i < 50; ++ i )
-        min::attr_push(vp) = min::LIST_END();
+        min::attr_push(vp) = min::EMPTY_SUBLIST();
     min_assert_print = true;
     MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
     MIN_ASSERT
-        ( min::attr ( vp, 21 ) == min::LIST_END() );
+        ( min::attr ( vp, 21 ) == min::EMPTY_SUBLIST() );
 
     min::locatei ( ap, 1 );
     MIN_ASSERT ( min::get ( ap ) == min::NONE() );
