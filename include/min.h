@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 15 02:53:37 EDT 2012
+// Date:	Sat Jun 16 13:42:23 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10420,21 +10420,11 @@ namespace min {
 
 	    start_vector ( ap.locate_dlp, name );
 	    min::gen c = current ( ap.locate_dlp );
-	    if ( is_list_end ( c ) )
-	    {
-		ap.state = ap_type::LOCATE_FAIL;
-#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		    ap.length = 0;
-#	        endif
-	    }
-	    else
-	    {
-		start_copy ( ap.dlp, ap.locate_dlp );
-		ap.state = ap_type::LOCATE_NONE;
-#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		    ap.length = 1;
-#	        endif
-	    }
+	    start_copy ( ap.dlp, ap.locate_dlp );
+	    ap.state = ap_type::LOCATE_NONE;
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		ap.length = 1;
+#	    endif
 
 	    return;
 	}
@@ -10462,22 +10452,11 @@ namespace min {
 	    ap.reverse_attr_name = NONE();
 
 	    start_vector ( ap.locate_dlp, name );
-	    min::gen c = current ( ap.locate_dlp );
-	    if ( is_list_end ( c ) )
-	    {
-		ap.state = ap_type::LOCATE_FAIL;
-#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		    ap.length = 0;
-#	        endif
-	    }
-	    else
-	    {
-		start_copy ( ap.dlp, ap.locate_dlp );
-		ap.state = ap_type::LOCATE_NONE;
-#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		    ap.length = 1;
-#	        endif
-	    }
+	    start_copy ( ap.dlp, ap.locate_dlp );
+	    ap.state = ap_type::LOCATE_NONE;
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		ap.length = 1;
+#	    endif
 
 	    return;
 	}
@@ -10515,23 +10494,11 @@ namespace min {
 		ap.reverse_attr_name = NONE();
 
 		start_vector ( ap.locate_dlp, i );
-		min::gen c = current ( ap.locate_dlp );
-		if ( is_list_end ( c ) )
-		{
-		    ap.state = ap_type::LOCATE_FAIL;
-    #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-			ap.length = 0;
-    #	        endif
-		}
-		else
-		{
-		    start_copy
-		        ( ap.dlp, ap.locate_dlp );
-		    ap.state = ap_type::LOCATE_NONE;
-    #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
-			ap.length = 1;
-    #	        endif
-		}
+		start_copy ( ap.dlp, ap.locate_dlp );
+		ap.state = ap_type::LOCATE_NONE;
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    ap.length = 1;
+#	        endif
 
 		return;
 	    }
@@ -10573,20 +10540,10 @@ namespace min {
 		    ap.reverse_attr_name = NONE();
 
 		    start_vector ( ap.locate_dlp, i );
-		    min::gen c =
-		        current ( ap.locate_dlp );
-		    if ( is_list_end ( c ) )
-		    {
-			ap.state = ap_type::LOCATE_FAIL;
-			ap.length = 0;
-		    }
-		    else
-		    {
-			start_copy
-			    ( ap.dlp, ap.locate_dlp );
-			ap.state = ap_type::LOCATE_NONE;
-			ap.length = 1;
-		    }
+		    start_copy
+			( ap.dlp, ap.locate_dlp );
+		    ap.state = ap_type::LOCATE_NONE;
+		    ap.length = 1;
 
 		    return;
 		}
@@ -10674,7 +10631,9 @@ namespace min {
 	    return c;
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
-	if ( is_sublist ( c )
+	if ( is_list_end ( c )
+	     ||
+	     is_sublist ( c )
 	     ||
 	     is_control_code ( c ) )
 	    return NONE();

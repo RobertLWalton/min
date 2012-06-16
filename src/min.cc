@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 15 04:27:32 EDT 2012
+// Date:	Sat Jun 16 04:23:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4889,7 +4889,8 @@ void min::compact
 	        break;
 	    start_sublist ( ap.dlp );
 	    for ( c = current ( ap.dlp );
-	          ! is_sublist && ! is_list_end ( c );
+	             ! is_sublist ( c )
+		  && ! is_list_end ( c );
 		  c = next ( ap.dlp ) );
 
 	    if ( ! is_sublist ( c ) )
@@ -5341,7 +5342,7 @@ void min::locate_reverse
     {
     case ap_type::INIT:
 	    MIN_ABORT
-	        ( "bad attribute reverse_locate call" );
+	        ( "bad attribute locate_reverse call" );
     case ap_type::LOCATE_FAIL:
     	    return;
     case ap_type::LOCATE_NONE:
@@ -5392,7 +5393,7 @@ void min::locate_reverse
     }
     start_sublist ( ap.dlp );
     for ( c = current ( ap.dlp );
-	  ! is_sublist && ! is_list_end ( c );
+	  ! is_sublist ( c ) && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -5490,7 +5491,7 @@ void min::relocate
     }
     start_sublist ( ap.dlp );
     for ( c = current ( ap.dlp );
-	  ! is_sublist && ! is_list_end ( c );
+	  ! is_sublist ( c ) && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -5557,7 +5558,7 @@ min::unsptr MINT::get
         return 0;
     start_sublist ( ap.dlp );
     for ( c = current ( ap.dlp );
-	  ! is_sublist && ! is_list_end ( c );
+	  ! is_sublist ( c ) && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -5629,7 +5630,7 @@ min::gen MINT::get
         return min::NONE();
     start_sublist ( ap.dlp );
     for ( c = current ( ap.dlp );
-	  ! is_sublist && ! is_list_end ( c );
+	  ! is_sublist ( c ) && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
