@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 16, 2012}
+\date{June 17, 2012}
  
 \maketitle
 
@@ -11263,6 +11263,14 @@ are:
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_ptr} \verb|ap ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_ptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_ptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb|( min::attr_ptr & ap,|\ARGBREAK
@@ -11281,6 +11289,9 @@ are:
 	  \verb|( min::attr_ptr & ap,|\ARGBREAK
 	  \verb|  min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_ATTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
 	  \verb|( min::attr_ptr & ap,|\ARGBREAK
@@ -11367,7 +11378,9 @@ are:
 
 Attribute pointers are tied to an object, which is specified by
 giving a vector pointer to the object to the constructor of the
-attribute pointer.
+attribute pointer.  The {\tt min::\EOL obj\_\EOL vec\_\EOL ptr\_\EOL of}
+function can be used to retrieve the vector pointer used by
+an attribute pointer.
 
 \ikey{Locator functions}{locator function}
 find attributes within an object and set the current
@@ -11588,6 +11601,14 @@ are:
 	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_updptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb|( min::attr_updptr & ap,|\ARGBREAK
@@ -11608,6 +11629,9 @@ are:
 	  \verb|( min::attr_updptr & ap,|\ARGBREAK
 	  \verb|  min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_OF_ATTR_UPDPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
 	  \verb|( min::attr_updptr & ap,|\ARGBREAK
@@ -11685,6 +11709,14 @@ are:
 	& \MINKEY{attr\_insptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
 \LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_insptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb|( min::attr_insptr & ap,|\ARGBREAK
@@ -11705,6 +11737,9 @@ are:
 	  \verb|( min::attr_insptr & ap,|\ARGBREAK
 	  \verb|  min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_OF_ATTR_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
 	  \verb|( min::attr_insptr & ap,|\ARGBREAK
@@ -16010,6 +16045,11 @@ In loose implementation: \\
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_ptr} \verb|ap ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_ptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_ptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -16127,6 +16167,11 @@ In loose implementation: \\
 	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_updptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -16213,6 +16258,11 @@ In loose implementation: \\
 	& \MINKEY{attr\_insptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
 \LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
+\verb|min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	  \verb|( min::attr_insptr & ap )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_INSPTR} \\
 \end{TABULAR}
 
 \bigskip

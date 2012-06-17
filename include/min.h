@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 05:34:38 EDT 2012
+// Date:	Sun Jun 17 08:04:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9735,6 +9735,11 @@ namespace min {
     // friends.
 
     template < class vecpt >
+    vecpt & obj_vec_ptr_of
+    	    ( min::unprotected::attr_ptr_type
+	          < vecpt > & ap );
+
+    template < class vecpt >
     void locate
 	    ( unprotected::attr_ptr_type
 	          < vecpt > & ap,
@@ -10200,6 +10205,9 @@ namespace min { namespace unprotected {
 
     // Friends:
 
+	friend vecpt & obj_vec_ptr_of<>
+		( min::unprotected
+		     ::attr_ptr_type<vecpt> & ap );
 	friend void locate<>
 		( min::unprotected
 		     ::attr_ptr_type<vecpt> & ap,
@@ -10406,6 +10414,14 @@ namespace min {
     // Inline functions.  See MIN design document.
 
     // Locate Functions:
+
+    template < class vecpt >
+    inline vecpt & obj_vec_ptr_of
+	    ( min::unprotected
+	         ::attr_ptr_type<vecpt> & ap )
+    {
+        return obj_vec_ptr_of ( ap.locate_dlp );
+    }
 
     template < class vecpt >
     inline void locatei
