@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 16 13:42:23 EDT 2012
+// Date:	Sun Jun 17 05:34:38 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10172,6 +10172,16 @@ namespace min { namespace unprotected {
 	    // is LOCATE_NONE or REVERSE_LOCATE_SUCCEED.
 	    // Otherwise is free for use as a temporary
 	    // working pointer.
+	    //
+	    // For a descriptor in a hash-list or child-
+	    // sublist, this points at the list element
+	    // that contains the descriptor.
+	    //
+	    // For a descriptor in an attribute vector
+	    // element, this points at first element of
+	    // the list headed by the vector element,
+	    // which is both the vector element and the
+	    // first element of the list.
 
     	list_ptr_type<vecpt> locate_dlp;
 	    // This is the value of dlp after the last
@@ -10182,7 +10192,7 @@ namespace min { namespace unprotected {
 	    // state is LOCATE_FAIL, this points at the
 	    // node-descriptor associated with the
 	    // longest initial segment of attr_name
-	    // which has an associted node-descriptor.
+	    // which has an associated node-descriptor.
 	    // This permits create_attr to be optimized.
 
     	list_ptr_type<vecpt> lp;
