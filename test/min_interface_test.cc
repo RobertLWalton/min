@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 08:12:07 EDT 2012
+// Date:	Sun Jun 17 10:46:49 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3645,7 +3645,7 @@ static bool check_attr_info
     min_assert_print = false;
     min::attr_info aiv[n+100];
     min::unsptr m = min::get_attrs
-        ( ap, aiv, n+100, include_attr_vec );
+        ( aiv, n+100, ap, include_attr_vec );
     min::sort_attr_info ( aiv, m );
 
     if ( m != n )
@@ -4123,7 +4123,7 @@ void test_reverse_attribute_values
 
     min::reverse_attr_info rinfo;
     MIN_ASSERT
-        (    min::get_reverse_attrs ( ap, & rinfo, 1 )
+        (    min::get_reverse_attrs ( & rinfo, 1, ap )
 	  == 1 );
     MIN_ASSERT ( rinfo.name == rlabel1 );
     MIN_ASSERT ( rinfo.value_count == 3 );
@@ -4137,7 +4137,7 @@ void test_reverse_attribute_values
 	  min::obj_vec_ptr_of ( ap ) );
 
     MIN_ASSERT
-        (    min::get_reverse_attrs ( ap1, & rinfo, 1 )
+        (    min::get_reverse_attrs ( & rinfo, 1, ap1 )
 	  == 1 );
     MIN_ASSERT ( rinfo.name == label1 );
     MIN_ASSERT ( rinfo.value_count == 1 );

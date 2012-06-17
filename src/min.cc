@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 05:34:53 EDT 2012
+// Date:	Sun Jun 17 10:43:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5879,8 +5879,8 @@ static bool compute_counts
 
 template < class vecpt >
 min::unsptr min::get_attrs
-	( MUP::attr_ptr_type < vecpt > & ap,
-	  min::attr_info * out, min::unsptr n,
+	( min::attr_info * out, min::unsptr n,
+	  MUP::attr_ptr_type < vecpt > & ap,
 	  bool include_attr_vec )
 {
     min::unsptr m = 0;  // Return value.
@@ -5945,22 +5945,22 @@ min::unsptr min::get_attrs
     return m;
 }
 template min::unsptr min::get_attrs
-	( min::attr_ptr & ap,
-	  min::attr_info * out, min::unsptr n,
+	( min::attr_info * out, min::unsptr n,
+	  min::attr_ptr & ap,
 	  bool include_attr_vec );
 template min::unsptr min::get_attrs
-	( min::attr_updptr & ap,
-	  min::attr_info * out, min::unsptr n,
+	( min::attr_info * out, min::unsptr n,
+	  min::attr_updptr & ap,
 	  bool include_attr_vec );
 template min::unsptr min::get_attrs
-	( min::attr_insptr & ap,
-	  min::attr_info * out, min::unsptr n,
+	( min::attr_info * out, min::unsptr n,
+	  min::attr_insptr & ap,
 	  bool include_attr_vec );
 
 template < class vecpt >
 min::unsptr min::get_reverse_attrs
-	( MUP::attr_ptr_type < vecpt > & ap,
-	  min::reverse_attr_info * out, min::unsptr n )
+	( min::reverse_attr_info * out, min::unsptr n,
+	  MUP::attr_ptr_type < vecpt > & ap )
 {
     typedef MUP::attr_ptr_type<vecpt> ap_type;
     min::unsptr m = 0;  // Return value
@@ -6026,14 +6026,14 @@ min::unsptr min::get_reverse_attrs
     return m;
 }
 template min::unsptr min::get_reverse_attrs
-	( min::attr_ptr & ap,
-	  min::reverse_attr_info * out, min::unsptr n );
+	( min::reverse_attr_info * out, min::unsptr n,
+	  min::attr_ptr & ap );
 template min::unsptr min::get_reverse_attrs
-	( min::attr_updptr & ap,
-	  min::reverse_attr_info * out, min::unsptr n );
+	( min::reverse_attr_info * out, min::unsptr n,
+	  min::attr_updptr & ap );
 template min::unsptr min::get_reverse_attrs
-	( min::attr_insptr & ap,
-	  min::reverse_attr_info * out, min::unsptr n );
+	( min::reverse_attr_info * out, min::unsptr n,
+	  min::attr_insptr & ap );
 
 // Compare function to qsort attr_info packed vector.
 //

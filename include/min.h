@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 08:04:44 EDT 2012
+// Date:	Sun Jun 17 10:41:12 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9814,17 +9814,17 @@ namespace min {
 
     template < class vecpt >
     min::unsptr get_attrs
-	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
-	      min::attr_info * out,
+	    ( min::attr_info * out,
 	      min::unsptr n,
+	      unprotected::attr_ptr_type
+	          < vecpt > & ap,
 	      bool include_attr_vec = false );
     template < class vecpt >
     min::unsptr get_reverse_attrs
-	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
-	      min::reverse_attr_info * out,
-	      min::unsptr n );
+	    ( min::reverse_attr_info * out,
+	      min::unsptr n,
+	      unprotected::attr_ptr_type
+	          < vecpt > & ap );
     template < class vecpt >
     min::gen update
 	    ( unprotected::attr_ptr_type
@@ -10251,16 +10251,16 @@ namespace min { namespace unprotected {
 		     ::attr_ptr_type<vecpt> & ap,
 		  unsigned n );
 	friend min::unsptr min::get_attrs<>
-		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
-	          min::attr_info * out,
+	        ( min::attr_info * out,
 		  min::unsptr n,
+		  min::unprotected
+		     ::attr_ptr_type<vecpt> & ap,
 	          bool include_attr_vec );
 	friend min::unsptr min::get_reverse_attrs<>
-		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
-	          min::reverse_attr_info * out,
-		  min::unsptr n );
+	        ( min::reverse_attr_info * out,
+		  min::unsptr n,
+		  min::unprotected
+		     ::attr_ptr_type<vecpt> & ap );
 	friend min::gen min::update<>
 		( min::attr_updptr & ap,
 		  min::gen v );
