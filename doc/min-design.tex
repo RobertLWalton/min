@@ -11345,8 +11345,8 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_ptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_ptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS} \\
 \verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
@@ -11368,8 +11368,8 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_ptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out, min::unsptr n )|
+     \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_ptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
 \verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n )|
@@ -11557,7 +11557,7 @@ just the attributes whose name is a small integer
 attribute vector.
 If the {\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
 macro is set to {\tt 1}, any attribute whose name is a label beginning
-with such an integer is also included.
+with such an integer is also not returned.
 
 The {\tt min::\EOL attr\_\EOL info} structs are stored in an {\tt n}
 element vector `{\tt out}'
@@ -11666,13 +11666,13 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_updptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_updptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_updptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out, min::unsptr n )|
+     \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_updptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
@@ -11774,13 +11774,13 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_insptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_insptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_insptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out, min::unsptr n )|
+     \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_insptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
@@ -16125,8 +16125,8 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_ptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_ptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS} \\
 \verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
@@ -16150,9 +16150,9 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_ptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out,|\ARGBREAK
-     \verb|  min::unsptr n )|
+     \verb|( min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_ptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
 \verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
      \verb|( min::reverse_attr_info * out,|\ARGBREAK
@@ -16233,14 +16233,14 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_updptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_updptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_updptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out,|\ARGBREAK
-     \verb|  min::unsptr n )|
+     \verb|( min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_updptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
 
@@ -16324,14 +16324,14 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-     \verb|( min::attr_insptr ap,|\ARGBREAK
-     \verb|  min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_insptr ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-     \verb|( min::attr_insptr ap,|\ARGBREAK
-     \verb|  min::reverse_attr_info * out,|\ARGBREAK
-     \verb|  min::unsptr n )|
+     \verb|( min::reverse_attr_info * out,|\ARGBREAK
+     \verb|  min::unsptr n,|\ARGBREAK
+     \verb|  min::attr_insptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
 \end{TABULAR}
 
