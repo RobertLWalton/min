@@ -3269,6 +3269,8 @@ min_interface_test.cc:XXXX assert:
 REMOVED 1
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
 

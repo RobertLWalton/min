@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 15 20:33:18 EDT 2012
+// Date:	Sun Jun 17 08:12:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4120,6 +4120,28 @@ void test_reverse_attribute_values
 	 << endl;
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 3 ) );
+
+    min::reverse_attr_info rinfo;
+    MIN_ASSERT
+        (    min::get_reverse_attrs ( ap, & rinfo, 1 )
+	  == 1 );
+    MIN_ASSERT ( rinfo.name == rlabel1 );
+    MIN_ASSERT ( rinfo.value_count == 3 );
+    MIN_ASSERT ( rinfo.value == min::MULTI_VALUED() );
+
+    min::obj_vec_ptr vp1 ( obj1 );
+    min::attr_ptr ap1 ( vp1 );
+    min::locate ( ap1, rlabel1 );
+    min::gen obj = min::new_stub_gen
+        ( (const min::stub * )
+	  min::obj_vec_ptr_of ( ap ) );
+
+    MIN_ASSERT
+        (    min::get_reverse_attrs ( ap1, & rinfo, 1 )
+	  == 1 );
+    MIN_ASSERT ( rinfo.name == label1 );
+    MIN_ASSERT ( rinfo.value_count == 1 );
+    MIN_ASSERT ( rinfo.value == obj  );
 
     min_assert_print = true;
 }
