@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 16 04:23:44 EDT 2012
+// Date:	Sun Jun 17 05:34:53 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4756,7 +4756,7 @@ void min::compact
 
 	while ( true )
 	{
-	    if ( ! is_sublist ( current ( ap.dlp ) ) )
+	    if ( ! is_sublist ( c ) )
 	    {
 	        locate_length = ap.length;
 		start_copy ( ap.locate_dlp, ap.dlp );
@@ -4803,17 +4803,17 @@ void min::compact
 	    ++ ap.length;
 	}
 
-	if ( locate_length == len )
-	{
-	    MIN_ASSERT ( ap.length == locate_length );
-	    ap.state = ap_type::LOCATE_NONE;
-	}
-	else if ( allow_partial_labels
-	          &&
-		  locate_length > 0 )
+	if ( allow_partial_labels
+	     &&
+	     locate_length > 0 )
 	{
 	    ap.length = locate_length;
 	    start_copy ( ap.dlp, ap.locate_dlp );
+	    ap.state = ap_type::LOCATE_NONE;
+	}
+	else if ( ap.length == len )
+	{
+	    start_copy ( ap.locate_dlp, ap.dlp );
 	    ap.state = ap_type::LOCATE_NONE;
 	}
 	else
@@ -4842,8 +4842,9 @@ void min::compact
 
     // Continue relocation after ap.locate_dlp is
     // positioned at beginning of hash-list or
-    // non-empty vector-list.  ap.length must be >= 1.
-    // Result is a setting of ap.locate_dlp only.
+    // vector-element treated as a list.  ap.length
+    // must be >= 1.  Result is a setting of
+    // ap.locate_dlp only.
     // 
     template < class vecpt >
     void MINT::relocate
@@ -5470,16 +5471,8 @@ void min::relocate
 
     start_copy ( ap.dlp, ap.locate_dlp );
 
-    switch ( ap.state )
-    {
-    case ap_type::LOCATE_FAIL:
-    case ap_type::LOCATE_NONE:
-    case ap_type::LOCATE_ANY:
-    case ap_type::REVERSE_LOCATE_FAIL:
-	return;
-    }
-
-    // state == REVERSE_LOCATE_SUCCEED
+    if ( ap.state != ap_type::REVERSE_LOCATE_SUCCEED )
+        return;
 
     start_copy ( ap.dlp, ap.locate_dlp );
 

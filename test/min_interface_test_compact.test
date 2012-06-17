@@ -3319,57 +3319,43 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
-    min::attr ( vp, 21 ) == min::LIST_END() true.
+    min::attr ( vp, 21 ) == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == min::NONE() true.
 ../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-min_interface_test.cc:XXXX assert:
-    min::get ( ap ) == lab1 true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
+    p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
+    total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab1 true.
 ../include/min.h:XXXX assert:
@@ -3378,6 +3364,92 @@ min_interface_test.cc:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+min_interface_test.cc:XXXX assert:
+    min::get ( ap ) == lab1 true.
+../include/min.h:XXXX assert:
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab2 true.
 ../include/min.h:XXXX assert:
@@ -3386,6 +3458,12 @@ min_interface_test.cc:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab3 true.
 ../include/min.h:XXXX assert:
@@ -3394,6 +3472,12 @@ min_interface_test.cc:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
 min_interface_test.cc:XXXX assert:
@@ -3683,6 +3767,33 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+2, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 4 ) true.
+REMOVED 1
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
