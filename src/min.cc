@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 10:43:08 EDT 2012
+// Date:	Sun Jun 17 15:52:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8391,17 +8391,59 @@ static T pgen_obj
 
     return out << "{| " << min::save_indent;
 
+    bool include_attr_vec = false;
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
     {
 	if ( i != 0 )
+	    out << " " << min::set_break;
+
+        min::gen v = vp[i];
+	if ( min::is_sublist ( v ) )
 	{
-	    out << " ";
-	    out << min::set_break;
+	    out << "**";
+	    include_attr_vec = true;
 	}
-	pgen ( out, vp[i], gen_flags, f );
+	else
+	    pgen ( out, vp[i], gen_flags, f );
     }
 
+    min::attr_info first_info[1000];
+    min::attr_info * info = first_info;
+    min::unsptr m = min::get_attrs ( info, 1000, ap );
+
+    min::attr_info second_info[m];
+    if ( m > 1000 )
+    {
+	info = second_info;
+        min::get_attrs ( info, m, ap );
+    }
+
+    for ( min::unsptr i = 0; i < m; ++ i )
+    {
+        out << "; " << min::set_break
+	    << info[i].name;
+	// TBD flags
+	min::unsptr c = info[i].value_count;
+	if ( c == 1 )
+	    out << " = " << pgen ( out, info[i].value,
+	                                gen_flags, f );
+	else if ( c > 1 )
+	{
+	    return out << "{: " << min::save_indent;
+	    min::gen v[c];
+	    min::locate ( ap, info[i].name );
+	    min::get ( v, c, ap );
+	    for ( min::unsptr j = 0; j < c; ++ j )
+	    {
+	        if ( j > 0 )
+		    out << "; " << min::set_break;
+		out << pgen ( out, v, gen_flags, f );
+	    }
+	    out << " :}" << min::restore_indent;
+	}
+	// TBD reverse attributes.
+    }
     return out << " |}" << min::restore_indent;
 }
 
