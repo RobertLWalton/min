@@ -14,23 +14,25 @@
 Initialize!
 min_interface_test.cc:XXXX assert:
     begin_stub_region >= (min::stub *) min::internal::stub_base true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 TEST INITIALIZE CALLED
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 
 Start Test!
 
@@ -460,7 +462,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 34
+initial stubs allocated = 36
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -1233,14 +1235,14 @@ min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 11
+upv1->control = 12
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-upv2->control = 12
+upv2->control = 13
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1420,8 +1422,6 @@ min_interface_test.cc:XXXX assert:
     ::id_map->occupied == 0 true.
 min_interface_test.cc:XXXX assert:
     ::id_map->next == 1 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
