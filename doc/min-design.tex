@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 17, 2012}
+\date{June 18, 2012}
  
 \maketitle
 
@@ -8125,10 +8125,9 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \ttmindex{implicit\_postfix}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const char * const *     special_names;|\\
-    \verb|  min::uns32               special_names_size;|\\
+    \verb|  min::packed_vec_ptr<const char *>|\\
+    \verb|                           special_names;|\\
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
-\ttmindex{special\_names\_size}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
     \verb|  min::suppress_matrix     suppress_matrix;|\\
@@ -8136,26 +8135,59 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
     \verb|  min::uns32               str_max_length;|\\
-    \verb|  min::packed_vec_ptr<min::gen>  exp_ok_attrs;|\\
-    \verb|};|
+    \verb|  min::packed_vec_ptr<min::gen>|\\
+    \verb|                           exp_ok_attrs;|\\
 \ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
+\end{tabular}\end{indpar}
+\begin{indpar}[5em]\begin{tabular}{l}
+    \verb|  min::packed_vec_ptr<const char *>|\\
+    \verb|                           flag_names;|\\
+    \verb|};|
+\ttmindex{flag\_names}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const char * const * min::|
+\verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  min::uns32 gen_flags,|\ARGBREAK
+    \verb|  const min::gen_format * g );|
+\LABEL{MIN::DEFAULT_PGEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::packed_vec_ptr<const char *> min::|
     & \TTKEY{standard\_\EOL special\_\EOL names}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
-\verb|const min::uns32 ::|
-    & \TTKEY{standard\_\EOL special\_\EOL names\_\EOL size}
-\LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::suppress_matrix min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \verb|    // All entries false except:|\\
-\verb|    //     [B][.] for B == '(', '[', '{', 0A8 (|\LAQUOTE\verb|)| \\
-\verb|    //     [.][C] for C == ')', ']', '}', 0B8 (|\RAQUOTE\verb|), ',', ';'|
+\verb|    //     [B][.] for B == '(', '[', '{', 0xA8 (|\LAQUOTE\verb|)| \\
+\verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
+                                                       \verb|), ',', ';'|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<min::gen> min::|%
+    \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
+\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+\verb|    // 2 element (first element ".") min::gen labels for:| \\
+\verb|    //     .initiator, .separator, .terminator, .middle,| \\
+\verb|    //     .name, .arguments, .keys, .operator, .position|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<const char *> min::|%
+    \MINKEY{default\_\EOL flag\_\EOL names}
+\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
+\verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
+\verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
+\verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
+\verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
+\verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8168,10 +8200,11 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
-    \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
+    \verb|  min::NULL_STUB       // special_names|\ARGBREAK
     \verb|  min::default_suppress_matrix,|\ARGBREAK
     \verb|  8,                   // str_max_length|\ARGBREAK
     \verb|  min::default_exp_ok_attrs|\ARGBREAK
+    \verb|  min::default_flag_names|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -8283,14 +8316,20 @@ the object has \underline{neither}
 an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
 
 \item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
-\item[\ttmkey{special\_names\_size}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if
+This member is only enabled if
 {\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
-and {\tt spec\-ial\_\EOL names} is not {\tt NULL}.
+and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
 
 {\tt special\_names[i]} is printed as the representation of
 a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
-{\tt 0 <= i < special\_\EOL names\_\EOL size}.
+{\tt 0 <= i < special\_\EOL names->\EOL length}.
+
+WARNING: The {\tt special\_\EOL names} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt special\_\EOL names} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
 
 \item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
 This member controls the {\tt min::suppressible\_space} operation, which
@@ -8327,7 +8366,8 @@ is assumed to be a newline character.  A space is
 never output if it would be at the end of a line.
 
 {\tt suppress\_matrix} must be a matrix of
-{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX}).
+{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX})
+stored in {\tt static} memory.
 
 \item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
 This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
@@ -8345,6 +8385,20 @@ WARNING: The {\tt exp\_ok\_attrs} member of a {\tt min::gen\_format} is
 \underline{not} locatable by the ACC, and its value must therefore be
 stored elsewhere in a locatable variable.  It is expected that values of
 {\tt exp\_\EOL ok\_\EOL attrs} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
+
+\item[\ttmkey{flag\_names}{in {\tt min::gen\_format}}]
+This member is only enabled if it
+is not {\tt min::\EOL NULL\_\EOL STUB}.
+
+{\tt flag\_names[i]} is printed as the representation of
+control flag {\tt 1 <{}< i} of an attribute.
+
+WARNING: The {\tt flag\_\EOL names} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt flag\_\EOL names} will never be garbage collected and
 will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
 {\tt min::\EOL locatable\_\EOL gen} variables.
 
@@ -14934,19 +14988,39 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
-\verb|const char * const * min::|
-    & \TTKEY{standard\_\EOL special\_\EOL names}
-\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
-\verb|const min::uns32 ::|
-    & \TTKEY{standard\_\EOL special\_\EOL names\_\EOL size}
-\LABEL{MIN::STANDARD_SPECIAL_NAMES_SIZE} \\
+\begin{TABULAR}{2.0in}
+\verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  min::uns32 gen_flags,|\ARGBREAK
+    \verb|  const min::gen_format * g );|
+\LABEL{MIN::DEFAULT_PGEN} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
+\bigskip
+
+\begin{TABULAR}{2.0in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>}\ARGBREAK
+    \verb|min::|\MINKEY{standard\_\EOL special\_\EOL names}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
 \multicolumn{2}{l}{\tt min::suppress\_matrix}\ARGBREAK
     \verb|min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>}\ARGBREAK
+    \verb|min::|\MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
+\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>}\ARGBREAK
+    \verb|min::|\MINKEY{default\_\EOL flag\_\EOL names}
+\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
 \end{TABULAR}
 
 \begin{TABULAR}{0.8in}

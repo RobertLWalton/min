@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 10:41:12 EDT 2012
+// Date:	Mon Jun 18 05:54:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -330,10 +330,6 @@ namespace min {
     inline min::gen ERROR ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF8 ); }
-
-    const unsigned standard_special_names_size = 8;
-    extern const char * standard_special_names
-			[standard_special_names_size];
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
@@ -11911,10 +11907,24 @@ namespace min {
 	const char *         special_postfix;
 	const char *         implicit_prefix;
 	const char *         implicit_postfix;
-	const char * const * special_names;
-	uns32                special_names_size;
+	packed_vec_ptr<const char *>
+	                     special_names;
 	min::suppress_matrix suppress_matrix;
+	uns32		     str_max_length;
+	packed_vec_ptr<min::gen>
+			     exp_ok_attrs;
+	packed_vec_ptr<const char *>
+	                     flag_names;
     };
+
+    extern packed_vec_ptr<const char *>
+           standard_special_names;
+
+    extern packed_vec_ptr<min::gen>
+           default_exp_ok_attrs;
+
+    extern packed_vec_ptr<const char *>
+           default_flag_names;
 
     extern const gen_format default_gen_format;
 
@@ -11927,10 +11937,9 @@ namespace min {
         SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
         SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
         SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
-	EXPRESSION_FLAG			= ( 1 << 8 ),
-	SUBOBJ_ID_FLAG			= ( 1 << 9 ),
-	OBJ_ID_FLAG			= ( 1 << 10 ),
-	FLUSH_ID_MAP_FLAG		= ( 1 << 11 ),
+	OBJ_EXP_FLAG			= ( 1 << 8 ),
+	OBJ_ID_FLAG			= ( 1 << 9 ),
+	STR_ID_FLAG			= ( 1 << 10 )
     };
 
     min::printer default_pgen

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 17 15:52:39 EDT 2012
+// Date:	Mon Jun 18 04:29:35 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,10 +63,94 @@ min::uns32 MINT::unicode_class_size =
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
 
-char const * min::standard_special_names
-		  [min::standard_special_names_size] =
+static min::packed_vec<const char *>
+    const_char_ptr_packed_vec_type
+        ( "min.cc::const_char_ptr_packed_vec_type" );
+
+static min::uns32 gen_element_disp[2] =
+    { 0, min::DISP_END };
+
+static min::packed_vec<min::gen> gen_packed_vec_type
+    ( "min.cc::gen_packed_vec_type",
+      gen_element_disp );
+
+static const unsigned standard_special_names_length = 8;
+static char const * standard_special_names_value
+		  [::standard_special_names_length] =
     { "MISSING", "NONE", "ANY", "MULTI_VALUED",
       "UNDEFINED", "SUCCESS", "FAILURE", "ERROR" };
+min::packed_vec_ptr<const char *>
+    min::standard_special_names;
+static min::locatable_var
+	< min::packed_vec_ptr<const char *> >
+    standard_special_names;
+
+min::packed_vec_ptr<min::gen>
+    min::default_exp_ok_attrs;
+static min::locatable_var
+	< min::packed_vec_ptr<min::gen> >
+    default_exp_ok_attrs;
+
+static const unsigned default_flag_names_length = 256;
+static char const * default_flag_names_value
+		  [::default_flag_names_length] =
+    { "!", "#", "$", "%", "&", "*",
+      "+", "-", "/", "=", "?", "@",
+
+      "a", "b", "c", "d", "e", "f", "g",
+      "h", "i", "j", "k", "l", "m",
+      "n", "o", "p", "q", "r", "s", "t",
+      "u", "v", "w", "x", "y", "z",
+
+      "A", "B", "C", "D", "E", "F", "G",
+      "H", "I", "J", "K", "L", "M",
+      "N", "O", "P", "Q", "R", "S", "T",
+      "U", "V", "W", "X", "Y", "Z",
+
+      "~!", "~#", "~$", "~%", "~&", "~*",
+      "~+", "~-", "~/", "~=", "~?", "~@",
+
+      "~a", "~b", "~c", "~d", "~e", "~f", "~g",
+      "~h", "~i", "~j", "~k", "~l", "~m",
+      "~n", "~o", "~p", "~q", "~r", "~s", "~t",
+      "~u", "~v", "~w", "~x", "~y", "~z",
+
+      "~A", "~B", "~C", "~D", "~E", "~F", "~G",
+      "~H", "~I", "~J", "~K", "~L", "~M",
+      "~N", "~O", "~P", "~Q", "~R", "~S", "~T",
+      "~U", "~V", "~W", "~X", "~Y", "~Z",
+
+      "^!", "^#", "^$", "^%", "^&", "^*",
+      "^+", "^-", "^/", "^=", "^?", "^@",
+
+      "^a", "^b", "^c", "^d", "^e", "^f", "^g",
+      "^h", "^i", "^j", "^k", "^l", "^m",
+      "^n", "^o", "^p", "^q", "^r", "^s", "^t",
+      "^u", "^v", "^w", "^x", "^y", "^z",
+
+      "^A", "^B", "^C", "^D", "^E", "^F", "^G",
+      "^H", "^I", "^J", "^K", "^L", "^M",
+      "^N", "^O", "^P", "^Q", "^R", "^S", "^T",
+      "^U", "^V", "^W", "^X", "^Y", "^Z",
+
+      "\\!", "\\#", "\\$", "\\%", "\\&", "\\*",
+      "\\+", "\\-", "\\/", "\\=", "\\?", "\\@",
+
+      "\\a", "\\b", "\\c", "\\d", "\\e", "\\f", "\\g",
+      "\\h", "\\i", "\\j", "\\k", "\\l", "\\m",
+      "\\n", "\\o", "\\p", "\\q", "\\r", "\\s", "\\t",
+      "\\u", "\\v", "\\w", "\\x", "\\y", "\\z",
+
+      "\\A", "\\B", "\\C", "\\D", "\\E", "\\F", "\\G",
+      "\\H", "\\I", "\\J", "\\K", "\\L", "\\M",
+      "\\N", "\\O", "\\P", "\\Q", "\\R", "\\S", "\\T",
+      "\\U", "\\V", "\\W", "\\X", "\\Y", "\\Z"
+    };
+min::packed_vec_ptr<const char *>
+    min::default_flag_names;
+static min::locatable_var
+	< min::packed_vec_ptr<const char *> >
+    default_flag_names;
 
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
@@ -228,6 +312,49 @@ void MINT::initialize ( void )
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[HUGE_OBJ]
     	= & obj_scavenger_routine;
+
+    {
+	min::packed_vec_insptr<const char *> p =
+	    ::const_char_ptr_packed_vec_type.new_stub
+		( ::standard_special_names_length );
+	::standard_special_names = p;
+	min::standard_special_names = p;
+	min::push ( p, ::standard_special_names_length,
+		       ::standard_special_names_value );
+    }
+
+    {
+	min::packed_vec_insptr<min::gen> p =
+	    ::gen_packed_vec_type.new_stub ( 9 );
+	::default_exp_ok_attrs = p;
+	min::default_exp_ok_attrs = p;
+	* (const min::stub **)
+	& min::default_gen_format.exp_ok_attrs = p;
+
+	min::push ( p, 9 );
+	p[0] = min::new_lab_gen ( ".", "initiator" );
+	p[1] = min::new_lab_gen ( ".", "separator" );
+	p[2] = min::new_lab_gen ( ".", "terminator" );
+	p[3] = min::new_lab_gen ( ".", "middle" );
+	p[4] = min::new_lab_gen ( ".", "name" );
+	p[5] = min::new_lab_gen ( ".", "arguments" );
+	p[6] = min::new_lab_gen ( ".", "keys" );
+	p[7] = min::new_lab_gen ( ".", "operator" );
+	p[8] = min::new_lab_gen ( ".", "position" );
+    }
+
+    {
+	min::packed_vec_insptr<const char *> p =
+	    ::const_char_ptr_packed_vec_type.new_stub
+		( ::default_flag_names_length );
+	::default_flag_names = p;
+	min::default_flag_names = p;
+	* (const min::stub **)
+	& min::default_gen_format.flag_names = p;
+
+	min::push ( p, ::default_flag_names_length,
+		       ::default_flag_names_value );
+    }
 
     for ( min::initializer * i = MINT::last_initializer;
           i != NULL; i = i->previous )
@@ -7030,8 +7157,11 @@ const min::gen_format min::default_gen_format =
     "[: ", " ", " :]",
     "[$ ", " $]",
     "[. ", " .]",
-    NULL, 0,
-    min::default_suppress_matrix
+    min::NULL_STUB,
+    min::default_suppress_matrix,
+    8,
+    min::NULL_STUB, // Reset by initialization.
+    min::NULL_STUB  // Reset by initialization.
 };
 
 const min::line_break min::default_line_break =
@@ -7042,14 +7172,14 @@ const min::line_break min::default_line_break =
 const min::print_format min::default_print_format =
 {
     min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG,
-    min::EXPRESSION_FLAG,
+    min::OBJ_EXP_FLAG,
     & min::default_gen_format
 };
 
 min::print_format min::ostream_print_format =
 {
     min::ASCII_FLAG + min::GRAPHIC_FLAGS,
-    min::EXPRESSION_FLAG,
+    min::OBJ_EXP_FLAG,
     & min::default_gen_format
 };
 
@@ -8389,7 +8519,12 @@ static T pgen_obj
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
 
-    return out << "{| " << min::save_indent;
+    min::uns32 name_flags = gen_flags;
+    name_flags |= min::GRAPHIC_STR_FLAG;
+    name_flags &= ~ min::BRACKET_STR_FLAG;
+    name_flags &= ~ min::BRACKET_LAB_FLAG;
+
+    out << "{| " << min::save_indent;
 
     bool include_attr_vec = false;
     for ( min::unsptr i = 0;
@@ -8421,16 +8556,22 @@ static T pgen_obj
 
     for ( min::unsptr i = 0; i < m; ++ i )
     {
-        out << "; " << min::set_break
-	    << info[i].name;
-	// TBD flags
+        out << "; " << min::set_break;
+	pgen ( out, info[i].name, name_flags, f );
+	if ( info[i].flag_count > 0 )
+	{
+	    // TBD flags
+	}
 	min::unsptr c = info[i].value_count;
 	if ( c == 1 )
-	    out << " = " << pgen ( out, info[i].value,
-	                                gen_flags, f );
+	{
+	    out << " = " << min::set_break;
+	    pgen ( out, info[i].value, gen_flags, f );
+	}
 	else if ( c > 1 )
 	{
-	    return out << "{: " << min::save_indent;
+	    out << " = " << min::set_break
+	        << "{: " << min::save_indent;
 	    min::gen v[c];
 	    min::locate ( ap, info[i].name );
 	    min::get ( v, c, ap );
@@ -8438,11 +8579,51 @@ static T pgen_obj
 	    {
 	        if ( j > 0 )
 		    out << "; " << min::set_break;
-		out << pgen ( out, v, gen_flags, f );
+		pgen ( out, v, gen_flags, f );
 	    }
 	    out << " :}" << min::restore_indent;
 	}
-	// TBD reverse attributes.
+	c = info[i].reverse_attr_count;
+	if ( c > 0 )
+	{
+	    min::reverse_attr_info rinfo[c];
+	    min::locate ( ap, info[i].name );
+	    min::get_reverse_attrs ( rinfo, c, ap );
+	    for ( min::unsptr j = 0; j < c; ++ j )
+	    {
+		out << "; " << min::set_break;
+		pgen ( out, info[i].name,
+		            name_flags, f );
+		if ( c == 1 )
+		{
+		    out << " = " << min::set_break;
+		    pgen ( out, rinfo[j].value,
+		                gen_flags, f );
+		}
+		else if ( c > 1 )
+		{
+		    out << " = " << min::set_break
+		        << "{: " << min::save_indent;
+		    min::gen v[c];
+		    min::locate_reverse
+		        ( ap, rinfo[i].name );
+		    min::get ( v, c, ap );
+		    for ( min::unsptr k = 0;
+		          k < c; ++ k )
+		    {
+			if ( k > 0 )
+			    out << "; "
+			        << min::set_break;
+			pgen ( out, v[k],
+			       gen_flags, f );
+		    }
+		    out << " :}" << min::restore_indent;
+		}
+		out << min::set_break << " = ";
+		pgen ( out, rinfo[j].name,
+		       name_flags, f );
+	    }
+	}
     }
     return out << " |}" << min::restore_indent;
 }
@@ -8455,7 +8636,7 @@ static min::locatable_gen separator;
 // printed with the OBJ_EXP_FLAG.
 //
 template < typename T >
-static T pgen_expression
+static T pgen_exp
 	( T out,
 	  min::gen v,
 	  min::uns32 gen_flags,
@@ -8673,7 +8854,7 @@ static T pgen
 
 	if ( allow_special_name
 	     &&
-	     0xFFFFFF - min::standard_special_names_size
+	     0xFFFFFF - ::standard_special_names_length
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
@@ -8683,9 +8864,9 @@ static T pgen
 		<< postfix;
 	else if ( allow_special_name
 	          &&
-		  index < f->special_names_size
+		  f->special_names != min::NULL_STUB
 	          &&
-		  f->special_names != NULL )
+		  index < f->special_names->length )
 	    return out << prefix
 	        << f->special_names[index]
 		<< postfix;
@@ -8699,11 +8880,11 @@ static T pgen
     }
     else if ( min::is_stub ( v ) )
     {
-        if ( ( gen_flags & min::EXPRESSION_FLAG )
+        if ( ( gen_flags & min::OBJ_EXP_FLAG )
 	     &&
 	     min::is_obj ( v ) )
 	{
-	    ::pgen_expression<T>
+	    ::pgen_exp<T>
 	        ( out, v, gen_flags, f, pgen );
 	    return out;
 	}
