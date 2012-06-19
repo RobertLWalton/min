@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 18 04:29:35 EDT 2012
+// Date:	Tue Jun 19 06:42:27 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,16 @@ min::uns32 MINT::unicode_class_size =
 
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
+
+min::locatable_gen min::dot_initiator;
+min::locatable_gen min::dot_separator;
+min::locatable_gen min::dot_terminator;
+min::locatable_gen min::dot_middle;
+min::locatable_gen min::dot_name;
+min::locatable_gen min::dot_arguments;
+min::locatable_gen min::dot_keys;
+min::locatable_gen min::dot_operator;
+min::locatable_gen min::dot_position;
 
 static min::packed_vec<const char *>
     const_char_ptr_packed_vec_type
@@ -313,6 +323,25 @@ void MINT::initialize ( void )
     MINT::scavenger_routines[HUGE_OBJ]
     	= & obj_scavenger_routine;
 
+    min::dot_initiator =
+        min::new_lab_gen ( ".", "initiator" );
+    min::dot_separator =
+        min::new_lab_gen ( ".", "separator" );
+    min::dot_terminator =
+        min::new_lab_gen ( ".", "terminator" );
+    min::dot_middle =
+        min::new_lab_gen ( ".", "middle" );
+    min::dot_name =
+        min::new_lab_gen ( ".", "name" );
+    min::dot_arguments =
+        min::new_lab_gen ( ".", "arguments" );
+    min::dot_keys =
+        min::new_lab_gen ( ".", "keys" );
+    min::dot_operator =
+        min::new_lab_gen ( ".", "operator" );
+    min::dot_position =
+        min::new_lab_gen ( ".", "position" );
+
     {
 	min::packed_vec_insptr<const char *> p =
 	    ::const_char_ptr_packed_vec_type.new_stub
@@ -331,16 +360,15 @@ void MINT::initialize ( void )
 	* (const min::stub **)
 	& min::default_gen_format.exp_ok_attrs = p;
 
-	min::push ( p, 9 );
-	p[0] = min::new_lab_gen ( ".", "initiator" );
-	p[1] = min::new_lab_gen ( ".", "separator" );
-	p[2] = min::new_lab_gen ( ".", "terminator" );
-	p[3] = min::new_lab_gen ( ".", "middle" );
-	p[4] = min::new_lab_gen ( ".", "name" );
-	p[5] = min::new_lab_gen ( ".", "arguments" );
-	p[6] = min::new_lab_gen ( ".", "keys" );
-	p[7] = min::new_lab_gen ( ".", "operator" );
-	p[8] = min::new_lab_gen ( ".", "position" );
+	min::push ( p ) = min::dot_initiator;
+	min::push ( p ) = min::dot_separator;
+	min::push ( p ) = min::dot_terminator;
+	min::push ( p ) = min::dot_middle;
+	min::push ( p ) = min::dot_name;
+	min::push ( p ) = min::dot_arguments;
+	min::push ( p ) = min::dot_keys;
+	min::push ( p ) = min::dot_operator;
+	min::push ( p ) = min::dot_position;
     }
 
     {
@@ -2402,16 +2430,11 @@ min::phrase_position_vec_insptr min::init
     return vec;
 }
 
-static min::locatable_gen position;
-
 min::phrase_position_vec min::position_of
 	( min::obj_vec_ptr & vp )
 {
-    if ( ::position == MISSING() )
-        ::position =
-	    min::new_lab_gen ( ".", "position" );
     min::attr_ptr ap ( vp );
-    min::locate ( ap, ::position );
+    min::locate ( ap, min::dot_position );
     min::gen v = min::get ( ap );
     return min::phrase_position_vec ( v );
 }
@@ -8500,6 +8523,38 @@ void min::pwidth ( min::uns32 & column,
 // Printing General values
 // -------- ------- ------
 
+// Execute pgen (below) in case OBJ_ID_FLAG is
+// effective.
+//
+template < typename T >
+static T pgen_id
+	( T out,
+	  min::gen v );
+template <>
+static min::printer pgen_id<min::printer>
+	( min::printer printer,
+	  min::gen v )
+{
+    min::uns32 id =
+        min::find_or_add
+	    ( printer->id_map, min::stub_of ( v ) );
+    return printer << "@" << id;
+}
+static min::locatable_var<min::id_map> ostream_id_map;
+template <>
+static std::ostream & pgen_id<std::ostream &>
+	( std::ostream & out,
+	  min::gen v )
+{
+    if ( ::ostream_id_map == min::NULL_STUB )
+    	init ( ::ostream_id_map );
+
+    min::uns32 id =
+        min::find_or_add
+	    ( ::ostream_id_map, min::stub_of ( v ) );
+    return out << "@" << id;
+}
+
 // Execute pgen (below) in the case an object is to be
 // printed without an effective OBJ_EXP_FLAG or
 // OBJ_ID_FLAG.
@@ -8558,11 +8613,51 @@ static T pgen_obj
     {
         out << "; " << min::set_break;
 	pgen ( out, info[i].name, name_flags, f );
-	if ( info[i].flag_count > 0 )
+
+	min::unsptr c = info[i].flag_count;
+	if ( c > 0 )
 	{
-	    // TBD flags
+	    min::packed_vec_ptr<const char *> names =
+	        f->flag_names;
+	    out << "[";
+	    if ( c * min::VSIZE <= 64 )
+	    {
+	        min::uns64 f = info[i].flags;
+		for ( unsigned j = 0; j < 64; ++ j )
+		{
+		    if ( f & 1 ) out << names[j];
+		    f >>= 1;
+		}
+	    }
+	    else
+	    {
+	        min::gen flags[c];
+		min::locate ( ap, info[i].name );
+		min::get_flags ( flags, c, ap );
+		min::unsptr n = 0;
+		for ( min::unsptr j = 0; j < c; ++ j )
+		{
+		    min::unsgen flags2 =
+		        MUP::control_code_of
+			    ( flags[j] );
+		    for ( unsigned k = 0;
+		          k < min::VSIZE; ++ k )
+		    {
+		        if ( flags2 & 1 )
+			{
+			    if ( n < names->length )
+			        out << names[n];
+			    else
+			        out << "," << n;
+			}
+			flags2 >>= 1;
+			++ n;
+		    }
+		}
+	    }
 	}
-	min::unsptr c = info[i].value_count;
+
+	c = info[i].value_count;
 	if ( c == 1 )
 	{
 	    out << " = " << min::set_break;
@@ -8572,17 +8667,18 @@ static T pgen_obj
 	{
 	    out << " = " << min::set_break
 	        << "{: " << min::save_indent;
-	    min::gen v[c];
+	    min::gen value[c];
 	    min::locate ( ap, info[i].name );
-	    min::get ( v, c, ap );
+	    min::get ( value, c, ap );
 	    for ( min::unsptr j = 0; j < c; ++ j )
 	    {
 	        if ( j > 0 )
 		    out << "; " << min::set_break;
-		pgen ( out, v, gen_flags, f );
+		pgen ( out, value[j], gen_flags, f );
 	    }
 	    out << " :}" << min::restore_indent;
 	}
+
 	c = info[i].reverse_attr_count;
 	if ( c > 0 )
 	{
@@ -8628,9 +8724,34 @@ static T pgen_obj
     return out << " |}" << min::restore_indent;
 }
 
-static min::locatable_gen initiator;
-static min::locatable_gen terminator;
-static min::locatable_gen separator;
+inline bool find
+        ( min::gen name,
+	  min::packed_vec_ptr<min::gen> v )
+{
+    for ( min::unsptr i = 0; i < v->length; ++ i )
+    {
+        if ( name == v[i] ) return true;
+    }
+    return false;
+}
+
+inline min::gen get
+        ( min::gen name,
+	  const min::attr_info * info,
+	  min::unsptr info_length )
+{
+    while ( info_length -- )
+    {
+        if ( name == info->name )
+	{
+	    if ( info->value_count != 1 )
+	        return min::NONE();
+	    else return info->value;
+	}
+	++ info;
+    }
+    return min::NONE();
+}
 
 // Execute pgen (below) in the case an object is to be
 // printed with the OBJ_EXP_FLAG.
@@ -8638,38 +8759,34 @@ static min::locatable_gen separator;
 template < typename T >
 static T pgen_exp
 	( T out,
-	  min::gen v,
+	  min::attr_ptr & ap,
 	  min::uns32 gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
 		min::uns32 gen_flags,
-		const min::gen_format * f ) )
+		const min::gen_format * f ),
+	  min::attr_info * info,
+	  min::unsptr info_length )
 {
-    if ( ::initiator == min::MISSING() )
-    {
-        ::initiator =
-	    min::new_lab_gen ( ".", "initiator" );
-        ::terminator =
-	    min::new_lab_gen ( ".", "terminator" );
-        ::separator =
-	    min::new_lab_gen ( ".", "separator" );
-    }
-    min::obj_vec_ptr vp ( v );
-    min::attr_ptr ap ( vp );
-    min::locate ( ap, ::initiator );
-    min::gen initiator = min::get ( ap );
-    min::locate ( ap, ::terminator );
-    min::gen terminator = min::get ( ap );
-    min::locate ( ap, ::separator );
-    min::gen separator = min::get ( ap );
+    min::obj_vec_ptr vp = min::obj_vec_ptr_of ( ap );
+
+    min::gen initiator =
+         ::get ( min::dot_initiator,
+	          info, info_length );
+    min::gen separator =
+         ::get ( min::dot_separator,
+	          info, info_length );
+    min::gen terminator =
+         ::get ( min::dot_terminator,
+	          info, info_length );
 
     const char * prefix = "";
     const char * postfix = "";
-    if ( !  min::is_name ( initiator )
+    if ( initiator == min::NONE()
          ||
-	 ! min::is_name ( terminator ) )
+	 terminator == min::NONE() )
     {
         if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
 	     &&
@@ -8699,7 +8816,7 @@ static T pgen_exp
 	{
 	    if ( i != 0 )
 	    {
-	        if ( min::is_name ( separator ) )
+	        if ( separator != min::NONE() )
 		    out << min::pgen ( separator, 0 );
 	        out << " ";
 		out << min::set_break;
@@ -8854,7 +8971,8 @@ static T pgen
 
 	if ( allow_special_name
 	     &&
-	     0xFFFFFF - ::standard_special_names_length
+	         0xFFFFFF
+	       - min::standard_special_names->length
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
@@ -8878,17 +8996,40 @@ static T pgen
 	    return out << prefix << buffer << postfix;
 	}
     }
-    else if ( min::is_stub ( v ) )
+    else if ( min::is_obj ( v ) )
     {
-        if ( ( gen_flags & min::OBJ_EXP_FLAG )
-	     &&
-	     min::is_obj ( v ) )
+        if ( gen_flags & min::OBJ_EXP_FLAG )
 	{
-	    ::pgen_exp<T>
-	        ( out, v, gen_flags, f, pgen );
-	    return out;
+	    min::obj_vec_ptr vp ( v );
+	    min::attr_ptr ap ( vp );
+	    min::unsptr length =
+	        f->exp_ok_attrs->length;
+	    min::attr_info info[length];
+	    min::unsptr c =
+	        min::get_attrs ( info, length, ap );
+	    bool ok = ( c <= length );
+	    for ( min::unsptr i = 0; ok && i < c; ++ i )
+	        ok = ::find ( info[i].name,
+		              f->exp_ok_attrs );
+	    if ( ok )
+	    {
+		::pgen_exp<T>
+		    ( out, ap, gen_flags, f, pgen,
+		      &info[0], c );
+		return out;
+	    }
 	}
 
+        if ( gen_flags & min::OBJ_ID_FLAG )
+	    ::pgen_id<T> ( out, v );
+	else
+	    ::pgen_obj<T>
+	        ( out, v, gen_flags, f, pgen );
+
+	return out;
+    }
+    else if ( min::is_stub ( v ) )
+    {
         const min::stub * s = MUP::stub_of ( v );
 	int type = min::type_of ( s );
 	const char * type_name = min::type_name[type];
