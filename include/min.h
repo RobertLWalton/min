@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 18 05:54:24 EDT 2012
+// Date:	Tue Jun 19 08:58:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11947,6 +11947,16 @@ namespace min {
 	      min::gen v,
 	      min::uns32 gen_flags,
 	      const min::gen_format * gen_format );
+
+    extern min::locatable_gen dot_initiator;
+    extern min::locatable_gen dot_separator;
+    extern min::locatable_gen dot_terminator;
+    extern min::locatable_gen dot_middle;
+    extern min::locatable_gen dot_name;
+    extern min::locatable_gen dot_arguments;
+    extern min::locatable_gen dot_keys;
+    extern min::locatable_gen dot_operator;
+    extern min::locatable_gen dot_position;
 }
 
 // More Allocator/Collector/Compactor Interface
