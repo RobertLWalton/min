@@ -1575,11 +1575,28 @@ AUX_FREE
 RELOCATE_BODY
 TYPE(0)
 {|  |}
+{| 1 2 3 |}
 1 2 3
 [. 1 2 3 .]
+@1
+{| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator = `{'
+   |}
 {1, 2, 3, 4, 5}
+@1
+{| {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}; . terminator = `]'; . separator = `;'; . initiator = `['
+   |}
 [{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
  {1, 2, 3, 4, 5}]
+@2
 LIST_AUX(10)
 SUBLIST_AUX(20)
 INDIRECT_AUX(30)

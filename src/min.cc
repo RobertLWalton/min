@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 19 06:42:27 EDT 2012
+// Date:	Wed Jun 20 04:26:26 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8535,6 +8535,9 @@ static min::printer pgen_id<min::printer>
 	( min::printer printer,
 	  min::gen v )
 {
+    if ( printer->id_map == min::NULL_STUB )
+    	min::init ( min::id_map_ref ( printer ) );
+
     min::uns32 id =
         min::find_or_add
 	    ( printer->id_map, min::stub_of ( v ) );
