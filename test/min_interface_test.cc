@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 18 05:36:25 EDT 2012
+// Date:	Wed Jun 20 04:14:38 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2583,12 +2583,17 @@ void test_printer ( void )
 	vp[1] = min::new_num_gen ( 2 );
 	vp[2] = min::new_num_gen ( 3 );
     }
+    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
+            << min::eol;
     printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
             << min::eol;
     printer << min::pgen
                    ( obj,   min::OBJ_EXP_FLAG
 			  + min::BRACKET_IMPLICIT_FLAG )
             << min::eol;
+    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
+            << min::eol;
+
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
@@ -2608,7 +2613,12 @@ void test_printer ( void )
 	vp[3] = min::new_num_gen ( 4 );
 	vp[4] = min::new_num_gen ( 5 );
     }
+
+    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
+            << min::eol;
     printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
             << min::eol;
 
     min::gen obj2 = min::new_obj_gen ( 5, 5 );
@@ -2634,7 +2644,12 @@ void test_printer ( void )
 	min::locate ( ap, terminator );
 	min::set ( ap, min::new_str_gen ( "]" ) );
     }
+
+    printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )
+            << min::eol;
     printer << min::pgen ( obj2, min::OBJ_EXP_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
             << min::eol;
 
     printer << min::pgen

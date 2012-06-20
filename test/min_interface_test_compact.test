@@ -1499,11 +1499,28 @@ AUX_FREE
 RELOCATE_BODY
 TYPE(0)
 {|  |}
+{| 1 2 3 |}
 1 2 3
 [. 1 2 3 .]
+@1
+{| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator = `{'
+   |}
 {1, 2, 3, 4, 5}
+@1
+{| {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}; . terminator = `]'; . separator = `;'; . initiator = `['
+   |}
 [{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
  {1, 2, 3, 4, 5}]
+@2
 LIST_AUX(10)
 SUBLIST_AUX(20)
 INDIRECT_AUX(30)
@@ -3782,6 +3799,8 @@ min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
