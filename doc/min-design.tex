@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 19, 2012}
+\date{June 22, 2012}
  
 \maketitle
 
@@ -6877,6 +6877,8 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7160,8 +7162,14 @@ and UNICODE diacritical combining marks in non-ASCII mode.
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of a {\tt min::\EOL eol} or
-{\tt min::\EOL eom} printer operation.
+executed at the very end of a {\tt min::\EOL eol} operation.
+
+\item[\ttnbmkey{FLUSH\_ID\_MAP\_FLAG}%
+    {in printer {\tt print\_\EOL format.flags}}]~\\
+If this flag is on, a {\tt min::eom()} printer operation performs
+a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
+(\pagref{MIN::FLUSH_ID_MAP}) right after its
+{\tt min::\EOL eol} operation.
 
 \end{itemlist}\end{indpar}
 
@@ -7672,12 +7680,15 @@ to surround the body of an error message or other message:
 a {\tt min::\EOL save\_\EOL indent}
 and a {\tt min::\EOL save\_\EOL print\_\EOL format} operation.
 {\tt min::\EOL eom} executes in order a
-{\tt min::\EOL restore\_\EOL line\_\EOL break} (i.e., a
-{\tt min::\EOL restore\_\EOL indent} without any implied
-{\tt min::\EOL indent}), a {\tt min::\EOL eol},
-and a {\tt min::\EOL restore\_\EOL print\_\EOL format}.
+{\tt min::\EOL restore\_\EOL indent},
+a {\tt min::\EOL eol},
+a {\tt min::\EOL flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP})
+if the print format
+{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on, and lastly
+a {\tt min::\EOL restore\_\EOL print\_\EOL format}.
 Note that the print format flags in effect just before {\tt min::\EOL eom}
-is executed govern the {\tt min::\EOL eol} operation executed by
+is executed govern {\tt min::\EOL eol}
+and {\tt min::\EOL flush\_\EOL id\_\EOL map} operations executed by
 {\tt min::\EOL eom}.
 
 For example, the following might be used to print an error message:
@@ -7811,7 +7822,7 @@ exists.  This can then be shared with other printers.  The final
 is never {\tt min::\EOL NULL\_\EOL STUB}.
 
 Printer parameters may be set
-by the following operations:
+by the following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
@@ -8486,12 +8497,139 @@ and if an object is not being printed as an expression as
 per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
 then the object will be printed in the general form:
 \begin{center}
-\verb/{|/ {\em element} \ldots\verb|;| {\em attribute-name} \verb|=|
-                                       {\em attribute-value}\verb|;|
-				       \ldots{} \verb/|}/
+\begin{tabular}{ll}
+\verb/{|/ {\em element} & \{ \verb|;| {\em attribute-name-and-values}
+                          \}$^\star$ \\
+                        & \{ \verb|;| {\em reverse-attribute-name-and-values}
+                          \}$^\star$  \verb/|}/
+\end{tabular}
 \end{center}
+where further details are provided on \pagref{GEN-OBJ-FORM}.
 
 \end{itemlist}\end{indpar}
+
+When a datum with a stub is printed as
+`{\tt @}i', it is recorded in {\tt printer->\EOL id\_\EOL map}
+so it may be printed on separate lines.  This may be done by
+the printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+The first operation prints the datum at {\tt printer->\EOL id\_\EOL map[i]}
+where {\tt i} equals {\tt printer->\EOL id\_\EOL map->\EOL next}, and then
+increments {\tt printer->\EOL id\_\EOL map->\EOL next}.  The second operation
+simply repeats the first operation as long as
+{\tt printer->\EOL id\_\EOL map->\EOL next}
+is less than {\tt printer->\EOL id\_\EOL map->\EOL length}.
+The {\tt min::\EOL flush\_\EOL id\_\EOL map} operation is also
+performed by the {\tt min::\EOL eom} end-of-message operation
+if the print format
+{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
+
+If the datum being printed by these operations is not an object,
+or if it is an object that is being printed as per the
+{\tt OBJ\_\EOL EXP\_\EOL FLAG}, a line will be printed with the format:
+\begin{center}
+\verb|@|i \verb|=| {\em value}
+\end{center}
+where {\tt value} is the normal printed representation of the datum value.
+If the line is too long, it may be broken into multiple lines
+as specified by the printer parameters.
+
+
+If the datum is an object not being printed as per
+{\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the object will be printed on
+multiple lines with the format:
+\begin{center}
+\begin{tabular}{l}
+\verb/@/i \verb/=/ {\em element}$^\star$\verb/:|/ \\
+\verb|    |{\em attribute-name-and-values}\\
+\verb|    |\ldots\ldots\ldots\\
+\verb|    |{\em reverse-attribute-name-and-values}\\
+\verb|    |\ldots\ldots\ldots\\
+\end{tabular}
+\end{center}
+
+This form is similar to the usual object representation
+(see {\tt OBJ\_\EOL ID\_\EOL FLAG} above),
+except that line ends, indentation, and the indentation mark
+\verb/:|/ are used in place of semi-colons, and there
+are no surrounding \verb/{|/ \verb/|}/ marks.
+
+In the lines above:\label{GEN-OBJ-FORM}
+
+\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
+{\em attribute-name-and-values} & ::= &
+    {\em attribute-name}\verb|[|{\em attribute-flags}\verb|]| \\
+    	&  & \verb|    =| {\em attribute-values}
+\\[1ex]
+{\em attribute-values} & ::= & {\em attribute-value} \\
+                       & $|$ & \verb/{|/ {\em attribute-value} \ldots
+		               \verb/|}/
+\\[1ex]
+{\em attribute-value} & ::= & printed representation of value
+\end{tabular}
+
+\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
+{\em reverse-attribute-name-and-values} & ::= &
+    {\em attribute-name}\verb|[|{\em attribute-flags}\verb|]| \\
+    	&  & \verb|    =| {\em reverse-attribute-values} \\
+	&  & \verb|    =| {\em reverse-attribute-name}
+\\[1ex]
+{\em reverse-attribute-values} & ::= & {\em reverse-attribute-value} \\
+                       & $|$ & \verb/{|/ {\em reverse-attribute-value} \ldots
+		               \verb/|}/
+\\[1ex]
+{\em reverse-attribute-value} & ::= & \verb|@|{\em natural-number}
+\end{tabular}
+
+Note that a {\em reverse-attribute-value} is always an object and is
+always printed as per the {\tt OBJ\_\EOL ID\_\EOL FLAG}, even when
+that flag is off.
+
+\begin{tabular}{rrl}
+{\em attribute-flags}
+    & ::= & \verb|[|{\em attribute-flag-name}$^\star$\verb|]| \\
+    & $|$ & {\em empty} \hspace*{2in}if no flags \\
+{\em attribute-flag-name} & ::= &
+        \verb|!| $|$ \verb|#| $|$ \verb|$| $|$ \verb|%| $|$ \verb|&|
+    $|$ \verb|*| $|$ \verb|+| $|$ \verb|-| $|$ \verb|/| $|$ \verb|=|
+    $|$ \verb|?| $|$ \verb|@| \\
+& $|$ & \verb|a| $|$ ... \verb|z| $|$ \verb|A| $|$ ... \verb|Z| \\
+& $|$ & \verb|~!| $|$ \verb|~#| $|$ \verb|~$| $|$ \verb|~%| $|$ \verb|~&|
+    $|$ \verb|~*| $|$ \verb|~+| $|$ \verb|~-| $|$ \verb|~/| $|$ \verb|~=|
+    $|$ \verb|~?| $|$ \verb|~@| \\
+& $|$ & \verb|~a| $|$ ... \verb|~z| $|$ \verb|~A| $|$ ... \verb|~Z| \\
+& $|$ & \verb|^!| $|$ \verb|^#| $|$ \verb|^$| $|$ \verb|^%| $|$ \verb|^&|
+    $|$ \verb|^*| $|$ \verb|^+| $|$ \verb|^-| $|$ \verb|^/| $|$ \verb|^=|
+    $|$ \verb|^?| $|$ \verb|^@| \\
+& $|$ & \verb|^a| $|$ ... \verb|^z| $|$ \verb|^A| $|$ ... \verb|^Z| \\
+& $|$ & \verb|\!| $|$ \verb|\#| $|$ \verb|\$| $|$ \verb|\%| $|$ \verb|\&|
+    $|$ \verb|\*| $|$ \verb|\+| $|$ \verb|\-| $|$ \verb|\/| $|$ \verb|\=|
+    $|$ \verb|\?| $|$ \verb|\@| \\
+& $|$ & \verb|\a| $|$ ... \verb|\z| $|$ \verb|\A| $|$ ... \verb|\Z| \\
+& $|$ & \verb|,|{\em flag-number}
+\end{tabular}
+
+Here {\em attribute-flag-names} are listed in the order of their flag number,
+where the default correspondence is
+\begin{center}
+\begin{tabular}{r@{~correspond to flag numbers~}l}
+\verb|!| \ldots{} \verb|Z| & \verb|0| \ldots{} \verb|63| \\
+\verb|~!| \ldots{} \verb|~Z| & \verb|64| \ldots{} \verb|127| \\
+\verb|^!| \ldots{} \verb|^Z| & \verb|128| \ldots{} \verb|191| \\
+\verb|\!| \ldots{} \verb|\Z| & \verb|192| \ldots{} \verb|255| \\
+\end{tabular}
+\end{center}
+The {\tt flag\_names} member of the effective {\tt gen\_format}
+is used to produce flag names, and the correspondence just
+given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
+
 
 \subsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
@@ -14613,6 +14751,8 @@ In loose implementation: \\
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -15066,6 +15206,13 @@ In loose implementation: \\
 \LABEL{MIN::OBJ_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
 \LABEL{MIN::STR_ID_FLAG} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
 \end{TABULAR}
 
 \end{indpar}
