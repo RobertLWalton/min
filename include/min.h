@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 19 08:58:25 EDT 2012
+// Date:	Fri Jun 22 15:32:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11450,6 +11450,7 @@ namespace min {
         GBREAK_FLAG		= ( 1 << 9 ),
 
         EOL_FLUSH_FLAG		= ( 1 << 10 ),
+        FLUSH_ID_MAP_FLAG	= ( 1 << 11 ),
 
         GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
 	                        + GRAPHIC_VSPACE_FLAG
@@ -11471,12 +11472,15 @@ namespace min {
 	    SET_INDENT,
 	    PLACE_INDENT,
 	    SET_GEN_FLAGS,
+	    CLEAR_GEN_FLAGS,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 	    VERBATIM,
 	    SUPPRESSIBLE_SPACE,
 	    SPACE,
+	    FLUSH_ID_MAP,
+	    FLUSH_ONE_ID,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
@@ -11661,6 +11665,12 @@ namespace min {
         return op ( op::SET_GEN_FLAGS, gen_flags );
     }
 
+    inline op clear_gen_flags
+	    ( min::uns32 gen_flags )
+    {
+        return op ( op::CLEAR_GEN_FLAGS, gen_flags );
+    }
+
     inline op set_gen_format
 	    ( const min::gen_format * gen_format )
     {
@@ -11727,6 +11737,9 @@ namespace min {
 
     extern const op suppressible_space;
     extern const op space;
+
+    extern const op flush_id_map;
+    extern const op flush_one_id;
 
     namespace internal
     {

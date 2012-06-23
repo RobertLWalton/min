@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 20 04:14:38 EDT 2012
+// Date:	Sat Jun 23 08:36:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2574,84 +2574,6 @@ void test_printer ( void )
     printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
 
-    min::gen obj = min::new_obj_gen ( 5, 5 );
-    printer << min::pgen ( obj, 0 ) << min::eol;
-    {
-	min::obj_vec_insptr vp ( obj );
-	min::attr_push ( vp, 3 );
-	vp[0] = min::new_num_gen ( 1 );
-	vp[1] = min::new_num_gen ( 2 );
-	vp[2] = min::new_num_gen ( 3 );
-    }
-    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen
-                   ( obj,   min::OBJ_EXP_FLAG
-			  + min::BRACKET_IMPLICIT_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
-            << min::eol;
-
-    {
-	min::obj_vec_insptr vp ( obj );
-	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator
-	    ( min::new_lab_gen ( ".", "initiator" ) );
-	min::locate ( ap, initiator );
-	min::set ( ap, min::new_str_gen ( "{" ) );
-	min::locatable_gen separator
-	    ( min::new_lab_gen ( ".", "separator" ) );
-	min::locate ( ap, separator );
-	min::set ( ap, min::new_str_gen ( "," ) );
-	min::locatable_gen terminator
-	    ( min::new_lab_gen ( ".", "terminator" ) );
-	min::locate ( ap, terminator );
-	min::set ( ap, min::new_str_gen ( "}" ) );
-	min::attr_push ( vp, 2 );
-	vp[3] = min::new_num_gen ( 4 );
-	vp[4] = min::new_num_gen ( 5 );
-    }
-
-    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
-            << min::eol;
-
-    min::gen obj2 = min::new_obj_gen ( 5, 5 );
-    {
-	min::obj_vec_insptr vp ( obj2 );
-	min::attr_push ( vp, 5 );
-	vp[0] = obj;
-	vp[1] = obj;
-	vp[2] = obj;
-	vp[3] = obj;
-	vp[4] = obj;
-	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator
-	    ( min::new_lab_gen ( ".", "initiator" ) );
-	min::locate ( ap, initiator );
-	min::set ( ap, min::new_str_gen ( "[" ) );
-	min::locatable_gen separator
-	    ( min::new_lab_gen ( ".", "separator" ) );
-	min::locate ( ap, separator );
-	min::set ( ap, min::new_str_gen ( ";" ) );
-	min::locatable_gen terminator
-	    ( min::new_lab_gen ( ".", "terminator" ) );
-	min::locate ( ap, terminator );
-	min::set ( ap, min::new_str_gen ( "]" ) );
-    }
-
-    printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj2, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
-            << min::eol;
-
     printer << min::pgen
                     ( min::new_list_aux_gen ( 10 ) )
             << min::eol;
@@ -4314,6 +4236,107 @@ void test_object_attribute_level ( void )
 	 << endl;
 }
 
+// Object Printing
+// ------ --------
+
+void test_object_printing ( void )
+{
+    cout << endl;
+    cout << "Start Object Printing Test!"
+	 << endl << endl;
+    min_assert_print = false;
+
+    min::gen obj = min::new_obj_gen ( 5, 5 );
+    printer << min::pgen ( obj, 0 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_push ( vp, 3 );
+	vp[0] = min::new_num_gen ( 1 );
+	vp[1] = min::new_num_gen ( 2 );
+	vp[2] = min::new_num_gen ( 3 );
+    }
+    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
+            << min::eol;
+    printer << min::pgen
+                   ( obj,   min::OBJ_EXP_FLAG
+			  + min::BRACKET_IMPLICIT_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
+            << min::eol;
+
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen initiator
+	    ( min::new_lab_gen ( ".", "initiator" ) );
+	min::locate ( ap, initiator );
+	min::set ( ap, min::new_str_gen ( "{" ) );
+	min::locatable_gen separator
+	    ( min::new_lab_gen ( ".", "separator" ) );
+	min::locate ( ap, separator );
+	min::set ( ap, min::new_str_gen ( "," ) );
+	min::locatable_gen terminator
+	    ( min::new_lab_gen ( ".", "terminator" ) );
+	min::locate ( ap, terminator );
+	min::set ( ap, min::new_str_gen ( "}" ) );
+	min::attr_push ( vp, 2 );
+	vp[3] = min::new_num_gen ( 4 );
+	vp[4] = min::new_num_gen ( 5 );
+    }
+
+    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
+            << min::eol;
+
+    min::gen obj2 = min::new_obj_gen ( 5, 5 );
+    {
+	min::obj_vec_insptr vp ( obj2 );
+	min::attr_push ( vp, 5 );
+	vp[0] = obj;
+	vp[1] = obj;
+	vp[2] = obj;
+	vp[3] = obj;
+	vp[4] = obj;
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen initiator
+	    ( min::new_lab_gen ( ".", "initiator" ) );
+	min::locate ( ap, initiator );
+	min::set ( ap, min::new_str_gen ( "[" ) );
+	min::locatable_gen separator
+	    ( min::new_lab_gen ( ".", "separator" ) );
+	min::locate ( ap, separator );
+	min::set ( ap, min::new_str_gen ( ";" ) );
+	min::locatable_gen terminator
+	    ( min::new_lab_gen ( ".", "terminator" ) );
+	min::locate ( ap, terminator );
+	min::set ( ap, min::new_str_gen ( "]" ) );
+    }
+
+    printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj2, min::OBJ_EXP_FLAG )
+            << min::eol;
+    printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
+            << min::eol;
+
+    printer << min::save_print_format
+            << min::clear_gen_flags
+	           ( min::OBJ_EXP_FLAG )
+            << min::set_gen_flags
+	           ( min::OBJ_ID_FLAG )
+	    << min::flush_id_map
+	    << min::restore_print_format;
+
+    min_assert_print = true;
+    cout << endl;
+    cout << "Finish Object Printing Test!" << endl;
+}
+
 // Main Program
 // ---- -------
 
@@ -4354,6 +4377,7 @@ int main ( int argc )
 	test_object_vector_level();
 	test_object_list_level();
 	test_object_attribute_level();
+	test_object_printing();
 
 	// Check that deallocated_body_region is still
 	// zero.

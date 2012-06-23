@@ -1574,29 +1574,6 @@ SPECIAL(0xffffff)
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)
-{|  |}
-{| 1 2 3 |}
-1 2 3
-[. 1 2 3 .]
-@1
-{| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator = `{'
-   |}
-{1, 2, 3, 4, 5}
-@1
-{| {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
-      `{' |}
-   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
-      `{' |}
-   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
-      `{' |}
-   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
-      `{' |}
-   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
-      `{' |}; . terminator = `]'; . separator = `;'; . initiator = `['
-   |}
-[{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
- {1, 2, 3, 4, 5}]
-@2
 LIST_AUX(10)
 SUBLIST_AUX(20)
 INDIRECT_AUX(30)
@@ -3314,6 +3291,42 @@ min_interface_test.cc:XXXX assert:
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
+
+Start Object Printing Test!
+
+{|  |}
+{| 1 2 3 |}
+1 2 3
+[. 1 2 3 .]
+@1
+{| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator = `{'
+   |}
+{1, 2, 3, 4, 5}
+@1
+{| {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}
+   {| 1 2 3 4 5; . terminator = `}'; . separator = `,'; . initiator =
+      `{' |}; . terminator = `]'; . separator = `;'; . initiator = `['
+   |}
+[{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
+ {1, 2, 3, 4, 5}]
+@2
+@1 = 1 2 3 4 5
+          . terminator = }
+          . separator = ,
+          . initiator = {
+@2 = @1 @1 @1 @1 @1
+               . terminator = ]
+               . separator = ;
+               . initiator = [
+
+Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
