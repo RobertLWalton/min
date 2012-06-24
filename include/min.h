@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 22 15:32:28 EDT 2012
+// Date:	Sun Jun 24 04:06:32 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11471,6 +11471,7 @@ namespace min {
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
 	    PLACE_INDENT,
+	    ADJUST_INDENT,
 	    SET_GEN_FLAGS,
 	    CLEAR_GEN_FLAGS,
 	    SET_GEN_FORMAT,
@@ -11646,6 +11647,11 @@ namespace min {
     inline op place_indent ( int32 offset )
     {
         return op ( op::PLACE_INDENT, offset );
+    }
+
+    inline op adjust_indent ( int32 offset )
+    {
+        return op ( op::ADJUST_INDENT, offset );
     }
 
     inline op set_print_flags ( uns32 print_flags )

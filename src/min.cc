@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 23 07:50:04 EDT 2012
+// Date:	Sun Jun 24 03:33:20 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7482,6 +7482,15 @@ min::printer operator <<
 	    printer->line_break.indent =
 	        printer->column + op.v1.i32;
 	return printer;
+    case min::op::ADJUST_INDENT:
+	if ( op.v1.i32 < 0
+	     &&
+	       printer->line_break.indent
+	     < (min::uns32) - op.v1.i32 )
+	    printer->line_break.indent = 0;
+	else
+	    printer->line_break.indent += op.v1.i32;
+	return printer;
     case min::op::SET_GEN_FLAGS:
 	printer->print_format.gen_flags |= op.v1.u32;
 	return printer;
@@ -8646,7 +8655,8 @@ static T pgen_obj
 	out << "{| " << min::save_indent;
     else
         out << min::save_indent
-	    << min::place_indent ( 4 );
+	    << min::nohbreak
+	    << min::adjust_indent ( 4 );
 
     bool include_attr_vec = false;
     for ( min::unsptr i = 0;
@@ -8666,7 +8676,7 @@ static T pgen_obj
     }
 
     if ( flush )
-        out << min::place_indent ( -4 );
+        out << min::adjust_indent ( -4 );
 
     min::attr_info first_info[1000];
     min::attr_info * info = first_info;
