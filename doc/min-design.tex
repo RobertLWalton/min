@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 23, 2012}
+\date{June 24, 2012}
  
 \maketitle
 
@@ -7709,17 +7709,22 @@ of the message by the {\tt min::\EOL eom}.
 to the current value of {\tt column},
 but if a different indent is desired, it can be set by following
 {\tt min::\EOL bom} with {\tt min::\EOL set\_\EOL indent}
-(\pagref{MIN::SET_INDENT}) or with the operation:
+(\pagref{MIN::SET_INDENT}) or one of the operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{place\_\EOL indent} \verb|( min::int32 offset )|
 \LABEL{MIN::PLACE_INDENT} \\
+\verb|min::op min::|
+    & \MINKEY{adjust\_\EOL indent} \verb|( min::int32 offset )|
+\LABEL{MIN::ADJUST_INDENT} \\
 \end{tabular}\end{indpar}
 
-This operation stores the sum of `{\tt offset}' and the printer `{\tt column}'
-in {\tt line\_\EOL break.indent}.  If the
-value stored would be negative, {\tt 0} is stored instead.
+These operations set the indent in {\tt line\_\EOL break.indent}
+to the sum of `{\tt offset}' and either
+the printer `{\tt column}' for {\tt min::\EOL place\_\EOL indent}
+or the indent itself for {\tt min::\EOL adjust\_\EOL indent}.
+If the value to be set would be negative, {\tt 0} is used instead.
 
 {\tt min::gen} values may be printed under the control of a
 {\tt min::\EOL gen\_\EOL format}.  As printing objects
@@ -14899,6 +14904,15 @@ In loose implementation: \\
 \LABEL{MIN::BOM} \\
 \verb|const min::op min::| & \MINKEY{eom}
 \LABEL{MIN::EOM} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::op min::|
+    & \MINKEY{place\_\EOL indent} \verb|( min::int32 offset )|
+\LABEL{MIN::PLACE_INDENT} \\
+\verb|min::op min::|
+    & \MINKEY{adjust\_\EOL indent} \verb|( min::int32 offset )|
+\LABEL{MIN::ADJUST_INDENT} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
