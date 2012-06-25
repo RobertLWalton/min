@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 24, 2012}
+\date{June 25, 2012}
  
 \maketitle
 
@@ -8190,7 +8190,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|    // All entries false except:|\\
 \verb|    //     [B][.] for B == '(', '[', '{', 0xA8 (|\LAQUOTE\verb|)| \\
 \verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
-                                                       \verb|), ',', ';'|
+                                                       \verb|), ',', ';'| \\
+\verb|    //     ['.'][L] for L a letter (i.e., with unicode_class U or L)| \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}

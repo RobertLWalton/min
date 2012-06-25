@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 24 03:33:20 EDT 2012
+// Date:	Mon Jun 25 04:54:28 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -189,6 +189,9 @@ void MINT::initialize ( void )
 	    continue;
 	MINT::unicode_class[i] = i;
     }
+
+    // Unicode class must be initialized before default
+    // suppress matrix is initialized.
 
     init_default_suppress_matrix();
 
@@ -7153,6 +7156,10 @@ static bool default_suppress_matrix[256][256];
 min::suppress_matrix min::default_suppress_matrix =
     & ::default_suppress_matrix;
 
+
+// Unicode class must be initialized before default
+// suppress matrix is initialized.
+
 static void init_default_suppress_matrix ( void )
 {
     for ( unsigned i = 0; i < 256; ++ i )
@@ -7169,6 +7176,10 @@ static void init_default_suppress_matrix ( void )
         ::default_suppress_matrix[i][0xB8] = true;
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
+
+	min::uns8 c = min::unicode_class ( i );
+	if ( c == 'U' || c == 'L' )
+	    ::default_suppress_matrix['.'][i] = true;
     }
 }
 
@@ -7563,6 +7574,8 @@ min::printer operator <<
 
 	    printer->previous_unicode_class =
 		min::unicode_class ( b );
+	    printer->previous_print_flags =
+	        printer->print_format.flags;
 		    
 	    return printer;
 	}
@@ -8094,7 +8107,12 @@ min::printer MINT::print_unicode
 
         printer->suppress_matrix = NULL;
 	if ( ! suppress )
+	{
+	    printer->print_format.flags =
+	        printer->previous_print_flags;
 	    MINT::print_unicode ( printer, 1, ::space );
+	    printer->print_format.flags = flags;
+	}
     }
 
     bool ascii = 
@@ -8648,11 +8666,13 @@ static T pgen_obj
 
     min::uns32 name_flags = gen_flags;
     name_flags |= min::GRAPHIC_STR_FLAG;
+    name_flags |= min::SUPPRESS_LAB_SPACE_FLAG;
     name_flags &= ~ min::BRACKET_STR_FLAG;
     name_flags &= ~ min::BRACKET_LAB_FLAG;
 
     if ( ! flush )
-	out << "{| " << min::save_indent;
+	out << "{| " << min::save_indent
+	    << min::nohbreak;
     else
         out << min::save_indent
 	    << min::nohbreak
@@ -8760,13 +8780,13 @@ static T pgen_obj
 	    min::unsptr vc = info[i].value_count;
 	    if ( j == 0 && vc == 1 )
 	    {
-		out << " = " << min::set_break;
+		out << " = ";
 		pgen ( out, info[i].value,
 		       gen_flags, f );
 	    }
 	    else if ( j == 0 && vc > 1 )
 	    {
-		out << " = " << min::set_break
+		out << " = "
 		    << "{: " << min::save_indent;
 		min::gen value[vc];
 		min::locate ( ap, info[i].name );
