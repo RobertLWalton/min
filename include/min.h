@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 24 04:06:32 EDT 2012
+// Date:	Mon Jun 25 04:50:23 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11411,6 +11411,7 @@ namespace min {
 
 	min::suppress_matrix suppress_matrix;
 	min::uns8 previous_unicode_class;
+	min::uns32 previous_print_flags;
 	    // Let the next character to be printed be
 	    // c, C = min::unicode_class ( c ), and
 	    // B = previous_unicode_class (if
@@ -11419,11 +11420,12 @@ namespace min {
 	    // unicode_class ( b ) ).
 	    //
 	    // Then just before the next character to be
-	    // printed is output, a single space
-	    // character is printed if suppress_matrix
-	    // == NULL or suppress_matrix[B][C] ==
-	    // false.  In any case, suppress_matrix is
-	    // reset to NULL.
+	    // printed is output, a single space char-
+	    // acter is printed with print_format.flags
+	    // temporarily set to previous_print_flags
+	    // if suppress_matrix == NULL or suppress_
+	    // matrix[B][C] == false.  In any case,
+	    // suppress_matrix is reset to NULL.
     };
 
     MIN_REF ( min::file, file, min::printer )
