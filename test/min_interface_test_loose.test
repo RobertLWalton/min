@@ -3919,7 +3919,7 @@ Finish Object Attribute Level Test!
 
 Start Object Printing Test!
 
-{|  |}
+@1
 {| 1 2 3 |}
 1 2 3
 [. 1 2 3 .]
@@ -3941,16 +3941,24 @@ Start Object Printing Test!
 [{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
  {1, 2, 3, 4, 5}]
 @2
-@1 = 1 2 3 4 5
+@1 = 1 2 3 4 5 |:
      .terminator = }
      .separator = ,
      .initiator = {
-@2 = @1 @1 @1 @1 @1
+@2 = @1 @1 @1 @1 @1 |:
      .terminator = ]
      .separator = ;
      .initiator = [
+@3 = 10 @4 11 |:
+     label3[!z] = @5 = label5
+     label3[!z] = {: @4; @5 :} = label4
+@4 = <empty object>
+@5 =  |:
+     label4 = @3 = label3
 
 Finish Object Printing Test!
+../include/min.h:XXXX assert:
+    type == INSERTABLE true.
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
