@@ -3865,10 +3865,12 @@ Start Object Printing Test!
      .terminator = ]
      .separator = ;
      .initiator = [
-@3 = 10 @4 11 |:
-     label3[!z] = @5 = label5
-     label3[!z] = {: @4; @5 :} = label4
-@4 = <empty object>
+@3 = 10 {| ; label4 = @3 = label3 |} 11 |:
+     label3[!z] = @4 = label5
+     label3[!z] = {: @5; @4 :} = label4
+@4 =  |:
+     label4 = @3 = label3
+     label5 = @3 = label3
 @5 =  |:
      label4 = @3 = label3
 
