@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 25 04:50:23 EDT 2012
+// Date:	Tue Jun 26 09:29:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2524,7 +2524,7 @@ namespace min { namespace internal {
 	    // for small data.
 
 	static const min::uns64 RESTART =
-	    min::uns64 ( -1ull );
+	    min::uns64 ( min::int64 ( -1 ) );
 
 	min::uns64 stub_flag;
 	    // A word with a single bit set.  If this
@@ -10747,7 +10747,8 @@ namespace min {
 	    {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
-		    return ( ( 1 << ( n - base ) )
+		    return ( (    (unsgen) 1
+		               << ( n - base ) )
 		             &
 			     control_code_of ( c ) )
 			   != 0;
@@ -11258,7 +11259,8 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    unsgen mask = 1 << ( n - base );
+		    unsgen mask =
+		        (unsgen) 1 << ( n - base );
 		    unsgen cc = control_code_of ( c );
 		    bool result = ( mask & cc ) != 0;
 		    c = new_control_code_gen
@@ -11300,7 +11302,8 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    unsgen mask = 1 << ( n - base );
+		    unsgen mask =
+		        (unsgen) 1 << ( n - base );
 		    unsgen cc = control_code_of ( c );
 		    bool result = ( mask & cc ) != 0;
 		    c = new_control_code_gen
@@ -11342,7 +11345,8 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    unsgen mask = 1 << ( n - base );
+		    unsgen mask =
+		        (unsgen) 1 << ( n - base );
 		    unsgen cc = control_code_of ( c );
 		    bool result = ( mask & cc ) != 0;
 		    c = new_control_code_gen

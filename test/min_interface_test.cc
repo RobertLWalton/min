@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 23 08:36:34 EDT 2012
+// Date:	Tue Jun 26 12:33:57 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Object Printing
 //	Main Program
 
 // Setup
@@ -4331,6 +4332,33 @@ void test_object_printing ( void )
 	           ( min::OBJ_ID_FLAG )
 	    << min::flush_id_map
 	    << min::restore_print_format;
+
+    min::gen obj3 = min::new_obj_gen ( 10, 10 );
+    min::gen obj4 = min::new_obj_gen ( 10, 10 );
+    min::gen obj5 = min::new_obj_gen ( 10, 10 );
+    min::obj_vec_insptr vp3 ( obj3 );
+    min::attr_push ( vp3 ) = min::new_num_gen ( 10 );
+    min::attr_push ( vp3 ) = obj4;
+    min::attr_push ( vp3 ) = min::new_num_gen ( 11 );
+    min::attr_insptr ap3 ( vp3 );
+    min::gen lab3 = min::new_str_gen ( "label3" );
+    min::gen lab4 = min::new_str_gen ( "label4" );
+    min::gen lab5 = min::new_str_gen ( "label5" );
+    min::locate ( ap3, lab3 );
+    min::set_flag ( ap3, 0 );
+    min::set_flag ( ap3, 12+25 );
+    min::locate_reverse ( ap3, lab4 );
+    min::set ( ap3, obj4 );
+    min::add_to_set ( ap3, obj5 );
+    min::locate_reverse ( ap3, lab5 );
+    min::set ( ap3, obj5 );
+
+    min::find_or_add
+        ( printer->id_map, min::stub_of ( obj3 ) );
+
+    printer << min::flush_id_map;
+
+
 
     min_assert_print = true;
     cout << endl;

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 25 04:54:28 EDT 2012
+// Date:	Tue Jun 26 09:33:22 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6461,6 +6461,7 @@ void MINT::set
         else if ( n == 1 )
 	{
 	    MINT::reverse_attr_create ( ap, * in );
+	    MINT::add_reverse_attr_value ( ap, * in );
 	    return;
 	}
         else
@@ -6570,7 +6571,7 @@ void MINT::set
 	}
     }
     if ( is_reverse ) while ( n -- )
-	add_reverse_attr_value ( ap, * in ++ );
+	MINT::add_reverse_attr_value ( ap, * in ++ );
 }
 
 void min::add_to_set
@@ -6691,6 +6692,7 @@ void min::add_to_multiset
         if ( n == 1 )
 	{
 	    MINT::reverse_attr_create ( ap, * in );
+	    MINT::add_reverse_attr_value ( ap, * in );
 	    return;
 	}
         else
@@ -8664,6 +8666,23 @@ static T pgen_obj
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
 
+    min::attr_info first_info[1000];
+    min::attr_info * info = first_info;
+    min::unsptr m = min::get_attrs ( info, 1000, ap );
+
+    min::attr_info second_info[m];
+    if ( m > 1000 )
+    {
+	info = second_info;
+        min::get_attrs ( info, m, ap );
+    }
+
+    if ( m == 0 && min::size_of ( vp ) == 0 )
+    {
+        if ( ! flush ) return ::pgen_id<T> ( out, v );
+	else return out << "<empty object>";
+    }
+
     min::uns32 name_flags = gen_flags;
     name_flags |= min::GRAPHIC_STR_FLAG;
     name_flags |= min::SUPPRESS_LAB_SPACE_FLAG;
@@ -8698,19 +8717,7 @@ static T pgen_obj
     if ( flush )
         out << min::adjust_indent ( -4 );
 
-    min::attr_info first_info[1000];
-    min::attr_info * info = first_info;
-    min::unsptr m =
-        min::get_attrs
-	    ( info, 1000, ap, include_attr_vec );
-
-    min::attr_info second_info[m];
-    if ( m > 1000 )
-    {
-	info = second_info;
-        min::get_attrs
-	    ( info, m, ap, include_attr_vec );
-    }
+    if ( flush && m > 0 ) out << " |:";
 
     for ( min::unsptr i = 0; i < m; ++ i )
     {
@@ -8775,6 +8782,7 @@ static T pgen_obj
 			}
 		    }
 		}
+		out << "]";
 	    }
 
 	    min::unsptr vc = info[i].value_count;
@@ -9130,10 +9138,20 @@ static T pgen
 	    min::attr_info info[length];
 	    min::unsptr c =
 	        min::get_attrs ( info, length, ap );
+
 	    bool ok = ( c <= length );
 	    for ( min::unsptr i = 0; ok && i < c; ++ i )
 	        ok = ::find ( info[i].name,
-		              f->exp_ok_attrs );
+		              f->exp_ok_attrs )
+		     &&
+		     info[i].reverse_attr_count == 0;
+	    if ( c == 0
+	         && min::size_of ( vp ) == 0
+		 &&    (   gen_flags
+		         & min::BRACKET_IMPLICIT_FLAG )
+		    == 0 )
+	        ok = false;
+
 	    if ( ok )
 	    {
 		::pgen_exp<T>
