@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  7 04:09:20 EDT 2012
+// Date:	Sat Jul  7 13:07:29 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7418,6 +7418,13 @@ static void end_line ( min::printer printer )
 static bool insert_line_break
 	( min::printer printer );
 
+static min::printer flush_pgen
+	( min::printer printer,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  min::uns32 subobj_gen_flags,
+	  const min::gen_format * f );
+
 static min::printer flush_one_id
 	( min::printer printer,
 	  min::uns32 gen_flags );
@@ -7450,6 +7457,18 @@ min::printer operator <<
 	return ( * f->pgen )
 	    ( printer, MUP::new_gen ( op.v1.g ),
 	      op.v2.u32, f );
+    }
+    case min::op::FLUSH_PGEN:
+    {
+	const min::gen_format * f =
+	    printer->print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ::flush_pgen
+	    ( printer, MUP::new_gen ( op.v1.g ),
+	      op.v2.u32,
+	      printer->print_format.gen_flags, f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer, op.v1.u32 );
@@ -7728,6 +7747,13 @@ static std::ostream & ostream_pgen
 	  min::uns32 gen_flags,
 	  const min::gen_format * f );
 
+static std::ostream & ostream_flush_pgen
+	( std::ostream & out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  min::uns32 subgen_gen_flags,
+	  const min::gen_format * f );
+
 static std::ostream & flush_one_id
 	( std::ostream & out,
 	  min::uns32 gen_flags );
@@ -7780,6 +7806,19 @@ std::ostream & operator <<
 	return ::ostream_pgen
 	    ( out, MUP::new_gen ( op.v1.g ),
 	      op.v2.u32, f );
+    }
+    case min::op::FLUSH_PGEN:
+    {
+	const min::gen_format * f =
+	    min::ostream_print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ::ostream_flush_pgen
+	    ( out, MUP::new_gen ( op.v1.g ),
+	      op.v2.u32,
+	      min::ostream_print_format.gen_flags,
+	      f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( out, op.v1.u32 );
@@ -9079,7 +9118,7 @@ static T pgen
 		else
 		    out << separator;
 	    }
-	    pgen ( out, labp[i], subobj_gen_flags, f );
+	    pgen ( out, labp[i], gen_flags, f );
 	}
 	return out << postfix;
     }
@@ -9283,6 +9322,30 @@ static std::ostream & ostream_pgen
 {
     return ::pgen<std::ostream &>
 	    ( out, v, gen_flags, f, ::ostream_pgen );
+}
+
+static std::ostream & ostream_flush_pgen
+	( std::ostream & out,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  min::uns32 subobj_gen_flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<std::ostream &>
+	    ( out, v, gen_flags, subobj_gen_flags,
+	      f, ::ostream_pgen, true );
+}
+
+static min::printer flush_pgen
+	( min::printer printer,
+	  min::gen v,
+	  min::uns32 gen_flags,
+	  min::uns32 subobj_gen_flags,
+	  const min::gen_format * f )
+{
+    return ::pgen<min::printer>
+        ( printer, v, gen_flags, subobj_gen_flags,
+	  f, f->pgen, true );
 }
 
 static min::printer flush_one_id

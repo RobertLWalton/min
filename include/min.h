@@ -11477,12 +11477,20 @@ namespace min {
 	STR_ID_FLAG			= ( 1 << 10 )
     };
 
+    const min::uns32 DEFAULT_FLUSH_ID_FLAGS =
+	    GRAPHIC_STR_FLAG
+	  + BRACKET_STR_FLAG
+	  + BRACKET_LAB_FLAG
+	  + OBJ_EXP_FLAG
+	  + OBJ_ID_FLAG;
+
     struct op
     {
         enum OPCODE
 	{
             PGEN = 1,
 	    PGEN_WITH_FLAGS,
+	    FLUSH_PGEN,
 	    FLUSH_ID_MAP,
 	    FLUSH_ONE_ID,
 	    PUNICODE1,
@@ -11621,22 +11629,24 @@ namespace min {
         return op ( op::PGEN_WITH_FLAGS, v, gen_flags );
     }
 
+    inline op flush_pgen
+	    ( min::gen v,
+              min::uns32 gen_flags =
+	          DEFAULT_FLUSH_ID_FLAGS )
+    {
+        return op ( op::FLUSH_PGEN, v, gen_flags );
+    }
+
     inline op flush_id_map
 	    ( min::uns32 gen_flags =
-		    GRAPHIC_STR_FLAG
-                  + BRACKET_STR_FLAG
-                  + BRACKET_LAB_FLAG
-	          + OBJ_EXP_FLAG )
+		DEFAULT_FLUSH_ID_FLAGS )
     {
         return op ( op::FLUSH_ID_MAP, gen_flags );
     }
 
     inline op flush_one_id
 	    ( min::uns32 gen_flags =
-		    GRAPHIC_STR_FLAG
-                  + BRACKET_STR_FLAG
-                  + BRACKET_LAB_FLAG
-	          + OBJ_EXP_FLAG )
+		DEFAULT_FLUSH_ID_FLAGS )
     {
         return op ( op::FLUSH_ONE_ID, gen_flags );
     }
