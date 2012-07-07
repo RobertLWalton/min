@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 26 09:29:06 EDT 2012
+// Date:	Sat Jul  7 04:06:18 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11463,12 +11463,28 @@ namespace min {
 	                        + GRAPHIC_NSPACE_FLAG
     };
 
+    enum {
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+        BRACKET_STR_FLAG		= ( 1 << 1 ),
+        BRACKET_LAB_FLAG		= ( 1 << 2 ),
+        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
+        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
+        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
+        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
+        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
+	OBJ_EXP_FLAG			= ( 1 << 8 ),
+	OBJ_ID_FLAG			= ( 1 << 9 ),
+	STR_ID_FLAG			= ( 1 << 10 )
+    };
+
     struct op
     {
         enum OPCODE
 	{
             PGEN = 1,
 	    PGEN_WITH_FLAGS,
+	    FLUSH_ID_MAP,
+	    FLUSH_ONE_ID,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT,
@@ -11486,8 +11502,6 @@ namespace min {
 	    VERBATIM,
 	    SUPPRESSIBLE_SPACE,
 	    SPACE,
-	    FLUSH_ID_MAP,
-	    FLUSH_ONE_ID,
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
@@ -11605,6 +11619,26 @@ namespace min {
               min::uns32 gen_flags )
     {
         return op ( op::PGEN_WITH_FLAGS, v, gen_flags );
+    }
+
+    inline op flush_id_map
+	    ( min::uns32 gen_flags =
+		    GRAPHIC_STR_FLAG
+                  + BRACKET_STR_FLAG
+                  + BRACKET_LAB_FLAG
+	          + OBJ_EXP_FLAG )
+    {
+        return op ( op::FLUSH_ID_MAP, gen_flags );
+    }
+
+    inline op flush_one_id
+	    ( min::uns32 gen_flags =
+		    GRAPHIC_STR_FLAG
+                  + BRACKET_STR_FLAG
+                  + BRACKET_LAB_FLAG
+	          + OBJ_EXP_FLAG )
+    {
+        return op ( op::FLUSH_ONE_ID, gen_flags );
     }
 
     inline op punicode ( min::uns32 c )
@@ -11749,9 +11783,6 @@ namespace min {
 
     extern const op suppressible_space;
     extern const op space;
-
-    extern const op flush_id_map;
-    extern const op flush_one_id;
 
     namespace internal
     {
@@ -11952,20 +11983,6 @@ namespace min {
            default_flag_names;
 
     extern const gen_format default_gen_format;
-
-    enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
-        BRACKET_STR_FLAG		= ( 1 << 1 ),
-        BRACKET_LAB_FLAG		= ( 1 << 2 ),
-        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
-        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
-        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
-        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
-        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
-	OBJ_EXP_FLAG			= ( 1 << 8 ),
-	OBJ_ID_FLAG			= ( 1 << 9 ),
-	STR_ID_FLAG			= ( 1 << 10 )
-    };
 
     min::printer default_pgen
 	    ( min::printer printer,

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 26 12:33:57 EDT 2012
+// Date:	Sat Jul  7 05:00:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4149,7 +4149,8 @@ void test_object_attribute_level ( void )
     min_assert_print = true;
     MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
     MIN_ASSERT
-        ( min::attr ( vp, 21 ) == min::EMPTY_SUBLIST() );
+        (    min::attr ( vp, 21 )
+	  == min::EMPTY_SUBLIST() );
 
     min::locatei ( ap, 1 );
     MIN_ASSERT ( min::get ( ap ) == min::NONE() );
@@ -4330,7 +4331,8 @@ void test_object_printing ( void )
 	           ( min::OBJ_EXP_FLAG )
             << min::set_gen_flags
 	           ( min::OBJ_ID_FLAG )
-	    << min::flush_id_map
+	    << min::flush_one_id ( 0 )
+	    << min::flush_id_map()
 	    << min::restore_print_format;
 
     min::gen obj3 = min::new_obj_gen ( 10, 10 );
@@ -4356,7 +4358,7 @@ void test_object_printing ( void )
     min::find_or_add
         ( printer->id_map, min::stub_of ( obj3 ) );
 
-    printer << min::flush_id_map;
+    printer << min::flush_id_map();
 
 
 
