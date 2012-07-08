@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  7 05:00:59 EDT 2012
+// Date:	Sun Jul  8 06:39:07 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4327,12 +4327,14 @@ void test_object_printing ( void )
             << min::eol;
 
     printer << min::save_print_format
-            << min::clear_gen_flags
+            << min::clear_flush_subobj_gen_flags
 	           ( min::OBJ_EXP_FLAG )
-            << min::set_gen_flags
-	           ( min::OBJ_ID_FLAG )
-	    << min::flush_one_id ( 0 )
-	    << min::flush_id_map()
+            << min::clear_flush_gen_flags
+	           ( min::OBJ_EXP_FLAG )
+	    << min::flush_one_id
+            << min::set_flush_gen_flags
+	           ( min::OBJ_EXP_FLAG )
+	    << min::flush_id_map
 	    << min::restore_print_format;
 
     min::gen obj3 = min::new_obj_gen ( 10, 10 );
@@ -4358,7 +4360,7 @@ void test_object_printing ( void )
     min::find_or_add
         ( printer->id_map, min::stub_of ( obj3 ) );
 
-    printer << min::flush_id_map();
+    printer << min::flush_id_map;
 
 
 
