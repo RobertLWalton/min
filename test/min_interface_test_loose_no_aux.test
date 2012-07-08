@@ -3294,7 +3294,7 @@ Finish Object Attribute Level Test!
 
 Start Object Printing Test!
 
-@1
+{| |}
 {| 1 2 3 |}
 1 2 3
 [. 1 2 3 .]
@@ -3321,14 +3321,14 @@ Start Object Printing Test!
      .separator = ,
      .initiator = {
 @2 = [@1; @1; @1; @1; @1]
-@3 = 10 {| ; label4 = @3 = label3 |} 11 |:
-     label3[!z] = @4 = label5
-     label3[!z] = {: @5; @4 :} = label4
+@3 = 10 @4 11 |:
+     label3[!z] = @5 = label5
+     label3[!z] = {: @4; @5 :} = label4
 @4 =  |:
      label4 = @3 = label3
-     label5 = @3 = label3
 @5 =  |:
      label4 = @3 = label3
+     label5 = @3 = label3
 
 Finish Object Printing Test!
 ../include/min.h:XXXX assert:

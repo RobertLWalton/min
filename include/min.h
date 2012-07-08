@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  7 04:06:18 EDT 2012
+// Date:	Sun Jul  8 06:24:56 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11389,6 +11389,8 @@ namespace min {
     {
 	uns32 flags;
 	uns32 gen_flags;
+	uns32 flush_gen_flags;
+	uns32 flush_subobj_gen_flags;
         const min::gen_format * gen_format;
     };
 
@@ -11463,26 +11465,8 @@ namespace min {
 	                        + GRAPHIC_NSPACE_FLAG
     };
 
-    enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
-        BRACKET_STR_FLAG		= ( 1 << 1 ),
-        BRACKET_LAB_FLAG		= ( 1 << 2 ),
-        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
-        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
-        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
-        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
-        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
-	OBJ_EXP_FLAG			= ( 1 << 8 ),
-	OBJ_ID_FLAG			= ( 1 << 9 ),
-	STR_ID_FLAG			= ( 1 << 10 )
-    };
-
-    const min::uns32 DEFAULT_FLUSH_ID_FLAGS =
-	    GRAPHIC_STR_FLAG
-	  + BRACKET_STR_FLAG
-	  + BRACKET_LAB_FLAG
-	  + OBJ_EXP_FLAG
-	  + OBJ_ID_FLAG;
+    const uns32 DEFAULT_PRINT_FLAGS =
+        HBREAK_FLAG + ALLOW_VSPACE_FLAG;
 
     struct op
     {
@@ -11490,7 +11474,6 @@ namespace min {
 	{
             PGEN = 1,
 	    PGEN_WITH_FLAGS,
-	    FLUSH_PGEN,
 	    FLUSH_ID_MAP,
 	    FLUSH_ONE_ID,
 	    PUNICODE1,
@@ -11504,6 +11487,10 @@ namespace min {
 	    ADJUST_INDENT,
 	    SET_GEN_FLAGS,
 	    CLEAR_GEN_FLAGS,
+	    SET_FLUSH_GEN_FLAGS,
+	    CLEAR_FLUSH_GEN_FLAGS,
+	    SET_FLUSH_SUBOBJ_GEN_FLAGS,
+	    CLEAR_FLUSH_SUBOBJ_GEN_FLAGS,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
@@ -11536,7 +11523,7 @@ namespace min {
 	    unsptr uptr;
 	    float64 f64;
 	    min::unsgen g;
-	} v1, v2;
+	} v1, v2, v3;
 
 	op ( op::OPCODE opcode )
 	    : opcode ( opcode ) {}
@@ -11548,11 +11535,13 @@ namespace min {
 	}
 	op ( op::OPCODE opcode,
 	     min::gen v,
-	     min::uns32 gen_flags )
+	     min::uns32 gen_flags,
+	     min::uns32 subobj_gen_flags )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
 	    v2.u32 = gen_flags;
+	    v3.u32 = subobj_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11626,29 +11615,17 @@ namespace min {
 	    ( min::gen v,
               min::uns32 gen_flags )
     {
-        return op ( op::PGEN_WITH_FLAGS, v, gen_flags );
+        return op ( op::PGEN_WITH_FLAGS, v,
+	            gen_flags, gen_flags );
     }
 
-    inline op flush_pgen
+    inline op pgen
 	    ( min::gen v,
-              min::uns32 gen_flags =
-	          DEFAULT_FLUSH_ID_FLAGS )
+              min::uns32 gen_flags,
+              min::uns32 subobj_gen_flags )
     {
-        return op ( op::FLUSH_PGEN, v, gen_flags );
-    }
-
-    inline op flush_id_map
-	    ( min::uns32 gen_flags =
-		DEFAULT_FLUSH_ID_FLAGS )
-    {
-        return op ( op::FLUSH_ID_MAP, gen_flags );
-    }
-
-    inline op flush_one_id
-	    ( min::uns32 gen_flags =
-		DEFAULT_FLUSH_ID_FLAGS )
-    {
-        return op ( op::FLUSH_ONE_ID, gen_flags );
+        return op ( op::PGEN_WITH_FLAGS, v,
+	            gen_flags, subobj_gen_flags );
     }
 
     inline op punicode ( min::uns32 c )
@@ -11727,6 +11704,34 @@ namespace min {
         return op ( op::CLEAR_GEN_FLAGS, gen_flags );
     }
 
+    inline op set_flush_gen_flags
+	    ( min::uns32 flush_gen_flags )
+    {
+        return op ( op::SET_FLUSH_GEN_FLAGS,
+	            flush_gen_flags );
+    }
+
+    inline op clear_flush_gen_flags
+	    ( min::uns32 flush_gen_flags )
+    {
+        return op ( op::CLEAR_FLUSH_GEN_FLAGS,
+	            flush_gen_flags );
+    }
+
+    inline op set_flush_subobj_gen_flags
+	    ( min::uns32 flush_subobj_gen_flags )
+    {
+        return op ( op::SET_FLUSH_SUBOBJ_GEN_FLAGS,
+	            flush_subobj_gen_flags );
+    }
+
+    inline op clear_flush_subobj_gen_flags
+	    ( min::uns32 flush_subobj_gen_flags )
+    {
+        return op ( op::CLEAR_FLUSH_SUBOBJ_GEN_FLAGS,
+	            flush_subobj_gen_flags );
+    }
+
     inline op set_gen_format
 	    ( const min::gen_format * gen_format )
     {
@@ -11793,6 +11798,9 @@ namespace min {
 
     extern const op suppressible_space;
     extern const op space;
+
+    extern const op flush_one_id;
+    extern const op flush_id_map;
 
     namespace internal
     {
@@ -11957,6 +11965,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      min::uns32 gen_flags,
+	      min::uns32 subobj_gen_flags,
 	      const min::gen_format * gen_format );
 
 	// Members beyond this point may be moved and
@@ -11983,6 +11992,36 @@ namespace min {
 	                     flag_names;
     };
 
+    enum {
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+        BRACKET_STR_FLAG		= ( 1 << 1 ),
+        BRACKET_LAB_FLAG		= ( 1 << 2 ),
+        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
+        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
+        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
+        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
+        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
+	OBJ_EXP_FLAG			= ( 1 << 8 ),
+	OBJ_INDENT_FLAG			= ( 1 << 9 ),
+	OBJ_ID_FLAG			= ( 1 << 10 ),
+	STR_ID_FLAG			= ( 1 << 11 )
+    };
+
+    const min::uns32 DEFAULT_GEN_FLAGS =
+	  + OBJ_EXP_FLAG;
+
+    const min::uns32 DEFAULT_FLUSH_GEN_FLAGS =
+	    GRAPHIC_STR_FLAG
+	  + BRACKET_STR_FLAG
+	  + BRACKET_LAB_FLAG
+	  + OBJ_EXP_FLAG
+	  + OBJ_INDENT_FLAG;
+
+    const min::uns32 DEFAULT_FLUSH_SUBOBJ_GEN_FLAGS =
+	    GRAPHIC_STR_FLAG
+	  + OBJ_EXP_FLAG
+	  + OBJ_ID_FLAG;
+
     extern packed_vec_ptr<const char *>
            standard_special_names;
 
@@ -11998,6 +12037,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      min::uns32 gen_flags,
+	      min::uns32 subobj_gen_flags,
 	      const min::gen_format * gen_format );
 
     extern min::locatable_gen dot_initiator;
