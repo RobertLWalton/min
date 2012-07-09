@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  8 06:24:56 EDT 2012
+// Date:	Mon Jul  9 04:16:13 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11410,8 +11410,8 @@ namespace min {
 	min::line_break line_break;
 	min::print_format print_format;
 
-	min::line_break_stack line_break_stack;
-	min::print_format_stack print_format_stack;
+	const min::line_break_stack line_break_stack;
+	const min::print_format_stack print_format_stack;
 
 	const min::id_map id_map;
 
@@ -11474,17 +11474,21 @@ namespace min {
 	{
             PGEN = 1,
 	    PGEN_WITH_FLAGS,
-	    FLUSH_ID_MAP,
-	    FLUSH_ONE_ID,
+	    FLUSH_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT,
 	    PUNS,
 	    PFLOAT,
+
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
 	    PLACE_INDENT,
 	    ADJUST_INDENT,
+	    LEFT,
+	    RIGHT,
+	    RESERVE,
+
 	    SET_GEN_FLAGS,
 	    CLEAR_GEN_FLAGS,
 	    SET_FLUSH_GEN_FLAGS,
@@ -11494,24 +11498,33 @@ namespace min {
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
-	    VERBATIM,
-	    SUPPRESSIBLE_SPACE,
-	    SPACE,
+
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
 	    RESTORE_INDENT,
 	    SAVE_PRINT_FORMAT,
 	    RESTORE_PRINT_FORMAT,
+
 	    EOL,
 	    FLUSH,
 	    BOM,
 	    EOM,
 	    SET_BREAK,
-	    LEFT,
-	    RIGHT,
-	    RESERVE,
-	    INDENT
+	    INDENT,
+	    EOL_IF_AFTER_INDENT,
+	    SPACES_IF_BEFORE_INDENT,
+	    SPACE_IF_AFTER_INDENT,
+
+	    VERBATIM,
+
+	    SUPPRESSIBLE_SPACE,
+	    SPACE,
+
+	    FLUSH_ONE_ID,
+	    FLUSH_ID_MAP,
+
+	    PRINT_ASSERT
 	} opcode;
 
 	union {
@@ -11605,8 +11618,7 @@ namespace min {
             ( min::printer printer,
 	      min::id_map map = min::NULL_STUB );
 
-    inline op pgen
-	    ( min::gen v )
+    inline op pgen ( min::gen v )
     {
         return op ( op::PGEN, v );
     }
@@ -11626,6 +11638,11 @@ namespace min {
     {
         return op ( op::PGEN_WITH_FLAGS, v,
 	            gen_flags, subobj_gen_flags );
+    }
+
+    inline op flush_pgen ( min::gen v )
+    {
+        return op ( op::FLUSH_PGEN, v );
     }
 
     inline op punicode ( min::uns32 c )
@@ -11766,6 +11783,9 @@ namespace min {
     extern const op eom;
     extern const op set_break;
     extern const op indent;
+    extern const op eol_if_after_indent;
+    extern const op spaces_if_before_indent;
+    extern const op space_if_after_indent;
 
     extern const op ascii;
     extern const op noascii;
@@ -11801,6 +11821,8 @@ namespace min {
 
     extern const op flush_one_id;
     extern const op flush_id_map;
+
+    extern const op print_assert;  // For debugging only.
 
     namespace internal
     {
@@ -12049,6 +12071,7 @@ namespace min {
     extern min::locatable_gen dot_keys;
     extern min::locatable_gen dot_operator;
     extern min::locatable_gen dot_position;
+    extern min::locatable_gen new_line;
 }
 
 // More Allocator/Collector/Compactor Interface

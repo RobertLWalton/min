@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  8 06:25:06 EDT 2012
+// Date:	Mon Jul  9 12:06:14 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,6 +72,7 @@ min::locatable_gen min::dot_arguments;
 min::locatable_gen min::dot_keys;
 min::locatable_gen min::dot_operator;
 min::locatable_gen min::dot_position;
+min::locatable_gen min::new_line;
 
 static min::packed_vec<const char *>
     const_char_ptr_packed_vec_type
@@ -344,6 +345,8 @@ void MINT::initialize ( void )
         min::new_lab_gen ( ".", "operator" );
     min::dot_position =
         min::new_lab_gen ( ".", "position" );
+    min::new_line =
+        min::new_str_gen ( "\n" );
 
     {
 	min::packed_vec_insptr<const char *> p =
@@ -7176,6 +7179,7 @@ static void init_default_suppress_matrix ( void )
         ::default_suppress_matrix[i][']'] = true;
         ::default_suppress_matrix[i]['}'] = true;
         ::default_suppress_matrix[i][0xB8] = true;
+		// >>
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
 
@@ -7455,6 +7459,19 @@ min::printer operator <<
 	    ( printer, MUP::new_gen ( op.v1.g ),
 	      op.v2.u32, op.v3.u32, f );
     }
+    case min::op::FLUSH_PGEN:
+    {
+	const min::gen_format * f =
+	    printer->print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ( * f->pgen )
+	    ( printer, MUP::new_gen ( op.v1.g ),
+	      printer->print_format.flush_gen_flags,
+	      printer->print_format
+	                   .flush_subobj_gen_flags, f );
+    }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
     case min::op::FLUSH_ID_MAP:
@@ -7636,6 +7653,13 @@ min::printer operator <<
     case min::op::EOM:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
+	goto eol;
+    case min::op::EOL_IF_AFTER_INDENT:
+        if (    printer->column
+	     <= printer->line_break.indent )
+	    return printer;
+	// Fall through to EOL.
+    eol:
     case min::op::EOL:
 	::end_line ( printer );
 	if (   printer->print_format.flags
@@ -7733,6 +7757,26 @@ min::printer operator <<
 	    min::push(printer->file->buffer) = ' ';
 	}
 	goto set_break;
+    case min::op::SPACES_IF_BEFORE_INDENT:
+	while (   printer->column
+		< printer->line_break.indent )
+	{
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	goto set_break;
+    case min::op::SPACE_IF_AFTER_INDENT:
+        if (   printer->column
+	     > printer->line_break.indent )
+	{
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	return printer;
+    case min::op::PRINT_ASSERT:
+        // For debugging only.
+	assert ( printer->line_break.indent < 1000 );
+        return printer;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
     }
@@ -7818,6 +7862,20 @@ std::ostream & operator <<
 	    ( out, MUP::new_gen ( op.v1.g ),
 	      op.v2.u32, op.v3.u32, f );
     }
+    case min::op::FLUSH_PGEN:
+    {
+	const min::gen_format * f =
+	    min::ostream_print_format.gen_format;
+	if  ( f == NULL )
+	    f = & min::default_gen_format;
+
+	return ::ostream_pgen
+	    ( out, MUP::new_gen ( op.v1.g ),
+	      min::ostream_print_format
+	          .flush_gen_flags,
+	      min::ostream_print_format
+	          .flush_subobj_gen_flags, f );
+    }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( out );
     case min::op::FLUSH_ID_MAP:
@@ -7881,6 +7939,12 @@ const min::op min::bom ( min::op::BOM );
 const min::op min::eom ( min::op::EOM );
 const min::op min::set_break ( min::op::SET_BREAK );
 const min::op min::indent ( min::op::INDENT );
+const min::op min::eol_if_after_indent
+    ( min::op::EOL_IF_AFTER_INDENT );
+const min::op min::spaces_if_before_indent
+    ( min::op::SPACES_IF_BEFORE_INDENT );
+const min::op min::space_if_after_indent
+    ( min::op::SPACE_IF_AFTER_INDENT );
 
 const min::op min::ascii
     ( min::op::SET_PRINT_FLAGS, min::ASCII_FLAG );
@@ -7968,6 +8032,9 @@ const min::op min::flush_one_id
     ( min::op::FLUSH_ONE_ID );
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
+
+const min::op min::print_assert
+    ( min::op::PRINT_ASSERT );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
@@ -8954,10 +9021,16 @@ static T pgen_exp
          ::get ( min::dot_terminator,
 	          info, info_length );
 
+    min::uns32 name_flags = subobj_gen_flags;
+    name_flags |= min::GRAPHIC_STR_FLAG;
+    name_flags |= min::SUPPRESS_LAB_SPACE_FLAG;
+    name_flags &= ~ min::BRACKET_STR_FLAG;
+    name_flags &= ~ min::BRACKET_LAB_FLAG;
+
     const char * prefix = "";
     const char * postfix = "";
     if ( initiator == min::NONE()
-         ||
+         &&
 	 terminator == min::NONE() )
     {
         if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
@@ -8973,33 +9046,86 @@ static T pgen_exp
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    if ( i != 0 ) out << " ";
-	    out << min::set_break;
-	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
-		   f );
-	}
-	return out << postfix << min::restore_indent;
-    }
-    else
-    {
-	out << min::pgen ( initiator, 0 )
-	    << min::save_indent;
-	for ( min::unsptr i = 0;
-	      i < min::size_of ( vp ); ++ i )
-	{
 	    if ( i != 0 )
 	    {
 	        if ( separator != min::NONE() )
-		    out << min::pgen ( separator, 0 );
-	        out << " ";
+		    out << min::pgen
+			     ( separator, name_flags );
+		out << " ";
 		out << min::set_break;
 	    }
 	    pgen ( out, vp[i],
 	           subobj_gen_flags, subobj_gen_flags,
 		   f );
 	}
-	return out << min::pgen ( terminator, 0 )
+	return out << postfix << min::restore_indent;
+    }
+    else if ( terminator == min::NONE() )
+    {
+	out << min::pgen ( initiator, name_flags )
+	    << min::save_line_break
+	    << min::adjust_indent ( 4 );
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    out << min::spaces_if_before_indent
+	        << min::space_if_after_indent;
+	    pgen ( out, vp[i],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	}
+	return out << min::eol_if_after_indent
+		   << min::restore_line_break;
+    }
+    else if ( initiator == min::NONE() )
+    {
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    out << min::print_assert;
+	    out << min::spaces_if_before_indent
+	        << min::space_if_after_indent;
+	    out << min::print_assert;
+	    pgen ( out, vp[i],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	    out << min::print_assert;
+	}
+	if ( terminator == min::new_line )
+		return out << min::eol;
+	else
+	    return out << min::suppressible_space
+		       << min::pgen
+			    ( terminator, name_flags )
+		       << " ";
+    }
+    else
+    {
+	out << min::print_assert;
+	out << min::pgen ( initiator, name_flags )
+	    << min::suppressible_space
+	    << min::save_indent;
+	out << min::print_assert;
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 )
+	    {
+	        if ( separator != min::NONE() )
+		    out << min::pgen
+			     ( separator, name_flags );
+	        out << " ";
+		out << min::set_break;
+	    }
+	    out << min::print_assert;
+	    pgen ( out, vp[i],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	    out << min::print_assert;
+	}
+	return out << min::suppressible_space
+	           << min::pgen
+		        ( terminator, name_flags )
 	           << min::restore_indent;
     }
 }
@@ -9086,10 +9212,14 @@ static T pgen
 	}
 	else
 	    return out << min::save_print_format
+		       << min::print_assert
 		       << min::set_print_flags
 		              ( graphic_flags )
+		       << min::print_assert
 		       << min::begin_ptr_of ( sp )
-		       << min::restore_print_format;
+		       << min::print_assert
+		       << min::restore_print_format
+		       << min::print_assert;
     }
     else if ( min::is_lab ( v ) )
     {
@@ -9195,7 +9325,7 @@ static T pgen
 		              f->exp_ok_attrs )
 		     &&
 		     info[i].reverse_attr_count == 0;
-	    if ( c == 0
+	    if (    c == 0
 	         && min::size_of ( vp ) == 0
 		 &&    (   gen_flags
 		         & min::BRACKET_IMPLICIT_FLAG )
