@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  8 06:39:07 EDT 2012
+// Date:	Mon Jul  9 22:26:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2437,12 +2437,12 @@ void test_printer ( void )
         printer << i << min::left ( 4 );
     printer << min::eom;
 
-    printer << min::save_line_break
+    printer << min::save_indent
             << min::set_indent ( 4 );
     MIN_ASSERT ( printer->line_break.indent == 4 );
     printer << min::set_indent ( 8 );
     MIN_ASSERT ( printer->line_break.indent == 8 );
-    printer << min::restore_line_break;
+    printer << min::restore_indent;
     MIN_ASSERT ( printer->line_break.indent == 4 );
 
     printer << "A" << min::indent << "B"
