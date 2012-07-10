@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 22:24:34 EDT 2012
+// Date:	Tue Jul 10 04:56:11 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,6 +73,8 @@ min::locatable_gen min::dot_keys;
 min::locatable_gen min::dot_operator;
 min::locatable_gen min::dot_position;
 min::locatable_gen min::new_line;
+min::locatable_gen min::doublequote;
+min::locatable_gen min::number_sign;
 
 static min::packed_vec<const char *>
     const_char_ptr_packed_vec_type
@@ -347,6 +349,10 @@ void MINT::initialize ( void )
         min::new_lab_gen ( ".", "position" );
     min::new_line =
         min::new_str_gen ( "\n" );
+    min::doublequote =
+        min::new_str_gen ( "\"" );
+    min::number_sign =
+        min::new_str_gen ( "#" );
 
     {
 	min::packed_vec_insptr<const char *> p =
@@ -7193,7 +7199,7 @@ const min::gen_format min::default_gen_format =
 {
     min::default_pgen,
     "%.15g",
-    "`","'","<Q>",
+    "\"","\"","<Q>",
     "[: ", " ", " :]",
     "[$ ", " $]",
     "[. ", " .]",
@@ -9066,6 +9072,26 @@ static T pgen_exp
     }
     else if ( terminator == min::NONE() )
     {
+        if ( initiator == min::doublequote
+	     &&
+	     min::size_of ( vp ) == 1 )
+	{
+	    subobj_gen_flags |= min::BRACKET_STR_FLAG;
+	    pgen ( out, vp[0],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	    return out;
+	}
+        else if ( initiator == min::number_sign
+	          &&
+	          min::size_of ( vp ) == 1 )
+	{
+	    pgen ( out, vp[0],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	    return out;
+	}
+
 	out << min::pgen ( initiator, name_flags )
 	    << min::adjust_indent ( 4 )
 	    << min::eol;

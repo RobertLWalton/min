@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 22:24:24 EDT 2012
+// Date:	Tue Jul 10 03:50:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12070,6 +12070,8 @@ namespace min {
     extern min::locatable_gen dot_operator;
     extern min::locatable_gen dot_position;
     extern min::locatable_gen new_line;
+    extern min::locatable_gen doublequote;
+    extern min::locatable_gen number_sign;
 }
 
 // More Allocator/Collector/Compactor Interface
