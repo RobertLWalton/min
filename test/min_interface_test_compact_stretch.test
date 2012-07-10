@@ -119,7 +119,7 @@ min_interface_test.cc:XXXX assert:
     MUP::direct_int_of ( igen ) == -1 << 27 true.
 
 Test direct string general values:
-strgen: `ABC'
+strgen: "ABC"
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -136,7 +136,7 @@ min_interface_test.cc:XXXX desire failure:
     strgen = min::new_direct_str_gen ( overflowstr );
 ../include/min.h:XXXX assert:
     strlen ( p ) <= 3 false.
-strngen: `AB'
+strngen: "AB"
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strngen ) true.
 min_interface_test.cc:XXXX assert:
@@ -985,7 +985,7 @@ min_interface_test.cc:XXXX assert:
     labp1 == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
     labp2 == min::NULL_STUB true.
-LABEL [: `Hello' 55 `End' :]
+LABEL [: "Hello" 55 "End" :]
 
 Finish Labels Test!
 
@@ -1483,8 +1483,8 @@ pint ( -3, "%05d" ) = -0003
 1
 1.23456789
 1.23456789012345
-`this␣is␣a␣string␣with␣a␣quote␣(<Q>)'
-[: 5.6 [: 1.234 `str␣1' :] `str␣2' :]
+"this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
+[: 5.6 [: 1.234 "str␣1" :] "str␣2" :]
 A, B / A , B
 MISSING
 NONE
@@ -3494,7 +3494,7 @@ min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-TEST ATTRIBUTE VALUES ( `label1', `label2')
+TEST ATTRIBUTE VALUES ( "label1", "label2")
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3523,7 +3523,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-TEST ATTRIBUTE VALUES ( 3, `label1')
+TEST ATTRIBUTE VALUES ( 3, "label1")
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3552,7 +3552,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-TEST ATTRIBUTE VALUES ( [: 1 `label1' :], [: 1 `label2' :])
+TEST ATTRIBUTE VALUES ( [: 1 "label1" :], [: 1 "label2" :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3581,7 +3581,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 9 ) true.
-TEST ATTRIBUTE VALUES ( [: 1 `label2' :], [: 1 `label1' :])
+TEST ATTRIBUTE VALUES ( [: 1 "label2" :], [: 1 "label1" :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3610,7 +3610,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 10 ) true.
-TEST ATTRIBUTE VALUES ( [: `label1' 1 :], [: `label1' 2 :])
+TEST ATTRIBUTE VALUES ( [: "label1" 1 :], [: "label1" 2 :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3639,7 +3639,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 11 ) true.
-TEST ATTRIBUTE VALUES ( [: `label1' 2 :], [: `label1' 1 :])
+TEST ATTRIBUTE VALUES ( [: "label1" 2 :], [: "label1" 1 :])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3668,7 +3668,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
-TEST ATTRIBUTE FLAGS ( `label1', `label2', `label3')
+TEST ATTRIBUTE FLAGS ( "label1", "label2", "label3")
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3721,7 +3721,7 @@ min_interface_test.cc:XXXX assert:
     flag[0][0] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
-TEST ATTRIBUTE FLAGS ( `label2', 1, 2)
+TEST ATTRIBUTE FLAGS ( "label2", 1, 2)
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3778,7 +3778,7 @@ min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
+TEST REVERSE ATTRIBUTE VALUES ( "label1", "label2", 1)
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3824,20 +3824,20 @@ Start Object Printing Test!
 1 2 3
 [. 1 2 3 .]
 @1
-{| 1 2 3 4 5; .terminator = `}'; .separator = `,'; .initiator = `{' |}
+{| 1 2 3 4 5; .terminator = "}"; .separator = ","; .initiator = "{" |}
 {1, 2, 3, 4, 5}
 @1
-{| {| 1 2 3 4 5; .terminator = `}'; .separator = `,';
-      .initiator = `{' |}
-   {| 1 2 3 4 5; .terminator = `}'; .separator = `,';
-      .initiator = `{' |}
-   {| 1 2 3 4 5; .terminator = `}'; .separator = `,';
-      .initiator = `{' |}
-   {| 1 2 3 4 5; .terminator = `}'; .separator = `,';
-      .initiator = `{' |}
-   {| 1 2 3 4 5; .terminator = `}'; .separator = `,';
-      .initiator = `{' |}; .terminator = `]'; .separator = `;';
-   .initiator = `[' |}
+{| {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
+      .initiator = "{" |}
+   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
+      .initiator = "{" |}
+   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
+      .initiator = "{" |}
+   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
+      .initiator = "{" |}
+   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
+      .initiator = "{" |}; .terminator = "]"; .separator = ";";
+   .initiator = "[" |}
 [{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
  {1, 2, 3, 4, 5}]
 @2

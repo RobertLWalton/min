@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 22:26:34 EDT 2012
+// Date:	Tue Jul 10 04:08:59 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2520,7 +2520,7 @@ void test_printer ( void )
     printer << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
-			   " quote (')" ) )
+			   " quote (\")" ) )
             << min::eol;
 
     min::gen lab1[2] =
