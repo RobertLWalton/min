@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 12:06:14 EDT 2012
+// Date:	Mon Jul  9 22:24:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7327,8 +7327,14 @@ static min::packed_vec<min::print_format>
     print_format_stack_type
         ( "min::print_format_stack_type" );
 
-static min::uns32 printer_stub_disp[2] =
+static min::uns32 printer_stub_disp[5] =
     { min::DISP ( & min::printer_struct::file ),
+      min::DISP ( & min::printer_struct
+                       ::line_break_stack ),
+      min::DISP ( & min::printer_struct
+                       ::print_format_stack ),
+      min::DISP ( & min::printer_struct
+                       ::id_map ),
       min::DISP_END };
 
 static min::packed_struct<min::printer_struct>
@@ -7622,11 +7628,6 @@ min::printer operator <<
     case min::op::SPACE:
 	MINT::print_unicode ( printer, 1, ::space );
 	return printer;
-    case min::op::SAVE_LINE_BREAK:
-        min::push ( printer->line_break_stack ) =
-	    printer->line_break;
-	return printer;
-    case min::op::RESTORE_LINE_BREAK:
     case min::op::RESTORE_INDENT:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
@@ -7775,6 +7776,13 @@ min::printer operator <<
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
+	{
+	    static const min::uns32 * adr = NULL;
+	    if ( adr == NULL )
+	        adr = & printer->line_break.indent;
+	    assert
+	        ( adr == & printer->line_break.indent );
+	}
 	assert ( printer->line_break.indent < 1000 );
         return printer;
     default:
@@ -7920,10 +7928,6 @@ std::ostream & operator <<
     }
 }
 
-const min::op min::save_line_break
-    ( min::op::SAVE_LINE_BREAK );
-const min::op min::restore_line_break
-    ( min::op::RESTORE_LINE_BREAK );
 const min::op min::save_indent
     ( min::op::SAVE_INDENT );
 const min::op min::restore_indent
@@ -9063,8 +9067,8 @@ static T pgen_exp
     else if ( terminator == min::NONE() )
     {
 	out << min::pgen ( initiator, name_flags )
-	    << min::save_line_break
-	    << min::adjust_indent ( 4 );
+	    << min::adjust_indent ( 4 )
+	    << min::eol;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9074,22 +9078,19 @@ static T pgen_exp
 	           subobj_gen_flags, subobj_gen_flags,
 		   f );
 	}
-	return out << min::eol_if_after_indent
-		   << min::restore_line_break;
+	return out << min::adjust_indent ( -4 )
+	           << min::eol_if_after_indent;
     }
     else if ( initiator == min::NONE() )
     {
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    out << min::print_assert;
 	    out << min::spaces_if_before_indent
 	        << min::space_if_after_indent;
-	    out << min::print_assert;
 	    pgen ( out, vp[i],
 	           subobj_gen_flags, subobj_gen_flags,
 		   f );
-	    out << min::print_assert;
 	}
 	if ( terminator == min::new_line )
 		return out << min::eol;
@@ -9101,11 +9102,9 @@ static T pgen_exp
     }
     else
     {
-	out << min::print_assert;
 	out << min::pgen ( initiator, name_flags )
 	    << min::suppressible_space
 	    << min::save_indent;
-	out << min::print_assert;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9117,11 +9116,9 @@ static T pgen_exp
 	        out << " ";
 		out << min::set_break;
 	    }
-	    out << min::print_assert;
 	    pgen ( out, vp[i],
 	           subobj_gen_flags, subobj_gen_flags,
 		   f );
-	    out << min::print_assert;
 	}
 	return out << min::suppressible_space
 	           << min::pgen
@@ -9212,14 +9209,10 @@ static T pgen
 	}
 	else
 	    return out << min::save_print_format
-		       << min::print_assert
 		       << min::set_print_flags
 		              ( graphic_flags )
-		       << min::print_assert
 		       << min::begin_ptr_of ( sp )
-		       << min::print_assert
-		       << min::restore_print_format
-		       << min::print_assert;
+		       << min::restore_print_format;
     }
     else if ( min::is_lab ( v ) )
     {

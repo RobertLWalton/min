@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  9 04:16:13 EDT 2012
+// Date:	Mon Jul  9 22:24:24 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11410,8 +11410,10 @@ namespace min {
 	min::line_break line_break;
 	min::print_format print_format;
 
-	const min::line_break_stack line_break_stack;
-	const min::print_format_stack print_format_stack;
+	const min::line_break_stack
+	    line_break_stack;
+	const min::print_format_stack
+	    print_format_stack;
 
 	const min::id_map id_map;
 
@@ -11499,8 +11501,6 @@ namespace min {
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 
-	    SAVE_LINE_BREAK,
-	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
 	    RESTORE_INDENT,
 	    SAVE_PRINT_FORMAT,
@@ -11770,8 +11770,6 @@ namespace min {
         return op ( op::RESERVE, width );
     }
 
-    extern const op save_line_break;
-    extern const op restore_line_break;
     extern const op save_indent;
     extern const op restore_indent;
     extern const op save_print_format;
@@ -11822,7 +11820,7 @@ namespace min {
     extern const op flush_one_id;
     extern const op flush_id_map;
 
-    extern const op print_assert;  // For debugging only.
+    extern const op print_assert; // For debugging only.
 
     namespace internal
     {
