@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 03:50:06 EDT 2012
+// Date:	Tue Jul 10 09:36:01 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11507,6 +11507,7 @@ namespace min {
 	    RESTORE_PRINT_FORMAT,
 
 	    EOL,
+	    BOL,
 	    FLUSH,
 	    BOM,
 	    EOM,
@@ -11776,6 +11777,7 @@ namespace min {
     extern const op restore_print_format;
 
     extern const op eol;
+    extern const op bol;
     extern const op flush;
     extern const op bom;
     extern const op eom;
