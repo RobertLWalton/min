@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 04:56:11 EDT 2012
+// Date:	Fri Jul 20 21:59:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7660,11 +7660,20 @@ min::printer operator <<
     case min::op::EOM:
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
-	goto eol;
+        if ( printer->column != 0 )
+	    ::end_line ( printer );
+	if (   printer->print_format.flags
+	     & min::EOL_FLUSH_FLAG )
+	    min::flush_file ( printer->file );
+	goto restore_print_format;
     case min::op::EOL_IF_AFTER_INDENT:
         if (    printer->column
 	     <= printer->line_break.indent )
 	    return printer;
+	else
+	    goto eol;
+    case min::op::BOL:
+        if ( printer->column == 0 ) return printer;
 	// Fall through to EOL.
     eol:
     case min::op::EOL:
@@ -7672,8 +7681,6 @@ min::printer operator <<
 	if (   printer->print_format.flags
 	     & min::EOL_FLUSH_FLAG )
 	    min::flush_file ( printer->file );
-	if ( op.opcode == min::op::EOM )
-	    goto restore_print_format;
 	return printer;
     case min::op::FLUSH:
 	min::flush_file ( printer->file );
@@ -7923,8 +7930,11 @@ std::ostream & operator <<
 	return out << buffer;
     case min::op::SUPPRESSIBLE_SPACE:
     case min::op::SPACE:
+    case min::op::SPACE_IF_AFTER_INDENT:
 	return out << " ";
     case min::op::EOM:
+    case min::op::BOL:
+    case min::op::EOL_IF_AFTER_INDENT:
     case min::op::EOL:
 	return out << std::endl;
     case min::op::FLUSH:
@@ -7944,6 +7954,7 @@ const min::op min::restore_print_format
     ( min::op::RESTORE_PRINT_FORMAT );
 
 const min::op min::eol ( min::op::EOL );
+const min::op min::bol ( min::op::BOL );
 const min::op min::flush ( min::op::FLUSH );
 const min::op min::bom ( min::op::BOM );
 const min::op min::eom ( min::op::EOM );
@@ -9030,6 +9041,9 @@ static T pgen_exp
     min::gen terminator =
          ::get ( min::dot_terminator,
 	          info, info_length );
+    min::gen name =
+         ::get ( min::dot_name,
+	          info, info_length );
 
     min::uns32 name_flags = subobj_gen_flags;
     name_flags |= min::GRAPHIC_STR_FLAG;
@@ -9126,7 +9140,7 @@ static T pgen_exp
 			    ( terminator, name_flags )
 		       << " ";
     }
-    else
+    else if ( name == min::NONE() )
     {
 	out << min::pgen ( initiator, name_flags )
 	    << min::suppressible_space
@@ -9147,6 +9161,82 @@ static T pgen_exp
 		   f );
 	}
 	return out << min::suppressible_space
+	           << min::pgen
+		        ( terminator, name_flags )
+	           << min::restore_indent;
+    }
+    else
+    {
+	min::gen middle =
+	     ::get ( min::dot_middle,
+		      info, info_length );
+	min::gen arguments =
+	     ::get ( min::dot_arguments,
+		      info, info_length );
+	min::gen keys =
+	     ::get ( min::dot_keys,
+		      info, info_length );
+
+	out << min::pgen ( initiator, name_flags )
+	    << min::suppressible_space
+	    << min::pgen ( name, name_flags );
+	if ( arguments != min::NONE()
+	     ||
+	     keys != min::NONE() )
+	{
+	    out << " " << min::save_indent;
+	    if ( arguments != min::NONE() )
+	    {
+	    }
+	    if ( keys != min::NONE() )
+	    {
+	    }
+	    if ( middle == min::NONE() )
+	    {
+		return out << min::suppressible_space
+			   << min::pgen
+				( terminator,
+				  name_flags )
+			   << min::restore_indent;
+	    }
+	    else
+		out << min::suppressible_space
+		    << min::pgen ( middle, name_flags )
+		    << min::restore_indent;
+	}
+	else if ( middle == min::NONE() )
+	{
+	    return out << min::suppressible_space
+		       << min::pgen
+			    ( terminator,
+			      name_flags );
+	}
+	else
+	    out << min::suppressible_space
+		<< min::pgen ( middle, name_flags );
+
+	out << " " << min::save_indent;
+
+	for ( min::unsptr i = 0;
+	      i < min::size_of ( vp ); ++ i )
+	{
+	    if ( i != 0 )
+	    {
+	        if ( separator != min::NONE() )
+		    out << min::pgen
+			     ( separator, name_flags );
+	        out << " ";
+		out << min::set_break;
+	    }
+
+	    pgen ( out, vp[i],
+	           subobj_gen_flags, subobj_gen_flags,
+		   f );
+	}
+
+	return out << " "
+	           << min::pgen
+		        ( middle, name_flags )
 	           << min::pgen
 		        ( terminator, name_flags )
 	           << min::restore_indent;
