@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jun  5 04:19:32 EDT 2012
+# Date:		Sun Jul 22 11:22:48 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -37,6 +37,10 @@ make_unicode_class.diff:	make_unicode_class.out
 	             make_unicode_class.out
 	@diff make_unicode_class.test \
 	      make_unicode_class.out
+
+print_unicode:	print_unicode.cc
+	rm -f print_unicode
+	g++ -o print_unicode print_unicode.cc -lfontconfig
 
 utf8test:	utf8test.cc
 	rm -f utf8test
