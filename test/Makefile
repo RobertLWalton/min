@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Feb 29 10:50:47 EST 2012
+# Date:		Sun Jul 22 07:03:32 EDT 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,7 +25,8 @@ WFLAGS = -Wall -Wextra \
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
-	../include/min.h
+	../include/min.h \
+	../unicode/unicode_class.h
 
 LIBRARIES =
 
