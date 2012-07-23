@@ -1,0 +1,150 @@
+// List of UNICODE characters that can be printed an
+// input and the keys that may be used to input them.
+//
+// File:	usable_unicode.txt
+// Author:	Bob Walton (walton@acm.org)
+// Date:	Sun Jul 22 17:44:13 EDT 2012
+//
+// The authors have placed this program in the public
+// domain; they make no warranty and accept no liability
+// for this program.
+
+// Code, Name, Input
+//
+# define USABLE_UNICODE \
+    { 0x00, "NUL", "Control-V Control-@" }, \
+    { 0x01, "SOH", "Control-V Control-A" }, \
+    { 0x02, "STX", "Control-V Control-B" }, \
+    { 0x03, "ETX", "Control-V Control-C" }, \
+    { 0x04, "EOT", "Control-V Control-D" }, \
+    { 0x05, "ENQ", "Control-V Control-E" }, \
+    { 0x06, "ACK", "Control-V Control-F" }, \
+    { 0x07, "BEL", "Control-V Control-G" }, \
+    { 0x08, "BS",  "Control-V Control-H or BACKSPACE" }, \
+    { 0x09, "HT",  "Control-V Control-I or TAB" }, \
+    { 0x0A, "LF",  "Control-V Control-J or ENTER" }, \
+    { 0x0B, "VT",  "Control-V Control-K" }, \
+    { 0x0C, "FF",  "Control-V Control-L" }, \
+    { 0x0D, "CR",  "Control-V Control-M" }, \
+    { 0x0E, "SO",  "Control-V Control-N" }, \
+    { 0x0F, "SI",  "Control-V Control-O" }, \
+    { 0x10, "DLE", "Control-V Control-P" }, \
+    { 0x11, "DC1", "Control-V Control-Q" }, \
+    { 0x12, "DC2", "Control-V Control-R" }, \
+    { 0x13, "DC3", "Control-V Control-W" }, \
+    { 0x14, "DC4", "Control-V Control-T" }, \
+    { 0x15, "NAK", "Control-V Control-U" }, \
+    { 0x16, "SYN", "Control-V Control-V" }, \
+    { 0x17, "ETB", "Control-V Control-W" }, \
+    { 0x18, "CAN", "Control-V Control-X" }, \
+    { 0x19, "EM",  "Control-V Control-Y" }, \
+    { 0x1A, "SUB", "Control-V Control-Z" }, \
+    { 0x1B, "ESC", "Control-V Control-[ or Control-V ESC" }, \
+    { 0x1C, "FS",  "Control-V Control-\\" }, \
+    { 0x1D, "GS",  "Control-V Control-]" }, \
+    { 0x1E, "RS",  "Control-V Control-^" }, \
+    { 0x1F, "US",  "Control-V Control-_" }, \
+    { 0x20, " ",   "SPACE" }, \
+    { 0x21, "!",   "!" }, \
+    { 0x22, "\"",   "\"" }, \
+// TBD \
+    { 0x7F, "US",  "Control-V DELETE" or DELETE }, \
+    	// BACKSPACE is usually mapped to DELETE \
+ \
+    { 0xa0, " ",   "Compose SPACE SPACE" }, \
+    { 0xa1, "¡",   "Compose ! !" }, \
+    { 0xa2, "¢",   "Compose / c; Compose c /" }, \
+    { 0xa3, "£",   "Compose - l; Compose l -" }, \
+    { 0xa4, "¤",   "Compose o x; Compose x o" }, \
+    { 0xa5, "¥",   "Compose = y; Compose y =" }, \
+    // { 0xa6, "",   "" }, // Broken Bar \
+    { 0xa7, "§",   "Compose s o; Compose o s" }, \
+    { 0xa8, "¨",   "Compose \" \"" }, \
+    { 0xa9, "©",   "Compose o c; Compose c o" }, \
+    { 0xaa, "ª",   "Compose _ a; Compose a _" }, \
+    { 0xab, "«",   "Compose < <" }, \
+    // { 0xac, "",   "" }, // Negation Sign \
+    { 0xad, "¯",   "Compose _ _" }, \
+    { 0xae, "®",   "Compose O R; Compose R O" }, \
+    { 0xaf, "¯",   "Compose _ _" }, \
+    // { 0xb0, "",   "" }, // Degree Sign \
+    { 0xb1, "±",   "Compose + -; Compose - +" }, \
+    { 0xb2, "²",   "Compose ^ 2; Compose 2 ^" }, \
+    { 0xb3, "³",   "Compose ^ 3; Compose 3 ^" }, \
+    { 0xb4, "´",   "Compose ' '" }, \
+    // { 0xb5, "",   "" }, // Greek Mu \
+    { 0xb6, "¶",   "Compose ! p; Compose p !" }, \
+    // { 0xb7, "",   "" }, // Large Dot \
+    { 0xb8, "",   "Compose ' '" }, \
+    { 0xb9, "¹",   "Compose ^ 1; Compose 1 ^" }, \
+    { 0xba, "º",   "Compose _ o; Compose o _" }, \
+    { 0xbb, "»",   "Compose > >" }, \
+    // { 0xbc, "",   "" }, // 1/4 \
+    // { 0xbd, "",   "" }, // 1/2 \
+    // { 0xbe, "",   "" }, // 3/4 \
+    { 0xbf, "¿",   "Compose ? ?" }, \
+    { 0xc0, "À",   "Compose ` A; Compose A `" }, \
+    { 0xc1, "Á",   "Compose ' A; Compose A '" }, \
+    { 0xc2, "Â",   "Compose ^ A; Compose A ^" }, \
+    { 0xc3, "Ã",   "Compose ~ A; Compose A ~" }, \
+    { 0xc4, "Ä",   "Compose \" A; Compose A \"" }, \
+    { 0xc5, "Å",   "Compose * A; Compose A *" }, \
+    { 0xc6, "Æ",   "Compose A E" }, \
+    { 0xc7, "Ç",   "Compose , C; Compose C ," }, \
+    { 0xc8, "È",   "Compose ` E; Compose E `" }, \
+    { 0xc9, "É",   "Compose ' E; Compose E '" }, \
+    { 0xca, "Ê",   "Compose ^ E; Compose E ^" }, \
+    { 0xcb, "Ë",   "Compose \" E; Compose E \"" }, \
+    { 0xcc, "Ì",   "Compose ` I; Compose I `" }, \
+    { 0xcd, "Í",   "Compose ' I; Compose I '" }, \
+    { 0xce, "Î",   "Compose ^ I; Compose I ^" }, \
+    { 0xcf, "Ï",   "Compose \" I; Compose I \"" }, \
+    { 0xd0, "Đ",   "Compose - D; Compose D -" }, \
+    // { 0xd0, "",   "" }, // D stroke \
+    { 0xd1, "Ñ",   "Compose ~ N; Compose N ~" }, \
+    { 0xd2, "Ò",   "Compose ` O; Compose O `" }, \
+    { 0xd3, "Ó",   "Compose ' O; Compose O '" }, \
+    { 0xd4, "Ô",   "Compose ^ O; Compose O ^" }, \
+    { 0xd5, "Õ",   "Compose ~ O; Compose O ~" }, \
+    { 0xd6, "Ö",   "Compose \" O; Compose O \"" }, \
+    { 0xd7, "×",   "Compose x x" }, \
+    { 0xd8, "Ø",   "Compose / O; Compose O /" }, \
+    { 0xd9, "Ù",   "Compose ` U; Compose U `" }, \
+    { 0xda, "Ú",   "Compose ' U; Compose U '" }, \
+    { 0xdb, "Û",   "Compose ^ U; Compose U ^" }, \
+    { 0xdc, "Ü",   "Compose \" U; Compose U \"" }, \
+    { 0xdd, "Ý",   "Compose ' Y; Compose Y '" }, \
+    { 0xde, "þ",   "Compose t h" }, \
+    { 0xdf, "ß",   "Compose s s" }, \
+    { 0xe0, "à",   "Compose ` a; Compose a `" }, \
+    { 0xe1, "á",   "Compose ' a; Compose a '" }, \
+    { 0xe2, "â",   "Compose ^ a; Compose a ^" }, \
+    { 0xe3, "ã",   "Compose ~ a; Compose a ~" }, \
+    { 0xe4, "ä",   "Compose \" a; Compose a \"" }, \
+    { 0xe5, "å",   "Compose * a; Compose a *" }, \
+    { 0xe6, "æ",   "Compose a e" }, \
+    { 0xe7, "ç",   "Compose , c; Compose c ," }, \
+    { 0xe8, "è",   "Compose ` e; Compose e `" }, \
+    { 0xe9, "é",   "Compose ' e; Compose e '" }, \
+    { 0xea, "ê",   "Compose ^ e; Compose e ^" }, \
+    { 0xeb, "ë",   "Compose \" e; Compose e \"" }, \
+    { 0xec, "ì",   "Compose ` i; Compose i `" }, \
+    { 0xed, "í",   "Compose ' i; Compose i '" }, \
+    { 0xee, "î",   "Compose ^ i; Compose i ^" }, \
+    { 0xef, "ï",   "Compose \" i; Compose i \"" }, \
+    // { 0xf0, "",   "" }, // d stroke \
+    { 0xf1, "ñ",   "Compose ~ n; Compose n ~" }, \
+    { 0xf2, "ò",   "Compose ` o; Compose o `" }, \
+    { 0xf3, "ó",   "Compose ' o; Compose o '" }, \
+    { 0xf4, "ô",   "Compose ^ o; Compose o ^" }, \
+    { 0xf5, "õ",   "Compose ~ o; Compose o ~" }, \
+    { 0xf6, "ö",   "Compose \" o; Compose o \"" }, \
+    { 0xf7, "÷",   "Compose - :; Compose : -" }, \
+    { 0xf8, "Ø",   "Compose / O; Compose O /" }, \
+    { 0xf9, "Ù",   "Compose ` U; Compose U `" }, \
+    { 0xfa, "Ú",   "Compose ' U; Compose U '" }, \
+    { 0xfb, "Û",   "Compose ^ U; Compose U ^" }, \
+    { 0xfc, "Ü",   "Compose \" U; Compose U \"" }, \
+    { 0xfd, "Ý",   "Compose ' Y; Compose Y '" }, \
+    { 0xfe, "þ",   "Compose t h" }, \
+    { 0xff, "ß",   "Compose s s" }, \

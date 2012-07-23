@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 20 21:59:30 EDT 2012
+// Date:	Mon Jul 23 07:52:01 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7180,18 +7180,45 @@ static void init_default_suppress_matrix ( void )
         ::default_suppress_matrix['{'][i] = true;
         ::default_suppress_matrix[0xAB][i] = true;
 		// <<
+        ::default_suppress_matrix['`'][i] = true;
 
         ::default_suppress_matrix[i][')'] = true;
         ::default_suppress_matrix[i][']'] = true;
         ::default_suppress_matrix[i]['}'] = true;
         ::default_suppress_matrix[i][0xB8] = true;
 		// >>
+        ::default_suppress_matrix[i]['\''] = true;
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
 
-	min::uns8 c = min::unicode_class ( i );
-	if ( c == 'U' || c == 'L' )
-	    ::default_suppress_matrix['.'][i] = true;
+	min::uns8 b = min::unicode_class ( i );
+
+	if ( b == 'U' || b == 'L' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c = min::unicode_class ( j );
+		if ( c == 'U' || c == 'L' ) continue;
+		if ( c == '\'' ) continue;
+		::default_suppress_matrix[i][j] = true;
+		::default_suppress_matrix[j][i] = true;
+	    }
+	}
+
+	if ( '0' <= b && b <= '9' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c = min::unicode_class ( j );
+		if ( '0' <= c && c <= '9' ) continue;
+		if ( c == ',' ) continue;
+		if ( c == '.' ) continue;
+		if ( c == ':' ) continue;
+		if ( c == '/' ) continue;
+		::default_suppress_matrix[i][j] = true;
+		::default_suppress_matrix[j][i] = true;
+	    }
+	}
     }
 }
 
