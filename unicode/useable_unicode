@@ -3,7 +3,7 @@
 //
 // File:	usable_unicode.txt
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 22 17:44:13 EDT 2012
+// Date:	Mon Jul 23 09:44:34 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,40 +49,44 @@
     { 0x22, "\"",   "\"" }, \
 // TBD \
     { 0x7F, "US",  "Control-V DELETE" or DELETE }, \
-    	// BACKSPACE is usually mapped to DELETE \
- \
-    { 0xa0, " ",   "Compose SPACE SPACE" }, \
+    	/* BACKSPACE is usually mapped to DELETE */ \
+    \
+    { 0xa0, " ",   "Compose SPACE SPACE" }, /* No Break Space */ \
     { 0xa1, "¡",   "Compose ! !" }, \
     { 0xa2, "¢",   "Compose / c; Compose c /" }, \
     { 0xa3, "£",   "Compose - l; Compose l -" }, \
     { 0xa4, "¤",   "Compose o x; Compose x o" }, \
-    { 0xa5, "¥",   "Compose = y; Compose y =" }, \
-    // { 0xa6, "",   "" }, // Broken Bar \
-    { 0xa7, "§",   "Compose s o; Compose o s" }, \
-    { 0xa8, "¨",   "Compose \" \"" }, \
+    { 0xa5, "¥",   "Compose = y; Compose y =" }, /* Yen Sign */ \
+    /* { 0xa6, "",   "" }, /* Broken Bar */ \
+    { 0xa7, "§",   "Compose s o; Compose o s" }, /* Section Sign */ \
+    { 0xa8, "¨",   "Compose \" \"" }, /* Diaeresis */ \
     { 0xa9, "©",   "Compose o c; Compose c o" }, \
     { 0xaa, "ª",   "Compose _ a; Compose a _" }, \
+    	/* Feminine Ordinal Indicator (Spanish) */ \
     { 0xab, "«",   "Compose < <" }, \
-    // { 0xac, "",   "" }, // Negation Sign \
-    { 0xad, "¯",   "Compose _ _" }, \
+    { 0xac, "¬",   "Comopse , -; Compose - ," },
+    /* { 0xad, "",   "" }, /* Soft Hyphen */ \
     { 0xae, "®",   "Compose O R; Compose R O" }, \
-    { 0xaf, "¯",   "Compose _ _" }, \
-    // { 0xb0, "",   "" }, // Degree Sign \
+    { 0xaf, "¯",   "Compose _ _" }, /* Macron */ \
+    \
+    /* { 0xb0, "",   "" }, /* Degree Sign */ \
     { 0xb1, "±",   "Compose + -; Compose - +" }, \
     { 0xb2, "²",   "Compose ^ 2; Compose 2 ^" }, \
     { 0xb3, "³",   "Compose ^ 3; Compose 3 ^" }, \
     { 0xb4, "´",   "Compose ' '" }, \
-    // { 0xb5, "",   "" }, // Greek Mu \
+    /* { 0xb5, "",   "" }, /* Greek Mu */ \
     { 0xb6, "¶",   "Compose ! p; Compose p !" }, \
-    // { 0xb7, "",   "" }, // Large Dot \
-    { 0xb8, "",   "Compose ' '" }, \
+    /* { 0xb7, "",   "" }, /* Middle Dot */ \
+    { 0xb8, "¸",   "Compose , ," },  /* Cedilla */ \
     { 0xb9, "¹",   "Compose ^ 1; Compose 1 ^" }, \
     { 0xba, "º",   "Compose _ o; Compose o _" }, \
+    	/* Masculine Ordinal Indicator (Spanish) */ \
     { 0xbb, "»",   "Compose > >" }, \
-    // { 0xbc, "",   "" }, // 1/4 \
-    // { 0xbd, "",   "" }, // 1/2 \
-    // { 0xbe, "",   "" }, // 3/4 \
+    /* { 0xbc, "",   "" }, /* 1/4 */ \
+    /* { 0xbd, "",   "" }, /* 1/2 */ \
+    /* { 0xbe, "",   "" }, /* 3/4 */ \
     { 0xbf, "¿",   "Compose ? ?" }, \
+    \
     { 0xc0, "À",   "Compose ` A; Compose A `" }, \
     { 0xc1, "Á",   "Compose ' A; Compose A '" }, \
     { 0xc2, "Â",   "Compose ^ A; Compose A ^" }, \
@@ -99,8 +103,9 @@
     { 0xcd, "Í",   "Compose ' I; Compose I '" }, \
     { 0xce, "Î",   "Compose ^ I; Compose I ^" }, \
     { 0xcf, "Ï",   "Compose \" I; Compose I \"" }, \
+    \
     { 0xd0, "Đ",   "Compose - D; Compose D -" }, \
-    // { 0xd0, "",   "" }, // D stroke \
+    /* { 0xd0, "",   "" }, /* Eth */ \
     { 0xd1, "Ñ",   "Compose ~ N; Compose N ~" }, \
     { 0xd2, "Ò",   "Compose ` O; Compose O `" }, \
     { 0xd3, "Ó",   "Compose ' O; Compose O '" }, \
@@ -114,8 +119,9 @@
     { 0xdb, "Û",   "Compose ^ U; Compose U ^" }, \
     { 0xdc, "Ü",   "Compose \" U; Compose U \"" }, \
     { 0xdd, "Ý",   "Compose ' Y; Compose Y '" }, \
-    { 0xde, "þ",   "Compose t h" }, \
-    { 0xdf, "ß",   "Compose s s" }, \
+    { 0xde, "Þ",   "Compose T H" }, /* Thorn */ \
+    { 0xdf, "ß",   "Compose s s" }, /* Sharp S */ \
+    \
     { 0xe0, "à",   "Compose ` a; Compose a `" }, \
     { 0xe1, "á",   "Compose ' a; Compose a '" }, \
     { 0xe2, "â",   "Compose ^ a; Compose a ^" }, \
@@ -132,7 +138,8 @@
     { 0xed, "í",   "Compose ' i; Compose i '" }, \
     { 0xee, "î",   "Compose ^ i; Compose i ^" }, \
     { 0xef, "ï",   "Compose \" i; Compose i \"" }, \
-    // { 0xf0, "",   "" }, // d stroke \
+    \
+    /* { 0xf0, "",   "" }, /* eth */ \
     { 0xf1, "ñ",   "Compose ~ n; Compose n ~" }, \
     { 0xf2, "ò",   "Compose ` o; Compose o `" }, \
     { 0xf3, "ó",   "Compose ' o; Compose o '" }, \
@@ -140,11 +147,11 @@
     { 0xf5, "õ",   "Compose ~ o; Compose o ~" }, \
     { 0xf6, "ö",   "Compose \" o; Compose o \"" }, \
     { 0xf7, "÷",   "Compose - :; Compose : -" }, \
-    { 0xf8, "Ø",   "Compose / O; Compose O /" }, \
-    { 0xf9, "Ù",   "Compose ` U; Compose U `" }, \
-    { 0xfa, "Ú",   "Compose ' U; Compose U '" }, \
-    { 0xfb, "Û",   "Compose ^ U; Compose U ^" }, \
-    { 0xfc, "Ü",   "Compose \" U; Compose U \"" }, \
-    { 0xfd, "Ý",   "Compose ' Y; Compose Y '" }, \
-    { 0xfe, "þ",   "Compose t h" }, \
-    { 0xff, "ß",   "Compose s s" }, \
+    { 0xf8, "ø",   "Compose / o; Compose o /" }, \
+    { 0xf9, "ù",   "Compose ` u; Compose u `" }, \
+    { 0xfa, "ú",   "Compose ' u; Compose u '" }, \
+    { 0xfb, "û",   "Compose ^ u; Compose u ^" }, \
+    { 0xfc, "ü",   "Compose \" u; Compose u \"" }, \
+    { 0xfd, "ý",   "Compose ' y; Compose y '" }, \
+    { 0xfe, "þ",   "Compose t h" }, /* Thorn */ \
+    { 0xff, "ÿ",   "Compose \" y; Compose y \"" }, \
