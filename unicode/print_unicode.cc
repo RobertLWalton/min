@@ -1,5 +1,4 @@
-// MIN Data System Program to Print Unicode Characters
-// of a given class.
+// Program to Print Unicode Characters of a given class.
 //
 // File:	print_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
