@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 25, 2012}
+\date{July 24, 2012}
  
 \maketitle
 
@@ -6526,7 +6526,7 @@ Note that \underline{none} of
 the {\tt min::\EOL flush\_file/\EOL line/\EOL remaining}
 functions call {\tt min::\EOL flush\_\EOL spool}.
 
-The following {\tt <<} operators do the same thing as
+The following {\tt <{}<} operators do the same thing as
 {min::\EOL flush\_\EOL line} except that, instead of copying
 to the file's {\tt ostream}, {\tt ofile}, and/or
 {\tt printer}, they copy to their lefthand operand:
@@ -6552,12 +6552,12 @@ to the file's {\tt ostream}, {\tt ofile}, and/or
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Note that these {\tt <<} operators call the {\tt min::\EOL next\_\EOL line}
+Note that these {\tt <{}<} operators call the {\tt min::\EOL next\_\EOL line}
 and {\tt min::\EOL skip\_\EOL remaining} functions in the same way as
 {\tt min::\EOL flush\_\EOL file} does, and therefore
-these {\tt <<} operators interact with each other and with the
+these {\tt <{}<} operators interact with each other and with the
 {\tt min::\EOL flush\_\EOL file} function.  Generally such interaction
-is avoided by using only one of the {\tt <<} operators or only
+is avoided by using only one of the {\tt <{}<} operators or only
 the {\tt min::\EOL flush\_\EOL file} function on a given file.
 
 \subsection{Identifier Maps}
@@ -6797,25 +6797,42 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~}l}
-\verb|struct           min::| & \MINKEY{print\_\EOL format}
+\verb|struct       min::| & \MINKEY{print\_\EOL format}
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
-\verb|{                     | \\
-\verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
+\verb|{                 | \\
+\verb|    min::uns32    | & \TTMKEY{flags}{in {\tt min::print\_format}}
 			          & \verb|// Default:| \\
 			      &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
 			      &   & \verb|//  + min::HBREAK_FLAG|
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
+\verb|    min::uns32    | & \TTMKEY{gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
 			          & \verb|// Default:| \\
 			      &   & \verb|//    min::OBJ_EXP_FLAG|
 \LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::gen_format * | & \TTMKEY{gen\_format}%
+\verb|    min::uns32    | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+			          & \verb|// Default:| \\
+			      &   & \verb|//    min::GRAPHIC_STR_FLAG| \\
+			      &   & \verb|//  + min::BRACKET_STR_FLAG| \\
+			      &   & \verb|//  + min::BRACKET_LAB_FLAG| \\
+			      &   & \verb|//  + min::OBJ_EXP_FLAG| \\
+			      &   & \verb|//  + min::OBJ_INDENT_FLAG|
+\LABEL{MIN::FLUSH_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32    | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+			          & \verb|// Default:| \\
+			      &   & \verb|//    min::GRAPHIC_STR_FLAG| \\
+			      &   & \verb|//  + min::OBJ_EXP_FLAG| \\
+			      &   & \verb|//  + min::OBJ_ID_FLAG|
+\LABEL{MIN::FLUSH_ATTR_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\multicolumn{2}{l}{\tt ~~~~min::gen\_format *} \\
+                              & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 			          & \verb|// Default:| \\
-			      &   & \verb|//    & min::default_gen_format|
+			      &   & \verb|//  & min::default_gen_format|
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
-\verb|}                     | \\
+\verb|}                 | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7175,12 +7192,14 @@ a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
 
 \begin{itemlist}[0.6in]
 \item[\ttmkey{print\_format.gen\_flags}{in {\tt min::printer}}]
+\item[\ttmkey{print\_format.flush\_gen\_flags}{in {\tt min::printer}}]%
+\vspace{-2ex}
+\item[\ttmkey{print\_format.flush\_attr\_gen\_flags}{in {\tt min::printer}}]%
+\vspace{-2ex}
 \item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
 \vspace{-2ex}~\\
 These control the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
-
-Note: {\tt gen\_format} must \underline{not} be {\tt NULL}.
 
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with {\tt min::save\_print\_format} and
@@ -7197,7 +7216,7 @@ See \pagref{IDENTIFIER-MAPS}.
 \end{itemlist}
 
 Copying characters into a printer is done by the
-{\tt <<} operator:
+{\tt <{}<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
@@ -7255,7 +7274,7 @@ string of UNICODE characters as per
 {\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 However, a `{\tt const char *}' cannot be an unprotected body pointer,
 as the body it points into may be relocated during the execution of the
-{\tt <<\RESIZE} operator on a printer.
+{\tt <{}<\RESIZE} operator on a printer.
 A `{\tt min::\EOL ptr<char>}' value can be used
 instead as a pointer to a `{\tt const char *}' string inside a body.
 And a `{\tt min::\EOL str\_\EOL ptr}' can be used instead to
@@ -7272,7 +7291,7 @@ in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE\_\EOL FLAG} on,
 it is encoded as the overlong UTF-8 encoding {\tt 0xC0},{\tt 0x80}.
 
 Values of types other than `\verb|const char *|'
-which are presented to {\tt <<} are converted to `{\tt const char~*}' strings
+which are presented to {\tt <{}<} are converted to `{\tt const char~*}' strings
 as follows:
 `{\tt char}' converts to a 1-{\tt char} string whose only element
 is the {\tt char} value.  Numbers are converted by {\tt printf}
@@ -7289,7 +7308,7 @@ min::float64	& "\%.15g" \\
 \end{center}
 
 Operations can be performed on printers by applying the
-{\tt <<} operator to a {\tt min::}\MINKEY{op}:
+{\tt <{}<} operator to a {\tt min::}\MINKEY{op}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
@@ -7324,7 +7343,7 @@ just executes
 min::flush_file ( printer->file );
 \end{verbatim}\end{indpar}
 
-A {\ldots{} \tt << printer} operation can be used to
+A {\ldots{} \tt <{}< printer} operation can be used to
 flush the contents of {\tt printer->\EOL file} into
 an {\tt std::\EOL ostream}, a {\tt min::\EOL file}, or
 into another {\tt min::\EOL printer}:
@@ -7350,8 +7369,8 @@ into another {\tt min::\EOL printer}:
 \LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
-In general {\ldots{} \tt << printer} is equivalent to
-{\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
+In general {\ldots{} \tt <{}< printer} is equivalent to
+{\ldots{} \tt <{}< printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
 The {\tt min::set\_\EOL break} printer operation:
 
@@ -8001,7 +8020,7 @@ of {\tt min::\EOL verbatim} does not exist (you must save and restore
 Strictly for testing purposes, in situations where {\tt min::printer}'s
 are not working, printer operations ({\tt min::}\MINKEY{op}'s)
 can be presented to a {\tt std::\EOL ostream} by the
-{\tt <<} operator:
+{\tt <{}<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
@@ -8035,33 +8054,80 @@ default {\tt pgen}.
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
 
-{\tt min::gen} values are printed using a
-{\tt min::\EOL gen\_\EOL format} enabled by a set of {\tt gen\_\EOL flags}.
-The {\tt min::\EOL pgen} printer operation can specify the flags
-explicitly or use defaults equal to
-{\tt printer->\EOL print\_\EOL format.gen\_flags}:
+{\tt min::gen} values are printed using the {\tt min::\EOL pgen} printer
+operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{pgen}
+	  \verb|( min::gen v )|
+\LABEL{MIN::PGEN} \\
+\end{tabular}\end{indpar}
+
+The expression `{\tt printer<<min::pgen(v)}'
+prints the {\tt min::gen} value \verb|v| to the
+{\tt printer} using
+{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}
+and
+{\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
+to control the printing.  If the latter is {\tt NULL}, then
+{\tt \&\,min::default\_\EOL gen\_\EOL format} is used in its place:
+
+The expression `{\tt printer<<min::pgen(v,gen\_flags)}'
+is similar except that it uses the {\tt gen\_\EOL flags} argument
+in place of
+{\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
 	  \verb|  min::uns32 gen_flags )|
-\LABEL{MIN::PGEN_WITH_FLAGS} \\
+\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
+\end{tabular}\end{indpar}
+
+The expression `{\tt printer<<min::flush\_pgen(v)}'
+is similar except that it uses
+{\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}
+for values \verb|v| that are not objects, and for the top level of
+\verb|v| if that is an object, but uses
+{\tt printer->\EOL print\_\EOL format.flush\_\EOL attr\_\EOL gen\_\EOL flags}
+instead for names and values of object attributes.  This is mainly of
+use in printing objects \verb|v| that are being flushed from the
+{\tt printer->\EOL id\_\EOL map}, when, to take an example, it is
+permissible to print attribute values as identifiers of the
+form `{\tt @}i', but not permissible to print \verb|v| as such.
+
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  min::uns32 gen_flags,|\ARGBREAK
+	  \verb|  min::uns32 attr_gen_flags )|
+\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  min::uns32 gen_flags )|
+\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt printer<<min::pgen(v,gen\_flags)}'
-prints the {\tt min::gen} value \verb|v| to the
-{\tt printer} using the given {\tt gen\_\EOL flags}.
-{\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
-is used, unless that is {\tt NULL}, in which case
-{\tt \&\,min::default\_\EOL gen\_\EOL format} is used.
-If the {\tt gen\_flags} argument is omitted,
-{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}
-is used in its place.
+If a single {\tt gen\_\EOL flags}
+argument is given to {\tt min::\EOL pgen}, it is used
+in place of 
+{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}.
+If both {\tt gen\_\EOL flags} and {\tt attr\_\EOL gen\_\EOL flags}
+arguments are given, {\tt gen\_\EOL flags} are used if \verb|v|
+is not an object, and are also used to control the top level
+printing of an object \verb|v|, while {\tt attr\_\EOL gen\_\EOL flags}
+are used instead to print the attribute names and values of \verb|v|
+if \verb|v| is an object.
+
 
 Note that {\tt print\_\EOL format.gen\_\EOL flags} differs
 from {\tt print\_\EOL format.flags} in that {\tt gen\_\EOL flags}
@@ -8109,6 +8175,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|       ( min::printer printer,|\\
     \verb|         min::gen v,|\\
     \verb|         min::uns32 gen_flags,|\\
+    \verb|         min::uns32 attr_gen_flags,|\\
     \verb|         const min::gen_format * g );|\\
 \ttmindex{pgen}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
@@ -8174,6 +8241,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
     \verb|  min::uns32 gen_flags,|\ARGBREAK
+    \verb|  min::uns32 attr_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{tabular}\end{indpar}
@@ -14700,6 +14768,12 @@ In loose implementation: \\
 \verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32    | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+\LABEL{MIN::FLUSH_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32    | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
+                                       {in {\tt min::print\_format}}
+\LABEL{MIN::FLUSH_ATTR_GEN_FLAGS_IN_PRINT_FORMAT} \\
 \verb|    min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
@@ -15098,8 +15172,14 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  min::uns32 gen_flags,|\ARGBREAK
+	  \verb|  min::uns32 attr_gen_flags )|
+\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
 	  \verb|  min::uns32 gen_flags )|
-\LABEL{MIN::PGEN_WITH_FLAGS} \\
+\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v )|
