@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 23 07:52:01 EDT 2012
+// Date:	Tue Jul 24 03:35:08 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7692,6 +7692,14 @@ min::printer operator <<
 	if (   printer->print_format.flags
 	     & min::EOL_FLUSH_FLAG )
 	    min::flush_file ( printer->file );
+	if (   printer->print_format.flags
+	     & min::FLUSH_ID_MAP_FLAG )
+	{
+	    min::id_map id_map = printer->id_map;
+	    if ( id_map != min::NULL_STUB )
+	    while ( id_map->next < id_map->length )
+		::flush_one_id ( printer );
+	}
 	goto restore_print_format;
     case min::op::EOL_IF_AFTER_INDENT:
         if (    printer->column
@@ -7960,6 +7968,16 @@ std::ostream & operator <<
     case min::op::SPACE_IF_AFTER_INDENT:
 	return out << " ";
     case min::op::EOM:
+	out << std::endl;
+	if (   min::ostream_print_format.flags
+	     & min::FLUSH_ID_MAP_FLAG )
+	{
+	    min::id_map id_map = ::ostream_id_map;
+	    if ( id_map != min::NULL_STUB )
+	    while ( id_map->next < id_map->length )
+		::flush_one_id ( out );
+	}
+	return out;
     case min::op::BOL:
     case min::op::EOL_IF_AFTER_INDENT:
     case min::op::EOL:
