@@ -7247,7 +7247,7 @@ const min::print_format min::default_print_format =
     min::DEFAULT_PRINT_FLAGS,
     min::DEFAULT_GEN_FLAGS,
     min::DEFAULT_FLUSH_GEN_FLAGS,
-    min::DEFAULT_FLUSH_SUBOBJ_GEN_FLAGS,
+    min::DEFAULT_FLUSH_ATTR_GEN_FLAGS,
     & min::default_gen_format
 };
 
@@ -7256,7 +7256,7 @@ min::print_format min::ostream_print_format =
     min::DEFAULT_PRINT_FLAGS,
     min::DEFAULT_GEN_FLAGS,
     min::DEFAULT_FLUSH_GEN_FLAGS,
-    min::DEFAULT_FLUSH_SUBOBJ_GEN_FLAGS,
+    min::DEFAULT_FLUSH_ATTR_GEN_FLAGS,
     & min::default_gen_format
 };
 
@@ -7509,7 +7509,7 @@ min::printer operator <<
 	    ( printer, MUP::new_gen ( op.v1.g ),
 	      printer->print_format.flush_gen_flags,
 	      printer->print_format
-	                   .flush_subobj_gen_flags, f );
+	                   .flush_attr_gen_flags, f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
@@ -7579,12 +7579,12 @@ min::printer operator <<
 	printer->print_format.flush_gen_flags &=
 	    ~ op.v1.u32;
 	return printer;
-    case min::op::SET_FLUSH_SUBOBJ_GEN_FLAGS:
-	printer->print_format.flush_subobj_gen_flags |=
+    case min::op::SET_FLUSH_ATTR_GEN_FLAGS:
+	printer->print_format.flush_attr_gen_flags |=
 	    op.v1.u32;
 	return printer;
-    case min::op::CLEAR_FLUSH_SUBOBJ_GEN_FLAGS:
-	printer->print_format.flush_subobj_gen_flags &=
+    case min::op::CLEAR_FLUSH_ATTR_GEN_FLAGS:
+	printer->print_format.flush_attr_gen_flags &=
 	    ~ op.v1.u32;
 	return printer;
     case min::op::SET_GEN_FORMAT:
@@ -7846,7 +7846,7 @@ static std::ostream & ostream_pgen
 	( std::ostream & out,
 	  min::gen v,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f );
 
 static std::ostream & flush_one_id
@@ -7877,13 +7877,13 @@ std::ostream & operator <<
 	min::ostream_print_format.flush_gen_flags &=
 	    ~ op.v1.u32;
 	return out;
-    case min::op::SET_FLUSH_SUBOBJ_GEN_FLAGS:
+    case min::op::SET_FLUSH_ATTR_GEN_FLAGS:
 	min::ostream_print_format
-	    .flush_subobj_gen_flags |= op.v1.u32;
+	    .flush_attr_gen_flags |= op.v1.u32;
 	return out;
-    case min::op::CLEAR_FLUSH_SUBOBJ_GEN_FLAGS:
+    case min::op::CLEAR_FLUSH_ATTR_GEN_FLAGS:
 	min::ostream_print_format
-	    .flush_subobj_gen_flags &= ~ op.v1.u32;
+	    .flush_attr_gen_flags &= ~ op.v1.u32;
 	return out;
     case min::op::SET_GEN_FORMAT:
 	min::ostream_print_format.gen_format =
@@ -7930,7 +7930,7 @@ std::ostream & operator <<
 	      min::ostream_print_format
 	          .flush_gen_flags,
 	      min::ostream_print_format
-	          .flush_subobj_gen_flags, f );
+	          .flush_attr_gen_flags, f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( out );
@@ -8823,13 +8823,13 @@ static T pgen_obj
 	( T out,
 	  min::gen v,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
 		min::uns32 gen_flags,
-		min::uns32 subobj_gen_flags,
+		min::uns32 attr_gen_flags,
 		const min::gen_format * f ) )
 {
     bool indent = ( gen_flags & min::OBJ_INDENT_FLAG );
@@ -8856,7 +8856,7 @@ static T pgen_obj
 	    return out << "{| |}";
     }
 
-    min::uns32 name_flags = subobj_gen_flags;
+    min::uns32 name_flags = attr_gen_flags;
     name_flags |= min::GRAPHIC_STR_FLAG;
     name_flags |= min::SUPPRESS_LAB_SPACE_FLAG;
     name_flags &= ~ min::BRACKET_STR_FLAG;
@@ -8885,7 +8885,7 @@ static T pgen_obj
 	}
 	else
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
     }
 
@@ -8966,8 +8966,8 @@ static T pgen_obj
 	    {
 		out << " = ";
 		pgen ( out, info[i].value,
-		       subobj_gen_flags,
-		       subobj_gen_flags, f );
+		       attr_gen_flags,
+		       attr_gen_flags, f );
 	    }
 	    else if ( j == 0 && vc > 1 )
 	    {
@@ -8981,8 +8981,8 @@ static T pgen_obj
 		    if ( k > 0 )
 			out << "; " << min::set_break;
 		    pgen ( out, value[k],
-		           subobj_gen_flags,
-		           subobj_gen_flags, f );
+		           attr_gen_flags,
+		           attr_gen_flags, f );
 		}
 		out << " :}" << min::restore_indent;
 	    }
@@ -9064,13 +9064,13 @@ static T pgen_exp
 	( T out,
 	  min::attr_ptr & ap,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
 		min::uns32 gen_flags,
-		min::uns32 subobj_gen_flags,
+		min::uns32 attr_gen_flags,
 		const min::gen_format * f ),
 	  min::attr_info * info,
 	  min::unsptr info_length )
@@ -9090,7 +9090,7 @@ static T pgen_exp
          ::get ( min::dot_name,
 	          info, info_length );
 
-    min::uns32 name_flags = subobj_gen_flags;
+    min::uns32 name_flags = attr_gen_flags;
     name_flags |= min::GRAPHIC_STR_FLAG;
     name_flags |= min::SUPPRESS_LAB_SPACE_FLAG;
     name_flags &= ~ min::BRACKET_STR_FLAG;
@@ -9124,7 +9124,7 @@ static T pgen_exp
 		out << min::set_break;
 	    }
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	}
 	return out << postfix << min::restore_indent;
@@ -9135,9 +9135,9 @@ static T pgen_exp
 	     &&
 	     min::size_of ( vp ) == 1 )
 	{
-	    subobj_gen_flags |= min::BRACKET_STR_FLAG;
+	    attr_gen_flags |= min::BRACKET_STR_FLAG;
 	    pgen ( out, vp[0],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	    return out;
 	}
@@ -9146,7 +9146,7 @@ static T pgen_exp
 	          min::size_of ( vp ) == 1 )
 	{
 	    pgen ( out, vp[0],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	    return out;
 	}
@@ -9160,7 +9160,7 @@ static T pgen_exp
 	    out << min::spaces_if_before_indent
 	        << min::space_if_after_indent;
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	}
 	return out << min::adjust_indent ( -4 )
@@ -9174,7 +9174,7 @@ static T pgen_exp
 	    out << min::spaces_if_before_indent
 	        << min::space_if_after_indent;
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	}
 	if ( terminator == min::new_line )
@@ -9202,7 +9202,7 @@ static T pgen_exp
 		out << min::set_break;
 	    }
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	}
 	return out << min::suppressible_space
@@ -9275,7 +9275,7 @@ static T pgen_exp
 	    }
 
 	    pgen ( out, vp[i],
-	           subobj_gen_flags, subobj_gen_flags,
+	           attr_gen_flags, attr_gen_flags,
 		   f );
 	}
 
@@ -9295,13 +9295,13 @@ static T pgen
 	( T out,
 	  min::gen v,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
 		min::uns32 gen_flags,
-		min::uns32 subobj_gen_flags,
+		min::uns32 attr_gen_flags,
 		const min::gen_format * f ) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
@@ -9490,7 +9490,7 @@ static T pgen
 	    {
 		::pgen_exp<T>
 		    ( out, ap,
-		      gen_flags, subobj_gen_flags, f,
+		      gen_flags, attr_gen_flags, f,
 		      pgen, &info[0], c );
 		return out;
 	    }
@@ -9501,7 +9501,7 @@ static T pgen
 	else
 	    ::pgen_obj<T>
 	        ( out, v,
-		  gen_flags, subobj_gen_flags, f,
+		  gen_flags, attr_gen_flags, f,
 		  pgen );
 
 	return out;
@@ -9552,13 +9552,13 @@ template < typename T >
 static T flush_one_id
 	( T out,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f,
 	  T ( * pgen )
 	      ( T out,
 	        min::gen v,
 		min::uns32 gen_flags,
-		min::uns32 subobj_gen_flags,
+		min::uns32 attr_gen_flags,
 		const min::gen_format * f ),
 	  min::id_map id_map )
 {
@@ -9572,7 +9572,7 @@ static T flush_one_id
     min::gen v = min::new_stub_gen ( id_map[id] );
 
     out << "@" << id << " = ";
-    ::pgen<T> ( out, v, gen_flags, subobj_gen_flags, f,
+    ::pgen<T> ( out, v, gen_flags, attr_gen_flags, f,
                 pgen );
     return out << min::eol;
 }
@@ -9581,11 +9581,11 @@ min::printer min::default_pgen
 	( min::printer printer,
 	  min::gen v,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f )
 {
     return ::pgen<min::printer>
-	    ( printer, v, gen_flags, subobj_gen_flags,
+	    ( printer, v, gen_flags, attr_gen_flags,
 	      f, f->pgen );
 }
 
@@ -9593,11 +9593,11 @@ static std::ostream & ostream_pgen
 	( std::ostream & out,
 	  min::gen v,
 	  min::uns32 gen_flags,
-	  min::uns32 subobj_gen_flags,
+	  min::uns32 attr_gen_flags,
 	  const min::gen_format * f )
 {
     return ::pgen<std::ostream &>
-	    ( out, v, gen_flags, subobj_gen_flags, f,
+	    ( out, v, gen_flags, attr_gen_flags, f,
 	      ::ostream_pgen );
 }
 
@@ -9607,8 +9607,8 @@ static min::printer flush_one_id
 
     min::uns32 gen_flags =
         printer->print_format.flush_gen_flags;
-    min::uns32 subobj_gen_flags =
-        printer->print_format.flush_subobj_gen_flags;
+    min::uns32 attr_gen_flags =
+        printer->print_format.flush_attr_gen_flags;
     const min::gen_format * f =
 	printer->print_format.gen_format;
     if  ( f == NULL )
@@ -9617,7 +9617,7 @@ static min::printer flush_one_id
     min::id_map id_map = printer->id_map;
 
     return ::flush_one_id<min::printer>
-	( printer, gen_flags, subobj_gen_flags,
+	( printer, gen_flags, attr_gen_flags,
           f, f->pgen, id_map );
 }
 
@@ -9626,15 +9626,15 @@ static std::ostream & flush_one_id
 {
     min::uns32 gen_flags =
 	  min::ostream_print_format.flush_gen_flags;
-    min::uns32 subobj_gen_flags =
+    min::uns32 attr_gen_flags =
 	  min::ostream_print_format
-	      .flush_subobj_gen_flags;
+	      .flush_attr_gen_flags;
     const min::gen_format * f =
 	min::ostream_print_format.gen_format;
     if  ( f == NULL )
 	f = & min::default_gen_format;
 
     return ::flush_one_id<std::ostream &>
-	    ( out, gen_flags, subobj_gen_flags,
+	    ( out, gen_flags, attr_gen_flags,
 	      f, ::ostream_pgen, ::ostream_id_map );
 }

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 04:08:59 EDT 2012
+// Date:	Wed Jul 25 00:17:16 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4327,7 +4327,7 @@ void test_object_printing ( void )
             << min::eol;
 
     printer << min::save_print_format
-            << min::clear_flush_subobj_gen_flags
+            << min::clear_flush_attr_gen_flags
 	           ( min::OBJ_EXP_FLAG )
             << min::clear_flush_gen_flags
 	           ( min::OBJ_EXP_FLAG )
