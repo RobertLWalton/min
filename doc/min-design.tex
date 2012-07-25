@@ -85,6 +85,18 @@
 \end{lrbox}
 \newcommand{\KET}{\usebox{\KETBOX}}
 
+\newsavebox{\LACCENTBOX}
+\begin{lrbox}{\LACCENTBOX}
+{\tt \`{}}
+\end{lrbox}
+\newcommand{\LACCENT}{\usebox{\LACCENTBOX}}
+
+\newsavebox{\RACCENTBOX}
+\begin{lrbox}{\RACCENTBOX}
+{\tt \'{}}
+\end{lrbox}
+\newcommand{\RACCENT}{\usebox{\RACCENTBOX}}
+
 \newsavebox{\LAQUOTEBOX}
 \begin{lrbox}{\LAQUOTEBOX}
 {\tt \guillemotleft}
@@ -7343,6 +7355,16 @@ just executes
 min::flush_file ( printer->file );
 \end{verbatim}\end{indpar}
 
+The \key{beginning of line} operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{bol}
+\LABEL{MIN::BOL} \\
+\end{tabular}\end{indpar}
+
+executes {\tt min::eol} if and only if the printer is \underline{not}
+already at the beginning of a line.
+
 A {\ldots{} \tt <{}< printer} operation can be used to
 flush the contents of {\tt printer->\EOL file} into
 an {\tt std::\EOL ostream}, a {\tt min::\EOL file}, or
@@ -7508,11 +7530,35 @@ The {\tt min::indent} operation:
 \end{tabular}\end{indpar}
 
 produces a line break if the current printer
-column is greater than {\tt line\_\EOL break.indent}, and then inserts
+column is greater than {\tt line\_\EOL break.indent}, and then (always) inserts
 single spaces until the current printer column is equal to
 {\tt line\_\EOL break.indent} (whether or not a line break was inserted).
 The operation
 ends by setting a break point as per {\tt min::\EOL set\_\EOL break}.
+
+Several operations are conditioned on the relative values of
+{\tt printer->\EOL line\_\EOL break.indent}, the printer indent,
+and {\tt printer->\EOL column}, the printer column:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{eol\_\EOL if\_\EOL after\_\EOL indent}
+\LABEL{MIN::EOL_IF_AFTER_INDENT} \\
+\verb|const min::op min::| & \MINKEY{spaces\_\EOL if\_\EOL before\_\EOL indent}
+\LABEL{MIN::SPACES_IF_BEFORE_INDENT} \\
+\verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL after\_\EOL indent}
+\LABEL{MIN::SPACE_IF_AFTER_INDENT} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::eol\_\EOL if\_\EOL after\_\EOL indent} operation performs
+an {\tt min::eol} operation if and only if the printer column is after
+the printer indent.
+The {\tt min::spaces\_\EOL if\_\EOL before\_\EOL indent} operation performs
+an {\tt min::indent} operation if and only if the printer column is before
+the printer indent, inserting single space characters to make the
+column equal to the indent in this case.
+The {\tt min::space\_\EOL if\_\EOL after\_\EOL indent} operation outputs
+a single space character if and only if the printer column is after
+the printer indent.
 
 The format parameters of a printer may be saved in the
 \ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}%
@@ -8243,10 +8289,16 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|min::suppress_matrix min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \verb|    // All entries false except:|\\
-\verb|    //     [B][.] for B == '(', '[', '{', 0xA8 (|\LAQUOTE\verb|)| \\
+\verb|    //     [B][.] for B == '(', '[', '{', '|\LACCENT
+                                       \verb|', 0xA8 (|\LAQUOTE\verb|)| \\
 \verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
-                                                       \verb|), ',', ';'| \\
-\verb|    //     ['.'][L] for L a letter (i.e., with unicode_class U or L)| \\
+				       \verb|), 0xB4 (|\RACCENT
+				       \verb|),| \\
+\verb|    //                     '\'', ',', ';'| \\
+\verb|    //     [B][C] and [C][B]| \\
+\verb|    //        for B a letter and C not a letter or '\'',| \\
+\verb|    //     or for B a digit and C not a digit or|%
+			\verb| ',', '.', ':', '/'|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -14931,6 +14983,8 @@ In loose implementation: \\
 \LABEL{MIN::EOL} \\
 \verb|const min::op min::| & \MINKEY{flush}
 \LABEL{MIN::FLUSH} \\
+\verb|const min::op min::| & \MINKEY{bol}
+\LABEL{MIN::BOL} \\
 \end{TABULAR}
 
 \bigskip
@@ -14967,9 +15021,22 @@ In loose implementation: \\
 \LABEL{MIN::RIGHT} \\
 \verb|const min::op min::| & \MINKEY{reserve} \verb|( min::uns32 width )|
 \LABEL{MIN::RESERVE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
 \verb|const min::op min::| & \MINKEY{indent}
 \LABEL{MIN::INDENT} \\
+\verb|const min::op min::| & \MINKEY{eol\_\EOL if\_\EOL after\_\EOL indent}
+\LABEL{MIN::EOL_IF_AFTER_INDENT} \\
+\verb|const min::op min::| & \MINKEY{spaces\_\EOL if\_\EOL before\_\EOL indent}
+\LABEL{MIN::SPACES_IF_BEFORE_INDENT} \\
+\verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL after\_\EOL indent}
+\LABEL{MIN::SPACE_IF_AFTER_INDENT} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::|
@@ -14980,12 +15047,16 @@ In loose implementation: \\
 \LABEL{MIN::RESTORE_PRINT_FORMAT} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::| & \MINKEY{bom}
 \LABEL{MIN::BOM} \\
 \verb|const min::op min::| & \MINKEY{eom}
 \LABEL{MIN::EOM} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.8in}
 \verb|min::op min::|
@@ -14995,6 +15066,8 @@ In loose implementation: \\
     & \MINKEY{adjust\_\EOL indent} \verb|( min::int32 offset )|
 \LABEL{MIN::ADJUST_INDENT} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.8in}
 \verb|min::op min::|
@@ -15007,6 +15080,8 @@ In loose implementation: \\
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.8in}
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
@@ -15014,9 +15089,6 @@ In loose implementation: \\
          \verb|  min::uns32 c,|\ARGBREAK
          \verb|  min::uns32 flags )|
 \LABEL{MIN::PWIDTH} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
@@ -15024,6 +15096,8 @@ In loose implementation: \\
          \verb|  min::uns32 flags )|
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.8in}
 \verb|min::op min::|

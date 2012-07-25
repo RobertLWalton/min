@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 24 03:35:08 EDT 2012
+// Date:	Wed Jul 25 01:50:03 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7179,14 +7179,17 @@ static void init_default_suppress_matrix ( void )
         ::default_suppress_matrix['['][i] = true;
         ::default_suppress_matrix['{'][i] = true;
         ::default_suppress_matrix[0xAB][i] = true;
-		// <<
+		// << double angle quote
         ::default_suppress_matrix['`'][i] = true;
+		// grave accent
 
         ::default_suppress_matrix[i][')'] = true;
         ::default_suppress_matrix[i][']'] = true;
         ::default_suppress_matrix[i]['}'] = true;
         ::default_suppress_matrix[i][0xB8] = true;
-		// >>
+		// >> double angle quote
+        ::default_suppress_matrix[i][0xB4] = true;
+		// acute accent
         ::default_suppress_matrix[i]['\''] = true;
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
