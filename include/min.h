@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 10 09:36:01 EDT 2012
+// Date:	Wed Jul 25 00:12:25 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11390,7 +11390,7 @@ namespace min {
 	uns32 flags;
 	uns32 gen_flags;
 	uns32 flush_gen_flags;
-	uns32 flush_subobj_gen_flags;
+	uns32 flush_attr_gen_flags;
         const min::gen_format * gen_format;
     };
 
@@ -11495,8 +11495,8 @@ namespace min {
 	    CLEAR_GEN_FLAGS,
 	    SET_FLUSH_GEN_FLAGS,
 	    CLEAR_FLUSH_GEN_FLAGS,
-	    SET_FLUSH_SUBOBJ_GEN_FLAGS,
-	    CLEAR_FLUSH_SUBOBJ_GEN_FLAGS,
+	    SET_FLUSH_ATTR_GEN_FLAGS,
+	    CLEAR_FLUSH_ATTR_GEN_FLAGS,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
@@ -11550,12 +11550,12 @@ namespace min {
 	op ( op::OPCODE opcode,
 	     min::gen v,
 	     min::uns32 gen_flags,
-	     min::uns32 subobj_gen_flags )
+	     min::uns32 attr_gen_flags )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
 	    v2.u32 = gen_flags;
-	    v3.u32 = subobj_gen_flags;
+	    v3.u32 = attr_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11635,10 +11635,10 @@ namespace min {
     inline op pgen
 	    ( min::gen v,
               min::uns32 gen_flags,
-              min::uns32 subobj_gen_flags )
+              min::uns32 attr_gen_flags )
     {
         return op ( op::PGEN_WITH_FLAGS, v,
-	            gen_flags, subobj_gen_flags );
+	            gen_flags, attr_gen_flags );
     }
 
     inline op flush_pgen ( min::gen v )
@@ -11736,18 +11736,18 @@ namespace min {
 	            flush_gen_flags );
     }
 
-    inline op set_flush_subobj_gen_flags
-	    ( min::uns32 flush_subobj_gen_flags )
+    inline op set_flush_attr_gen_flags
+	    ( min::uns32 flush_attr_gen_flags )
     {
-        return op ( op::SET_FLUSH_SUBOBJ_GEN_FLAGS,
-	            flush_subobj_gen_flags );
+        return op ( op::SET_FLUSH_ATTR_GEN_FLAGS,
+	            flush_attr_gen_flags );
     }
 
-    inline op clear_flush_subobj_gen_flags
-	    ( min::uns32 flush_subobj_gen_flags )
+    inline op clear_flush_attr_gen_flags
+	    ( min::uns32 flush_attr_gen_flags )
     {
-        return op ( op::CLEAR_FLUSH_SUBOBJ_GEN_FLAGS,
-	            flush_subobj_gen_flags );
+        return op ( op::CLEAR_FLUSH_ATTR_GEN_FLAGS,
+	            flush_attr_gen_flags );
     }
 
     inline op set_gen_format
@@ -11987,7 +11987,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      min::uns32 gen_flags,
-	      min::uns32 subobj_gen_flags,
+	      min::uns32 attr_gen_flags,
 	      const min::gen_format * gen_format );
 
 	// Members beyond this point may be moved and
@@ -12039,7 +12039,7 @@ namespace min {
 	  + OBJ_EXP_FLAG
 	  + OBJ_INDENT_FLAG;
 
-    const min::uns32 DEFAULT_FLUSH_SUBOBJ_GEN_FLAGS =
+    const min::uns32 DEFAULT_FLUSH_ATTR_GEN_FLAGS =
 	    GRAPHIC_STR_FLAG
 	  + OBJ_EXP_FLAG
 	  + OBJ_ID_FLAG;
@@ -12059,7 +12059,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      min::uns32 gen_flags,
-	      min::uns32 subobj_gen_flags,
+	      min::uns32 attr_gen_flags,
 	      const min::gen_format * gen_format );
 
     extern min::locatable_gen dot_initiator;

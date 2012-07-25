@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 24, 2012}
+\date{July 25, 2012}
  
 \maketitle
 
@@ -8064,16 +8064,16 @@ operation:
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt printer<<min::pgen(v)}'
+The expression `{\tt printer\,<{}<\,min::pgen(v)}'
 prints the {\tt min::gen} value \verb|v| to the
 {\tt printer} using
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}
 and
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
 to control the printing.  If the latter is {\tt NULL}, then
-{\tt \&\,min::default\_\EOL gen\_\EOL format} is used in its place:
+{\tt \&\,min::default\_\EOL gen\_\EOL format} is used in its place.
 
-The expression `{\tt printer<<min::pgen(v,gen\_flags)}'
+The expression `{\tt printer\,<{}<\,min::pgen(v,gen\_flags)}'
 is similar except that it uses the {\tt gen\_\EOL flags} argument
 in place of
 {\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}:
@@ -8086,18 +8086,31 @@ in place of
 \LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt printer<<min::flush\_pgen(v)}'
+The expression `{\tt printer\,<{}<\,min::flush\_pgen(v)}'
 is similar except that it uses
 {\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}
 for values \verb|v| that are not objects, and for the top level of
 \verb|v| if that is an object, but uses
 {\tt printer->\EOL print\_\EOL format.flush\_\EOL attr\_\EOL gen\_\EOL flags}
-instead for names and values of object attributes.  This is mainly of
-use in printing objects \verb|v| that are being flushed from the
-{\tt printer->\EOL id\_\EOL map}, when, to take an example, it is
+instead for names and values of object attributes.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{flush\_\EOL pgen}
+	  \verb|( min::gen v )|
+\LABEL{MIN::FLUSH_PGEN} \\
+\end{tabular}\end{indpar}
+
+This is
+used by the {\tt min::\EOL flush\_\EOL id\_\EOL map} printer operation
+(\pagref{MIN::FLUSH_ID_MAP}) to print objects \verb|v|
+that are being flushed from the {\tt printer->\EOL id\_\EOL map},
+when, to take an example, it is
 permissible to print attribute values as identifiers of the
 form `{\tt @}i', but not permissible to print \verb|v| as such.
 
+The three argument form of {\tt min::pgen} may be used to give
+{\tt gen\_\EOL flags} and {\tt attr\_\EOL gen\_\EOL flags} explicitly:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
@@ -8106,45 +8119,19 @@ form `{\tt @}i', but not permissible to print \verb|v| as such.
 	  \verb|  min::uns32 gen_flags,|\ARGBREAK
 	  \verb|  min::uns32 attr_gen_flags )|
 \LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags )|
-\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v )|
-\LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
-If a single {\tt gen\_\EOL flags}
-argument is given to {\tt min::\EOL pgen}, it is used
-in place of 
-{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}.
-If both {\tt gen\_\EOL flags} and {\tt attr\_\EOL gen\_\EOL flags}
-arguments are given, {\tt gen\_\EOL flags} are used if \verb|v|
-is not an object, and are also used to control the top level
-printing of an object \verb|v|, while {\tt attr\_\EOL gen\_\EOL flags}
-are used instead to print the attribute names and values of \verb|v|
-if \verb|v| is an object.
+The one and two argument forms of {\tt min::pgen} in effect set
+both {\tt attr\_\EOL gen\_\EOL flags} and {\tt gen\_\EOL flags}
+equal.
 
-
-Note that {\tt print\_\EOL format.gen\_\EOL flags} differs
-from {\tt print\_\EOL format.flags} in that {\tt gen\_\EOL flags}
-acts as a unified operation code for printing general values
-whereas {\tt flags} operates as a collection of disconnected
-parameters for printing characters.  Thus one can set and clear
-individual {\tt flags}, but {\tt gen\_flags} can only be
-set all together as a unit.
-
-The expression
-`{\tt printer<<v}' can also used as the equivalent of
-`{\tt printer<<min::pgen(v)}':
+`{\tt printer\,<{}<\,v}' can be used as the equivalent of
+`{\tt printer\,<{}<\,min::pgen(v)}':
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
+              {of {\tt min::printer}}
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
@@ -8573,10 +8560,12 @@ then an identifier i will be allocated for the object
 in {\tt printer->\EOL id\_\EOL map} and the object will be
 printed as `{\tt @}i'.
 
-If \underline{not} set,
-and if an object is not being printed as an expression as
-per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
-then the object will be printed in the general form:
+\item[\ttnbmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
+This flag controls how an object is printed if the
+{\tt OBJ\_\EOL EXP\_\EOL FLAG} and
+{\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
+is \underline{off}
+the object will be printed in the general form:
 \begin{center}
 \begin{tabular}{ll}
 \verb/{|/ {\em element} & \{ \verb|;| {\em attribute-name-and-values}
@@ -8585,7 +8574,30 @@ then the object will be printed in the general form:
                           \}$^\star$  \verb/|}/
 \end{tabular}
 \end{center}
-where further details are provided on \pagref{GEN-OBJ-FORM}.
+and if this flag is \underline{on} the object will be printed in the
+general form:
+\begin{center}
+\begin{tabular}{l}
+\verb/@/i \verb/=/ {\em element}$^\star$\verb/:|/ \\
+\verb|    |{\em attribute-name-and-values}\\
+\verb|    |\ldots\ldots\ldots\\
+\verb|    |{\em reverse-attribute-name-and-values}\\
+\verb|    |\ldots\ldots\ldots\\
+\end{tabular}
+\end{center}
+
+The two forms are is similar, with semi-colons in the first being
+replaced by line ends, indentation, and the indentation mark
+\verb/:|/ in the second, and the
+surrounding \verb/{|/ \verb/|}/ of the first being omitted in the second.
+
+See \pagref{GEN-OBJ-FORM} for more details.
+
+\item[\ttnbmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, {\tt min::gen} string values that have length greater
+than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
+in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+Otherwise string values are printed normally.
 
 \end{itemlist}\end{indpar}
 
@@ -8612,20 +8624,18 @@ performed by the {\tt min::\EOL eom} end-of-message operation
 if the print format
 {\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
 
-If the datum being printed by these operations is not an object,
-or if it is an object that is being printed as per the
-{\tt OBJ\_\EOL EXP\_\EOL FLAG}, a line will be printed with the format:
+These {\tt id\_map} flushing operations use {\tt min::\EOL flush\_\EOL pgen}
+(\pagref{MIN::FLUSH_PGEN}) to print values in lines of the form:
 \begin{center}
 \verb|@|i \verb|=| {\em value}
 \end{center}
-where {\tt value} is the normal printed representation of the datum value.
-If the line is too long, it may be broken into multiple lines
+If a line is too long, it may be broken into multiple lines
 as specified by the printer parameters.
 
-
 If the datum is an object not being printed as per
-{\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the object will be printed on
-multiple lines with the format:
+{\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the {\tt OBJ\_\EOL INDENT} flag
+will cause the object will be printed on
+multiple lines whose form will be:\label{GEN-OBJ-FORM}
 \begin{center}
 \begin{tabular}{l}
 \verb/@/i \verb/=/ {\em element}$^\star$\verb/:|/ \\
@@ -8636,13 +8646,7 @@ multiple lines with the format:
 \end{tabular}
 \end{center}
 
-This form is similar to the usual object representation
-(see {\tt OBJ\_\EOL ID\_\EOL FLAG} above),
-except that line ends, indentation, and the indentation mark
-\verb/:|/ are used in place of semi-colons, and there
-are no surrounding \verb/{|/ \verb/|}/ marks.
-
-In the lines above:\label{GEN-OBJ-FORM}
+where:
 
 \begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
 {\em attribute-name-and-values} & ::= &
@@ -8672,6 +8676,8 @@ In the lines above:\label{GEN-OBJ-FORM}
 Note that a {\em reverse-attribute-value} is always an object and is
 always printed as per the {\tt OBJ\_\EOL ID\_\EOL FLAG}, even when
 that flag is off.
+
+The {\em attribute-flags} have the form:
 
 \begin{tabular}{rrl}
 {\em attribute-flags}
@@ -15171,10 +15177,8 @@ In loose implementation: \\
 \begin{TABULAR}{1.2in}
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags,|\ARGBREAK
-	  \verb|  min::uns32 attr_gen_flags )|
-\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
+	  \verb|( min::gen v )|
+\LABEL{MIN::PGEN} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
@@ -15182,8 +15186,14 @@ In loose implementation: \\
 \LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  min::uns32 gen_flags,|\ARGBREAK
+	  \verb|  min::uns32 attr_gen_flags )|
+\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{flush\_\EOL pgen}
 	  \verb|( min::gen v )|
-\LABEL{MIN::PGEN} \\
+\LABEL{MIN::FLUSH_PGEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
