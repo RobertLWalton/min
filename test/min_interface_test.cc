@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 25 00:17:16 EDT 2012
+// Date:	Thu Jul 26 17:30:05 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,6 +43,7 @@
 # include <iostream>
 # include <iomanip>
 # include <sstream>
+# include <cstdlib>
 # include <cstring>
 using std::cout;
 using std::endl;
@@ -167,7 +168,7 @@ void initialize_stub_region ( void )
 {
     min::unsptr stp = (min::unsptr) stub_region;
     // Check that sizeof min::stub is a power of 2.
-    assert ( (   sizeof (min::stub) - 1
+    assert ( (   ( sizeof (min::stub) - 1 )
 	       & sizeof (min::stub) )
 	     == 0 );
     min::unsptr p = stp;
@@ -721,14 +722,14 @@ void test_general_value_functions ( void )
     cout << "Test direct string general values:"
 	 << endl;
 #   if MIN_IS_COMPACT
-	char * str = "ABC";
-	char * overflowstr = "ABCD";
-	char * overflowstrn = "ABCDE";
+	const char * str = "ABC";
+	const char * overflowstr = "ABCD";
+	const char * overflowstrn = "ABCDE";
 	int strlimit = 3;
 #   elif MIN_IS_LOOSE
-	char * str = "ABCDE";
-	char * overflowstr = "ABCDEF";
-	char * overflowstrn = "ABCDEFG";
+	const char * str = "ABCDE";
+	const char * overflowstr = "ABCDEF";
+	const char * overflowstrn = "ABCDEFG";
 	int strlimit = 6;
 #   endif
     union {
@@ -2179,7 +2180,7 @@ void test_file ( void )
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file2 ) );
 
-    char * data = "Line A\nLine B\nPartial Line";
+    const char * data = "Line A\nLine B\nPartial Line";
     unsigned data_length = strlen ( data );
 
     std::istringstream istream ( data );
@@ -4372,7 +4373,7 @@ void test_object_printing ( void )
 // Main Program
 // ---- -------
 
-int main ( int argc )
+int main ( int argc, const char * argv[] )
 {
     debug = ( argc > 1 );
     cout << endl;

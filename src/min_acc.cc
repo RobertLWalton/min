@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 27 04:33:03 EDT 2012
+// Date:	Thu Jul 26 19:19:39 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,8 @@ using namespace MACC;
 //
 # include <iostream>
 # include <iomanip>
+# include <cstdlib>
+# include <cstdio>
 # include <cctype>
 using std::hex;
 using std::dec;
@@ -2994,7 +2996,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 
 		if (    lev.collector_phase
-		     == LOCK_COLLECTING );
+		     == LOCK_COLLECTING )
 		    break;
 	    }
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 25 01:50:03 EDT 2012
+// Date:	Thu Jul 26 17:34:02 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,8 @@
 
 # include <min.h>
 # include <min_os.h>
+# include <cstdlib>
+# include <cstdio>
 # include <cerrno>
 # include <cctype>
 # define MUP min::unprotected
@@ -8791,7 +8793,7 @@ static T pgen_id
 	( T out,
 	  min::gen v );
 template <>
-static min::printer pgen_id<min::printer>
+min::printer pgen_id<min::printer>
 	( min::printer printer,
 	  min::gen v )
 {
@@ -8804,7 +8806,7 @@ static min::printer pgen_id<min::printer>
     return printer << "@" << id;
 }
 template <>
-static std::ostream & pgen_id<std::ostream &>
+std::ostream & pgen_id<std::ostream &>
 	( std::ostream & out,
 	  min::gen v )
 {
@@ -9334,7 +9336,7 @@ static T pgen
 	     f->str_quote != NULL
 	    )
 	{
-	    char * first =
+	    char * first = (char *)
 	        std::strstr ( & sp[0], f->str_postfix );
 	    if ( first == NULL )
 		return out << f->str_prefix
@@ -9351,7 +9353,7 @@ static T pgen
 	        MIN_STACK_COPY
 		    ( char, str, length + 1, & sp[0] );
 
-		const char * p = str;
+		char * p = str;
 		length = std::strlen ( f->str_postfix );
 
 	        out << f->str_prefix;
