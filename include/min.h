@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 25 00:12:25 EDT 2012
+// Date:	Thu Jul 26 17:28:55 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4851,7 +4851,7 @@ namespace min {
     min::gen new_lab_gen
         ( const char * s1,
 	  const char * s2,
-	  const char * s2 );
+	  const char * s3 );
 }
 
 // Names

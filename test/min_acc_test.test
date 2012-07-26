@@ -51,8 +51,6 @@ After Allocation
                4096 Byte Blocks:           145            15           160
                8192 Byte Blocks:             1             7             8
      Bytes in Fixed Size Blocks:       1789184        439040       2228224
-../include/min.h:XXXX assert:
-    type == UPDATABLE true.
 min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Random Deallocation

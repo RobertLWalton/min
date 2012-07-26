@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 28 04:15:18 EDT 2012
+// Date:	Thu Jul 26 19:22:17 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,6 +18,7 @@
 
 # include <iostream>
 # include <iomanip>
+# include <cstdlib>
 # include <cstring>
 using std::cout;
 using std::endl;
