@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 25, 2012}
+\date{July 27, 2012}
  
 \maketitle
 
@@ -7402,7 +7402,7 @@ The {\tt min::set\_\EOL break} printer operation:
 \end{tabular}\end{indpar}
 
 can be used to explicitly set a break point:
-More specifically, {\tt printer<<min::set\_\EOL break} sets a break point after
+More specifically, {\tt printer<{}<min::set\_\EOL break} sets a break point after
 the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
 printer->line_break.offset = printer->buffer->length;
@@ -7503,7 +7503,7 @@ current line.  The {\tt min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
 {\tt min::\EOL set\_\EOL break} that resets the breakpoint.
 Both operations behave exactly as if spaces were inserted at the
-appropriate point by {\tt printer << "~"}, except that
+appropriate point by {\tt printer <{}< "~"}, except that
 {\tt min::right} will give undefined results if a horizontal
 tab has been output since the last break point (which can only
 happen in non-graphic mode with
@@ -7818,7 +7818,7 @@ this depends upon the column the character is printed in.
 So the following function updates a {\tt column} variable
 whose initial value is that of {\tt printer->column}
 before a UNICODE character is printed with
-{\tt printer << min::\EOL punicode~(~c~)}
+{\tt printer <{}< min::\EOL punicode~(~c~)}
 and whose final value is {\tt printer->\EOL column}
 after the character is printed.  Here {\tt print\_\EOL format.flags}
 is input to the function as the
@@ -7907,37 +7907,22 @@ by the following printer operations:
 \verb|min::op min::|
     & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
 \LABEL{MIN::CLEAR_PRINT_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL flags}
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::SET_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_\EOL gen\_\EOL flags}
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::CLEAR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}
-      \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt printer<<min::set\_print\_flags(min::ASCII\_FLAG)}'
-sets the {\tt ASCII\_FLAG} of {\tt printer->\EOL print\_\EOL format.flags}
+{\tt min::\EOL set\_\EOL print\_\EOL flags} logically OR's
+its argument into {\tt print\_\EOL format.flags} and
+{\tt min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
+the bitwise complement of its argument into {\tt print\_\EOL format.flags}
 (recall that {\tt print\_\EOL format.flags} are also referred to as
 {\tt print\_\EOL flags} when used as arguments to functions).
-
-{\tt min::\EOL set\_\EOL print\_\EOL flags} logically OR's
-its argument into {\tt print\_\EOL format.flags},
-{\tt min::\EOL set\_\EOL gen\_\EOL flags} logically OR's
-its argument into {\tt print\_\EOL format.gen\_\EOL flags},
-{\tt min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
-the bitwise complement of its argument into {\tt print\_\EOL format.flags},
-and {\tt min::\EOL clear\_\EOL gen\_\EOL flags} logically AND's
-the bitwise complement of its argument into
-{\tt print\_\EOL format.gen\_\EOL flags}.
+For example, 
+\begin{center}
+\tt printer<{}<min::set\_print\_flags(min::ASCII\_FLAG)
+\end{center}
+sets the {\tt ASCII\_FLAG} of {\tt printer->\EOL print\_\EOL format.flags}.
 
 Particular {\tt print\_format.flags} may be set and cleared by the
-following
+following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{ascii}
@@ -8001,10 +7986,10 @@ following
 \LABEL{MIN::NOEOL_FLUSH} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt printer<<min::ascii}' sets the
+For example, `{\tt printer<{}<min::ascii}' sets the
 {\tt min::\EOL ASCII\_\EOL FLAG} in
 {\tt printer->\EOL print\_\EOL for\-mat.flags},
-and `{\tt printer<<\EOL min::\EOL noascii}' clears this flag.
+and `{\tt printer<{}<\EOL min::\EOL noascii}' clears this flag.
 
 There are several operations that set and clear several flags each:
 
@@ -8371,6 +8356,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \LABEL{MIN::OBJ_EXP_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
 \LABEL{MIN::STR_ID_FLAG} \\
 \end{tabular}\end{indpar}
@@ -8768,6 +8755,110 @@ where the default correspondence is
 The {\tt flag\_names} member of the effective {\tt gen\_format}
 is used to produce flag names, and the correspondence just
 given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
+
+The printer flags in {\tt gen\_flags}, {\tt flush\_\EOL gen\_\EOL flags},
+and {\tt flush\_\EOL attr\_\EOL gen\_\EOL flags} can be set or cleared
+by the following printer operations.  Here
+{\tt min::\EOL set\_\EOL xxx\_\EOL flags}, logically OR's
+its argument into {\tt print\_\EOL format.xxx\_\EOL flags}, and
+{\tt min::\EOL clear\_\EOL xxx\_\EOL flags} logically AND's
+the bitwise complement of its argument into
+{\tt print\_\EOL format.xxx\_\EOL flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::SET_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::CLEAR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_gen_flags )|
+\LABEL{MIN::SET_FLUSH_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_gen_flags )|
+\LABEL{MIN::CLEAR_FLUSH_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_attr_gen_flags )|
+\LABEL{MIN::SET_FLUSH_ATTR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_attr_gen_flags )|
+\LABEL{MIN::CLEAR_FLUSH_ATTR_GEN_FLAGS} \\
+\end{tabular}\end{indpar}
+
+Particular {\tt print\_format.gen\_flags} may be set and cleared by the
+following printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{graphic\_\EOL str}
+\LABEL{MIN::GRAPHIC_STR} \\
+\verb|const min::op min::| & \MINKEY{nographic\_\EOL str}
+\LABEL{MIN::NOGRAPHIC_STR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL str}
+\LABEL{MIN::BRACKET_STR} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL str}
+\LABEL{MIN::NOBRACKET_STR} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL lab}
+\LABEL{MIN::BRACKET_LAB} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL lab}
+\LABEL{MIN::NOBRACKET_LAB} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL special}
+\LABEL{MIN::BRACKET_SPECIAL} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL special}
+\LABEL{MIN::NOBRACKET_SPECIAL} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL implicit}
+\LABEL{MIN::BRACKET_IMPLICIT} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL implicit}
+\LABEL{MIN::NOBRACKET_IMPLICIT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{suppress\_\EOL lab\_\EOL space}
+\LABEL{MIN::SUPPRESS_LAB_SPACE} \\
+\verb|const min::op min::| & \MINKEY{nosuppress\_\EOL lab\_\EOL space}
+\LABEL{MIN::NOSUPPRESS_LAB_SPACE} \\
+\verb|const min::op min::| & \MINKEY{suppress\_\EOL obj\_\EOL space}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE} \\
+\verb|const min::op min::| & \MINKEY{nosuppress\_\EOL obj\_\EOL space}
+\LABEL{MIN::NOSUPPRESS_OBJ_SPACE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{obj\_\EOL exp}
+\LABEL{MIN::OBJ_EXP} \\
+\verb|const min::op min::| & \MINKEY{noobj\_\EOL exp}
+\LABEL{MIN::NOOBJ_EXP} \\
+\verb|const min::op min::| & \MINKEY{obj\_\EOL id}
+\LABEL{MIN::OBJ_ID} \\
+\verb|const min::op min::| & \MINKEY{noobj\_\EOL id}
+\LABEL{MIN::NOOBJ_ID} \\
+\verb|const min::op min::| & \MINKEY{str\_\EOL id}
+\LABEL{MIN::STR_ID} \\
+\verb|const min::op min::| & \MINKEY{nostr\_\EOL id}
+\LABEL{MIN::NOSTR_ID} \\
+\end{tabular}\end{indpar}
+
+The {\tt gen\_format} of a printer may be changed by the printer operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL format}
+      \verb|( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+New formats should be made by copying an old format and then making
+specific changes to it, as members may be added to or reordered in
+a format.
 
 
 \subsection{Printing File Lines and Phrases}
@@ -15132,18 +15223,6 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
 \LABEL{MIN::CLEAR_PRINT_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL flags}
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::SET_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_\EOL gen\_\EOL flags}
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::CLEAR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}
-      \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
@@ -15394,15 +15473,103 @@ In loose implementation: \\
 \LABEL{MIN::OBJ_EXP_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
 \LABEL{MIN::STR_ID_FLAG} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
+\begin{TABULAR}{1.6in}
 \verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
 \LABEL{MIN::FLUSH_ONE_ID} \\
 \verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
 \LABEL{MIN::FLUSH_ID_MAP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::SET_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 gen_flags )|
+\LABEL{MIN::CLEAR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_gen_flags )|
+\LABEL{MIN::SET_FLUSH_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_gen_flags )|
+\LABEL{MIN::CLEAR_FLUSH_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_attr_gen_flags )|
+\LABEL{MIN::SET_FLUSH_ATTR_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 flush_attr_gen_flags )|
+\LABEL{MIN::CLEAR_FLUSH_ATTR_GEN_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::op min::| & \MINKEY{graphic\_\EOL str}
+\LABEL{MIN::GRAPHIC_STR} \\
+\verb|const min::op min::| & \MINKEY{nographic\_\EOL str}
+\LABEL{MIN::NOGRAPHIC_STR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL str}
+\LABEL{MIN::BRACKET_STR} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL str}
+\LABEL{MIN::NOBRACKET_STR} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL lab}
+\LABEL{MIN::BRACKET_LAB} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL lab}
+\LABEL{MIN::NOBRACKET_LAB} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL special}
+\LABEL{MIN::BRACKET_SPECIAL} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL special}
+\LABEL{MIN::NOBRACKET_SPECIAL} \\
+\verb|const min::op min::| & \MINKEY{bracket\_\EOL implicit}
+\LABEL{MIN::BRACKET_IMPLICIT} \\
+\verb|const min::op min::| & \MINKEY{nobracket\_\EOL implicit}
+\LABEL{MIN::NOBRACKET_IMPLICIT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::op min::| & \MINKEY{suppress\_\EOL lab\_\EOL space}
+\LABEL{MIN::SUPPRESS_LAB_SPACE} \\
+\verb|const min::op min::| & \MINKEY{nosuppress\_\EOL lab\_\EOL space}
+\LABEL{MIN::NOSUPPRESS_LAB_SPACE} \\
+\verb|const min::op min::| & \MINKEY{suppress\_\EOL obj\_\EOL space}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE} \\
+\verb|const min::op min::| & \MINKEY{nosuppress\_\EOL obj\_\EOL space}
+\LABEL{MIN::NOSUPPRESS_OBJ_SPACE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::op min::| & \MINKEY{obj\_\EOL exp}
+\LABEL{MIN::OBJ_EXP} \\
+\verb|const min::op min::| & \MINKEY{noobj\_\EOL exp}
+\LABEL{MIN::NOOBJ_EXP} \\
+\verb|const min::op min::| & \MINKEY{obj\_\EOL id}
+\LABEL{MIN::OBJ_ID} \\
+\verb|const min::op min::| & \MINKEY{noobj\_\EOL id}
+\LABEL{MIN::NOOBJ_ID} \\
+\verb|const min::op min::| & \MINKEY{str\_\EOL id}
+\LABEL{MIN::STR_ID} \\
+\verb|const min::op min::| & \MINKEY{nostr\_\EOL id}
+\LABEL{MIN::NOSTR_ID} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
+      \verb|( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{TABULAR}
 
 \end{indpar}
