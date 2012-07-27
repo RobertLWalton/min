@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 17:34:02 EDT 2012
+// Date:	Fri Jul 27 17:49:01 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7164,84 +7164,6 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
-static bool default_suppress_matrix[256][256];
-
-min::suppress_matrix min::default_suppress_matrix =
-    & ::default_suppress_matrix;
-
-
-// Unicode class must be initialized before default
-// suppress matrix is initialized.
-
-static void init_default_suppress_matrix ( void )
-{
-    for ( unsigned i = 0; i < 256; ++ i )
-    {
-        ::default_suppress_matrix['('][i] = true;
-        ::default_suppress_matrix['['][i] = true;
-        ::default_suppress_matrix['{'][i] = true;
-        ::default_suppress_matrix[0xAB][i] = true;
-		// << double angle quote
-        ::default_suppress_matrix['`'][i] = true;
-		// grave accent
-
-        ::default_suppress_matrix[i][')'] = true;
-        ::default_suppress_matrix[i][']'] = true;
-        ::default_suppress_matrix[i]['}'] = true;
-        ::default_suppress_matrix[i][0xB8] = true;
-		// >> double angle quote
-        ::default_suppress_matrix[i][0xB4] = true;
-		// acute accent
-        ::default_suppress_matrix[i]['\''] = true;
-        ::default_suppress_matrix[i][','] = true;
-        ::default_suppress_matrix[i][';'] = true;
-
-	min::uns8 b = min::unicode_class ( i );
-
-	if ( b == 'U' || b == 'L' )
-	{
-	    for ( unsigned j = 0; j < 256; ++ j )
-	    {
-		min::uns8 c = min::unicode_class ( j );
-		if ( c == 'U' || c == 'L' ) continue;
-		if ( c == '\'' ) continue;
-		::default_suppress_matrix[i][j] = true;
-		::default_suppress_matrix[j][i] = true;
-	    }
-	}
-
-	if ( '0' <= b && b <= '9' )
-	{
-	    for ( unsigned j = 0; j < 256; ++ j )
-	    {
-		min::uns8 c = min::unicode_class ( j );
-		if ( '0' <= c && c <= '9' ) continue;
-		if ( c == ',' ) continue;
-		if ( c == '.' ) continue;
-		if ( c == ':' ) continue;
-		if ( c == '/' ) continue;
-		::default_suppress_matrix[i][j] = true;
-		::default_suppress_matrix[j][i] = true;
-	    }
-	}
-    }
-}
-
-const min::gen_format min::default_gen_format =
-{
-    min::default_pgen,
-    "%.15g",
-    "\"","\"","<Q>",
-    "[: ", " ", " :]",
-    "[$ ", " $]",
-    "[. ", " .]",
-    min::NULL_STUB,
-    min::default_suppress_matrix,
-    8,
-    min::NULL_STUB, // Reset by initialization.
-    min::NULL_STUB  // Reset by initialization.
-};
-
 const min::line_break min::default_line_break =
 {
     0, 0, 72, 4
@@ -8099,11 +8021,6 @@ const min::op min::suppressible_space
 const min::op min::space
     ( min::op::SPACE );
 
-const min::op min::flush_one_id
-    ( min::op::FLUSH_ONE_ID );
-const min::op min::flush_id_map
-    ( min::op::FLUSH_ID_MAP );
-
 const min::op min::print_assert
     ( min::op::PRINT_ASSERT );
 
@@ -8784,6 +8701,153 @@ void min::pwidth ( min::uns32 & column,
 
 // Printing General values
 // -------- ------- ------
+
+static bool default_suppress_matrix[256][256];
+
+min::suppress_matrix min::default_suppress_matrix =
+    & ::default_suppress_matrix;
+
+
+// Unicode class must be initialized before default
+// suppress matrix is initialized.
+
+static void init_default_suppress_matrix ( void )
+{
+    for ( unsigned i = 0; i < 256; ++ i )
+    {
+        ::default_suppress_matrix['('][i] = true;
+        ::default_suppress_matrix['['][i] = true;
+        ::default_suppress_matrix['{'][i] = true;
+        ::default_suppress_matrix[0xAB][i] = true;
+		// << double angle quote
+        ::default_suppress_matrix['`'][i] = true;
+		// grave accent
+
+        ::default_suppress_matrix[i][')'] = true;
+        ::default_suppress_matrix[i][']'] = true;
+        ::default_suppress_matrix[i]['}'] = true;
+        ::default_suppress_matrix[i][0xB8] = true;
+		// >> double angle quote
+        ::default_suppress_matrix[i][0xB4] = true;
+		// acute accent
+        ::default_suppress_matrix[i]['\''] = true;
+        ::default_suppress_matrix[i][','] = true;
+        ::default_suppress_matrix[i][';'] = true;
+
+	min::uns8 b = min::unicode_class ( i );
+
+	if ( b == 'U' || b == 'L' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c = min::unicode_class ( j );
+		if ( c == 'U' || c == 'L' ) continue;
+		if ( c == '\'' ) continue;
+		::default_suppress_matrix[i][j] = true;
+		::default_suppress_matrix[j][i] = true;
+	    }
+	}
+
+	if ( '0' <= b && b <= '9' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c = min::unicode_class ( j );
+		if ( '0' <= c && c <= '9' ) continue;
+		if ( c == ',' ) continue;
+		if ( c == '.' ) continue;
+		if ( c == ':' ) continue;
+		if ( c == '/' ) continue;
+		::default_suppress_matrix[i][j] = true;
+		::default_suppress_matrix[j][i] = true;
+	    }
+	}
+    }
+}
+
+const min::gen_format min::default_gen_format =
+{
+    min::default_pgen,
+    "%.15g",
+    "\"","\"","<Q>",
+    "[: ", " ", " :]",
+    "[$ ", " $]",
+    "[. ", " .]",
+    min::NULL_STUB,
+    min::default_suppress_matrix,
+    8,
+    min::NULL_STUB, // Reset by initialization.
+    min::NULL_STUB  // Reset by initialization.
+};
+
+const min::op min::flush_one_id
+    ( min::op::FLUSH_ONE_ID );
+const min::op min::flush_id_map
+    ( min::op::FLUSH_ID_MAP );
+
+const min::op min::graphic_str
+    ( min::op::SET_GEN_FLAGS,
+      min::GRAPHIC_STR_FLAG );
+const min::op min::nographic_str
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::GRAPHIC_STR_FLAG );
+
+const min::op min::bracket_str
+    ( min::op::SET_GEN_FLAGS,
+      min::BRACKET_STR_FLAG );
+const min::op min::nobracket_str
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::BRACKET_STR_FLAG );
+const min::op min::bracket_lab
+    ( min::op::SET_GEN_FLAGS,
+      min::BRACKET_LAB_FLAG );
+const min::op min::nobracket_lab
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::BRACKET_LAB_FLAG );
+const min::op min::bracket_special
+    ( min::op::SET_GEN_FLAGS,
+      min::BRACKET_SPECIAL_FLAG );
+const min::op min::nobracket_special
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::BRACKET_SPECIAL_FLAG );
+const min::op min::bracket_implicit
+    ( min::op::SET_GEN_FLAGS,
+      min::BRACKET_IMPLICIT_FLAG );
+const min::op min::nobracket_implicit
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::BRACKET_IMPLICIT_FLAG );
+
+const min::op min::suppress_lab_space
+    ( min::op::SET_GEN_FLAGS,
+      min::SUPPRESS_LAB_SPACE_FLAG );
+const min::op min::nosuppress_lab_space
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::SUPPRESS_LAB_SPACE_FLAG );
+const min::op min::suppress_obj_space
+    ( min::op::SET_GEN_FLAGS,
+      min::SUPPRESS_OBJ_SPACE_FLAG );
+const min::op min::nosuppress_obj_space
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::SUPPRESS_OBJ_SPACE_FLAG );
+
+const min::op min::obj_exp
+    ( min::op::SET_GEN_FLAGS,
+      min::OBJ_EXP_FLAG );
+const min::op min::noobj_exp
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::OBJ_EXP_FLAG );
+const min::op min::obj_id
+    ( min::op::SET_GEN_FLAGS,
+      min::OBJ_ID_FLAG );
+const min::op min::noobj_id
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::OBJ_ID_FLAG );
+const min::op min::str_id
+    ( min::op::SET_GEN_FLAGS,
+      min::STR_ID_FLAG );
+const min::op min::nostr_id
+    ( min::op::CLEAR_GEN_FLAGS,
+      min::STR_ID_FLAG );
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
 // effective.
