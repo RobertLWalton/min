@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 17:28:55 EDT 2012
+// Date:	Fri Jul 27 17:28:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11615,37 +11615,6 @@ namespace min {
 	    ( min::ref<min::printer> printer,
 	      std::ostream & ostream );
 
-    min::id_map set_id_map
-            ( min::printer printer,
-	      min::id_map map = min::NULL_STUB );
-
-    inline op pgen ( min::gen v )
-    {
-        return op ( op::PGEN, v );
-    }
-
-    inline op pgen
-	    ( min::gen v,
-              min::uns32 gen_flags )
-    {
-        return op ( op::PGEN_WITH_FLAGS, v,
-	            gen_flags, gen_flags );
-    }
-
-    inline op pgen
-	    ( min::gen v,
-              min::uns32 gen_flags,
-              min::uns32 attr_gen_flags )
-    {
-        return op ( op::PGEN_WITH_FLAGS, v,
-	            gen_flags, attr_gen_flags );
-    }
-
-    inline op flush_pgen ( min::gen v )
-    {
-        return op ( op::FLUSH_PGEN, v );
-    }
-
     inline op punicode ( min::uns32 c )
     {
         return op ( op::PUNICODE1, c );
@@ -11710,52 +11679,6 @@ namespace min {
 	            print_flags );
     }
 
-    inline op set_gen_flags
-	    ( min::uns32 gen_flags )
-    {
-        return op ( op::SET_GEN_FLAGS, gen_flags );
-    }
-
-    inline op clear_gen_flags
-	    ( min::uns32 gen_flags )
-    {
-        return op ( op::CLEAR_GEN_FLAGS, gen_flags );
-    }
-
-    inline op set_flush_gen_flags
-	    ( min::uns32 flush_gen_flags )
-    {
-        return op ( op::SET_FLUSH_GEN_FLAGS,
-	            flush_gen_flags );
-    }
-
-    inline op clear_flush_gen_flags
-	    ( min::uns32 flush_gen_flags )
-    {
-        return op ( op::CLEAR_FLUSH_GEN_FLAGS,
-	            flush_gen_flags );
-    }
-
-    inline op set_flush_attr_gen_flags
-	    ( min::uns32 flush_attr_gen_flags )
-    {
-        return op ( op::SET_FLUSH_ATTR_GEN_FLAGS,
-	            flush_attr_gen_flags );
-    }
-
-    inline op clear_flush_attr_gen_flags
-	    ( min::uns32 flush_attr_gen_flags )
-    {
-        return op ( op::CLEAR_FLUSH_ATTR_GEN_FLAGS,
-	            flush_attr_gen_flags );
-    }
-
-    inline op set_gen_format
-	    ( const min::gen_format * gen_format )
-    {
-        return op ( op::SET_GEN_FORMAT, gen_format );
-    }
-
     inline op left ( uns32 width )
     {
         return op ( op::LEFT, width );
@@ -11818,9 +11741,6 @@ namespace min {
 
     extern const op suppressible_space;
     extern const op space;
-
-    extern const op flush_one_id;
-    extern const op flush_id_map;
 
     extern const op print_assert; // For debugging only.
 
@@ -11941,13 +11861,6 @@ min::printer operator <<
 	( min::printer printer,
 	  min::float64 i );
 
-inline min::printer operator <<
-	( min::printer printer,
-	  min::gen g )
-{
-    return printer << min::pgen ( g );
-}
-
 inline std::ostream & operator <<
         ( std::ostream & out, min::printer printer )
 {
@@ -11967,13 +11880,6 @@ inline min::printer operator <<
 std::ostream & operator <<
 	( std::ostream & out,
 	  const min::op & op );
-
-inline std::ostream & operator <<
-	( std::ostream & out,
-	  min::gen g )
-{
-    return out << min::pgen ( g );
-}
 
 
 // Printing General Values
@@ -12062,6 +11968,103 @@ namespace min {
 	      min::uns32 attr_gen_flags,
 	      const min::gen_format * gen_format );
 
+    inline op pgen ( min::gen v )
+    {
+        return op ( op::PGEN, v );
+    }
+
+    inline op pgen
+	    ( min::gen v,
+              min::uns32 gen_flags )
+    {
+        return op ( op::PGEN_WITH_FLAGS, v,
+	            gen_flags, gen_flags );
+    }
+
+    inline op pgen
+	    ( min::gen v,
+              min::uns32 gen_flags,
+              min::uns32 attr_gen_flags )
+    {
+        return op ( op::PGEN_WITH_FLAGS, v,
+	            gen_flags, attr_gen_flags );
+    }
+
+    inline op flush_pgen ( min::gen v )
+    {
+        return op ( op::FLUSH_PGEN, v );
+    }
+
+    inline op set_gen_flags
+	    ( min::uns32 gen_flags )
+    {
+        return op ( op::SET_GEN_FLAGS, gen_flags );
+    }
+
+    inline op clear_gen_flags
+	    ( min::uns32 gen_flags )
+    {
+        return op ( op::CLEAR_GEN_FLAGS, gen_flags );
+    }
+
+    inline op set_flush_gen_flags
+	    ( min::uns32 flush_gen_flags )
+    {
+        return op ( op::SET_FLUSH_GEN_FLAGS,
+	            flush_gen_flags );
+    }
+
+    inline op clear_flush_gen_flags
+	    ( min::uns32 flush_gen_flags )
+    {
+        return op ( op::CLEAR_FLUSH_GEN_FLAGS,
+	            flush_gen_flags );
+    }
+
+    inline op set_flush_attr_gen_flags
+	    ( min::uns32 flush_attr_gen_flags )
+    {
+        return op ( op::SET_FLUSH_ATTR_GEN_FLAGS,
+	            flush_attr_gen_flags );
+    }
+
+    inline op clear_flush_attr_gen_flags
+	    ( min::uns32 flush_attr_gen_flags )
+    {
+        return op ( op::CLEAR_FLUSH_ATTR_GEN_FLAGS,
+	            flush_attr_gen_flags );
+    }
+
+    inline op set_gen_format
+	    ( const min::gen_format * gen_format )
+    {
+        return op ( op::SET_GEN_FORMAT, gen_format );
+    }
+
+    extern const op flush_one_id;
+    extern const op flush_id_map;
+
+    extern const op graphic_str;
+    extern const op nographic_str;
+    extern const op bracket_str;
+    extern const op nobracket_str;
+    extern const op bracket_lab;
+    extern const op nobracket_lab;
+    extern const op bracket_special;
+    extern const op nobracket_special;
+    extern const op bracket_implicit;
+    extern const op nobracket_implicit;
+    extern const op suppress_lab_space;
+    extern const op nosuppress_lab_space;
+    extern const op suppress_obj_space;
+    extern const op nosuppress_obj_space;
+    extern const op obj_exp;
+    extern const op noobj_exp;
+    extern const op obj_id;
+    extern const op noobj_id;
+    extern const op str_id;
+    extern const op nostr_id;
+
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
@@ -12074,6 +12077,24 @@ namespace min {
     extern min::locatable_gen new_line;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen number_sign;
+
+    min::id_map set_id_map
+            ( min::printer printer,
+	      min::id_map map = min::NULL_STUB );
+}
+
+inline min::printer operator <<
+	( min::printer printer,
+	  min::gen g )
+{
+    return printer << min::pgen ( g );
+}
+
+inline std::ostream & operator <<
+	( std::ostream & out,
+	  min::gen g )
+{
+    return out << min::pgen ( g );
 }
 
 // More Allocator/Collector/Compactor Interface
