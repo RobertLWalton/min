@@ -2,7 +2,7 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  9 09:44:01 EST 2012
+// Date:	Sat Jul 28 06:45:41 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,12 +39,10 @@ inline int * vec ( const min::stub * s )
 int test1 ( const min::stub * s, int n )
 {
     int x = vec(s)[0];
-    for ( int i = 1; i < n; ++ i ) x += vec(s)[i];
-    x += vec(s)[10];
+    x += vec(s)[n];
     do_something();
     x += vec(s)[0];
-    for ( int i = 1; i < n; ++ i ) x += vec(s)[i];
-    x += vec(s)[10];
+    x += vec(s)[n];
     return x;
 }
 
