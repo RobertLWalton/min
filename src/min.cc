@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  2 21:45:30 EDT 2012
+// Date:	Fri Aug  3 18:04:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8733,7 +8733,6 @@ static void init_default_suppress_matrix ( void )
 		// >> double angle quote
         ::default_suppress_matrix[i][0xB4] = true;
 		// acute accent
-        ::default_suppress_matrix[i]['\''] = true;
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
 
@@ -8746,10 +8745,12 @@ static void init_default_suppress_matrix ( void )
 		min::uns8 c = min::unicode_class ( j );
 		if ( c == 'U' || c == 'L' ) continue;
 		if ( c == '\'' ) continue;
-		::default_suppress_matrix[i][j] = true;
-		::default_suppress_matrix[j][i] = true;
+		::default_suppress_matrix[b][c] = true;
+		::default_suppress_matrix[c][b] = true;
 	    }
 	}
+	else
+	    ::default_suppress_matrix[i]['\''] = true;
 
 	if ( '0' <= b && b <= '9' )
 	{
@@ -8761,8 +8762,8 @@ static void init_default_suppress_matrix ( void )
 		if ( c == '.' ) continue;
 		if ( c == ':' ) continue;
 		if ( c == '/' ) continue;
-		::default_suppress_matrix[i][j] = true;
-		::default_suppress_matrix[j][i] = true;
+		::default_suppress_matrix[b][c] = true;
+		::default_suppress_matrix[c][b] = true;
 	    }
 	}
     }
@@ -9183,7 +9184,8 @@ static T pgen_exp
 	    prefix = f->implicit_prefix;
 	    postfix = f->implicit_postfix;
 	}
-	out << prefix << min::save_indent;
+	out << prefix << min::save_indent
+	    << min::nohbreak;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9261,7 +9263,8 @@ static T pgen_exp
     {
 	out << min::pgen ( initiator, name_flags )
 	    << min::suppressible_space
-	    << min::save_indent;
+	    << min::save_indent
+	    << min::nohbreak;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9294,28 +9297,23 @@ static T pgen_exp
 	     ::get ( min::dot_keys,
 		      info, info_length );
 
-	out << min::pgen ( initiator, name_flags )
+	out << min::save_print_format
+	    << min::nohbreak
+	    << min::pgen ( initiator, name_flags )
 	    << min::suppressible_space
+	    << min::save_indent
 	    << min::pgen ( name, name_flags );
 	if ( arguments != min::NONE()
 	     ||
 	     keys != min::NONE() )
 	{
-	    bool first = true;
 	    if ( arguments != min::NONE() )
 	    {
 		min::obj_vec_ptr argp ( arguments );
 		for ( min::unsptr i = 0;
 		      i < min::size_of ( argp ); ++ i )
 		{
-		    out << " ";
-		    if ( first )
-		    {
-		        out << min::save_indent;
-			first = false;
-		    }
-
-		    out << min::set_break
+		    out << " " << min::set_break
 		        << min::pgen
 			     ( argp[i],
 				 attr_gen_flags
@@ -9328,13 +9326,7 @@ static T pgen_exp
 		for ( min::unsptr i = 0;
 		      i < min::size_of ( keyp ); ++ i )
 		{
-		    out << " ";
-		    if ( first )
-		    {
-		        out << min::save_indent;
-			first = false;
-		    }
-		    out << min::set_break << "# "
+		    out << " " << min::set_break << "# "
 		        << min::pgen
 			     ( keyp[i],
 				 attr_gen_flags
@@ -9342,15 +9334,14 @@ static T pgen_exp
 		}
 	    }
 
-	    if ( first ) out << min::save_indent;
-
 	    if ( middle == min::NONE() )
 	    {
 		return out << min::suppressible_space
 			   << min::pgen
 				( terminator,
 				  name_flags )
-			   << min::restore_indent;
+			   << min::restore_indent
+			   << min::restore_print_format;
 	    }
 	    else
 		out << min::suppressible_space
@@ -9361,12 +9352,14 @@ static T pgen_exp
 	{
 	    return out << min::suppressible_space
 		       << min::pgen
-			    ( terminator,
-			      name_flags );
+			    ( terminator, name_flags )
+		       << min::restore_indent
+		       << min::restore_print_format;
 	}
 	else
 	    out << min::suppressible_space
-		<< min::pgen ( middle, name_flags );
+		<< min::pgen ( middle, name_flags )
+	        << min::restore_indent;
 
 	out << " " << min::save_indent
 	           << min::set_break;
@@ -9393,7 +9386,8 @@ static T pgen_exp
 		        ( middle, name_flags )
 	           << min::pgen
 		        ( terminator, name_flags )
-	           << min::restore_indent;
+	           << min::restore_indent
+		   << min::restore_print_format;
     }
 }
 
