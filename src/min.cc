@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 27 17:49:01 EDT 2012
+// Date:	Thu Aug  2 21:45:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2146,18 +2146,21 @@ void min::print_phrase_lines
 
     while ( true )
     {
-        for ( uns32 i = 0; i < first_column; ++ i )
-	    printer << ' ';
+        if ( mark != 0 )
+	{
+	    for ( uns32 i = 0; i < first_column; ++ i )
+		printer << ' ';
 
-	uns32 next_column =
-	    end.line == line ? end_column : width;
-	if ( next_column <= first_column )
-	    next_column = first_column + 1;
+	    uns32 next_column =
+		end.line == line ? end_column : width;
+	    if ( next_column <= first_column )
+		next_column = first_column + 1;
 
-        for ( uns32 i = first_column;
-	      i < next_column; ++ i )
-	    printer << mark;
-	printer << min::eol;
+	    for ( uns32 i = first_column;
+		  i < next_column; ++ i )
+		printer << mark;
+	    printer << min::eol;
+	}
 
 	if ( line == end.line ) return;
 
@@ -9298,13 +9301,49 @@ static T pgen_exp
 	     ||
 	     keys != min::NONE() )
 	{
-	    out << " " << min::save_indent;
+	    bool first = true;
 	    if ( arguments != min::NONE() )
 	    {
+		min::obj_vec_ptr argp ( arguments );
+		for ( min::unsptr i = 0;
+		      i < min::size_of ( argp ); ++ i )
+		{
+		    out << " ";
+		    if ( first )
+		    {
+		        out << min::save_indent;
+			first = false;
+		    }
+
+		    out << min::set_break
+		        << min::pgen
+			     ( argp[i],
+				 attr_gen_flags
+			       | min::OBJ_EXP_FLAG );
+		}
 	    }
 	    if ( keys != min::NONE() )
 	    {
+		min::obj_vec_ptr keyp ( keys );
+		for ( min::unsptr i = 0;
+		      i < min::size_of ( keyp ); ++ i )
+		{
+		    out << " ";
+		    if ( first )
+		    {
+		        out << min::save_indent;
+			first = false;
+		    }
+		    out << min::set_break << "# "
+		        << min::pgen
+			     ( keyp[i],
+				 attr_gen_flags
+			       | min::OBJ_EXP_FLAG );
+		}
 	    }
+
+	    if ( first ) out << min::save_indent;
+
 	    if ( middle == min::NONE() )
 	    {
 		return out << min::suppressible_space
@@ -9329,7 +9368,8 @@ static T pgen_exp
 	    out << min::suppressible_space
 		<< min::pgen ( middle, name_flags );
 
-	out << " " << min::save_indent;
+	out << " " << min::save_indent
+	           << min::set_break;
 
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
