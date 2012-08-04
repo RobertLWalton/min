@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 27, 2012}
+\date{August 4, 2012}
  
 \maketitle
 
@@ -3558,16 +3558,34 @@ It is sometimes useful to divide UNICODE characters into
 returns the UNICODE class of the UNICODE character {\tt c}.
 The UNICODE classes of all
 ASCII and LATIN-1\footnote{
+\raggedright
 Note that some possibly useful LATIN-1 non-letter characters
-and their compose key sequences for keyboard entry are:
-\textquestiondown(??), \textexclamdown(!!), \textsection(so),
-% \textparagraph(PP),
-\textregistered(OR), \textcopyright(OC),
-\textcent(/c), \textsterling(-L), \textcurrency(xo), \textyen(=Y),
-\guillemotleft({\tt <{}<})
+and their compose key sequences for Linux keyboard entry are:
+\textexclamdown(!!),
+\textcent(/c),
+\textsterling(-l),
+\textcurrency(xo),
+\textyen(=y),
+\textsection(so),
+\"{~}(""),
+\textcopyright(oc),
+\textordfeminine(\_a),
+\guillemotleft({\tt <{}<}),
+$\neg$(-,),
+\textregistered(OR),
+\={~}(\_\_),
+$\pm$(+-),
+$^2$(\tt \^{}2),
+$^3$(\tt \^{}3),
+\'{~}(\tt '{}'),
+\textparagraph(!p),
+$^1$(\tt \^{}1),
+\textordmasculine(\_o),
 \guillemotright({\tt >{}>}),
-$\pm$(+-), $\times$(xx), $\div$(-:),
-$\neg$(-,).  At the moment (2012), other non-ASCII, non-letter
+\textquestiondown(??),
+$\times$(xx),
+$\div$(-:).
+At the moment (2012), other non-ASCII, non-letter
 characters are not well supported by Linux.  LATIN-1 letters
 are supported via the compose key, but other non-ASCII letters are not.
 Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
@@ -3579,20 +3597,20 @@ letters may be made by composing
 {\tt \textasciicircum},
 {\tt \textasciitilde},
 {\tt "},
-{\tt ,},
-{\tt -}, or
+comma ({\tt ,}), or
 {\tt /} with a letter, as in
 \`A({\tt `A}),
 \'A({\tt 'A}),
-\^A({\tt \textasciicircum A}),
+\^A({\tt \^{}A}),
 \~A({\tt \textasciitilde A}),
 \"A({\tt "A}),
-\c{C}({\tt ,C}),
-\DH({\tt -D}), and
-\O({\tt /O}), and the remaining two cases
+\c{C}({\tt ,C}), and
+\O({\tt /O}), with the remaining cases
 \AA({\tt AA}), and
-\aa({\tt aa}) use a compose sequence consisting of just the letter doubled.
-Note that LATIN-1 control codes cannot currently be input and have
+\aa({\tt aa}) using a compose sequence consisting of just the letter doubled.
+However the LATIN-1 letters \dh{} and \DH{} cannot currently be input, as
+composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
+LATIN-1 control codes cannot currently be input and have
 no special MIN support for output.}
 characters (characters with codes {\tt < 256})
 are the characters themselves, e.g., the UNICODE class of
@@ -8279,7 +8297,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
 				       \verb|), 0xB4 (|\RACCENT
 				       \verb|),| \\
-\verb|    //                     '\'', ',', ';'| \\
+\verb|    //                     ',', ';'| \\
+\verb|    //     [B]['\''] for B not a letter| \\
 \verb|    //     [B][C] and [C][B]| \\
 \verb|    //        for B a letter and C not a letter or '\'',| \\
 \verb|    //     or for B a digit and C not a digit or|%
@@ -9056,6 +9075,10 @@ as per {\tt min::\EOL print\_\EOL line} using the
 {\tt unavailable\_\EOL line} arguments.
 An empty phrase is marked as if it were 1-column wide, that column
 being at the empty phrase position.
+
+If the {\tt mark} argument is given as {\tt 0}, the marking lines
+will be omitted.  This permits just printing the lines containing
+a phrase, without marking the phrase.
 
 An example using a {\tt phrase\_position} is
 
