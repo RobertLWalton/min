@@ -3,7 +3,7 @@
 //
 // File:	usable_unicode.txt
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 23 09:44:34 EDT 2012
+// Date:	Sat Aug  4 05:59:54 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,7 +104,6 @@
     { 0xce, "Î",   "Compose ^ I; Compose I ^" }, \
     { 0xcf, "Ï",   "Compose \" I; Compose I \"" }, \
     \
-    { 0xd0, "Đ",   "Compose - D; Compose D -" }, \
     /* { 0xd0, "",   "" }, /* Eth */ \
     { 0xd1, "Ñ",   "Compose ~ N; Compose N ~" }, \
     { 0xd2, "Ò",   "Compose ` O; Compose O `" }, \
