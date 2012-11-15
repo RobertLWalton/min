@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 02:24:56 EST 2012
+// Date:	Thu Nov 15 15:56:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1516,10 +1516,9 @@ bool min::strto ( min::int32 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::int32 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
@@ -1530,10 +1529,9 @@ bool min::strto ( min::int64 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::int64 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
@@ -1544,10 +1542,9 @@ bool min::strto ( min::uns32 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::uns32 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
@@ -1558,10 +1555,9 @@ bool min::strto ( min::uns64 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::uns64 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
@@ -1572,10 +1568,9 @@ bool min::strto ( min::float32 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::float32 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
@@ -1586,10 +1581,9 @@ bool min::strto ( min::float64 & value, min::gen g )
     if ( ! sp ) return false;
     int i = 0;
     min::float64 v;
-    if ( ! strto ( v, sp, i )
-         ||
-	 sp[i] != 0 )
-        return false;
+    if ( ! strto ( v, sp, i ) ) return false;
+    while ( isspace ( sp[i] ) ) ++ i;
+    if ( sp[i] != 0 ) return false;
     value = v;
     return true;
 }
