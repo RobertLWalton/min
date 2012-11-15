@@ -790,14 +790,6 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s3, p3 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -866,20 +858,32 @@ min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s13, p13 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, p ) == 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s8, p ) == 0 true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, pb ) == 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, pc ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sv, s1234 ) true.
+min_interface_test.cc:XXXX assert:
+    sv == 1234 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sv, s1234x ) true.
+min_interface_test.cc:XXXX assert:
+    sv == 55 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sv, sm1234 ) true.
+min_interface_test.cc:XXXX assert:
+    sv == -1234 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sv, sm1234x ) true.
+min_interface_test.cc:XXXX assert:
+    sv == 55 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sv, min::MISSING() ) true.
 
 Finish Strings Test!
 
@@ -1046,22 +1050,10 @@ min_interface_test.cc:XXXX assert:
     is_num ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( num2, num1 ) > 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str1, str1 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str1, str2 ) < 0 true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str2, str1 ) > 0 true.
 ../include/min.h:XXXX assert:
@@ -1106,10 +1098,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
 ../include/min.h:XXXX assert:
@@ -1144,10 +1132,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
 ../include/min.h:XXXX assert:
@@ -1182,10 +1166,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab23 ) == 0 true.
 ../include/min.h:XXXX assert:
@@ -1200,10 +1180,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab24 ) < 0 true.
 ../include/min.h:XXXX assert:
@@ -1218,10 +1194,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
-../include/min.h:XXXX assert:
-    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab24, lab23 ) > 0 true.
 

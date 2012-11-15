@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 27 17:28:30 EDT 2012
+// Date:	Thu Nov 15 02:17:29 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4014,40 +4014,31 @@ namespace min {
     int strncmp
         ( const char * p, min::gen g, min::unsptr n );
 
-    namespace unprotected {
-
-	// For forward reference.
-	//
-	class str_ptr;
-    }
+    // For forward reference.
+    //
+    class str_ptr;
 
     // Functions that must be declared before they are
     // made friends.
     //
     namespace unprotected {
-	const char * str_of
-	    ( const min::unprotected::str_ptr & sp );
+	const char * str_of ( const min::str_ptr & sp );
     }
-    min::unsptr strlen
-        ( const min::unprotected::str_ptr & sp );
-    min::uns32 strhash
-        ( const min::unprotected::str_ptr & sp );
-    char * strcpy ( char * p,
-                    const min::unprotected
-		             ::str_ptr & sp );
+    min::unsptr strlen ( const min::str_ptr & sp );
+    min::uns32 strhash ( const min::str_ptr & sp );
+    char * strcpy ( char * p, const min::str_ptr & sp );
     char * strncpy ( char * p,
-                     const min::unprotected
-		              ::str_ptr & sp,
+                     const min::str_ptr & sp,
 		     min::unsptr n );
     int strcmp
         ( const char * p,
-	  const min::unprotected::str_ptr & sp );
+	  const min::str_ptr & sp );
     int strncmp
         ( const char * p,
-	  const min::unprotected::str_ptr & sp,
+	  const min::str_ptr & sp,
 	  min::unsptr n );
     ptr<const char> begin_ptr_of
-	( const min::unprotected::str_ptr & sp );
+	( const min::str_ptr & sp );
 
     inline min::uns64 strhead ( min::gen g )
     {
@@ -4081,140 +4072,147 @@ namespace min {
 	    return 0;
     }
 
-    namespace unprotected {
+    class str_ptr
+    {
+    public:
 
-	class str_ptr
+	str_ptr ( const min::stub * s )
+	    : s ( s )
 	{
-	public:
-
-	    str_ptr ( const min::stub * s )
-	        : s ( s )
+	    int type = min::type_of ( s );
+	    if ( type == LONG_STR ) return;
+	    else if ( type != SHORT_STR )
 	    {
-		if ( s == NULL ) return;
-		else if (    unprotected::type_of ( s )
-		          == LONG_STR )
-		    return;
+		s = NULL;
+		return;
+	    }
 
-		pseudo_body.u.str = s->v.u64;
-		pseudo_body.u.buf[8] = 0;
-		this->s = & pseudo_stub;
+	    pseudo_body.u.str = s->v.u64;
+	    pseudo_body.u.buf[8] = 0;
+	    this->s = & pseudo_stub;
+	    unprotected::set_ptr_of
+		   ( & pseudo_stub,
+		     (void *) & pseudo_body );
+	}
+
+	str_ptr ( min::gen g )
+	{
+
+	    if ( is_stub ( g ) )
+		new ( this )
+		    str_ptr
+			( unprotected::stub_of
+			      ( g ) );
+	    else if ( is_direct_str ( g ) )
+	    {
+		pseudo_body.u.str
+		    = unprotected
+			 ::direct_str_of ( g );
+		s = & pseudo_stub;
+		unprotected::set_ptr_of
+		   ( & pseudo_stub,
+		     (void *) & pseudo_body );
+	    }
+	    else
+		s = NULL;
+	}
+
+	str_ptr ( void ) : s ( NULL ) {}
+
+	operator bool ( void )
+	{
+	    return s != NULL;
+	}
+
+	// Operator[] MUST be a member and cannot
+	// be a friend.
+	//
+	char const & operator [] ( int index ) const
+	{
+	    return
+		( (const char * )
+		  unprotected::long_str_of ( s ) )
+		[sizeof ( unprotected::long_str )
+		 + index];
+	}
+
+	str_ptr & operator = ( const min::stub * s )
+	{
+	    new ( this ) str_ptr ( s );
+	    return * this;
+	}
+
+	str_ptr & operator = ( min::gen v )
+	{
+	    new ( this ) str_ptr ( v );
+	    return * this;
+	}
+
+	str_ptr & operator = ( const str_ptr & sp )
+	{
+	    if ( sp.s == & sp.pseudo_stub )
+	    {
+		pseudo_body = sp.pseudo_body;
+		s = & pseudo_stub;
 		unprotected::set_ptr_of
 		       ( & pseudo_stub,
 			 (void *) & pseudo_body );
 	    }
+	    else
+		s = sp.s;
+	    return * this;
+	}
 
-	    str_ptr ( min::gen g )
-	    {
+	friend const char * min::unprotected::str_of
+	    ( const str_ptr & sp );
+	friend min::unsptr min::strlen
+	    ( const str_ptr & sp );
+	friend min::uns32 min::strhash
+	    ( const str_ptr & sp );
+	friend char * min::strcpy
+	    ( char * p,
+	      const str_ptr & sp );
+	friend char * min::strncpy
+	    ( char * p,
+	      const str_ptr & sp,
+	      min::unsptr n );
+	friend int min::strcmp
+	    ( const char * p,
+	      const str_ptr & sp );
+	friend int min::strncmp
+	    ( const char * p,
+	      const str_ptr & sp,
+	      min::unsptr n );
+	friend min::ptr<const char>
+	    min::begin_ptr_of
+		( const str_ptr & sp );
 
-		if ( is_stub ( g ) )
-		    new ( this )
-		        str_ptr
-			    ( unprotected::stub_of
-			          ( g ) );
-		else
-		{
-		    pseudo_body.u.str
-			= unprotected
-			     ::direct_str_of ( g );
-		    s = & pseudo_stub;
-		    unprotected::set_ptr_of
-		       ( & pseudo_stub,
-			 (void *) & pseudo_body );
-		}
-	    }
+    private:
 
-	    str_ptr ( void ) : s ( NULL ) {}
+	const min::stub * s;
+	    // Stub pointer if long string, or
+	    // pointer to pseudo_stub for short
+	    // or direct string.
 
-	    // Operator[] MUST be a member and cannot
-	    // be a friend.
-	    //
-	    char const & operator [] ( int index ) const
-	    {
-		return
-		    ( (const char * )
-		      unprotected::long_str_of ( s ) )
-		    [sizeof ( unprotected::long_str )
-		     + index];
-	    }
+	min::stub pseudo_stub;
+	    // Pseudo-stub for short or direct
+	    // string; only value is used to point
+	    // at pseudo_body.buf.
 
-	    str_ptr & operator = ( const min::stub * s )
-	    {
-		new ( this ) str_ptr ( s );
-		return * this;
-	    }
-
-	    str_ptr & operator = ( min::gen v )
-	    {
-		new ( this ) str_ptr ( v );
-		return * this;
-	    }
-
-	    str_ptr & operator = ( const str_ptr & sp )
-	    {
-		if ( sp.s == & sp.pseudo_stub )
-		{
-		    pseudo_body = sp.pseudo_body;
-		    s = & pseudo_stub;
-		    unprotected::set_ptr_of
-			   ( & pseudo_stub,
-			     (void *) & pseudo_body );
-		}
-		else
-		    s = sp.s;
-		return * this;
-	    }
-
-	    friend const char * min::unprotected::str_of
-		( const unprotected::str_ptr & sp );
-	    friend min::unsptr min::strlen
-		( const unprotected::str_ptr & sp );
-	    friend min::uns32 min::strhash
-		( const unprotected::str_ptr & sp );
-	    friend char * min::strcpy
-		( char * p,
-		  const unprotected::str_ptr & sp );
-	    friend char * min::strncpy
-		( char * p,
-		  const unprotected::str_ptr & sp,
-		  min::unsptr n );
-	    friend int min::strcmp
-		( const char * p,
-		  const unprotected::str_ptr & sp );
-	    friend int min::strncmp
-		( const char * p,
-		  const unprotected::str_ptr & sp,
-		  min::unsptr n );
-	    friend min::ptr<const char>
-	        min::begin_ptr_of
-		    ( const unprotected::str_ptr & sp );
-
-	private:
-
-	    const min::stub * s;
-		// Stub pointer if long string, or
-		// pointer to pseudo_stub for short
-		// or direct string.
-
-	    min::stub pseudo_stub;
-		// Pseudo-stub for short or direct
-		// string; only value is used to point
-		// at pseudo_body.buf.
-
-	    struct
-	    {
-		struct min::unprotected::long_str h;
-		union {
-		    char buf [9];
-			// NUL terminated copy of
-			// string.
-		    uns64 str;
-		    uns64 xx[2];
-			// Sized to maintain alignment
-			// of surrounding data.
-		} u;
-	    } pseudo_body;
-	};
-    }
+	struct
+	{
+	    struct min::unprotected::long_str h;
+	    union {
+		char buf [9];
+		    // NUL terminated copy of
+		    // string.
+		uns64 str;
+		uns64 xx[2];
+		    // Sized to maintain alignment
+		    // of surrounding data.
+	    } u;
+	} pseudo_body;
+    };
 
     // Function needed in min::str_ptr definition.
     //
@@ -4231,51 +4229,8 @@ namespace min {
 	       type_of ( s ) == min::LONG_STR;
     }
 
-    class str_ptr : public unprotected::str_ptr
-    {
-    public:
-	str_ptr ( min::gen g )
-	{
-	    MIN_ASSERT ( is_str ( g ) );
-	    new ( this ) unprotected::str_ptr ( g );
-	}
-	str_ptr ( const min::stub * s )
-	{
-	    if ( s != NULL )
-	    {
-	        int t = type_of ( s );
-		MIN_ASSERT ( t == SHORT_STR
-		             ||
-		             t == LONG_STR );
-	    }
-	    new ( this ) unprotected::str_ptr ( s );
-	}
-	str_ptr ( void )
-	{
-	    new ( this ) unprotected::str_ptr();
-	}
-
-	str_ptr & operator = ( const min::stub * s )
-	{
-	    new ( this ) str_ptr ( s );
-	    return * this;
-	}
-
-	str_ptr & operator = ( min::gen g )
-	{
-	    new ( this ) str_ptr ( g );
-	    return * this;
-	}
-
-	str_ptr & operator = ( const str_ptr & sp )
-	{
-	    * (unprotected::str_ptr *) this = sp;
-	    return * this;
-	}
-    };
-
     inline const char * unprotected::str_of
-	    ( const min::unprotected::str_ptr & sp )
+	    ( const min::str_ptr & sp )
     {
 	return (const char * )
 	       unprotected::long_str_of ( sp.s )
@@ -4284,7 +4239,7 @@ namespace min {
     }
 
     inline min::unsptr strlen
-        ( const min::unprotected::str_ptr & sp )
+        ( const min::str_ptr & sp )
     {
         if ( sp.s == & sp.pseudo_stub )
 	    return ::strlen ( sp.pseudo_body.u.buf );
@@ -4295,7 +4250,7 @@ namespace min {
     }
 
     inline min::uns32 strhash
-	    ( const min::unprotected::str_ptr & sp )
+	    ( const min::str_ptr & sp )
     {
         if ( sp.s == & sp.pseudo_stub )
 	    return strhash ( sp.pseudo_body.u.buf );
@@ -4307,7 +4262,7 @@ namespace min {
 
     inline char * strcpy
     	( char * p,
-	  const min::unprotected::str_ptr & sp )
+	  const min::str_ptr & sp )
     {
         return ::strcpy
 	    ( p, unprotected::str_of ( sp ) );
@@ -4315,7 +4270,7 @@ namespace min {
 
     inline char * strncpy
     	( char * p,
-	  const min::unprotected::str_ptr & sp,
+	  const min::str_ptr & sp,
 	  min::unsptr n )
     {
         return ::strncpy
@@ -4324,7 +4279,7 @@ namespace min {
 
     inline int strcmp
     	( const char * p,
-	  const min::unprotected::str_ptr & sp )
+	  const min::str_ptr & sp )
     {
         return ::strcmp
 	    ( p, unprotected::str_of ( sp ) );
@@ -4332,7 +4287,7 @@ namespace min {
 
     inline int strncmp
     	( const char * p,
-	  const min::unprotected::str_ptr & sp,
+	  const min::str_ptr & sp,
 	  min::unsptr n )
     {
         return ::strncmp
@@ -4340,7 +4295,7 @@ namespace min {
     }
 
     inline min::ptr<const char> begin_ptr_of
-	( const unprotected::str_ptr & sp )
+	( const str_ptr & sp )
     {
 	return unprotected::new_ptr
 	    ( sp.s != & sp.pseudo_stub ?
@@ -4563,6 +4518,30 @@ namespace min {
 	        internal::unicode_class[c] : 'w';
     }
 }
+
+namespace min {
+
+    // Functions to convert strings to numbers.
+    //
+    bool strto ( min::int32 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::uns32 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::int64 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::uns64 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::float32 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::float64 & value,
+                 min::str_ptr sp, int & i );
+    bool strto ( min::int32 & value, min::gen g );
+    bool strto ( min::uns32 & value, min::gen g );
+    bool strto ( min::int64 & value, min::gen g );
+    bool strto ( min::uns64 & value, min::gen g );
+    bool strto ( min::float32 & value, min::gen g );
+    bool strto ( min::float64 & value, min::gen g );
+}
 
 // Labels
 // ------
@@ -4616,14 +4595,27 @@ namespace min {
 	{
 	public:
 
-	    lab_ptr ( min::gen g )
-		: s ( min::stub_of ( g ) ) {}
-
 	    lab_ptr ( const min::stub * s )
-		: s ( s ) {}
+		: s ( s )
+	    {
+	        if ( min::type_of ( s ) != LABEL )
+		    s = NULL;
+	    }
+
+	    lab_ptr ( min::gen g )
+		: s ( min::stub_of ( g ) )
+	    {
+	        if ( min::type_of ( s ) != LABEL )
+		    s = NULL;
+	    }
 
 	    lab_ptr ( void )
 		: s ( NULL ) {}
+
+	    operator bool ( void )
+	    {
+	        return s != NULL;
+	    }
 
 	    lab_ptr & operator = ( min::gen g )
 	    {
