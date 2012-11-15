@@ -1430,8 +1430,10 @@ bool min::strto ( min::int32 & value,
     char * beginp = (char *) & sp[i];
     char * endp;
     errno = 0;
-    min::int32 v = strtol ( beginp, & endp, 0 );
+    min::int64 v = strtol ( beginp, & endp, 0 );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
+    if ( v < INT_MIN || v > INT_MAX ) return false;
     value = v;
     i += endp - beginp;
     return true;
@@ -1445,6 +1447,7 @@ bool min::strto ( min::int64 & value,
     errno = 0;
     min::int64 v = strtoll ( beginp, & endp, 0 );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
     value = v;
     i += endp - beginp;
     return true;
@@ -1456,8 +1459,10 @@ bool min::strto ( min::uns32 & value,
     char * beginp = (char *) & sp[i];
     char * endp;
     errno = 0;
-    min::uns32 v = strtoul ( beginp, & endp, 0 );
+    min::uns64 v = strtoul ( beginp, & endp, 0 );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
+    if ( v > UINT_MAX ) return false;
     value = v;
     i += endp - beginp;
     return true;
@@ -1471,6 +1476,7 @@ bool min::strto ( min::uns64 & value,
     errno = 0;
     min::uns64 v = strtoull ( beginp, & endp, 0 );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
     value = v;
     i += endp - beginp;
     return true;
@@ -1484,6 +1490,7 @@ bool min::strto ( min::float32 & value,
     errno = 0;
     min::float32 v = strtof ( beginp, & endp );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
     value = v;
     i += endp - beginp;
     return true;
@@ -1497,6 +1504,7 @@ bool min::strto ( min::float64 & value,
     errno = 0;
     min::float64 v = strtod ( beginp, & endp );
     if ( errno != 0 ) return false;
+    if ( endp == beginp ) return false;
     value = v;
     i += endp - beginp;
     return true;

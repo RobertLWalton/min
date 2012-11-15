@@ -892,6 +892,16 @@ min_interface_test.cc:XXXX assert:
     sv == 55 true.
 min_interface_test.cc:XXXX assert:
     ! min::strto ( sv, min::MISSING() ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sv, s1234567890 ) true.
+min_interface_test.cc:XXXX assert:
+    sv == 1234567890 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sv, s12345678900 ) true.
+min_interface_test.cc:XXXX assert:
+    sv == 55 true.
 
 Finish Strings Test!
 
