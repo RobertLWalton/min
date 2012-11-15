@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  3 18:04:06 EDT 2012
+// Date:	Thu Nov 15 02:24:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1422,6 +1422,168 @@ min::gen min::new_str_gen
     while ( n -- )
         m += min::unicode_to_utf8 ( q, * p ++ );
     return internal::new_str_gen ( buffer, m );
+}
+
+bool min::strto ( min::int32 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::int32 v = strtol ( beginp, & endp, 0 );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::int64 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::int64 v = strtoll ( beginp, & endp, 0 );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::uns32 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::uns32 v = strtoul ( beginp, & endp, 0 );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::uns64 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::uns64 v = strtoull ( beginp, & endp, 0 );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::float32 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::float32 v = strtof ( beginp, & endp );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::float64 & value,
+		  min::str_ptr sp, int & i )
+{
+    char * beginp = (char *) & sp[i];
+    char * endp;
+    errno = 0;
+    min::float64 v = strtod ( beginp, & endp );
+    if ( errno != 0 ) return false;
+    value = v;
+    i += endp - beginp;
+    return true;
+}
+
+bool min::strto ( min::int32 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::int32 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
+}
+
+bool min::strto ( min::int64 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::int64 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
+}
+
+bool min::strto ( min::uns32 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::uns32 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
+}
+
+bool min::strto ( min::uns64 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::uns64 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
+}
+
+bool min::strto ( min::float32 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::float32 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
+}
+
+bool min::strto ( min::float64 & value, min::gen g )
+{
+    min::str_ptr sp ( g );
+    if ( ! sp ) return false;
+    int i = 0;
+    min::float64 v;
+    if ( ! strto ( v, sp, i )
+         ||
+	 sp[i] != 0 )
+        return false;
+    value = v;
+    return true;
 }
 
 
@@ -9424,7 +9586,7 @@ static T pgen
         min::uns32 graphic_flags =
 	    ( gen_flags & min::GRAPHIC_STR_FLAG ?
 	      min::GRAPHIC_FLAGS : 0 );
-        MUP::str_ptr sp ( v );
+        min::str_ptr sp ( v );
 	if ( ( gen_flags & min::BRACKET_STR_FLAG )
 	     &&
 	     f->str_prefix != NULL

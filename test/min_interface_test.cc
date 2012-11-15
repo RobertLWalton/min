@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 17:30:05 EDT 2012
+// Date:	Thu Nov 15 04:57:06 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1727,6 +1727,25 @@ void test_strings ( void )
     pb = min::NULL_STUB;
     pc = strgen13;
     MIN_ASSERT ( strcmp ( s13, pc ) == 0 );
+
+    min::gen s1234 = min::new_str_gen ( "1234" );
+    min::gen s1234x = min::new_str_gen ( "1234x" );
+    min::gen sm1234 = min::new_str_gen ( "-1234" );
+    min::gen sm1234x = min::new_str_gen ( "-1234x" );
+    min::int32 sv;
+    MIN_ASSERT ( min::strto ( sv, s1234 ) );
+    MIN_ASSERT ( sv == 1234 );
+    sv = 55;
+    MIN_ASSERT ( ! min::strto ( sv, s1234x ) );
+    MIN_ASSERT ( sv == 55 );
+    MIN_ASSERT ( min::strto ( sv, sm1234 ) );
+    MIN_ASSERT ( sv == -1234 );
+    sv = 55;
+    MIN_ASSERT ( ! min::strto ( sv, sm1234x ) );
+    MIN_ASSERT ( sv == 55 );
+
+    MIN_ASSERT ( ! min::strto ( sv, min::MISSING() ) );
+
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
