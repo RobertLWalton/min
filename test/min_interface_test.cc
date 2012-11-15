@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 08:51:38 EST 2012
+// Date:	Thu Nov 15 15:05:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1820,6 +1820,15 @@ void test_strings ( void )
     MIN_ASSERT ( min::strto ( si, snumsp, j ) );
     MIN_ASSERT ( si == 5 );
     MIN_ASSERT ( snumsp[j] == 0 );
+
+    min::gen sspace = min::new_str_gen ( " " );
+    min::gen spoint = min::new_str_gen ( "." );
+    min::gen splus  = min::new_str_gen ( "+" );
+    min::gen sminus = min::new_str_gen ( "-" );
+    MIN_ASSERT ( ! min::strto ( si, sspace ) );
+    MIN_ASSERT ( ! min::strto ( sd, spoint ) );
+    MIN_ASSERT ( ! min::strto ( si, splus ) );
+    MIN_ASSERT ( ! min::strto ( si, sminus ) );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;

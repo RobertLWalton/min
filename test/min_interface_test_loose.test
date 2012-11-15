@@ -966,6 +966,14 @@ min_interface_test.cc:XXXX assert:
     si == 5 true.
 min_interface_test.cc:XXXX assert:
     snumsp[j] == 0 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( si, sspace ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sd, spoint ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( si, splus ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( si, sminus ) true.
 
 Finish Strings Test!
 
