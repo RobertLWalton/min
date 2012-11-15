@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 02:17:29 EST 2012
+// Date:	Thu Nov 15 11:51:59 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4119,7 +4119,7 @@ namespace min {
 
 	str_ptr ( void ) : s ( NULL ) {}
 
-	operator bool ( void )
+	operator bool ( void ) const
 	{
 	    return s != NULL;
 	}

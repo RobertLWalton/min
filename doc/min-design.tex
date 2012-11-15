@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 4, 2012}
+\date{November 15, 2012}
  
 \maketitle
 
@@ -3819,51 +3819,62 @@ a \key{string pointer}:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|operator |
+    & \MINKEY{bool} \verb|( const min::str_ptr & sp )|
+\LABEL{BOOL_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char & sp|
     & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char>  min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( min::str_ptr & sp )|
+    & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( min::str_ptr & sp )|
+\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( min::str_ptr & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]
-\verb|char * min::| & \MINKEY{strcpy} \verb|( char * p, min::str_ptr & sp )|
+\verb|char * min::| & \MINKEY{strcpy} \verb|( char * p, const min::str_ptr & sp )|
 \LABEL{MIN::STRCPY_OF_STR_PTR} \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb|( char * p,|\ARGBREAK
-      \verb|  min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_PTR} \\[1ex]
 \verb|int min::|
-    & \MINKEY{strcmp} \verb|( const char * p, min::str_ptr & sp )|
+    & \MINKEY{strcmp} \verb|( const char * p, const min::str_ptr & sp )|
 \LABEL{MIN::STRCMP_OF_STR_PTR} \\
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
 \end{tabular}\end{indpar}
 
 The constructors create a string pointer pointing to the {\tt char}'s
 of the string specified by the \verb|min::gen| or
 `\verb|min::stub *|' argument.  A \verb|min::gen| argument
-must be a direct string or a pointer to a short or long string stub,
-and a stub pointer must be a pointer to a short or long string stub,
-or be {\tt min::\EOL NULL\_\EOL STUB}.
+should be a direct string or a pointer to a short or long string stub,
+and a stub pointer should be a pointer to a short or long string stub.
+If the arguments are not, then the string pointer is set to the
+{\tt NULL} state in which using it to access the string will almost
+certainly cause a memory fault.  The constructor with no argument also
+sets the string pointer to the {\tt NULL} state.  The operator to
+convert a string pointer to a {\tt bool} returns {\tt true} if the
+string pointer is \underline{not} in the {\tt NULL} state, and {\tt false}
+if the string pointer \underline{is} in the {\tt NULL} state.
+
 The {\tt =} operator can reset the string
-pointer to point at a different \verb|min::gen| value, or at the
-value pointed at by another string pointer.
-If a constructor is given no argument or 
-{\tt min::\EOL NULL\_\EOL STUB},
-or the {\tt =} right side is
-{\tt min::\EOL NULL\_\EOL STUB}, the string pointer is set to not
-point at anything, and using it is undefined (but will probably
-cause a memory fault).
+pointer to point at a different \verb|min::gen| value, or at a stub,
+or at the
+value pointed at by another string pointer.  Like the constructor,
+the string pointer is set to the {\tt NULL} state
+if the \verb|min::gen| value or stub pointer is not a string,
+or the string pointer being assigned from is itself in the {\tt NULL} state.
 
 The \verb|strlen|, \verb|strhash|, \verb|strcpy|, \verb|strncpy|,
 \verb|strcmp|, and \verb|strncmp| functions retrieve the same information
@@ -3893,79 +3904,12 @@ at the string proper inside a relocatable string body.
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
 
-Unprotected \verb|MUP::str_ptr| string pointers are 
-just like protected \verb|min::str_ptr| string pointers
-except that their constructors assume that
-\verb|v| or `{\tt min::\EOL stub~*}' is a string
-(e.g., that {\tt min::\EOL is\_\EOL str(v)} is
-true).  The {\tt =} operator applied to an
-unprotected string pointer also makes the same assumption.
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( min::gen v )|
-\LABEL{MUP::STR_PTR_OF_GEN} \\
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( const min::stub * s )|
-\LABEL{MUP::STR_PTR_OF_STUB} \\
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( void )|
-\LABEL{MUP::STR_PTR_OF_VOID} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp, min::gen v )|
-\LABEL{MUP::=_STR_PTR_OF_GEN} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
-\LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
-\LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const min::stub * s )|
-\LABEL{MUP::=_STR_PTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char & sp|
-    & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
-\LABEL{MUP::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char>  min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( MUP::str_ptr & sp )|
-\LABEL{MUP::BEGIN_PTR_OF_STR_PTR} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( MUP::str_ptr & sp )|
-\LABEL{MIN::STRLEN_OF_MUP_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( MUP::str_ptr & sp )|
-\LABEL{MIN::STRHASH_OF_MUP_STR_PTR} \\[1ex]
-\verb|char * min::| & \MINKEY{strcpy} \verb|( char * p, MUP::str_ptr & sp )|
-\LABEL{MIN::STRCPY_OF_MUP_STR_PTR} \\
-\verb|char * min::|
-    & \MINKEY{strncpy}\ARGBREAK
-      \verb|( char * p,|\ARGBREAK
-      \verb|  MUP::str_ptr & sp, min::unsptr n )|
-\LABEL{MIN::STRNCPY_OF_MUP_STR_PTR} \\[1ex]
-\verb|int min::|
-    & \MINKEY{strcmp} \verb|( const char * p, MUP::str_ptr & sp )|
-\LABEL{MIN::STRCMP_OF_MUP_STR_PTR} \\
-\verb|int min::|
-    & \MINKEY{strncmp}\ARGBREAK
-      \verb|( const char * p,|\ARGBREAK
-      \verb|  MUP::str_ptr & sp, min::unsptr n )|
-\LABEL{MIN::STRNCMP_OF_MUP_STR_PTR} \\[1ex]
-\end{tabular}\end{indpar}
-
 The following unprotected
 function is equivalent to {\tt begin\_ptr\_of()} with its
 result cast to `{\tt const char *}':
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( MUP::str_ptr & sp )|
+\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( const min::str_ptr & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -13686,38 +13630,44 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
+\verb|operator |
+    & \MINKEY{bool} \verb|( const min::str_ptr & sp )|
+\LABEL{BOOL_OF_STR_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
 \verb|const char & |
     & \TTOMKEY{[ ]}{[ ]}{of {\tt min::str\_ptr}}\ARGBREAK
       \verb|( const min::str_ptr & sp,|\ARGBREAK
       \verb|  int index )|
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> |
-    & \MINKEY{begin\_ptr\_of} \verb|( min::str_ptr & sp )|
+    & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{strlen} \verb|( min::gen v )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( min::str_ptr & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]
 \verb|char * min::| & \MINKEY{strcpy}\ARGBREAK
-      \verb|( char * p, min::str_ptr & sp )|
+      \verb|( char * p, const min::str_ptr & sp )|
 \LABEL{MIN::STRCPY_OF_STR_PTR} \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb|( char * p,|\ARGBREAK
-      \verb|  min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_PTR} \\[1ex]
 \verb|int min::|
     & \MINKEY{strcmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  min::str_ptr & sp )|
+      \verb|  const min::str_ptr & sp )|
 \LABEL{MIN::STRCMP_OF_STR_PTR} \\
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
 \end{TABULAR}
 
@@ -13727,74 +13677,9 @@ In loose implementation: \\
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.8in}
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( min::gen v )|
-\LABEL{MUP::STR_PTR_OF_GEN} \\
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( const min::stub * s )|
-\LABEL{MUP::STR_PTR_OF_STUB} \\
-\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( void )|
-\LABEL{MUP::STR_PTR_OF_VOID} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.3in}
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp, min::gen v )|
-\LABEL{MUP::=_STR_PTR_OF_GEN} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
-\LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
-\LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
-\verb|MUP::str_ptr & |
-    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
-      \verb|( MUP::str_ptr & sp1, const min::stub * s )|
-\LABEL{MUP::=_STR_PTR_OF_STUB} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{2.4in}
-\verb|char sp|
-    & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
-\LABEL{MUP::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> |
-    & \MINKEY{begin\_ptr\_of} \verb|( MUP::str_ptr & sp )|
-\LABEL{MUP::BEGIN_PTR_OF_STR_PTR} \\
-\end{TABULAR}
-
-\medskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( MUP::str_ptr & sp )|
-\LABEL{MIN::STRLEN_OF_MUP_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( MUP::str_ptr & sp )|
-\LABEL{MIN::STRHASH_OF_MUP_STR_PTR} \\[1ex]
-\verb|char * min::| & \MINKEY{strcpy} \verb|( char * p, MUP::str_ptr & sp )|
-\LABEL{MIN::STRCPY_OF_MUP_STR_PTR} \\
-\verb|char * min::|
-    & \MINKEY{strncpy}\ARGBREAK
-      \verb|( char * p,|\ARGBREAK
-      \verb|  MUP::str_ptr & sp, min::unsptr n )|
-\LABEL{MIN::STRNCPY_OF_MUP_STR_PTR} \\[1ex]
-\verb|int min::|
-    & \MINKEY{strcmp}\ARGBREAK
-          \verb|( const char * p, MUP::str_ptr & sp )|
-\LABEL{MIN::STRCMP_OF_MUP_STR_PTR} \\
-\verb|int min::|
-    & \MINKEY{strncmp}\ARGBREAK
-      \verb|( const char * p,|\ARGBREAK
-      \verb|  MUP::str_ptr & sp, min::unsptr n )|
-\LABEL{MIN::STRNCMP_OF_MUP_STR_PTR} \\[1ex]
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.8in}
-\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( MUP::str_ptr & sp )|
+\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( const min::str_ptr & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{TABULAR}
 
