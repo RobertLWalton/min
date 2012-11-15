@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 04:57:06 EST 2012
+// Date:	Thu Nov 15 06:30:40 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1746,6 +1746,16 @@ void test_strings ( void )
 
     MIN_ASSERT ( ! min::strto ( sv, min::MISSING() ) );
 
+    min::gen s1234567890 =
+	min::new_str_gen ( "1234567890" );
+    min::gen s12345678900 =
+	min::new_str_gen ( "12345678900" );
+    sv = 0;
+    MIN_ASSERT ( min::strto ( sv, s1234567890  ) );
+    MIN_ASSERT ( sv == 1234567890 );
+    sv = 55;
+    MIN_ASSERT ( ! min::strto ( sv, s12345678900  ) );
+    MIN_ASSERT ( sv == 55 );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
