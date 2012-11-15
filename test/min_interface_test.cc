@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 06:30:40 EST 2012
+// Date:	Thu Nov 15 08:51:38 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1728,34 +1728,98 @@ void test_strings ( void )
     pc = strgen13;
     MIN_ASSERT ( strcmp ( s13, pc ) == 0 );
 
+    min::gen sempty = min::new_str_gen ( "" );
     min::gen s1234 = min::new_str_gen ( "1234" );
     min::gen s1234x = min::new_str_gen ( "1234x" );
     min::gen sm1234 = min::new_str_gen ( "-1234" );
     min::gen sm1234x = min::new_str_gen ( "-1234x" );
-    min::int32 sv;
-    MIN_ASSERT ( min::strto ( sv, s1234 ) );
-    MIN_ASSERT ( sv == 1234 );
-    sv = 55;
-    MIN_ASSERT ( ! min::strto ( sv, s1234x ) );
-    MIN_ASSERT ( sv == 55 );
-    MIN_ASSERT ( min::strto ( sv, sm1234 ) );
-    MIN_ASSERT ( sv == -1234 );
-    sv = 55;
-    MIN_ASSERT ( ! min::strto ( sv, sm1234x ) );
-    MIN_ASSERT ( sv == 55 );
 
-    MIN_ASSERT ( ! min::strto ( sv, min::MISSING() ) );
+    min::int32 si;
+    MIN_ASSERT ( min::strto ( si, s1234 ) );
+    MIN_ASSERT ( si == 1234 );
+    MIN_ASSERT ( min::strto ( si, sm1234 ) );
+    MIN_ASSERT ( si == -1234 );
+    si = 55;
+    MIN_ASSERT ( ! min::strto ( si, s1234x ) );
+    MIN_ASSERT ( ! min::strto ( si, sm1234x ) );
+    MIN_ASSERT ( ! min::strto ( si, sempty ) );
+    MIN_ASSERT ( ! min::strto ( si, min::MISSING() ) );
+    MIN_ASSERT ( si == 55 );
+
 
     min::gen s1234567890 =
 	min::new_str_gen ( "1234567890" );
     min::gen s12345678900 =
 	min::new_str_gen ( "12345678900" );
-    sv = 0;
-    MIN_ASSERT ( min::strto ( sv, s1234567890  ) );
-    MIN_ASSERT ( sv == 1234567890 );
-    sv = 55;
-    MIN_ASSERT ( ! min::strto ( sv, s12345678900  ) );
-    MIN_ASSERT ( sv == 55 );
+    min::gen s12345678901234567890 =
+	min::new_str_gen ( "12345678901234567890" );
+    min::gen s123456789012345678900 =
+	min::new_str_gen ( "123456789012345678900" );
+    si = 0;
+    MIN_ASSERT ( min::strto ( si, s1234567890 ) );
+    MIN_ASSERT ( si == 1234567890 );
+    MIN_ASSERT ( ! min::strto ( si, s12345678900 ) );
+    MIN_ASSERT ( si == 1234567890 );
+
+    min::uns64 sli = 0;
+    MIN_ASSERT
+        ( min::strto ( sli, s12345678901234567890 ) );
+    MIN_ASSERT ( sli == 12345678901234567890ull );
+    MIN_ASSERT
+        ( ! min::strto
+		( sli, s123456789012345678900 ) );
+    MIN_ASSERT ( ! min::strto ( sli, sempty ) );
+    MIN_ASSERT ( sli == 12345678901234567890ull );
+
+    min::gen s1e38 = min::new_str_gen ( "1e38" );
+    min::gen s1e39 = min::new_str_gen ( "1e39" );
+    min::gen s1em37 = min::new_str_gen ( "1e-37" );
+    min::gen s1em38 = min::new_str_gen ( "1e-38" );
+
+    min::float32 sf = 0;
+    MIN_ASSERT ( min::strto ( sf, s1e38 ) );
+    MIN_ASSERT ( sf == 1e38f );
+    MIN_ASSERT ( min::strto ( sf, s1em37 ) );
+    MIN_ASSERT ( sf == 1e-37f );
+    MIN_ASSERT ( ! min::strto ( sf, s1e39 ) );
+    MIN_ASSERT ( ! min::strto ( sf, s1em38 ) );
+    MIN_ASSERT ( ! min::strto ( sf, sempty ) );
+    MIN_ASSERT ( sf == 1e-37f );
+
+    min::gen s1e308 = min::new_str_gen ( "1e308" );
+    min::gen s1e308x = min::new_str_gen ( "1e308x" );
+    min::gen s1e309 = min::new_str_gen ( "1e309" );
+    min::gen s1em307 = min::new_str_gen ( "1e-307" );
+    min::gen s1em308 = min::new_str_gen ( "1e-308" );
+
+    min::float64 sd = 0;
+    MIN_ASSERT ( min::strto ( sd, s1e308 ) );
+    MIN_ASSERT ( sd == 1e308 );
+    MIN_ASSERT ( min::strto ( sd, s1em307 ) );
+    MIN_ASSERT ( sd == 1e-307 );
+    MIN_ASSERT ( ! min::strto ( sd, s1e308x ) );
+    MIN_ASSERT ( ! min::strto ( sd, s1e309 ) );
+    MIN_ASSERT ( ! min::strto ( sd, s1em308 ) );
+    MIN_ASSERT ( ! min::strto ( sd, sempty ) );
+    MIN_ASSERT ( sd == 1e-307 );
+
+    min::gen snums =
+        min::new_str_gen ( "1 -2 3e10 -4e-10X5" );
+    min::str_ptr snumsp ( snums );
+    int j = 0;
+    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
+    MIN_ASSERT ( si == 1 );
+    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
+    MIN_ASSERT ( si == -2 );
+    MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
+    MIN_ASSERT ( sd == 3e10 );
+    MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
+    MIN_ASSERT ( sd == -4e-10 );
+    MIN_ASSERT ( snumsp[j] == 'X' );
+    ++ j;
+    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
+    MIN_ASSERT ( si == 5 );
+    MIN_ASSERT ( snumsp[j] == 0 );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;

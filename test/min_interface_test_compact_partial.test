@@ -875,33 +875,103 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, pc ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    min::strto ( sv, s1234 ) true.
+    min::strto ( si, s1234 ) true.
 min_interface_test.cc:XXXX assert:
-    sv == 1234 true.
+    si == 1234 true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sv, s1234x ) true.
+    min::strto ( si, sm1234 ) true.
 min_interface_test.cc:XXXX assert:
-    sv == 55 true.
+    si == -1234 true.
 min_interface_test.cc:XXXX assert:
-    min::strto ( sv, sm1234 ) true.
+    ! min::strto ( si, s1234x ) true.
 min_interface_test.cc:XXXX assert:
-    sv == -1234 true.
+    ! min::strto ( si, sm1234x ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sv, sm1234x ) true.
+    ! min::strto ( si, sempty ) true.
 min_interface_test.cc:XXXX assert:
-    sv == 55 true.
+    ! min::strto ( si, min::MISSING() ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sv, min::MISSING() ) true.
+    si == 55 true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
-    min::strto ( sv, s1234567890 ) true.
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
-    sv == 1234567890 true.
+    min::strto ( si, s1234567890 ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sv, s12345678900 ) true.
+    si == 1234567890 true.
 min_interface_test.cc:XXXX assert:
-    sv == 55 true.
+    ! min::strto ( si, s12345678900 ) true.
+min_interface_test.cc:XXXX assert:
+    si == 1234567890 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sli, s12345678901234567890 ) true.
+min_interface_test.cc:XXXX assert:
+    sli == 12345678901234567890ull true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sli, s123456789012345678900 ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sli, sempty ) true.
+min_interface_test.cc:XXXX assert:
+    sli == 12345678901234567890ull true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sf, s1e38 ) true.
+min_interface_test.cc:XXXX assert:
+    sf == 1e38f true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sf, s1em37 ) true.
+min_interface_test.cc:XXXX assert:
+    sf == 1e-37f true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sf, s1e39 ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sf, s1em38 ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sf, sempty ) true.
+min_interface_test.cc:XXXX assert:
+    sf == 1e-37f true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sd, s1e308 ) true.
+min_interface_test.cc:XXXX assert:
+    sd == 1e308 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sd, s1em307 ) true.
+min_interface_test.cc:XXXX assert:
+    sd == 1e-307 true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sd, s1e308x ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sd, s1e309 ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sd, s1em308 ) true.
+min_interface_test.cc:XXXX assert:
+    ! min::strto ( sd, sempty ) true.
+min_interface_test.cc:XXXX assert:
+    sd == 1e-307 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( si, snumsp, j ) true.
+min_interface_test.cc:XXXX assert:
+    si == 1 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( si, snumsp, j ) true.
+min_interface_test.cc:XXXX assert:
+    si == -2 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sd, snumsp, j ) true.
+min_interface_test.cc:XXXX assert:
+    sd == 3e10 true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( sd, snumsp, j ) true.
+min_interface_test.cc:XXXX assert:
+    sd == -4e-10 true.
+min_interface_test.cc:XXXX assert:
+    snumsp[j] == 'X' true.
+min_interface_test.cc:XXXX assert:
+    min::strto ( si, snumsp, j ) true.
+min_interface_test.cc:XXXX assert:
+    si == 5 true.
+min_interface_test.cc:XXXX assert:
+    snumsp[j] == 0 true.
 
 Finish Strings Test!
 
@@ -1139,6 +1209,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     8 * min::OFFSETOF ( & min::locatable_var<ps1t::updptr> ::previous ) == MIN_PTR_BITS true.
 ps1type.name = ps1type
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
