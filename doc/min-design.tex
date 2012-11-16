@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 15, 2012}
+\date{November 16, 2012}
  
 \maketitle
 
@@ -3787,6 +3787,35 @@ A hash value is never zero (so zero can be used to denote a missing hash value).
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
+The following functions can be used to convert \verb|min::gen|
+string values to numbers:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{strto} \verb|( min::int32 & value, min::gen g )|
+\LABEL{MIN::STRTO_INT32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::int64 & value, min::gen g )|
+\LABEL{MIN::STRTO_INT64} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::uns32 & value, min::gen g )|
+\LABEL{MIN::STRTO_UNS32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::uns64 & value, min::gen g )|
+\LABEL{MIN::STRTO_UNS64} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::float32 & value, min::gen g )|
+\LABEL{MIN::STRTO_FLOAT32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::float64 & value, min::gen g )|
+\LABEL{MIN::STRTO_FLOAT64} \\
+\end{tabular}\end{indpar}
+
+If the \verb|min::gen| argument is a
+string consisting of a space surrounded number legal to the UNIX
+{\tt strtol}, {\tt strtoll},
+{\tt strtoul}, or {\tt strtoull} functions with {\tt base} argument
+{\tt 0}, or to the UNIX
+{\tt strtof}, or {\tt strtoud} functions, respectively,
+{\tt true} is returned and the number is returned in the {\tt value}
+argument.  Otherwise {\tt false} is returned and the {\tt value}
+argument is left untouched.  This includes the case where the
+\verb|min::gen| argument is not a string.
+
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
 
@@ -3838,7 +3867,8 @@ a \key{string pointer}:
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
 \verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]
-\verb|char * min::| & \MINKEY{strcpy} \verb|( char * p, const min::str_ptr & sp )|
+\verb|char * min::|
+    & \MINKEY{strcpy} \verb|( char * p, const min::str_ptr & sp )|
 \LABEL{MIN::STRCPY_OF_STR_PTR} \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
@@ -3900,6 +3930,49 @@ add a missing NUL to the end of the short string {\tt char} vector.
 In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
 at the string proper inside a relocatable string body.
+
+Numbers can be read using from a string pointed at by a string
+pointer by the following functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::int32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::int64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::uns32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::uns64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::float32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::float64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+If the string pointer is not in the {\tt NULL} state and
+the part of the string beginning with {\tt sp[i]} is
+space followed by a number legal to the UNIX
+{\tt strtol}, {\tt strtoll},
+{\tt strtoul}, or {\tt strtoull} functions with {\tt base} argument
+{\tt 0}, or to the UNIX
+{\tt strtof}, or {\tt strtoud} functions, respectively,
+{\tt true} is returned, the number is returned in the
+{\tt value} argument, and the {\tt i} argument is updated to point
+just after the number.  Otherwise {\tt false} is returned and
+{\tt value} and {\tt i} are left untouched.  This includes the
+case where the string pointer is in the {\tt NULL} state.
 
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
@@ -13540,7 +13613,8 @@ In loose implementation: \\
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( min::ptr<const min::uns32> p, min::unsptr n )|
+      \verb|( min::ptr<const min::uns32> p,|\ARGBREAK
+      \verb|  min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_CONST_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
@@ -13595,8 +13669,24 @@ In loose implementation: \\
 \verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const char * p )|
 \LABEL{MIN::STRHASH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{strnhash} \verb|( const char * p, min::unsptr n )|
+    & \MINKEY{strnhash}\ARGBREAK
+      \verb|( const char * p, min::unsptr n )|
 \LABEL{MIN::STRNHASH} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|bool min::| & \MINKEY{strto} \verb|( min::int32 & value, min::gen g )|
+\LABEL{MIN::STRTO_INT32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::int64 & value, min::gen g )|
+\LABEL{MIN::STRTO_INT64} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::uns32 & value, min::gen g )|
+\LABEL{MIN::STRTO_UNS32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::uns64 & value, min::gen g )|
+\LABEL{MIN::STRTO_UNS64} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::float32 & value, min::gen g )|
+\LABEL{MIN::STRTO_FLOAT32} \\
+\verb|bool min::| & \MINKEY{strto} \verb|( min::float64 & value, min::gen g )|
+\LABEL{MIN::STRTO_FLOAT64} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -13621,7 +13711,8 @@ In loose implementation: \\
 \LABEL{MIN::=_STR_PTR_OF_GEN} \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
-      \verb|( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+      \verb|( min::str_ptr & sp1,|\ARGBREAK
+      \verb|  const min::str_ptr & sp2 )|
 \LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
@@ -13642,7 +13733,8 @@ In loose implementation: \\
       \verb|  int index )|
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> |
-    & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -13657,7 +13749,8 @@ In loose implementation: \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb|( char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp,|\ARGBREAK
+      \verb|  min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_PTR} \\[1ex]
 \verb|int min::|
     & \MINKEY{strcmp}\ARGBREAK
@@ -13667,8 +13760,42 @@ In loose implementation: \\
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp, min::unsptr n )|
+      \verb|  const min::str_ptr & sp,|\ARGBREAK
+      \verb|  min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::int32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::int64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::uns32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::uns64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::float32 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+	\verb|( min::float64 & value,|\ARGBREAK
+	\verb|  const min::str_ptr & sp, int & i )|
+\LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -13731,7 +13858,8 @@ In loose implementation: \\
 \LABEL{MIN::=_LAB_PTR_OF_GEN} \\
 \verb|min::lab_ptr & | &
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
-	  \verb|( min::lab_ptr & labp, const min::stub * s )|
+	  \verb|( min::lab_ptr & labp,|\ARGBREAK
+	  \verb|  const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
 \verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
@@ -13789,7 +13917,7 @@ In loose implementation: \\
 \verb|const min::uns32 min::| & \MINKEY{labhash\_factor}
     \verb|= 65599**10 (mod 2**32)|
 \LABEL{MIN::LABHASH_FACTOR} \\
-\verb|min::uns32 min::| & \MINKEY{labhash}
+\verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
     \verb|( min::uns32 hash, min::uns32 h )|
 \LABEL{MIN::LABHASH_INCREMENTAL} \\
 \end{TABULAR}

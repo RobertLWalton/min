@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 15:56:40 EST 2012
+// Date:	Fri Nov 16 03:50:41 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1425,7 +1425,7 @@ min::gen min::new_str_gen
 }
 
 bool min::strto ( min::int32 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;
@@ -1440,7 +1440,7 @@ bool min::strto ( min::int32 & value,
 }
 
 bool min::strto ( min::int64 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;
@@ -1454,7 +1454,7 @@ bool min::strto ( min::int64 & value,
 }
 
 bool min::strto ( min::uns32 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;
@@ -1469,7 +1469,7 @@ bool min::strto ( min::uns32 & value,
 }
 
 bool min::strto ( min::uns64 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;
@@ -1483,7 +1483,7 @@ bool min::strto ( min::uns64 & value,
 }
 
 bool min::strto ( min::float32 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;
@@ -1497,7 +1497,7 @@ bool min::strto ( min::float32 & value,
 }
 
 bool min::strto ( min::float64 & value,
-		  min::str_ptr sp, int & i )
+		  const min::str_ptr sp, int & i )
 {
     char * beginp = (char *) & sp[i];
     char * endp;

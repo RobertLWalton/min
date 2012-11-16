@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 11:51:59 EST 2012
+// Date:	Fri Nov 16 03:50:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4524,17 +4524,17 @@ namespace min {
     // Functions to convert strings to numbers.
     //
     bool strto ( min::int32 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::uns32 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::int64 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::uns64 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::float32 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::float64 & value,
-                 min::str_ptr sp, int & i );
+                 const min::str_ptr sp, int & i );
     bool strto ( min::int32 & value, min::gen g );
     bool strto ( min::uns32 & value, min::gen g );
     bool strto ( min::int64 & value, min::gen g );
