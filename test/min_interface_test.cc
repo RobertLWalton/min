@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 15 15:05:24 EST 2012
+// Date:	Fri Nov 16 03:12:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1804,13 +1804,15 @@ void test_strings ( void )
     MIN_ASSERT ( sd == 1e-307 );
 
     min::gen snums =
-        min::new_str_gen ( "1 -2 3e10 -4e-10X5" );
+        min::new_str_gen ( "1 -2e 3e10 -4e-10X5" );
     min::str_ptr snumsp ( snums );
     int j = 0;
     MIN_ASSERT ( min::strto ( si, snumsp, j ) );
     MIN_ASSERT ( si == 1 );
     MIN_ASSERT ( min::strto ( si, snumsp, j ) );
     MIN_ASSERT ( si == -2 );
+    MIN_ASSERT ( snumsp[j] == 'e' );
+    ++ j;
     MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
     MIN_ASSERT ( sd == 3e10 );
     MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
@@ -1822,13 +1824,19 @@ void test_strings ( void )
     MIN_ASSERT ( snumsp[j] == 0 );
 
     min::gen sspace = min::new_str_gen ( " " );
-    min::gen spoint = min::new_str_gen ( "." );
-    min::gen splus  = min::new_str_gen ( "+" );
-    min::gen sminus = min::new_str_gen ( "-" );
+    min::gen spoint = min::new_str_gen ( " ." );
+    min::gen splus  = min::new_str_gen ( " +" );
+    min::gen sminus = min::new_str_gen ( " -" );
+    min::gen sispace = min::new_str_gen ( " -123  " );
+    min::gen sdspace = min::new_str_gen ( " -123.4e-15  " );
     MIN_ASSERT ( ! min::strto ( si, sspace ) );
     MIN_ASSERT ( ! min::strto ( sd, spoint ) );
     MIN_ASSERT ( ! min::strto ( si, splus ) );
     MIN_ASSERT ( ! min::strto ( si, sminus ) );
+    MIN_ASSERT ( min::strto ( si, sispace ) );
+    MIN_ASSERT ( si == -123 );
+    MIN_ASSERT ( min::strto ( sd, sdspace ) );
+    MIN_ASSERT ( sd == -123.4e-15 );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
