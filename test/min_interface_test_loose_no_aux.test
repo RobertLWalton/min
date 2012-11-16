@@ -885,6 +885,10 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     si == 55 true.
 min_interface_test.cc:XXXX assert:
+    min::strto ( si, sA8, 16 ) true.
+min_interface_test.cc:XXXX assert:
+    si == 168 true.
+min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.

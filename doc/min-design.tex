@@ -3791,13 +3791,17 @@ The following functions can be used to convert \verb|min::gen|
 string values to numbers:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{strto} \verb|( min::int32 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::int32 & value, min::gen g, int base = 0 )|
 \LABEL{MIN::STRTO_INT32} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::int64 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::int64 & value, min::gen g, int base = 0 )|
 \LABEL{MIN::STRTO_INT64} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::uns32 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::uns32 & value, min::gen g, int base = 0 )|
 \LABEL{MIN::STRTO_UNS32} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::uns64 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::uns64 & value, min::gen g, int base = 0 )|
 \LABEL{MIN::STRTO_UNS64} \\
 \verb|bool min::| & \MINKEY{strto} \verb|( min::float32 & value, min::gen g )|
 \LABEL{MIN::STRTO_FLOAT32} \\
@@ -3808,13 +3812,17 @@ string values to numbers:
 If the \verb|min::gen| argument is a
 string consisting of a space surrounded number legal to the UNIX
 {\tt strtol}, {\tt strtoll},
-{\tt strtoul}, or {\tt strtoull} functions with {\tt base} argument
-{\tt 0}, or to the UNIX
+{\tt strtoul}, or {\tt strtoull} functions with given {\tt base} argument,
+or to the UNIX
 {\tt strtof}, or {\tt strtoud} functions, respectively,
 {\tt true} is returned and the number is returned in the {\tt value}
 argument.  Otherwise {\tt false} is returned and the {\tt value}
 argument is left untouched.  This includes the case where the
-\verb|min::gen| argument is not a string.
+\verb|min::gen| argument is not a string, the case where the
+{\tt base} argument does not have a legal value,
+and the case where the number that might be returned would be
+outside the range of
+numbers storable in the {\tt value} argument.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
@@ -3931,26 +3939,36 @@ In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
 at the string proper inside a relocatable string body.
 
-Numbers can be read using from a string pointed at by a string
+Numbers can be read from a string pointed at by a string
 pointer by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float32 & value,|\ARGBREAK
 	\verb|  const min::str_ptr & sp, int & i )|
@@ -3965,14 +3983,18 @@ If the string pointer is not in the {\tt NULL} state and
 the part of the string beginning with {\tt sp[i]} is
 space followed by a number legal to the UNIX
 {\tt strtol}, {\tt strtoll},
-{\tt strtoul}, or {\tt strtoull} functions with {\tt base} argument
-{\tt 0}, or to the UNIX
+{\tt strtoul}, or {\tt strtoull} functions with the given
+{\tt base} argument, or to the UNIX
 {\tt strtof}, or {\tt strtoud} functions, respectively,
 {\tt true} is returned, the number is returned in the
 {\tt value} argument, and the {\tt i} argument is updated to point
 just after the number.  Otherwise {\tt false} is returned and
 {\tt value} and {\tt i} are left untouched.  This includes the
-case where the string pointer is in the {\tt NULL} state.
+case where the string pointer is in the {\tt NULL} state,
+the case where the {\tt base} argument does not have a legal value,
+and the case where the number that might be returned would be
+outside the range of
+numbers storable in the {\tt value} argument.
 
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
@@ -13675,13 +13697,21 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|bool min::| & \MINKEY{strto} \verb|( min::int32 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::int32 & value, min::gen g,|\ARGBREAK
+    \verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::int64 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::int64 & value, min::gen g,|\ARGBREAK
+    \verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::uns32 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::uns32 & value, min::gen g,|\ARGBREAK
+    \verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32} \\
-\verb|bool min::| & \MINKEY{strto} \verb|( min::uns64 & value, min::gen g )|
+\verb|bool min::| & \MINKEY{strto}\ARGBREAK
+    \verb|( min::uns64 & value, min::gen g,|\ARGBREAK
+    \verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64} \\
 \verb|bool min::| & \MINKEY{strto} \verb|( min::float32 & value, min::gen g )|
 \LABEL{MIN::STRTO_FLOAT32} \\
@@ -13768,22 +13798,26 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
 \end{TABULAR}
 

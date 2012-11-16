@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 16 03:12:08 EST 2012
+// Date:	Fri Nov 16 04:41:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1733,6 +1733,7 @@ void test_strings ( void )
     min::gen s1234x = min::new_str_gen ( "1234x" );
     min::gen sm1234 = min::new_str_gen ( "-1234" );
     min::gen sm1234x = min::new_str_gen ( "-1234x" );
+    min::gen sA8 = min::new_str_gen ( "A8" );
 
     min::int32 si;
     MIN_ASSERT ( min::strto ( si, s1234 ) );
@@ -1745,6 +1746,8 @@ void test_strings ( void )
     MIN_ASSERT ( ! min::strto ( si, sempty ) );
     MIN_ASSERT ( ! min::strto ( si, min::MISSING() ) );
     MIN_ASSERT ( si == 55 );
+    MIN_ASSERT ( min::strto ( si, sA8, 16 ) );
+    MIN_ASSERT ( si == 168 );
 
 
     min::gen s1234567890 =
