@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 16, 2012}
+\date{December 5, 2012}
  
 \maketitle
 
@@ -6866,42 +6866,44 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~}l}
-\verb|struct       min::| & \MINKEY{print\_\EOL format}
+\verb|struct     min::| & \MINKEY{print\_\EOL format}
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
-\verb|{                 | \\
-\verb|    min::uns32    | & \TTMKEY{flags}{in {\tt min::print\_format}}
-			          & \verb|// Default:| \\
-			      &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
-			      &   & \verb|//  + min::HBREAK_FLAG|
+\verb|{               | \\
+\verb|   min::uns32   | & \TTMKEY{flags}{in {\tt min::print\_format}}
+		        & \verb|// Default:| \\
+		        &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
+			&   & \verb|//  + min::HBREAK_FLAG|
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32    | & \TTMKEY{gen\_\EOL flags}%
+\verb|   min::uns32   | & \TTMKEY{gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
-			          & \verb|// Default:| \\
-			      &   & \verb|//    min::OBJ_EXP_FLAG|
+			& \verb|// Default:| \\
+			&   & \verb|//    min::OBJ_EXP_FLAG|
 \LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32    | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
+\verb|   min::uns32   | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
-			          & \verb|// Default:| \\
-			      &   & \verb|//    min::GRAPHIC_STR_FLAG| \\
-			      &   & \verb|//  + min::BRACKET_STR_FLAG| \\
-			      &   & \verb|//  + min::BRACKET_LAB_FLAG| \\
-			      &   & \verb|//  + min::OBJ_EXP_FLAG| \\
-			      &   & \verb|//  + min::OBJ_INDENT_FLAG|
+			& \verb|// Default:| \\
+			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
+			&   & \verb|//  + min::BRACKET_STR_FLAG| \\
+			&   & \verb|//  + min::BRACKET_LAB_FLAG| \\
+			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
+			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
+			&   & \verb|//  + min::OBJ_INDENT_FLAG|
 \LABEL{MIN::FLUSH_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32    | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
+\verb|   min::uns32   | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
-			          & \verb|// Default:| \\
-			      &   & \verb|//    min::GRAPHIC_STR_FLAG| \\
-			      &   & \verb|//  + min::OBJ_EXP_FLAG| \\
-			      &   & \verb|//  + min::OBJ_ID_FLAG|
+			& \verb|// Default:| \\
+			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
+			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
+			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
+			&   & \verb|//  + min::OBJ_ID_FLAG|
 \LABEL{MIN::FLUSH_ATTR_GEN_FLAGS_IN_PRINT_FORMAT} \\
 \multicolumn{2}{l}{\tt ~~~~min::gen\_format *} \\
-                              & \TTMKEY{gen\_format}%
+                        & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
-			          & \verb|// Default:| \\
-			      &   & \verb|//  & min::default_gen_format|
+			& \verb|// Default:| \\
+			&   & \verb|//  & min::default_gen_format|
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
-\verb|}                 | \\
+\verb|}              | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
