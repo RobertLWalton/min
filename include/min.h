@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 16 04:32:20 EST 2012
+// Date:	Wed Dec  5 09:54:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11942,11 +11942,13 @@ namespace min {
 	    GRAPHIC_STR_FLAG
 	  + BRACKET_STR_FLAG
 	  + BRACKET_LAB_FLAG
+	  + BRACKET_IMPLICIT_FLAG
 	  + OBJ_EXP_FLAG
 	  + OBJ_INDENT_FLAG;
 
     const min::uns32 DEFAULT_FLUSH_ATTR_GEN_FLAGS =
 	    GRAPHIC_STR_FLAG
+	  + BRACKET_IMPLICIT_FLAG
 	  + OBJ_EXP_FLAG
 	  + OBJ_ID_FLAG;
 
