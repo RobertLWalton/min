@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 04:27:48 EST 2012
+// Date:	Wed Dec 12 12:58:10 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7613,6 +7613,31 @@ min::printer operator <<
 	      MUP::new_gen ( op.v1.g ),
 	      op.v3.u32, op.v4.u32, f );
     }
+    case min::op::MAP_PGEN:
+    {
+        min::gen g = MUP::new_gen ( op.v1.g );
+	const min::stub * s = min::stub_of ( g );
+	if ( s != min::NULL_STUB )
+	{
+	    min::uns32 id =
+		printer->id_map != min::NULL_STUB ?
+		    min::find ( printer->id_map, s ) :
+		    0;
+	    if ( id != 0 )
+		return printer << min::indent
+		               << "@" << id << min::eol;
+	    else if ( min::is_obj ( g ) )
+	    {
+		if ( printer->id_map == min::NULL_STUB )
+		    min::init
+		        ( min::id_map_ref ( printer ) );
+	        min::find_or_add ( printer->id_map, s );
+		return printer << min::flush_id_map;
+	    }
+	}
+	return printer << min::indent << min::pgen ( g )
+	               << min::eol;
+    }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
     case min::op::FLUSH_ID_MAP:
@@ -9257,7 +9282,8 @@ static T pgen_obj
 		out << min::set_break << " = ";
 		pgen ( out, min::PGEN_NAME,
 		       rinfo[j-do_values].name,
-		       value_gen_flags, name_gen_flags, f );
+		       value_gen_flags, name_gen_flags,
+		       f );
 	    }
 	}
     }
