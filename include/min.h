@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 00:22:30 EST 2012
+// Date:	Wed Dec 12 04:17:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11476,9 +11476,6 @@ namespace min {
             PGEN = 1,
 	    PGEN1,
 	    PGEN2,
-            FLUSH_PGEN,
-	    FLUSH_PGEN1,
-	    FLUSH_PGEN2,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT,
@@ -11501,6 +11498,8 @@ namespace min {
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
 
+	    SAVE_LINE_BREAK,
+	    RESTORE_LINE_BREAK,
 	    SAVE_INDENT,
 	    RESTORE_INDENT,
 	    SAVE_PRINT_FORMAT,
@@ -11537,33 +11536,39 @@ namespace min {
 	    unsptr uptr;
 	    float64 f64;
 	    min::unsgen g;
-	} v1, v2, v3;
+	} v1, v2, v3, v4;
 
 	op ( op::OPCODE opcode )
 	    : opcode ( opcode ) {}
 	op ( op::OPCODE opcode,
-	     min::gen v )
+	     min::gen v,
+	     min::uns32 context )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
+	    v2.u32 = context;
 	}
 	op ( op::OPCODE opcode,
 	     min::gen v,
+	     min::uns32 context,
 	     min::uns32 value_gen_flags )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
-	    v2.u32 = value_gen_flags;
+	    v2.u32 = context;
+	    v3.u32 = value_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::gen v,
+	     min::uns32 context,
 	     min::uns32 value_gen_flags,
 	     min::uns32 name_gen_flags )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
-	    v2.u32 = value_gen_flags;
-	    v3.u32 = name_gen_flags;
+	    v2.u32 = context;
+	    v3.u32 = value_gen_flags;
+	    v4.u32 = name_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11702,6 +11707,8 @@ namespace min {
         return op ( op::RESERVE, width );
     }
 
+    extern const op save_line_break;
+    extern const op restore_line_break;
     extern const op save_indent;
     extern const op restore_indent;
     extern const op save_print_format;
@@ -11987,14 +11994,15 @@ namespace min {
 
     inline op pgen ( min::gen v )
     {
-        return op ( op::PGEN, v );
+        return op ( op::PGEN, v, min::PGEN_VALUE );
     }
 
     inline op pgen
 	    ( min::gen v,
               min::uns32 value_gen_flags )
     {
-        return op ( op::PGEN1, v, value_gen_flags );
+        return op ( op::PGEN1, v, min::PGEN_VALUE,
+	            value_gen_flags );
     }
 
     inline op pgen
@@ -12002,20 +12010,20 @@ namespace min {
               min::uns32 value_gen_flags,
               min::uns32 name_gen_flags )
     {
-        return op ( op::PGEN2, v,
+        return op ( op::PGEN2, v, min::PGEN_VALUE,
 	            value_gen_flags, name_gen_flags );
     }
 
     inline op flush_pgen ( min::gen v )
     {
-        return op ( op::FLUSH_PGEN, v );
+        return op ( op::PGEN, v, min::PGEN_FLUSH );
     }
 
     inline op flush_pgen
 	    ( min::gen v,
               min::uns32 value_gen_flags )
     {
-        return op ( op::FLUSH_PGEN1, v,
+        return op ( op::PGEN1, v, min::PGEN_FLUSH,
 	            value_gen_flags );
     }
 
@@ -12024,7 +12032,29 @@ namespace min {
               min::uns32 value_gen_flags,
               min::uns32 name_gen_flags )
     {
-        return op ( op::FLUSH_PGEN2, v,
+        return op ( op::PGEN2, v, min::PGEN_FLUSH,
+	            value_gen_flags, name_gen_flags );
+    }
+
+    inline op name_pgen ( min::gen v )
+    {
+        return op ( op::PGEN, v, min::PGEN_NAME );
+    }
+
+    inline op name_pgen
+	    ( min::gen v,
+              min::uns32 value_gen_flags )
+    {
+        return op ( op::PGEN1, v, min::PGEN_NAME,
+	            value_gen_flags );
+    }
+
+    inline op name_pgen
+	    ( min::gen v,
+              min::uns32 value_gen_flags,
+              min::uns32 name_gen_flags )
+    {
+        return op ( op::PGEN2, v, min::PGEN_NAME,
 	            value_gen_flags, name_gen_flags );
     }
 

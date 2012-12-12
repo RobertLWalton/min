@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 00:22:50 EST 2012
+// Date:	Wed Dec 12 04:27:48 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7583,7 +7583,7 @@ min::printer operator <<
 	    f = & min::default_gen_format;
 
 	return ( * f->pgen )
-	    ( printer, min::PGEN_VALUE,
+	    ( printer, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
 	      printer->print_format.value_gen_flags,
 	      printer->print_format.name_gen_flags, f );
@@ -7596,9 +7596,9 @@ min::printer operator <<
 	    f = & min::default_gen_format;
 
 	return ( * f->pgen )
-	    ( printer, min::PGEN_VALUE,
+	    ( printer, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32,
+	      op.v3.u32,
 	      printer->print_format.name_gen_flags, f );
     }
     case min::op::PGEN2:
@@ -7609,47 +7609,9 @@ min::printer operator <<
 	    f = & min::default_gen_format;
 
 	return ( * f->pgen )
-	    ( printer, min::PGEN_VALUE,
+	    ( printer, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32, op.v3.u32, f );
-    }
-    case min::op::FLUSH_PGEN:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ( * f->pgen )
-	    ( printer, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      printer->print_format.value_gen_flags,
-	      printer->print_format.name_gen_flags, f );
-    }
-    case min::op::FLUSH_PGEN1:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ( * f->pgen )
-	    ( printer, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32,
-	      printer->print_format.name_gen_flags, f );
-    }
-    case min::op::FLUSH_PGEN2:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ( * f->pgen )
-	    ( printer, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32, op.v3.u32, f );
+	      op.v3.u32, op.v4.u32, f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
@@ -7795,15 +7757,20 @@ min::printer operator <<
     case min::op::SPACE:
 	MINT::print_unicode ( printer, 1, ::space );
 	return printer;
-    case min::op::RESTORE_INDENT:
-	printer->line_break =
-	    min::pop ( printer->line_break_stack );
+    case min::op::SAVE_LINE_BREAK:
+        min::push ( printer->line_break_stack ) =
+	    printer->line_break;
 	return printer;
     case min::op::SAVE_INDENT:
     save_indent:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
 	printer->line_break.indent = printer->column;
+	return printer;
+    case min::op::RESTORE_LINE_BREAK:
+    case min::op::RESTORE_INDENT:
+	printer->line_break =
+	    min::pop ( printer->line_break_stack );
 	return printer;
     case min::op::SAVE_PRINT_FORMAT:
         min::push ( printer->print_format_stack ) =
@@ -8030,7 +7997,7 @@ std::ostream & operator <<
 	    f = & min::default_gen_format;
 
 	return ::ostream_pgen
-	    ( out, min::PGEN_VALUE,
+	    ( out, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
 	      min::ostream_print_format.value_gen_flags,
 	      min::ostream_print_format.name_gen_flags,
@@ -8044,9 +8011,9 @@ std::ostream & operator <<
 	    f = & min::default_gen_format;
 
 	return ::ostream_pgen
-	    ( out, min::PGEN_VALUE,
+	    ( out, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32,
+	      op.v3.u32,
 	      min::ostream_print_format.name_gen_flags,
 	      f );
     }
@@ -8058,49 +8025,9 @@ std::ostream & operator <<
 	    f = & min::default_gen_format;
 
 	return ::ostream_pgen
-	    ( out, min::PGEN_VALUE,
+	    ( out, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32, op.v3.u32, f );
-    }
-    case min::op::FLUSH_PGEN:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ::ostream_pgen
-	    ( out, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      min::ostream_print_format.value_gen_flags,
-	      min::ostream_print_format.name_gen_flags,
-	      f );
-    }
-    case min::op::FLUSH_PGEN1:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ::ostream_pgen
-	    ( out, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32,
-	      min::ostream_print_format.name_gen_flags,
-	      f );
-    }
-    case min::op::FLUSH_PGEN2:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-	if  ( f == NULL )
-	    f = & min::default_gen_format;
-
-	return ::ostream_pgen
-	    ( out, min::PGEN_FLUSH,
-	      MUP::new_gen ( op.v1.g ),
-	      op.v2.u32, op.v3.u32, f );
+	      op.v3.u32, op.v4.u32, f );
     }
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( out );
@@ -8159,6 +8086,10 @@ std::ostream & operator <<
     }
 }
 
+const min::op min::save_line_break
+    ( min::op::SAVE_LINE_BREAK );
+const min::op min::restore_line_break
+    ( min::op::RESTORE_LINE_BREAK );
 const min::op min::save_indent
     ( min::op::SAVE_INDENT );
 const min::op min::restore_indent
@@ -9175,9 +9106,8 @@ static T pgen_obj
 	out << "{| " << min::save_indent
 	    << min::nohbreak;
     else
-        out << min::save_indent
-	    << min::nohbreak
-	    << min::adjust_indent ( 4 );
+        out << min::save_line_break
+	    << min::nohbreak;
 
     bool include_attr_vec = false;
     for ( min::unsptr i = 0;
@@ -9197,9 +9127,6 @@ static T pgen_obj
 	           vp[i],
 	           value_gen_flags, name_gen_flags, f );
     }
-
-    if ( indent )
-        out << min::adjust_indent ( -4 );
 
     if ( indent && m > 0 ) out << " |:";
 
