@@ -3921,24 +3921,16 @@ Start Object Printing Test!
 {| 1 2 3 4 5; .terminator = "}"; .separator = ","; .initiator = "{" |}
 {1, 2, 3, 4, 5}
 @1
-{| {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
-      .initiator = "{" |}
-   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
-      .initiator = "{" |}
-   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
-      .initiator = "{" |}
-   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
-      .initiator = "{" |}
-   {| 1 2 3 4 5; .terminator = "}"; .separator = ",";
-      .initiator = "{" |}; .terminator = "]"; .separator = ";";
+{| {1, 2, 3, 4, 5} {1, 2, 3, 4, 5} {1, 2, 3, 4, 5} {1, 2, 3, 4, 5}
+   {1, 2, 3, 4, 5}; .terminator = "]"; .separator = ";";
    .initiator = "[" |}
 [{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
  {1, 2, 3, 4, 5}]
 @2
 @1 = 1 2 3 4 5 |:
-     .terminator = }
-     .separator = ,
-     .initiator = {
+     .terminator = "}"
+     .separator = ","
+     .initiator = "{"
 @2 = [@1; @1; @1; @1; @1]
 @3 = 10 @4 11 |:
      label3[!z] = @5 = label5
