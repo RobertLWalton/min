@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 16 04:41:04 EST 2012
+// Date:	Tue Dec 11 11:51:39 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -737,7 +737,7 @@ void test_general_value_functions ( void )
 	char str[8];
     } value;
 
-    min::ostream_print_format.gen_flags =
+    min::ostream_print_format.value_gen_flags =
         min::BRACKET_STR_FLAG + min::BRACKET_LAB_FLAG;
 
     min::gen strgen =
@@ -2626,7 +2626,7 @@ void test_printer ( void )
             << min::eol;
 
     printer << min::save_print_format
-            << min::set_gen_flags
+            << min::set_value_gen_flags
 	           (   min::BRACKET_STR_FLAG
 		     + min::GRAPHIC_STR_FLAG
 		     + min::BRACKET_LAB_FLAG );
@@ -4441,12 +4441,12 @@ void test_object_printing ( void )
             << min::eol;
 
     printer << min::save_print_format
-            << min::clear_flush_attr_gen_flags
+            << min::clear_name_gen_flags
 	           ( min::OBJ_EXP_FLAG )
-            << min::clear_flush_gen_flags
+            << min::clear_value_gen_flags
 	           ( min::OBJ_EXP_FLAG )
 	    << min::flush_one_id
-            << min::set_flush_gen_flags
+            << min::set_value_gen_flags
 	           ( min::OBJ_EXP_FLAG )
 	    << min::flush_id_map
 	    << min::restore_print_format;
