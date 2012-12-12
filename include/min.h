@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 04:17:54 EST 2012
+// Date:	Wed Dec 12 07:53:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11476,6 +11476,7 @@ namespace min {
             PGEN = 1,
 	    PGEN1,
 	    PGEN2,
+	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT,
@@ -11540,6 +11541,12 @@ namespace min {
 
 	op ( op::OPCODE opcode )
 	    : opcode ( opcode ) {}
+	op ( op::OPCODE opcode,
+	     min::gen v )
+	    : opcode ( opcode )
+	{
+	    v1.g = unprotected::value_of ( v );
+	}
 	op ( op::OPCODE opcode,
 	     min::gen v,
 	     min::uns32 context )
@@ -12056,6 +12063,11 @@ namespace min {
     {
         return op ( op::PGEN2, v, min::PGEN_NAME,
 	            value_gen_flags, name_gen_flags );
+    }
+
+    inline op map_pgen ( min::gen v )
+    {
+        return op ( op::MAP_PGEN, v );
     }
 
     inline op set_value_gen_flags
