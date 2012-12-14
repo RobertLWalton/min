@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 5, 2012}
+\date{December 14, 2012}
  
 \maketitle
 
@@ -6874,12 +6874,7 @@ accomplished by the following:
 		        &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
 			&   & \verb|//  + min::HBREAK_FLAG|
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|   min::uns32   | & \TTMKEY{gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
-			& \verb|// Default:| \\
-			&   & \verb|//    min::OBJ_EXP_FLAG|
-\LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|   min::uns32   | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
+\verb|   min::uns32   | & \TTMKEY{value\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
 			& \verb|// Default:| \\
 			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
@@ -6888,15 +6883,16 @@ accomplished by the following:
 			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
 			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
 			&   & \verb|//  + min::OBJ_INDENT_FLAG|
-\LABEL{MIN::FLUSH_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|   min::uns32   | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
+\LABEL{MIN::VALUE_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|   min::uns32   | & \TTMKEY{name\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
 			& \verb|// Default:| \\
 			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
+			&   & \verb|//  + min::SUPPRESS_LAB_SPACE_FLAG| \\
 			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
 			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
 			&   & \verb|//  + min::OBJ_ID_FLAG|
-\LABEL{MIN::FLUSH_ATTR_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\LABEL{MIN::NAME_GEN_FLAGS_IN_PRINT_FORMAT} \\
 \multicolumn{2}{l}{\tt ~~~~min::gen\_format *} \\
                         & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
@@ -8124,19 +8120,16 @@ The parts of printer operations that change {\tt min::\EOL printer}
 parameters or read {\tt line\_\EOL break} parameters
 are treated as no-operations, and parts that just
 use the {\tt print\_\EOL format} parameters are executed using
-the value of {\tt min::\EOL ostream\_\EOL print\_\EOL format}
-instead, where this is a global variable initialized by:
+the value of
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::print\_format
-                       min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
-    \verb|  min::OBJ_EXP_FLAG,                  // gen_flags|\ARGBREAK
-    \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
-    \verb|};|
+                       min::\MINKEY{ostream\_print\_format}}
 \LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
 \end{tabular}\end{indpar}
+
+instead, where this is a (non-{\tt const}) global variable initialized to the
+value of {\tt min::\EOL default\_\EOL print\_\EOL format}.
 
 Also, {\tt gen\_format->pgen} is ignored, and so cannot override the
 default {\tt pgen}.
@@ -8816,8 +8809,8 @@ The {\tt flag\_names} member of the effective {\tt gen\_format}
 is used to produce flag names, and the correspondence just
 given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
 
-The printer flags in {\tt gen\_flags}, {\tt flush\_\EOL gen\_\EOL flags},
-and {\tt flush\_\EOL attr\_\EOL gen\_\EOL flags} can be set or cleared
+The printer flags in {\tt value\_\EOL gen\_\EOL flags},
+and {\tt name\_\EOL gen\_\EOL flags} can be set or cleared
 by the following printer operations.  Here
 {\tt min::\EOL set\_\EOL xxx\_\EOL flags}, logically OR's
 its argument into {\tt print\_\EOL format.xxx\_\EOL flags}, and
@@ -8827,32 +8820,24 @@ the bitwise complement of its argument into
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::SET_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::CLEAR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+    & \MINKEY{set\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
       \verb|( min::uns32 flush_gen_flags )|
-\LABEL{MIN::SET_FLUSH_GEN_FLAGS} \\
+\LABEL{MIN::SET_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+    & \MINKEY{clear\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
       \verb|( min::uns32 flush_gen_flags )|
-\LABEL{MIN::CLEAR_FLUSH_GEN_FLAGS} \\
+\LABEL{MIN::CLEAR_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_attr_gen_flags )|
-\LABEL{MIN::SET_FLUSH_ATTR_GEN_FLAGS} \\
+    & \MINKEY{set\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 name_gen_flags )|
+\LABEL{MIN::SET_NAME_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_attr_gen_flags )|
-\LABEL{MIN::CLEAR_FLUSH_ATTR_GEN_FLAGS} \\
+    & \MINKEY{clear\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 name_gen_flags )|
+\LABEL{MIN::CLEAR_NAME_GEN_FLAGS} \\
 \end{tabular}\end{indpar}
 
-Particular {\tt print\_format.gen\_flags} may be set and cleared by the
+Particular {\tt print\_format.value\_gen\_flags} may be set and cleared by the
 following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -14986,15 +14971,12 @@ In loose implementation: \\
 \verb|{                     | \\
 \verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32        | & \TTMKEY{gen\_\EOL flags}%
+\verb|    min::uns32        | & \TTMKEY{value\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
-\LABEL{MIN::GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32    | & \TTMKEY{flush\_\EOL gen\_\EOL flags}%
+\LABEL{MIN::VALUE_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|    min::uns32        | & \TTMKEY{name\_\EOL gen\_\EOL flags}%
                                        {in {\tt min::print\_format}}
-\LABEL{MIN::FLUSH_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32    | & \TTMKEY{flush\_\EOL attr\_\EOL gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
-\LABEL{MIN::FLUSH_ATTR_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\LABEL{MIN::NAME_GEN_FLAGS_IN_PRINT_FORMAT} \\
 \verb|    min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
@@ -15375,8 +15357,8 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
     & \TTOMKEY{<<}{\LT\LT}{of {\tt std::ostream \&}}\ARGBREAK
-      \verb|( std::ostream & out,|\ARGBREAK
-      \verb|  const min::op & op )|
+      \verb| ( std::ostream & out,|\ARGBREAK
+      \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
 \end{TABULAR}
 
@@ -15384,12 +15366,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{0.8in}
 \multicolumn{2}{l}{\tt min::print\_format
-                       min::\MINKEY{ostream\_print\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::ASCII + min::GRAPHIC_FLAGS,    // flags|\ARGBREAK
-    \verb|  min::OBJ_EXP_FLAG,                  // gen_flags|\ARGBREAK
-    \verb|  & min::default_gen_format           // gen_format|\ARGBREAK
-    \verb|};|
+                       min::\MINKEY{ostream\_print\_format}}
 \LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
 \end{TABULAR}
 
@@ -15560,29 +15537,21 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::SET_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 gen_flags )|
-\LABEL{MIN::CLEAR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+    & \MINKEY{set\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
       \verb|( min::uns32 flush_gen_flags )|
-\LABEL{MIN::SET_FLUSH_GEN_FLAGS} \\
+\LABEL{MIN::SET_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_\EOL flush\_\EOL gen\_\EOL flags}\ARGBREAK
+    & \MINKEY{clear\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
       \verb|( min::uns32 flush_gen_flags )|
-\LABEL{MIN::CLEAR_FLUSH_GEN_FLAGS} \\
+\LABEL{MIN::CLEAR_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_attr_gen_flags )|
-\LABEL{MIN::SET_FLUSH_ATTR_GEN_FLAGS} \\
+    & \MINKEY{set\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 name_gen_flags )|
+\LABEL{MIN::SET_NAME_GEN_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_\EOL flush\_\EOL attr\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_attr_gen_flags )|
-\LABEL{MIN::CLEAR_FLUSH_ATTR_GEN_FLAGS} \\
+    & \MINKEY{clear\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::uns32 name_gen_flags )|
+\LABEL{MIN::CLEAR_NAME_GEN_FLAGS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
