@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 12:58:10 EST 2012
+// Date:	Sun Jan  6 06:36:16 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7450,7 +7450,8 @@ static void init_utf8graphic ( void )
 	      min::ILLEGAL_UTF8 );
 }
 
-static char NUL_UTF8_ENCODING[3] = { 0xC0, 0x80, 0 };
+static char NUL_UTF8_ENCODING[3] =
+    { (char) 0xC0, (char) 0x80, 0 };
 
 static min::packed_vec<min::line_break>
     line_break_stack_type
@@ -9134,7 +9135,6 @@ static T pgen_obj
         out << min::save_line_break
 	    << min::nohbreak;
 
-    bool include_attr_vec = false;
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
     {
@@ -9145,7 +9145,6 @@ static T pgen_obj
 	if ( min::is_sublist ( v ) )
 	{
 	    out << "**";
-	    include_attr_vec = true;
 	}
 	else
 	    pgen ( out, min::PGEN_ELEMENT,

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 11 11:51:39 EST 2012
+// Date:	Sun Jan  6 06:27:26 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1921,11 +1921,9 @@ void test_names ( void )
 
     min::gen num1 = min::new_num_gen ( 1 );
     min::gen num2 = min::new_num_gen ( 2 );
-    min::gen num3 = min::new_num_gen ( 3 );
 
     min::gen str1 = min::new_str_gen ( "str 1" );
     min::gen str2 = min::new_str_gen ( "str 2" );
-    min::gen str3 = min::new_str_gen ( "str 3" );
 
     min::gen l11[1] = { num1 };
     min::gen l12[1] = { num2 };
@@ -3853,13 +3851,9 @@ void test_attribute_values
 
     min::gen val1 = min::new_num_gen ( 1 );
     min::gen val2 = min::new_num_gen ( 2 );
-    min::gen val3 = min::new_num_gen ( 3 );
-    min::gen val4 = min::new_num_gen ( 4 );
 
     min::gen val5 = min::new_str_gen ( "value5" );
     min::gen val6 = min::new_str_gen ( "value6" );
-    min::gen val7 = min::new_str_gen ( "value7" );
-    min::gen val8 = min::new_str_gen ( "value8" );
 
     min::gen values1[8] = { val1, val1, val2, val2,
                             val5, val6, val6, val6 };
@@ -4219,21 +4213,15 @@ void test_object_attribute_level ( void )
     min::gen int4 = min::new_num_gen ( 4 );
 
     min::gen int1lab1v[2] = { int1, lab1 };
-    min::gen int2lab1v[2] = { int2, lab1 };
     min::gen int1lab2v[2] = { int1, lab2 };
     min::gen lab1int1v[2] = { lab1, int1 };
-    min::gen lab2int1v[2] = { lab2, int1 };
     min::gen lab1int2v[2] = { lab1, int2 };
     min::gen int1lab1 =
         min::new_lab_gen ( int1lab1v, 2 );
     min::gen int1lab2 =
         min::new_lab_gen ( int1lab2v, 2 );
-    min::gen int2lab1 =
-        min::new_lab_gen ( int2lab1v, 2 );
     min::gen lab1int1 =
         min::new_lab_gen ( lab1int1v, 2 );
-    min::gen lab2int1 =
-        min::new_lab_gen ( lab2int1v, 2 );
     min::gen lab1int2 =
         min::new_lab_gen ( lab1int2v, 2 );
 
