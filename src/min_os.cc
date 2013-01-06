@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 06:53:59 EST 2012
+// Date:	Sun Jan  6 06:37:38 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -158,7 +158,7 @@ inline void * error ( int n )
         cout << "TRACE: " << fname
 	     << " failed due to error:" << endl
 	     << "       " << pool_message[n] << endl;
-    return (void *) n;
+    return (void *) (min::unsptr) n;
 }
 
 const char * MOS::pool_error ( void * address )

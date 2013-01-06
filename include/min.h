@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 12 07:53:02 EST 2012
+// Date:	Sun Jan  6 06:36:56 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10441,7 +10441,6 @@ namespace min {
 	    ap.reverse_attr_name = NONE();
 
 	    start_vector ( ap.locate_dlp, name );
-	    min::gen c = current ( ap.locate_dlp );
 	    start_copy ( ap.dlp, ap.locate_dlp );
 	    ap.state = ap_type::LOCATE_NONE;
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
