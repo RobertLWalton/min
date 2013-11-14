@@ -1,12 +1,44 @@
 	.file	"min_relocation_optimization_test.cc"
 	.text
 	.p2align 4,,15
-.globl _Z5test2PKN3min4stubEii
+	.globl	_Z5test1PKN3min4stubEi
+	.type	_Z5test1PKN3min4stubEi, @function
+_Z5test1PKN3min4stubEi:
+.LFBXXX:
+	.cfi_startproc
+	movq	%rbx, -24(%rsp)
+	movq	%rbp, -16(%rsp)
+	.cfi_offset 3, -32
+	.cfi_offset 6, -24
+	movq	%rdi, %rbp
+	movq	%r12, -8(%rsp)
+	subq	$24, %rsp
+	.cfi_def_cfa_offset 32
+	.cfi_offset 12, -16
+	movq	(%rdi), %rax
+	movslq	%esi, %r12
+	movl	(%rax,%r12,4), %ebx
+	addl	(%rax), %ebx
+	call	_Z12do_somethingv
+	movq	0(%rbp), %rdx
+	movq	8(%rsp), %rbp
+	movl	(%rdx), %eax
+	addl	%ebx, %eax
+	movq	(%rsp), %rbx
+	addl	(%rdx,%r12,4), %eax
+	movq	16(%rsp), %r12
+	addq	$24, %rsp
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFEXXX:
+	.size	_Z5test1PKN3min4stubEi, .-_Z5test1PKN3min4stubEi
+	.p2align 4,,15
+	.globl	_Z5test2PKN3min4stubEii
 	.type	_Z5test2PKN3min4stubEii, @function
 _Z5test2PKN3min4stubEii:
 .LFBXXX:
 	.cfi_startproc
-	.cfi_personality 0x3,__gxx_personality_v0
 	movq	(%rdi), %rcx
 	movslq	%esi, %rsi
 	movslq	%edx, %rdx
@@ -17,11 +49,46 @@ _Z5test2PKN3min4stubEii:
 .LFEXXX:
 	.size	_Z5test2PKN3min4stubEii, .-_Z5test2PKN3min4stubEii
 	.p2align 4,,15
-	.type	_GLOBAL__I__Z5test1PKN3min4stubEi, @function
-_GLOBAL__I__Z5test1PKN3min4stubEi:
+	.globl	_Z5test3Ri
+	.type	_Z5test3Ri, @function
+_Z5test3Ri:
 .LFBXXX:
 	.cfi_startproc
-	.cfi_personality 0x3,__gxx_personality_v0
+	movq	_ZN3min8internal9acc_stackE(%rip), %rax
+	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
+	pushq	%rbx
+	.cfi_def_cfa_offset 16
+	.cfi_offset 3, -16
+	movq	%rdi, %rbx
+	cmpq	%rdx, %rax
+	jb	.L5
+	call	_ZN3min8internal13acc_interruptEv
+	movq	_ZN3min8internal9acc_stackE(%rip), %rax
+.L5:
+	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
+	addl	$1, (%rbx)
+	cmpq	%rax, %rdx
+	jbe	.L9
+	popq	%rbx
+	.cfi_remember_state
+	.cfi_def_cfa_offset 8
+	ret
+	.p2align 4,,10
+	.p2align 3
+.L9:
+	.cfi_restore_state
+	popq	%rbx
+	.cfi_def_cfa_offset 8
+	jmp	_ZN3min8internal13acc_interruptEv
+	.cfi_endproc
+.LFEXXX:
+	.size	_Z5test3Ri, .-_Z5test3Ri
+	.section	.text.startup,"ax",@progbits
+	.p2align 4,,15
+	.type	_GLOBAL__sub_I__Z5test1PKN3min4stubEi, @function
+_GLOBAL__sub_I__Z5test1PKN3min4stubEi:
+.LFBXXX:
+	.cfi_startproc
 	subq	$8, %rsp
 	.cfi_def_cfa_offset 16
 	movl	$_ZStL8__ioinit, %edi
@@ -34,118 +101,12 @@ _GLOBAL__I__Z5test1PKN3min4stubEi:
 	jmp	__cxa_atexit
 	.cfi_endproc
 .LFEXXX:
-	.size	_GLOBAL__I__Z5test1PKN3min4stubEi, .-_GLOBAL__I__Z5test1PKN3min4stubEi
-	.section	.ctors,"aw",@progbits
+	.size	_GLOBAL__sub_I__Z5test1PKN3min4stubEi, .-_GLOBAL__sub_I__Z5test1PKN3min4stubEi
+	.section	.init_array,"aw"
 	.align 8
-	.quad	_GLOBAL__I__Z5test1PKN3min4stubEi
-	.text
-	.p2align 4,,15
-.globl _Z5test3Ri
-	.type	_Z5test3Ri, @function
-_Z5test3Ri:
-.LFBXXX:
-	.cfi_startproc
-	.cfi_personality 0x3,__gxx_personality_v0
-	subq	$24, %rsp
-	.cfi_def_cfa_offset 32
-	movq	_ZN3min8internal9acc_stackE(%rip), %rax
-	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
-	cmpq	%rdx, %rax
-	jae	.L10
-.L6:
-	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
-	addl	$1, (%rdi)
-	cmpq	%rax, %rdx
-	jbe	.L11
-	addq	$24, %rsp
-	.cfi_remember_state
-	.cfi_def_cfa_offset 8
-	ret
-	.p2align 4,,10
-	.p2align 3
-.L11:
-	.cfi_restore_state
-	addq	$24, %rsp
-	.cfi_remember_state
-	.cfi_def_cfa_offset 8
-	jmp	_ZN3min8internal13acc_interruptEv
-	.p2align 4,,10
-	.p2align 3
-.L10:
-	.cfi_restore_state
-	movq	%rdi, 8(%rsp)
-	call	_ZN3min8internal13acc_interruptEv
-	movq	_ZN3min8internal9acc_stackE(%rip), %rax
-	movq	8(%rsp), %rdi
-	jmp	.L6
-	.cfi_endproc
-.LFEXXX:
-	.size	_Z5test3Ri, .-_Z5test3Ri
-	.p2align 4,,15
-.globl _Z5test1PKN3min4stubEi
-	.type	_Z5test1PKN3min4stubEi, @function
-_Z5test1PKN3min4stubEi:
-.LFBXXX:
-	.cfi_startproc
-	.cfi_personality 0x3,__gxx_personality_v0
-	movq	%rbx, -32(%rsp)
-	movq	%rbp, -24(%rsp)
-	movq	%rdi, %rbx
-	.cfi_offset 6, -32
-	.cfi_offset 3, -40
-	movq	%r12, -16(%rsp)
-	movq	%r13, -8(%rsp)
-	subq	$40, %rsp
-	.cfi_def_cfa_offset 48
-	.cfi_offset 13, -16
-	.cfi_offset 12, -24
-	movq	(%rdi), %rdx
-	movslq	%esi, %rbp
-	movl	(%rdx,%rbp,4), %r12d
-	movl	(%rdx), %r13d
-	call	_Z12do_somethingv
-	movq	(%rbx), %rdx
-	movq	8(%rsp), %rbx
-	movl	(%rdx), %eax
-	addl	%r13d, %eax
-	movq	32(%rsp), %r13
-	addl	%r12d, %eax
-	movq	24(%rsp), %r12
-	addl	(%rdx,%rbp,4), %eax
-	movq	16(%rsp), %rbp
-	addq	$40, %rsp
-	.cfi_def_cfa_offset 8
-	ret
-	.cfi_endproc
-.LFEXXX:
-	.size	_Z5test1PKN3min4stubEi, .-_Z5test1PKN3min4stubEi
+	.quad	_GLOBAL__sub_I__Z5test1PKN3min4stubEi
 	.local	_ZStL8__ioinit
 	.comm	_ZStL8__ioinit,1,1
-	.weakref	_ZL20__gthrw_pthread_oncePiPFvvE,pthread_once
-	.weakref	_ZL27__gthrw_pthread_getspecificj,pthread_getspecific
-	.weakref	_ZL27__gthrw_pthread_setspecificjPKv,pthread_setspecific
-	.weakref	_ZL22__gthrw_pthread_createPmPK14pthread_attr_tPFPvS3_ES3_,pthread_create
-	.weakref	_ZL20__gthrw_pthread_joinmPPv,pthread_join
-	.weakref	_ZL21__gthrw_pthread_equalmm,pthread_equal
-	.weakref	_ZL20__gthrw_pthread_selfv,pthread_self
-	.weakref	_ZL22__gthrw_pthread_detachm,pthread_detach
-	.weakref	_ZL22__gthrw_pthread_cancelm,pthread_cancel
-	.weakref	_ZL19__gthrw_sched_yieldv,sched_yield
-	.weakref	_ZL26__gthrw_pthread_mutex_lockP15pthread_mutex_t,pthread_mutex_lock
-	.weakref	_ZL29__gthrw_pthread_mutex_trylockP15pthread_mutex_t,pthread_mutex_trylock
-	.weakref	_ZL31__gthrw_pthread_mutex_timedlockP15pthread_mutex_tPK8timespec,pthread_mutex_timedlock
-	.weakref	_ZL28__gthrw_pthread_mutex_unlockP15pthread_mutex_t,pthread_mutex_unlock
-	.weakref	_ZL26__gthrw_pthread_mutex_initP15pthread_mutex_tPK19pthread_mutexattr_t,pthread_mutex_init
-	.weakref	_ZL29__gthrw_pthread_mutex_destroyP15pthread_mutex_t,pthread_mutex_destroy
-	.weakref	_ZL30__gthrw_pthread_cond_broadcastP14pthread_cond_t,pthread_cond_broadcast
-	.weakref	_ZL27__gthrw_pthread_cond_signalP14pthread_cond_t,pthread_cond_signal
-	.weakref	_ZL25__gthrw_pthread_cond_waitP14pthread_cond_tP15pthread_mutex_t,pthread_cond_wait
-	.weakref	_ZL30__gthrw_pthread_cond_timedwaitP14pthread_cond_tP15pthread_mutex_tPK8timespec,pthread_cond_timedwait
-	.weakref	_ZL28__gthrw_pthread_cond_destroyP14pthread_cond_t,pthread_cond_destroy
-	.weakref	_ZL26__gthrw_pthread_key_createPjPFvPvE,pthread_key_create
-	.weakref	_ZL26__gthrw_pthread_key_deletej,pthread_key_delete
-	.weakref	_ZL30__gthrw_pthread_mutexattr_initP19pthread_mutexattr_t,pthread_mutexattr_init
-	.weakref	_ZL33__gthrw_pthread_mutexattr_settypeP19pthread_mutexattr_ti,pthread_mutexattr_settype
-	.weakref	_ZL33__gthrw_pthread_mutexattr_destroyP19pthread_mutexattr_t,pthread_mutexattr_destroy
-	.ident	"GCC: (GNU) 4.4.6 20120305 (Red Hat 4.4.6-4)"
+	.hidden	__dso_handle
+	.ident	"GCC: (GNU) 4.7.2 20120921 (Red Hat 4.7.2-2)"
 	.section	.note.GNU-stack,"",@progbits
