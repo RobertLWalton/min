@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 14, 2012}
+\date{November 14, 2013}
  
 \maketitle
 
@@ -4347,6 +4347,19 @@ a label:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_lab} \verb|( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+The following function returns the index of the first occurence
+of its first argument \verb|v1| as a subsequence of its second
+argument \verb|v2|, or returns \verb|-1| if there is no such
+occurence.  The arguments must be labels or atoms, with an atom
+being equivalent to a length {\tt 1} label whose sole element
+is the atom.
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::int32 min::| & \MINKEY{is\_subsequence}
+    \verb|( min::gen v1, min::gen v2 )|
+\LABEL{MIN::IS_SUBSEQUENCE} \\
 \end{tabular}\end{indpar}
 
 The following unprotected constructors and functions operating
@@ -13981,6 +13994,9 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{is\_lab} \verb|( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
+\verb|min::int32 min::| & \MINKEY{is\_subsequence}\ARGBREAK
+    \verb|( min::gen v1, min::gen v2 )|
+\LABEL{MIN::IS_SUBSEQUENCE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
