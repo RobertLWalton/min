@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 06:27:26 EST 2013
+// Date:	Thu Nov 14 07:14:50 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1893,7 +1893,7 @@ void test_labels ( void )
     MIN_ASSERT ( labp != min::NULL_STUB );
     MIN_ASSERT ( labp[0] == labv1[0] );
     MIN_ASSERT ( labp[1] == labv1[1] );
-    MIN_ASSERT ( labp[1] == labv1[1] );
+    MIN_ASSERT ( labp[2] == labv1[2] );
     MIN_ASSERT ( min::length_of ( labp ) == 3);
     MIN_ASSERT ( min::hash_of ( labp ) == labhash1 );
     labp = labv1[0];
@@ -1906,6 +1906,38 @@ void test_labels ( void )
     MIN_ASSERT ( labp2 == min::NULL_STUB );
 
     cout << "LABEL " << min::pgen ( lab ) << endl;
+
+    MIN_ASSERT
+        ( -1 == min::is_subsequence ( lab, labv1[0] ) );
+    MIN_ASSERT
+        ( 0 == min::is_subsequence
+	           ( labv1[0], labv1[0] ));
+    MIN_ASSERT
+        ( -1 == min::is_subsequence
+	           ( labv1[0], labv1[1] ));
+    MIN_ASSERT
+        ( 0 == min::is_subsequence ( labv1[0], lab ) );
+    MIN_ASSERT
+        ( 1 == min::is_subsequence ( labv1[1], lab ) );
+    MIN_ASSERT
+        ( 2 == min::is_subsequence ( labv1[2], lab ) );
+    MIN_ASSERT
+        ( 0 == min::is_subsequence ( lab, lab ) );
+    MIN_ASSERT
+        ( -1 == min::is_subsequence
+	    ( min::new_str_gen ( "66" ), lab ) );
+    MIN_ASSERT
+        ( 0 == min::is_subsequence
+	    ( min::new_lab_gen ( labv1, 2 ), lab ) );
+    MIN_ASSERT
+        ( 1 == min::is_subsequence
+	    ( min::new_lab_gen ( labv1 + 1, 2 ),
+	      lab ) );
+    labv2[0] = labv1[2];
+    labv2[1] = labv1[1];
+    MIN_ASSERT
+        ( -1 == min::is_subsequence
+	    ( min::new_lab_gen ( labv2, 2 ), lab ) );
     
     cout << endl;
     cout << "Finish Labels Test!" << endl;
