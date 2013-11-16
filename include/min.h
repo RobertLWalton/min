@@ -11418,6 +11418,9 @@ namespace min {
 
 	const min::id_map id_map;
 
+	// The following are not printer parameters but
+	// are set during printer operation.
+
 	min::suppress_matrix suppress_matrix;
 	min::uns8 previous_unicode_class;
 	min::uns32 previous_print_flags;
