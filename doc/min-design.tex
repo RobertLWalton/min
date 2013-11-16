@@ -6932,12 +6932,6 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::suppress_matrix printer->|
-    & \TTMKEY{\EOL suppress\_\EOL matrix}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_SUPPRESS_MATRIX} \\
-\end{tabular}\end{indpar}
-
 {\tt print\_format.flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7276,8 +7270,6 @@ a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
 \item[\ttmkey{print\_format.name\_gen\_flags}{in {\tt min::printer}}]%
 \vspace{-2ex}~
 \item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
-\vspace{-2ex}~
-\item[\ttmkey{suppress\_matrix}{in {\tt min::printer}}]%
 \vspace{-2ex}~\\
 These control the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
@@ -8164,7 +8156,7 @@ operation:
 The expression `{\tt printer\,<{}<\,min::pgen(v)}'
 prints the {\tt min::gen} value \verb|v| to the
 {\tt printer} using
-{\tt printer->\EOL print\_\EOL format.gen\_\EOL flags}
+{\tt printer->\EOL print\_\EOL format.value\_\EOL gen\_\EOL flags}
 and
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
 to control the printing.  If the latter is {\tt NULL}, then
@@ -8173,7 +8165,7 @@ to control the printing.  If the latter is {\tt NULL}, then
 The expression `{\tt printer\,<{}<\,min::pgen(v,gen\_flags)}'
 is similar except that it uses the {\tt gen\_\EOL flags} argument
 in place of
-{\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}:
+{\tt printer->\EOL print\_\EOL format.value\_\EOL gen\_\EOL flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
@@ -8257,6 +8249,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|{|\\
     \verb|  min::printer ( * pgen )|\\
     \verb|       ( min::printer printer,|\\
+    \verb|         min::uns32 context,|\\
     \verb|         min::gen v,|\\
     \verb|         min::uns32 value_gen_flags,|\\
     \verb|         min::uns32 name_gen_flags,|\\
@@ -8311,7 +8304,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  min::uns32               str_max_length;|\\
     \verb|  min::packed_vec_ptr<min::gen>|\\
     \verb|                           exp_ok_attrs;|\\
-\ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
+\ttmindex{str\_max\_length}{in {\tt min::gen\_format}}
+\ttmindex{exp\_ok\_attrs}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
     \verb|  min::packed_vec_ptr<const char *>|\\
@@ -8323,6 +8317,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::uns32 context,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
     \verb|  min::uns32 value_gen_flags,|\ARGBREAK
     \verb|  min::uns32 name_gen_flags,|\ARGBREAK
@@ -8390,6 +8385,19 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  min::default_flag_names|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+{\tt pgen} contexts:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
+\LABEL{MIN::PGEN_FLUSH} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\LABEL{MIN::PGEN_NAME} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\LABEL{MIN::PGEN_ELEMENT} \\
 \end{tabular}\end{indpar}
 
 {\tt print\_format.gen\_flags}:
@@ -15080,14 +15088,6 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{3.0in}
-\verb|min::suppress_matrix printer->|
-    & \TTMKEY{\EOL suppress\_\EOL matrix}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_SUPPRESS_MATRIX} \\
-\end{TABULAR}
-
-\bigskip
-
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
@@ -15442,8 +15442,10 @@ In loose implementation: \\
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
+    \verb|         min::uns32 context,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         min::uns32 gen_flags,|\ARGBREAK
+    \verb|         min::uns32 value_gen_flags,|\ARGBREAK
+    \verb|         min::uns32 name_gen_flags,|\ARGBREAK
     \verb|         const min::gen_format * g );|\ARGBREAK
     \verb||\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
@@ -15474,8 +15476,10 @@ In loose implementation: \\
 \begin{TABULAR}{2.0in}
 \verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::uns32 context,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::uns32 gen_flags,|\ARGBREAK
+    \verb|  min::uns32 value_gen_flags,|\ARGBREAK
+    \verb|  min::uns32 name_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{TABULAR}
@@ -15524,8 +15528,21 @@ In loose implementation: \\
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{TABULAR}
 
-{\tt print\_format.gen\_flags}:
+{\tt pgen} contexts:
+\\[2ex]
+\begin{TABULAR}{2.2in}
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
+\LABEL{MIN::PGEN_FLUSH} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\LABEL{MIN::PGEN_NAME} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\LABEL{MIN::PGEN_ELEMENT} \\
+\end{TABULAR}
 
+{\tt print\_format.gen\_flags}:
+\\[2ex]
 \begin{TABULAR}{2.2in}
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
 \LABEL{MIN::GRAPHIC_STR_FLAG} \\
