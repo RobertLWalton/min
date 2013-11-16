@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 14, 2013}
+\date{November 16, 2013}
  
 \maketitle
 
@@ -4349,19 +4349,6 @@ a label:
 \LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The following function returns the index of the first occurence
-of its first argument \verb|v1| as a subsequence of its second
-argument \verb|v2|, or returns \verb|-1| if there is no such
-occurence.  The arguments must be labels or atoms, with an atom
-being equivalent to a length {\tt 1} label whose sole element
-is the atom.
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::int32 min::| & \MINKEY{is\_subsequence}
-    \verb|( min::gen v1, min::gen v2 )|
-\LABEL{MIN::IS_SUBSEQUENCE} \\
-\end{tabular}\end{indpar}
-
 The following unprotected constructors and functions operating
 on the resulting unprotected label points are just like their
 protected versions except that they assume any \verb|min::gen|
@@ -4451,6 +4438,9 @@ The following functions concern names:
 \LABEL{MIN::HASH} \\
 \verb|int min::| & \MINKEY{compare} \verb|( min::gen v1, min::gen v2 )|
 \LABEL{MIN::COMPARE} \\
+\verb|min::int32 min::| & \MINKEY{is\_subsequence}
+    \verb|( min::gen v1, min::gen v2 )|
+\LABEL{MIN::IS_SUBSEQUENCE} \\
 \end{tabular}\end{indpar}
 
 The \verb|min::is_name| function returns true if and only if its argument is
@@ -4474,8 +4464,13 @@ label elements.  Non-name values are ordered by converting their
 This means that \verb|min::gen| values that point at stubs are ordered
 according to their stub addresses.
 
-It is an error to pass a non-name argument to
-either the \verb|min::hash| and \verb|min::compare| function.
+The \verb|min::subsequence| function
+returns the index of the first occurence
+of its first argument \verb|v1| as a subsequence of its second
+argument \verb|v2|, or returns \verb|-1| if there is no such
+occurence.  For this function,
+a non-label must be an atom, and is equivalent to a length {\tt 1} label
+whose sole element is the atom.
 
 \subsection{Packed Structures}
 \label{PACKED-STRUCTURES}

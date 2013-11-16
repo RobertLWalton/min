@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 05:48:37 EST 2013
+// Date:	Sat Nov 16 02:45:28 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -466,6 +466,42 @@ int min::compare ( min::gen g1, min::gen g2 )
         unsgen v2 = MUP::value_of ( g2 );
 	return v1  < v2 ? -1 : v1 == v2 ? 0 : +1;
     }
+}
+
+min::int32 min::is_subsequence
+	( min::gen v1, min::gen v2 )
+{
+    MIN_ASSERT ( is_name ( v1 ) );
+    MIN_ASSERT ( is_name ( v2 ) );
+
+    min::uns32 length1 =
+        is_lab ( v1 ) ? lablen ( v1 ) : 1;
+    min::uns32 length2 =
+        is_lab ( v2 ) ? lablen ( v2 ) : 1;
+
+    min::gen label1[length1];
+    min::gen label2[length2];
+
+    if ( is_lab ( v1 ) )
+        lab_of ( label1, length1, v1 );
+    else
+        label1[0] = v1;
+    if ( is_lab ( v2 ) )
+        lab_of ( label2, length2, v2 );
+    else
+        label2[0] = v2;
+
+    if ( length1 > length2 ) return -1;
+    for ( min::uns32 i = 0;
+          i <= length2 - length1; ++ i )
+    {
+	for ( min::uns32 j = 0; j <= length1; ++ j )
+	{
+	    if ( j == length1 ) return i;
+	    if ( label1[j] != label2[i+j] ) break;
+	}
+    }
+    return -1;
 }
 
 // Process Management
@@ -1710,39 +1746,6 @@ min::gen min::new_lab_gen
     min::locatable_gen g3 ( min::new_str_gen ( s3 ) );
     min::gen elements[3] = { g1, g2, g3 };
     return min::new_lab_gen ( elements, 3 );
-}
-
-min::int32 min::is_subsequence
-	( min::gen v1, min::gen v2 )
-{
-    min::uns32 length1 =
-        is_lab ( v1 ) ? lablen ( v1 ) : 1;
-    min::uns32 length2 =
-        is_lab ( v2 ) ? lablen ( v2 ) : 1;
-
-    min::gen label1[length1];
-    min::gen label2[length2];
-
-    if ( is_lab ( v1 ) )
-        lab_of ( label1, length1, v1 );
-    else
-        label1[0] = v1;
-    if ( is_lab ( v2 ) )
-        lab_of ( label2, length2, v2 );
-    else
-        label2[0] = v2;
-
-    if ( length1 > length2 ) return -1;
-    for ( min::uns32 i = 0;
-          i <= length2 - length1; ++ i )
-    {
-	for ( min::uns32 j = 0; j <= length1; ++ j )
-	{
-	    if ( j == length1 ) return i;
-	    if ( label1[j] != label2[i+j] ) break;
-	}
-    }
-    return -1;
 }
 
 // Packed Structures and Vectors
