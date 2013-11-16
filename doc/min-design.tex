@@ -6932,6 +6932,12 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::suppress_matrix printer->|
+    & \TTMKEY{\EOL suppress\_\EOL matrix}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_SUPPRESS_MATRIX} \\
+\end{tabular}\end{indpar}
+
 {\tt print\_format.flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7266,12 +7272,12 @@ a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
 \end{itemlist}\end{indpar}
 
 \begin{itemlist}[0.6in]
-\item[\ttmkey{print\_format.gen\_flags}{in {\tt min::printer}}]
-\item[\ttmkey{print\_format.flush\_gen\_flags}{in {\tt min::printer}}]%
-\vspace{-2ex}
-\item[\ttmkey{print\_format.flush\_attr\_gen\_flags}{in {\tt min::printer}}]%
-\vspace{-2ex}
+\item[\ttmkey{print\_format.value\_gen\_flags}{in {\tt min::printer}}]
+\item[\ttmkey{print\_format.name\_gen\_flags}{in {\tt min::printer}}]%
+\vspace{-2ex}~
 \item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
+\vspace{-2ex}~
+\item[\ttmkey{suppress\_matrix}{in {\tt min::printer}}]%
 \vspace{-2ex}~\\
 These control the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
@@ -8207,8 +8213,8 @@ The three argument form of {\tt min::pgen} may be used to give
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags,|\ARGBREAK
-	  \verb|  min::uns32 attr_gen_flags )|
+	  \verb|  min::uns32 value_gen_flags,|\ARGBREAK
+	  \verb|  min::uns32 name_gen_flags )|
 \LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -8252,8 +8258,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  min::printer ( * pgen )|\\
     \verb|       ( min::printer printer,|\\
     \verb|         min::gen v,|\\
-    \verb|         min::uns32 gen_flags,|\\
-    \verb|         min::uns32 attr_gen_flags,|\\
+    \verb|         min::uns32 value_gen_flags,|\\
+    \verb|         min::uns32 name_gen_flags,|\\
     \verb|         const min::gen_format * g );|\\
 \ttmindex{pgen}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
@@ -8318,8 +8324,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::uns32 gen_flags,|\ARGBREAK
-    \verb|  min::uns32 attr_gen_flags,|\ARGBREAK
+    \verb|  min::uns32 value_gen_flags,|\ARGBREAK
+    \verb|  min::uns32 name_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{tabular}\end{indpar}
@@ -8829,11 +8835,11 @@ the bitwise complement of its argument into
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{set\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_gen_flags )|
+      \verb|( min::uns32 value_gen_flags )|
 \LABEL{MIN::SET_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{clear\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_gen_flags )|
+      \verb|( min::uns32 value_gen_flags )|
 \LABEL{MIN::CLEAR_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
@@ -15074,6 +15080,14 @@ In loose implementation: \\
 
 \bigskip
 
+\begin{TABULAR}{3.0in}
+\verb|min::suppress_matrix printer->|
+    & \TTMKEY{\EOL suppress\_\EOL matrix}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_SUPPRESS_MATRIX} \\
+\end{TABULAR}
+
+\bigskip
+
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
@@ -15400,8 +15414,8 @@ In loose implementation: \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags,|\ARGBREAK
-	  \verb|  min::uns32 attr_gen_flags )|
+	  \verb|  min::uns32 value_gen_flags,|\ARGBREAK
+	  \verb|  min::uns32 name_gen_flags )|
 \LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{flush\_\EOL pgen}
@@ -15549,11 +15563,11 @@ In loose implementation: \\
 \begin{TABULAR}{1.6in}
 \verb|min::op min::|
     & \MINKEY{set\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_gen_flags )|
+      \verb|( min::uns32 value_gen_flags )|
 \LABEL{MIN::SET_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{clear\_\EOL value\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::uns32 flush_gen_flags )|
+      \verb|( min::uns32 value_gen_flags )|
 \LABEL{MIN::CLEAR_VALUE_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL name\_\EOL gen\_\EOL flags}\ARGBREAK
