@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 07:14:50 EST 2013
+// Date:	Sun Nov 17 02:29:20 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -736,9 +736,6 @@ void test_general_value_functions ( void )
 	min::uns64 u64;
 	char str[8];
     } value;
-
-    min::ostream_print_format.value_gen_flags =
-        min::BRACKET_STR_FLAG + min::BRACKET_LAB_FLAG;
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
@@ -1831,7 +1828,8 @@ void test_strings ( void )
     min::gen splus  = min::new_str_gen ( " +" );
     min::gen sminus = min::new_str_gen ( " -" );
     min::gen sispace = min::new_str_gen ( " -123  " );
-    min::gen sdspace = min::new_str_gen ( " -123.4e-15  " );
+    min::gen sdspace =
+        min::new_str_gen ( " -123.4e-15  " );
     MIN_ASSERT ( ! min::strto ( si, sspace ) );
     MIN_ASSERT ( ! min::strto ( sd, spoint ) );
     MIN_ASSERT ( ! min::strto ( si, splus ) );
@@ -2655,12 +2653,6 @@ void test_printer ( void )
     printer << min::new_num_gen ( 1.23456789012345 )
             << min::eol;
 
-    printer << min::save_print_format
-            << min::set_value_gen_flags
-	           (   min::BRACKET_STR_FLAG
-		     + min::GRAPHIC_STR_FLAG
-		     + min::BRACKET_LAB_FLAG );
-
     printer << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
@@ -2689,8 +2681,6 @@ void test_printer ( void )
                     ( min::new_lab_gen ( lab3, 3 ),
 		      0 )
             << min::eol;
-
-    printer << min::restore_print_format;
 
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;
@@ -4460,14 +4450,20 @@ void test_object_printing ( void )
     printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
             << min::eol;
 
+    min::context_gen_flags flags1, flags2;
+    for ( int i = 0; i < 4; ++ i )
+    {
+        flags1[i] = (* printer->print_format
+	               .context_gen_flags)[i]
+                    & ~ min::OBJ_EXP_FLAG;
+	flags2[i] = flags1[i];
+    }
+    flags2[min::PGEN_FLUSH] |= min::OBJ_EXP_FLAG;
+        
     printer << min::save_print_format
-            << min::clear_name_gen_flags
-	           ( min::OBJ_EXP_FLAG )
-            << min::clear_value_gen_flags
-	           ( min::OBJ_EXP_FLAG )
+            << min::set_context_gen_flags ( & flags1 )
 	    << min::flush_one_id
-            << min::set_value_gen_flags
-	           ( min::OBJ_EXP_FLAG )
+            << min::set_context_gen_flags ( & flags2 )
 	    << min::flush_id_map
 	    << min::restore_print_format;
 
