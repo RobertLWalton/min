@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 05:48:49 EST 2013
+// Date:	Sun Nov 17 02:28:29 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11369,9 +11369,11 @@ namespace min {
 
 namespace min {
 
-    typedef const bool ( * suppress_matrix )[256][256];
+    typedef bool suppress_matrix[256][256];
+    typedef min::uns32 context_gen_flags[4];
 
-    extern min::suppress_matrix default_suppress_matrix;
+    extern const min::suppress_matrix
+        & default_suppress_matrix;
 
     struct line_break
     {
@@ -11390,8 +11392,8 @@ namespace min {
     struct print_format
     {
 	uns32 flags;
-	uns32 value_gen_flags;
-	uns32 name_gen_flags;
+	const min::context_gen_flags *
+	    context_gen_flags;
         const min::gen_format * gen_format;
     };
 
@@ -11421,7 +11423,7 @@ namespace min {
 	// The following are not printer parameters but
 	// are set during printer operation.
 
-	min::suppress_matrix suppress_matrix;
+	const min::suppress_matrix * suppress_matrix;
 	min::uns8 previous_unicode_class;
 	min::uns32 previous_print_flags;
 	    // Let the next character to be printed be
@@ -11496,10 +11498,7 @@ namespace min {
 	    RIGHT,
 	    RESERVE,
 
-	    SET_VALUE_GEN_FLAGS,
-	    CLEAR_VALUE_GEN_FLAGS,
-	    SET_NAME_GEN_FLAGS,
-	    CLEAR_NAME_GEN_FLAGS,
+	    SET_CONTEXT_GEN_FLAGS,
 	    SET_GEN_FORMAT,
 	    SET_PRINT_FLAGS,
 	    CLEAR_PRINT_FLAGS,
@@ -11622,6 +11621,13 @@ namespace min {
 	    : opcode ( opcode )
 	{
 	    v1.p = (void *) out;
+	}
+	op ( op::OPCODE opcode,
+	     const min::context_gen_flags *
+	         context_gen_flags )
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) context_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     const min::gen_format * gen_format )
@@ -11918,10 +11924,10 @@ namespace min {
     {
 	min::printer     ( * pgen )
 	    ( min::printer printer,
-	      min::uns32 context,
+	      min::uns32 gen_flags,
 	      min::gen v,
-	      min::uns32 value_gen_flags,
-	      min::uns32 name_gen_flags,
+	      const min::context_gen_flags *
+	          context_gen_flags,
 	      const min::gen_format * gen_format );
 
 	// Members beyond this point may be moved and
@@ -11940,7 +11946,7 @@ namespace min {
 	const char *         implicit_postfix;
 	packed_vec_ptr<const char *>
 	                     special_names;
-	min::suppress_matrix suppress_matrix;
+	const min::suppress_matrix * suppress_matrix;
 	uns32		     str_max_length;
 	packed_vec_ptr<min::gen>
 			     exp_ok_attrs;
@@ -11970,20 +11976,8 @@ namespace min {
 	PGEN_ELEMENT			= 3
     };
 
-    const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
-	    GRAPHIC_STR_FLAG
-	  + BRACKET_STR_FLAG
-	  + BRACKET_LAB_FLAG
-	  + BRACKET_IMPLICIT_FLAG
-	  + OBJ_EXP_FLAG
-	  + OBJ_INDENT_FLAG;
-
-    const min::uns32 DEFAULT_NAME_GEN_FLAGS =
-	    GRAPHIC_STR_FLAG
-          + SUPPRESS_LAB_SPACE_FLAG
-	  + BRACKET_IMPLICIT_FLAG
-	  + OBJ_EXP_FLAG
-	  + OBJ_ID_FLAG;
+    extern const min::context_gen_flags
+	default_context_gen_flags;
 
     extern packed_vec_ptr<const char *>
            standard_special_names;
@@ -11998,10 +11992,10 @@ namespace min {
 
     min::printer default_pgen
 	    ( min::printer printer,
-	      min::uns32 context,
+	      min::uns32 gen_flags,
 	      min::gen v,
-	      min::uns32 value_gen_flags,
-	      min::uns32 name_gen_flags,
+	      const min::context_gen_flags *
+	          context_gen_flags,
 	      const min::gen_format * gen_format );
 
     inline op pgen ( min::gen v )
@@ -12011,19 +12005,9 @@ namespace min {
 
     inline op pgen
 	    ( min::gen v,
-              min::uns32 value_gen_flags )
+              min::uns32 gen_flags )
     {
-        return op ( op::PGEN1, v, min::PGEN_VALUE,
-	            value_gen_flags );
-    }
-
-    inline op pgen
-	    ( min::gen v,
-              min::uns32 value_gen_flags,
-              min::uns32 name_gen_flags )
-    {
-        return op ( op::PGEN2, v, min::PGEN_VALUE,
-	            value_gen_flags, name_gen_flags );
+        return op ( op::PGEN1, v, gen_flags );
     }
 
     inline op flush_pgen ( min::gen v )
@@ -12031,43 +12015,9 @@ namespace min {
         return op ( op::PGEN, v, min::PGEN_FLUSH );
     }
 
-    inline op flush_pgen
-	    ( min::gen v,
-              min::uns32 value_gen_flags )
-    {
-        return op ( op::PGEN1, v, min::PGEN_FLUSH,
-	            value_gen_flags );
-    }
-
-    inline op flush_pgen
-	    ( min::gen v,
-              min::uns32 value_gen_flags,
-              min::uns32 name_gen_flags )
-    {
-        return op ( op::PGEN2, v, min::PGEN_FLUSH,
-	            value_gen_flags, name_gen_flags );
-    }
-
     inline op name_pgen ( min::gen v )
     {
         return op ( op::PGEN, v, min::PGEN_NAME );
-    }
-
-    inline op name_pgen
-	    ( min::gen v,
-              min::uns32 value_gen_flags )
-    {
-        return op ( op::PGEN1, v, min::PGEN_NAME,
-	            value_gen_flags );
-    }
-
-    inline op name_pgen
-	    ( min::gen v,
-              min::uns32 value_gen_flags,
-              min::uns32 name_gen_flags )
-    {
-        return op ( op::PGEN2, v, min::PGEN_NAME,
-	            value_gen_flags, name_gen_flags );
     }
 
     inline op map_pgen ( min::gen v )
@@ -12075,32 +12025,12 @@ namespace min {
         return op ( op::MAP_PGEN, v );
     }
 
-    inline op set_value_gen_flags
-	    ( min::uns32 value_gen_flags )
+    inline op set_context_gen_flags
+	    ( const min::context_gen_flags *
+		  context_gen_flags )
     {
-        return op ( op::SET_VALUE_GEN_FLAGS,
-	            value_gen_flags );
-    }
-
-    inline op clear_value_gen_flags
-	    ( min::uns32 value_gen_flags )
-    {
-        return op ( op::CLEAR_VALUE_GEN_FLAGS,
-	            value_gen_flags );
-    }
-
-    inline op set_name_gen_flags
-	    ( min::uns32 name_gen_flags )
-    {
-        return op ( op::SET_NAME_GEN_FLAGS,
-	            name_gen_flags );
-    }
-
-    inline op clear_name_gen_flags
-	    ( min::uns32 name_gen_flags )
-    {
-        return op ( op::CLEAR_NAME_GEN_FLAGS,
-	            name_gen_flags );
+        return op ( op::SET_CONTEXT_GEN_FLAGS,
+	            context_gen_flags );
     }
 
     inline op set_gen_format
@@ -12111,27 +12041,6 @@ namespace min {
 
     extern const op flush_one_id;
     extern const op flush_id_map;
-
-    extern const op graphic_str;
-    extern const op nographic_str;
-    extern const op bracket_str;
-    extern const op nobracket_str;
-    extern const op bracket_lab;
-    extern const op nobracket_lab;
-    extern const op bracket_special;
-    extern const op nobracket_special;
-    extern const op bracket_implicit;
-    extern const op nobracket_implicit;
-    extern const op suppress_lab_space;
-    extern const op nosuppress_lab_space;
-    extern const op suppress_obj_space;
-    extern const op nosuppress_obj_space;
-    extern const op obj_exp;
-    extern const op noobj_exp;
-    extern const op obj_id;
-    extern const op noobj_id;
-    extern const op str_id;
-    extern const op nostr_id;
 
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
