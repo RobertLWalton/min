@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 16, 2013}
+\date{November 17, 2013}
  
 \maketitle
 
@@ -8236,8 +8236,7 @@ The detailed structure of {\tt min::gen\_format} and the
 flags in {\tt min::gen\_\EOL flags} are as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|typedef const bool ( min::|
-	& \MINKEY{suppress\_matrix}\verb| )[256][256]|
+\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
 \LABEL{MIN::SUPPRESS_MATRIX} \\
 \end{tabular}\end{indpar}
 
@@ -8297,7 +8296,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \ttmindex{special\_names}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  min::suppress_matrix     suppress_matrix;|\\
+    \verb|  const min::suppress_matrix *|\\
+    \verb|                           suppress_matrix;|\\
 \ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
 \begin{indpar}[5em]\begin{tabular}{l}
@@ -8332,7 +8332,8 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::suppress_matrix min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
+\verb|const min::suppress_matrix min::|%
+    \MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \verb|    // All entries false except:|\\
 \verb|    //     [B][.] for B == '(', '[', '{', '|\LACCENT
@@ -8379,7 +8380,7 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  min::NULL_STUB       // special_names|\ARGBREAK
-    \verb|  min::default_suppress_matrix,|\ARGBREAK
+    \verb|  & min::default_suppress_matrix,|\ARGBREAK
     \verb|  8,                   // str_max_length|\ARGBREAK
     \verb|  min::default_exp_ok_attrs|\ARGBREAK
     \verb|  min::default_flag_names|\ARGBREAK
@@ -8558,9 +8559,11 @@ of a line, the previous printed UNICODE character
 is assumed to be a newline character.  A space is
 never output if it would be at the end of a line.
 
-{\tt suppress\_matrix} must be a matrix of
+{\tt suppress\_matrix} must be a pointer to a matrix of
 {\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX})
-stored in {\tt static} memory.
+stored in {\tt static} memory or in the stack.  If stored in the stack,
+printer commands that might reference it must not be executed after
+it is deallocated.
 
 \item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
 This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
@@ -15423,17 +15426,15 @@ In loose implementation: \\
 \LABEL{MIN::FLUSH_PGEN} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.2in}
+\bigskip
+
+\begin{TABULAR}{1.6in}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|typedef const bool ( min::|
-	& \MINKEY{suppress\_matrix}\verb| )[256][256]|
+\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
 \LABEL{MIN::SUPPRESS_MATRIX} \\
 \end{TABULAR}
 
@@ -15464,7 +15465,8 @@ In loose implementation: \\
     \verb|  const char *           implicit_postfix;|\ARGBREAK
     \verb|  const char * const *   special_names;|\ARGBREAK
     \verb|  min::uns32             special_names_size;|\ARGBREAK
-    \verb|  min::suppress_matrix   suppress_matrix;|\ARGBREAK
+    \verb|  const min::suppress_matrix *|\ARGBREAK
+    \verb|                         suppress_matrix;|\ARGBREAK
     \verb|  min::uns32             str_max_length;|\ARGBREAK
     \verb|  min::packed_vec_ptr<min::gen>  exp_ok_attrs;|\ARGBREAK
     \verb|};|
@@ -15493,7 +15495,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::suppress\_matrix}\ARGBREAK
+\multicolumn{2}{l}{\tt const min::suppress\_matrix}\ARGBREAK
     \verb|min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \end{TABULAR}
@@ -15521,7 +15523,7 @@ In loose implementation: \\
     \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
     \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
     \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  min::default_suppress_matrix|\ARGBREAK
+    \verb|  & min::default_suppress_matrix|\ARGBREAK
     \verb|  8,                   // str_max_length|\ARGBREAK
     \verb|  min::default_exp_ok_attrs|\ARGBREAK
     \verb|};|
