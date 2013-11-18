@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 17, 2013}
+\date{November 18, 2013}
  
 \maketitle
 
@@ -6882,30 +6882,17 @@ accomplished by the following:
 		        &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
 			&   & \verb|//  + min::HBREAK_FLAG|
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|   min::uns32   | & \TTMKEY{value\_\EOL gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
+\multicolumn{2}{l}{\tt ~~~~min::context\_gen\_flags *} \\
+                        & \TTMKEY{context\_gen\_flags}%
+                                           {in {\tt min::print\_format}}
 			& \verb|// Default:| \\
-			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
-			&   & \verb|//  + min::BRACKET_STR_FLAG| \\
-			&   & \verb|//  + min::BRACKET_LAB_FLAG| \\
-			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
-			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
-			&   & \verb|//  + min::OBJ_INDENT_FLAG|
-\LABEL{MIN::VALUE_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|   min::uns32   | & \TTMKEY{name\_\EOL gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
-			& \verb|// Default:| \\
-			&   & \verb|//    min::GRAPHIC_STR_FLAG| \\
-			&   & \verb|//  + min::SUPPRESS_LAB_SPACE_FLAG| \\
-			&   & \verb|//  + min::BRACKET_IMPLICIT_FLAG| \\
-			&   & \verb|//  + min::OBJ_EXP_FLAG| \\
-			&   & \verb|//  + min::OBJ_ID_FLAG|
-\LABEL{MIN::NAME_GEN_FLAGS_IN_PRINT_FORMAT} \\
+			&   & \verb|// & min::default_context_gen_flags|
+\LABEL{MIN::CONTEXT_GEN_FLAGS_IN_PRINT_FORMAT} \\
 \multicolumn{2}{l}{\tt ~~~~min::gen\_format *} \\
                         & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 			& \verb|// Default:| \\
-			&   & \verb|//  & min::default_gen_format|
+			&   & \verb|// & min::default_gen_format|
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
 \verb|}              | \\
 \end{tabular}\end{indpar}
@@ -7266,9 +7253,7 @@ a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
 \end{itemlist}\end{indpar}
 
 \begin{itemlist}[0.6in]
-\item[\ttmkey{print\_format.value\_gen\_flags}{in {\tt min::printer}}]
-\item[\ttmkey{print\_format.name\_gen\_flags}{in {\tt min::printer}}]%
-\vspace{-2ex}~
+\item[\ttmkey{print\_format.context\_gen\_flags}{in {\tt min::printer}}]
 \item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
 \vspace{-2ex}~\\
 These control the printing of
@@ -8144,59 +8129,36 @@ default {\tt pgen}.
 \label{PRINTING-GENERAL-VALUES}
 
 {\tt min::gen} values are printed using the {\tt min::\EOL pgen} printer
-operation:
+operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{pgen}
-	  \verb|( min::gen v )|
+\verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
+\verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_NAME} \\
+\verb|min::op min::|
+    & \MINKEY{pgen} \verb|( min::gen v, min::uns32 gen_flags )|
+\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \end{tabular}\end{indpar}
 
 The expression `{\tt printer\,<{}<\,min::pgen(v)}'
 prints the {\tt min::gen} value \verb|v| to the
 {\tt printer} using
-{\tt printer->\EOL print\_\EOL format.value\_\EOL gen\_\EOL flags}
+{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL
+    flags[PGEN\_VALUE]}
 and
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
-to control the printing.  If the latter is {\tt NULL}, then
-{\tt \&\,min::default\_\EOL gen\_\EOL format} is used in its place.
+to control the printing.
+
+The expression `{\tt printer\,<{}<\,min::pgen\_name(v)}' is similar but
+uses the {\tt PGEN\_NAME} context instead of {\tt PGEN\_VALUE}
+to select from
+{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
 
 The expression `{\tt printer\,<{}<\,min::pgen(v,gen\_flags)}'
 is similar except that it uses the {\tt gen\_\EOL flags} argument
-in place of
-{\tt printer->\EOL print\_\EOL format.value\_\EOL gen\_\EOL flags}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags )|
-\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
-\end{tabular}\end{indpar}
-
-The expression `{\tt printer\,<{}<\,min::flush\_pgen(v)}'
-is similar except that it uses
-{\tt printer->\EOL print\_\EOL format.flush\_\EOL gen\_\EOL flags}
-for values \verb|v| that are not objects, and for the top level of
-\verb|v| if that is an object, but uses
-{\tt printer->\EOL print\_\EOL format.flush\_\EOL attr\_\EOL gen\_\EOL flags}
-instead for names and values of object attributes.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{flush\_\EOL pgen}
-	  \verb|( min::gen v )|
-\LABEL{MIN::FLUSH_PGEN} \\
-\end{tabular}\end{indpar}
-
-This is
-used by the {\tt min::\EOL flush\_\EOL id\_\EOL map} printer operation
-(\pagref{MIN::FLUSH_ID_MAP}) to print objects \verb|v|
-that are being flushed from the {\tt printer->\EOL id\_\EOL map},
-when, to take an example, it is
-permissible to print attribute values as identifiers of the
-form `{\tt @}i', but not permissible to print \verb|v| as such.
+in place of flags selected from
+{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
 
 The three argument form of {\tt min::pgen} may be used to give
 {\tt gen\_\EOL flags} and {\tt attr\_\EOL gen\_\EOL flags} explicitly:
@@ -8232,12 +8194,95 @@ In making new versions, one must copy
 and then change particular members in the copy, because one cannot
 count on all the members being organized in a particular way.
 
-The detailed structure of {\tt min::gen\_format} and the
-flags in {\tt min::gen\_\EOL flags} are as follows:
+The detailed structure of general value printing flags 
+and {\tt min::gen\_format} is as follows:
+
+\ldots{\tt \_gen\_flags} Flags:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
-\LABEL{MIN::SUPPRESS_MATRIX} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
+\end{tabular}\end{indpar}
+
+{\tt PGEN\_}\ldots{} contexts:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
+\LABEL{MIN::PGEN_FLUSH_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\LABEL{MIN::PGEN_NAME_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::uns32 min::|
+    & \MINKEY{context\_gen\_flags}\verb|[|$n$\verb|]| \\
+    & \tt ~~~~~ // $n$ is number of PGEN\_...~contexts
+\LABEL{MIN::CONTEXT_GEN_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::context_gen_flags min::|%
+    \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
+\LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
+\verb|    // default_context_gen_flags[PGEN_VALUE]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::BRACKET_STR_FLAG| \\
+\verb|    //  + min::BRACKET_LAB_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
+\verb|    // default_context_gen_flags[PGEN_VALUE]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::BRACKET_STR_FLAG| \\
+\verb|    //  + min::BRACKET_LAB_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
+\verb|    //  + min::OBJ_INDENT_FLAG| \\
+\verb|    // default_context_gen_flags[PGEN_NAME]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
+\verb|    //  + min::OBJ_ID_FLAG| \\
+\verb|    // default_context_gen_flags[PGEN_ELEMENT]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
+\verb|    //  + min::OBJ_ID_FLAG| \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -8248,10 +8293,9 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
     \verb|{|\\
     \verb|  min::printer ( * pgen )|\\
     \verb|       ( min::printer printer,|\\
-    \verb|         min::uns32 context,|\\
+    \verb|         min::uns32 gen_flags,|\\
     \verb|         min::gen v,|\\
-    \verb|         min::uns32 value_gen_flags,|\\
-    \verb|         min::uns32 name_gen_flags,|\\
+    \verb|         const min::context_gen_flags * context_gen_flags,|\\
     \verb|         const min::gen_format * g );|\\
 \ttmindex{pgen}{in {\tt min::gen\_format}}
 \end{tabular}\end{indpar}
@@ -8315,12 +8359,30 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format
+                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::default_pgen,|\ARGBREAK
+    \verb|  "%.15g",             // number_format|\ARGBREAK
+    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
+    \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
+    \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
+    \verb|  min::NULL_STUB       // special_names|\ARGBREAK
+    \verb|  & min::default_suppress_matrix,|\ARGBREAK
+    \verb|  8,                   // str_max_length|\ARGBREAK
+    \verb|  min::default_exp_ok_attrs|\ARGBREAK
+    \verb|  min::default_flag_names|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::uns32 context,|\ARGBREAK
+    \verb|  min::uns32 gen_flags,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::uns32 value_gen_flags,|\ARGBREAK
-    \verb|  min::uns32 name_gen_flags,|\ARGBREAK
+    \verb|  min::context_gen_flags * context_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{tabular}\end{indpar}
@@ -8329,6 +8391,11 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|min::packed_vec_ptr<const char *> min::|
     & \TTKEY{standard\_\EOL special\_\EOL names}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
+\LABEL{MIN::SUPPRESS_MATRIX} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -8367,75 +8434,6 @@ flags in {\tt min::gen\_\EOL flags} are as follows:
 \verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
 \verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
 \verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format
-                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::default_pgen,|\ARGBREAK
-    \verb|  "%.15g",             // number_format|\ARGBREAK
-    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
-    \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
-    \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
-    \verb|  min::NULL_STUB       // special_names|\ARGBREAK
-    \verb|  & min::default_suppress_matrix,|\ARGBREAK
-    \verb|  8,                   // str_max_length|\ARGBREAK
-    \verb|  min::default_exp_ok_attrs|\ARGBREAK
-    \verb|  min::default_flag_names|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
-\end{tabular}\end{indpar}
-
-{\tt pgen} contexts:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
-\LABEL{MIN::PGEN_FLUSH} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
-\LABEL{MIN::PGEN_NAME} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
-\LABEL{MIN::PGEN_ELEMENT} \\
-\end{tabular}\end{indpar}
-
-{\tt print\_format.gen\_flags}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
-\LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
-\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
-\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
-\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
-\LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
-\LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
-\LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
-\LABEL{MIN::STR_ID_FLAG} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::gen\_format} members are:
@@ -14993,27 +14991,24 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
-\verb|struct           min::| & \MINKEY{print\_\EOL format}
+\begin{TABULAR}{2.8in}
+\verb|struct                  min::| & \MINKEY{print\_\EOL format}
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
-\verb|{                     | \\
-\verb|    min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
+\verb|{                            | \\
+\verb|           min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
 \LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32        | & \TTMKEY{value\_\EOL gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
-\LABEL{MIN::VALUE_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::uns32        | & \TTMKEY{name\_\EOL gen\_\EOL flags}%
-                                       {in {\tt min::print\_format}}
-\LABEL{MIN::NAME_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::gen_format * | & \TTMKEY{gen\_format}%
+\verb|    min::context_gen_flags * | & \TTMKEY{context\_gen\_flags}%
+                                           {in {\tt min::print\_format}}
+\LABEL{MIN::CONTEXT_GEN_FLAGS_IN_PRINT_FORMAT} \\
+\verb|           min::gen_format * | & \TTMKEY{gen\_format}%
                                            {in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
-\verb|}                     | \\
+\verb|}                            | \\
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{3.6in}
+\begin{TABULAR}{3.2in}
 \verb|const min::print_format printer->|
     & \TTMKEY{print\_format}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT} \\
@@ -15428,25 +15423,82 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.8in}
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
-\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
-\LABEL{MIN::SUPPRESS_MATRIX} \\
 \end{TABULAR}
+
+\bigskip
+
+\ldots{\tt \_gen\_flags}:
+\\[2ex]
+\begin{TABULAR}{2.2in}
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
+\end{TABULAR}
+
+\bigskip
+
+{\tt PGEN\_}\ldots contexts:
+\\[2ex]
+\begin{TABULAR}{2.2in}
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
+\LABEL{MIN::PGEN_FLUSH_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\LABEL{MIN::PGEN_NAME_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.2in}
+\verb|typedef min::uns32 min::|
+    & \MINKEY{context\_gen\_flags}\verb|[|$n$\verb|]| \\
+    & \tt ~~ // $n$ is number of PGEN\_...~contexts
+\LABEL{MIN::CONTEXT_GEN_FLAGS} \\
+\multicolumn{2}{l}{\tt const min::context\_gen\_flags} \\
+\verb|min::| & \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
+\LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.2in}
 \verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::uns32 context,|\ARGBREAK
+    \verb|         min::uns32 gen_flags,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         min::uns32 value_gen_flags,|\ARGBREAK
-    \verb|         min::uns32 name_gen_flags,|\ARGBREAK
+    \verb|         min::context_gen_flags * context_gen_flags,|\ARGBREAK
     \verb|         const min::gen_format * g );|\ARGBREAK
     \verb||\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
@@ -15475,13 +15527,12 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{1.6in}
 \verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::uns32 context,|\ARGBREAK
+    \verb|  min::uns32 gen_flags,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::uns32 value_gen_flags,|\ARGBREAK
-    \verb|  min::uns32 name_gen_flags,|\ARGBREAK
+    \verb|  min::context_gen_flags * context_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{TABULAR}
@@ -15489,87 +15540,34 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>}\ARGBREAK
-    \verb|min::|\MINKEY{standard\_\EOL special\_\EOL names}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
+\verb|min::| & \MINKEY{standard\_\EOL special\_\EOL names}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt const min::suppress\_matrix}\ARGBREAK
-    \verb|min::|\MINKEY{default\_\EOL suppress\_\EOL matrix}
+\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
+\LABEL{MIN::SUPPRESS_MATRIX} \\
+\multicolumn{2}{l}{\tt const min::suppress\_matrix} \\
+\verb|min::| & \MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>}\ARGBREAK
-    \verb|min::|\MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
+\verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
 \LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>}\ARGBREAK
-    \verb|min::|\MINKEY{default\_\EOL flag\_\EOL names}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
+\verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
 \LABEL{MIN::DEFAULT_FLAG_NAMES} \\
 \end{TABULAR}
 
-\begin{TABULAR}{0.8in}
-\multicolumn{2}{l}{\tt const min::gen\_format
-                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::default_pgen,|\ARGBREAK
-    \verb|  "%.15g",             // number_format|\ARGBREAK
-    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
-    \verb|  "[:"," ",":]",       // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "[$","$]",           // special_prefix/postfix|\ARGBREAK
-    \verb|  "[.",".]",           // implicit_prefix/postfix|\ARGBREAK
-    \verb|  NULL,0,              // special_names/names_size|\ARGBREAK
-    \verb|  & min::default_suppress_matrix|\ARGBREAK
-    \verb|  8,                   // str_max_length|\ARGBREAK
-    \verb|  min::default_exp_ok_attrs|\ARGBREAK
-    \verb|};|
+\begin{TABULAR}{2.0in}
+\verb| min::gen_format min::| & \MINKEY{default\_gen\_format}
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
-\end{TABULAR}
-
-{\tt pgen} contexts:
-\\[2ex]
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
-\LABEL{MIN::PGEN_FLUSH} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
-\LABEL{MIN::PGEN_NAME} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
-\LABEL{MIN::PGEN_ELEMENT} \\
-\end{TABULAR}
-
-{\tt print\_format.gen\_flags}:
-\\[2ex]
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
-\LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
-\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
-\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
-\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_OBJ\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_OBJ_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
-\LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
-\LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
-\LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
-\LABEL{MIN::STR_ID_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}

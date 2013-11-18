@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 17 02:28:29 EST 2013
+// Date:	Mon Nov 18 07:39:41 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11480,9 +11480,8 @@ namespace min {
     {
         enum OPCODE
 	{
-            PGEN = 1,
-	    PGEN1,
-	    PGEN2,
+            PGEN_CONTEXT = 1,
+	    PGEN_FLAGS,
 	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
@@ -12000,24 +11999,21 @@ namespace min {
 
     inline op pgen ( min::gen v )
     {
-        return op ( op::PGEN, v, min::PGEN_VALUE );
+        return op ( op::PGEN_CONTEXT, v,
+	            min::PGEN_VALUE );
     }
 
     inline op pgen
 	    ( min::gen v,
               min::uns32 gen_flags )
     {
-        return op ( op::PGEN1, v, gen_flags );
-    }
-
-    inline op flush_pgen ( min::gen v )
-    {
-        return op ( op::PGEN, v, min::PGEN_FLUSH );
+        return op ( op::PGEN_FLAGS, v, gen_flags );
     }
 
     inline op name_pgen ( min::gen v )
     {
-        return op ( op::PGEN, v, min::PGEN_NAME );
+        return op ( op::PGEN_CONTEXT, v,
+	            min::PGEN_NAME );
     }
 
     inline op map_pgen ( min::gen v )
