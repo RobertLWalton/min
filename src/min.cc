@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 18 07:39:53 EST 2013
+// Date:	Tue Nov 19 01:14:39 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7623,7 +7623,7 @@ min::printer operator <<
 	      printer->print_format.context_gen_flags,
 	      f );
     }
-    case min::op::PGEN_FLAGS:
+    case min::op::PGEN_GEN_FLAGS:
     {
 	const min::gen_format * f =
 	    printer->print_format.gen_format;
@@ -7632,6 +7632,17 @@ min::printer operator <<
 	    ( printer, op.v2.u32,
 	      MUP::new_gen ( op.v1.g ),
 	      printer->print_format.context_gen_flags,
+	      f );
+    }
+    case min::op::PGEN_CONTEXT_GEN_FLAGS:
+    {
+	const min::gen_format * f =
+	    printer->print_format.gen_format;
+
+	return ( * f->pgen )
+	    ( printer, op.v2.u32,
+	      MUP::new_gen ( op.v1.g ),
+	      (const min::context_gen_flags *) op.v3.p,
 	      f );
     }
     case min::op::MAP_PGEN:
@@ -8025,7 +8036,7 @@ std::ostream & operator <<
 	               .context_gen_flags,
 	      f );
     }
-    case min::op::PGEN_FLAGS:
+    case min::op::PGEN_GEN_FLAGS:
     {
 	const min::gen_format * f =
 	    min::ostream_print_format.gen_format;
@@ -8035,6 +8046,17 @@ std::ostream & operator <<
 	      MUP::new_gen ( op.v1.g ),
 	      min::ostream_print_format
 	               .context_gen_flags,
+	      f );
+    }
+    case min::op::PGEN_CONTEXT_GEN_FLAGS:
+    {
+	const min::gen_format * f =
+	    min::ostream_print_format.gen_format;
+
+	return ::ostream_pgen
+	    ( out, op.v2.u32,
+	      MUP::new_gen ( op.v1.g ),
+	      (const min::context_gen_flags *) op.v3.p,
 	      f );
     }
     case min::op::FLUSH_ONE_ID:

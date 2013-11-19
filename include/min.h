@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 18 07:39:41 EST 2013
+// Date:	Tue Nov 19 01:08:24 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11481,7 +11481,8 @@ namespace min {
         enum OPCODE
 	{
             PGEN_CONTEXT = 1,
-	    PGEN_FLAGS,
+	    PGEN_GEN_FLAGS,
+	    PGEN_CONTEXT_GEN_FLAGS,
 	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
@@ -11561,24 +11562,13 @@ namespace min {
 	op ( op::OPCODE opcode,
 	     min::gen v,
 	     min::uns32 context,
-	     min::uns32 value_gen_flags )
+	     const min::context_gen_flags *
+	         context_gen_flags )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
 	    v2.u32 = context;
-	    v3.u32 = value_gen_flags;
-	}
-	op ( op::OPCODE opcode,
-	     min::gen v,
-	     min::uns32 context,
-	     min::uns32 value_gen_flags,
-	     min::uns32 name_gen_flags )
-	    : opcode ( opcode )
-	{
-	    v1.g = unprotected::value_of ( v );
-	    v2.u32 = context;
-	    v3.u32 = value_gen_flags;
-	    v4.u32 = name_gen_flags;
+	    v3.p = (void *) context_gen_flags;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11589,8 +11579,11 @@ namespace min {
 	op ( op::OPCODE opcode,
 	     min::unsptr length,
 	     const uns32 * buffer )
-	    : opcode ( opcode ) { v1.uptr = length;
-	                      v2.p = (void *) buffer; }
+	    : opcode ( opcode )
+	{
+	    v1.uptr = length;
+	    v2.p = (void *) buffer;
+	}
 	op ( op::OPCODE opcode,
 	     min::int64 i,
 	     const char * printf_format )
@@ -12007,7 +12000,17 @@ namespace min {
 	    ( min::gen v,
               min::uns32 gen_flags )
     {
-        return op ( op::PGEN_FLAGS, v, gen_flags );
+        return op ( op::PGEN_GEN_FLAGS, v, gen_flags );
+    }
+
+    inline op pgen
+	    ( min::gen v,
+              min::uns32 gen_flags,
+	      const min::context_gen_flags *
+	          context_gen_flags )
+    {
+        return op ( op::PGEN_GEN_FLAGS, v, gen_flags,
+	            context_gen_flags );
     }
 
     inline op name_pgen ( min::gen v )

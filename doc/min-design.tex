@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 18, 2013}
+\date{November 19, 2013}
  
 \maketitle
 
@@ -8139,13 +8139,25 @@ operations:
 \verb|min::op min::|
     & \MINKEY{pgen} \verb|( min::gen v, min::uns32 gen_flags )|
 \LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+            \verb|( min::gen v,|\ARGBREAK
+            \verb|  min::uns32 gen_flags,|\ARGBREAK
+            \verb|  const min::context_gen_flags * context_gen_flags )|
+\LABEL{MIN::PGEN_WITH_CONTEXT_GEN_FLAGS} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+              {of {\tt min::printer}}
+      \verb|( min::printer printer, min::gen v )|
+\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
 The expression `{\tt printer\,<{}<\,min::pgen(v)}'
 prints the {\tt min::gen} value \verb|v| to the
 {\tt printer} using
 {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL
-    flags[PGEN\_VALUE]}
+    flags[PGEN\_VALUE]},
+{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags},
 and
 {\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
 to control the printing.
@@ -8161,31 +8173,10 @@ in place of flags selected from
 {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
 
 The three argument form of {\tt min::pgen} may be used to give
-{\tt gen\_\EOL flags} and {\tt attr\_\EOL gen\_\EOL flags} explicitly:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 value_gen_flags,|\ARGBREAK
-	  \verb|  min::uns32 name_gen_flags )|
-\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
-\end{tabular}\end{indpar}
-
-The one and two argument forms of {\tt min::pgen} in effect set
-both {\tt attr\_\EOL gen\_\EOL flags} and {\tt gen\_\EOL flags}
-equal.
+{\tt gen\_\EOL flags} and {\tt context\_\EOL gen\_\EOL flags} explicitly.
 
 `{\tt printer\,<{}<\,v}' can be used as the equivalent of
-`{\tt printer\,<{}<\,min::pgen(v)}':
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
-              {of {\tt min::printer}}
-      \verb|( min::printer printer, min::gen v )|
-\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
-\end{tabular}\end{indpar}
+`{\tt printer\,<{}<\,min::pgen(v)}'
 
 {\tt min::gen\_format} \underline{cannot} be stored in a
 relocatable body, and is intended to be a static C++ structure.
@@ -8443,9 +8434,11 @@ The {\tt min::gen\_format} members are:
 \item[\ttmkey{pgen}{in {\tt min::gen\_format}}]
 The {\tt pgen} function is called to by {\tt min::pgen} to print
 the general value {\tt v} on the given {\tt printer} using
-the given {\tt gen\_\EOL flags} and {\tt gen\_\EOL format}.
+the given {\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags}
+and {\tt gen\_\EOL format}.
 The function must return the {\tt printer}.  The description of
-{\tt gen\_\EOL flags} and the {\tt gen\_\EOL format} members in
+{\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags},
+and {\tt gen\_\EOL format} members in
 this section apply only to {\tt min::\EOL default\_\EOL pgen},
 the default value of this {\tt pgen} member.
 
@@ -8503,7 +8496,7 @@ These members are only enabled if both the
 are on and neither of these two members is {\tt NULL}.
 
 The {\tt implicit\_\EOL prefix/postfix} members surround an object being
-printed, provided that
+printed as an expression per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}, provided that
 the object has \underline{neither}
 an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
 
@@ -8739,8 +8732,9 @@ performed by the {\tt min::\EOL eom} end-of-message operation
 if the print format
 {\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
 
-These {\tt id\_map} flushing operations use {\tt min::\EOL flush\_\EOL pgen}
-(\pagref{MIN::FLUSH_PGEN}) to print values in lines of the form:
+These {\tt id\_map} flushing operations use {\tt min::\EOL pgen}
+with the {\tt context\_\EOL gen\_\EOL flags[PGEN\_FLUSH]} flags
+(\pagref{MIN::PGEN_FLUSH}) to print values in lines of the form:
 \begin{center}
 \verb|@|i \verb|=| {\em value}
 \end{center}
@@ -15411,14 +15405,10 @@ In loose implementation: \\
 \LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 value_gen_flags,|\ARGBREAK
-	  \verb|  min::uns32 name_gen_flags )|
-\LABEL{MIN::PGEN_WITH_ATTR_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{flush\_\EOL pgen}
-	  \verb|( min::gen v )|
-\LABEL{MIN::FLUSH_PGEN} \\
+            \verb|( min::gen v,|\ARGBREAK
+            \verb|  min::uns32 gen_flags,|\ARGBREAK
+            \verb|  const min::context_gen_flags * context_gen_flags )|
+\LABEL{MIN::PGEN_WITH_CONTEXT_GEN_FLAGS} \\
 \end{TABULAR}
 
 \bigskip
