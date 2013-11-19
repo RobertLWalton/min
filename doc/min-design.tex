@@ -8350,17 +8350,20 @@ members which are described below:
 \end{center}
 
 \item[\ttnbkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
-This flag controls the printing of a
-{\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
+This flag suppresses use of the
+{\tt special\_\EOL names} member
+of {\tt gen\_\EOL format}, described below, to
+print a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
 
 If the flag is \underline{off}, if {\tt special\_\EOL names}
 is not {\tt NULL}, and if
-{\tt 0 <= i < special\_\EOL names\_\EOL size}, then
+{\tt 0 <= i < special\_\EOL names->\EOL length}, then
 the value prints as {\tt special\_\EOL names[i]}.
 
 If the flag is \underline{off} and
-{\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL names\_\EOL size}, then
-the value prints as {\tt min::\EOL standard\_\EOL special\_\EOL names[i]}.
+{\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL
+names->\EOL length}, then the value prints as
+{\tt min::\EOL standard\_\EOL special\_\EOL names[0xFFFFFF - i]}.
 
 Otherwise the value prints as `{\tt SPECIAL(i)}'.
 
@@ -8660,10 +8663,8 @@ an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
 This member is only enabled if
 {\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
 and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
-
-{\tt special\_names[i]} is printed as the representation of
-a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
-{\tt 0 <= i < special\_\EOL names->\EOL length}.
+See
+{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} above for usage.
 
 WARNING: The {\tt special\_\EOL names} member of a {\tt min::gen\_format} is
 \underline{not} locatable by the ACC, and its value must therefore be
