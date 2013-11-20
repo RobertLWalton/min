@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 19 01:14:39 EST 2013
+// Date:	Wed Nov 20 01:44:28 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9327,12 +9327,15 @@ static T pgen_exp
          ::get ( min::dot_name,
 	          info, info_length );
 
-    const char * prefix = "";
-    const char * postfix = "";
+    bool use_suppressible_space =
+	( gen_flags & min::SUPPRESS_EXP_SPACE_FLAG );
+
     if ( initiator == min::NONE()
          &&
 	 terminator == min::NONE() )
     {
+	const char * prefix = "";
+	const char * postfix = "";
         if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
 	     &&
 	     f->implicit_prefix != NULL
@@ -9350,12 +9353,18 @@ static T pgen_exp
 	    if ( i != 0 )
 	    {
 	        if ( separator != min::NONE() )
+		{
 		    pgen ( out,
 		           (*context_gen_flags)
 			       [min::PGEN_NAME],
 			   separator,
 			   context_gen_flags, f );
-		out << " ";
+		    out << " ";
+		}
+		else if ( use_suppressible_space )
+		    out << min::suppressible_space;
+		else
+		    out << " ";
 		out << min::set_break;
 	    }
 	    pgen ( out,
@@ -9399,8 +9408,25 @@ static T pgen_exp
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    out << min::spaces_if_before_indent
-	        << min::space_if_after_indent;
+	    if ( i == 0 )
+		out << min::spaces_if_before_indent;
+	    else
+	    {
+	        if ( separator != min::NONE() )
+		{
+		    pgen ( out,
+		           (*context_gen_flags)
+			       [min::PGEN_NAME],
+			   separator,
+			   context_gen_flags, f );
+		    out << " ";
+		}
+		else if ( use_suppressible_space )
+		    out << min::suppressible_space;
+		else
+		    out << " ";
+		out << min::set_break;
+	    }
 	    pgen ( out,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
@@ -9415,10 +9441,28 @@ static T pgen_exp
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    out << min::spaces_if_before_indent
-	        << min::space_if_after_indent;
+	    if ( i == 0 )
+		out << min::spaces_if_before_indent;
+	    else
+	    {
+	        if ( separator != min::NONE() )
+		{
+		    pgen ( out,
+		           (*context_gen_flags)
+			       [min::PGEN_NAME],
+			   separator,
+			   context_gen_flags, f );
+		    out << " ";
+		}
+		else if ( use_suppressible_space )
+		    out << min::suppressible_space;
+		else
+		    out << " ";
+		out << min::set_break;
+	    }
 	    pgen ( out,
-	           (*context_gen_flags)[min::PGEN_NAME],
+	           (*context_gen_flags)
+		       [min::PGEN_ELEMENT],
 	           vp[i],
 	           context_gen_flags, f );
 	}
@@ -9449,12 +9493,18 @@ static T pgen_exp
 	    if ( i != 0 )
 	    {
 	        if ( separator != min::NONE() )
+		{
 		    pgen ( out,
-	                   (*context_gen_flags)
+		           (*context_gen_flags)
 			       [min::PGEN_NAME],
 			   separator,
 			   context_gen_flags, f );
-	        out << " ";
+		    out << " ";
+		}
+		else if ( use_suppressible_space )
+		    out << min::suppressible_space;
+		else
+		    out << " ";
 		out << min::set_break;
 	    }
 	    pgen ( out, 
@@ -9583,12 +9633,18 @@ static T pgen_exp
 	    if ( i != 0 )
 	    {
 	        if ( separator != min::NONE() )
+		{
 		    pgen ( out,
-			   (*context_gen_flags)
+		           (*context_gen_flags)
 			       [min::PGEN_NAME],
 			   separator,
 			   context_gen_flags, f );
-	        out << " ";
+		    out << " ";
+		}
+		else if ( use_suppressible_space )
+		    out << min::suppressible_space;
+		else
+		    out << " ";
 		out << min::set_break;
 	    }
 
