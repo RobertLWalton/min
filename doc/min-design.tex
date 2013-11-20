@@ -8155,11 +8155,14 @@ operations:
 The expression `{\tt printer\,<{}<\,min::pgen(v)}'
 prints the {\tt min::gen} value \verb|v| to the
 {\tt printer} using
-{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL
-    flags[PGEN\_VALUE]},
-{\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags},
-and
-{\tt printer->\EOL print\_\EOL format.gen\_\EOL format}
+\begin{center}
+\begin{tabular}{ll}
+& {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL
+    flags[PGEN\_VALUE]}, \\
+& {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}, \\
+and & {\tt printer->\EOL print\_\EOL format.gen\_\EOL format} \\
+\end{tabular}
+\end{center}
 to control the printing.
 
 `{\tt printer\,<{}<\,v}' can be used as the equivalent of
@@ -8262,6 +8265,7 @@ such as {\tt .initiator}'s, {\tt .separator}'s, and {\tt .terminator}'s.
 This is for printing vector elements.
 
 \item[\ttkey{PGEN\_FLUSH}]
+\label{PGEN_FLUSH}
 This is for printing the top level value in the context of
 {\tt flush\_\EOL id\_\EOL map}a(\pagref{MIN::FLUSH_ID_MAP}).
 
@@ -8414,12 +8418,12 @@ the object will be printed in the general form:
 and if this flag is \underline{on} the object will be printed in the
 general form:
 \begin{center}
-\begin{tabular}{l}
-\verb/@/i \verb/=/ {\em element}$^\star$\verb/:|/ \\
-\verb|    |{\em attribute-name-and-values}\\
-\verb|    |\ldots\ldots\ldots\\
-\verb|    |{\em reverse-attribute-name-and-values}\\
-\verb|    |\ldots\ldots\ldots\\
+\begin{tabular}{r@{}l}
+XXX	& {\em element}$^\star$\verb/:|/ \\
+	& {\em attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
+	& {\em reverse-attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
 \end{tabular}
 \end{center}
 
@@ -8427,16 +8431,23 @@ The two forms are is similar, with semi-colons in the first being
 replaced by line ends, indentation, and the indentation mark
 \verb/:|/ in the second, and the
 surrounding \verb/{|/ \verb/|}/ of the first being omitted in the second.
+The indentation is the column position when the value is output; in
+the above XXX is printed before the value is output and the indent is
+at the end of the XXX.
 
 See \pagref{GEN-OBJ-FORM} for more details.
 
 \item[\ttnbmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
+than {\tt str\_\EOL max\_\EOL length} (see below)
+have an identifier i allocated
 in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
 Otherwise string values are printed normally.
 
 \end{itemlist}\end{indpar}
+
+The detailed structure and meaning of the general value format
+is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|struct min::|\MINKEY{gen\_format}\\
@@ -8777,16 +8788,17 @@ performed by the {\tt min::\EOL eom} end-of-message operation
 if the print format
 {\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
 
-These {\tt id\_map} flushing operations use {\tt min::\EOL pgen}
-with the {\tt context\_\EOL gen\_\EOL flags[PGEN\_FLUSH]} flags
-(\pagref{MIN::PGEN_FLUSH}) to print values in lines of the form:
+These {\tt id\_map} flushing operations use the
+{\tt context\_\EOL gen\_\EOL flags[PGEN\_FLUSH]} gen flags
+(\pagref{PGEN_FLUSH}) with {\tt min::\EOL pgen}
+to print the {\em values} in lines of the form:
 \begin{center}
 \verb|@|i \verb|=| {\em value}
 \end{center}
 If a line is too long, it may be broken into multiple lines
 as specified by the printer parameters.
 
-If the datum is an object not being printed as per
+If the {\em value} is an object not being printed as per
 {\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the {\tt OBJ\_\EOL INDENT} flag
 will cause the object will be printed on
 multiple lines whose form will be:\label{GEN-OBJ-FORM}
