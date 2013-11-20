@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 19 01:08:24 EST 2013
+// Date:	Wed Nov 20 02:20:36 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11954,7 +11954,7 @@ namespace min {
         BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
         SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
         SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
-        SUPPRESS_OBJ_SPACE_FLAG		= ( 1 << 7 ),
+        SUPPRESS_EXP_SPACE_FLAG		= ( 1 << 7 ),
 	OBJ_EXP_FLAG			= ( 1 << 8 ),
 	OBJ_INDENT_FLAG			= ( 1 << 9 ),
 	OBJ_ID_FLAG			= ( 1 << 10 ),
