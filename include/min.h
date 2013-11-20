@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 20 02:20:36 EST 2013
+// Date:	Wed Nov 20 18:38:44 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11963,7 +11963,7 @@ namespace min {
 
     enum {
         PGEN_VALUE			= 0,
-	PGEN_FLUSH			= 1,
+	PGEN_INDENT			= 1,
 	PGEN_NAME			= 2,
 	PGEN_ELEMENT			= 3
     };
@@ -12017,6 +12017,12 @@ namespace min {
     {
         return op ( op::PGEN_CONTEXT, v,
 	            min::PGEN_NAME );
+    }
+
+    inline op indent_pgen ( min::gen v )
+    {
+        return op ( op::PGEN_CONTEXT, v,
+	            min::PGEN_INDENT );
     }
 
     inline op map_pgen ( min::gen v )
