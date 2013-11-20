@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 17 02:29:20 EST 2013
+// Date:	Wed Nov 20 18:41:45 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4458,7 +4458,7 @@ void test_object_printing ( void )
                     & ~ min::OBJ_EXP_FLAG;
 	flags2[i] = flags1[i];
     }
-    flags2[min::PGEN_FLUSH] |= min::OBJ_EXP_FLAG;
+    flags2[min::PGEN_INDENT] |= min::OBJ_EXP_FLAG;
         
     printer << min::save_print_format
             << min::set_context_gen_flags ( & flags1 )

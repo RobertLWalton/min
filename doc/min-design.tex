@@ -8192,8 +8192,8 @@ The data structure for {\tt pgen} contexts is:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
 \LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
-\LABEL{MIN::PGEN_FLUSH_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_INDENT}
+\LABEL{MIN::PGEN_INDENT_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
@@ -8264,8 +8264,8 @@ such as {\tt .initiator}'s, {\tt .separator}'s, and {\tt .terminator}'s.
 \item[\ttkey{PGEN\_ELEMENT}]
 This is for printing vector elements.
 
-\item[\ttkey{PGEN\_FLUSH}]
-\label{PGEN_FLUSH}
+\item[\ttkey{PGEN\_INDENT}]
+\label{PGEN_INDENT}
 This is for printing the top level value in the context of
 {\tt flush\_\EOL id\_\EOL map}a(\pagref{MIN::FLUSH_ID_MAP}).
 
@@ -8789,8 +8789,8 @@ if the print format
 {\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
 
 These {\tt id\_map} flushing operations use the
-{\tt context\_\EOL gen\_\EOL flags[PGEN\_FLUSH]} gen flags
-(\pagref{PGEN_FLUSH}) with {\tt min::\EOL pgen}
+{\tt context\_\EOL gen\_\EOL flags[PGEN\_INDENT]} gen flags
+(\pagref{PGEN_INDENT}) with {\tt min::\EOL pgen}
 to print the {\em values} in lines of the form:
 \begin{center}
 \verb|@|i \verb|=| {\em value}
@@ -15441,8 +15441,8 @@ In loose implementation: \\
 \begin{TABULAR}{2.2in}
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
 \LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_FLUSH}
-\LABEL{MIN::PGEN_FLUSH_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_INDENT}
+\LABEL{MIN::PGEN_INDENT_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}

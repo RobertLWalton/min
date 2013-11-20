@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 20 01:44:28 EST 2013
+// Date:	Wed Nov 20 18:40:16 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9962,7 +9962,7 @@ static T flush_one_id
 
     out << "@" << id << " = ";
     ::pgen<T> ( out,
-                (*context_gen_flags)[min::PGEN_FLUSH],
+                (*context_gen_flags)[min::PGEN_INDENT],
                 v,
 		context_gen_flags, f, pgen );
     return out << min::eol;
