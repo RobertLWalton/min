@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 20 18:38:44 EST 2013
+// Date:	Thu Nov 21 01:40:26 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11970,6 +11970,9 @@ namespace min {
 
     extern const min::context_gen_flags
 	default_context_gen_flags;
+
+    extern const min::context_gen_flags
+	no_exp_context_gen_flags;
 
     extern packed_vec_ptr<const char *>
            standard_special_names;

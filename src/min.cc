@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 20 18:40:16 EST 2013
+// Date:	Thu Nov 21 01:56:31 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8992,6 +8992,20 @@ const min::context_gen_flags
     ::DEFAULT_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
     ::DEFAULT_NAME_GEN_FLAGS,
     ::DEFAULT_NAME_GEN_FLAGS
+};
+
+const min::uns32 NO_EXP_VALUE_GEN_FLAGS =
+    DEFAULT_VALUE_GEN_FLAGS & ~ min::OBJ_EXP_FLAG;
+const min::uns32 NO_EXP_NAME_GEN_FLAGS =
+    DEFAULT_NAME_GEN_FLAGS & ~ min::OBJ_EXP_FLAG;
+
+const min::context_gen_flags
+    min::no_exp_context_gen_flags =
+{
+    ::NO_EXP_VALUE_GEN_FLAGS,
+    ::NO_EXP_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
+    ::NO_EXP_NAME_GEN_FLAGS,
+    ::NO_EXP_NAME_GEN_FLAGS
 };
 
 const min::gen_format min::default_gen_format =
