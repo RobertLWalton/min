@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 20 18:41:45 EST 2013
+// Date:	Thu Nov 21 01:54:06 EST 2013
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4450,20 +4450,16 @@ void test_object_printing ( void )
     printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
             << min::eol;
 
-    min::context_gen_flags flags1, flags2;
-    for ( int i = 0; i < 4; ++ i )
-    {
-        flags1[i] = (* printer->print_format
-	               .context_gen_flags)[i]
-                    & ~ min::OBJ_EXP_FLAG;
-	flags2[i] = flags1[i];
-    }
-    flags2[min::PGEN_INDENT] |= min::OBJ_EXP_FLAG;
+    min::context_gen_flags flags;
+    memcpy ( flags, min::no_exp_context_gen_flags,
+                   sizeof ( flags ) );
+    flags[min::PGEN_INDENT] |= min::OBJ_EXP_FLAG;
         
     printer << min::save_print_format
-            << min::set_context_gen_flags ( & flags1 )
+            << min::set_context_gen_flags
+	          ( & min::no_exp_context_gen_flags )
 	    << min::flush_one_id
-            << min::set_context_gen_flags ( & flags2 )
+            << min::set_context_gen_flags ( & flags )
 	    << min::flush_id_map
 	    << min::restore_print_format;
 

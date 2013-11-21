@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 20, 2013}
+\date{November 21, 2013}
  
 \maketitle
 
@@ -8249,6 +8249,16 @@ The data structure for {\tt pgen} contexts is:
 \end{tabular}
 \end{indpar}
 
+\begin{indpar}[1em]
+\begin{tabular}{l}
+\verb|const min::context_gen_flags min::|%
+    \MINKEY{no\_\EOL exp\_\EOL context\_\EOL gen\_\EOL flags}
+\LABEL{MIN::NO_EXP_CONTEXT_GEN_FLAGS} \\
+\verb|    // Same as default_context_gen_flags| \\
+\verb|    // but without any min::OBJ_EXP_FLAGs.| \\
+\end{tabular}
+\end{indpar}
+
 The uses of the various {\tt pgen} contexts are:
 
 \begin{itemlist}[0.4in]
@@ -15459,6 +15469,9 @@ In loose implementation: \\
 \multicolumn{2}{l}{\tt const min::context\_gen\_flags} \\
 \verb|min::| & \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
 \LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
+\multicolumn{2}{l}{\tt const min::context\_gen\_flags} \\
+\verb|min::| & \MINKEY{no\_\EOL exp\_\EOL context\_\EOL gen\_\EOL flags}
+\LABEL{MIN::NO_EXP_CONTEXT_GEN_FLAGS} \\
 \end{TABULAR}
 
 \bigskip
