@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 01:56:31 EST 2013
+// Date:	Fri Jan 17 19:10:07 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9015,7 +9015,7 @@ const min::gen_format min::default_gen_format =
     "\"","\"","<Q>",
     "[: ", " ", " :]",
     "[$ ", " $]",
-    "[. ", " .]",
+    "« ", " »",
     min::NULL_STUB,
     & min::default_suppress_matrix,
     8,
