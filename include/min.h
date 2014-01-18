@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 01:40:26 EST 2013
+// Date:	Fri Jan 17 19:48:01 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4432,7 +4432,7 @@ namespace min {
 	uns32 unicode = c;
 	if ( c < 0xC0 )
 	    unicode = ILLEGAL_UTF8;
-	else if ( c < 0xD0 )
+	else if ( c < 0xE0 )
 	    unicode &= 0x1F, bytes = 1;
 	else if ( c < 0xF0 )
 	    unicode &= 0x0F, bytes = 2;
@@ -4457,6 +4457,7 @@ namespace min {
 	    if ( c < 0x80 || 0xC0 <= c )
 	    {
 		unicode = ILLEGAL_UTF8;
+		s = ends;
 		break;
 	    }
 	    unicode <<= 6;
