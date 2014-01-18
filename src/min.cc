@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 17 19:10:07 EST 2014
+// Date:	Fri Jan 17 20:06:29 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7782,7 +7782,7 @@ min::printer operator <<
 		    -- q;
 		    -- length;
 
-		    if ( ( * q & 0x80 ) == 0 )
+		    if ( ( * q & 0xC0 ) != 0x80 )
 		    {
 			b = min::utf8_to_unicode
 			        ( q, p );
