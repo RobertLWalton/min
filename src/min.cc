@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 18 00:31:12 EST 2014
+// Date:	Sat Feb  8 14:14:51 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8262,6 +8262,9 @@ static bool insert_line_break ( min::printer printer )
     }
     if ( line_break.column <= line_break.indent )
 	return true;
+    if ( line_break.offset < printer->file->end_offset )
+	return true;
+      
 
     // buffer[begoff..endoff-1] are horizontal spaces
     // to be deleted.
