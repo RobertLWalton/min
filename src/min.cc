@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 14:14:51 EST 2014
+// Date:	Sat Feb  8 19:48:32 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7945,6 +7945,7 @@ min::printer operator <<
         if (   printer->column
 	     > printer->line_break.indent )
 	    ::end_line ( printer );
+    execute_indent:
 	while (   printer->column
 		< printer->line_break.indent )
 	{
@@ -7953,13 +7954,11 @@ min::printer operator <<
 	}
 	goto set_break;
     case min::op::SPACES_IF_BEFORE_INDENT:
-	while (   printer->column
-		< printer->line_break.indent )
-	{
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
-	goto set_break;
+	if (   printer->column
+	     < printer->line_break.indent )
+	    goto execute_indent;
+	else
+	    return printer;
     case min::op::SPACE_IF_AFTER_INDENT:
         if (   printer->column
 	     > printer->line_break.indent )
@@ -9351,6 +9350,8 @@ static T pgen_exp
          &&
 	 terminator == min::NONE() )
     {
+    	// Unbracketed Expression
+
 	const char * prefix = "";
 	const char * postfix = "";
         if ( ( gen_flags & min::BRACKET_IMPLICIT_FLAG )
@@ -9362,8 +9363,8 @@ static T pgen_exp
 	    prefix = f->implicit_prefix;
 	    postfix = f->implicit_postfix;
 	}
-	out << prefix << min::save_indent
-	    << min::nohbreak;
+	out << prefix
+	    << min::save_indent << min::nohbreak;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9390,10 +9391,15 @@ static T pgen_exp
 	           vp[i],
 	           context_gen_flags, f );
 	}
-	return out << postfix << min::restore_indent;
+	if ( * postfix )
+	    out << min::spaces_if_before_indent
+	        << postfix;
+	return out << min::restore_indent;
     }
     else if ( terminator == min::NONE() )
     {
+        // Indentation Mark Expression
+
         if ( initiator == min::doublequote
 	     &&
 	     min::size_of ( vp ) == 1 )
@@ -9425,25 +9431,17 @@ static T pgen_exp
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    if ( i == 0 )
-		out << min::spaces_if_before_indent;
-	    else
+	    out << min::spaces_if_before_indent;
+	    if ( i != 0 && separator != min::NONE() )
 	    {
-	        if ( separator != min::NONE() )
-		{
-		    pgen ( out,
-		           (*context_gen_flags)
-			       [min::PGEN_NAME],
-			   separator,
-			   context_gen_flags, f );
-		    out << " ";
-		}
-		else if ( use_suppressible_space )
-		    out << min::suppressible_space;
-		else
-		    out << " ";
-		out << min::set_break;
+		pgen ( out,
+		       (*context_gen_flags)
+			   [min::PGEN_NAME],
+		       separator,
+		       context_gen_flags, f );
+		out << " ";
 	    }
+	    out << min::set_break;
 	    pgen ( out,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
@@ -9455,6 +9453,8 @@ static T pgen_exp
     }
     else if ( initiator == min::NONE() )
     {
+        // Line In Indented Paragraph
+
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9475,8 +9475,8 @@ static T pgen_exp
 		    out << min::suppressible_space;
 		else
 		    out << " ";
-		out << min::set_break;
 	    }
+	    out << min::set_break;
 	    pgen ( out,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
@@ -9487,7 +9487,8 @@ static T pgen_exp
 		return out << min::eol;
 	else
 	{
-	    out << min::suppressible_space;
+	    out << min::spaces_if_before_indent
+	        << min::suppressible_space;
 	    pgen ( out,
 	           (*context_gen_flags)[min::PGEN_NAME],
 	           terminator,
@@ -9497,6 +9498,8 @@ static T pgen_exp
     }
     else if ( name == min::NONE() )
     {
+        // Bracketed Expression.
+
 	pgen ( out,
 	       (*context_gen_flags)[min::PGEN_NAME],
 	       initiator,
@@ -9531,7 +9534,8 @@ static T pgen_exp
 		   context_gen_flags, f );
 	}
 
-	out << min::suppressible_space;
+	out << min::spaces_if_before_indent
+	    << min::suppressible_space;
 	pgen ( out,
 	       (*context_gen_flags)[min::PGEN_NAME],
 	       terminator,
