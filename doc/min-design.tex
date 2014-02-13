@@ -154,7 +154,7 @@
 \newcommand{\MUPmkey}[2]%
            {{\tt \bf MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\minmindex}[2]{\ttindex{min::#1!#2}\ttindex{#1!#2}}
+\newcommand{\minmindex}[2]{\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
 \newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
@@ -233,6 +233,7 @@
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
 \newcommand{\MINIKEY}[2]{{\tt \bf #1}\minindex{#2}}
+\newcommand{\MINMKEY}[3]{{\tt \bf #1}\minmindex{#2}{#3}}
 \newcommand{\MINNBKEY}[1]{{\tt #1}\minindex{#1}}
 \newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
 
@@ -261,7 +262,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 18, 2014}
+\date{February 12, 2014}
  
 \maketitle
 
@@ -5302,11 +5303,30 @@ The subtype of a packed vector can be retrieved by
 \LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
 \verb|const char * min::|
 	& \MINKEY{name\_of\_packed\_subtype} \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_VEC_SUBTYPE} \\
 \\
 \end{tabular}\end{indpar}
 
 These functions work for packed vectors in the same was as for
 packed structures; see \pagref{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} for details.
+
+The following are defined for general use:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|min::packed_vec<char> min::|
+	& \MINKEY{char\_packed\_vec\_type}
+\LABEL{MIN::CHAR_PACKED_VEC_TYPE} \\
+\verb|min::packed_vec<min::uns32> min::|
+	& \MINKEY{uns32\_packed\_vec\_type}
+\LABEL{MIN::UNS32_PACKED_VEC_TYPE} \\
+\verb|min::packed_vec<const char *> min::|
+	& \MINMKEY{const\_char\_ptr\_packed\_vec\_type}%
+	          {const\_char\_ptr\_}{packed\_vec\_type}
+\LABEL{MIN::CONST_CHAR_PTR_PACKED_VEC_TYPE} \\
+\verb|min::packed_vec<min::gen> min::|
+	& \MINKEY{gen\_packed\_vec\_type}
+\LABEL{MIN::GEN_PACKED_VEC_TYPE} \\
+\end{tabular}\end{indpar}
 
 There are three kinds of pointers that can be used to access
 a packed vector.  The read-only
@@ -14331,7 +14351,22 @@ In loose implementation: \\
 \verb|const char * min::|
 	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
 	  \verb|( min::uns32 subtype )|
-\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
+\LABEL{MIN::NAME_OF_PACKED_VEC_SUBTYPE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+\verb|min::| & \verb|packed_vec<char>| \ARGBREAK
+	\verb|min::| \MINKEY{char\_packed\_vec\_type}
+\LABEL{MIN::CHAR_PACKED_VEC_TYPE} \\
+\verb|min::| & \verb|packed_vec<min::uns32>| \ARGBREAK
+	\verb|min::| \MINKEY{uns32\_packed\_vec\_type}
+\LABEL{MIN::UNS32_PACKED_VEC_TYPE} \\
+\verb|min::| & \verb|packed_vec<const char *>| \ARGBREAK
+	\verb|min::| \MINKEY{const\_char\_ptr\_packed\_vec\_type}
+\LABEL{MIN::CONST_CHAR_PTR_PACKED_VEC_TYPE} \\
+\verb|min::| & \verb|packed_vec<min::gen>| \ARGBREAK
+	\verb|min::| \MINKEY{gen\_packed\_vec\_type}
+\LABEL{MIN::GEN_PACKED_VEC_TYPE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}

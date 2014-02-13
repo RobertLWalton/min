@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 17 19:48:01 EST 2014
+// Date:	Wed Feb 12 20:18:19 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6531,6 +6531,16 @@ MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H
                                 MIN_COMMA typename L,
 		     min::packed_vec_insptr
 			 < E MIN_COMMA H MIN_COMMA L > )
+
+namespace min {
+
+    extern packed_vec<min::gen> gen_packed_vec_type;
+    extern packed_vec<char> char_packed_vec_type;
+    extern packed_vec<min::uns32> uns32_packed_vec_type;
+    extern packed_vec<const char *> 
+        const_char_ptr_packed_vec_type;
+
+}
 
 // Files
 // -----
