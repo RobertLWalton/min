@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  8 19:48:32 EST 2014
+// Date:	Wed Feb 12 20:16:27 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,15 +78,20 @@ min::locatable_gen min::new_line;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::number_sign;
 
-static min::packed_vec<const char *>
-    const_char_ptr_packed_vec_type
-        ( "min.cc::const_char_ptr_packed_vec_type" );
-
 static min::uns32 gen_element_disp[2] =
     { 0, min::DISP_END };
 
-static min::packed_vec<min::gen> gen_packed_vec_type
-    ( "min.cc::gen_packed_vec_type",
+min::packed_vec<char>
+    min::char_packed_vec_type
+        ( "min::char_packed_vec_type" );
+min::packed_vec<min::uns32>
+    min::uns32_packed_vec_type
+        ( "min::uns32_packed_vec_type" );
+min::packed_vec<const char *>
+    min::const_char_ptr_packed_vec_type
+        ( "min::const_char_ptr_packed_vec_type" );
+min::packed_vec<min::gen> min::gen_packed_vec_type
+    ( "min::gen_packed_vec_type",
       gen_element_disp );
 
 static const unsigned standard_special_names_length = 8;
@@ -358,7 +363,7 @@ void MINT::initialize ( void )
 
     {
 	min::packed_vec_insptr<const char *> p =
-	    ::const_char_ptr_packed_vec_type.new_stub
+	    min::const_char_ptr_packed_vec_type.new_stub
 		( ::standard_special_names_length );
 	::standard_special_names = p;
 	min::standard_special_names = p;
@@ -368,7 +373,7 @@ void MINT::initialize ( void )
 
     {
 	min::packed_vec_insptr<min::gen> p =
-	    ::gen_packed_vec_type.new_stub ( 9 );
+	    min::gen_packed_vec_type.new_stub ( 9 );
 	::default_exp_ok_attrs = p;
 	min::default_exp_ok_attrs = p;
 	* (const min::stub **)
@@ -387,7 +392,7 @@ void MINT::initialize ( void )
 
     {
 	min::packed_vec_insptr<const char *> p =
-	    ::const_char_ptr_packed_vec_type.new_stub
+	    min::const_char_ptr_packed_vec_type.new_stub
 		( ::default_flag_names_length );
 	::default_flag_names = p;
 	min::default_flag_names = p;
@@ -2667,9 +2672,6 @@ min::phrase_position_vec min::position_of
 // Identifier Maps
 // ---------- ----
 
-static min::packed_vec<min::uns32> hash_table_type
-    ( "hash_table_type" );
-
 static min::uns32 id_map_stub_disp[2] =
     { min::DISP ( & min::id_map_header<min::uns32>
                        ::hash_table ),
@@ -2722,7 +2724,7 @@ static void new_hash_table
     if ( length < 128) length = 128;
 
     hash_table_ref ( map ) =
-	::hash_table_type.new_stub ( length );
+	min::uns32_packed_vec_type.new_stub ( length );
     min::packed_vec_insptr<min::uns32> hash_table =
         map->hash_table;
     min::push ( hash_table, length );
