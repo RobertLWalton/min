@@ -12,6 +12,7 @@
 \usepackage{upquote}
     % Modifies \verb and \verbatim to print ' with
     % the Computer Modern Typewrite font.
+    % Also includes the textcomp package.
 
 \makeindex
 
@@ -73,30 +74,6 @@
 
 % End \tableofcontents surgery.
 
-\newsavebox{\BRABOX}
-\begin{lrbox}{\BRABOX}
-\verb|{|
-\end{lrbox}
-\newcommand{\BRA}{\usebox{\BRABOX}}
-
-\newsavebox{\KETBOX}
-\begin{lrbox}{\KETBOX}
-\verb|}|
-\end{lrbox}
-\newcommand{\KET}{\usebox{\KETBOX}}
-
-\newsavebox{\LACCENTBOX}
-\begin{lrbox}{\LACCENTBOX}
-{\tt \`{}}
-\end{lrbox}
-\newcommand{\LACCENT}{\usebox{\LACCENTBOX}}
-
-\newsavebox{\RACCENTBOX}
-\begin{lrbox}{\RACCENTBOX}
-{\tt \'{}}
-\end{lrbox}
-\newcommand{\RACCENT}{\usebox{\RACCENTBOX}}
-
 \newsavebox{\LAQUOTEBOX}
 \begin{lrbox}{\LAQUOTEBOX}
 {\tt \guillemotleft}
@@ -114,45 +91,52 @@
      $^{\mbox{#1}}$#2}}
     % Change notice.
 
+\newcommand{\TT}[1]{{\tt \bfseries #1}}
+
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
+\newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
-\newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
-% < and > do not work for \tt \bf, hence:
-\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttnbmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttarmkey}[2]{{\tt ->\bf #1}%
-                          \index{#1@{\tt #1}!#2}}
-\newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt #1}}}
-\newcommand{\ttdmkey}[2]{{\tt .\bf #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttbkey}[1]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}}}
-\newcommand{\ttbmkey}[2]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}!#2}}
-\newcommand{\ttomkey}[3]{{\tt \bf operator #2}%
-                         \index{#1@{\tt operator #2}!{#3}}}
-\newcommand{\ttmokey}[2]{{\tt \bf #1}%
-                         \index{#1@{\tt operator #1}!{#2}}}
-\newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
-\newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
-\newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
+\newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
+\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+\newcommand{\ttbkey}[1]{\TT{[#1]}\index{#1@{\tt [#1]}}}
+\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{#1@{\tt [#1]}!#2}}
+\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
+\newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
+\newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
+\newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
+\newcommand{\ttarmkey}[2]{{\tt ->}\TT{#1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
+\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+\newcommand{\ttomkey}[3]{\TT{operator #2}\index{#1@{\tt operator #2}!{#3}}}
+\newcommand{\ttmokey}[2]{\TT{#1}\index{#1@{\tt operator #1}!{#2}}}
+\newcommand{\ttfkey}[2]{\TT{#1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{\TT{#1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{\TT{#1}\index{#2@{\tt #1}!#3}}
 \newcommand{\subskey}[1]{$\mathbf{^{#1}}$\index{#1@$^{#1}$}}
 \newcommand{\subsmkey}[2]{$\mathbf{^{#1}}$\index{#1@$^{#1}$!#2}}
 
 \newcommand{\minkey}[1]%
-           {{\tt \bf min::#1}\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\minnbkey}[1]%
-           {{\tt min::#1}\ttindex{min::#1}\ttindex{#1}}
+           {\TT{min::#1}\ttindex{min::#1}\ttindex{#1}}
 \newcommand{\minmkey}[2]%
-           {{\tt \bf min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
-\newcommand{\MUPkey}[1]{{\tt \bf {\tt MUP}::#1}\ttindex{MUP::#1}\ttindex{#1}}
+           {\TT{min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPkey}[1]{\TT{MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
 \newcommand{\MUPmkey}[2]%
-           {{\tt \bf MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
+           {\TT{MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
 \newcommand{\minmindex}[2]{\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
@@ -229,7 +213,7 @@
 \newcommand{\TTMOKEY}[2]{\ttmokey{#1}{#2}}
 \newcommand{\TTDKEY}[1]{\ttdkey{#1}}
 \newcommand{\TTDMKEY}[2]{\ttdmkey{#1}{#2}}
-\newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
+\newcommand{\TTNBKEY}[1]{\ttkey{#1}}
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
 \newcommand{\MINIKEY}[2]{{\tt \bf #1}\minindex{#2}}
@@ -262,7 +246,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 12, 2014}
+\date{April 3, 2014}
  
 \maketitle
 
@@ -309,13 +293,13 @@ and the corresponding code:
 				  (read-write, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
 \ttmkey{lab}{abbreviation}	& label (\itemref{LABELS}) \\
-\ttmkey{min}{abbreviation}	& the `{\tt min}' namespace (\pagref{min::}) \\
-\ttmkey{MACC}{abbreviation}	& {\tt min::acc} (\pagref{MACC}) \\
-\ttmkey{MIN\_}{abbreviation}	& the {\tt MIN\_} macro preface
+\ttmkey{min}{abbreviation}	& the `\TT{min}' namespace (\pagref{min::}) \\
+\ttmkey{MACC}{abbreviation}	& \TT{min::acc} (\pagref{MACC}) \\
+\ttmkey{MIN\_}{abbreviation}	& the \TT{MIN\_} macro preface
 				  (\pagref{MIN_}) \\
-\ttmkey{MINT}{abbreviation}	& {\tt min::internal} (\pagref{MINT}) \\
-\ttmkey{MOS}{abbreviation}	& {\tt min::os} (\pagref{MOS}) \\
-\ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
+\ttmkey{MINT}{abbreviation}	& \TT{min::internal} (\pagref{MINT}) \\
+\ttmkey{MOS}{abbreviation}	& \TT{min::os} (\pagref{MOS}) \\
+\ttmkey{MUP}{abbreviation}	& \TT{min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
 \ttmkey{ptr}{abbreviation}	& pointer (often read-only, see updptr and
@@ -362,9 +346,9 @@ accessed by C++ code that contains the following inclusion:
 \end{center}
 
 External MIN data and functions are placed in the
-\ttnbmkey{min}{namespace}\label{min::} namespace.
+\ttmkey{min}{namespace}\label{min::} namespace.
 There are some macros that can be defined to control compilation, and
-these have names beginning with \ttnbkey{MIN\_}\label{MIN_}.
+these have names beginning with \ttkey{MIN\_}\label{MIN_}.
 
 MIN has two interfaces:
 the \key{protected interface}, which can be used
@@ -378,8 +362,8 @@ only distinction between these interfaces is that the unprotected
 interface is in the with \minkey{unprotected} namespace, whereas
 the protected interface is in the \ttkey{min} namespace.  User code
 that accesses the unprotected interface typically abbreviates the long
-`{\tt min::unprotected::}' prefix to
-`\ttnbmkey{MUP}{abbreviates {\tt min::unprotected}}{\tt ::}'\label{MUP}
+`\TT{min::unprotected::}' prefix to
+`\ttmkey{MUP}{abbreviates \TT{min::unprotected}}\TT{::}'\label{MUP}
 by including the following definition:
 \begin{center}
 \verb|#define  MUP  min::unprotected|
@@ -391,26 +375,26 @@ Note that namespace definitions such as the above are \underline{not}
 included in \verb|min.h| or other MIN \verb|.h| files; they must
 be included explicitly in \verb|.cc| files.
 
-Most {\tt MUP} functions `produce \key{undefined results}' when their arguments
+Most \TT{MUP} functions `produce \key{undefined results}' when their arguments
 are out of legal range.
 This means that when the arguments are out of range,
 function execution may lose control and crash, or may produce result
 values that are wrong or out of legal range.
-When documentation of a {\tt MUP} function
+When documentation of a \TT{MUP} function
 states that particular argument range checks are not performed,
-then the {\tt MUP} function always produces undefined results when its
+then the \TT{MUP} function always produces undefined results when its
 arguments would not pass these checks,
 unless the documentation explicitly says otherwise.
 
 Most, but not all, of the protection provided by the protected interface
 is obtained by the functions of that interface using the
-{\tt MIN\_ASSERT} macro:
+\TT{MIN\_ASSERT} macro:
 
 \begin{indpar}
 \begin{tabular}{lp{4.0in}}
-\TTNBKEY{MIN\_ASSERT}{\tt (}$e${\tt )}
-	& By default defined as `{\tt assert(}$e${\tt )}' if
-	  {\tt MIN\_PROTECT} is defined to be {\tt 1} (its default),
+\TTNBKEY{MIN\_ASSERT}\TT{(}$e$\TT{)}
+	& By default defined as `\TT{assert(}$e$\TT{)}' if
+	  \TT{MIN\_PROTECT} is defined to be \TT{1} (its default),
 	  and defined to be a no operation otherwise.  Alternatively
 	  may be defined by the compilation before
 	  \verb|#include <min.h>|.
@@ -420,29 +404,29 @@ is obtained by the functions of that interface using the
 \begin{indpar}
 \begin{tabular}{lp{4.0in}}
 \TTNBKEY{MIN\_PROTECT}	& 1 (the default)
-                          if {\tt MIN\_ASSERT} is to be mapped to
-			  the C++ \ttkey{assert} macro if {\tt MIN\_ASSERT}
-			  not otherwise defined; 0 to map {\tt MIN\_ASSERT}
+                          if \TT{MIN\_ASSERT} is to be mapped to
+			  the C++ \ttkey{assert} macro if \TT{MIN\_ASSERT}
+			  not otherwise defined; 0 to map \TT{MIN\_ASSERT}
 			  to a no operation if it is not otherwise defined.
 \LABEL{MIN_PROTECT} \\
 \end{tabular}
 \end{indpar}
 
-By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimize
+By setting \TT{MIN\_PROTECT} to \TT{0}, a compilation can optimize
 debugged code, although this will remove the protection
 provided by the protected interface.  Alternatively,
 a compilation can provide its own definition for the
-{\tt MIN\_ASSERT} macro,
+\TT{MIN\_ASSERT} macro,
 such as a definition printing extra information
 in case of an assertion failure.
 
-The above macros ({\tt MIN\_ASSERT}, {\tt MIN\_PROTECT})
+The above macros (\TT{MIN\_ASSERT}, \TT{MIN\_PROTECT})
 can be defined independently for each separately compiled
 part of a program, but most \verb|MIN_| macros must be defined identically
 for all separately compiled parts of a single program.
 
 The following are the most commonly used compiler options that
-redefine {\tt MIN\_} macros:
+redefine \TT{MIN\_} macros:
 
 \begin{indpar}
 \begin{tabular}{lll}
@@ -464,8 +448,8 @@ and have names beginning with
 `\ttmkey{min::}{in function name}', while
 unprotected MIN functions are in the \ttmkey{min::unprotected}{namespace}
 namespace and have names beginning with
-`\ttnbmkey{min::unprotected::}{in function name}'.
-The {\tt min} and {\tt min::unprotected} namespaces hold \underline{all}
+`\ttmkey{min::unprotected::}{in function name}'.
+The \TT{min} and \TT{min::unprotected} namespaces hold \underline{all}
 the stable interfaces of the MIN implementation.
 
 Code in \verb|min.h| that is not meant to be accessed
@@ -487,19 +471,19 @@ Namespace   & viation   & Use
 			  changed when the acc is changed.
 			  See Appendix \itemref{ACC}.
 \\[1ex]
-\tt min::internal & \ttnbkey{MINT}\label{MINT}
+\tt min::internal & \ttkey{MINT}\label{MINT}
 		        & Interface to internal MIN code that can
 			  be changed without notice at any time.
 			  Not described in this document; see
-			  {\tt .h} files.
+			  \TT{.h} files.
 \end{tabular}
 \end{indpar}
 
 \section{Initialization}
 
 Because C++ compilers are inconsistent in the order in which they
-call constructors for {\tt static} data, MIN initialization is
-not done until after {\tt main()} begins execution.  {\tt main()}
+call constructors for \TT{static} data, MIN initialization is
+not done until after \TT{main()} begins execution.  \TT{main()}
 should begin with either
 \begin{center}
 \tt min::initialize();
@@ -512,13 +496,13 @@ or
 Either will initialize MIN.
 
 Generally MIN out-of-line functions \underline{cannot} be called
-by constructors of {\tt static} or {\tt extern} data, because
+by constructors of \TT{static} or \TT{extern} data, because
 MIN is not initialized when these constructors execute.
 MIN constructors designed to be used by such data do not call
 MIN out-of-line functions or depend upon other MIN data being
 constructed.  The following are some of the MIN constructors
-and {\tt inline} functions that can be invoked during construction
-of {\tt static} and {\tt extern} data:
+and \TT{inline} functions that can be invoked during construction
+of \TT{static} and \TT{extern} data:
 \begin{center}
 \tt
 \begin{tabular}{l}
@@ -547,11 +531,11 @@ min::initializer my\_initializer ( ::my\_initialize ); \\
 \end{center}
 
 Immediately after MIN performs its own initialization
-it calls {\tt my\_initialize()} and other functions specified by
-{\tt min::\EOL initializer}'s.  The order in which these
+it calls \TT{my\_initialize()} and other functions specified by
+\TT{min::\EOL initializer}'s.  The order in which these
 are called is indeterminate.  These functions can call any
-MIN function and can finish initialization of {\tt static} or
-{\tt extern} data.
+MIN function and can finish initialization of \TT{static} or
+\TT{extern} data.
 
 \section{Data}
 
@@ -690,7 +674,7 @@ for optimization).
 A body may be \mkey{deallocated}{by moving}
 by moving it to unimplemented memory.  When this is done the
 stub \mkey{type code}{reset on deallocation}
-is reset to the value \minnbkey{DEALLOCATED}\LABEL{MIN::DEALLOCATED},
+is reset to the value \minkey{DEALLOCATED}\LABEL{MIN::DEALLOCATED},
 which indicates the body is deallocated.
 Deallocation is considered to be a variant of relocation.
 Relocating functions, those marked marked by {\REL} in documentation,
@@ -707,7 +691,7 @@ of 8 bytes long, and are allocated on 8 byte boundaries.
 
 \ikey{Protected functions}{protected function!using {\tt MIN\_ASSERT}}
 that take a stub pointer as argument use
-\ttnbmkey{MIN\_ASSERT}{in protected function} macros
+\ttmkey{MIN\_ASSERT}{in protected function} macros
 (\pagref{MIN_ASSERT}) to check
 the \mkey{type code}{checked by {\tt MIN\_ASSERT}}
 of the stub and various lengths.  Unprotected functions
@@ -3249,7 +3233,7 @@ above code only works for long strings (\pagref{LONG-STRING-STUB}).
 \subsection{Numbers}
 \label{NUMBERS}
 
-A \key{number stub} is collectible, has \minnbkey{NUMBER}\LABEL{MIN::NUMBER}
+A \key{number stub} is collectible, has \minkey{NUMBER}\LABEL{MIN::NUMBER}
 stub type code, and has
 an immutable \verb|min::float64| stub value that can be read by
 
@@ -3542,7 +3526,7 @@ The {\tt min::unicode\_to\_utf8} function will output
 7-byte encodings (first byte {\tt 0xFE}) for
 UNICODE character values {\tt => 0x80000000}, and will output
 the overlong encoding {\tt 0xC0},{\tt 0x80}
-for \ttnbmkey{NUL}{UTF-8 encoding}
+for \ttmkey{NUL}{UTF-8 encoding}
 (UTF-8 in which this is the \underline{only} permitted overlong encoding
 is called `modified UTF-8').  No other overlong encodings are output.
 At most 7 bytes will be output, and
@@ -4017,7 +4001,7 @@ may be used to access the internals of short
 and long strings.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
-\minnbkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
+\minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
 an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
@@ -4048,7 +4032,7 @@ characters that can be stored in a direct string
 (\pagref{STRING-CREATION}).
 
 A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
-\minnbkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
+\minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
 a value that is a pointer to a \MUPkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 
@@ -4106,7 +4090,7 @@ and that proper labels with zero or one element not be created.  But the
 \verb|min.h| code does not do this.
 
 A \key{label stub}\label{LABEL-STUB} is collectible,
-has \minnbkey{LABEL}\LABEL{MIN::LABEL} stub type code,
+has \minkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
 The label value may be read by using {\tt min::\EOL lab\_\EOL ptr}'s:
 
@@ -4477,7 +4461,7 @@ whose sole element is the atom.
 \label{PACKED-STRUCTURES}
 
 A \key{packed structure} is a class datum stored in a body associated
-with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
+with a stub that has a \minkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
 stub type code.
 
 The class type must be similar to a C-language {\tt struct} in that:
@@ -4958,7 +4942,7 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
 A \key{packed vector} is like a packed structure but with an added vector
 that follows the structure,
-and with a \minnbkey{PACKED\_VEC}\LABEL{MIN::PACKED_VEC}
+and with a \minkey{PACKED\_VEC}\LABEL{MIN::PACKED_VEC}
 stub type code instead of a {\tt min::\EOL PACKED\_\EOL STRUCT} type code.
 
 The structure at the beginning of a packed vector
@@ -7112,15 +7096,15 @@ flags affect only certain categories of characters, which are
 defined as follows:
 
 \begin{itemlist}[0.8in]
-\item[\ttnbmkey{HSPACE}{character category}]
+\item[\ttmkey{HSPACE}{character category}]
     Horizontal Space Characters: single space, horizontal tab
-\item[\ttnbmkey{VSPACE}{character category}]
+\item[\ttmkey{VSPACE}{character category}]
     Vertical Space Characters: form feed, vertical tab
-\item[\ttnbmkey{NSPACE}{character category}]
+\item[\ttmkey{NSPACE}{character category}]
     Non-Space Control Characters: all other characters
 with codes {\tt <~0x20}, including line feed and carriage return,
 plus the delete character with code {\tt 0x7f}
-\item[\ttnbmkey{ASCII}{character category}] ASCII Characters: characters
+\item[\ttmkey{ASCII}{character category}] ASCII Characters: characters
 with codes {\tt <= 0x7F}.
 \end{itemlist}
 
@@ -7128,12 +7112,12 @@ with codes {\tt <= 0x7F}.
 
 \begin{indpar}\begin{itemlist}[0.4in]
 
-\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}%
+\item[\ttmkey{GRAPHIC\_HSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]
-\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}%
+\item[\ttmkey{GRAPHIC\_VSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}%
+\item[\ttmkey{GRAPHIC\_NSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
 ~\\
@@ -7165,7 +7149,7 @@ For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
-\item[\ttnbmkey{GRAPHIC\_FLAGS}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{GRAPHIC\_FLAGS}{in printer {\tt print\_\EOL format.flags}}]~\\
 The sum of the {\tt min::GRAPHIC\_XXX\_FLAG}'s:
 \begin{indpar}
 \tt
@@ -7174,7 +7158,7 @@ min::GRAPHIC\_VSPACE \\
 min::GRAPHIC\_NSPACE
 \end{indpar}
 
-\item[\ttnbmkey{ASCII\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{ASCII\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 Used in graphics mode to control the printing of ASCII control characters:
 see {\tt GRAPHIC\_XXX\_FLAG}'s above.
 
@@ -7204,12 +7188,12 @@ the `\key{white frowning face}%
 \index{face, white frowning}',
 \ILLEGALCHAR.
 
-\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}%
+\item[\ttmkey{ALLOW\_HSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]
-\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}%
+\item[\ttmkey{ALLOW\_VSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}%
+\item[\ttmkey{ALLOW\_NSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]%
 \vspace{-1ex}
 ~\\
@@ -7233,14 +7217,14 @@ by the empty string: i.e., they do not output anything.
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
 {\tt ALLOW\_\EOL XXX\_\EOL FLAG} has no affect.
 
-\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}%
+\item[\ttmkey{DISPLAY\_EOL\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, the end of line prints as a graphic mode control
 character, even if {\tt GRAPHIC\_\EOL NSPACE\_\EOL FLAG} is off.
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{HBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a break point is automatically set
 before every character representation that
 follows a single space or horizontal tab character,
@@ -7248,7 +7232,7 @@ except for representations of ASCII control characters in non-graphic mode
 (this includes horizontal and vertical spaces)
 and UNICODE \skey{diacritical combining mark}s in non-ASCII mode.
 
-\item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{GBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a break point is automatically set
 before every character representation
 except for representations of ASCII vertical space and non-space
@@ -7259,11 +7243,11 @@ if these are preceded by representations of ASCII horizontal control
 characters in non-graphic mode,
 and UNICODE diacritical combining marks in non-ASCII mode.
 
-\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of a {\tt min::\EOL eol} operation.
 
-\item[\ttnbmkey{FLUSH\_ID\_MAP\_FLAG}%
+\item[\ttmkey{FLUSH\_ID\_MAP\_FLAG}%
     {in printer {\tt print\_\EOL format.flags}}]~\\
 If this flag is on, a {\tt min::eom()} printer operation performs
 a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
@@ -7364,7 +7348,7 @@ in non-graphic mode with
 the {\tt min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} off,
 the horizontal tab is converted to between 1 and 8 single space characters.
 
-When a \ttnbkey{NUL} is copied into a printer file buffer, which can only happen
+When a \ttkey{NUL} is copied into a printer file buffer, which can only happen
 in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE\_\EOL FLAG} on,
 it is encoded as the overlong UTF-8 encoding {\tt 0xC0},{\tt 0x80}.
 
@@ -7739,7 +7723,7 @@ executes {\tt min::\EOL restore\_\EOL line\_\EOL break}.
 For example, suppose we print the following
 with {\tt line\_\EOL length} equal to 72:
 \begin{center}
-\tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff,~ggg~),~hhh~],~iii,~jjj~\KET
+\tt \{~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff,~ggg~),~hhh~],~iii,~jjj~\}
 \end{center}
 by using code equivalent to the statement:
 \begin{indpar}\begin{verbatim}
@@ -7766,19 +7750,19 @@ print as
 \begin{center}
 \tt
 \begin{tabular}{l}
-\BRA~aaa,~bbb, \\
+\{~aaa,~bbb, \\
 ~~[~ccc,~ddd,~eee,~(~fff,~ggg~), \\
-~~~~hhh~],~iii,~jjj~\KET \\
+~~~~hhh~],~iii,~jjj~\} \\
 \end{tabular}
 \end{center}
 
 After printing the 34 characters
 \begin{center}
-\tt \BRA~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff
+\tt \{~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff
 \end{center}
 a line break is triggered just before printing the `{\tt ,}' following
 `{\tt fff}'.  The first element in the line break stack was pushed
-just after printing `{\tt \BRA~}'% }
+just after printing `{\tt \{~}'% }
 and is disabled as it is at the beginning of the line.
 The second element was pushed just after printing `{\tt [~}' and is
 enabled, so it is used, and in the process it is disabled.
@@ -7786,7 +7770,7 @@ At this point the output is
 \begin{center}
 \tt
 \begin{tabular}{l}
-\BRA~aaa,~bbb, \\
+\{~aaa,~bbb, \\
 ~~[~ccc,~ddd,~eee,~(~fff \\
 \end{tabular}
 \end{center}
@@ -8353,16 +8337,16 @@ is as follows:
 
 \begin{indpar}[0.1in]\begin{itemlist}[0.4in]
 
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
+\item[\ttmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
 printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
 
-\item[\ttnbkey{BRACKET\_STR\_FLAG}]
-\item[\ttnbkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
-\item[\ttnbkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
+\item[\ttkey{BRACKET\_STR\_FLAG}]
+\item[\ttkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
 These flags enable use of the following {\tt gen\_\EOL format}
 members which are described below:
 \begin{center}
@@ -8383,7 +8367,7 @@ members which are described below:
 \end{tabular}
 \end{center}
 
-\item[\ttnbkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
+\item[\ttkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
 This flag suppresses use of the
 {\tt special\_\EOL names} member
 of {\tt gen\_\EOL format}, described below, to
@@ -8404,11 +8388,11 @@ then the value prints as
 
 Otherwise the value prints as `{\tt SPECIAL(i)}'.
 
-\item[\ttnbkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
-\item[\ttnbkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
+\item[\ttkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
+\item[\ttkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
 See {\tt surpress\_matrix} below.
 
-\item[\ttnbmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
+\item[\ttmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set and if all attributes of an object have names listed in
 {\tt exp\_\EOL ok\_\EOL attrs} (see below), then the object is
 printed as an expression.  In this case attributes other than
@@ -8424,14 +8408,14 @@ printed unwrapped; for example,
 prints as
 \verb|"foo"|.
 
-\item[\ttnbmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+\item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, and if an object is not being printed as an expression as
 per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
 then an identifier i will be allocated for the object
 in {\tt printer->\EOL id\_\EOL map} and the object will be
 printed as `{\tt @}i'.
 
-\item[\ttnbmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
+\item[\ttmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
 This flag controls how an object is printed if the
 {\tt OBJ\_\EOL EXP\_\EOL FLAG} and
 {\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
@@ -8467,7 +8451,7 @@ at the end of the XXX.
 
 See \pagref{GEN-OBJ-FORM} for more details.
 
-\item[\ttnbmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, {\tt min::gen} string values that have length greater
 than {\tt str\_\EOL max\_\EOL length} (see below)
 have an identifier i allocated
@@ -8597,10 +8581,10 @@ is as follows:
     \MINKEY{default\_\EOL suppress\_\EOL matrix}
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \verb|    // All entries false except:|\\
-\verb|    //     [B][.] for B == '(', '[', '{', '|\LACCENT
+\verb|    //     [B][.] for B == '(', '[', '{', '|\TT{\`~}
                                        \verb|', 0xA8 (|\LAQUOTE\verb|)| \\
 \verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
-				       \verb|), 0xB4 (|\RACCENT
+				       \verb|), 0xB4 (|\TT{\'~}
 				       \verb|),| \\
 \verb|    //                     ',', ';'| \\
 \verb|    //     [B]['\''] for B not a letter| \\
@@ -8655,7 +8639,7 @@ for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
 These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
 and none of these three members is {\tt NULL}.
 
-The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
+The {\tt str\_\EOL \{pre,post\} fix} members are printed just before and
 just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
 
@@ -8676,7 +8660,7 @@ when that is printed just after the {\tt min::gen} string is printed).
 These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
 and none of these three members is {\tt NULL}.
 
-The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
+The {\tt lab\_\EOL \{pre,post\} fix} members are printed just before and
 just after the elements of a label {\tt min::gen} value,
 and the {\tt lab\_\EOL separa\-tor} member
 is printed between elements.  Note that the {\tt lab\_\EOL sep\-ara\-tor}
@@ -8688,7 +8672,7 @@ elements.
 These members are only enabled if {\tt BRACKET\_\EOL SPECIAL\_\EOL FLAG} is on
 and neither of these two members is {\tt NULL}.
 
-The {\tt special\_\EOL \BRA pre,post\KET fix}
+The {\tt special\_\EOL \{pre,post\} fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
@@ -9500,10 +9484,10 @@ applied to an object returns one of the following:
 
 \begin{center}
 \begin{tabular}{l}
-\ttnbkey{TINY\_OBJ}\LABEL{MIN::TINY_OBJ} \\
-\ttnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} \\
-\ttnbkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} \\
-\ttnbkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
+\ttkey{TINY\_OBJ}\LABEL{MIN::TINY_OBJ} \\
+\ttkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} \\
+\ttkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} \\
+\ttkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
 \end{tabular}
 \end{center}
 
@@ -9738,7 +9722,7 @@ does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
 
 An object has two flags that regulate the creation of vector level
-pointers: \minnbkey{OBJ\_PRIVATE} and \minnbkey{OBJ\_PUBLIC}.
+pointers: \minkey{OBJ\_PRIVATE} and \minkey{OBJ\_PUBLIC}.
 If an object has neither of these flags, an object vector pointer
 to the object may be created, and this will set the \verb|min::OBJ_PRIVATE|
 flag.  When the object vector pointer is destructed, this flag will be cleared.
@@ -11330,11 +11314,11 @@ A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
-Any stub pointer to an object auxiliary stub of type \minnbkey{LIST\_AUX}
+Any stub pointer to an object auxiliary stub of type \minkey{LIST\_AUX}
 is treated as a list auxiliary pointer.  Such stub pointers may be stored in
 auxiliary area \verb|min::gen| values or in auxiliary stub controls.
 
-Any stub pointer to an object auxiliary stub of type \minnbkey{SUBLIST\_AUX}
+Any stub pointer to an object auxiliary stub of type \minkey{SUBLIST\_AUX}
 is treated as a sublist auxiliary pointer.  Such stub pointers may be stored in
 auxiliary area \verb|min::gen| values or in auxiliary stub \verb|min::gen|
 values.
@@ -11343,7 +11327,7 @@ Thus the following rules are obeyed:
 
 \begin{indpar}
 
-{\bf \minnbkey{LIST\_AUX} stubs}.
+{\bf \minkey{LIST\_AUX} stubs}.
 A \verb|min::gen| value that points at a stub $S$
 of type {\tt min::\EOL LIST\_\EOL AUX} is the equivalent of a list auxiliary
 pointer pointing at the list element that is stub $S$'s value.
@@ -11354,7 +11338,7 @@ must point at an object auxiliary stub $S$ of type \verb|min::LIST_AUX| and the
 control is the equivalent of a list auxiliary pointer pointing at
 the list element that is stub $S$'s value.
 
-{\bf \minnbkey{SUBLIST\_AUX} stubs}.
+{\bf \minkey{SUBLIST\_AUX} stubs}.
 A \verb|min::gen| value that points at
 a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
 is the equivalent of a sublist auxiliary
@@ -17067,7 +17051,7 @@ This code division is intended to make it easy to port MIN to different
 operating systems by placing all the code that must be
 changed in the small \verb|src/min_os.cc| file.
 \verb|min::os| is commonly abbreviated to
-`\ttnbmkey{MOS}{abbreviates {\tt min::os}}'\label{MOS}
+`\ttmkey{MOS}{abbreviates {\tt min::os}}'\label{MOS}
 by including the following definition in code that accesses
 the interface:
 
@@ -17081,7 +17065,7 @@ following is an overview.
 \subsection{Configuration Parameters}
 \label{CONFIGURATION-PARAMETERS}
 
-In UNIX the \ttnbkey{MIN\_CONFIG} environment variable value consists
+In UNIX the \ttkey{MIN\_CONFIG} environment variable value consists
 of whitespace separated entries of the form `{\em name}\verb|=|{\em value}'
 that specify configuration parameters, most of which control the
 Allocator/Collector/Compactor.
@@ -17100,7 +17084,7 @@ which is faster than copying bytes.
 \section{Allocator/Collector/Compactor}
 \label{ALLOCATOR/COLLECTOR/COMPACTOR}\label{ACC}
 
-The \key{Allocator/Collector/Compactor}, or \ttnbkey{acc}, 
+The \key{Allocator/Collector/Compactor}, or \ttkey{acc}, 
 is a replaceable component of the MIN code, which should not
 normally be accessed directly.  It can be controlled by parameters
 passed to the program (see Configuration Parameters,
@@ -17109,7 +17093,7 @@ provided at compile time in \verb|min_acc_parameters.h|.
 Documentation for these parameters is in this last file.
 The acc code is in the 
 \verb|min::acc| namespace which is abbreviated to
-`\ttnbmkey{MACC}{abbreviates {\tt min::acc}}'\label{MACC}
+`\ttmkey{MACC}{abbreviates {\tt min::acc}}'\label{MACC}
 by including the following definition in acc code:
 
 \begin{center}
