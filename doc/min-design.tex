@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 3, 2014}
+\date{April 5, 2014}
  
 \maketitle
 
@@ -372,7 +372,7 @@ by including the following definition:
 
 In this document we will use the abbreviation `\TT{MUP}' for
 `\TT{min::unprotected}'.
-Note that namespace definitions such as the above are \underline{not}
+Note that namespace \TT{\#define}'s such as the above are \underline{not}
 included in \TT{min.h} or other MIN \TT{.h} files; they must
 be included explicitly in \TT{.cc} files.
 
@@ -396,7 +396,7 @@ is obtained by the functions of that interface using the
 \TTNBKEY{MIN\_ASSERT}\TT{(}$e$\TT{)}
 	& By default defined as `\TT{assert(}$e$\TT{)}' if
 	  \TT{MIN\_PROTECT} is defined to be \TT{1} (its default),
-	  and defined to be a no operation otherwise.  Alternatively
+	  and defined to be a no-operation otherwise.  Alternatively
 	  may be defined by the compilation before
 	  \TT{\#include <min.h>}.
 \LABEL{MIN_ASSERT}
@@ -408,7 +408,7 @@ is obtained by the functions of that interface using the
                           if \TT{MIN\_ASSERT} is to be mapped to
 			  the C++ \ttkey{assert} macro if \TT{MIN\_ASSERT}
 			  not otherwise defined; 0 to map \TT{MIN\_ASSERT}
-			  to a no operation if it is not otherwise defined.
+			  to a no-operation if it is not otherwise defined.
 \LABEL{MIN_PROTECT} \\
 \end{tabular}
 \end{indpar}
@@ -456,7 +456,7 @@ the stable interfaces of the MIN implementation.
 Code in \TT{min.h} that is not meant to be accessed
 by users is in the following namespaces:
 
-\begin{indpar}
+\begin{indpar}[0.1in]
 \begin{tabular}{llp{4.0in}}
 	    & Abbre- \\
 Namespace   & viation   & Use
@@ -491,7 +491,7 @@ should begin with either
 \end{center}
 or
 \begin{center}
-\tt min::interrupt();
+\tt min::interrupt\REL();
 \end{center}
 
 Either will initialize MIN.
@@ -525,9 +525,8 @@ declared by including the following in a translation unit:
 \begin{center}
 \tt
 \begin{tabular}{l}
-void my\_initialize ( void ) \\
-{ ... } \\
-min::initializer my\_initializer ( ::my\_initialize ); \\
+static void my\_initialize ( void ) \{~...~\} \\
+static min::initializer my\_initializer ( ::my\_initialize ); \\
 \end{tabular}
 \end{center}
 
@@ -654,7 +653,7 @@ and their names are marked by the superscript
 \subsmkey{R}{of function} in this document.  Included
 are functions that allocate objects.
 Obtaining a C++ pointer into a body is an unprotected operation, because
-the pointer must be maintained if a relocating function is called.
+the pointer must be updated if a relocating function is called.
 
 \ikey{Interrupts}{interrupt!and relocation} can relocate bodies.
 Therefore interrupts are only allowed
@@ -681,7 +680,7 @@ Deallocation is considered to be a variant of relocation.
 Relocating functions, those marked marked by {\REL} in documentation,
 may also deallocate objects.
 
-Deallocation is done by the \TT{min::\EOL deallocate}
+Deallocation is done by the \TT{min::\EOL deallocate\REL}
 function (\pagref{MIN::DEALLOCATE}) and testing to see if a 
 a body has been deallocated is done by the
 \TT{min::is\_deallocated} function
@@ -781,7 +780,7 @@ desired effect, \TT{min::\EOL gen} constants are represented by
 \TT{inline} functions, which allows the optimizing compiler 
 to insert the constants directly into instructions.  Thus
 we have the constant \TT{min::\EOL MISSING()}, a function call
-with no arguments, \underline{instead of} \TT{min::\EOL MISSING()}, a datum.
+with no arguments, \underline{instead of} \TT{min::\EOL MISSING}, a datum.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -850,23 +849,23 @@ Here {\COMPACT} subtypes are only implemented by compact
 implementations, and {\LOOSE} subtypes are only implemented by
 loose implementations (\pagref{COMPACT-OR-LOOSE}).
 
-Numbers and character strings stored inside a \verb|min::gen| value are
+Numbers and character strings stored inside a \TT{min::gen} value are
 called `\skey{direct atom}s\,'.  Numbers and character strings
 stored in stubs or bodies which are pointed at by a
-\verb|min::gen| value are called `\skey{indirect atom}s'.  An atom is
+\TT{min::gen} value are called `\skey{indirect atom}s'.  An atom is
 always stored in only one way by an implementation.  If a number will fit
 into a direct atom, it is stored as a direct atom, and never as an
 indirect atom.  Similarly if a character string will fit into a direct atom,
 it is stored as a direct atom, and never as an indirect atom.
 
 Analogously indirect atoms are stored in only one place in memory, so
-two indirect numbers are equal if and only the \verb|min::gen| values
+two indirect numbers are equal if and only the \TT{min::gen} values
 pointing at them point at the same place, and similarly
 two indirect character strings are equal if and only
-the \verb|min::gen| values pointing at them point at the same place.
+the \TT{min::gen} values pointing at them point at the same place.
 
-Therefore two atoms are equal if and only if the \verb|min::gen| values
-designating them are \verb|==| as 32-bit or 64-bit values.
+Therefore two atoms are equal if and only if the \TT{min::gen} values
+designating them are \TT{==} as 32-bit or 64-bit values.
 
 General values that point at stubs hold stub addresses in a
 packed format.  44 bits are available to store a stub address in a
@@ -877,9 +876,8 @@ direct integers, direct strings,
 auxiliary pointers, indices, control codes, and special
 values).  There are three
 \skey{stub address packing scheme}s,\label{STUB-ADDRESS-PACKING} and the fastest
-is selected for each type of general value.  The scheme selection is
-controlled by the following `\skey{stub address packing parameter}\,'
-macros:
+is selected for each type of general value according to the settings of
+the following `\skey{stub address packing parameter}\,' macros:
 
 \begin{indpar}\begin{tabular}{lp{3.0in}}
 \TTNBKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
@@ -978,7 +976,7 @@ and for direct string general values the datum holds 0-5 \TT{char}'s.
 
 The \TT{min::gen} type has the alignment
 properties of either \TT{min::uns32} or \TT{min::uns64},
-and \verb|min::|\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
+and \TT{min::}\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
 of these two types.
 
 Many \TT{min::gen} values, which are 32 or 64 bits, are divided into a subtype,
@@ -1010,7 +1008,7 @@ The following definitions are provided in \TT{min.h} to facilitate coding:
 \end{tabular}
 \end{indpar}
 
-\verb|min::unsgen| is typedef'ed to
+\TT{min::unsgen} is typedef'ed to
 \TT{min::uns32}\COMPACT or \TT{min::uns64}\LOOSE.
 \TT{MUP::\EOL new\_\EOL gen} and \TT{MUP::\EOL value\_of} are
 unprotected converters between \TT{min::\EOL unsgen} and \TT{min::\EOL gen}
@@ -1024,9 +1022,9 @@ include \TT{min::\EOL gen} values in C++ \TT{union}'s, but
 \TT{min::\EOL unsgen} values can be included instead and converted
 using the unprotected converters.
 
-\verb|TSIZE| is the subtype size in bits;
+\TT{TSIZE} is the subtype size in bits;
 equal to \TT{8}\COMPACT or \TT{24}\LOOSE.
-\verb|VSIZE| is the value size in bits;
+\TT{VSIZE} is the value size in bits;
 equal to \TT{24}\COMPACT or \TT{40}\LOOSE.
 
 \subsubsection{General Value Compilation}
@@ -1066,7 +1064,7 @@ the above macro settings are:
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
-				  Must equal `\verb|! MIN_IS_COMPACT|\,'.
+				  Must equal `{\tt !~MIN\_IS\_COMPACT}\,'.
 \LABEL{MIN_IS_LOOSE}
 \end{tabular}
 \end{indpar}
@@ -1077,12 +1075,12 @@ the above macro settings are:
 				  exist in \underline{any} execution
 				  of the compiled binary.  Defaults: \\
 & \hspace*{1em}\begin{tabular}{ll}
-if \verb|MIN_IS_COMPACT| = 1:	& $2^{28} - 2^{25}$ \\
+if {\tt MIN\_IS\_COMPACT} = 1:	& $2^{28} - 2^{25}$ \\
 else pointers are 32 bits:	& $2^{28}$ \\
 else:				& $2^{40-4e}$ \\
 \end{tabular} \\
 & where \\
-& ~~$e = max(0,\mbox{\TT{MIN\_MAX\_EPHEMERAL\_LEVELS}}-2)$.
+& ~~$e = max(0,\mbox{{\tt MIN\_MAX\_EPHEMERAL\_LEVELS}}-2)$.
 \LABEL{MIN_MAX_NUMBER_OF_STUBS}
 \end{tabular}
 \end{indpar}
@@ -1092,23 +1090,23 @@ else:				& $2^{40-4e}$ \\
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
           this must be a non-negative integer constant.  Defaults to
-	  \verb|0| if \verb|MIN_MAX_NUMBER_OF_STUBS| is set by
+	  \TT{0} if {\tt MIN\_MAX\_NUMBER\_OF\_STUBS} is set by
 	  default, and otherwise is left undefined.
 \LABEL{MIN_STUB_BASE}
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}p{2.5in}p{3.0in}@{}}
-\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
+\begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
+\multicolumn{2}{l}{\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}} \\
 	& The maximum address of any stub relative to the `stub base' (address
 	  of the first stub), as an unsigned integer constant.  Default: \\
-	& ~~\verb|16*MIN_MAX_NUMBER_OF_STUBS - 1|.
+	& ~~{\tt 16*MIN\_MAX\_NUMBER\_OF\_STUBS - 1}.
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS}
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}p{2.5in}p{3.0in}@{}}
-\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
+\begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
+\multicolumn{2}{l}{\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}} \\
 	& The maximum absolute address of any stub.  Defaults: \\
 	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
 	& ~~~~~~~~ \verb|  MIN_STUB_BASE| \\
@@ -11092,7 +11090,7 @@ The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
 \verb|p[0]| is inserted into the list before \verb|p[1]|, etc.
 If \verb|n=0| elements are to be inserted, both insert
-functions are no operations.
+functions are no-operations.
 
 To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST()}, then
 position the pointer to the sublist and use
