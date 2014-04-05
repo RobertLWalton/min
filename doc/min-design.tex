@@ -7,6 +7,7 @@
 \documentclass[12pt]{article}
 
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{makeidx}
 \usepackage{pictex}
 \usepackage{upquote}
@@ -369,11 +370,11 @@ by including the following definition:
 \verb|#define  MUP  min::unprotected|
 \end{center}
 
-In this document we will use the abbreviation `\verb|MUP|' for
-`\verb|min::unprotected|'.
+In this document we will use the abbreviation `\TT{MUP}' for
+`\TT{min::unprotected}'.
 Note that namespace definitions such as the above are \underline{not}
-included in \verb|min.h| or other MIN \verb|.h| files; they must
-be included explicitly in \verb|.cc| files.
+included in \TT{min.h} or other MIN \TT{.h} files; they must
+be included explicitly in \TT{.cc} files.
 
 Most \TT{MUP} functions `produce \key{undefined results}' when their arguments
 are out of legal range.
@@ -397,7 +398,7 @@ is obtained by the functions of that interface using the
 	  \TT{MIN\_PROTECT} is defined to be \TT{1} (its default),
 	  and defined to be a no operation otherwise.  Alternatively
 	  may be defined by the compilation before
-	  \verb|#include <min.h>|.
+	  \TT{\#include <min.h>}.
 \LABEL{MIN_ASSERT}
 \end{tabular}
 \end{indpar}
@@ -422,7 +423,7 @@ in case of an assertion failure.
 
 The above macros (\TT{MIN\_ASSERT}, \TT{MIN\_PROTECT})
 can be defined independently for each separately compiled
-part of a program, but most \verb|MIN_| macros must be defined identically
+part of a program, but most \TT{MIN\_} macros must be defined identically
 for all separately compiled parts of a single program.
 
 The following are the most commonly used compiler options that
@@ -431,9 +432,9 @@ redefine \TT{MIN\_} macros:
 \begin{indpar}
 \begin{tabular}{lll}
 Macro Name		& Meaning	& Page Reference \\[1ex]
-\verb|-DMIN_PROTECT=0|	& delete assert checks
+\TT{-DMIN\_PROTECT=0}	& delete assert checks
 					& \pagref{MIN_PROTECT} \\
-\verb|-DMIN_IS_COMPACT=1|
+\TT{-DMIN\_IS\_COMPACT=1}
 			& make implementation compact
 					& \pagref{MIN_IS_COMPACT} \\
 \end{tabular}
@@ -452,7 +453,7 @@ namespace and have names beginning with
 The \TT{min} and \TT{min::unprotected} namespaces hold \underline{all}
 the stable interfaces of the MIN implementation.
 
-Code in \verb|min.h| that is not meant to be accessed
+Code in \TT{min.h} that is not meant to be accessed
 by users is in the following namespaces:
 
 \begin{indpar}
@@ -460,18 +461,18 @@ by users is in the following namespaces:
 	    & Abbre- \\
 Namespace   & viation   & Use
 \\[1ex]
-\tt min::os & \tt MOS	& Operating system independent interface to
+\TT{min::os} & \TT{MOS}	& Operating system independent interface to
 			  operating system functions
 			  not covered by C++ standards.
 			  See Appendix \itemref{MOS}.
 \\[1ex]
-\tt min::acc & \tt MACC & The part of the interface to the
+\TT{min::acc} & \TT{MACC} & The part of the interface to the
 			  Allocator/\EOL Collector/\EOL Compactor
 			  that can be
 			  changed when the acc is changed.
 			  See Appendix \itemref{ACC}.
 \\[1ex]
-\tt min::internal & \ttkey{MINT}\label{MINT}
+\TT{min::internal} & \ttkey{MINT}\label{MINT}
 		        & Interface to internal MIN code that can
 			  be changed without notice at any time.
 			  Not described in this document; see
@@ -599,7 +600,7 @@ whose type is the base class.
 Care is taken to use these first two assumptions when defining
 MIN data this may be input or output in binary form.
 Some checks on these assumptions are programmed into MIN
-initialization routines using C++ `assert' statements.
+initialization routines using C++ `\TT{assert}' statements.
 
 Third, it is assumed that a class containing just one element
 that is a number or pointer is just as efficient in optimized
@@ -628,16 +629,16 @@ strings) do not.
 A stub is divided into an 8 byte \key{stub value}
 and an 8 byte \key{stub control}.
 The stub value can be a 64-bit IEEE floating point number,
-an 8 {\tt char} string, or, as we will soon see, a pointer to a body.
+an 8 \TT{char} string, or, as we will soon see, a pointer to a body.
 It is also possible for a stub value to hold any other 8 bytes of information.
 
 The stub control holds a 1 byte \key{type code} and other information used,
 for example, by the allocator/collector/compactor (acc).
 
 The type name of a stub is `\minkey{stub}', and a pointer to a stub
-has type `\verb|min::stub *|'.\LABEL{MIN::STUB}
-Protected functions can return `\verb|const min::stub *|' values,
-but only unprotected functions can return `\verb|min::stub *|' values.
+has type `\TT{min::stub *}'.\LABEL{MIN::STUB}
+Protected functions can return `\TT{const min::stub *}' values,
+but only unprotected functions can return `\TT{min::stub *}' values.
 
 A \key{body} is a variable sized
 \ttmkey{relocatable}{body}\label{RELOCATABLE-BODY}
@@ -667,7 +668,7 @@ at specific points in the code.  The inline function
 
 checks an interrupt
 flag, and if that is set, calls an out-of-line function to process
-the interrupt.  The function returns {\tt true} if and only if
+the interrupt.  The function returns \TT{true} if and only if
 there was actually an interrupt (this should be used only
 for optimization).
 
@@ -680,10 +681,10 @@ Deallocation is considered to be a variant of relocation.
 Relocating functions, those marked marked by {\REL} in documentation,
 may also deallocate objects.
 
-Deallocation is done by the {\tt min::\EOL deallocate}
+Deallocation is done by the \TT{min::\EOL deallocate}
 function (\pagref{MIN::DEALLOCATE}) and testing to see if a 
 a body has been deallocated is done by the
-{\tt min::is\_deallocated} function
+\TT{min::is\_deallocated} function
 (\pagref{MIN::IS_DEALLOCATED}).
 
 Bodies are always some multiple
@@ -759,28 +760,28 @@ interpretations in different contexts.
 For example, see `Attribute Flags', \pagref{ATTRIBUTE-FLAGS}.
 
 A \key{special value} is a unique value that has some
-special meaning.  \verb|min::MISSING()|, for example, is a special
+special meaning.  \TT{min::MISSING()}, for example, is a special
 value that may be input or output to indicate that data is missing,
-and \verb|min::NONE()| is a special value used only to
+and \TT{min::NONE()} is a special value used only to
 indicate that a function argument or result does not exist.
 See \itemref{SPECIAL-VALUES}.
 
-The \verb|min::|\MINKEY{gen}\LABEL{MIN::GEN}
+The \TT{min::}\MINKEY{gen}\LABEL{MIN::GEN}
 type is defined as a C++ class that
-consists of a single {\tt private} element of type
-\verb|min::|\MINKEY{unsgen}, which is an unsigned integer.
-From the point of view of C++ type checking, a {\tt min::\EOL gen}
+consists of a single \TT{private} element of type
+\TT{min::}\MINKEY{unsgen}, which is an unsigned integer.
+From the point of view of C++ type checking, a \TT{min::\EOL gen}
 value is a class, but from the computational point of view it is
 an unsigned integer.
 
-Because \verb|min::gen| is a class type, it is not possible to
-present {\tt min::\EOL gen} constants to the compiler for use in
+Because \TT{min::gen} is a class type, it is not possible to
+present \TT{min::\EOL gen} constants to the compiler for use in
 optimized code in a completely straightforward way.  To get the
-desired effect, {\tt min::\EOL gen} constants are represented by
-{\tt inline} functions, which allows the optimizing compiler 
+desired effect, \TT{min::\EOL gen} constants are represented by
+\TT{inline} functions, which allows the optimizing compiler 
 to insert the constants directly into instructions.  Thus
-we have the constant {\tt min::\EOL MISSING()}, a function call
-with no arguments, \underline{instead of} {\tt min::\EOL MISSING()}, a datum.
+we have the constant \TT{min::\EOL MISSING()}, a function call
+with no arguments, \underline{instead of} \TT{min::\EOL MISSING()}, a datum.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -789,12 +790,12 @@ a loose implementation uses 64-bit general values.
 An implementation cannot use both 32-bit and 64-bit general values;
 the implementation must use one or the other.
 
-The 64-bit loose implementation formats a {\tt min::\EOL gen}
+The 64-bit loose implementation formats a \TT{min::\EOL gen}
 value as an IEEE floating point number, using the NaN (Not-a-Number)
-values to encode non-numeric {\tt min::\EOL gen} values, such as
+values to encode non-numeric \TT{min::\EOL gen} values, such as
 pointers to stubs.  Thus
-in the loose implementation {\tt min::\EOL float64} values are
-stored verbatim in {\tt min::\EOL gen} values.
+in the loose implementation \TT{min::\EOL float64} values are
+stored verbatim in \TT{min::\EOL gen} values.
 
 Some functions and constants are defined only for compact implementations,
 and some only for loose implementations.  Those defined only for
@@ -831,8 +832,8 @@ subtypes;
 a pointer to a stub \\
 a 64-bit IEEE floating point direct number atom\LOOSE \\
 a 28-bit direct integer atom\COMPACT \\
-a 0-5 {\tt char} direct string atom\LOOSE \\
-a 0-3 {\tt char} direct string atom\COMPACT \\
+a 0-5 \TT{char} direct string atom\LOOSE \\
+a 0-3 \TT{char} direct string atom\COMPACT \\
 a VSIZE-bit index \\
 a VSIZE-bit control code \\
 a VSIZE-bit special value \\
@@ -901,7 +902,7 @@ just a matter of inserting the stub address into the low order 44 bits
 of the value.  For 32 bit general values this is just a matter of
 using the stub address as the general value.
 This scheme can be used if
-{\tt MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+\TT{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
@@ -918,7 +919,7 @@ stub absolute address = stub base + stub relative address
 where `stub base' is a constant determined when the program is
 initialized.
 This scheme can be used if
-{\tt MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+\TT{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
@@ -931,7 +932,7 @@ the stub length is 16, the relative address can be 16 times larger
 for the stub index packing scheme than it is for the stub relative address
 packing scheme.
 Thus the index scheme can be used if
-{\tt MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS/16}
+\TT{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS/16}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
@@ -943,8 +944,8 @@ so only the absolute stub address scheme should be used on such machines.
 
 A 32-bit general value direct integer consists of a high order 4-bit
 subtype code and a low order 28-bit signed integer stored in offset form,
-so the true integer can be derived from the {\tt min::gen} value by
-subtracting the {\tt min::gen} representation of zero.
+so the true integer can be derived from the \TT{min::gen} value by
+subtracting the \TT{min::gen} representation of zero.
 The range of such a direct integer is the same as the range of a 28-bit
 two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
@@ -958,14 +959,14 @@ For index and special values the datum is a 24-bit index.
 For control code general values the datum is 24-bits that
 contains flags and codes that have different interpretations in different
 contexts.  And for direct string general values the datum
-holds 0 to 3 8-bit {\tt char}'s.
+holds 0 to 3 8-bit \TT{char}'s.
 
 For 64-bit general values that point at stubs, the high order 20 bits
 are used as a subtype code.  For other 64-bit general values, the high
 order 24 bits are the subtype code and the low order 40 bits are the datum.
 The values chosen for these subtype codes make stub pointers, direct strings,
 auxiliary pointers, indices, and control codes -- that is, all non-number
-{\tt min::gen} values --
+\TT{min::gen} values --
 into IEEE Nan (Not-a-Number)
 values that are never generated by hardware instructions.
 
@@ -973,18 +974,18 @@ For most auxiliary pointer general values the 40-bit datum is used to hold
 a 40-bit auxiliary pointer.
 For index and special values the datum holds a 40-bit index.
 For control code general values the datum is a 40-bit control code;
-and for direct string general values the datum holds 0-5 {\tt char}'s.
+and for direct string general values the datum holds 0-5 \TT{char}'s.
 
-The {\tt min::gen} type has the alignment
-properties of either {\tt min::uns32} or {\tt min::uns64},
-and \verb|min::|\EOL \MINKEY{unsgen} is {\tt typedef}'ed to the appropriate one
+The \TT{min::gen} type has the alignment
+properties of either \TT{min::uns32} or \TT{min::uns64},
+and \verb|min::|\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
 of these two types.
 
-Many {\tt min::gen} values, which are 32 or 64 bits, are divided into a subtype,
+Many \TT{min::gen} values, which are 32 or 64 bits, are divided into a subtype,
 either 8 or 24 bits, and a datum, either 24 or 40 bits.  In this context the
-datum is called the `\mkey{value}{part of a {\tt min::gen} value}'.
+datum is called the `\mkey{value}{part of a \TT{min::gen} value}'.
 
-The following definitions are provided in {\tt min.h} to facilitate coding:
+The following definitions are provided in \TT{min.h} to facilitate coding:
 
 \begin{indpar}
 \begin{tabular}{r@{}l}
@@ -1010,23 +1011,23 @@ The following definitions are provided in {\tt min.h} to facilitate coding:
 \end{indpar}
 
 \verb|min::unsgen| is typedef'ed to
-{\tt min::uns32}\COMPACT or {\tt min::uns64}\LOOSE.
-{\tt MUP::\EOL new\_\EOL gen} and {\tt MUP::\EOL value\_of} are
-unprotected converters between {\tt min::\EOL unsgen} and {\tt min::\EOL gen}
+\TT{min::uns32}\COMPACT or \TT{min::uns64}\LOOSE.
+\TT{MUP::\EOL new\_\EOL gen} and \TT{MUP::\EOL value\_of} are
+unprotected converters between \TT{min::\EOL unsgen} and \TT{min::\EOL gen}
 values.
 
-{\tt min::\EOL gen (~void~)} is the default constructor that sets
-an unassigned {\tt min::\EOL gen} value so it will more likely
+\TT{min::\EOL gen (~void~)} is the default constructor that sets
+an unassigned \TT{min::\EOL gen} value so it will more likely
 trigger a fault if read by mistake.
 Note that the existence of this constructor makes it impossible to
-include {\tt min::\EOL gen} values in C++ {\tt union}'s, but
-{\tt min::\EOL unsgen} values can be included instead and converted
+include \TT{min::\EOL gen} values in C++ \TT{union}'s, but
+\TT{min::\EOL unsgen} values can be included instead and converted
 using the unprotected converters.
 
 \verb|TSIZE| is the subtype size in bits;
-equal to {\tt 8}\COMPACT or {\tt 24}\LOOSE.
+equal to \TT{8}\COMPACT or \TT{24}\LOOSE.
 \verb|VSIZE| is the value size in bits;
-equal to {\tt 24}\COMPACT or {\tt 40}\LOOSE.
+equal to \TT{24}\COMPACT or \TT{40}\LOOSE.
 
 \subsubsection{General Value Compilation}
 \label{GENERAL-VALUE-COMPILATION}
@@ -1081,7 +1082,7 @@ else pointers are 32 bits:	& $2^{28}$ \\
 else:				& $2^{40-4e}$ \\
 \end{tabular} \\
 & where \\
-& ~~$e = max(0,\mbox{\tt MIN\_MAX\_EPHEMERAL\_LEVELS}-2)$.
+& ~~$e = max(0,\mbox{\TT{MIN\_MAX\_EPHEMERAL\_LEVELS}}-2)$.
 \LABEL{MIN_MAX_NUMBER_OF_STUBS}
 \end{tabular}
 \end{indpar}
@@ -1129,7 +1130,7 @@ else:				& $2^{40-4e}$ \\
 \label{GENERAL-VALUE-FUNCTIONS}
 
 General values can be assigned using the default
-{\tt =} operator and compared by the usual equality operations:
+\TT{=} operator and compared by the usual equality operations:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
@@ -1142,8 +1143,8 @@ General values can be assigned using the default
 \LABEL{MIN::!=_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The following functions return {\tt true} if a {\tt min::gen} datum is of the
-indicated subtype and {\tt false} otherwise:
+The following functions return \TT{true} if a \TT{min::gen} datum is of the
+indicated subtype and \TT{false} otherwise:
 
 \begin{indpar}
 \verb|bool min::|\MINKEY{is\_stub} \verb|( min::gen v )|
@@ -1170,13 +1171,13 @@ indicated subtype and {\tt false} otherwise:
 \LABEL{MIN::IS_AUX}
 \end{indpar}
 
-For a 32-bit general value {\tt is\_direct\_float\LOOSE} is unimplemented.
-For a 64-bit general value {\tt is\_direct\_int\COMPACT} is unimplemented.
-The {\tt min::\EOL is\_\EOL aux} function returns true if the general
+For a 32-bit general value \TT{is\_direct\_float\LOOSE} is unimplemented.
+For a 64-bit general value \TT{is\_direct\_int\COMPACT} is unimplemented.
+The \TT{min::\EOL is\_\EOL aux} function returns true if the general
 value is any auxiliary pointer (i.e., list, sublist, etc.).
 
 The following protected functions return the value appropriate for a given
-subtype, after checking the subtype with a {\tt MIN\_ASSERT} statement:
+subtype, after checking the subtype with a \TT{MIN\_ASSERT} statement:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
@@ -1205,12 +1206,12 @@ subtype, after checking the subtype with a {\tt MIN\_ASSERT} statement:
 \LABEL{MIN::INDIRECT_AUX_OF} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::stub\_of} function is unusual in that it can be applied
-to a {\tt min::\EOL gen} value that does not contain a stub pointer, and will
-return {\tt min::\EOL NULL\_\EOL STUB} in this case.  The latter is
-just {\tt NULL} type cast to a {\tt const min::\EOL stub~*} type.
-The other functions must be applied to {\tt min::\EOL gen}
-values of the right kind else a {\tt MIN\_\EOL ASSERT} failure will
+The \TT{min::stub\_of} function is unusual in that it can be applied
+to a \TT{min::\EOL gen} value that does not contain a stub pointer, and will
+return \TT{min::\EOL NULL\_\EOL STUB} in this case.  The latter is
+just \TT{NULL} type cast to a \TT{const min::\EOL stub~*} type.
+The other functions must be applied to \TT{min::\EOL gen}
+values of the right kind else a \TT{MIN\_\EOL ASSERT} failure will
 occur.
 
 Here the \verb|min::uns64| value returned by \minkey{direct\_str\_of}
@@ -1225,16 +1226,16 @@ v.u = min::direct_str_of ( g );
 cout << v.s;
 \end{verbatim}\end{indpar}
 
-The {\tt min::direct\_str\_of} function merely copies the 3 or
-5 {\tt char}'s of the {\tt min::gen} direct string value and
+The \TT{min::direct\_str\_of} function merely copies the 3 or
+5 \TT{char}'s of the \TT{min::gen} direct string value and
 appends a NUL character.
 It does this by writing an appropriate value into \verb|v.u|.
 
 The \verb|min::|\ldots\verb|_aux_of|, the \verb|min::index_of| function,
 the \verb|min::control_code_of| function,
-and the {\tt min::\EOL spec\-ial\_\EOL index\_\EOL of} function all
+and the \TT{min::\EOL spec\-ial\_\EOL index\_\EOL of} function all
 return a 24-bit\COMPACT or 40-bit\LOOSE unsigned integer as a
-{\tt min::unsgen} value.
+\TT{min::unsgen} value.
 
 The following unprotected functions return the value appropriate for a given
 subtype, \underline{without} checking the subtype:
@@ -1268,16 +1269,16 @@ subtype, \underline{without} checking the subtype:
 
 Note that \verb|MUP::stub_of| returns a `\verb|min::stub *|' pointer
 whereas \verb|min::stub_of| returns a `\verb|const min::stub *|' pointer.
-Also, if the {\tt min::\EOL gen} argument does not contain a stub pointer,
-the argument is illegal for {\tt MUP::\EOL stub\_\EOL of}, but
-it is legal for {\tt min::\EOL stub\_\EOL of} which will return
-{\tt min::\EOL NULL\_\EOL STUB}.
+Also, if the \TT{min::\EOL gen} argument does not contain a stub pointer,
+the argument is illegal for \TT{MUP::\EOL stub\_\EOL of}, but
+it is legal for \TT{min::\EOL stub\_\EOL of} which will return
+\TT{min::\EOL NULL\_\EOL STUB}.
 
-The {\tt MUP::\EOL aux\_\EOL of} function returns the auxiliary pointer
+The \TT{MUP::\EOL aux\_\EOL of} function returns the auxiliary pointer
 of any \verb|min::gen| value containing an auxiliary pointer (list,
 sublist, or indirect).
 
-New {\tt min::gen} values can be generated by the following protected
+New \TT{min::gen} values can be generated by the following protected
 functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -1309,23 +1310,23 @@ functions:
 \end{tabular}\end{indpar}
 
 These protected functions check for argument range errors.  Stubs are
-\underline{not} allocated by these functions, so an {\tt int}
-argument to {\tt min::new\_direct\_int\_gen\COMPACT} must fit in 28 bits,
-and the {\tt const char *} strings must be short enough to
-fit into a direct string.  For {\tt min::new\_\EOL direct\_\EOL str\_\EOL gen}
+\underline{not} allocated by these functions, so an \TT{int}
+argument to \TT{min::new\_direct\_int\_gen\COMPACT} must fit in 28 bits,
+and the \TT{const char *} strings must be short enough to
+fit into a direct string.  For \TT{min::new\_\EOL direct\_\EOL str\_\EOL gen}
 with a second argument \verb|n|, a string longer than \verb|n| characters
 is shortened to \verb|n| characters (analogously to \verb|strncpy| and
 \verb|strncmp|).
-The {\tt min::unsgen} arguments used to make auxiliary pointers, indices,
-control codes, and special values must fit within {\tt min::VSIZE} bits.
+The \TT{min::unsgen} arguments used to make auxiliary pointers, indices,
+control codes, and special values must fit within \TT{min::VSIZE} bits.
 
-The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
+The subtype codes used for 64-bit \TT{min::gen} direct string, stub pointer,
 auxiliary pointer, index, control code, and special values
 -- that is, all the non-numeric \verb|min::gen| values --
 are chosen to avoid being the same as the high order bits of any
 IEEE floating point number normally generated by the compiler,
-run-time system, or program execution.  A {\tt min::float64}
-input to {\tt min::new\_direct\_\EOL float\_\EOL gen} is assumed not to have
+run-time system, or program execution.  A \TT{min::float64}
+input to \TT{min::new\_direct\_\EOL float\_\EOL gen} is assumed not to have
 these subtype
 codes, and no check is made for such, even by range-checking protected
 functions.
@@ -1376,7 +1377,7 @@ in a general value, or the flags in a condition code.
 
 The actual direct atom, stub pointer, auxiliary pointer, index,
 and control code
-{\tt min::gen} subtype codes
+\TT{min::gen} subtype codes
 are implementation dependent.  The following constants equal these
 subtype codes:
 
@@ -1429,58 +1430,58 @@ part of the subtype code (similarly the 32-bits are right shifted by
 value is not a legal general value.
 
 There are also unprotected functions to convert between
-{\tt min::\EOL gen} and {\tt min::\EOL unsgen} values:
+\TT{min::\EOL gen} and \TT{min::\EOL unsgen} values:
 see \pagref{MUP::NEW_GEN}.
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
 
 Special general values are \verb|min::gen| values that are unique
-and not equal to any non-special {\tt min::\EOL gen}
+and not equal to any non-special \TT{min::\EOL gen}
 value that can be generated during
-program execution.  Special general values are C/C++ {\tt const}
+program execution.  Special general values are C/C++ \TT{const}
 values, and must only be used as specified by documentation.
 They are used as return or argument values by some functions.
 
-For reasons given below, special values are defined by {\tt inline}
+For reasons given below, special values are defined by \TT{inline}
 functions of no-arguments.
 The special values defined by MIN are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const min::gen min::}\MINNBKEY{MISSING()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{MISSING()}]~%
 	\LABEL{MIN::MISSING}\\
 Denotes a missing value or an empty set of values, and may be input
 or output and used as an attribute value.
-\item[{\tt const min::gen min::}\MINNBKEY{NONE()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{NONE()}]~%
 	\LABEL{MIN::NONE}\\
 Denotes a non-existent function value or result, but may \underline{not} be
 input or output or used in an attribute value or label.  May be used
 as a function argument or return value.
-\item[{\tt const min::gen min::}\MINNBKEY{ANY()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
 An argument value used to specify that any value from a set of values may be
 used or returned.
-\item[{\tt const min::gen min::}\MINNBKEY{MULTI\_VALUED()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{MULTI\_VALUED()}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 A value returned to indicate that
 a set of values has more than one element.
-\item[{\tt const min::gen min::}\MINNBKEY{UNDEFINED()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
 (\itemref{TYPED-OBJECTS}) that has no value and can be indirected.
-\item[{\tt const min::gen min::}\MINNBKEY{SUCCESS()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{SUCCESS()}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
-\item[{\tt const min::gen min::}\MINNBKEY{FAILURE()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{FAILURE()}]~%
 	\LABEL{MIN::FAILURE}\\
 A value returned to indicate a function has failed.
-\item[{\tt const min::gen min::}\MINNBKEY{ERROR()}]~%
+\item[\TT{const min::gen min::}\MINNBKEY{ERROR()}]~%
 	\LABEL{MIN::ERROR}\\
 A value returned to indicate a function call has suffered an error.
 The function may print an error message in
 this case, or may leave an error message in
-{\tt min::\EOL error\_\EOL message} (\pagref{ERROR_MESSAGE}).
+\TT{min::\EOL error\_\EOL message} (\pagref{ERROR_MESSAGE}).
 \end{list}
 \end{indpar}
 
@@ -1492,10 +1493,10 @@ system.  Other special values can be created by other systems,
 and indices near 0 are reserved for non-system users.
 
 For efficiency reasons it is desirable for special values to be
-compile time constants.  Because {\tt min::\EOL gen} is a class type,
+compile time constants.  Because \TT{min::\EOL gen} is a class type,
 C++ constants cannot be used to insert special values into optimized
-instructions, and {\tt inline} functions are used instead.  A
-special value {\tt S} with index {\tt I} should be defined by:
+instructions, and \TT{inline} functions are used instead.  A
+special value \TT{S} with index \TT{I} should be defined by:
 
 \begin{indpar}\begin{verbatim}
 inline min::gen S ( void )
@@ -1504,7 +1505,7 @@ inline min::gen S ( void )
 }
 \end{verbatim}\end{indpar}
 
-where {\tt I} is an integer constant in the range $0,\ldots,2^{24}-1025$.
+where \TT{I} is an integer constant in the range $0,\ldots,2^{24}-1025$.
 
 
 \subsection{Stubs}
@@ -1520,8 +1521,8 @@ memory is being compacted.
 A stub contains an 8 byte stub value and an 8 byte stub control.
 The type of a stub is \minkey{stub}.  Only pointers to stubs
 are used, and these come in two flavors:
-{\tt const min::stub~*} is used by protected functions and
-{\tt min::stub~*} without the `{\tt const}' is used
+\TT{const min::stub~*} is used by protected functions and
+\TT{min::stub~*} without the `\TT{const}' is used
 by unprotected functions.
 
 If the stub control is viewed as a 64 bit integer, its high order byte
@@ -1550,12 +1551,12 @@ The \key{type code} of a stub may be returned by
 \LABEL{MUP::TYPE_OF}
 \end{tabular}\end{indpar}
 
-If the argument is {\tt min::NULL\_STUB},
-the {\tt min::type\_of} function returns {\tt 0}, which is not
+If the argument is \TT{min::NULL\_STUB},
+the \TT{min::type\_of} function returns \TT{0}, which is not
 a legal stub type code,
-whereas the {\tt MUP::\EOL type\_\EOL of} function suffers a memory fault.
+whereas the \TT{MUP::\EOL type\_\EOL of} function suffers a memory fault.
 
-The type code of the stub pointed at by a {\tt min::gen} value
+The type code of the stub pointed at by a \TT{min::gen} value
 can be obtained by
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -1563,8 +1564,8 @@ can be obtained by
 \LABEL{MIN::TYPE_OF_GEN}
 \end{tabular}\end{indpar}
 
-This function will return {\tt 0}, which is not a legal stub type,
-if {\tt v} does not contain a stub pointer.
+This function will return \TT{0}, which is not a legal stub type,
+if \TT{v} does not contain a stub pointer.
 
 A determination of whether or not a stub is collectible may be made
 by applying the function
@@ -1582,14 +1583,14 @@ A partial list of stub type codes is:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const int min::NUMBER}]~\\
+\item[\TT{const int min::NUMBER}]~\\
 Stub value is an IEEE 64-bit floating point number.
-\item[{\tt const int min::SHORT\_STR}]~\\
+\item[\TT{const int min::SHORT\_STR}]~\\
 Stub value is 0-8 \verb|const char| string, NUL padded.
-\item[{\tt const int min::LONG\_STR}]~\\
-Stub value is a pointer at a body of type {\tt min::long\_\EOL string}
+\item[\TT{const int min::LONG\_STR}]~\\
+Stub value is a pointer at a body of type \TT{min::long\_\EOL string}
 that contains a \verb|const char| vector and its size. 
-\item[{\tt const int min::DEALLOCATED}]~\\
+\item[\TT{const int min::DEALLOCATED}]~\\
 Stub has a deallocated body.
 \end{list}
 \end{indpar}
@@ -1814,9 +1815,9 @@ The functions for creating and using reference types are:
 \end{tabular}\end{indpar}
 
 In addition, the following are defined
-only if {\tt T} is a packed structure or vector pointer,
-i.e., {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} or
-{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG}:
+only if \TT{T} is a packed structure or vector pointer,
+i.e., \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} or
+\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
@@ -1829,90 +1830,90 @@ i.e., {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} or
 \LABEL{MIN::!=REF_AND_STUB} \\
 \end{tabular}\end{indpar}
 
-A {\tt min::ref\TARG} type is similar to the `{\tt T \&}' type.
-Internally a {\tt min::ref\TARG} value {\tt r}
-is a pointer to a location of type {\tt T} that
-consists of a {\tt const min::\EOL stub~*} pointer {\tt r.s} to a stub
-and an {\tt min::\EOL unsptr} byte offset {\tt r.offset}
+A \TT{min::ref\TARG} type is similar to the `\TT{T \&}' type.
+Internally a \TT{min::ref\TARG} value \TT{r}
+is a pointer to a location of type \TT{T} that
+consists of a \TT{const min::\EOL stub~*} pointer \TT{r.s} to a stub
+and an \TT{min::\EOL unsptr} byte offset \TT{r.offset}
 of a location in the body
 associated with the stub.  Setting a reference type equal to a value
-of type {\tt T} stores the value in the location.  Setting a reference
-{\tt r} equal to another reference {\tt r2}, as in `{\tt r~=~r2}', does
+of type \TT{T} stores the value in the location.  Setting a reference
+\TT{r} equal to another reference \TT{r2}, as in `\TT{r~=~r2}', does
 \underline{not} copy the internal pointers, but instead copies the
-value at the {\tt r2} location to the {\tt r} location.
+value at the \TT{r2} location to the \TT{r} location.
 
-{\tt min::ref\TARG} values are returned by protected functions described
+\TT{min::ref\TARG} values are returned by protected functions described
 elsewhere:
 \begin{center}
 \begin{tabular}{ll}
-packed structures & see {\tt MIN\_REF}
+packed structures & see \TT{MIN\_REF}
     \pagref{MIN_REF} and \pagref{PACKED_STRUCT_MIN_REF} \\
-packed vector headers & see {\tt MIN\_REF}
+packed vector headers & see \TT{MIN\_REF}
     \pagref{MIN_REF} and \pagref{PACKED_VEC_MIN_REF} \\
-packed vector elements	& see {\tt operator []}
+packed vector elements	& see \TT{operator []}
     \pagref{PACKED_VEC_[]_REF},
-    {\tt push} function \pagref{PACKED_VEC_PUSH_REF} \\
-locatable variables	& see {\tt operator min::ref\TARG}
+    \TT{push} function \pagref{PACKED_VEC_PUSH_REF} \\
+locatable variables	& see \TT{operator min::ref\TARG}
     \pagref{LOCATABLE_VAR_REF} \\
 object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
 			  push functions \pagref{OBJ_VEC_UPDPTR_PUSH_REF}
 \end{tabular}
 \end{center}
 
-The unprotected {\tt MUP::new\_ref} function is used by these
-protected functions to construct a {\tt min::\EOL ref\TARG} value
-from a pointer {\tt s} to a stub and a {\tt const} location
+The unprotected \TT{MUP::new\_ref} function is used by these
+protected functions to construct a \TT{min::\EOL ref\TARG} value
+from a pointer \TT{s} to a stub and a \TT{const} location
 within the body associated with that stub.  Note that if the
-location is of a `{\tt T const}' type the resulting
-{\tt min::\EOL ref\TARG} reference value will allow the location
+location is of a `\TT{T const}' type the resulting
+\TT{min::\EOL ref\TARG} reference value will allow the location
 to be written.  This is done because locations inside data bodies
-that point at stubs are declared as `{\tt const}' locations
+that point at stubs are declared as `\TT{const}' locations
 so they are not directly writable, but these locations can be
-written using {\tt min::\EOL ref\TARG} values.
+written using \TT{min::\EOL ref\TARG} values.
 
-The protected {\tt min::new\_ref} function may be used to construct
-a {\tt min::\EOL ref\TARG} value from a non-relocatable location,
+The protected \TT{min::new\_ref} function may be used to construct
+a \TT{min::\EOL ref\TARG} value from a non-relocatable location,
 such as a global location or a location in the stack.
-This function constructs a {\tt min::\EOL ref\TARG} value whose
-stub is the special {\tt min::\EOL ZERO\_\EOL STUB} stub that
+This function constructs a \TT{min::\EOL ref\TARG} value whose
+stub is the special \TT{min::\EOL ZERO\_\EOL STUB} stub that
 has a zero body pointer and whose offset is the address of the
 non-relocatable location.
 
-Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
-differ according to whether or not the type {\tt T} is
-`\mkey{locatable}{{\tt min::ref\BRACKETED{T}} reference to}'
+Actually there are two kinds of \TT{min::\EOL ref\TARG} types that
+differ according to whether or not the type \TT{T} is
+`\mkey{locatable}{\TT{min::ref\BRACKETED{T}} reference to}'
 \label{LOCATABLE_REF}
-({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
-classes such as {\tt min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
-that encapsulate {\tt const min::\EOL stub~*} values are
+(\TT{min::\EOL gen}, \TT{const min::\EOL stub~*}, and
+classes such as \TT{min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
+that encapsulate \TT{const min::\EOL stub~*} values are
 locatable types: see \pagref{LOCATABLE-TYPE}).
-If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
+If \TT{T} is locatable, storing a value in a \TT{min::\EOL ref\TARG}
 location implicitly calls the
-{\tt min::\EOL acc\_\EOL write\_\EOL update} functions of
+\TT{min::\EOL acc\_\EOL write\_\EOL update} functions of
 Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
-involved, unless the {\tt min::\EOL ref\TARG} value references
-{\tt min::\EOL ZERO\_\EOL STUB}.
-If {\tt T} is not locatable or if the
-{\tt min::\EOL ref\TARG} value references {\tt min::\EOL ZERO\_\EOL STUB},
-the {\tt min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
+involved, unless the \TT{min::\EOL ref\TARG} value references
+\TT{min::\EOL ZERO\_\EOL STUB}.
+If \TT{T} is not locatable or if the
+\TT{min::\EOL ref\TARG} value references \TT{min::\EOL ZERO\_\EOL STUB},
+the \TT{min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
 called.
 
-A {\tt min::ref\TARG} value is implicitly convertible to the type {\tt T \&}.
+A \TT{min::ref\TARG} value is implicitly convertible to the type \TT{T \&}.
 As this implicit conversion
 is not activated by C++ in the case of an expression of the form
-`{\tt r->\ldots}', `{\tt operator~->}' of a {\tt min::\EOL ref\TARG}
+`\TT{r->\ldots}', `\TT{operator~->}' of a \TT{min::\EOL ref\TARG}
 argument is defined to invoke the conversion explicitly.
-Similarly for {\tt operator ==} and {\tt operator !=}.
+Similarly for \TT{operator ==} and \TT{operator !=}.
 In addition, these are defined to make the conversion when
-{\tt T} is convertible to {\tt const min::\EOL stub~*} and the
+\TT{T} is convertible to \TT{const min::\EOL stub~*} and the
 second argument is of this latter type, so that expressions such as
 \begin{center}
 \tt r == min::NULL\_STUB
 \end{center}
 can be used.
 
-Associated with the {\tt min::\EOL ref\TARG} reference type is
-the companion {\tt min::\EOL ptr\TARG} pointer type:
+Associated with the \TT{min::\EOL ref\TARG} reference type is
+the companion \TT{min::\EOL ptr\TARG} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
@@ -1963,11 +1964,11 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| {\tt const}
+    \hspace*{1.0in} [if \verb|T| \TT{const}
                      or \verb|T| is \underline{not} locatable]
 \LABEL{MIN::PTR_[]} \\
 \verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| \underline{not} {\tt const}
+    \hspace*{1.0in} [if \verb|T| \underline{not} \TT{const}
                      and \verb|T| is locatable]
 \LABEL{MIN::PTR_TO_STUB_[]} \\
 \verb|min::ptr<T> p|
@@ -1986,96 +1987,96 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{tabular}\end{indpar}
 
-Internally a {\tt min::\EOL ptr\TARG} value is exactly like a
-{\tt min::\EOL ref\TARG} value; both point at a location defined by
+Internally a \TT{min::\EOL ptr\TARG} value is exactly like a
+\TT{min::\EOL ref\TARG} value; both point at a location defined by
 a stub and an offset within the body of the stub.
-A main difference is that {\tt =} for reference values copies the
-values of the locations pointed at, while {\tt =} for pointer values
+A main difference is that \TT{=} for reference values copies the
+values of the locations pointed at, while \TT{=} for pointer values
 copies the pointer itself; i.e., the pointer to the stub and the offset.
 
-Another difference is the if a {\tt min::\EOL ref\TARG} value {\tt r}
-designates a location {\tt v} containing a {\tt T} value, then
-{\tt r->\ldots} is equivalent to {\tt v->\ldots}.
-But if a {\tt min::\EOL ptr\TARG} value {\tt p}
-points at location {\tt v} containing a {\tt T}, then
-{\tt p->\ldots} is equivalent to {\tt (\&v)->\ldots}.
+Another difference is the if a \TT{min::\EOL ref\TARG} value \TT{r}
+designates a location \TT{v} containing a \TT{T} value, then
+\TT{r->\ldots} is equivalent to \TT{v->\ldots}.
+But if a \TT{min::\EOL ptr\TARG} value \TT{p}
+points at location \TT{v} containing a \TT{T}, then
+\TT{p->\ldots} is equivalent to \TT{(\&v)->\ldots}.
 
-A {\tt min::\EOL ptr\TARG} value can be created by applying the
-{\tt \&} operator to a {\tt min::\EOL ref\TARG} value or to a
-locatable variable (see {\tt operator \&} for locatable variables,
+A \TT{min::\EOL ptr\TARG} value can be created by applying the
+\TT{\&} operator to a \TT{min::\EOL ref\TARG} value or to a
+locatable variable (see \TT{operator \&} for locatable variables,
 \pagref{LOCATABLE_VAR_PTR}).
-A {\tt min::\EOL ref\TARG} value can be recovered from a
+A \TT{min::\EOL ref\TARG} value can be recovered from a
 pointer value by applying the
-{\tt *} operator to the {\tt min::\EOL ptr\TARG} value.
+\TT{*} operator to the \TT{min::\EOL ptr\TARG} value.
 
-A {\tt min::\EOL ptr\TARG} value can also be created by the
-unprotected {\tt MUP::\EOL new\_\EOL ptr} function which
-constructs a {\tt min::\EOL ptr\TARG} value
-from a pointer {\tt s} to a stub and a pointer to
+A \TT{min::\EOL ptr\TARG} value can also be created by the
+unprotected \TT{MUP::\EOL new\_\EOL ptr} function which
+constructs a \TT{min::\EOL ptr\TARG} value
+from a pointer \TT{s} to a stub and a pointer to
 within the body associated with that stub.
-However, unlike {\tt MUP::\EOL new\_\EOL ref},
-the location pointed at within a body may not be {\tt const} unless {\tt T} is
-{\tt const}.
+However, unlike \TT{MUP::\EOL new\_\EOL ref},
+the location pointed at within a body may not be \TT{const} unless \TT{T} is
+\TT{const}.
 
-A {\tt min::\EOL ptr\TARG} value can be created by the
-protected {\tt min::\EOL new\_\EOL ptr} function from
-a non-relocatable pointer to a value of type {\tt T} that is located
+A \TT{min::\EOL ptr\TARG} value can be created by the
+protected \TT{min::\EOL new\_\EOL ptr} function from
+a non-relocatable pointer to a value of type \TT{T} that is located
 in static or stack memory.
 
-Given a {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
-suitable index type {\tt I} (such as {\tt int} or {\tt min::\EOL uns32}),
-{\tt p[i]} is a `{\tt T \&}' or `{\tt min::\EOL ref<T>}'
-reference value for the {\tt i+1}'st element of
-the vector with elements of type {\tt T} pointed at by {\tt p}, and
-{\tt p+i} is a {\tt min::\EOL ptr<T>} pointer to that element.
+Given a \TT{min::\EOL ptr<T>} value \TT{p} and an index \TT{i} of some
+suitable index type \TT{I} (such as \TT{int} or \TT{min::\EOL uns32}),
+\TT{p[i]} is a `\TT{T \&}' or `\TT{min::\EOL ref<T>}'
+reference value for the \TT{i+1}'st element of
+the vector with elements of type \TT{T} pointed at by \TT{p}, and
+\TT{p+i} is a \TT{min::\EOL ptr<T>} pointer to that element.
 
-If {\tt T} is {\tt const} or is not a locatable value type
+If \TT{T} is \TT{const} or is not a locatable value type
 (\pagref{LOCATABLE-VALUE}), then
-{\tt p[i]} is only a `{\tt T \&}' reference, and
-\underline{not} a {\tt min:\EOL ref<T>} reference.  As such it is
+\TT{p[i]} is only a `\TT{T \&}' reference, and
+\underline{not} a \TT{min:\EOL ref<T>} reference.  As such it is
 in effect an unprotected body pointer that will become undefined whenever
 a relocatable function is called.
-However, if {\tt T} is locatable and not {\tt const},
-it may contain a {\tt min::gen} or `{\tt const min::\EOL stub *}' value,
+However, if \TT{T} is locatable and not \TT{const},
+it may contain a \TT{min::gen} or `\TT{const min::\EOL stub *}' value,
 and therefore cannot be simply written using a
-`{\tt T \&}' reference
-without calling a {\tt min::\EOL acc\_\EOL write\_\EOL update} function
+`\TT{T \&}' reference
+without calling a \TT{min::\EOL acc\_\EOL write\_\EOL update} function
 explicitly.
 However, it can be written using a
-{\tt min::\EOL ref<T>} reference,
-which will call the {\tt min::\EOL acc\_\EOL write\_\EOL update} function
+\TT{min::\EOL ref<T>} reference,
+which will call the \TT{min::\EOL acc\_\EOL write\_\EOL update} function
 implicitly,
-so a {\tt min::\EOL ref<T>} reference is returned by {\tt p[i]} if
-{\tt T} is locatable.
+so a \TT{min::\EOL ref<T>} reference is returned by \TT{p[i]} if
+\TT{T} is locatable.
 
-One might ask whether {\tt p[i]} should always have a {\tt min::\EOL ref<T>}
-reference value, and why it should ever have a `{\tt T \&}' reference
-value.  The answer is that if {\tt T} is a structure type with a member
-{\tt m}, then {\tt p[i].m} will not work if {\tt p[i]} has type
-{\tt min::\EOL ref<T>}, but it will work if {\tt p[i]} has type
-`{\tt T \&}'.  This is unfortunate, but we must deal with this as best
-we can.  (Ideally C++ would have an `{\tt operator .}' which better
+One might ask whether \TT{p[i]} should always have a \TT{min::\EOL ref<T>}
+reference value, and why it should ever have a `\TT{T \&}' reference
+value.  The answer is that if \TT{T} is a structure type with a member
+\TT{m}, then \TT{p[i].m} will not work if \TT{p[i]} has type
+\TT{min::\EOL ref<T>}, but it will work if \TT{p[i]} has type
+`\TT{T \&}'.  This is unfortunate, but we must deal with this as best
+we can.  (Ideally C++ would have an `\TT{operator .}' which better
 enables non-standard reference types just as
-`{\tt operator ->}' better enables non-standard pointer types).
-When {\tt T} is itself a non-{\tt const}
-pointer value, such as a {\tt min::gen} or
-`{\tt const min::\EOL stub~*}' value, then it is perfectly alright
-to have {\tt p[i]} be a {\tt min::\EOL ref<T>} reference, and in
+`\TT{operator ->}' better enables non-standard pointer types).
+When \TT{T} is itself a non-\TT{const}
+pointer value, such as a \TT{min::gen} or
+`\TT{const min::\EOL stub~*}' value, then it is perfectly alright
+to have \TT{p[i]} be a \TT{min::\EOL ref<T>} reference, and in
 fact it is even more desirable since writing the pointer value
-needs to implicitly call {\tt min::\EOL acc\_\EOL write\_\EOL update}.
-So we make it a rule that the {\tt [\,]} operator returns a
-{\tt min::ref<T>} value only in the case that {\tt T} is
-{\tt min::\EOL gen} or is convertible to `{\tt const min::\EOL stub~*}',
-and {\tt T} is not {\tt const}.
+needs to implicitly call \TT{min::\EOL acc\_\EOL write\_\EOL update}.
+So we make it a rule that the \TT{[\,]} operator returns a
+\TT{min::ref<T>} value only in the case that \TT{T} is
+\TT{min::\EOL gen} or is convertible to `\TT{const min::\EOL stub~*}',
+and \TT{T} is not \TT{const}.
 
 An important consequence of this rule is that an expression such as
-{\tt \& p[i]} usually returns an unprotected relocatable pointer which can only
+\TT{\& p[i]} usually returns an unprotected relocatable pointer which can only
 be used temporarily.  Unless the value pointed at is locatable
-and not {\tt const}, such an expression is best used only as a source
-argument for functions like C++ {\tt memcpy} or {\tt strlen}.
+and not \TT{const}, such an expression is best used only as a source
+argument for functions like C++ \TT{memcpy} or \TT{strlen}.
 
-A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
-pointer of type `{\tt T*}' when used as a function argument.
+A pointer of type \TT{min::ptr<T>} can be implicitly converted to a
+pointer of type `\TT{T*}' when used as a function argument.
 This can be of use in code such as
 \begin{indpar}\begin{verbatim}
 ptr<char> s = ...;
@@ -2084,13 +2085,13 @@ char buffer[length+1];
 strcpy ( buffer, s );
 \end{verbatim}\end{indpar}
 
-If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is just
-{\tt p} coerced to the type {\tt min::\EOL ptr<T>} without any change to the
-actual value of {\tt p}, just as {(T *)(q)} is a coercion of {\tt q}
-if {\tt q} has type `{\tt S *}'.  Such coercions are inherently
+If \TT{p} is of type \TT{min::ptr<S>}, then \TT{min::ptr<T>(p)} is just
+\TT{p} coerced to the type \TT{min::\EOL ptr<T>} without any change to the
+actual value of \TT{p}, just as {(T *)(q)} is a coercion of \TT{q}
+if \TT{q} has type `\TT{S *}'.  Such coercions are inherently
 unprotected, of course.
 
-Several pointer operators are defined on {\tt min::ptr<T>} values:
+Several pointer operators are defined on \TT{min::ptr<T>} values:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
@@ -2100,30 +2101,30 @@ Several pointer operators are defined on {\tt min::ptr<T>} values:
 \LABEL{MIN::<_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{++}{++}{of {\tt min::ptr\TARG}}
-    & [postfix {\tt ++}]\ARGBREAK
+    & [postfix \TT{++}]\ARGBREAK
       \verb|( min::ptr<T> & r, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr\TARG}}
-    & [prefix {\tt --}]\ARGBREAK
+    & [prefix \TT{--}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
-These are just what is required to take the {\tt min::\EOL ptr<T>}
+These are just what is required to take the \TT{min::\EOL ptr<T>}
 values of
-{\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
-{\tt min::\EOL end\_\EOL ptr\_\EOL of} applied to various type specific
+\TT{min::\EOL begin\_\EOL ptr\_\EOL of} and
+\TT{min::\EOL end\_\EOL ptr\_\EOL of} applied to various type specific
 object pointers and step through the vector bracketed by the
 resulting pointers.  See, for example, 
-{\tt min::\EOL begin\_\EOL ptr\_\EOL of} on
+\TT{min::\EOL begin\_\EOL ptr\_\EOL of} on
 \pagref{MIN::BEGIN_PTR_OF_STR_PTR}
-and {\tt min::\EOL begin/end\_\EOL ptr\_\EOL of} on
+and \TT{min::\EOL begin/end\_\EOL ptr\_\EOL of} on
 \pagref{MIN::BEGIN_PTR_OF_LAB_PTR}.
-To protect as much as possible from misuse, {\tt <} is defined to be
+To protect as much as possible from misuse, \TT{<} is defined to be
 false if the two pointers point at different relocatable bodies.
 So one should use the pointers to access data only if the smaller
-pointer is still {\tt <} than the larger pointer.
+pointer is still \TT{<} than the larger pointer.
 
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
@@ -2131,7 +2132,7 @@ pointer is still {\tt <} than the larger pointer.
 
 Sometimes it is useful to make a non-relocatable copy of
 a vector that is resident in a body that might be relocated.
-This can be done by the {\tt MIN\_STACKCOPY} macro
+This can be done by the \TT{MIN\_STACKCOPY} macro
 which expands as follows:
 
 \begin{indpar}
@@ -2144,39 +2145,39 @@ expands to \\[1ex]
 \verb|         sizeof ( type ) * (length) )|
 \end{indpar}
 
-The vector at `{\tt source}', which may be inside a body and therefore
-be relocatable, is copied to the stack vector `{\tt name}', which
+The vector at `\TT{source}', which may be inside a body and therefore
+be relocatable, is copied to the stack vector `\TT{name}', which
 is not relocatable.
-Thereafter `{\tt name}' may be used to reference this copy.
+Thereafter `\TT{name}' may be used to reference this copy.
 
 Because copying is fast, it can be more efficient to do this than
 it is to reference individual elements of a relocatable vector using
-{\tt min::ptr<type>} values.
+\TT{min::ptr<type>} values.
 
 \subsection{Allocator/Collector/Compactor Interface}
 \label{ACC-INTERFACE}
 
 The garbage collector needs to be able to locate all
-\verb|min::gen| and {\tt const min::\EOL stub~*} values
+\verb|min::gen| and \TT{const min::\EOL stub~*} values
 that are in use and that might contain stub pointers.
 Values of these types are called \skey{locatable value}s.%
 \label{LOCATABLE-VALUE}
 These types, and types that are just classes which
-encapsulate a {\tt min::\EOL gen} or {\tt const min::\EOL stub~*}
-value (such as the {\tt min::packed\_\ldots ptr\BRACKETED{\ldots}} types),
+encapsulate a \TT{min::\EOL gen} or \TT{const min::\EOL stub~*}
+value (such as the \TT{min::packed\_\ldots ptr\BRACKETED{\ldots}} types),
 are called \skey{locatable type}s.%
 \label{LOCATABLE-TYPE}
 
-Values of a locatable type {\tt T} stored in static memory or the stack
+Values of a locatable type \TT{T} stored in static memory or the stack
 need to be locatable by the garbage collector.  This is done
-by storing them in {\tt min::\EOL locatable\_\EOL var\TARG} type
+by storing them in \TT{min::\EOL locatable\_\EOL var\TARG} type
 variables, as described in the first subsection of this section.
 
-When you write a value of locatable type {\tt T} into a stub or associated
-body, you need to call the {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+When you write a value of locatable type \TT{T} into a stub or associated
+body, you need to call the \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 function (\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) to update garbage
 collection flags associated with stubs.
-This is done automatically if a {\tt min::\EOL ref\TARG} reference value is
+This is done automatically if a \TT{min::\EOL ref\TARG} reference value is
 used to write the value.  Such reference values are created
 by functions described in the second subsection of this section.
 
@@ -2251,18 +2252,18 @@ In loose implementation: \\
 \end{tabular}\end{indpar}
 
 If the implementation is loose (\pagref{LOOSE}),
-{\tt min::locatable\_\EOL num\_\EOL gen} is equivalent to
-{\tt min::gen}.  If the implementation is compact, it is equivalent to
-{\tt min::locatable\_\EOL gen}.
+\TT{min::locatable\_\EOL num\_\EOL gen} is equivalent to
+\TT{min::gen}.  If the implementation is compact, it is equivalent to
+\TT{min::locatable\_\EOL gen}.
 
 The main operations that can be performed on a
-{\tt min::locatable\_\EOL gen} location are to copy a {\tt min::gen}
-value into it or out of it.  Setting one {\tt min::\EOL locatable\_\EOL gen}
-location equal to another copies the {\tt min::gen} value of the locations,
+\TT{min::locatable\_\EOL gen} location are to copy a \TT{min::gen}
+value into it or out of it.  Setting one \TT{min::\EOL locatable\_\EOL gen}
+location equal to another copies the \TT{min::gen} value of the locations,
 and not the location structure itself.
 
 Due to a technical difficulty with C++, it is not possible to use
-{\tt =} in a {\tt min::\EOL locatable\_\EOL gen} initializer.
+\TT{=} in a \TT{min::\EOL locatable\_\EOL gen} initializer.
 Specifically:
 
 \begin{indpar}\begin{verbatim}
@@ -2276,31 +2277,31 @@ min::locatable_gen v ( x );             // Does NOT compile!
 min::locatable_gen w ( (min::gen) x );  // OK
 \end{verbatim}\end{indpar}
 
-The reason that the initialization of {\tt x} does not work is that
+The reason that the initialization of \TT{x} does not work is that
 \label{LOCATABLE-VAR-COPY-CONSTRUCTOR}
-when {\tt =} is used with an initializer in C++, the right side is
+when \TT{=} is used with an initializer in C++, the right side is
 first converted to the type of the left side in a temporary, and then a
 \underline{copy constructor} is applied to move the result to the
-left side's location.  But we cannot allow {\tt min::\EOL locatable\_\EOL gen}
-temporaries, so we disable the {\tt min::\EOL locatable\_\EOL gen}
-copy constructor by making it {\tt private}.  Also the initialization
-of {\tt v} happens to use the copy constructor, but that of {\tt w} does not.
+left side's location.  But we cannot allow \TT{min::\EOL locatable\_\EOL gen}
+temporaries, so we disable the \TT{min::\EOL locatable\_\EOL gen}
+copy constructor by making it \TT{private}.  Also the initialization
+of \TT{v} happens to use the copy constructor, but that of \TT{w} does not.
 
-A {\tt min::\EOL locatable\_\EOL gen} locatable variable
+A \TT{min::\EOL locatable\_\EOL gen} locatable variable
 \label{LOCATABLE_VAR_REF}
 is implicitly convertible to a
 reference
-of type {\tt min::\EOL ref<min::gen>}
-that references the {\tt min::gen}
+of type \TT{min::\EOL ref<min::gen>}
+that references the \TT{min::gen}
 value stored in the locatable variable.
 
-Applying the {\tt \&} operator to a
+Applying the \TT{\&} operator to a
 \label{LOCATABLE_VAR_PTR}
-{\tt min::\EOL locatable\_\EOL gen} locatable variable
-returns a pointer of type {\tt min::\EOL ptr<min::gen>} that points
+\TT{min::\EOL locatable\_\EOL gen} locatable variable
+returns a pointer of type \TT{min::\EOL ptr<min::gen>} that points
 at the locatable variable.
 
-Some more {\tt min::locatable\_gen} examples are:
+Some more \TT{min::locatable\_gen} examples are:
 
 \begin{indpar}\begin{verbatim}
 static min::locatable_gen v;
@@ -2322,9 +2323,9 @@ void some_function ( min::gen x, min::gen y )
 }
 \end{verbatim}\end{indpar}
 
-{\tt const min::\EOL stub~*} values
+\TT{const min::\EOL stub~*} values
 must also be locatable by the garbage collector.
-In particular the {\tt min::\EOL packed\_\EOL \ldots ptr\BRACKETED{\ldots}}
+In particular the \TT{min::\EOL packed\_\EOL \ldots ptr\BRACKETED{\ldots}}
 pointers
 (see Sections~\itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS})
 must be locatable.
@@ -2373,31 +2374,31 @@ this may be done with the code:
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
-Here {\tt T} must be
-`{\tt const min::stub~*}'
-or a class like {\tt min::\EOL packed\_\ldots ptr\BRACKETED{\ldots}}
-whose only data member is of type {\tt const min::stub~*}.
-In either case, a {\tt min::\EOL locatable\_\EOL var\TARG}
-value is implicitly convertible to a {\tt const min::\EOL stub~*} value.
+Here \TT{T} must be
+`\TT{const min::stub~*}'
+or a class like \TT{min::\EOL packed\_\ldots ptr\BRACKETED{\ldots}}
+whose only data member is of type \TT{const min::stub~*}.
+In either case, a \TT{min::\EOL locatable\_\EOL var\TARG}
+value is implicitly convertible to a \TT{const min::\EOL stub~*} value.
 
-In the second case, {\tt T} is the {\tt public} base class of
-{\tt min::\EOL locatable\_\EOL var\TARG}, so expressions of
-the forms {\tt \ldots=var},
-{\tt var->\ldots}, {\tt var[\ldots]}, etc will work for a
-{\tt min::\EOL locatable\_\EOL var\TARG} value {\tt var} if they
-will work for a value of type {\tt T}.
+In the second case, \TT{T} is the \TT{public} base class of
+\TT{min::\EOL locatable\_\EOL var\TARG}, so expressions of
+the forms \TT{\ldots=var},
+\TT{var->\ldots}, \TT{var[\ldots]}, etc will work for a
+\TT{min::\EOL locatable\_\EOL var\TARG} value \TT{var} if they
+will work for a value of type \TT{T}.
 
-Like a {\tt min::\EOL locatable\_\EOL gen} locatable variable,
-a {\tt min::\EOL locatable\_\EOL var\TARG} locatable variable
+Like a \TT{min::\EOL locatable\_\EOL gen} locatable variable,
+a \TT{min::\EOL locatable\_\EOL var\TARG} locatable variable
 is implicitly convertible to a
-reference of type {\tt min::\EOL ref<T>}, and can be pointed at
-by a pointer of type {\tt min::\EOL ptr<T>} obtained by applying
-the {\tt \&} operator to the locatable variable.
+reference of type \TT{min::\EOL ref<T>}, and can be pointed at
+by a pointer of type \TT{min::\EOL ptr<T>} obtained by applying
+the \TT{\&} operator to the locatable variable.
 
-And as with {\tt min::\EOL locatable\_\EOL gen} locatable variables,
+And as with \TT{min::\EOL locatable\_\EOL gen} locatable variables,
 due to a technical difficulty with C++ it is not possible to use
-{\tt =} to pass an initializer
-to a {\tt min::\EOL locatable\_\EOL var\TARG} constructor
+\TT{=} to pass an initializer
+to a \TT{min::\EOL locatable\_\EOL var\TARG} constructor
 (See \pagref{LOCATABLE-VAR-COPY-CONSTRUCTOR}).
 
 An example usage is:
@@ -2416,8 +2417,8 @@ void f ( min::ref<bufvec> p );
 }
 \end{verbatim}\end{indpar}
 
-The {\tt min::locatable\_gen} type is actually a specialization
-of {\tt min::\EOL locatable\_\EOL var}:
+The \TT{min::locatable\_gen} type is actually a specialization
+of \TT{min::\EOL locatable\_\EOL var}:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|typedef |
@@ -2427,34 +2428,34 @@ of {\tt min::\EOL locatable\_\EOL var}:
 \end{tabular}\end{indpar}
 
 However, this specialization differs from
-{\tt min::\EOL locatable\_\EOL var\TARG}in that it is not
-implicitly convertible to a {\tt const min::\EOL stub~*} value nor
-is {\tt min::gen} a base type of this specialization.
+\TT{min::\EOL locatable\_\EOL var\TARG}in that it is not
+implicitly convertible to a \TT{const min::\EOL stub~*} value nor
+is \TT{min::gen} a base type of this specialization.
 
 Importantly a \verb|min::gen| or \verb|const min::stub *|
 value need \underline{not} be stored
 in a locatable variable if it can be located by the garbage collector by some
 other means.  For example, if it is stored in one locatable variable,
 it need not be stored in another.  Or if a \verb|min::gen|
-or {\tt const min::\EOL stub~*} value
+or \TT{const min::\EOL stub~*} value
 $V$ is stored in an object pointed at by another \verb|min::gen|
-or {\tt const min::\EOL stub~*}
+or \TT{const min::\EOL stub~*}
 value $P$, and $P$ is locatable, then $V$ need not
 be stored in a locatable variable.
 
 A very important rule is that when a function is called, the caller
 must be sure every \verb|min::gen|
-or {\tt const min::\EOL stub~*} value passed to the called
+or \TT{const min::\EOL stub~*} value passed to the called
 function can be located by the garbage collector \underline{without} the called
 function needing to store the value in a locatable variable.
 For example, the caller can store the value in its own locatable
 variable.  This is called the `\key{caller locating convention}'.
 
-Also \verb|min::gen| and {\tt const min::\EOL stub~*}
+Also \verb|min::gen| and \TT{const min::\EOL stub~*}
 values need only be locatable by
 the garbage collector when a relocating function (\pagref{RELOCATING-FUNCTIONS})
 is called.  In between such calls \verb|min::gen|
-and {\tt const min::\EOL stub*} values can be
+and \TT{const min::\EOL stub*} values can be
 stored in other places.  In particular, there is no problem
 returning these values from a called function to its caller.
 
@@ -2462,7 +2463,7 @@ returning these values from a called function to its caller.
 \label{LOCATABLE-MEMBER-REFERENCES}
 
 Suppose we have some kind of stub/body data type whose body
-is the structure {\tt S} defined and used in the following:
+is the structure \TT{S} defined and used in the following:
 
 \begin{indpar}\begin{verbatim}
 struct S;
@@ -2506,8 +2507,8 @@ void foo ( S_ptr q )
 }
 \end{verbatim}\end{indpar}
 
-Because {\tt min::gen} and {\tt S\_ptr} are locatable types,
-{\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+Because \TT{min::gen} and \TT{S\_ptr} are locatable types,
+\TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 (\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) must be called when
 members of these types are written into a stub or associated body.  There is
 a danger of unintentional omission of these calls.
@@ -2543,15 +2544,15 @@ void foo ( S_ptr q )
 }
 \end{verbatim}\end{indpar}
 
-Here the calls to {\tt MUP::acc\_write\_update} are inside the
-{\tt \ldots\_ref(q) =} calls (\pagref{LOCATABLE_REF}).
-Writing {\tt q->g = \ldots}
-and {\tt q->p = \ldots} is prevented by making the {\tt g} and {\tt p}
-members `{\tt const}', so accidentally updating locatable members
-without calling {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+Here the calls to \TT{MUP::acc\_write\_update} are inside the
+\TT{\ldots\_ref(q) =} calls (\pagref{LOCATABLE_REF}).
+Writing \TT{q->g = \ldots}
+and \TT{q->p = \ldots} is prevented by making the \TT{g} and \TT{p}
+members `\TT{const}', so accidentally updating locatable members
+without calling \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 is prevented.
 
-To make the above easier to code, the {\tt MIN\_REF} macro
+To make the above easier to code, the \TT{MIN\_REF} macro
 is provided which expands as follows:
 
 \begin{indpar}
@@ -2565,10 +2566,10 @@ expands to \\[1ex]
 \verb|}|
 \end{indpar}
 
-Here `{\tt type}' is the member type and `{\tt ctype}' is
+Here `\TT{type}' is the member type and `\TT{ctype}' is
 the `\key{container type}'.
 
-This enables the {\tt inline} function definitions above to be
+This enables the \TT{inline} function definitions above to be
 replaced by
 
 \begin{indpar}\begin{verbatim}
@@ -2576,7 +2577,7 @@ MIN_REF ( min::gen, g, S_ptr )
 MIN_REF ( S_ptr, p, S_ptr )
 \end{verbatim}\end{indpar}
 
-This methodology and the {\tt MIN\_\EOL REF} macro are frequently
+This methodology and the \TT{MIN\_\EOL REF} macro are frequently
 used with packed structures (see \itemref{PACKED-STRUCTURES}) and
 packed vectors (see \itemref{PACKED-VECTORS}).
 
@@ -2587,7 +2588,7 @@ The operation of \ikey{deallocating a body}{deallocate!body}\index{deallocation}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at a `deallocated body' located in
 inaccessible virtual memory, and the type code in the stub
-is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
+is set to \TT{min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
 The function that deallocates a body is:
 
@@ -2599,19 +2600,19 @@ The function that deallocates a body is:
 
 If the stub has a body, this function relocates the body to inaccessible
 memory and changes the type code of the stub to
-{\tt min::DEALLOCATED}.  Otherwise the function does nothing; and
+\TT{min::DEALLOCATED}.  Otherwise the function does nothing; and
 in particular, it does nothing to stubs with no body, and to stubs
 that have already been deallocated.
 
 The function that tests whether a stub
-has {\tt min::DEALLOCATED} type code (\pagref{MIN::DEALLOCATED}) is:
+has \TT{min::DEALLOCATED} type code (\pagref{MIN::DEALLOCATED}) is:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED}
 \end{tabular}\end{indpar}
 
-The inaccessible memory to which a {\tt min::DEALLOCATED} stub is
+The inaccessible memory to which a \TT{min::DEALLOCATED} stub is
 pointed is called the `\key{deallocated body}' of the stub.
 This is large enough that any attempt to access the body of a
 deallocated stub will cause a memory fault.
@@ -2625,7 +2626,7 @@ then you will probably need to use the unprotected
 interfaces described in this section.
 
 As described in the first subsection, you need to be able update stubs
-using the {\tt MUP::\EOL acc\_\EOL write\_\EOL update} functions
+using the \TT{MUP::\EOL acc\_\EOL write\_\EOL update} functions
 when locatable values are written into stubs or associated bodies.
 You need to be able to allocate and free stubs, as described in the
 second subsection.  You need to be able to read and write stub values,
@@ -2639,7 +2640,7 @@ This is described in the fourth subsection.
 \label{ACC-WRITE-UPDATE-FUNCTIONS}
 
 In addition to needing to locate \verb|min::gen|
-and {\tt min::\EOL stub~*} values, the acc
+and \TT{min::\EOL stub~*} values, the acc
 must be notified whenever a pointer to a collectible stub \verb|s2|
 is stored in the data of a collectible stub \verb|s1| (i.e., in
 the stub \verb|s1| or its body or auxiliary stubs attached to either).
@@ -2681,9 +2682,9 @@ This is done by the following functions:
 \LABEL{MUP::ACC_WRITE_NUM_GEN_VEC_UPDATE} \\
 \end{tabular}\end{indpar}
 
-The first of the above functions updates the stubs {\tt s1} and {\tt s2}
-if {\tt s2} is not {\tt NULL}.  The second updates the stub {\tt s1}
-and the stub pointed at by {\tt g} if {\tt g} points at a stub.
+The first of the above functions updates the stubs \TT{s1} and \TT{s2}
+if \TT{s2} is not \TT{NULL}.  The second updates the stub \TT{s1}
+and the stub pointed at by \TT{g} if \TT{g} points at a stub.
 The third of the above functions equals the second function for a compact
 (\pagref{COMPACT}) implementation, and is a no-operation for a loose
 implementation.
@@ -2693,16 +2694,16 @@ values \verb|p[0]|, \ldots, \verb|p[n-1]|, and for each of these
 call the corresponding function chosen from the first three
 of the above functions.
 
-The {\tt min::\EOL acc\_\EOL write\_\EOL num\_\EOL update}
+The \TT{min::\EOL acc\_\EOL write\_\EOL num\_\EOL update}
 functions should only be used if all the
 \verb|min::gen| values they reference are numeric, as in a loose
 implementation these functions do nothing.
 
 These \verb|min::acc_write_update| functions
 \underline{must not} be called with any argument that points at a stub
-with {\tt min::ACC\_\EOL FREE} type, which can only happen when the
+with \TT{min::ACC\_\EOL FREE} type, which can only happen when the
 stub has been recently returned by
-{\tt min::\EOL new\_\EOL acc\_\EOL stub}.
+\TT{min::\EOL new\_\EOL acc\_\EOL stub}.
 See \itemref{STUB-ALLOCATION-FUNCTIONS}.
 
 
@@ -2722,32 +2723,32 @@ The \verb|min::new_acc_stub| function returns a garbage collectible (acc)
 stub with its type set to \minkey{ACC\_FREE}.  A stub with this type
 \underline{must not} be visible to the garbage collector; no pointer
 to it can be stored in an acc locatable variable.
-The {\tt MUP::acc\_\EOL write\_\EOL update}
+The \TT{MUP::acc\_\EOL write\_\EOL update}
 function \underline{must not} be called with any
-\verb|min::gen| or {\tt min::\EOL stub~*} argument that points at
-a stub with {\tt min::ACC\_\EOL FREE} type.  All
-\verb|min::gen| or {\tt min::\EOL stub~*} values stored in
-the data of a {\tt min::ACC\_\EOL FREE} stub must also be stored
+\verb|min::gen| or \TT{min::\EOL stub~*} argument that points at
+a stub with \TT{min::ACC\_\EOL FREE} type.  All
+\verb|min::gen| or \TT{min::\EOL stub~*} values stored in
+the data of a \TT{min::ACC\_\EOL FREE} stub must also be stored
 in acc locatable variable, or must themselves point at 
-{\tt min::ACC\_\EOL FREE} stubs.
+\TT{min::ACC\_\EOL FREE} stubs.
 
 The actions of changing the type of a stub
-from {\tt min::ACC\_\EOL FREE}
+from \TT{min::ACC\_\EOL FREE}
 to another collectible type and storing a
-\verb|min::gen| or {\tt min::\EOL stub~*}
+\verb|min::gen| or \TT{min::\EOL stub~*}
 value pointing at the stub in an acc
 locatable variable must not be separated by any
 call to a relocating function.
 
 It is permissible to allocate and build a graph of stubs some of
-which have {\tt min::\EOL ACC\_\EOL FREE} type.  No stub locatable
+which have \TT{min::\EOL ACC\_\EOL FREE} type.  No stub locatable
 by the garbage collector may contain (in its stub or body or
 auxiliary stubs) a pointer to a stub with
-{\tt min::\EOL ACC\_\EOL FREE} type.  Any stub with
-{\tt min::\EOL ACC\_\EOL FREE} type can contain only pointers
+\TT{min::\EOL ACC\_\EOL FREE} type.  Any stub with
+\TT{min::\EOL ACC\_\EOL FREE} type can contain only pointers
 to stubs of this type or stubs that are locatable by the garbage
 collector.  After building the graph, the types of all stubs with
-{\tt min::\EOL ACC\_\EOL FREE} type should be changed to
+\TT{min::\EOL ACC\_\EOL FREE} type should be changed to
 normal acc types, and pointers that permit the garbage collector
 to locate these stubs should be stored in locatable variables,
 all without making any calls to relocating functions.
@@ -2918,7 +2919,7 @@ defined by constants of type \verb|min::uns64|, such as
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const min::uns64 MUP::}\MUPKEY{STUB\_ADDRESS}]~%
+\item[\TT{const min::uns64 MUP::}\MUPKEY{STUB\_ADDRESS}]~%
 	\LABEL{MIN::STUB_ADDRESS}\\
 Indicates that the address/value field of an ordinary (non-acc)
 control holds a stub address.  This flag is only used for
@@ -3007,8 +3008,8 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
 \LABEL{MUP::STUB_OF_CONTROL} \\
 \end{tabular}\end{indpar}
 
-The `{\tt new}' functions compute a control value,
-the `{\tt renew}' functions modify control values
+The `\TT{new}' functions compute a control value,
+the `\TT{renew}' functions modify control values
 by inserting a new locator, value, or stub address, and
 the other functions return the parts of a control value.
 Here the 16-bit locator is represented as an \verb|int|
@@ -3045,7 +3046,7 @@ manipulated by the following functions:
 \LABEL{MUP::TYPE_OF_CONTROL} \\
 \end{tabular}\end{indpar}
 
-Here the 8-bit type code is represented as an {\tt int} in
+Here the 8-bit type code is represented as an \TT{int} in
 the range from $-128$ through $127$.
 
 \subsubsection{Unprotected Body Functions}
