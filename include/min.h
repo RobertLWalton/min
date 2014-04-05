@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 12 20:18:19 EST 2014
+// Date:	Sat Apr  5 07:06:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -264,7 +264,9 @@ namespace min {
 
     public:
 
-        gen ( void ) : value ( 0 ) {}
+        gen ( void ) : value
+	    ( ( unsgen ( GEN_ILLEGAL ) << VSIZE ) ) {}
+		
 
     private:
 
