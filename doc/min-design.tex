@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 5, 2014}
+\date{April 10, 2014}
  
 \maketitle
 
@@ -3251,7 +3251,7 @@ above code only works for long strings (\pagref{LONG-STRING-STUB}).
 
 A \key{number stub} is collectible, has \minkey{NUMBER}\LABEL{MIN::NUMBER}
 stub type code, and has
-an immutable \verb|min::float64| stub value that can be read by
+an immutable \TT{min::float64} stub value that can be read by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::float64 min::|
@@ -3287,57 +3287,57 @@ by the following protected functions:
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The \verb|min::is_num| function for a loose 64-bit \verb|min::gen| argument
-is just another name for the \verb|min::is_direct_float| function of the same
-argument.  For a compact 32-bit \verb|min::gen| argument the function returns
+The \TT{min::is\_num} function for a loose 64-bit \TT{min::gen} argument
+is just another name for the \TT{min::is\_direct\_float} function of the same
+argument.  For a compact 32-bit \TT{min::gen} argument the function returns
 true if the argument is a direct integer or a stub pointer
 pointing at a number stub.
 
-The \verb|min::new_num_gen| function with \verb|min::float64| argument
-and loose 64-bit \verb|min::gen| value
-is just another name for {\tt min::new\_\EOL direct\_\EOL gen}, which
+The \TT{min::new\_num\_gen} function with \TT{min::float64} argument
+and loose 64-bit \TT{min::gen} value
+is just another name for \TT{min::new\_\EOL direct\_\EOL gen}, which
 simply changes the type of its argument.
-The \verb|min::new_num_gen| function with \verb|min::float64| argument
-and compact 32-bit \verb|min::gen| value creates a direct integer
+The \TT{min::new\_num\_gen} function with \TT{min::float64} argument
+and compact 32-bit \TT{min::gen} value creates a direct integer
 if the argument is an integer in the
-require range; otherwise the function returns a \verb|min::gen| value
+require range; otherwise the function returns a \TT{min::gen} value
 that is a pointer to a number stub.  If a pointer to a number stub is
 to be returned and a number stub containing the argument value already exists,
 a pointer to the existing stub is returned;
 otherwise a new number stub is created and a pointer to it returned.
-Therefore two 32-bit \verb|min::gen| values that represent equal numbers are
-themselves \verb|==|.
+Therefore two 32-bit \TT{min::gen} values that represent equal numbers are
+themselves \TT{==}.
 
-The \verb|min::new_num_gen| function with an \verb|int| or \verb|min::unsptr|
+The \TT{min::new\_num\_gen} function with an \TT{int} or \TT{min::unsptr}
 argument does the
-same thing as it would with its argument converted to a \verb|min::float64|
-value, but is more efficient in the case where \verb|min::gen| values
+same thing as it would with its argument converted to a \TT{min::float64}
+value, but is more efficient in the case where \TT{min::gen} values
 are 32 bits and the argument is in the range of a direct integer general
 value.
 
-The \verb|min::float_of| function for a loose 64-bit \verb|min::gen|
-argument is just another name for the \verb|min::direct_float_of| function
+The \TT{min::float\_of} function for a loose 64-bit \TT{min::gen}
+argument is just another name for the \TT{min::direct\_float\_of} function
 of the same argument, which after checking the subtype of the argument,
 simply changes the type of the argument.
-For a compact 32-bit \verb|min::gen| argument the
+For a compact 32-bit \TT{min::gen} argument the
 function returns any integer stored directly
 in the argument converted to a 64-bit IEEE floating point number, or
 returns the stub value for any number stub pointed at by the argument.
-In this last case the stub type code is checked by a \verb|MIN_ASSERT|
+In this last case the stub type code is checked by a \TT{MIN\_ASSERT}
 statement to be sure the stub is a number stub.
 
-The \verb|min::int_of| function does the same thing as the
-\verb|min::float_of| followed by conversion to an \verb|int| value,
-except that \verb|min::int_of| includes a check that the result
+The \TT{min::int\_of} function does the same thing as the
+\TT{min::float\_of} followed by conversion to an \TT{int} value,
+except that \TT{min::int\_of} includes a check that the result
 is a pure integer, without any fractional part, and is within the
-range of the \verb|int| type, and
-\verb|min::int_of| is more efficient when given a 32-bit direct integer
-\verb|min::gen| argument.
+range of the \TT{int} type, and
+\TT{min::int\_of} is more efficient when given a 32-bit direct integer
+\TT{min::gen} argument.
 
-Lastly, the \verb|min::numhash| function
-returns the hash value of a \verb|min::gen|
+Lastly, the \TT{min::numhash} function
+returns the hash value of a \TT{min::gen}
 value that is a number.  This value is computed by considering
-the \verb|min::float_of| value of the number
+the \TT{min::float\_of} value of the number
 to be a \underline{big endian} string of 8 characters and using the algorithm
 on \pagref{HASH-ALGORITHM} to compute the hash value of this string.%
 \label{NUMBER-HASH-ALGORITHM}
@@ -3350,10 +3350,10 @@ the following function is provided:
 \LABEL{MIN::FLOATHASH} \\
 \end{tabular}\end{indpar}
 
-The above \verb|min::float_of|, \verb|min::int_of|, and \verb|min::numhash|
-functions of a \verb|min::gen| argument apply \verb|MIN_ASSERT| to check
+The above \TT{min::float\_of}, \TT{min::int\_of}, and \TT{min::numhash}
+functions of a \TT{min::gen} argument apply \TT{MIN\_ASSERT} to check
 that their argument is a number.  The following unprotected function assumes
-that its argument is a number without doing any \verb|MIN_ASSERT| check:
+that its argument is a number without doing any \TT{MIN\_ASSERT} check:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::float64 MUP::| & \MUPKEY{float\_of} \verb|( min::gen v )|
@@ -3365,7 +3365,7 @@ that its argument is a number without doing any \verb|MIN_ASSERT| check:
 
 In MIN all \skey{string}s\index{strings@strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
-\key{UTF-8} encodes 32-bit UNICODE characters in 1 to 7 \verb|char|'s.
+\key{UTF-8} encodes 32-bit UNICODE characters in 1 to 7 \TT{char}'s.
 
 All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
@@ -3374,28 +3374,28 @@ strings with the same characters as their ASCII representation indicates.%
 \footnote{ASCII character codes range from 0 through 127.  UTF-8 extends
 this by assigning meaning to codes from 128 to 255.}
 
-It is possible for a string to be miscoded UTF-8.  None
-of the functions given below, including the protected functions,
-check for this.
+It is possible for a string to be miscoded UTF-8.  Unless otherwise
+mentioned, the functions given below, including the protected functions,
+do \underline{not} check for this.
 
 A MIN string value cannot store the NUL character as legal UTF-8.
 But it is possible to use the `\key{modified UTF-8}'
 \label{MODIFIED-UTF-8} encoding instead of
 strict UTF-8.  The difference is that strict UTF-8 encodes the NUL
 character in a single byte as an ASCII NUL, whereas modified UTF-8
-encodes the NUL character as the `overlong' 2-byte string `\verb|0xC0,0x80|'
+encodes the NUL character as the `overlong' 2-byte string `\TT{0xC0,0x80}'
 (which is not legal in strict UTF-8 because it is not the shortest
 possible encoding of NUL in UTF-8).
 
 There are two kinds of string stubs: short strings and long strings.
-In addition, a string of up to 3 {\tt char}'s can be stored within a 32-bit
-\verb|min::gen| value, and a string of up to 5 {\tt char}'s can be stored
-within a 64-bit \verb|min::gen| value,
+In addition, a string of up to 3 \TT{char}'s can be stored within a 32-bit
+\TT{min::gen} value, and a string of up to 5 \TT{char}'s can be stored
+within a 64-bit \TT{min::gen} value,
 without using a stub
 (see \itemref{GENERAL-VALUE-SUBTYPES} and
 \itemref{GENERAL-VALUE-FUNCTIONS}).
 Such strings are called \skey{direct string}s, while strings stored in
-stubs or bodies which are pointed at by \verb|min::gen| values,
+stubs or bodies which are pointed at by \TT{min::gen} values,
 the short and long strings, are called \skey{indirect string}s.
 A short string holds up to 8 characters inside the string stub
 (there must be more characters than a direct string will hold).
@@ -3440,29 +3440,29 @@ The following functions create new general string values:
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
 \end{tabular}\end{indpar}
 
-The \verb|min::new_str_gen| functions copy the input string after the
-manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
-they copy from \verb|p|
-until a NUL is copied or \verb|n| characters have been copied, whichever
-comes first.  The forms with a \verb|min::ptr<const char>|
-or \verb|min::ptr<char>|
+The \TT{min::new\_str\_gen} functions copy the input string after the
+manner of \TT{strcpy} and \TT{strncpy}, respectively.  That is,
+they copy from \TT{p}
+until a NUL is copied or \TT{n} characters have been copied, whichever
+comes first.  The forms with a \TT{min::ptr<const char>}
+or \TT{min::ptr<char>}
 argument are for use when the input string is part of a relocatable body.
-Because \verb|min::ptr<char>| is not implicitly cast-able to
-\verb|min::ptr<const char>|, both types are argument are provided for.
+Because \TT{min::ptr<char>} is not implicitly cast-able to
+\TT{min::ptr<const char>}, both types are argument are provided for.
 
 When a string general value is created,
 \label{STRING-CREATION}
 if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created.
-Otherwise \verb|min::new_str_gen| searches to see if any equal string
+Otherwise \TT{min::new\_str\_gen} searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
-string is returned in the new \verb|min::gen| value, and no new stub
-is created.  Otherwise, if the input string is 8 or fewer {\tt char}'s,
+string is returned in the new \TT{min::gen} value, and no new stub
+is created.  Otherwise, if the input string is 8 or fewer \TT{char}'s,
 a short string stub is created, and if the input string has more
-than 8 {\tt char}'s, a long string stub and body are created.
+than 8 \TT{char}'s, a long string stub and body are created.
 
-Thus if two string \verb|min::gen| values are equal as
-strings, they have \verb|==| \verb|min::gen| values.
+Thus if two string \TT{min::gen} values are equal as
+strings, they have \TT{==~min::gen} values.
 
 There are also functions to create a new general string values from
 vectors of UNICODE characters:
@@ -3482,10 +3482,10 @@ vectors of UNICODE characters:
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
 
-Here UNICODE characters are represented as \verb|min::uns32| values,
+Here UNICODE characters are represented as \TT{min::uns32} values,
 and the strings are \underline{not} terminated by a zero
-\verb|min::uns32| value, which is encoded as
-the 2 string bytes `\verb|0xC0,0x80|'
+\TT{min::uns32} value, which is encoded as
+the 2 string bytes `\TT{0xC0,0x80}'
 using modified UTF-8 (\pagref{MODIFIED-UTF-8}).
 
 The following may be used to convert between UNICODE
@@ -3505,19 +3505,19 @@ characters and \key{UTF-8} strings:
 \LABEL{MIN::UNICODE_TO_UTF8} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::uft8\_to\_unicode} function reads a UNICODE character
-encoded as a UTF-8 byte string.  Here \verb|s| points at the first byte
+The \TT{min::uft8\_to\_unicode} function reads a UNICODE character
+encoded as a UTF-8 byte string.  Here \TT{s} points at the first byte
 of the encoding and is updated to point after the encoding, while
-\verb|ends| points just after the last byte that can be part of
+\TT{ends} points just after the last byte that can be part of
 the encoding.
 
-The {\tt min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
-a UTF-8 character \verb|c| into \verb|s|, updating \verb|s| to point after the
+The \TT{min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
+a UTF-8 character \TT{c} into \TT{s}, updating \TT{s} to point after the
 character, and returns the number of bytes written.
 
-The {\tt min::uft8\_to\_unicode} function will accept
+The \TT{min::uft8\_to\_unicode} function will accept
 \mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
-and also accept 7-byte encodings (first byte {\tt 0xFE})
+and also accept 7-byte encodings (first byte \TT{0xFE})
 so that $2^{32}-1$ can be encoded.  If it encounters an
 illegal encoding it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
 \label{UTF8_ILLEGAL}
@@ -3526,27 +3526,27 @@ the `\key{white frowning face}%
 \index{frowning face}%
 \index{face, white frowning}',
 \ILLEGALCHAR.
-In this case \verb|s| is updated to point just after the illegal encoding.
-Applying the {\tt min::uft8\_to\_unicode} function repeatedly
-until {\tt s >= ends} and will produce a sequence of UNICODE
+In this case \TT{s} is updated to point just after the illegal encoding.
+Applying the \TT{min::uft8\_to\_unicode} function repeatedly
+until \TT{s >= ends} and will produce a sequence of UNICODE
 characters from any byte string, even one that is not legal UTF-8,
-though if the string is not legal some {\tt min::\EOL UTF8\_\EOL ILLEGAL}
+though if the string is not legal some \TT{min::\EOL UTF8\_\EOL ILLEGAL}
 characters will be returned.
 
 More specifically, an illegal encoding is a string of bytes such that
 the last byte cannot be UTF-8 legal given the previous bytes, or
 is an incomplete UTF-8 encoding at the end of the byte string
-bounded by \verb|s| and \verb|ends|.
+bounded by \TT{s} and \TT{ends}.
 
-The {\tt min::unicode\_to\_utf8} function will output
-7-byte encodings (first byte {\tt 0xFE}) for
-UNICODE character values {\tt => 0x80000000}, and will output
-the overlong encoding {\tt 0xC0},{\tt 0x80}
+The \TT{min::unicode\_to\_utf8} function will output
+7-byte encodings (first byte \TT{0xFE}) for
+UNICODE character values \TT{=> 0x80000000}, and will output
+the overlong encoding \TT{0xC0},\TT{0x80}
 for \ttmkey{NUL}{UTF-8 encoding}
 (UTF-8 in which this is the \underline{only} permitted overlong encoding
 is called `modified UTF-8').  No other overlong encodings are output.
 At most 7 bytes will be output, and
-\verb|s| must point to a byte string buffer with at least 7 bytes.
+\TT{s} must point to a byte string buffer with at least 7 bytes.
 
 It is sometimes useful to divide UNICODE characters into
 \skey{UNICODE class}{es}.  The function
@@ -3556,7 +3556,7 @@ It is sometimes useful to divide UNICODE characters into
 \LABEL{MIN::UNICODE_CLASS}
 \end{tabular}\end{indpar}
 
-returns the UNICODE class of the UNICODE character {\tt c}.
+returns the UNICODE class of the UNICODE character \TT{c}.
 The UNICODE classes of all
 ASCII and LATIN-1\footnote{
 \raggedright
@@ -3593,41 +3593,41 @@ Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
 are considered to be lower case letters and \AE(AE)
 is considered to be an upper case letter, other LATIN-1
 letters may be made by composing
-{\tt `},
-{\tt '},
-{\tt \textasciicircum},
-{\tt \textasciitilde},
-{\tt "},
-comma ({\tt ,}), or
-{\tt /} with a letter, as in
-\`A({\tt `A}),
-\'A({\tt 'A}),
-\^A({\tt \^{}A}),
-\~A({\tt \textasciitilde A}),
-\"A({\tt "A}),
-\c{C}({\tt ,C}), and
-\O({\tt /O}), with the remaining cases
-\AA({\tt AA}), and
-\aa({\tt aa}) using a compose sequence consisting of just the letter doubled.
+\TT{`},
+\TT{'},
+\TT{\textasciicircum},
+\TT{\textasciitilde},
+\TT{"},
+comma (\TT{,}), or
+\TT{/} with a letter, as in
+\`A(\TT{`A}),
+\'A(\TT{'A}),
+\^A(\TT{\^{}A}),
+\~A(\TT{\textasciitilde A}),
+\"A(\TT{"A}),
+\c{C}(\TT{,C}), and
+\O(\TT{/O}), with the remaining cases
+\AA(\TT{AA}), and
+\aa(\TT{aa}) using a compose sequence consisting of just the letter doubled.
 However the LATIN-1 letters \dh{} and \DH{} cannot currently be input, as
 composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
 LATIN-1 control codes cannot currently be input and have
 no special MIN support for output.}
-characters (characters with codes {\tt < 256})
+characters (characters with codes \TT{< 256})
 are the characters themselves, e.g., the UNICODE class of
-`{\tt *}' is \verb|'*'|, \underline{except}:
+`\TT{*}' is \TT{'*'}, \underline{except}:
 \begin{center}
 \begin{tabular}{l@{~}l}
-\verb|'U'| & is the class of upper case letters; \\
-           & {\tt A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
+\TT{'U'} & is the class of upper case letters; \\
+           & \TT{A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
 	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
-\verb|'L'| & is the class of lower case letters; \\
-           & {\tt a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
+\TT{'L'} & is the class of lower case letters; \\
+           & \TT{a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
 	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
 \end{tabular}
 \end{center}
 
-The UNICODE class of a character with code {\tt >= 256} is determined
+The UNICODE class of a character with code \TT{>= 256} is determined
 by the UNICODE character `\mkey{general category}{UNICODE}' and the
 UNICODE character `\mkey{numeric value}{UNICODE}'.
 If the numeric value is a single
@@ -3684,13 +3684,13 @@ on Figure~\ref{UNICODE-CLASSES}.
 \end{tabular}
 \end{tabular}
 \end{center}
-\caption{{\tt min::unicode\_class} values}
+\caption{\TT{min::unicode\_class} values}
 \label{UNICODE-CLASSES}
 \end{boxedfigure}
 
-The following functions test a \verb|min::gen| value to see if it
+The following functions test a \TT{min::gen} value to see if it
 is a string and obtain information from
-a string \verb|min::gen| value.
+a string \TT{min::gen} value.
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_str} \verb|( min::gen v )|
@@ -3715,18 +3715,18 @@ a string \verb|min::gen| value.
 \end{tabular}\end{indpar}
 
 Five of these functions correspond to the standard C/C++
-{\tt strlen}, {\tt strcpy}, {\tt strncpy}, {\tt strcmp},
-and {\tt strncmp} functions, and differ
-from these only in that instead of taking a {\tt char *} source string
-argument, these functions take a {\tt min::gen} source argument.
+\TT{strlen}, \TT{strcpy}, \TT{strncpy}, \TT{strcmp},
+and \TT{strncmp} functions, and differ
+from these only in that instead of taking a \TT{char *} source string
+argument, these functions take a \TT{min::gen} source argument.
 
-The \verb|is_str| function simply returns true if and only if
+The \TT{is\_str} function simply returns true if and only if
 its argument is a string.
 
-The \verb|strhead| function is an optimized function that
+The \TT{strhead} function is an optimized function that
 returns the first 8 bytes of the string
-in a \verb|min::uns64| value.  This is intended to be used by
-overloading it with \verb|min::uns8[8]|, as in the code:
+in a \TT{min::uns64} value.  This is intended to be used by
+overloading it with \TT{min::uns8[8]}, as in the code:
 
 \begin{indpar}\begin{verbatim}
 union { min::uns64 u; min::uns8 s[8]; } v;
@@ -3737,15 +3737,15 @@ v.u = min::strhead ( g );
 \end{verbatim}\end{indpar}
 
 If a string has fewer than 8 bytes, it is padded with zero bytes
-at its end so that 8 bytes may always be returned.  If the \verb|min::gen|
-argument to \verb|strhead| is not a string, 8 zero bytes are returned
+at its end so that 8 bytes may always be returned.  If the \TT{min::gen}
+argument to \TT{strhead} is not a string, 8 zero bytes are returned
 (as if the argument had been an empty string).
 
-\verb|strhead| is useful for testing
+\TT{strhead} is useful for testing
 to see what kind of lexeme the string represents; for
-example, if the first byte is a letter, or the first byte is \verb|'|
+example, if the first byte is a letter, or the first byte is \TT{'}
 and the second byte is a letter, then the string may represent a
-word, but if the first byte is \verb|'| and the second is zero,
+word, but if the first byte is \TT{'} and the second is zero,
 the string may represent a separator.
 Note that the bytes are UTF-8 encoded, and may represent non-ASCII
 UNICODE characters.  Note that UTF-8 can encode a UNICODE character
@@ -3753,7 +3753,7 @@ in as many as 7 bytes, so if the string begins with two non-ASCII
 characters, the encoding of the second may be truncated.
 
 To permit hash values of arbitrary strings to be computed,
-without creating {\tt min::gen} values from them first,
+without creating \TT{min::gen} values from them first,
 the following functions are provided:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -3764,8 +3764,8 @@ the following functions are provided:
 \LABEL{MIN::STRNHASH} \\
 \end{tabular}\end{indpar}
 
-Both \verb|strhash| and \verb|strnhash| accept NUL terminated strings, but
-\verb|strnhash| stops reading the string after the first \verb|n| characters
+Both \TT{strhash} and \TT{strnhash} accept NUL terminated strings, but
+\TT{strnhash} stops reading the string after the first \TT{n} characters
 if none of these characters is NUL.
 
 A string hash value is computed according to the following machine
@@ -3788,7 +3788,7 @@ A hash value is never zero (so zero can be used to denote a missing hash value).
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
-The following functions can be used to convert \verb|min::gen|
+The following functions can be used to convert \TT{min::gen}
 string values to numbers:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -3810,25 +3810,25 @@ string values to numbers:
 \LABEL{MIN::STRTO_FLOAT64} \\
 \end{tabular}\end{indpar}
 
-If the \verb|min::gen| argument is a
+If the \TT{min::gen} argument is a
 string consisting of a space surrounded number legal to the UNIX
-{\tt strtol}, {\tt strtoll},
-{\tt strtoul}, or {\tt strtoull} functions with given {\tt base} argument,
+\TT{strtol}, \TT{strtoll},
+\TT{strtoul}, or \TT{strtoull} functions with given \TT{base} argument,
 or to the UNIX
-{\tt strtof}, or {\tt strtoud} functions, respectively,
-{\tt true} is returned and the number is returned in the {\tt value}
-argument.  Otherwise {\tt false} is returned and the {\tt value}
+\TT{strtof}, or \TT{strtoud} functions, respectively,
+\TT{true} is returned and the number is returned in the \TT{value}
+argument.  Otherwise \TT{false} is returned and the \TT{value}
 argument is left untouched.  This includes the case where the
-\verb|min::gen| argument is not a string, the case where the
-{\tt base} argument does not have a legal value,
+\TT{min::gen} argument is not a string, the case where the
+\TT{base} argument does not have a legal value,
 and the case where the number that might be returned would be
 outside the range of
-numbers storable in the {\tt value} argument.
+numbers storable in the \TT{value} argument.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
 
-A read-only pointer to the characters of a string {\tt min::gen} value can
+A read-only pointer to the characters of a string \TT{min::gen} value can
 be obtained using the following functions to create and use
 a \key{string pointer}:
 
@@ -3894,48 +3894,48 @@ a \key{string pointer}:
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
 \end{tabular}\end{indpar}
 
-The constructors create a string pointer pointing to the {\tt char}'s
-of the string specified by the \verb|min::gen| or
-`\verb|min::stub *|' argument.  A \verb|min::gen| argument
+The constructors create a string pointer pointing to the \TT{char}'s
+of the string specified by the \TT{min::gen} or
+`\TT{min::stub *}' argument.  A \TT{min::gen} argument
 should be a direct string or a pointer to a short or long string stub,
 and a stub pointer should be a pointer to a short or long string stub.
 If the arguments are not, then the string pointer is set to the
-{\tt NULL} state in which using it to access the string will almost
+\TT{NULL} state in which using it to access the string will almost
 certainly cause a memory fault.  The constructor with no argument also
-sets the string pointer to the {\tt NULL} state.  The operator to
-convert a string pointer to a {\tt bool} returns {\tt true} if the
-string pointer is \underline{not} in the {\tt NULL} state, and {\tt false}
-if the string pointer \underline{is} in the {\tt NULL} state.
+sets the string pointer to the \TT{NULL} state.  The operator to
+convert a string pointer to a \TT{bool} returns \TT{true} if the
+string pointer is \underline{not} in the \TT{NULL} state, and \TT{false}
+if the string pointer \underline{is} in the \TT{NULL} state.
 
-The {\tt =} operator can reset the string
-pointer to point at a different \verb|min::gen| value, or at a stub,
+The \TT{=} operator can reset the string
+pointer to point at a different \TT{min::gen} value, or at a stub,
 or at the
 value pointed at by another string pointer.  Like the constructor,
-the string pointer is set to the {\tt NULL} state
-if the \verb|min::gen| value or stub pointer is not a string,
-or the string pointer being assigned from is itself in the {\tt NULL} state.
+the string pointer is set to the \TT{NULL} state
+if the \TT{min::gen} value or stub pointer is not a string,
+or the string pointer being assigned from is itself in the \TT{NULL} state.
 
-The \verb|strlen|, \verb|strhash|, \verb|strcpy|, \verb|strncpy|,
-\verb|strcmp|, and \verb|strncmp| functions retrieve the same information
+The \TT{strlen}, \TT{strhash}, \TT{strcpy}, \TT{strncpy},
+\TT{strcmp}, and \TT{strncmp} functions retrieve the same information
 about the string pointed at by a string pointer as they retrieve about
 the string value the pointer points at.
 
-The {\tt begin\_ptr\_of} function
-returns a {\tt min::ptr<const char>} pointer to
-the NUL-terminat\-ed vector of {\tt char}'s that is the string.
-Its value can be implicitly converted to a `{\tt const char *}'
-that may be passed to the {\tt strcpy}, {\tt strcmp}, \ldots{}
+The \TT{begin\_ptr\_of} function
+returns a \TT{min::ptr<const char>} pointer to
+the NUL-termin\-at\-ed vector of \TT{char}'s that is the string.
+Its value can be implicitly converted to a `\TT{const char *}'
+that may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
 
-\verb|sp[i]| can be used to access the {\tt i}+1's character of
+\TT{sp[i]} can be used to access the \TT{i}+1's character of
 the NUL-terminated string.
 There is no protection against the operator index
 being longer than the string length.
 
 For direct and short strings the string pointer, when it is created,
-copies the string {\tt char}'s into a buffer internal to the string pointer,
-in order to save the {\tt char}'s in a direct string value, or to
-add a missing NUL to the end of the short string {\tt char} vector.
+copies the string \TT{char}'s into a buffer internal to the string pointer,
+in order to save the \TT{char}'s in a direct string value, or to
+add a missing NUL to the end of the short string \TT{char} vector.
 In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
 at the string proper inside a relocatable string body.
@@ -3980,29 +3980,29 @@ pointer by the following functions:
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
-If the string pointer is not in the {\tt NULL} state and
-the part of the string beginning with {\tt sp[i]} is
+If the string pointer is not in the \TT{NULL} state and
+the part of the string beginning with \TT{sp[i]} is
 space followed by a number legal to the UNIX
-{\tt strtol}, {\tt strtoll},
-{\tt strtoul}, or {\tt strtoull} functions with the given
-{\tt base} argument, or to the UNIX
-{\tt strtof}, or {\tt strtoud} functions, respectively,
-{\tt true} is returned, the number is returned in the
-{\tt value} argument, and the {\tt i} argument is updated to point
-just after the number.  Otherwise {\tt false} is returned and
-{\tt value} and {\tt i} are left untouched.  This includes the
-case where the string pointer is in the {\tt NULL} state,
-the case where the {\tt base} argument does not have a legal value,
+\TT{strtol}, \TT{strtoll},
+\TT{strtoul}, or \TT{strtoull} functions with the given
+\TT{base} argument, or to the UNIX
+\TT{strtof}, or \TT{strtoud} functions, respectively,
+\TT{true} is returned, the number is returned in the
+\TT{value} argument, and the \TT{i} argument is updated to point
+just after the number.  Otherwise \TT{false} is returned and
+\TT{value} and \TT{i} are left untouched.  This includes the
+case where the string pointer is in the \TT{NULL} state,
+the case where the \TT{base} argument does not have a legal value,
 and the case where the number that might be returned would be
 outside the range of
-numbers storable in the {\tt value} argument.
+numbers storable in the \TT{value} argument.
 
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
 
 The following unprotected
-function is equivalent to {\tt begin\_ptr\_of()} with its
-result cast to `{\tt const char *}':
+function is equivalent to \TT{begin\_ptr\_of()} with its
+result cast to `\TT{const char *}':
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( const min::str_ptr & sp )|
@@ -4018,8 +4018,8 @@ and long strings.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
 \minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
-an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
-8 \verb|char| vector and can be read by
+an immutable \TT{min::\EOL uns64} stub value that holds a NUL padded
+8 \TT{char} vector and can be read by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::|
@@ -4027,9 +4027,9 @@ an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
 \LABEL{MUP::SHORT_STR_OF}
 \end{tabular}\end{indpar}
 
-This function does \underline{not} check the type of the stub \verb|s|.
-The \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
-should be overlaid by a union with a \verb|char[ ]| buffer, as in
+This function does \underline{not} check the type of the stub \TT{s}.
+The \TT{min::uns64} value returned by \MUPkey{short\_str\_of}
+should be overlaid by a union with a \TT{char[~]} buffer, as in
 
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[9]; } u;
@@ -4040,24 +4040,24 @@ u.buf[8] = 0;	// Be sure result is NUL terminated.
 cout << u.buf;
 \end{verbatim}\end{indpar}
 
-Short string values are NUL (zero) padded 0 to 8 \verb|char|
+Short string values are NUL (zero) padded 0 to 8 \TT{char}
 strings.  To be sure any value read is NUL terminated, a NUL (zero)
-must be stored after the value read, as is done by \verb|u.buf[8] = 0|
-in the example.  Of course, legal short string values should have more
-characters that can be stored in a direct string
+must be stored after the value read, as is done by \TT{u.buf[8] = 0}
+in the example.  Of course, short string values have more
+characters than can be stored in a direct string
 (\pagref{STRING-CREATION}).
 
 A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
 \minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
 a value that is a pointer to a \MUPkey{long\_str} type body
-which holds an arbitrary length NUL terminated \verb|char| string.
+which holds an arbitrary length NUL terminated \TT{char} string.
 
 The long string body consists of the 32-bit length and 32-bit hash value
-of the string, followed by a \verb|char|
+of the string, followed by a \TT{char}
 vector containing the string proper with the terminating NUL.  The
-\verb|char| vector is padded to a multiple of 8 bytes with NUL
+\TT{char} vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
-in the length.  To be legal the length should be larger than 8.
+in the length.  The length is larger than 8.
 
 The following are unprotected functions to return a relocatable pointer to the
 long string body, a relocatable pointer to the string itself,
@@ -4075,7 +4075,7 @@ and the length and hash of the string.
 \LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{tabular}\end{indpar}
 
-These functions are unprotected because \verb|long_str *| pointers
+These functions are unprotected because \TT{long\_str *} pointers
 are relocatable.
 
 
@@ -4103,12 +4103,12 @@ hash code.  Also note that labels can be elements of labels.  A programming
 language may wish to require that the elements of labels be numbers or
 strings, that numbers and strings be treated as labels of one element,
 and that proper labels with zero or one element not be created.  But the
-\verb|min.h| code does not do this.
+\TT{min.h} code does not do this.
 
 A \key{label stub}\label{LABEL-STUB} is collectible,
 has \minkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
-The label value may be read by using {\tt min::\EOL lab\_\EOL ptr}'s:
+The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -4164,37 +4164,37 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL ptr}'s:
 \LABEL{MIN::HASH_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
-Here if \verb|v| or \verb|s| do not point at the stub of a label
-the new label pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
+Here if \TT{v} or \TT{s} do not point at the stub of a label
+the new label pointer is set to \TT{min::\EOL NULL\_\EOL STUB},
 but this is not in an of itself an error.  The resulting
-{\tt min::\EOL lab\_\EOL ptr} can be tested to see if it is {\tt ==}
-to {\tt min::\EOL NULL\_\EOL STUB}.  Using such a pointer to access
+\TT{min::\EOL lab\_\EOL ptr} can be tested to see if it is \TT{==}
+to \TT{min::\EOL NULL\_\EOL STUB}.  Using such a pointer to access
 parts of a label, however, gives undefined results,
 but usually a memory fault.
 The no-argument label
 pointer constructor also creates a label pointer equal to
-{\tt min::\EOL NULL\_\EOL STUB}, and the {\tt =} operators
-set a label pointer just as a constructor with the {\tt =} right side
+\TT{min::\EOL NULL\_\EOL STUB}, and the \TT{=} operators
+set a label pointer just as a constructor with the \TT{=} right side
 as the constructor argument would.
 
-Given a label pointer \verb|labp| pointing at a real label,
-\verb|labp[i]| is the \verb|i|+1's
+Given a label pointer \TT{labp} pointing at a real label,
+\TT{labp[i]} is the \TT{i}+1's
 element of the label, for
-$0\leq$\verb|i|$<$\verb|min::length_of(labp)|,
-where the {\tt min::\EOL length\_\EOL of} function
+\TT{0<i<min::length\_of(labp)},
+where the \TT{min::\EOL length\_\EOL of} function
 returns the number of elements in the label.
-The {\tt min::\EOL hash\_\EOL of} function returns the hash of the label.
+The \TT{min::\EOL hash\_\EOL of} function returns the hash of the label.
 
-The {\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
-{\tt min::\EOL end\_\EOL ptr\_\EOL of}
-functions return {\tt min::\EOL ptr<const min::\EOL gen>} values that
+The \TT{min::\EOL begin\_\EOL ptr\_\EOL of} and
+\TT{min::\EOL end\_\EOL ptr\_\EOL of}
+functions return \TT{min::\EOL ptr<const min::\EOL gen>} values that
 point at the first label element and the location just after the
-last label element, respectively.  Unlike `{\tt \& labp[0]}',
-{\tt min::\EOL begin\_\EOL ptr\_\EOL} of will not suffer an error if
-the label length is {\tt 0}, and unlike
-`{\tt \& labp[length\_of(labp)]}',
-{\tt min::\EOL end\_\EOL ptr\_\EOL of} will not suffer an error.
-In addition these functions return {\tt min::ptr} pointers that
+last label element, respectively.  Unlike `\TT{\& labp[0]}',
+\TT{min::\EOL begin\_\EOL ptr\_\EOL} of will not suffer an error if
+the label length is \TT{0}, and unlike
+`\TT{\& labp[length\_of(labp)]}',
+\TT{min::\EOL end\_\EOL ptr\_\EOL of} will not suffer an error.
+In addition these functions return \TT{min::ptr} pointers that
 remain valid even if the label body is relocated.
 
 The length of a label is the number of elements (general values) in the label.
@@ -4222,7 +4222,7 @@ directly by the following functions:
 \end{tabular}\end{indpar}
 
 The last function computes the hash value for a label that could be created
-from the given vector {\tt p} of {\tt n} general values, where each
+from the given vector \TT{p} of \TT{n} general values, where each
 general value is a name component.
 
 The hash of a label is computed from
@@ -4249,7 +4249,7 @@ for i = 1 through n:
     hash = min::labhash ( hash, h )
 \end{verbatim}\end{indpar}
 
-where {\tt min::labhash ( hash, h )} is defined as:
+where \TT{min::labhash ( hash, h )} is defined as:
 
 \begin{indpar}\begin{verbatim}
 min::labhash ( hash, h ):
@@ -4267,9 +4267,9 @@ string of fewer than 10 characters is padded to 10 characters
 by prefacing it with NUL characters.  Note that
 numbers are treated as 8 character strings; see
 \pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
-hash value {\tt min::\EOL labhash\_\EOL initial = 1009}.
+hash value \TT{min::\EOL labhash\_\EOL initial = 1009}.
 
-The two argument \verb|labhash ( hash, h )| function performs the
+The two argument \TT{labhash ( hash, h )} function performs the
 incremental step in the computation of a label hash, and can be useful
 in some lookup situations.  More specifically, the above algorithm
 is equivalent to:
@@ -4296,8 +4296,8 @@ a label value may be read by the protected functions:
 \end{tabular}\end{indpar}
 
 These read an initial segment of the label vector into the location
-addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
-the first {\tt n} elements are read.  Otherwise, as many elements as
+addressed by \TT{p}.  If the label vector has \TT{n} or more elements,
+the first \TT{n} elements are read.  Otherwise, as many elements as
 the label vector has are read.  The number of elements read is returned
 in any case.  The label can be denoted by either its stub address or
 by a general value pointing at its stub address.
@@ -4319,13 +4319,13 @@ A label may be created by the following protected functions:
 \LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
 \end{tabular}\end{indpar}
 
-Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
+Here \TT{p} must point to a vector of \TT{n} \TT{min::gen}
 values that becomes the value vector of the label.  Each
-\verb|min::gen| value must be a name component.
+\TT{min::gen} value must be a name component.
 This function returns any existing label with elements equal to
 those given by the function arguments, in preference to creating a new
-label.  Thus two \verb|min::gen| label values with \verb|==| elements are
-\verb|==|.
+label.  Thus two \TT{min::gen} label values with \TT{==} elements are
+\TT{==}.
 
 For convenience in generating frequently used labels,
 2 and 3 element labels whose elements are strings may be created by
@@ -4352,8 +4352,8 @@ a label:
 
 The following unprotected constructors and functions operating
 on the resulting unprotected label points are just like their
-protected versions except that they assume any \verb|min::gen|
-value \verb|v| or \verb|min::stub *| value \verb|s| is a label
+protected versions except that they assume any \TT{min::gen}
+value \TT{v} or \TT{min::stub *} value \TT{s} is a label
 and furthermore do not check subscript ranges:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4444,33 +4444,33 @@ The following functions concern names:
 \LABEL{MIN::IS_SUBSEQUENCE} \\
 \end{tabular}\end{indpar}
 
-The \verb|min::is_name| function returns true if and only if its argument is
+The \TT{min::is\_name} function returns true if and only if its argument is
 a name (number, string, or label).
 
-The \verb|min::hash| function returns a non-zero
+The \TT{min::hash} function returns a non-zero
 \key{hash value}\label{HASH-VALUE} of its argument, which must be
 a name.
 
-The \verb|min::compare| function returns an integer $<0$, $=0$, or $>0$
-according to whether its \verb|v1| argument is less than, equal to, or
-greater than its \verb|v2| argument.
+The \TT{min::compare} function returns an integer $<0$, $=0$, or $>0$
+according to whether its \TT{v1} argument is less than, equal to, or
+greater than its \TT{v2} argument.
 In this ordering numbers are
 before strings, strings are before labels, and labels are before
 any non-name values.  Numbers are ordered
 numerically, strings are ordered lexicographically as per the
-C language \verb|strcmp| function, and labels are ordered lexicographically
-using the {\tt min::\EOL compare} function recursively to compare
+C language \TT{strcmp} function, and labels are ordered lexicographically
+using the \TT{min::\EOL compare} function recursively to compare
 label elements.  Non-name values are ordered by converting their
-\verb|min::gen| values to bit strings and comparing the bit strings.
-This means that \verb|min::gen| values that point at stubs are ordered
+\TT{min::gen} values to bit strings and comparing the bit strings.
+This means that \TT{min::gen} values that point at stubs are ordered
 according to their stub addresses.
 
-The \verb|min::subsequence| function
+The \TT{min::subsequence} function
 returns the index of the first occurence
-of its first argument \verb|v1| as a subsequence of its second
-argument \verb|v2|, or returns \verb|-1| if there is no such
+of its first argument \TT{v1} as a subsequence of its second
+argument \TT{v2}, or returns \TT{-1} if there is no such
 occurence.  For this function,
-a non-label must be an atom, and is equivalent to a length {\tt 1} label
+a non-label must be an atom, and is equivalent to a length \TT{1} label
 whose sole element is the atom.
 
 \subsection{Packed Structures}
