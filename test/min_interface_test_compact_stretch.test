@@ -1,4 +1,8 @@
 ../include/min.h:XXXX assert:
+    OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
+../include/min.h:XXXX assert:
+    OFFSETOF ( & locatable_var< min::packed_vec_ptr < E , H , L > > ::previous ) == sizeof ( const min::stub * ) true.
+../include/min.h:XXXX assert:
     ( OFFSETOF<S,const min::uns32> ( & S::control ) == 0 ) true.
 ../include/min.h:XXXX assert:
     ( OFFSETOF<S,const min::uns32> ( & S::control ) == 0 ) true.
@@ -8,10 +12,6 @@
     OFFSETOF ( & locatable_var< min::packed_vec_ptr < E , H , L > > ::previous ) == sizeof ( const min::stub * ) true.
 ../include/min.h:XXXX assert:
     OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
-../include/min.h:XXXX assert:
-    OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
-../include/min.h:XXXX assert:
-    OFFSETOF ( & locatable_var< min::packed_vec_ptr < E , H , L > > ::previous ) == sizeof ( const min::stub * ) true.
 
 Initialize!
 min_interface_test.cc:XXXX assert:
@@ -929,7 +929,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::strto ( sf, s1e39 ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sf, s1em38 ) true.
+    ! min::strto ( sf, s1em46 ) true.
 min_interface_test.cc:XXXX assert:
     ! min::strto ( sf, sempty ) true.
 min_interface_test.cc:XXXX assert:
@@ -947,7 +947,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::strto ( sd, s1e309 ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::strto ( sd, s1em308 ) true.
+    ! min::strto ( sd, s1em324 ) true.
 min_interface_test.cc:XXXX assert:
     ! min::strto ( sd, sempty ) true.
 min_interface_test.cc:XXXX assert:
@@ -1361,12 +1361,12 @@ min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 1
+upv1->control = 13
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
-upv2->control = 2
+upv2->control = 14
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:

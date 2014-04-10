@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 21 01:54:06 EST 2013
+// Date:	Thu Apr 10 17:02:12 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1774,7 +1774,11 @@ void test_strings ( void )
     min::gen s1e38 = min::new_str_gen ( "1e38" );
     min::gen s1e39 = min::new_str_gen ( "1e39" );
     min::gen s1em37 = min::new_str_gen ( "1e-37" );
-    min::gen s1em38 = min::new_str_gen ( "1e-38" );
+    // If denormalized numbers are supported, 1e-45 will
+    // be convertable with loss of precision, but
+    // 1e-46 will not be.
+    min::gen s1em45 = min::new_str_gen ( "1e-45" );
+    min::gen s1em46 = min::new_str_gen ( "1e-46" );
 
     min::float32 sf = 0;
     MIN_ASSERT ( min::strto ( sf, s1e38 ) );
@@ -1782,7 +1786,7 @@ void test_strings ( void )
     MIN_ASSERT ( min::strto ( sf, s1em37 ) );
     MIN_ASSERT ( sf == 1e-37f );
     MIN_ASSERT ( ! min::strto ( sf, s1e39 ) );
-    MIN_ASSERT ( ! min::strto ( sf, s1em38 ) );
+    MIN_ASSERT ( ! min::strto ( sf, s1em46 ) );
     MIN_ASSERT ( ! min::strto ( sf, sempty ) );
     MIN_ASSERT ( sf == 1e-37f );
 
@@ -1790,7 +1794,11 @@ void test_strings ( void )
     min::gen s1e308x = min::new_str_gen ( "1e308x" );
     min::gen s1e309 = min::new_str_gen ( "1e309" );
     min::gen s1em307 = min::new_str_gen ( "1e-307" );
-    min::gen s1em308 = min::new_str_gen ( "1e-308" );
+    // If denormalized numbers are supported, 1e-323 will
+    // be convertable with loss of precision, but
+    // 1e-324 will not be.
+    min::gen s1em323 = min::new_str_gen ( "1e-323" );
+    min::gen s1em324 = min::new_str_gen ( "1e-324" );
 
     min::float64 sd = 0;
     MIN_ASSERT ( min::strto ( sd, s1e308 ) );
@@ -1799,7 +1807,7 @@ void test_strings ( void )
     MIN_ASSERT ( sd == 1e-307 );
     MIN_ASSERT ( ! min::strto ( sd, s1e308x ) );
     MIN_ASSERT ( ! min::strto ( sd, s1e309 ) );
-    MIN_ASSERT ( ! min::strto ( sd, s1em308 ) );
+    MIN_ASSERT ( ! min::strto ( sd, s1em324 ) );
     MIN_ASSERT ( ! min::strto ( sd, sempty ) );
     MIN_ASSERT ( sd == 1e-307 );
 
