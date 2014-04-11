@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr  5 07:06:37 EDT 2014
+// Date:	Fri Apr 11 16:15:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4595,9 +4595,9 @@ namespace min {
 	    ( min::unprotected::lab_ptr & labp );
     min::ptr<const min::gen> end_ptr_of
 	    ( min::unprotected::lab_ptr & labp );
-    min::uns32 length_of
+    min::uns32 lablen
 	    ( min::unprotected::lab_ptr & labp );
-    min::uns32 hash_of
+    min::uns32 labhash
 	    ( min::unprotected::lab_ptr & labp );
 
     namespace unprotected {
@@ -4659,9 +4659,9 @@ namespace min {
 	        min::end_ptr_of
 		    ( min::unprotected
 		         ::lab_ptr & labp );
-	    friend min::uns32 min::length_of
+	    friend min::uns32 min::lablen
 		( min::unprotected::lab_ptr & labp );
-	    friend min::uns32 min::hash_of
+	    friend min::uns32 min::labhash
 		( min::unprotected::lab_ptr & labp );
 
 	protected:
@@ -4741,13 +4741,13 @@ namespace min {
 	      labp.base() + labp.header()->length );
     }
 
-    inline min::uns32 length_of
+    inline min::uns32 lablen
 	    ( min::unprotected::lab_ptr & labp )
     {
         return labp.header()->length;
     }
 
-    inline min::uns32 hash_of
+    inline min::uns32 labhash
 	    ( min::unprotected::lab_ptr & labp )
     {
         return labp.header()->hash;
@@ -4801,13 +4801,13 @@ namespace min {
 	return hash;
     }
 
-    inline min::uns32 lab_of
-	    ( min::gen * p, min::uns32 n,
-	      const min::stub * s )
+    inline min::uns32 labncpy
+	    ( min::gen * p, const min::stub * s,
+	      min::uns32 n )
     {
 	lab_ptr labp ( s );
-	if ( n > length_of ( labp ) )
-	    n = length_of ( labp );
+	if ( n > lablen ( labp ) )
+	    n = lablen ( labp );
         for ( uns32 i = 0; i < n; ++ i )
 	{
 	    * p ++ = labp[i];
@@ -4815,10 +4815,10 @@ namespace min {
 	return n;
     }
 
-    inline min::uns32 lab_of
-	    ( min::gen * p, min::uns32 n, min::gen g )
+    inline min::uns32 labncpy
+	    ( min::gen * p, min::gen g, min::uns32 n )
     {
-	return lab_of ( p, n, stub_of ( g ) );
+	return labncpy ( p, stub_of ( g ), n );
     }
 
     min::gen new_lab_gen

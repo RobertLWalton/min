@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 06:53:40 EDT 2014
+// Date:	Fri Apr 11 16:18:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1885,11 +1885,11 @@ void test_labels ( void )
 		 sizeof ( MINT::lab_header ) );
     MIN_ASSERT ( min::hash ( lab ) == labhash1 );
     MIN_ASSERT
-	( min::lab_of ( labv2, 5, s ) == 3 );
+	( min::labncpy ( labv2, s, 5 ) == 3 );
     MIN_ASSERT
 	( min::new_lab_gen ( labv2, 3 ) == lab );
     MIN_ASSERT
-	( min::lab_of ( labv2, 5, lab ) == 3 );
+	( min::labncpy ( labv2, lab, 5 ) == 3 );
     MIN_ASSERT
 	( min::new_lab_gen ( labv2, 3 ) == lab );
 
@@ -1898,12 +1898,12 @@ void test_labels ( void )
     MIN_ASSERT ( labp[0] == labv1[0] );
     MIN_ASSERT ( labp[1] == labv1[1] );
     MIN_ASSERT ( labp[2] == labv1[2] );
-    MIN_ASSERT ( min::length_of ( labp ) == 3);
-    MIN_ASSERT ( min::hash_of ( labp ) == labhash1 );
+    MIN_ASSERT ( min::lablen ( labp ) == 3);
+    MIN_ASSERT ( min::labhash ( labp ) == labhash1 );
     labp = labv1[0];
     MIN_ASSERT ( labp == min::NULL_STUB );
     labp = lab;
-    MIN_ASSERT ( min::length_of ( labp ) == 3);
+    MIN_ASSERT ( min::lablen ( labp ) == 3);
     min::lab_ptr labp1 ( labv1[0] );
     MIN_ASSERT ( labp1 == min::NULL_STUB );
     min::lab_ptr labp2 ( labv1[0] );
