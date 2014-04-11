@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 12 20:16:27 EST 2014
+// Date:	Fri Apr 11 16:16:44 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -453,8 +453,8 @@ int min::compare ( min::gen g1, min::gen g2 )
         else if ( ! is_lab ( g2 ) ) return -1;
 	lab_ptr lp1 ( g1 );
 	lab_ptr lp2 ( g2 );
-	unsptr len1 = length_of ( lp1 );
-	unsptr len2 = length_of ( lp2 );
+	unsptr len1 = lablen ( lp1 );
+	unsptr len2 = lablen ( lp2 );
 	for ( unsptr i = 0; i < len1; ++ i )
 	{
 	    if ( i >= len2 ) return +1;
@@ -488,11 +488,11 @@ min::int32 min::is_subsequence
     min::gen label2[length2];
 
     if ( is_lab ( v1 ) )
-        lab_of ( label1, length1, v1 );
+        labncpy ( label1, v1, length1 );
     else
         label1[0] = v1;
     if ( is_lab ( v2 ) )
-        lab_of ( label2, length2, v2 );
+        labncpy ( label2, v2, length2 );
     else
         label2[0] = v2;
 
@@ -619,7 +619,7 @@ static void lab_scavenger_routine
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
     min::lab_ptr labp ( sc.s1 );
-    while ( i < min::length_of ( labp ) )
+    while ( i < min::lablen ( labp ) )
     {
         if ( sc.gen_count >= sc.gen_limit )
 	{
@@ -1669,8 +1669,8 @@ min::gen min::new_lab_gen
 
 	lab_ptr labp ( s );
 
-	if ( hash != hash_of ( labp ) ) continue;
-	if ( n != length_of ( labp ) ) continue;
+	if ( hash != labhash ( labp ) ) continue;
+	if ( n != lablen ( labp ) ) continue;
 
 	uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
@@ -1693,8 +1693,8 @@ min::gen min::new_lab_gen
 
 	lab_ptr labp ( s2 );
 
-	if ( hash != hash_of ( labp ) ) continue;
-	if ( n != length_of ( labp ) ) continue;
+	if ( hash != labhash ( labp ) ) continue;
+	if ( n != lablen ( labp ) ) continue;
 
 	uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
@@ -5060,7 +5060,7 @@ void min::compact
 	min::gen element[len];
 	if ( is_label )
 	{
-	    lab_of ( element, len, name );
+	    labncpy ( element, name, len );
 	    if ( len == 1
 	         &&
 		 ( is_num ( element[0] )
@@ -5238,7 +5238,7 @@ void min::compact
 	else len = 1;
 	min::gen element[len];
 	if ( is_label )
-	    lab_of ( element, len, ap.attr_name );
+	    labncpy ( element, ap.attr_name, len );
 	else element[0] = ap.attr_name;
 
 	min::gen c;
@@ -5319,7 +5319,7 @@ void min::compact
 	    len = 1;
 	min::gen element[len];
 	if ( is_label )
-	    lab_of ( element, len, ap.attr_name );
+	    labncpy ( element, ap.attr_name, len );
 	else element[0] = ap.attr_name;
 
 	MIN_ASSERT ( ap.length < len );
@@ -5439,7 +5439,7 @@ void min::compact
 	    if ( min::lablen ( name ) == 1 )
 	    {
 		min::gen atom;
-		lab_of ( & atom, 1, name );
+		labncpy ( & atom, name, 1 );
 		if ( is_num ( atom )
 		     ||
 		     is_str ( atom ) )
@@ -5705,7 +5705,7 @@ void min::locate_reverse
 	 lablen ( reverse_name ) == 1 )
     {
 	min::gen atom;
-	lab_of ( & atom, 1, reverse_name );
+	labncpy ( & atom, reverse_name, 1 );
 	if ( is_str ( atom )
 	     ||
 	     is_num ( atom ) )
@@ -9807,7 +9807,7 @@ static T pgen
 	}
 
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
-        min::uns32 len = min::length_of ( labp );
+        min::uns32 len = min::lablen ( labp );
 	out << prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{

@@ -1038,7 +1038,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
-    min::lab_of ( labv2, 5, s ) == 3 true.
+    min::labncpy ( labv2, s, 5 ) == 3 true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
 ../include/min.h:XXXX assert:
@@ -1056,7 +1056,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
-    min::lab_of ( labv2, 5, lab ) == 3 true.
+    min::labncpy ( labv2, lab, 5 ) == 3 true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
 ../include/min.h:XXXX assert:
@@ -1082,13 +1082,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     labp[2] == labv1[2] true.
 min_interface_test.cc:XXXX assert:
-    min::length_of ( labp ) == 3 true.
+    min::lablen ( labp ) == 3 true.
 min_interface_test.cc:XXXX assert:
-    min::hash_of ( labp ) == labhash1 true.
+    min::labhash ( labp ) == labhash1 true.
 min_interface_test.cc:XXXX assert:
     labp == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
-    min::length_of ( labp ) == 3 true.
+    min::lablen ( labp ) == 3 true.
 min_interface_test.cc:XXXX assert:
     labp1 == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
