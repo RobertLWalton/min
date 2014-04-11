@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 02:05:49 EST 2012
+// Date:	Fri Apr 11 14:27:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -585,6 +585,11 @@ int main ( int argc, const char ** argv )
 	-- n;
 	cout << "new_pool will allocate at most 1 << "
 	     << n << " pages." << endl;
+	cout << "virtual memory has "
+	     << MOS::virtualsize() / ::pagesize()
+	     << " = 0x" << std::hex
+	     << MOS::virtualsize() / ::pagesize()
+	     << std::dec << " pages." << endl;
     }
 
     if ( argc > 1 ) MOS::dump_error_info ( cout );
