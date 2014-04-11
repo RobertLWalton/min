@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  6 06:37:38 EST 2013
+// Date:	Fri Apr 11 13:40:14 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@
 extern "C" {
 #   include <sys/types.h>
 #   include <sys/stat.h>
+#   include <sys/resource.h>
 #   include <unistd.h>
 #   include <errno.h>
 #   include <sys/mman.h>
@@ -133,6 +134,34 @@ inline min::unsptr pagesize ( void )
 min::uns64 MOS::pagesize ( void )
 {
     return ::pagesize();
+}
+
+static min::unsptr saved_virtualsize;
+min::uns64 MOS::virtualsize ( void )
+{
+    if ( saved_virtualsize != 0 )
+        return saved_virtualsize;
+
+    struct rlimit rlimit;
+    if ( getrlimit ( RLIMIT_AS, & rlimit ) != 0 )
+        fatal_error ( errno );
+    if ( sizeof ( rlimit.rlim_cur )
+         < sizeof ( min::unsptr ) )
+    {
+        cerr << fname
+             << ": FATAL OPERATING SYSTEM RELATED"
+	        " ERROR: rlim_cur size < pointer"
+		" size"
+             << endl;
+	exit ( ENOSYS );
+    }
+
+    if ( rlimit.rlim_cur == RLIM_INFINITY )
+        saved_virtualsize = MIN_VIRTUALSIZE;
+    else
+        saved_virtualsize = rlimit.rlim_cur;
+
+    return saved_virtualsize;
 }
 
 // new_poolXX error messages:

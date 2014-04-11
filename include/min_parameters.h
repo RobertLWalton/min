@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:11:46 EDT 2011
+// Date:	Fri Apr 11 13:43:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -344,6 +344,9 @@ namespace min { namespace internal {
 //	    High order 24 bits of the smallest (as an
 //	    unsigned binary integer) 64 bit floating
 //	    point signalling NAN.
+//	MIN_VIRTUALSIZE
+//	    Maximum virtual memory size in bytes as
+//	    an unsigned long long constant.
 //
 # if __i386__
 #   define MIN_INT32_TYPE int
@@ -352,6 +355,7 @@ namespace min { namespace internal {
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_PTR_BITS 32
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
+#   define MIN_VIRTUALSIZE ( 1ull << 32 )
 # endif
 # if __x86_64__
 #   define MIN_INT32_TYPE int
@@ -360,6 +364,7 @@ namespace min { namespace internal {
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_PTR_BITS 64
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
+#   define MIN_VIRTUALSIZE ( 1ull << 48 )
 # endif
 
 # endif // MIN_PARAMETERS_H

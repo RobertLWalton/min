@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:11:35 EDT 2011
+// Date:	Fri Apr 11 13:44:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,6 +55,11 @@ namespace min { namespace os {
     // Return the current page size.
     //
     min::uns64 pagesize ( void );
+
+    // Return the current maximum virtual address space
+    // size.
+    //
+    min::uns64 virtualsize ( void );
 
     // In the following a segment is a contiguous piece
     // of memory consisting of an integral number of
