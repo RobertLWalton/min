@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 10, 2014}
+\date{April 11, 2014}
  
 \maketitle
 
@@ -3927,7 +3927,7 @@ Its value can be implicitly converted to a `\TT{const char *}'
 that may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
 
-\TT{sp[i]} can be used to access the \TT{i}+1's character of
+\TT{sp[i]} can be used to access the \TT{i+1}'st character of
 the NUL-terminated string.
 There is no protection against the operator index
 being longer than the string length.
@@ -4155,12 +4155,10 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb|( min::lab_ptr & labp )|
+	& \MINKEY{lablen} \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::LENGTH_OF_LAB_PTR} \\
 \verb|min::uns32 min::|
-	& \MINKEY{hash\_of}\ARGBREAK
-	  \verb|( min::lab_ptr & labp )|
+	& \MINKEY{labhash} \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::HASH_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4178,12 +4176,12 @@ set a label pointer just as a constructor with the \TT{=} right side
 as the constructor argument would.
 
 Given a label pointer \TT{labp} pointing at a real label,
-\TT{labp[i]} is the \TT{i}+1's
+\TT{labp[i]} is the \TT{i+1}'st
 element of the label, for
-\TT{0<i<min::length\_of(labp)},
-where the \TT{min::\EOL length\_\EOL of} function
+\TT{0<i<min::lablen(labp)},
+where the \TT{min::\EOL lablen} function
 returns the number of elements in the label.
-The \TT{min::\EOL hash\_\EOL of} function returns the hash of the label.
+The \TT{min::\EOL labhash} function returns the hash of the label.
 
 The \TT{min::\EOL begin\_\EOL ptr\_\EOL of} and
 \TT{min::\EOL end\_\EOL ptr\_\EOL of}
@@ -4192,7 +4190,7 @@ point at the first label element and the location just after the
 last label element, respectively.  Unlike `\TT{\& labp[0]}',
 \TT{min::\EOL begin\_\EOL ptr\_\EOL} of will not suffer an error if
 the label length is \TT{0}, and unlike
-`\TT{\& labp[length\_of(labp)]}',
+`\TT{\& labp[lablen(labp)]}',
 \TT{min::\EOL end\_\EOL ptr\_\EOL of} will not suffer an error.
 In addition these functions return \TT{min::ptr} pointers that
 remain valid even if the label body is relocated.
@@ -4256,6 +4254,7 @@ min::labhash ( hash, h ):
     // All arithmetic is mod 2**32
     hash = hash * min::labhash_factor + h
     if ( hash == 0 ) hash = -1
+    return hash
 \end{verbatim}\end{indpar}
 
 Comparing this with the hash algorithm for strings
@@ -4271,27 +4270,19 @@ hash value \TT{min::\EOL labhash\_\EOL initial = 1009}.
 
 The two argument \TT{labhash ( hash, h )} function performs the
 incremental step in the computation of a label hash, and can be useful
-in some lookup situations.  More specifically, the above algorithm
-is equivalent to:
-
-\begin{indpar}\begin{verbatim}
-hash = min::labhash_initial;
-n = length of label
-for i = 1 through n:
-    hash = labhash ( hash, hash of i'th element of label )
-\end{verbatim}\end{indpar}
+in some lookup situations.
 
 Although label values are generally read using lab pointers,
 a label value may be read by the protected functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::| & \MINKEY{lab\_of}\ARGBREAK
-	  \verb|( min::gen * p, min::uns32 n,|\ARGBREAK
-	  \verb|  const min::stub * s )|
+\verb|min::uns32 min::| & \MINKEY{labncpy}\ARGBREAK
+	  \verb|( min::gen * p,|\ARGBREAK
+	  \verb|  const min::stub * s, min::uns32 n )|
 \LABEL{MIN::LAB_OF} \\
-\verb|min::uns32 min::| & \MINKEY{lab\_of}\ARGBREAK
-	  \verb|( min::gen * p, min::uns32 n,|\ARGBREAK
-	  \verb|  min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{labncpy}\ARGBREAK
+	  \verb|( min::gen * p,|\ARGBREAK
+	  \verb|  min::gen v, min::uns32 n )|
 \LABEL{MIN::LAB_OF_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -4401,12 +4392,10 @@ and furthermore do not check subscript ranges:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb|( MUP::lab_ptr & labp )|
+	& \MINKEY{lablen} \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::LENGTH_OF_MUP_LAB_PTR} \\
 \verb|min::uns32 min::|
-	& \MINKEY{hash\_of}\ARGBREAK
-	  \verb|( MUP::lab_ptr & labp )|
+	& \MINKEY{labhash} \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::HASH_OF_MUP_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -13934,12 +13923,10 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::uns32 min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb|( min::lab_ptr & labp )|
+	& \MINKEY{lablen} \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::LENGTH_OF_LAB_PTR} \\
 \verb|min::uns32 min::|
-	& \MINKEY{hash\_of}\ARGBREAK
-	  \verb|( min::lab_ptr & labp )|
+	& \MINKEY{labhash} \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::HASH_OF_LAB_PTR} \\
 \end{TABULAR}
 
@@ -13972,13 +13959,13 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::uns32 min::| & \MINKEY{lab\_of}\ARGBREAK
-	  \verb|( min::gen * p, min::uns32 n,|\ARGBREAK
-	  \verb|  const min::stub * s )|
+\verb|min::uns32 min::| & \MINKEY{labncpy}\ARGBREAK
+	  \verb|( min::gen * p,|\ARGBREAK
+	  \verb|  const min::stub * s, min::uns32 n )|
 \LABEL{MIN::LAB_OF} \\
-\verb|min::uns32 min::| & \MINKEY{lab\_of}\ARGBREAK
-	  \verb|( min::gen * p, min::uns32 n,|\ARGBREAK
-	  \verb|  min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{labncpy}\ARGBREAK
+	  \verb|( min::gen * p,|\ARGBREAK
+	  \verb|  min::gen v, min::uns32 n )|
 \LABEL{MIN::LAB_OF_GEN} \\
 \end{TABULAR}
 
@@ -14062,12 +14049,10 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.4in}
 \verb|min::uns32 min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb|( MUP::lab_ptr & labp )|
+	& \MINKEY{lablen} \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::LENGTH_OF_MUP_LAB_PTR} \\
 \verb|min::uns32 min::|
-	& \MINKEY{hash\_of}\ARGBREAK
-	  \verb|( MUP::lab_ptr & labp )|
+	& \MINKEY{labhash} \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::HASH_OF_MUP_LAB_PTR} \\
 \end{TABULAR}
 
