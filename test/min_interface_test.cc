@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 16:18:56 EDT 2014
+// Date:	Sat Apr 12 03:03:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2027,12 +2027,14 @@ void test_names ( void )
 
 struct ps1;
 typedef min::packed_struct<ps1> ps1t;
+typedef min::packed_struct_ptr<ps1> ps1ptr;
+typedef min::packed_struct_updptr<ps1> ps1updptr;
 struct ps1 {
     const min::uns32 control;
     min::uns32 i;
     min::gen g;
     min::stub * s;
-    ps1t::ptr psp;
+    ps1ptr psp;
 };
 
 static min::uns32 ps1_gen_disp[2] =
@@ -2052,6 +2054,8 @@ struct ps2 {
 };
 
 typedef min::packed_struct<ps2> ps2t;
+typedef min::packed_struct_ptr<ps2> ps2ptr;
+typedef min::packed_struct_updptr<ps2> ps2updptr;
 static ps2t ps2type ( "ps2type" );
 
 
@@ -2066,7 +2070,7 @@ void test_packed_structs ( void )
 	  == MIN_PTR_BITS );
     MIN_ASSERT
         (    8 * min::OFFSETOF
-	           ( & min::locatable_var<ps1t::updptr>
+	           ( & min::locatable_var<ps1updptr>
 		          ::previous )
 	  == MIN_PTR_BITS );
 
@@ -2075,7 +2079,7 @@ void test_packed_structs ( void )
     const min::stub * v1 = ps1type.new_stub();
     MIN_ASSERT (    min::packed_subtype_of ( v1 )
                  == ps1type.subtype );
-    ps1t::updptr upv1 ( v1 );
+    ps1updptr upv1 ( v1 );
     MIN_ASSERT (    min::packed_subtype_of ( upv1 )
                  == ps1type.subtype );
     cout << "upv1->control = " << upv1->control << endl;
@@ -2084,7 +2088,7 @@ void test_packed_structs ( void )
     MIN_ASSERT ( upv1->i == 88 );
 
     min::gen v2 = ps2type.new_gen();
-    ps2t::updptr upv2 ( v2 );
+    ps2updptr upv2 ( v2 );
     cout << "upv2->control = " << upv2->control << endl;
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
@@ -2092,7 +2096,7 @@ void test_packed_structs ( void )
     upv2->j = 99;
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
-    ps2t::ptr pv2 ( v2 );
+    ps2ptr pv2 ( v2 );
     MIN_ASSERT ( pv2->i == 55 );
     MIN_ASSERT ( pv2->j == 99 );
 
@@ -2111,7 +2115,7 @@ void test_packed_structs ( void )
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
 
-    ps1t::updptr upv1b;
+    ps1updptr upv1b;
     MIN_ASSERT ( upv1b == min::NULL_STUB );
     upv1b = upv1;
     MIN_ASSERT ( upv1b->i == 88 );
@@ -2130,12 +2134,15 @@ void test_packed_structs ( void )
 struct pve;
 struct pvh;
 typedef min::packed_vec<pve,pvh> pvt;
+typedef min::packed_vec_ptr<pve,pvh> pvptr;
+typedef min::packed_vec_updptr<pve,pvh> pvupdptr;
+typedef min::packed_vec_insptr<pve,pvh> pvinsptr;
 struct pvh {
     const min::uns32 control;
     min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
-    pvt::insptr pvip;
+    pvinsptr pvip;
 };
 
 struct pve {
@@ -2176,7 +2183,7 @@ void test_packed_vectors ( void )
 
     MIN_ASSERT
         (    8 * min::OFFSETOF
-	           ( & min::locatable_var<pvt::insptr>
+	           ( & min::locatable_var<pvinsptr>
 		          ::previous )
 	  == MIN_PTR_BITS );
 
@@ -2185,7 +2192,7 @@ void test_packed_vectors ( void )
     const min::stub * v = pvtype.new_stub ( 5 );
     MIN_ASSERT (    min::packed_subtype_of ( v )
                  == pvtype.subtype );
-    pvt::insptr pvip ( v );
+    pvinsptr pvip ( v );
     MIN_ASSERT (    min::packed_subtype_of ( pvip )
                  == pvtype.subtype );
     MIN_ASSERT ( pvip->max_length == 5 );
@@ -2195,7 +2202,7 @@ void test_packed_vectors ( void )
     min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
-    pvt::ptr pvp = min::new_stub_gen ( v );
+    pvptr pvp = min::new_stub_gen ( v );
     MIN_ASSERT ( pvp->length == 1 );
     MIN_ASSERT ( pvp[0].j == 88 );
 
@@ -2248,7 +2255,7 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp == v );
     MIN_ASSERT ( pvp[2].j == 33 );
 
-    pvt::insptr pvip2;
+    pvinsptr pvip2;
     MIN_ASSERT ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
     MIN_ASSERT ( pvip2[2].j == 33 );

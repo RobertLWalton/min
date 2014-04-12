@@ -1435,7 +1435,7 @@ Start Packed Structs Test!
 min_interface_test.cc:XXXX assert:
     8 * min::OFFSETOF ( & MINT::locatable_var::previous ) == MIN_PTR_BITS true.
 min_interface_test.cc:XXXX assert:
-    8 * min::OFFSETOF ( & min::locatable_var<ps1t::updptr> ::previous ) == MIN_PTR_BITS true.
+    8 * min::OFFSETOF ( & min::locatable_var<ps1updptr> ::previous ) == MIN_PTR_BITS true.
 ps1type.name = ps1type
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1494,7 +1494,7 @@ Start Packed Vectors Test!
 min_interface_test.cc:XXXX assert:
     sizeof ( pve ) == 32 true.
 min_interface_test.cc:XXXX assert:
-    8 * min::OFFSETOF ( & min::locatable_var<pvt::insptr> ::previous ) == MIN_PTR_BITS true.
+    8 * min::OFFSETOF ( & min::locatable_var<pvinsptr> ::previous ) == MIN_PTR_BITS true.
 pvtype.name = pvtype
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v ) == pvtype.subtype true.

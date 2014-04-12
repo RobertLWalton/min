@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 16:15:54 EDT 2014
+// Date:	Sat Apr 12 03:03:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5256,11 +5256,6 @@ namespace min {
 		      ( this ) );
 	}
 
-	typedef typename
-		min::packed_struct_ptr<S> ptr;
-	typedef typename
-		min::packed_struct_updptr<S> updptr;
-
 	static packed_id id;
     };
 
@@ -6085,36 +6080,6 @@ namespace min {
 	              ( this, initial_max_length,
 		        0, NULL ) );
 	}
-
-	// Notice: Member subclasses of a template
-	// class are incompatible with the use of
-	// template functions, so using typdefs to
-	// get subclasses is a workaround.
-	//
-	// Specifically, according to the C++
-	// standard as of 2010, in
-	//
-	// template < typename T >
-	// void foo ( typename A<T>::B & x ) {...}
-	//
-	// the T in A<T>::B is in `non-deduced context'
-	// and cannot be deduced by parameter matching.
-	// So the template function definition of foo
-	// will not be visible to a function call such
-	// as
-	//
-	//	A<int>::B x;
-	//	foo ( x );
-	//
-	// which will get a `function not found'
-	// compiler error.
-	//
-	typedef typename
-	        min::packed_vec_ptr<E,H,L> ptr;
-	typedef typename
-	        min::packed_vec_updptr<E,H,L> updptr;
-	typedef typename
-	        min::packed_vec_insptr<E,H,L> insptr;
 
 	static packed_id id;
     };

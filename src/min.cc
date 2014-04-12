@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 16:16:44 EDT 2014
+// Date:	Sat Apr 12 03:03:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -205,11 +205,11 @@ void MINT::initialize ( void )
 
     init_default_suppress_matrix();
 
-    PTR_CHECK ( min::packed_struct<int>::ptr );
-    PTR_CHECK ( min::packed_struct<int>::updptr );
-    PTR_CHECK ( min::packed_vec<int,int>::ptr );
-    PTR_CHECK ( min::packed_vec<int,int>::updptr );
-    PTR_CHECK ( min::packed_vec<int,int>::insptr );
+    PTR_CHECK ( min::packed_struct_ptr<int> );
+    PTR_CHECK ( min::packed_struct_updptr<int> );
+    PTR_CHECK ( min::packed_vec_ptr<int,int> );
+    PTR_CHECK ( min::packed_vec_updptr<int,int> );
+    PTR_CHECK ( min::packed_vec_insptr<int,int> );
 
     assert
         ( OFFSETOF ( & MINT::locatable_gen::previous )

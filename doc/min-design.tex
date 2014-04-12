@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 11, 2014}
+\date{April 12, 2014}
  
 \maketitle
 
@@ -1016,7 +1016,10 @@ values.
 
 \TT{min::\EOL gen (~void~)} is the default constructor that sets
 an unassigned \TT{min::\EOL gen} value so it will more likely
-trigger a fault if read by mistake.
+trigger a fault if read by mistake (there is an exception for
+\TT{min::gen} elements of packed structures and packed vectors,
+which are set to \TT{0} when the structures or vectors are
+created: see \itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS}).
 Note that the existence of this constructor makes it impossible to
 include \TT{min::\EOL gen} values in C++ \TT{union}'s, but
 \TT{min::\EOL unsgen} values can be included instead and converted
@@ -4469,7 +4472,7 @@ A \key{packed structure} is a class datum stored in a body associated
 with a stub that has a \minkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
 stub type code.
 
-The class type must be similar to a C-language {\tt struct} in that:
+The class type must be similar to a C-language \TT{struct} in that:
 \begin{enumerate}
 \item Construction\label{PACKED-STRUCTURE-TYPE-REQUIREMENTS}
 of a datum of the type
@@ -4479,7 +4482,7 @@ set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
 
 When a packed structure is created it is zeroed and then one special
-header member described below, the {\tt control} member,
+header member described below, the \TT{control} member,
 is given a value.
 No constructor is called.
 \item
@@ -4488,18 +4491,21 @@ Destruction of a datum of the type does nothing.
 When a packed structure is destroyed, no destructor is called.
 \item
 Assignment of a datum of the type from another datum of the same type
-is equivalent to a {\tt memcpy} operation.
+is equivalent to a \TT{memcpy} operation.
 
 When a packed structure is moved by the copying part of
-the ACC, it is moved by {\tt memcpy}.
+the ACC, it is moved by \TT{memcpy}.
 \end{enumerate}
 
-Numeric, \verb|min::gen|, and \verb|min::stub *| values are permitted as
-packed structure class members.
+Numeric, \TT{min::gen}, and \TT{const min::stub *} values are permitted as
+packed structure class members, as are \TT{min::\EOL packed\_\ldots\_ptr}
+values (see below) and C++ pointers.  Note that all these
+are initialized to \TT{0} (equal to \TT{NULL} or \TT{min::NULL\_STUB}
+for pointers) when a packed structure is created.
 
 The type of a packed structure
 must have as its first member
-(that is, the member at displacement {\tt 0});
+(that is, the member at displacement \TT{0});
 \begin{indpar}
 \verb|const min::uns32 control;|
 \end{indpar}
@@ -4508,36 +4514,36 @@ This first member holds subtype information and flags.
 The packed structure type
 may have a public base structure, as long as that also follows the above
 rules.  In this case the
-`{\tt control}' member must be the first member of the base structure.
-This rule can be applied recursively to get, for example, a `{\tt struct}'
-based on a public `{\tt struct}'
-based on a public `{\tt struct}' whose first member is `{\tt control}'.
+`\TT{control}' member must be the first member of the base structure.
+This rule can be applied recursively to get, for example, a `\TT{struct}'
+based on a public `\TT{struct}'
+based on a public `\TT{struct}' whose first member is `\TT{control}'.
 
 There are two types of pointers that can be used to
 access members of packed structures:
-\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
-\verb|min::packed_struct_ptr<S>| & \verb|min::packed_struct<S>::ptr| \\
-\verb|min::packed_struct_updptr<S>| & \verb|min::packed_struct<S>::updptr|
+\begin{indpar}\begin{tabular}{l}
+\verb|min::packed_struct_ptr<S>| \\
+\verb|min::packed_struct_updptr<S>|
 \end{tabular}\end{indpar}
-where \verb|S| is the class type of the structure.
+where \TT{S} is the class type of the structure.
 The first \mkey{read-only pointer}{to packed structure} type
 permits read-only access to packed structure members,
 while the second \mkey{updatable pointer}{to packed structure} type
 permits read-write access.
-These pointers are like the type `\verb|const min::stub *|' but with with extra
+These pointers are like the type `\TT{const min::stub *}' but with with extra
 clothes.
 Pointers of these types can also be included as members in packed structures
 and in packed vector headers and elements (see \itemref{PACKED-VECTORS}).
 
 The type of a packed structure is described at run-time by a
-{\tt min::packed\_\EOL struct\SARG} C++ static object, where
-\verb|S| is the type of the structure.
-The {\tt new\_gen} and {\tt new\_stub}
+\TT{min::packed\_\EOL struct\SARG} C++ static object, where
+\TT{S} is the type of the structure.
+The \TT{new\_gen} and \TT{new\_stub}
 member functions of this C++ static object can be
 used to create new packed structures of the described type.
 
 More explicitly, to create a new type of \key{packed structure}
-named \verb|pstype| use
+named \TT{pstype} use
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -4583,7 +4589,7 @@ where
 
 \begin{itemlist}[0.5in]
 
-\item[{\tt S}]
+\item[\TT{S}]
 The type of the body of packed structures of the type being
 declared.  This type must be a class whose first
 member is
@@ -4591,27 +4597,27 @@ member is
 \verb|const min::uns32 control;|
 \end{center}
 This member holds a code that effectively
-points at \verb|pstype|, and also holds some flags.
-This member is initialized by \verb|new_gen| or \verb|new_stub| and must not
+points at \TT{pstype}, and also holds some flags.
+This member is initialized by \TT{new\_gen} or \TT{new\_stub} and must not
 be changed by the user.
 This type must meet the requirements given on
 \pagref{PACKED-STRUCTURE-TYPE-REQUIREMENTS}.
 
-\item[{\tt B}]
-{\tt S} may have a single base type {\tt B} as in
+\item[\TT{B}]
+\TT{S} may have a single base type \TT{B} as in
 \begin{indpar}\begin{verbatim}
 struct S : public struct B { ... }
 \end{verbatim}\end{indpar}
-where {\tt B} is a packed structure type meeting the requirements given
+where \TT{B} is a packed structure type meeting the requirements given
 on \pagref{PACKED-STRUCTURE-TYPE-REQUIREMENTS}.
-In this case {\tt S} does
-\underline{not} have a `{\tt control}' member, as
-the `{\tt control}' member of {\tt B} serves as
-the `{\tt control}' member of {\tt S}.
-If {\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
+In this case \TT{S} does
+\underline{not} have a `\TT{control}' member, as
+the `\TT{control}' member of \TT{B} serves as
+the `\TT{control}' member of \TT{S}.
+If \TT{packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
 is used to define the packed structure type, conversion of
-{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
-to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
+to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
 pointers is enabled.
 
 \end{itemlist}
@@ -4619,15 +4625,15 @@ pointers is enabled.
 \begin{itemlist}[0.8in]
 
 \item[\ttmkey{subtype}{in {\tt min::packed\_struct}}]
-A small integer automatically assigned to uniquely identify \verb|pstype|.
-This is stored in the `{\tt control}' member of all packed
-structures that are created by {\tt pstype.new\_\EOL gen} or
-{\tt pstype.new\_\EOL stub}, and serves as a pointer from any
-of these packed structures to \verb|pstype|.
+A small integer automatically assigned to uniquely identify \TT{pstype}.
+This is stored in the `\TT{control}' member of all packed
+structures that are created by \TT{pstype.new\_\EOL gen} or
+\TT{pstype.new\_\EOL stub}, and serves as a pointer from any
+of these packed structures to \TT{pstype}.
 
 \item[\ttmkey{name}{in {\tt min::packed\_struct}}]
 \label{NAME_IN_PACKED_STRUCT}
-A name unique to the \verb|pstype| datum, typically the
+A name unique to the \TT{pstype} datum, typically the
 fully qualified name of this datum.  This character string may
 be output to identify the packed structure type when a packed structure is
 output.
@@ -4638,53 +4644,53 @@ output.
 
 \item[\ttmkey{gen\_\EOL disp}{in {\tt min::packed\_struct}}]
 This C vector is a list of the displacements (in bytes) of all
-the \verb|min::gen| members of \verb|S|,
-terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
-The displacement of member \verb|m| in structure type \verb|S| should
-be computed by {\tt min::\EOL DISP(\&S::m)}.
+the \TT{min::gen} members of \TT{S},
+terminated by the value \TT{min::DISP\_END}\minindex{DISP\_END}.
+The displacement of member \TT{m} in structure type \TT{S} should
+be computed by \TT{min::\EOL DISP(\&S::m)}.
 
 This displacements vector should not
-be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
-values in \verb|S|.  But if there are \verb|min::gen| members, this
+be given (its address should be \TT{NULL}) if there are no \TT{min::gen}
+values in \TT{S}.  But if there are \TT{min::gen} members, this
 displacements vector must be given for garbage collection purposes.
 
-\verb|const min::gen| members are treated like \verb|min::gen|
+\TT{const min::gen} members are treated like \TT{min::gen}
 members for these purposes.
 
 \item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]\label{STUB_DISP}
-Ditto but for \verb|const min::stub *| members of \verb|S|
-instead of \verb|min::gen| members.
+Ditto but for \TT{const min::stub *} members of \TT{S}
+instead of \TT{min::gen} members.
 
-Members of the types `\verb|const min::stub *|', `\verb|min::stub const *|', and
-`{\tt const min::\EOL stub \EOL const~*}' are treated like
-`{\tt min::\EOL stub~*}' members for these purposes.
+Members of the types `\TT{const min::stub *}', `\TT{min::stub const *}', and
+`\TT{const min::\EOL stub \EOL const~*}' are treated like
+`\TT{min::\EOL stub~*}' members for these purposes.
 
-{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~and~
-{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG} members
-are also treated as {\tt const min::\EOL stub~*} members.
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~and~
+\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG} members
+are also treated as \TT{const min::\EOL stub~*} members.
 
 \end{itemlist}
 
-The \verb|pstype.new_gen| and \verb|pstype.new_stub|
+The \TT{pstype.new\_gen} and \TT{pstype.new\_stub}
 functions create a new packed structure
-datum of the type described by \verb|pstype| and return a
-\verb|min::gen| or {\tt const min::\EOL stub~*} value pointing at it.
+datum of the type described by \TT{pstype} and return a
+\TT{min::gen} or \TT{const min::\EOL stub~*} value pointing at it.
 The new packed structure is set to all zeros, except for its
-`\verb|control|' member.
+`\TT{control}' member.
 
-The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
-displacement in bytes of the member \verb|m| of a structure
-of \verb|struct| type \verb|S|.  This should be used instead of
-assuming that \verb|struct| layouts are tightly packed, as often
-they are not.  The type of the \verb|S::m| member must be one of
-the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
+The function call \TT{min::\EOL DISP~(~\&~S::m~)} will return the
+displacement in bytes of the member \TT{m} of a structure
+of \TT{struct} type \TT{S}.  This should be used instead of
+assuming that \TT{struct} layouts are tightly packed, as often
+they are not.  The type of the \TT{S::m} member must be one of
+the types mentioned above: \TT{min::gen}, `\TT{const min::stub~*}',
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
 
-\verb|pstype.subtype|, \verb|pstype.name|,
-{\tt pstype.gen\_\EOL disp},
-and {\tt pstype.stub\_\EOL disp}
+\TT{pstype.subtype}, \TT{pstype.name},
+\TT{pstype.gen\_\EOL disp},
+and \TT{pstype.stub\_\EOL disp}
 can be used to retrieve the subtype, name, and displacement
-information associated with \verb|pstype|.
+information associated with \TT{pstype}.
 
 The subtype of a packed structure can be retrieved by
 
@@ -4707,26 +4713,26 @@ These functions work in the same way for both packed structures
 and packed vectors (\itemref{PACKED-VECTORS}).
 No packed structure has the same subtype as any packed vector, and
 vice versa.
-The {\tt min::\EOL packed\_\EOL subtype\_\EOL of}
-functions return {\tt 0}, which
+The \TT{min::\EOL packed\_\EOL subtype\_\EOL of}
+functions return \TT{0}, which
 is not a legal packed structure or packed vector subtype, if the
 argument does not reference a packed structure or vector.  This includes
-the case where the argument is {\tt min::\EOL NULL\_\EOL STUB}.
-The {\tt MUP::\EOL packed\_\EOL subtype\_\EOL of} function gives
+the case where the argument is \TT{min::\EOL NULL\_\EOL STUB}.
+The \TT{MUP::\EOL packed\_\EOL subtype\_\EOL of} function gives
 undefined result unless its argument references a packed structure
 or packed vector.  When the argument is a packed structure
 or packed vector,
 the subtype is computed by looking in the
-`{\tt control}' member of the structure or vector.
+`\TT{control}' member of the structure or vector.
 
-The {\tt min::name\_of\_packed\_subtype} function returns the
-{\tt pstype.name} (\pagref{NAME_IN_PACKED_STRUCT}) of the
-{\tt pstype} associated
+The \TT{min::name\_of\_packed\_subtype} function returns the
+\TT{pstype.name} (\pagref{NAME_IN_PACKED_STRUCT}) of the
+\TT{pstype} associated
 with the subtype, which is useful for tracing and debugging.
 
 The two kinds of pointers that can be used to access
 a packed structure.  The read-only
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointers
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointers
 have the usage:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
@@ -4777,54 +4783,54 @@ have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \end{tabular}\end{indpar}
 
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is just
-a `{\tt const min::stub~*}' value in fancy clothes, and may be
-converted to/from a `{\tt const min::stub~*}' value.
+A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is just
+a `\TT{const min::stub~*}' value in fancy clothes, and may be
+converted to/from a `\TT{const min::stub~*}' value.
 
-For the constructors and the {\tt =} assignment operator, if the
-argument \verb|v| or \verb|s| does not point at a packed structure
-of type {\tt S}, the {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
-result is set to {\tt min::\EOL NULL\_\EOL STUB},
-which is just the standard C language \verb|NULL|
-cast to the `\verb|const min::stub *|' type.
-Note that \verb|NULL| cannot itself be used as an argument to
-the constructors or {\tt =} operator, as it is
-convertible to either a `\verb|min::stub *|'
-or \verb|min::gen| type, and is thus creates ambiguity.
-But {\tt min::\EOL NULL\_\EOL STUB} can be used.
-If a constructor for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+For the constructors and the \TT{=} assignment operator, if the
+argument \TT{v} or \TT{s} does not point at a packed structure
+of type \TT{S}, the \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+result is set to \TT{min::\EOL NULL\_\EOL STUB},
+which is just the standard C language \TT{NULL}
+cast to the `\TT{const min::stub *}' type.
+Note that \TT{NULL} cannot itself be used as an argument to
+the constructors or \TT{=} operator, as it is
+convertible to either a `\TT{min::stub *}'
+or \TT{min::gen} type, and is thus creates ambiguity.
+But \TT{min::\EOL NULL\_\EOL STUB} can be used.
+If a constructor for \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
 is not given an argument, the pointer is also set to
-{\tt min::\EOL NULL\_\EOL STUB}.
+\TT{min::\EOL NULL\_\EOL STUB}.
 
 A pointer equal to
-{\tt min::\EOL NULL\_\EOL STUB} gives undefined results if
+\TT{min::\EOL NULL\_\EOL STUB} gives undefined results if
 used to access a structure,
 though almost always the result will be a memory fault.
-The {\tt ==} and {\tt !=} operators can be used to test whether
-or not a {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer
-equals {\tt min::\EOL NULL\_\EOL STUB}.
+The \TT{==} and \TT{!=} operators can be used to test whether
+or not a \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer
+equals \TT{min::\EOL NULL\_\EOL STUB}.
 
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer is also
-internally a `\verb|S const **|' value that is made to behave externally like a
-`\verb|S const *|' value with respect to the \verb|->| and
-unary \verb|*| operators.  Thus looking ahead at the example below,
-if \verb|upv| is a
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
-and \verb|S| has a member \verb|m|, then \verb|upv->m| is the \verb|m|
-member of the \verb|S| struct pointed at by \verb|upv|.
+A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer is also
+internally a `\TT{S const **}' value that is made to behave externally like a
+`\TT{S const *}' value with respect to the \TT{->} and
+unary \TT{*} operators.  Thus looking ahead at the example below,
+if \TT{upv} is a
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
+and \TT{S} has a member \TT{m}, then \TT{upv->m} is the \TT{m}
+member of the \TT{S} struct pointed at by \TT{upv}.
 
 Note that in certain
-circumstances, such as inside a {\tt template} class,
-component names like {\tt min::\EOL packed\_\EOL struct<S>::ptr} will not work
-and the alternative {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
+circumstances, such as inside a \TT{template} class,
+component names like \TT{min::\EOL packed\_\EOL struct<S>::ptr} will not work
+and the alternative \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
 must be used instead.  The later are usually preferred anyway because
-it can be defined without defining \verb|S|, and therefore can be
+it can be defined without defining \TT{S}, and therefore can be
 used to build recursive structures.
 
-The read-write {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
+The read-write \TT{min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
 pointer type has 
-as its {\tt public} base class the
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer type,
+as its \TT{public} base class the
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer type,
 so that it can be implicitly converted to
 a read-only pointer.  The new code defined for this read-write
 pointer type is:
@@ -4871,17 +4877,17 @@ pointer type is:
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \end{tabular}\end{indpar}
 
-The {\tt ->} and {\tt *} operators are redefined (i.e., \underline{not}
+The \TT{->} and \TT{*} operators are redefined (i.e., \underline{not}
 inherited) so that they
-return `{\tt S~*}' and `{\tt S~\&}' values instead of
-`{\tt S~const~*}' and `{\tt S~const~\&}' values.
+return `\TT{S~*}' and `\TT{S~\&}' values instead of
+`\TT{S~const~*}' and `\TT{S~const~\&}' values.
 
-{\tt min::gen}, `{\tt const min::stub~*}', and
-{\tt min::\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
+\TT{min::gen}, `\TT{const min::stub~*}', and
+\TT{min::\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
 elements of packed structures must be locatable.
-The {\tt MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
+The \TT{MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
-should be used with a {\tt min::\EOL packed\_\EOL
+should be used with a \TT{min::\EOL packed\_\EOL
 struct\_\EOL updptr\SARG} container type
 for locatable elements of a packed structure.
 
@@ -4939,7 +4945,7 @@ main ( ... )
 
 Packed structure pointers do no caching and
 there is \underline{no need} for
-a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+a refresh function analogous to the \TT{min::\EOL \ldots\_\EOL refresh}
 functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
 \subsection{Packed Vectors}
@@ -4948,14 +4954,14 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 A \key{packed vector} is like a packed structure but with an added vector
 that follows the structure,
 and with a \minkey{PACKED\_VEC}\LABEL{MIN::PACKED_VEC}
-stub type code instead of a {\tt min::\EOL PACKED\_\EOL STRUCT} type code.
+stub type code instead of a \TT{min::\EOL PACKED\_\EOL STRUCT} type code.
 
 The structure at the beginning of a packed vector
 is called the packed vector \mkey{header}{of packed vector}
 and the vector elements that follow the header are called the
 packed vector \smkey{element}s{of packed vector}.
 The types of both the vector header and the vector elements must be
-similar to C-language {\tt struct}, number, or pointer types in that:
+similar to C-language \TT{struct}, number, or pointer types in that:
 \begin{enumerate}
 \item Construction\label{PACKED-VECTOR-TYPE-REQUIREMENTS}
 of a datum of the type
@@ -4965,8 +4971,8 @@ set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
 
 When a packed vector is created it is zeroed and then a few special
-header members described below, the {\tt control}, {\tt length},
-and {\tt max\_\EOL length} members, are given values.
+header members described below, the \TT{control}, \TT{length},
+and \TT{max\_\EOL length} members, are given values.
 No constructor is called.
 \item
 Destruction of a datum of the type does nothing.
@@ -4974,19 +4980,19 @@ Destruction of a datum of the type does nothing.
 When a packed vector is destroyed, destructors are not called.
 \item
 Assignment of a datum of the type from another datum of the same type
-is equivalent to a {\tt memcpy} operation.
+is equivalent to a \TT{memcpy} operation.
 
 When a packed vector is expanded, or moved by the copying part of
-the ACC, it is moved by {\tt memcpy}.
+the ACC, it is moved by \TT{memcpy}.
 \end{enumerate}
 
-Numeric, \verb|min::gen|, and \verb|min::stub *| values are permitted as
+Numeric, \TT{min::gen}, and \TT{min::stub *} values are permitted as
 vector element types by themselves or as members of a class that
 is a packed vector element type or a packed vector header type.
 
 The type of a packed vector header, like that of a packed structure,
 must be a class whose first member
-(that is, the member at displacement {\tt 0}) is
+(that is, the member at displacement \TT{0}) is
 \begin{indpar}
 \verb|const min::uns32 control;|
 \end{indpar}
@@ -4996,19 +5002,19 @@ at no particular displacement:
 \verb|const L length;| \\
 \verb|const L max_length;|
 \end{indpar}
-where {\tt L} is an unsigned integer type, and defaults to
-{\tt min::\EOL uns32}.
+where \TT{L} is an unsigned integer type, and defaults to
+\TT{min::\EOL uns32}.
 
 There are also three pointer-to-packed-vector types:
-\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
-\verb|min::packed_vec_ptr<E,H,L>| & \verb|min::packed_vec<E,H,L>::ptr| \\
-\verb|min::packed_vec_updptr<E,H,L>| & \verb|min::packed_vec<E,H,L>::updptr| \\
-\verb|min::packed_vec_insptr<E,H,L>| & \verb|min::packed_vec<E,H,L>::insptr|
+\begin{indpar}\begin{tabular}{l}
+\verb|min::packed_vec_ptr<E,H,L>| \\
+\verb|min::packed_vec_updptr<E,H,L>| \\
+\verb|min::packed_vec_insptr<E,H,L>|
 \end{tabular}\end{indpar}
-where \verb|H| is the type of the packed vector header struct,
-\verb|E| is the type of the packed vector element, and
-\verb|L| is the unsigned integer type of the {\tt length}
-and {\tt max\_\EOL length} members of the header, and also of the
+where \TT{H} is the type of the packed vector header struct,
+\TT{E} is the type of the packed vector element, and
+\TT{L} is the unsigned integer type of the \TT{length}
+and \TT{max\_\EOL length} members of the header, and also of the
 subscripts used to access vector elements.
 The first \mkey{read-only pointer}{to packed vector} type
 permits read-only access to packed vector members and elements,
@@ -5018,21 +5024,21 @@ the third \mkey{insertable pointer}{to packed vector} type
 permits read-write access \underline{and}
 also permits pushing and popping vector elements
 and resizing the vector.
-These pointers are like the type `\verb|const min::stub *|' but with with extra
+These pointers are like the type `\TT{const min::stub *}' but with with extra
 clothes.
 These pointer types can also be used as the types of packed vector
 elements or as members of classes that are the types of packed vector
 elements or headers or of packed structures.
 
 A packed vector type is described at run-time by a
-{\tt min::packed\_\EOL vec\EHLARG} C++ static object, where
-\verb|E|, \verb|H|, and \verb|L| are as above.
-The {\tt new\_gen} and {\tt new\_stub}
+\TT{min::packed\_\EOL vec\EHLARG} C++ static object, where
+\TT{E}, \TT{H}, and \TT{L} are as above.
+The \TT{new\_gen} and \TT{new\_stub}
 member functions of this C++ static object can be
 used to create new packed vectors of the described type.
 
 More explicitly, to create a new type of \key{packed vector}
-named \verb|pvtype| use
+named \TT{pvtype} use
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{packed\_vec\_header}\LARG\ARGBREAK
@@ -5121,21 +5127,21 @@ where
 
 \begin{itemlist}[0.5in]
 
-\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
+\item[\TT{E}]\label{PACKED_VEC_ELEMENT_TYPE}
 The type of the elements in the vector part of the
 bodies of packed vectors of the type being
 declared.  This must meet the requirements given on
 \pagref{PACKED-VECTOR-TYPE-REQUIREMENTS}.
 
-Also, {\tt E} must \underline{not} be a {\tt const} type.
+Also, \TT{E} must \underline{not} be a \TT{const} type.
 
-\item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
+\item[\TT{H}]\label{PACKED_VEC_HEADER_TYPE}
 The type of the header at the beginning of the
 bodies of packed vectors of the type being
 declared.  This must meet the requirements given on
 \pagref{PACKED-VECTOR-TYPE-REQUIREMENTS}.
 
-This must be a class (or \verb|struct|) type
+This must be a class (or \TT{struct}) type
 whose first member is
 \begin{indpar}
 \verb|const min::uns32 control;|
@@ -5145,38 +5151,38 @@ and which must also have the two members
 \verb|const L length;| \\
 \verb|const L max_length;|
 \end{indpar}
-where {\tt L} is an unsigned integer type.
-These members are initialized by \verb|new_gen| or \verb|new_stub|
+where \TT{L} is an unsigned integer type.
+These members are initialized by \TT{new\_gen} or \TT{new\_stub}
 and must not
 be changed by the user.
 
-\verb|H| defaults to \verb|min::packed_vec_header<min::uns32>| which
-has just the require header members: \verb|control|, \verb|length|, and
-{\tt max\_\EOL length} with {\tt L=min::uns32}.  Because of this default,
-\verb|H| is the \underline{second} template parameter,
+\TT{H} defaults to \TT{min::packed\_vec\_header<min::uns32>} which
+has just the require header members: \TT{control}, \TT{length}, and
+\TT{max\_\EOL length} with \TT{L=min::uns32}.  Because of this default,
+\TT{H} is the \underline{second} template parameter,
 even though is precedes the vector elements in memory.
 
-\item[{\tt L}]
+\item[\TT{L}]
 The unsigned integer type of the vector length and vector element subscripts
-of the vector.  Defaults to {\tt min::\EOL uns32}.
-Other sensible values for {\tt L} are
-{\tt min::\EOL uns16} and {\tt min::\EOL unsptr}.
+of the vector.  Defaults to \TT{min::\EOL uns32}.
+Other sensible values for \TT{L} are
+\TT{min::\EOL uns16} and \TT{min::\EOL unsptr}.
 
-\item[{\tt B}]
-{\tt H} may have a single base type {\tt B} as in
+\item[\TT{B}]
+\TT{H} may have a single base type \TT{B} as in
 \begin{indpar}\begin{verbatim}
 struct H : public struct B { ... }
 \end{verbatim}\end{indpar}
-where {\tt B} is a packed structure type (see \itemref{PACKED-STRUCTURES}).
-In this case {\tt H} does
-\underline{not} have a `{\tt control}' member, as
-the `{\tt control}' member of {\tt B} serves as
-the `{\tt control}' member of {\tt H}.  The `{\tt length}' and
-`{\tt max\_length}' members may be in either {\tt H} or {\tt B}.
-If {\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B,L}}
+where \TT{B} is a packed structure type (see \itemref{PACKED-STRUCTURES}).
+In this case \TT{H} does
+\underline{not} have a `\TT{control}' member, as
+the `\TT{control}' member of \TT{B} serves as
+the `\TT{control}' member of \TT{H}.  The `\TT{length}' and
+`\TT{max\_length}' members may be in either \TT{H} or \TT{B}.
+If \TT{packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B,L}}
 is used to define the packed vector type, conversion of
-{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} pointers
-to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} pointers
+to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
 pointers is enabled.
 
 \end{itemlist}
@@ -5184,14 +5190,14 @@ pointers is enabled.
 \begin{itemlist}[1.0in]
 
 \item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
-A small integer automatically assigned to uniquely identify \verb|pvtype|.
-This is stored in the `{\tt control}' member of all packed
-vectors that are created by {\tt pvtype.new\_\EOL gen} or
-{\tt pvtype.new\_\EOL stub}, and serves as a pointer from any
-of these packed vectors to \verb|pvtype|.
+A small integer automatically assigned to uniquely identify \TT{pvtype}.
+This is stored in the `\TT{control}' member of all packed
+vectors that are created by \TT{pvtype.new\_\EOL gen} or
+\TT{pvtype.new\_\EOL stub}, and serves as a pointer from any
+of these packed vectors to \TT{pvtype}.
 
 \item[\ttmkey{name}{in {\tt min::packed\_vec}}]
-A name unique to the \verb|pvtype| datum, typically the
+A name unique to the \TT{pvtype} datum, typically the
 fully qualified name of this datum.  This character string may
 be output to identify the packed vector type when a packed vector is
 output.
@@ -5202,37 +5208,37 @@ output.
 
 \item[\ttmkey{header\_\EOL gen\_\EOL disp}{in {\tt min::packed\_vec}}]
 This vector is a list of the displacements (in bytes) of all
-the \verb|min::gen| members of \verb|H|,
-terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
+the \TT{min::gen} members of \TT{H},
+terminated by the value \TT{min::DISP\_\EOL END}\minindex{DISP\_END}.
 This displacements vector should not
-be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
-values in \verb|H|.  But if there are \verb|min::gen| members, this
+be given (its address should be \TT{NULL}) if there are no \TT{min::gen}
+values in \TT{H}.  But if there are \TT{min::gen} members, this
 displacements vector must be given for garbage collection purposes.
 
 \item[\ttmkey{header\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::stub *| members of \verb|H|.
+Ditto but for \TT{min::stub *} members of \TT{H}.
 See \pagref{STUB_DISP} for more details.
 
 \item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::gen| members of \verb|E|.
+Ditto but for \TT{min::gen} members of \TT{E}.
 
 \item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::stub *| members of \verb|E|.
+Ditto but for \TT{min::stub *} members of \TT{E}.
 See \pagref{STUB_DISP} for more details.
 
 \end{itemlist}
 
-\verb|pvtype.name|,~~
-{\tt pvtype.header\_\EOL gen\_\EOL disp},
-{\tt pvtype.header\_\EOL stub\_\EOL disp},
-~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
-and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL disp}
+\TT{pvtype.name},~~
+\TT{pvtype.header\_\EOL gen\_\EOL disp},
+\TT{pvtype.header\_\EOL stub\_\EOL disp},
+~~\TT{pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
+and \TT{pvtype.ele\-\EOL ment\_\EOL stub\_\EOL disp}
 can be used to retrieve the name and displacement
-information associated with \verb|pvtype|.
+information associated with \TT{pvtype}.
 In addition the parameters
-{\tt pvtype.ini\-tial\_\EOL max\_\EOL length},
-{\tt pvtype.increment\_\EOL ratio}, and
-{\tt pvtype.max\_\EOL increment}
+\TT{pvtype.ini\-tial\_\EOL max\_\EOL length},
+\TT{pvtype.increment\_\EOL ratio}, and
+\TT{pvtype.max\_\EOL increment}
 may be set by the user:
 
 
@@ -5240,43 +5246,43 @@ may be set by the user:
 
 \item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
 The maximum length of a packed vector newly created by calling the
-\verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function with no arguments.  Defaults to \verb|128|.
+\TT{pvtype.new\_gen} or \TT{pvtype.new\_stub}
+function with no arguments.  Defaults to \TT{128}.
 
 \item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
-The \verb|min::reserve| function multiplies the old maximum length by
+The \TT{min::reserve} function multiplies the old maximum length by
 this ratio to get the maximum length increment: see formula on
-\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \TT{0.5}.
 
 \item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
 The maximum increment of the maximum length computable by the
-\verb|min::reserve| function: see formula on
-\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|4096|.
+\TT{min::reserve} function: see formula on
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \TT{4096}.
 
 \end{itemlist}
 
-The \verb|pvtype.new_gen| and \verb|pvtype.new_stub|
+The \TT{pvtype.new\_gen} and \TT{pvtype.new\_stub}
 functions create a new packed vector
-datum of the type described by \verb|pvtype| and return a
-\verb|min::gen| or \verb|const min::stub *|
+datum of the type described by \TT{pvtype} and return a
+\TT{min::gen} or \TT{const min::stub *}
 value pointing at it.  A packed vector has a
 \mkey{length}{of packed vector} which is the number of elements
 currently in the packed vector.  It also has a
 \mkey{maximum length}{of packed vector} which is the maximum length
 allowed before the packed vector must be reallocated.
-The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+The \TT{pvtype.new\_gen} or \TT{pvtype.new\_stub}
 function may be given the maximum length
-and length and a vector of length type \verb|E| elements that is copied
+and length and a vector of length type \TT{E} elements that is copied
 to the initial value of the packed vector.
-If the vector \verb|vp| of initial elements is given as \verb|NULL|,
+If the vector \TT{vp} of initial elements is given as \TT{NULL},
 the initial elements will be zeros.
 If no parameters are given to
-\verb|pvtype.new_gen| or \verb|pvtype.new_stub|,
-the length defaults to \verb|0| and
-the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
+\TT{pvtype.new\_gen} or \TT{pvtype.new\_stub},
+the length defaults to \TT{0} and
+the maximum length defaults to \TT{pvtype.initial\_\EOL max\_\EOL length}.
 
 A newly created packed vector is set to all zeros, except for its
-`{\tt control}', `{\tt length}', and `{\tt max\_\EOL length}' members.
+`\TT{control}', `\TT{length}', and `\TT{max\_\EOL length}' members.
 
 The subtype of a packed vector can be retrieved by
 
@@ -5319,7 +5325,7 @@ The following are defined for general use:
 
 There are three kinds of pointers that can be used to access
 a packed vector.  The read-only
-{\tt min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG}
+\TT{min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG}
 packed vector pointer type has the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5391,55 +5397,55 @@ packed vector pointer type has the usage:
 \end{tabular}\end{indpar}
 
 As for packed structures, read-only packed vector pointers used as the left
-operand of \verb|->| are converted to
-`\verb|H const *|'.  This can be used to access the `\verb|length|'
-and \verb|max_length| members of the header.
+operand of \TT{->} are converted to
+`\TT{H const *}'.  This can be used to access the `\TT{length}'
+and \TT{max\_length} members of the header.
 
 In addition subscripting read-only packed vector
 pointers gives read-only access to the elements of the vector.  The subscripting
-operator \verb|[]| checks the index \verb|i| against the current length
+operator \TT{[]} checks the index \TT{i} against the current length
 of the vector to ensure the access is legal
-(e.g., \verb|pvp[i]| executes a {\tt MIN\_\EOL ASSERT}
-check that \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
+(e.g., \TT{pvp[i]} executes a \TT{MIN\_\EOL ASSERT}
+check that \TT{0<=i<pvp->length}).
 The vector elements in a
 packed vector are organized as a C language vector so that
 \begin{center}
-\verb|(& pvp[0])[i]| is the same as \verb|pvp[i]|
+\TT{(\& pvp[0])[i]} is the same as \TT{pvp[i]}
 \end{center}
 but the vector elements are stored in a body whose address can change
 if a relocating function is called, so saving C pointers to packed vector
 elements are relocatable.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
-function, so, for example, `{\tt \& pvp[i]}' may be used as an
-argument to {\tt memcpy}.
+function, so, for example, `\TT{\& pvp[i]}' may be used as an
+argument to \TT{memcpy}.
 
-\verb|pvp+i| can be used to compute a {\tt min::ptr<E const>} pointer that
-points at the \verb|pvp[i]| vector element.
-The {\tt min::ptr<E const>} pointer will still be valid if the packed vector
+\TT{pvp+i} can be used to compute a \TT{min::ptr<E const>} pointer that
+points at the \TT{pvp[i]} vector element.
+The \TT{min::ptr<E const>} pointer will still be valid if the packed vector
 body is relocated.
-The {\tt MIN\_\EOL ASSERT} check \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|
-is performed when \verb|pvp+i| is computed.
+The \TT{MIN\_\EOL ASSERT} check \TT{0<=i<pvp->length}
+is performed when \TT{pvp+i} is computed.
 
-\verb|pvp.begin_ptr()| is the same as `\verb|pvp + 0|'
-except the latter would fail if {\tt pvp->\EOL length == 0}.
-\verb|pvp.end_ptr()| is the same as `\verb|pvp + pvp->length|'
+\TT{pvp.begin\_ptr()} is the same as `\TT{pvp + 0}'
+except the latter would fail if \TT{pvp->\EOL length == 0}.
+\TT{pvp.end\_ptr()} is the same as `\TT{pvp + pvp->length}'
 except the latter will always fail because the index is not less than
-\verb|pvp->length|.
-The {\tt min::ptr<E const>} values of these functions are implicitly
-convertible to `{\tt E const *}' values, and so can be passed to
-functions like {\tt memcpy}.
+\TT{pvp->length}.
+The \TT{min::ptr<E const>} values of these functions are implicitly
+convertible to `\TT{E const *}' values, and so can be passed to
+functions like \TT{memcpy}.
 
-For example, if \verb|memcpy| is used to copy
-from the vector, use {\tt begin\_\EOL ptr()}:
+For example, if \TT{memcpy} is used to copy
+from the vector, use \TT{begin\_\EOL ptr()}:
 \begin{indpar}\begin{verbatim}
 memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
 \end{verbatim}\end{indpar}
-Using \verb|& pvup[0]| instead of \verb|pvup->begin_ptr()|
-will fail with a {\tt MIN\_\EOL ASSERT} fault if {\tt pvup->\EOL length == 0}.
+Using \TT{\& pvup[0]} instead of \TT{pvup->begin\_ptr()}
+will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvup->\EOL length == 0}.
 
-The read-write {\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG}
-pointer type has as its {\tt public} base class the
-{\tt min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG} pointer type,
+The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG}
+pointer type has as its \TT{public} base class the
+\TT{min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG} pointer type,
 so that read-write pointers can be implicitly converted to
 read-only pointers.  The new code defined for the read-write
 pointer type is:
@@ -5509,33 +5515,33 @@ pointer type is:
 \LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
 \end{tabular}\end{indpar}
 
-The {\tt ->}, {\tt []}, and {\tt +} operators and
-{\tt begin\_ptr()} and {\tt end\_ptr()} members are
+The \TT{->}, \TT{[]}, and \TT{+} operators and
+\TT{begin\_ptr()} and \TT{end\_ptr()} members are
 redefined (i.e., \underline{not}
 inherited) so that they
-return `{\tt H~*}', `{\tt E~\&},
-or `{\tt min::\EOL ptr<E>}' values
-instead of `{\tt H~const~*}', `{\tt E~const~\&}', or
-`{\tt min::\EOL ptr<E const>}' values.
-The {\tt []} operator\label{PACKED_VEC_[]_REF}
-is further redefined if {\tt E} is a locatable type
-so that a {\tt min::\EOL ref\BRACKETED{E}} value is returned instead of
-a `{\tt E~\&}' value.  This does for vector elements what
-{\tt MIN\_REF} defined {\tt \ldots\_ref} functions do for structure
+return `\TT{H~*}', `\TT{E~\&},
+or `\TT{min::\EOL ptr<E>}' values
+instead of `\TT{H~const~*}', `\TT{E~const~\&}', or
+`\TT{min::\EOL ptr<E const>}' values.
+The \TT{[]} operator\label{PACKED_VEC_[]_REF}
+is further redefined if \TT{E} is a locatable type
+so that a \TT{min::\EOL ref\BRACKETED{E}} value is returned instead of
+a `\TT{E~\&}' value.  This does for vector elements what
+\TT{MIN\_REF} defined \TT{\ldots\_ref} functions do for structure
 elements.
 
-The {\tt MIN\_REF}\label{PACKED_VEC_MIN_REF}
+The \TT{MIN\_REF}\label{PACKED_VEC_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
-should be used with a {\tt min::\EOL packed\_\EOL
+should be used with a \TT{min::\EOL packed\_\EOL
 vec\_\EOL updptr\SARG} container type
 for locatable elements of a packed vector header.
 
 
-The insertable {\tt min::\EOL packed\_\EOL vec\_\EOL insptr\EHLARG}
+The insertable \TT{min::\EOL packed\_\EOL vec\_\EOL insptr\EHLARG}
 pointer type, which permits elements to be added to a packed vector,
 has the
-{\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG} pointer type
-as its {\tt public} base class,
+\TT{min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG} pointer type
+as its \TT{public} base class,
 so that insertable pointers can be implicitly converted to
 read-write or read-only pointers.  The new code defined for the insertable
 pointer type is:
@@ -5630,73 +5636,73 @@ pointer type is:
 
 Insertable packed vector pointers permit the current length and maximum
 length of the vector to be changed.
-The current vector length is \verb|pvip->length| and the maximum
-length is \verb|pvip->max_length| (see description of \verb|H| on
+The current vector length is \TT{pvip->length} and the maximum
+length is \TT{pvip->max\_length} (see description of \TT{H} on
 \pagref{PACKED_VEC_HEADER_TYPE}).
-The current length can be changed by {\tt min::\EOL push\RESIZE} and
-{\tt min::\EOL pop} functions and the maximum length can be changed
-by {\tt min::\EOL resize\RESIZE} and {\tt min::\EOL reserve\RESIZE}
+The current length can be changed by \TT{min::\EOL push\RESIZE} and
+\TT{min::\EOL pop} functions and the maximum length can be changed
+by \TT{min::\EOL resize\RESIZE} and \TT{min::\EOL reserve\RESIZE}
 functions.  If
-{\tt min::\EOL push\RESIZE} needs more space it automatically calls
-{\tt min::reserve\RESIZE}.
+\TT{min::\EOL push\RESIZE} needs more space it automatically calls
+\TT{min::reserve\RESIZE}.
 
-The \verb|min::push| function adds elements
+The \TT{min::push} function adds elements
 to the end of the packed vector
 by incrementing the current vector length, and if this would
-exceed the maximum length, first calls the \verb|min::reserve| function
+exceed the maximum length, first calls the \TT{min::reserve} function
 with the number of elements to be pushed.
 
-The single argument {\tt min::\EOL push\RESIZE} adds one element to the vector,
+The single argument \TT{min::\EOL push\RESIZE} adds one element to the vector,
 zeros that element, and returns a reference to the element.  The
 intended use is
 \begin{indpar}\begin{verbatim}
 push(pvip) = v;
 \end{verbatim}\end{indpar}
-where \verb|v| is the value of the element to be added to the vector.
-If the element type {\tt E} is locatable, {\tt min::\EOL push\RESIZE}
-returns a {\tt min::\EOL ref\TARG} reference.%
+where \TT{v} is the value of the element to be added to the vector.
+If the element type \TT{E} is locatable, \TT{min::\EOL push\RESIZE}
+returns a \TT{min::\EOL ref\TARG} reference.%
 \label{PACKED_VEC_PUSH_REF}
-Otherwise, if {\tt E} is not locatable, an
-`{\tt E \&}' reference is returned.
+Otherwise, if \TT{E} is not locatable, an
+`\TT{E \&}' reference is returned.
 
-Note that {\tt \& min::push(pvip)}
-is an \underline{unprotected} body pointer if {\tt E} is not
+Note that \TT{\& min::push(pvip)}
+is an \underline{unprotected} body pointer if \TT{E} is not
 locatable.
-Very importantly, this means that {\tt v} \underline{must not}
-be a relocating expression.  Since {\tt v} does not have locatable type,
-this should not normally be an issue, but if {\tt v} is
+Very importantly, this means that \TT{v} \underline{must not}
+be a relocating expression.  Since \TT{v} does not have locatable type,
+this should not normally be an issue, but if \TT{v} is
 a structure type containing locatable elements, the situation is
 tricky: see the below example.
 
-The two or three argument {\tt min::\EOL push\RESIZE} adds {\tt n}
-elements to the vector, and fills the new elements from {\tt vp}
-if that is not {\tt NULL}, or with zeros otherwise.
-If \verb|vp| is not \verb|NULL|,
+The two or three argument \TT{min::\EOL push\RESIZE} adds \TT{n}
+elements to the vector, and fills the new elements from \TT{vp}
+if that is not \TT{NULL}, or with zeros otherwise.
+If \TT{vp} is not \TT{NULL},
 new elements are placed within the packed vector in the same
-memory order as they appear in the \verb|vp| vector.
-Here \verb|vp| cannot be an unprotected body pointer, as the data
-it points at might be relocated during the execution of {\tt push}.
-It can either be a non-body pointer or a {\tt min:\EOL ptr<const E>} pointer.
-In either case {\tt min::\EOL acc\_\EOL write\_\EOL update} 
+memory order as they appear in the \TT{vp} vector.
+Here \TT{vp} cannot be an unprotected body pointer, as the data
+it points at might be relocated during the execution of \TT{push}.
+It can either be a non-body pointer or a \TT{min:\EOL ptr<const E>} pointer.
+In either case \TT{min::\EOL acc\_\EOL write\_\EOL update} 
 (\itemref{ACC-WRITE-UPDATE-FUNCTIONS})
-is called by {\tt min::\EOL push} if {\tt E} is locatable.
+is called by \TT{min::\EOL push} if \TT{E} is locatable.
 
-The \verb|min::pop| function removes elements from the end of the
+The \TT{min::pop} function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
 to be sure it is large enough).   A single element may be removed and
-returned, or \verb|n| elements may be removed and returned in the
-\verb|vp| vector.  In the latter case removed elements are placed in
-\verb|vp| in the same memory order as they appeared in the packed vector.
+returned, or \TT{n} elements may be removed and returned in the
+\TT{vp} vector.  In the latter case removed elements are placed in
+\TT{vp} in the same memory order as they appeared in the packed vector.
 Also,
-if \verb|vp| is \verb|NULL|, the removed elements are simply discarded
+if \TT{vp} is \TT{NULL}, the removed elements are simply discarded
 instead of being copied.
 
-The \verb|min::resize| function resets the maximum length.  If
+The \TT{min::resize} function resets the maximum length.  If
 the current length would be larger than the new maximum length,
 the current length is reset to the new maximum length.
 
-The \verb|min::reserve| function checks that
-the current length plus the \verb|reserve_length| is
+The \TT{min::reserve} function checks that
+the current length plus the \TT{reserve\_length} is
 at most the maximum length, and if this check fails,
 resets the maximum length according to the formula:
 \begin{indpar}\begin{verbatim}
@@ -5810,7 +5816,7 @@ main ( ... )
 
 Packed vector pointers do no caching and
 there is \underline{no need} for
-a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+a refresh function analogous to the \TT{min::\EOL \ldots\_\EOL refresh}
 functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
 
