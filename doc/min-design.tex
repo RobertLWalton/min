@@ -155,12 +155,6 @@
 \newcommand{\LT}{{\tt <}}
 \newcommand{\GT}{{\tt >}}
 \newcommand{\MINUS}{{\tt -}}
-\newcommand{\BRACKETED}[1]{{\tt <#1>}}
-\newcommand{\NARG}{\BRACKETED{}}
-
-\newcommand{\SARG}{\BRACKETED{S}}
-\newcommand{\EHLARG}{\BRACKETED{E,H,L}}
-\newcommand{\LARG}{\BRACKETED{L}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -1758,32 +1752,30 @@ there are a general body reference and pointer types
 that reference any type an element in any body associated with any stub.
 The functions for creating and using reference types are:
 
-\newcommand{\TARG}{\BRACKETED{T}}
-
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::|\MINKEY{ref\TARG}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
+\verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T const & location )|
 \LABEL{MUP::NEW_REF} \\
-\verb|min::|\MINKEY{ref\TARG}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
+\verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
     \verb|( T & location )|
 \LABEL{MIN::NEW_REF} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref\TARG}}
+\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_STUB} \\
-\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref\TARG}}
+\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<T> const & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r, T value )|
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r,|\ARGBREAK
       \verb|  const min::ref<T> & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
@@ -1791,52 +1783,52 @@ The functions for creating and using reference types are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T & |
-    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
-	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ref\TARG}}
+	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ref<T>}}
 	   \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::==REF_AND_T} \\
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
       \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::==T_AND_REF} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::!=REF_AND_T} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
       \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::!=T_AND_REF} \\
 \end{tabular}\end{indpar}
 
 In addition, the following are defined
 only if \TT{T} is a packed structure or vector pointer,
-i.e., \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} or
-\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG}:
+i.e., \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} or
+\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r, const min::stub * s )|
 \LABEL{MIN::==REF_AND_STUB} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r, const min::stub * s )|
 \LABEL{MIN::!=REF_AND_STUB} \\
 \end{tabular}\end{indpar}
 
-A \TT{min::ref\TARG} type is similar to the `\TT{T \&}' type.
-Internally a \TT{min::ref\TARG} value \TT{r}
+A \TT{min::ref<T>} type is similar to the `\TT{T \&}' type.
+Internally a \TT{min::ref<T>} value \TT{r}
 is a pointer to a location of type \TT{T} that
 consists of a \TT{const min::\EOL stub~*} pointer \TT{r.s} to a stub
 and an \TT{min::\EOL unsptr} byte offset \TT{r.offset}
@@ -1847,10 +1839,10 @@ of type \TT{T} stores the value in the location.  Setting a reference
 \underline{not} copy the internal pointers, but instead copies the
 value at the \TT{r2} location to the \TT{r} location.
 
-A \TT{min::ref\TARG} value is implicitly convertible to the type \TT{T \&}.
+A \TT{min::ref<T>} value is implicitly convertible to the type \TT{T \&}.
 As this implicit conversion
 is not activated by C++ in the case of an expression of the form
-`\TT{r->\ldots}', `\TT{operator~->}' of a \TT{min::\EOL ref\TARG}
+`\TT{r->\ldots}', `\TT{operator~->}' of a \TT{min::\EOL ref<T>}
 argument is defined to invoke the conversion explicitly.
 Similarly for \TT{operator ==} and \TT{operator !=}.
 In addition, these are defined to make the conversion when
@@ -1861,7 +1853,7 @@ second argument is of this latter type, so that expressions such as
 \end{center}
 can be used.
 
-\TT{min::ref\TARG} values are returned by protected functions described
+\TT{min::ref<T>} values are returned by protected functions described
 elsewhere:
 \begin{center}
 \begin{tabular}{ll}
@@ -1872,7 +1864,7 @@ packed vector headers & see \TT{MIN\_REF}
 packed vector elements	& see \TT{operator []}
     \pagref{PACKED_VEC_[]_REF},
     \TT{push} function \pagref{PACKED_VEC_PUSH_REF} \\
-locatable variables	& see \TT{operator min::ref\TARG}
+locatable variables	& see \TT{operator min::ref<T>}
     \pagref{LOCATABLE_VAR_REF} \\
 object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
 			  push functions \pagref{OBJ_VEC_UPDPTR_PUSH_REF}
@@ -1880,89 +1872,89 @@ object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
 \end{center}
 
 The unprotected \TT{MUP::new\_ref} function is used by these
-protected functions to construct a \TT{min::\EOL ref\TARG} value
+protected functions to construct a \TT{min::\EOL ref<T>} value
 from a pointer \TT{s} to a stub and a \TT{const} location
 within the body associated with that stub.  Note that if the
 location is of a `\TT{T const}' type the resulting
-\TT{min::\EOL ref\TARG} reference value will allow the location
+\TT{min::\EOL ref<T>} reference value will allow the location
 to be written.  This is done because locations inside data bodies
 that point at stubs are declared as `\TT{const}' locations
 so they are not directly writable, but these locations can be
-written using \TT{min::\EOL ref\TARG} values.
+written using \TT{min::\EOL ref<T>} values.
 
 The protected \TT{min::new\_ref} function may be used to construct
-a \TT{min::\EOL ref\TARG} value from a non-relocatable location,
+a \TT{min::\EOL ref<T>} value from a non-relocatable location,
 such as a global location or a location in the stack.
-This function constructs a \TT{min::\EOL ref\TARG} value whose
+This function constructs a \TT{min::\EOL ref<T>} value whose
 stub is the special \TT{min::\EOL ZERO\_\EOL STUB} stub that
 has a zero body pointer and whose offset is the address of the
 non-relocatable location.
 
-Actually there are two kinds of \TT{min::\EOL ref\TARG} types that
+Actually there are two kinds of \TT{min::\EOL ref<T>} types that
 differ according to whether or not the type \TT{T} is
-`\mkey{locatable}{\TT{min::ref\BRACKETED{T}} reference to}'
+`\mkey{locatable}{\TT{min::ref<T>} reference to}'
 \label{LOCATABLE_REF}
 (\TT{min::\EOL gen}, \TT{const min::\EOL stub~*}, and
-classes such as \TT{min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
+classes such as \TT{min:\EOL packed\_\EOL\ldots ptr<\ldots>}
 that encapsulate \TT{const min::\EOL stub~*} values are
 locatable types: see \pagref{LOCATABLE-TYPE}).
-If \TT{T} is locatable, storing a value in a \TT{min::\EOL ref\TARG}
+If \TT{T} is locatable, storing a value in a \TT{min::\EOL ref<T>}
 location implicitly calls the
 \TT{min::\EOL acc\_\EOL write\_\EOL update} functions of
 Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
-involved, unless the \TT{min::\EOL ref\TARG} value references
+involved, unless the \TT{min::\EOL ref<T>} value references
 \TT{min::\EOL ZERO\_\EOL STUB}.
 If \TT{T} is not locatable or if the
-\TT{min::\EOL ref\TARG} value references \TT{min::\EOL ZERO\_\EOL STUB},
+\TT{min::\EOL ref<T>} value references \TT{min::\EOL ZERO\_\EOL STUB},
 the \TT{min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
 called.
 
-Associated with the \TT{min::\EOL ref\TARG} reference type is
-the companion \TT{min::\EOL ptr\TARG} pointer type:
+Associated with the \TT{min::\EOL ref<T>} reference type is
+the companion \TT{min::\EOL ptr<T>} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
+\verb|(constructor) min::| & \MINKEY{ptr<T>} \verb| p|
 \LABEL{MIN::PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
+\verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T * location )|
 \LABEL{MUP::NEW_PTR} \\
-\verb|min::|\MINKEY{ptr\TARG}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
+\verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
     \verb|( T * location )|
 \LABEL{MIN::NEW_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr\TARG}}
+\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr\TARG}}
+\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}
       \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T * |
-	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ptr\TARG}}
+	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ptr<T>}}
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::PTR_->} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> |
-    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
+    & \TTOMKEY{\&}{\&}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
 \verb|min::ref<T> |
-    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}
+    & \TTOMKEY{*}{*}{of {\tt min::ptr<T>}}
       \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::=*_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
@@ -1983,47 +1975,47 @@ the companion \TT{min::\EOL ptr\TARG} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T * |
-	& \TTOMKEY{T *}{T *}{of {\tt min::ptr\TARG}}
+	& \TTOMKEY{T *}{T *}{of {\tt min::ptr<T>}}
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::T*_OF_PTR} \\
 \verb|min::ptr<T> |
-	& \MINKEY{ptr\TARG}
+	& \MINKEY{ptr<T>}
 	   \verb|( const min::ptr<S> & p )| ~~~~~ [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{tabular}\end{indpar}
 
-Internally a \TT{min::\EOL ptr\TARG} value is exactly like a
-\TT{min::\EOL ref\TARG} value; both point at a location defined by
+Internally a \TT{min::\EOL ptr<T>} value is exactly like a
+\TT{min::\EOL ref<T>} value; both point at a location defined by
 a stub and an offset within the body of the stub.
 A main difference is that \TT{=} for reference values copies the
 values of the locations pointed at, while \TT{=} for pointer values
 copies the pointer itself; i.e., the pointer to the stub and the offset.
 
-Another difference is the if a \TT{min::\EOL ref\TARG} value \TT{r}
+Another difference is the if a \TT{min::\EOL ref<T>} value \TT{r}
 designates a location \TT{v} containing a \TT{T} value, then
 \TT{r->\ldots} is equivalent to \TT{v->\ldots}.
-But if a \TT{min::\EOL ptr\TARG} value \TT{p}
+But if a \TT{min::\EOL ptr<T>} value \TT{p}
 points at location \TT{v} containing a \TT{T}, then
 \TT{p->\ldots} is equivalent to \TT{(\&v)->\ldots}.
 
-A \TT{min::\EOL ptr\TARG} value can be created by applying the
-\TT{\&} operator to a \TT{min::\EOL ref\TARG} value or to a
+A \TT{min::\EOL ptr<T>} value can be created by applying the
+\TT{\&} operator to a \TT{min::\EOL ref<T>} value or to a
 locatable variable (see \TT{operator \&} for locatable variables,
 \pagref{LOCATABLE_VAR_PTR}).
-A \TT{min::\EOL ref\TARG} value can be recovered from a
+A \TT{min::\EOL ref<T>} value can be recovered from a
 pointer value by applying the
-\TT{*} operator to the \TT{min::\EOL ptr\TARG} value.
+\TT{*} operator to the \TT{min::\EOL ptr<T>} value.
 
-A \TT{min::\EOL ptr\TARG} value can also be created by the
+A \TT{min::\EOL ptr<T>} value can also be created by the
 unprotected \TT{MUP::\EOL new\_\EOL ptr} function which
-constructs a \TT{min::\EOL ptr\TARG} value
+constructs a \TT{min::\EOL ptr<T>} value
 from a pointer \TT{s} to a stub and a pointer to
 within the body associated with that stub.
 However, unlike \TT{MUP::\EOL new\_\EOL ref},
 the location pointed at within a body may not be \TT{const} unless \TT{T} is
 \TT{const}.
 
-A \TT{min::\EOL ptr\TARG} value can be created by the
+A \TT{min::\EOL ptr<T>} value can be created by the
 protected \TT{min::\EOL new\_\EOL ptr} function from
 a non-relocatable pointer to a value of type \TT{T} that is located
 in static or stack memory.
@@ -2100,17 +2092,17 @@ Several pointer operators are defined on \TT{min::ptr<T>} values:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
-    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr\TARG}}\ARGBREAK
+    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr<T>}}\ARGBREAK
       \verb|( const min::ptr<T> & p1,|\ARGBREAK
       \verb|  const min::ptr<T> & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{++}{++}{of {\tt min::ptr\TARG}}
+    & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}
     & [postfix \TT{++}]\ARGBREAK
       \verb|( min::ptr<T> & r, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr\TARG}}
+    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr<T>}}
     & [prefix \TT{-{}-}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
@@ -2170,7 +2162,7 @@ Values of these types are called \skey{locatable value}s.%
 \label{LOCATABLE-VALUE}
 These types, and types that are just classes which
 encapsulate a \TT{min::\EOL gen} or \TT{const min::\EOL stub~*}
-value (such as the \TT{min::packed\_\ldots ptr\BRACKETED{\ldots}} types,
+value (such as the \TT{min::packed\_\ldots ptr<\ldots>} types,
 \itemref{PACKED-STRUCTURES} and
 \itemref{PACKED-VECTORS})
 are called \skey{locatable type}s.%
@@ -2178,14 +2170,14 @@ are called \skey{locatable type}s.%
 
 Values of a locatable type \TT{T} stored in static memory or the stack
 need to be locatable by the garbage collector.  This is done
-by storing them in \TT{min::\EOL locatable\_\EOL var\TARG} type
+by storing them in \TT{min::\EOL locatable\_\EOL var<T>} type
 variables, as described in the first subsection of this section.
 
 When you write a value of locatable type \TT{T} into a stub or associated
 body, you need to call the \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 function (\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) to update garbage
 collection flags associated with stubs.
-This is done automatically if a \TT{min::\EOL ref\TARG} reference value is
+This is done automatically if a \TT{min::\EOL ref<T>} reference value is
 used to reference the location being written.  Such reference values are created
 by functions described in the second subsection of this section.
 
@@ -2238,7 +2230,7 @@ with certainty to be numbers, in locations of type
       \verb|( const min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::ref<min::gen> |
-    & \TTOMKEY{min::ref<min::gen>}{min::ref\BRACKETED{min::gen}}%
+    & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( const min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
@@ -2334,7 +2326,7 @@ void some_function ( min::gen x, min::gen y )
 
 \TT{const min::\EOL stub~*} values
 must also be locatable by the garbage collector.
-In particular the \TT{min::\EOL packed\_\EOL \ldots ptr\BRACKETED{\ldots}}
+In particular the \TT{min::\EOL packed\_\EOL \ldots ptr<\ldots>}
 pointers
 (see Sections~\itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS})
 must be locatable.
@@ -2343,23 +2335,23 @@ this may be done with the code:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_var\TARG}\verb| var ( void )|
+    & \MINKEY{locatable\_var<T>}\verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_var\TARG} \verb| var ( T value )|
+    & \MINKEY{locatable\_var<T>} \verb| var ( T value )|
 \LABEL{MIN::LOCATABLE_VAR_OF_T} \\
 \verb|min::locatable_var<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  T value )|
 \LABEL{MIN::=LOCATABLE_VAR} \\
 \verb|min::locatable_var<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_STUB} \\
 \verb|min::locatable_var<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  const min::locatable_var<T> & var2 )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
@@ -2368,38 +2360,38 @@ this may be done with the code:
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::stub * |
     & \TTOMKEY{const min::stub *}{const min::stub *}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
 \verb|min::ref<T> |
-    & \TTOMKEY{min::ref<T>}{min::ref\TARG}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+    & \TTOMKEY{min::ref<T>}{min::ref<T>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
 Here \TT{T} must be
 `\TT{const min::stub~*}'
-or one of the \TT{min::\EOL packed\_\ldots ptr\BRACKETED{\ldots}} classes
+or one of the \TT{min::\EOL packed\_\ldots ptr<\ldots>} classes
 whose only data member is of type \TT{const min::stub~*}.
-In either case, a \TT{min::\EOL locatable\_\EOL var\TARG}
+In either case, a \TT{min::\EOL locatable\_\EOL var<T>}
 value is implicitly convertible to a \TT{const min::\EOL stub~*} value.
 
 If \TT{T} is not \TT{const min::stub~*}, then \TT{T}
 is the \TT{public} base class of
-\TT{min::\EOL locatable\_\EOL var\TARG}, so expressions of
+\TT{min::\EOL locatable\_\EOL var<T>}, so expressions of
 the forms \TT{\ldots=var},
 \TT{var->\ldots}, \TT{var[\ldots]}, etc will work for a
-\TT{min::\EOL locatable\_\EOL var\TARG} value \TT{var} if they
+\TT{min::\EOL locatable\_\EOL var<T>} value \TT{var} if they
 will work for a value of type \TT{T}.
 
 Like a \TT{min::\EOL locatable\_\EOL gen} locatable variable,
-a \TT{min::\EOL locatable\_\EOL var\TARG} locatable variable
+a \TT{min::\EOL locatable\_\EOL var<T>} locatable variable
 is implicitly convertible to a
 reference of type \TT{min::\EOL ref<T>}, and can be pointed at
 by a pointer of type \TT{min::\EOL ptr<T>} obtained by applying
@@ -2408,7 +2400,7 @@ the \TT{\&} operator to the locatable variable.
 And as with \TT{min::\EOL locatable\_\EOL gen} locatable variables,
 due to a technical difficulty with C++ it is not possible to use
 \TT{=} to pass an initializer
-to a \TT{min::\EOL locatable\_\EOL var\TARG} constructor
+to a \TT{min::\EOL locatable\_\EOL var<T>} constructor
 (See \pagref{LOCATABLE-VAR-COPY-CONSTRUCTOR}).
 
 An example usage is:
@@ -2438,7 +2430,7 @@ of \TT{min::\EOL locatable\_\EOL var}:
 \end{tabular}\end{indpar}
 
 However, this specialization differs from
-\TT{min::\EOL locatable\_\EOL var\TARG}in that it is not
+\TT{min::\EOL locatable\_\EOL var<T>}in that it is not
 implicitly convertible to a \TT{const min::\EOL stub~*} value nor
 is \TT{min::gen} a base type of this specialization.
 
@@ -4498,7 +4490,8 @@ the ACC, it is moved by \TT{memcpy}.
 \end{enumerate}
 
 Numeric, \TT{min::gen}, and \TT{const min::stub *} values are permitted as
-packed structure class members, as are \TT{min::\EOL packed\_\ldots\_ptr}
+packed structure class members, as are
+\TT{min::\EOL packed\_\ldots ptr<\ldots>}
 values (see below) and C++ pointers.  Note that all these
 are initialized to \TT{0} (equal to \TT{NULL} or \TT{min::NULL\_STUB}
 for pointers) when a packed structure is created.
@@ -4530,13 +4523,13 @@ The first \mkey{read-only pointer}{to packed structure} type
 permits read-only access to packed structure members,
 while the second \mkey{updatable pointer}{to packed structure} type
 permits read-write access.
-These pointers are like the type `\TT{const min::stub *}' but with with extra
+These pointers are like the type `\TT{const min::stub *}' but with extra
 clothes.
 Pointers of these types can also be included as members in packed structures
 and in packed vector headers and elements (see \itemref{PACKED-VECTORS}).
 
 The type of a packed structure is described at run-time by a
-\TT{min::packed\_\EOL struct\SARG} C++ static object, where
+\TT{min::packed\_\EOL struct<S>} C++ static object, where
 \TT{S} is the type of the structure.
 The \TT{new\_gen} and \TT{new\_stub}
 member functions of this C++ static object can be
@@ -4547,13 +4540,13 @@ named \TT{pstype} use
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
+	& \MINKEY{packed\_struct<S>} \verb|pstype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|  const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT_TYPE} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+	& \MINKEY{packed\_struct\_with\_base<S,B>}
 		\verb|pstype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * gen_disp = NULL,|\ARGBREAK
@@ -4600,7 +4593,7 @@ This member holds a code that effectively
 points at \TT{pstype}, and also holds some flags.
 This member is initialized by \TT{new\_gen} or \TT{new\_stub} and must not
 be changed by the user.
-This type must meet the requirements given on
+\TT{S} must meet the requirements given on
 \pagref{PACKED-STRUCTURE-TYPE-REQUIREMENTS}.
 
 \item[\TT{B}]
@@ -4614,7 +4607,7 @@ In this case \TT{S} does
 \underline{not} have a `\TT{control}' member, as
 the `\TT{control}' member of \TT{B} serves as
 the `\TT{control}' member of \TT{S}.
-If \TT{packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
+If \TT{packed\_\EOL struct\_\EOL with\_\EOL base<S,B>}
 is used to define the packed structure type, conversion of
 \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
 to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
@@ -4665,8 +4658,8 @@ Members of the types `\TT{const min::stub *}', `\TT{min::stub const *}', and
 `\TT{const min::\EOL stub \EOL const~*}' are treated like
 `\TT{min::\EOL stub~*}' members for these purposes.
 
-\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} ~and~
-\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHLARG} members
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} ~and~
+\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} members
 are also treated as \TT{const min::\EOL stub~*} members.
 
 \end{itemlist}
@@ -4683,8 +4676,8 @@ displacement in bytes of the member \TT{m} of a structure
 of \TT{struct} type \TT{S}.  This should be used instead of
 assuming that \TT{struct} layouts are tightly packed, as often
 they are not.  The type of the \TT{S::m} member must be one of
-the types mentioned above: \TT{min::gen}, `\TT{const min::stub~*}',
-\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
+the types mentioned above: \TT{min::gen}, \TT{const min::stub~*},
+\TT{min::\EOL packed\_\EOL \ldots{}ptr<\ldots>}, etc.
 
 \TT{pstype.subtype}, \TT{pstype.name},
 \TT{pstype.gen\_\EOL disp},
@@ -4732,25 +4725,25 @@ with the subtype, which is useful for tracing and debugging.
 
 The two kinds of pointers that can be used to access
 a packed structure.  The read-only
-\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointers
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointers
 have the usage:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	   \verb|( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	   \verb|( const min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	   \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
+	& \verb|min::packed_struct_ptr|{\tt <S>}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct<S>::ptr}
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4783,13 +4776,13 @@ have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \end{tabular}\end{indpar}
 
-A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is just
+A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} value is just
 a `\TT{const min::stub~*}' value in fancy clothes, and may be
 converted to/from a `\TT{const min::stub~*}' value.
 
 For the constructors and the \TT{=} assignment operator, if the
 argument \TT{v} or \TT{s} does not point at a packed structure
-of type \TT{S}, the \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+of type \TT{S}, the \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
 result is set to \TT{min::\EOL NULL\_\EOL STUB},
 which is just the standard C language \TT{NULL}
 cast to the `\TT{const min::stub *}' type.
@@ -4798,7 +4791,7 @@ the constructors or \TT{=} operator, as it is
 convertible to either a `\TT{min::stub *}'
 or \TT{min::gen} type, and is thus creates ambiguity.
 But \TT{min::\EOL NULL\_\EOL STUB} can be used.
-If a constructor for \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+If a constructor for \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
 is not given an argument, the pointer is also set to
 \TT{min::\EOL NULL\_\EOL STUB}.
 
@@ -4807,15 +4800,15 @@ A pointer equal to
 used to access a structure,
 though almost always the result will be a memory fault.
 The \TT{==} and \TT{!=} operators can be used to test whether
-or not a \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer
+or not a \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer
 equals \TT{min::\EOL NULL\_\EOL STUB}.
 
-A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer is also
+A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer is also
 internally a `\TT{S const **}' value that is made to behave externally like a
 `\TT{S const *}' value with respect to the \TT{->} and
 unary \TT{*} operators.  Thus looking ahead at the example below,
 if \TT{upv} is a
-\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} value
 and \TT{S} has a member \TT{m}, then \TT{upv->m} is the \TT{m}
 member of the \TT{S} struct pointed at by \TT{upv}.
 
@@ -4827,30 +4820,30 @@ must be used instead.  The later are usually preferred anyway because
 it can be defined without defining \TT{S}, and therefore can be
 used to build recursive structures.
 
-The read-write \TT{min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
+The read-write \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>}
 pointer type has 
 as its \TT{public} base class the
-\TT{min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer type,
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer type,
 so that it can be implicitly converted to
 a read-only pointer.  The new code defined for this read-write
 pointer type is:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|
 	   \verb|( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
 	  \verb|( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
+	& \verb|min::packed_struct_updptr|{\tt <S>}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct<S>::updptr}
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
@@ -4883,12 +4876,12 @@ return `\TT{S~*}' and `\TT{S~\&}' values instead of
 `\TT{S~const~*}' and `\TT{S~const~\&}' values.
 
 \TT{min::gen}, `\TT{const min::stub~*}', and
-\TT{min::\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
+\TT{min::\EOL packed\_\EOL\ldots ptr<\ldots>}
 elements of packed structures must be locatable.
 The \TT{MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
 should be used with a \TT{min::\EOL packed\_\EOL
-struct\_\EOL updptr\SARG} container type
+struct\_\EOL updptr<S>} container type
 for locatable elements of a packed structure.
 
 An example use of a packed structure is:
@@ -5024,14 +5017,14 @@ the third \mkey{insertable pointer}{to packed vector} type
 permits read-write access \underline{and}
 also permits pushing and popping vector elements
 and resizing the vector.
-These pointers are like the type `\TT{const min::stub *}' but with with extra
+These pointers are like the type `\TT{const min::stub *}' but with extra
 clothes.
 These pointer types can also be used as the types of packed vector
 elements or as members of classes that are the types of packed vector
 elements or headers or of packed structures.
 
 A packed vector type is described at run-time by a
-\TT{min::packed\_\EOL vec\EHLARG} C++ static object, where
+\TT{min::packed\_\EOL vec<E,H,L>} C++ static object, where
 \TT{E}, \TT{H}, and \TT{L} are as above.
 The \TT{new\_gen} and \TT{new\_stub}
 member functions of this C++ static object can be
@@ -5041,7 +5034,7 @@ More explicitly, to create a new type of \key{packed vector}
 named \TT{pvtype} use
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{packed\_vec\_header}\LARG\ARGBREAK
+\verb|struct min::| & \MINKEY{packed\_vec\_header<L>}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::uns32 control;|\ARGBREAK
     \verb|  const L length;|\ARGBREAK
@@ -5065,7 +5058,7 @@ named \TT{pvtype} use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base}\BRACKETED{E,H,B,L=min::uns32}
+	& \MINKEY{packed\_vec\_with\_base<E,H,B,L=min::uns32>}
 		\verb|pvtype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
@@ -5179,7 +5172,7 @@ In this case \TT{H} does
 the `\TT{control}' member of \TT{B} serves as
 the `\TT{control}' member of \TT{H}.  The `\TT{length}' and
 `\TT{max\_length}' members may be in either \TT{H} or \TT{B}.
-If \TT{packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B,L}}
+If \TT{packed\_\EOL vec\_\EOL with\_\EOL base<E,H,B,L>}
 is used to define the packed vector type, conversion of
 \TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} pointers
 to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
@@ -5325,7 +5318,7 @@ The following are defined for general use:
 
 There are three kinds of pointers that can be used to access
 a packed vector.  The read-only
-\TT{min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG}
+\TT{min::\EOL packed\_\EOL vec\_\EOL ptr<E,H,L>}
 packed vector pointer type has the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5351,8 +5344,8 @@ packed vector pointer type has the usage:
 	  \verb|(void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_ptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::ptr}
+	& \verb|min::packed_vec_ptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::ptr}
 \LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5443,9 +5436,9 @@ memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
 Using \TT{\& pvup[0]} instead of \TT{pvup->begin\_ptr()}
 will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvup->\EOL length == 0}.
 
-The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG}
+The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr<E,H,L>}
 pointer type has as its \TT{public} base class the
-\TT{min::\EOL packed\_\EOL vec\_\EOL ptr\EHLARG} pointer type,
+\TT{min::\EOL packed\_\EOL vec\_\EOL ptr<E,H,L>} pointer type,
 so that read-write pointers can be implicitly converted to
 read-only pointers.  The new code defined for the read-write
 pointer type is:
@@ -5473,8 +5466,8 @@ pointer type is:
 	  \verb|(void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_updptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::updptr}
+	& \verb|min::packed_vec_updptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::updptr}
 \LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5525,7 +5518,7 @@ instead of `\TT{H~const~*}', `\TT{E~const~\&}', or
 `\TT{min::\EOL ptr<E const>}' values.
 The \TT{[]} operator\label{PACKED_VEC_[]_REF}
 is further redefined if \TT{E} is a locatable type
-so that a \TT{min::\EOL ref\BRACKETED{E}} value is returned instead of
+so that a \TT{min::\EOL ref<E>} value is returned instead of
 a `\TT{E~\&}' value.  This does for vector elements what
 \TT{MIN\_REF} defined \TT{\ldots\_ref} functions do for structure
 elements.
@@ -5533,14 +5526,14 @@ elements.
 The \TT{MIN\_REF}\label{PACKED_VEC_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
 should be used with a \TT{min::\EOL packed\_\EOL
-vec\_\EOL updptr\SARG} container type
+vec\_\EOL updptr<S>} container type
 for locatable elements of a packed vector header.
 
 
-The insertable \TT{min::\EOL packed\_\EOL vec\_\EOL insptr\EHLARG}
+The insertable \TT{min::\EOL packed\_\EOL vec\_\EOL insptr<E,H,L>}
 pointer type, which permits elements to be added to a packed vector,
 has the
-\TT{min::\EOL packed\_\EOL vec\_\EOL updptr\EHLARG} pointer type
+\TT{min::\EOL packed\_\EOL vec\_\EOL updptr<E,H,L>} pointer type
 as its \TT{public} base class,
 so that insertable pointers can be implicitly converted to
 read-write or read-only pointers.  The new code defined for the insertable
@@ -5569,8 +5562,8 @@ pointer type is:
 	   \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_insptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::insptr}
+	& \verb|min::packed_vec_insptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::insptr}
 \LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5660,7 +5653,7 @@ push(pvip) = v;
 \end{verbatim}\end{indpar}
 where \TT{v} is the value of the element to be added to the vector.
 If the element type \TT{E} is locatable, \TT{min::\EOL push\RESIZE}
-returns a \TT{min::\EOL ref\TARG} reference.%
+returns a \TT{min::\EOL ref<E>} reference.%
 \label{PACKED_VEC_PUSH_REF}
 Otherwise, if \TT{E} is not locatable, an
 `\TT{E \&}' reference is returned.
@@ -13007,29 +13000,29 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::|\MINKEY{ref\TARG}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
+\verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T const & location )|
 \LABEL{MUP::NEW_REF} \\
-\verb|min::|\MINKEY{ref\TARG}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
+\verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
     \verb|( T & location )|
 \LABEL{MIN::NEW_REF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref\TARG}}
+\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_STUB} \\
-\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref\TARG}}
+\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_OFFSET} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::ref<T> const & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r, T value )|
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r,|\ARGBREAK
       \verb|  const min::ref<T> & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
@@ -13037,43 +13030,43 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|T & |
-    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
 	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::ref\TARG}}\ARGBREAK
+	          {of {\tt min::ref<T>}}\ARGBREAK
 	  \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_->} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::==REF_AND_T} \\
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::==T_AND_REF} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::!=REF_AND_T} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::!=T_AND_REF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
-    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::==REF_AND_STUB} \\
 \verb|bool |
-    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::!=REF_AND_STUB} \\
@@ -13087,30 +13080,30 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
+\verb|(constructor) min::| & \MINKEY{ptr<T>} \verb| p|
 \LABEL{MIN::PTR_OF_T} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
+\verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T * location )|
 \LABEL{MUP::NEW_PTR} \\
-\verb|min::|\MINKEY{ptr\TARG}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
+\verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
     \verb|( T * location )|
 \LABEL{MIN::NEW_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr\TARG}}
+\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr\TARG}}
+\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::ptr<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( min::ptr<T> & p,|\ARGBREAK
       \verb|  const min::ptr<T> & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
@@ -13119,18 +13112,18 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|T * |
 	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::ptr\TARG}}\ARGBREAK
+	          {of {\tt min::ptr<T>}}\ARGBREAK
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::PTR_->} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::ptr<T> |
-    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}\ARGBREAK
+    & \TTOMKEY{\&}{\&}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
 \verb|min::ref<T> |
-    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}\ARGBREAK
+    & \TTOMKEY{*}{*}{of {\tt min::ptr<T>}}\ARGBREAK
       \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::=*_OF_PTR_OF_T} \\
 \end{TABULAR}
@@ -13152,28 +13145,28 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|T * |
 	& \TTOMKEY{T *}{T *}%
-	          {of {\tt min::ptr\TARG}}\ARGBREAK
+	          {of {\tt min::ptr<T>}}\ARGBREAK
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::T*_OF_PTR} \\
 \verb|min::ptr<T> |
-	& \MINKEY{ptr\TARG}\ARGBREAK
+	& \MINKEY{ptr<T>}\ARGBREAK
 	  \verb|( const min::ptr<S> & p )| ~ [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
-    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr\TARG}}\ARGBREAK
+    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr<T>}}\ARGBREAK
       \verb|( const min::ptr<T> & p1,|\ARGBREAK
       \verb|  const min::ptr<T> & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{++}{++}{of {\tt min::ptr\TARG}}%
+    & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}%
     \hspace*{1.3in} [postfix {\tt ++}]\ARGBREAK
       \verb|( min::ptr<T> & r, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr\TARG}}%
+    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr<T>}}%
     \hspace*{1.3in} [prefix {\tt --}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
@@ -13228,7 +13221,7 @@ These are in \verb|min_parameters.h|.
       \verb|( const min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::ref<min::gen> |
-    & \TTOMKEY{min::ref<min::gen>}{min::ref\BRACKETED{min::gen}}%
+    & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( const min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
@@ -13255,10 +13248,10 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_var\TARG}\verb| var ( void )|
+    & \MINKEY{locatable\_var<T>}\verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_var\TARG}%
+    & \MINKEY{locatable\_var<T>}%
       \verb| var ( T value )|
 \LABEL{MIN::LOCATABLE_VAR_OF_T} \\
 \verb|T |
@@ -13281,17 +13274,17 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|const min::stub * |
     & \TTOMKEY{const min::stub *}{const min::stub *}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
 \verb|min::ref<T> |
-    & \TTOMKEY{min::ref<T>}{min::ref\TARG}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+    & \TTOMKEY{min::ref<T>}{min::ref<T>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}%
-              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{TABULAR}
@@ -14087,13 +14080,13 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
+	& \MINKEY{packed\_struct<S>} \verb|pstype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|  const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT_TYPE} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+	& \MINKEY{packed\_struct\_with\_base<S,B>}
 		\verb|pstype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * gen_disp = NULL,|\ARGBREAK
@@ -14147,20 +14140,20 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	  \verb|( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	  \verb|( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	  \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
+	& \verb|min::packed_struct_ptr|{\tt <S>}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct<S>::ptr}
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{TABULAR}
 
@@ -14195,20 +14188,20 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
 	  \verb|( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
 	  \verb|( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
+	& \verb|min::packed_struct_updptr|{\tt <S>}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct<S>::updptr}
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
@@ -14246,7 +14239,7 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.4in}
-\verb|struct min::| & \MINKEY{packed\_vec\_header}\LARG\ARGBREAK
+\verb|struct min::| & \MINKEY{packed\_vec\_header<L>}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::uns32 control;|\ARGBREAK
     \verb|  const L length;|\ARGBREAK
@@ -14266,7 +14259,7 @@ In loose implementation: \\
 	  \verb|  const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base}\BRACKETED{E,H,B,L}
+	& \MINKEY{packed\_vec\_with\_base<E,H,B,L>}
 		\verb|pvtype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
@@ -14383,8 +14376,8 @@ In loose implementation: \\
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_ptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::ptr}
+	& \verb|min::packed_vec_ptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::ptr}
 \LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{TABULAR}
 
@@ -14456,8 +14449,8 @@ In loose implementation: \\
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_updptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::updptr}
+	& \verb|min::packed_vec_updptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::updptr}
 \LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
@@ -14523,8 +14516,8 @@ In loose implementation: \\
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_insptr|\EHLARG\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHLARG::insptr}
+	& \verb|min::packed_vec_insptr<E,H,L>|\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::insptr}
 \LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{TABULAR}
 
