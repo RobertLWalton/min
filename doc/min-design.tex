@@ -2350,7 +2350,7 @@ this may be done with the code:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::stub * |
-    & \TTOMKEY{const min::stub *}{const min::stub *}%
+    & \TTOMKEY{min::stub *}{const min::stub *}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
@@ -2473,7 +2473,7 @@ struct S_ptr
             // Return pointer to body.
     }
 
-    operator const min::stub * ( void )
+    operator const min::stub * ( void ) const
     {
         return s;
             // Return pointer to stub.
@@ -3852,7 +3852,7 @@ a \key{string pointer}:
 \verb|const char & sp|
     & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char>  min::|
+\verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -3906,7 +3906,7 @@ The \TT{strlen}, \TT{strhash}, \TT{strcpy}, \TT{strncpy},
 about the string pointed at by a string pointer as they retrieve about
 the string value the pointer points at.
 
-The \TT{begin\_ptr\_of} function
+The \TT{min::begin\_ptr\_of} function
 returns a \TT{min::ptr<const char>} pointer to
 the NUL-termin\-at\-ed vector of \TT{char}'s that is the string.
 Its value can be implicitly converted to a `\TT{const char *}'
@@ -3987,7 +3987,7 @@ numbers storable in the \TT{value} argument.
 \label{UNPROTECTED-STRING-FUNCTIONS}
 
 The following unprotected
-function is equivalent to \TT{begin\_ptr\_of()} with its
+function is equivalent to \TT{min::begin\_ptr\_of()} with its
 result cast to `\TT{const char *}':
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4459,7 +4459,7 @@ The class type must be similar to a C-language \TT{struct} in that:
 \begin{enumerate}
 \item Construction\label{PACKED-STRUCTURE-TYPE-REQUIREMENTS}
 of a datum of the type
-by a no-argument constructor does not
+by a no-argument constructor does not have to
 set any datum byte to a non-zero value.  Note that bytes need not be
 set to any value, but zero must be an acceptable value for all bytes
 of a newly constructed datum.
@@ -4643,15 +4643,16 @@ members for these purposes.
 
 \item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]\label{STUB_DISP}
 Ditto but for \TT{const min::stub *} members of \TT{S}
-instead of \TT{min::gen} members.
-
-Members of the types `\TT{const min::stub *}', `\TT{min::stub const *}', and
-`\TT{const min::\EOL stub \EOL const~*}' are treated like
-`\TT{min::\EOL stub~*}' members for these purposes.
-
-\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} ~and~
-\TT{min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H,L>} members
-are also treated as \TT{const min::\EOL stub~*} members.
+instead of \TT{min::gen} members.  The following member types are
+treated as \TT{const min::stub *} members for these purposes:
+\begin{center}
+\tt
+\begin{tabular}{l}
+const min::stub * const \\
+min::packed\_struct\_xxxptr<S> \\
+min::packed\_vec\_xxxptr<E,H,L> \\
+\end{tabular}
+\end{center}
 
 \end{itemlist}
 
@@ -4867,7 +4868,7 @@ the \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer type
 is a \TT{public} base class of
 the \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>} pointer type.
 
-\TT{min::gen}, `\TT{const min::stub~*}', and
+\TT{min::gen}, \TT{const min::stub~*}, and
 \TT{min::\EOL packed\_\EOL\ldots ptr<\ldots>}
 elements of packed structures must be locatable.
 The \TT{MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
@@ -4945,35 +4946,10 @@ The structure at the beginning of a packed vector
 is called the packed vector \mkey{header}{of packed vector}
 and the vector elements that follow the header are called the
 packed vector \smkey{element}s{of packed vector}.
-The types of both the vector header and the vector elements must be
-similar to C-language \TT{struct}, number, or pointer types in that:
-\begin{enumerate}
-\item Construction\label{PACKED-VECTOR-TYPE-REQUIREMENTS}
-of a datum of the type
-by a no-argument constructor does not
-set any datum byte to a non-zero value.  Note that bytes need not be
-set to any value, but zero must be an acceptable value for all bytes
-of a newly constructed datum.
-
-When a packed vector is created it is zeroed and then a few special
-header members described below, the \TT{control}, \TT{length},
-and \TT{max\_\EOL length} members, are given values.
-No constructor is called.
-\item
-Destruction of a datum of the type does nothing.
-
-When a packed vector is destroyed, destructors are not called.
-\item
-Assignment of a datum of the type from another datum of the same type
-is equivalent to a \TT{memcpy} operation.
-
-When a packed vector is expanded, or moved by the copying part of
-the ACC, it is moved by \TT{memcpy}.
-\end{enumerate}
-
-Numeric, \TT{min::gen}, and \TT{min::stub *} values are permitted as
-vector element types by themselves or as members of a class that
-is a packed vector element type or a packed vector header type.
+The types of both the vector header and the vector elements must follow
+the three rules stated at the beginning of the Packed Structures
+section (\itemref{PACKED-STRUCTURES}), with two exceptions.%
+\label{PACKED-VECTOR-TYPE-REQUIREMENTS}
 
 The type of a packed vector header, like that of a packed structure,
 must be a class whose first member
@@ -4981,14 +4957,27 @@ must be a class whose first member
 \begin{indpar}
 \verb|const min::uns32 control;|
 \end{indpar}
-The header must also have the following two other members,
+
+The first exception is that
+the header must also have the following two other members,
 at no particular displacement:
 \begin{indpar}
 \verb|const L length;| \\
 \verb|const L max_length;|
 \end{indpar}
 where \TT{L} is an unsigned integer type, and defaults to
-\TT{min::\EOL uns32}.
+\TT{min::\EOL uns32}.  Here \TT{length} is the current number
+of elements in the vector and \TT{max\_length} is the
+maximum number of elements that can be in the vector before
+the vector needs to be resized to increase
+\TT{max\_length} (resizing is automatic but moves the vector in memory).
+
+The second exception is that the type of the vector elements
+may be a class type, but without any of the members required
+for the header, or may be any type appropriate to an element
+of such a class.  So, for example, \TT{min::gen} may be
+either the vector element type or the type of a member of
+the vector element type.
 
 There are also three pointer-to-packed-vector types:
 \begin{indpar}\begin{tabular}{l}
@@ -4996,9 +4985,9 @@ There are also three pointer-to-packed-vector types:
 \verb|min::packed_vec_updptr<E,H,L>| \\
 \verb|min::packed_vec_insptr<E,H,L>|
 \end{tabular}\end{indpar}
-where \TT{H} is the type of the packed vector header struct,
-\TT{E} is the type of the packed vector element, and
-\TT{L} is the unsigned integer type of the \TT{length}
+where \TT{E} is the type of the packed vector element,
+\TT{H} is the type of the packed vector header struct,
+and \TT{L} is the unsigned integer type of the \TT{length}
 and \TT{max\_\EOL length} members of the header, and also of the
 subscripts used to access vector elements.
 The first \mkey{read-only pointer}{to packed vector} type
@@ -5220,6 +5209,7 @@ See \pagref{STUB_DISP} for more details.
 and \TT{pvtype.ele\-\EOL ment\_\EOL stub\_\EOL disp}
 can be used to retrieve the name and displacement
 information associated with \TT{pvtype}.
+
 In addition the parameters
 \TT{pvtype.ini\-tial\_\EOL max\_\EOL length},
 \TT{pvtype.increment\_\EOL ratio}, and
@@ -5254,7 +5244,7 @@ value pointing at it.  A packed vector has a
 \mkey{length}{of packed vector} which is the number of elements
 currently in the packed vector.  It also has a
 \mkey{maximum length}{of packed vector} which is the maximum length
-allowed before the packed vector must be reallocated.
+allowed before the packed vector must be resized.
 The \TT{pvtype.new\_gen} or \TT{pvtype.new\_stub}
 function may be given the maximum length
 and length and a vector of length type \TT{E} elements that is copied
@@ -5269,7 +5259,8 @@ the maximum length defaults to \TT{pvtype.initial\_\EOL max\_\EOL length}.
 A newly created packed vector is set to all zeros, except for its
 `\TT{control}', `\TT{length}', and `\TT{max\_\EOL length}' members.
 
-The subtype of a packed vector can be retrieved by
+The subtype of a packed vector (or packed structure)
+and the name of that subtype can be retrieved by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -5308,10 +5299,10 @@ The following are defined for general use:
 \LABEL{MIN::GEN_PACKED_VEC_TYPE} \\
 \end{tabular}\end{indpar}
 
-There are three kinds of pointers that can be used to access
-a packed vector.  The read-only
+Above we listed three types of pointers that can be used to access
+a packed vector.  The first is the read-only
 \TT{min::\EOL packed\_\EOL vec\_\EOL ptr<E,H,L>}
-packed vector pointer type has the usage:
+packed vector pointer type which has the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -5319,21 +5310,21 @@ packed vector pointer type has the usage:
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvp|\ARGBREAK
-	  \verb|(min::gen v )|
+	  \verb|( min::gen v )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\_ptr}{packed\_vec\_ptr}\ARGBREAK
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvp|\ARGBREAK
-	  \verb|(min::stub * s )|
+	  \verb|( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\_ptr}{packed\_vec\_ptr}\ARGBREAK
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvp|\ARGBREAK
-	  \verb|(void )|
+	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5360,8 +5351,10 @@ packed vector pointer type has the usage:
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
+\verb|const L pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
+\verb|const L pvp| & \TTARMKEY{max\_length}{in {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_MAX_LENGTH} \\
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
@@ -5371,7 +5364,7 @@ packed vector pointer type has the usage:
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
-\verb|min::ptr<E const> |
+\verb|min::ptr<E const> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
@@ -5386,7 +5379,7 @@ In addition subscripting read-only packed vector
 pointers gives read-only access to the elements of the vector.  The subscripting
 operator \TT{[]} checks the index \TT{i} against the current length
 of the vector to ensure the access is legal
-(e.g., \TT{pvp[i]} executes a \TT{MIN\_\EOL ASSERT}
+(i.e., \TT{pvp[i]} executes a \TT{MIN\_\EOL ASSERT}
 check that \TT{0<=i<pvp->length}).
 The vector elements in a
 packed vector are organized as a C language vector so that
@@ -5394,7 +5387,7 @@ packed vector are organized as a C language vector so that
 \TT{(\& pvp[0])[i]} is the same as \TT{pvp[i]}
 \end{center}
 but the vector elements are stored in a body whose address can change
-if a relocating function is called, so saving C pointers to packed vector
+if a relocating function is called, so C pointers to packed vector
 elements are relocatable.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
 function, so, for example, `\TT{\& pvp[i]}' may be used as an
@@ -5407,9 +5400,9 @@ body is relocated.
 The \TT{MIN\_\EOL ASSERT} check \TT{0<=i<pvp->length}
 is performed when \TT{pvp+i} is computed.
 
-\TT{pvp.begin\_ptr()} is the same as `\TT{pvp + 0}'
+\TT{min::begin\_ptr(pvp)} is the same as `\TT{pvp + 0}'
 except the latter would fail if \TT{pvp->\EOL length == 0}.
-\TT{pvp.end\_ptr()} is the same as `\TT{pvp + pvp->length}'
+\TT{min::end\_ptr(pvp)} is the same as `\TT{pvp + pvp->length}'
 except the latter will always fail because the index is not less than
 \TT{pvp->length}.
 The \TT{min::ptr<E const>} values of these functions are implicitly
@@ -5417,12 +5410,12 @@ convertible to `\TT{E const *}' values, and so can be passed to
 functions like \TT{memcpy}.
 
 For example, if \TT{memcpy} is used to copy
-from the vector, use \TT{begin\_\EOL ptr()}:
+from the vector, use \TT{min::begin\_\EOL ptr(pvp)}:
 \begin{indpar}\begin{verbatim}
-memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
+memcpy ( ..., min::begin_ptr(pvp), sizeof ( E ) * pvp->length );
 \end{verbatim}\end{indpar}
-Using \TT{\& pvup[0]} instead of \TT{pvup->begin\_ptr()}
-will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvup->\EOL length == 0}.
+Using \TT{\& pvp[0]} instead of \TT{min::begin\_ptr(pvp)}
+will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvp->\EOL length == 0}.
 
 The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr<E,H,L>}
 pointer type has as its \TT{public} base class the
@@ -5437,21 +5430,21 @@ pointer type is:
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvup|\ARGBREAK
-	  \verb|(min::gen v )|
+	  \verb|( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\_updptr}{packed\_vec\_updptr}\ARGBREAK
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvup|\ARGBREAK
-	  \verb|(min::stub * s )|
+	  \verb|( const min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\_updptr}{packed\_vec\_updptr}\ARGBREAK
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvup|\ARGBREAK
-	  \verb|(void )|
+	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5470,8 +5463,7 @@ pointer type is:
 \verb|H * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::packed_vec_updptr<E,H,L>|\ARGBREAK
-	  \verb|     & pvup )|
+	  \verb|( const min::packed_vec_updptr<E,H,L> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5482,18 +5474,20 @@ pointer type is:
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
 \verb|min::ptr<E> pvup|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|min::ptr<E> pvup|
-    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
-\verb|min::ptr<E> pvup|
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
+\verb|min::ptr<E>  min::|
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb|( min::packed_vec_updptr<E,H,L> pvup )|
+\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_UPDPTR} \\
+\verb|min::ptr<E> min::|
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb|( min::packed_vec_updptr<E,H,L> pvup )|
+\LABEL{MIN::END_PTR_OF_PACKED_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 The \TT{->}, \TT{[]}, and \TT{+} operators and
-\TT{begin\_ptr()} and \TT{end\_ptr()} members are
+\TT{min::begin\_ptr\_of()} and \TT{min::end\_ptr\_of()} functions are
 redefined (i.e., \underline{not}
 inherited) so that they
 return `\TT{H~*}', `\TT{E~\&},
@@ -5503,7 +5497,8 @@ instead of `\TT{H~const~*}', `\TT{E~const~\&}', or
 The \TT{[]} operator\label{PACKED_VEC_[]_REF}
 is further redefined if \TT{E} is a locatable type
 so that a \TT{min::\EOL ref<E>} value is returned instead of
-a `\TT{E~\&}' value.  This does for vector elements what
+a `\TT{E~\&}' value.  This does for vector elements that are
+not structures what
 \TT{MIN\_REF} defined \TT{\ldots\_ref} functions do for structure
 elements.
 
@@ -5513,6 +5508,9 @@ should be used with a \TT{min::\EOL packed\_\EOL
 vec\_\EOL updptr<S>} container type
 for locatable elements of a packed vector header.
 
+Special considerations are required for writing vector elements
+that are structures containing locatable members.
+See the example at the end of this section.
 
 The insertable \TT{min::\EOL packed\_\EOL vec\_\EOL insptr<E,H,L>}
 pointer type, which permits elements to be added to a packed vector,
@@ -5536,7 +5534,7 @@ pointer type is:
 	  \verb|      <E,H=min::packed_vec_header<min::uns32>,|\ARGBREAK
 	  \verb|         L=min::uns32>|\ARGBREAK
 	  \verb|      pvip|\ARGBREAK
-	  \verb|( min::stub * s )|
+	  \verb|( const min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\_insptr}{packed\_vec\_insptr}\ARGBREAK
@@ -5557,11 +5555,6 @@ pointer type is:
       \verb|( min::packed_vec_insptr<E,H,L> & pvip,|\ARGBREAK[1.5in]
       \verb|  const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|E & min::|
@@ -9777,7 +9770,7 @@ may be created by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( min::obj_vec_ptr & vp )|
+          \verb|( const min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -9921,10 +9914,10 @@ Also in this vein, the operations
 	  \verb|( const min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
-\verb|min::ptr<const min::gen> |
+\verb|min::ptr<const min::gen> min::|
     & \MINKEY{begin\_ptr\_of} \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
-\verb|min::ptr<const min::gen> |
+\verb|min::ptr<const min::gen> min::|
     & \MINKEY{end\_ptr\_of} \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
 \end{tabular}\end{indpar}
@@ -9951,7 +9944,7 @@ to permit writing elements.  Its functions are:
     \verb|vp ( min::gen v )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}
-    \verb|vp ( min::stub * s )|
+    \verb|vp ( const min::stub * s )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_OF_STUB} \\
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}
     \verb|vp ( void )|
@@ -9961,7 +9954,7 @@ to permit writing elements.  Its functions are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb|( min::obj_vec_updptr & vp )|
+          \verb|( const min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -10010,10 +10003,10 @@ to permit writing elements.  Its functions are:
 	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
-\verb|min::ptr<min::gen> |
+\verb|min::ptr<min::gen> min::|
     & \MINKEY{begin\_ptr\_of} \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
-\verb|min::ptr<min::gen> |
+\verb|min::ptr<min::gen> min::|
     & \MINKEY{end\_ptr\_of} \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -10047,7 +10040,7 @@ The additional functions for this type of pointer are:
     \verb|( min::gen v )|
 \LABEL{MIN::OBJ_VEC_INSPTR_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_insptr} \verb|vp|\ARGBREAK
-    \verb|( min::stub * s )|
+    \verb|( const min::stub * s )|
 \LABEL{MIN::OBJ_VEC_INSPTR_OF_STUB} \\
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_insptr} \verb|vp|\ARGBREAK
     \verb|( void )|
@@ -10057,7 +10050,7 @@ The additional functions for this type of pointer are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb|( min::obj_vec_insptr & vp )|
+          \verb|( const min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
@@ -12878,7 +12871,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::gen MUP::| & \MUPKEY{new\_stub\_gen} \verb|( min::stub * s )|
+\verb|min::gen MUP::| & \MUPKEY{new\_stub\_gen} \verb|( const min::stub * s )|
 \LABEL{MUP::NEW_STUB_GEN} \\
 \verb|min::gen MUP::|
     & \MUPKEY{new\_direct\_float\_gen\LOOSE} \verb|( min::float64 v )|
@@ -13253,7 +13246,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|const min::stub * |
-    & \TTOMKEY{const min::stub *}{const min::stub *}%
+    & \TTOMKEY{min::stub *}{const min::stub *}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
@@ -13745,7 +13738,7 @@ In loose implementation: \\
       \verb|( const min::str_ptr & sp,|\ARGBREAK
       \verb|  int index )|
 \LABEL{MIN::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> |
+\verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( const min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
@@ -14377,16 +14370,18 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
+\verb|const L pvp| & \TTARMKEY{max\_length}{in {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_MAX_LENGTH} \\
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_PTR_+} \\
-\verb|min::ptr<E const> |
+\verb|min::ptr<E const> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
-\verb|min::ptr<E const> |
+\verb|min::ptr<E const> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
@@ -14447,12 +14442,14 @@ In loose implementation: \\
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|min::ptr<E> pvup|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|min::ptr<E> pvup|
-    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
+\verb|min::ptr<E>  min::|
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb|( min::packed_vec_updptr<E,H,L> pvup )|
+\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_UPDPTR} \\
+\verb|min::ptr<E> min::|
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb|( min::packed_vec_updptr<E,H,L> pvup )|
+\LABEL{MIN::END_PTR_OF_PACKED_VEC_UPDPTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -14492,12 +14489,6 @@ In loose implementation: \\
       \verb|( min::packed_vec_insptr<E,H,L> & pvip,|\ARGBREAK[1.5in]
       \verb|  const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -15836,7 +15827,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( min::obj_vec_ptr & vp )|
+          \verb|( const min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -15911,11 +15902,11 @@ In loose implementation: \\
 	  \verb|( const min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
-\verb|min::ptr<const min::gen> |
+\verb|min::ptr<const min::gen> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
-\verb|min::ptr<const min::gen> |
+\verb|min::ptr<const min::gen> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
@@ -15943,7 +15934,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb|( min::obj_vec_updptr & vp )|
+          \verb|( const min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -15992,11 +15983,11 @@ In loose implementation: \\
 	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
-\verb|min::ptr<min::gen> |
+\verb|min::ptr<min::gen> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
-\verb|min::ptr<min::gen> |
+\verb|min::ptr<min::gen> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
@@ -16025,7 +16016,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb|( min::obj_vec_insptr & vp )|
+          \verb|( const min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
