@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 12 03:03:32 EDT 2014
+// Date:	Sun Apr 13 16:16:09 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7236,7 +7236,7 @@ namespace min {
 	    deinit();
 	}
 
-	operator const min::stub * ( void )
+	operator const min::stub * ( void ) const
 	{
 	    return s;
 	}
