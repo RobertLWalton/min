@@ -147,15 +147,6 @@
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-% < and > do NOT print right in {\tt \bf <>}, i.e.,
-% they have no correct BOLDFACE TT font entries.
-% So we use the following to force non-boldface in
-% keys.
-%
-\newcommand{\LT}{{\tt <}}
-\newcommand{\GT}{{\tt >}}
-\newcommand{\MINUS}{{\tt -}}
-
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
 \addtolength{\figurewidth}{-0.40in}
@@ -241,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 12, 2014}
+\date{April 13, 2014}
  
 \maketitle
 
@@ -1787,7 +1778,7 @@ The functions for creating and using reference types are:
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
-	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ref<T>}}
+	& \TTOMKEY{->}{->}{of {\tt min::ref<T>}}
 	   \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
@@ -1943,7 +1934,7 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T * |
-	& \TTOMKEY{-\GT}{-\GT}{of {\tt min::ptr<T>}}
+	& \TTOMKEY{->}{->}{of {\tt min::ptr<T>}}
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::PTR_->} \\
 \end{tabular}\end{indpar}
@@ -2092,7 +2083,7 @@ Several pointer operators are defined on \TT{min::ptr<T>} values:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
-    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr<T>}}\ARGBREAK
+    & \TTOMKEY{<}{<}{of {\tt min::ptr<T>}}\ARGBREAK
       \verb|( const min::ptr<T> & p1,|\ARGBREAK
       \verb|  const min::ptr<T> & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
@@ -2102,7 +2093,7 @@ Several pointer operators are defined on \TT{min::ptr<T>} values:
       \verb|( min::ptr<T> & r, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr<T>}}
+    & \TTOMKEY{--}{-{}-}{of {\tt min::ptr<T>}}
     & [prefix \TT{-{}-}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
@@ -4685,7 +4676,8 @@ and \TT{pstype.stub\_\EOL disp}
 can be used to retrieve the subtype, name, and displacement
 information associated with \TT{pstype}.
 
-The subtype of a packed structure can be retrieved by
+The subtype of a packed structure (or packed vector)
+and the name of that subtype can be retrieved by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -4706,6 +4698,7 @@ These functions work in the same way for both packed structures
 and packed vectors (\itemref{PACKED-VECTORS}).
 No packed structure has the same subtype as any packed vector, and
 vice versa.
+
 The \TT{min::\EOL packed\_\EOL subtype\_\EOL of}
 functions return \TT{0}, which
 is not a legal packed structure or packed vector subtype, if the
@@ -4722,6 +4715,15 @@ The \TT{min::name\_of\_packed\_subtype} function returns the
 \TT{pstype.name} (\pagref{NAME_IN_PACKED_STRUCT}) of the
 \TT{pstype} associated
 with the subtype, which is useful for tracing and debugging.
+
+Note that there can be several different
+\TT{min::\EOL packed\_\EOL struct<S>}
+values with different subtypes but the same structure
+type \TT{S}.  Packed structure pointers such as those of type
+\TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
+described below may point at a packed structure with any of these subtypes;
+the pointer type is \underline{not} specific to the subtype, but
+is rather specific to \TT{S}.
 
 The two kinds of pointers that can be used to access
 a packed structure.  The read-only
@@ -4741,10 +4743,6 @@ have the usage:
 	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	   \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt <S>}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct<S>::ptr}
-\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::packed\_struct\_ptr<S> \&
@@ -4764,7 +4762,7 @@ have the usage:
           \verb|(const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|S const * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb|(const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -4812,14 +4810,6 @@ if \TT{upv} is a
 and \TT{S} has a member \TT{m}, then \TT{upv->m} is the \TT{m}
 member of the \TT{S} struct pointed at by \TT{upv}.
 
-Note that in certain
-circumstances, such as inside a \TT{template} class,
-component names like \TT{min::\EOL packed\_\EOL struct<S>::ptr} will not work
-and the alternative \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
-must be used instead.  The later are usually preferred anyway because
-it can be defined without defining \TT{S}, and therefore can be
-used to build recursive structures.
-
 The read-write \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>}
 pointer type has 
 as its \TT{public} base class the
@@ -4835,16 +4825,12 @@ pointer type is:
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
-	  \verb|( min::stub * s )|
+	  \verb|( const min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt <S>}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct<S>::updptr}
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::packed\_struct\_updptr<S> \&
@@ -4860,7 +4846,7 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|S * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb|( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
@@ -4874,6 +4860,12 @@ The \TT{->} and \TT{*} operators are redefined (i.e., \underline{not}
 inherited) so that they
 return `\TT{S~*}' and `\TT{S~\&}' values instead of
 `\TT{S~const~*}' and `\TT{S~const~\&}' values.
+
+\TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>} pointers can be
+converted implicitly to \TT{const min::stub *} values because
+the \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer type
+is a \TT{public} base class of
+the \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>} pointer type.
 
 \TT{min::gen}, `\TT{const min::stub~*}', and
 \TT{min::\EOL packed\_\EOL\ldots ptr<\ldots>}
@@ -5343,10 +5335,6 @@ packed vector pointer type has the usage:
 	  \verb|      pvp|\ARGBREAK
 	  \verb|(void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_ptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::ptr}
-\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<E,H,L> \&
@@ -5366,7 +5354,7 @@ packed vector pointer type has the usage:
           \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|H const * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
@@ -5465,10 +5453,6 @@ pointer type is:
 	  \verb|      pvup|\ARGBREAK
 	  \verb|(void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_updptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::updptr}
-\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::packed\_vec\_updptr<E,H,L> \&
@@ -5484,7 +5468,7 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|H * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
 	  \verb|( const min::packed_vec_updptr<E,H,L>|\ARGBREAK
 	  \verb|     & pvup )|
@@ -5561,10 +5545,6 @@ pointer type is:
 	  \verb|      pvip|\ARGBREAK
 	   \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_insptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::insptr}
-\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt min::packed\_vec\_insptr<E,H,L> \&
@@ -5837,7 +5817,7 @@ The data types and members of a file are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER} \\
-\verb|min::uns32 file| & \TTARMKEY{buffer-\GT length}{in {\tt min::file}}
+\verb|min::uns32 file| & \TTARMKEY{buffer-> length}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
@@ -5905,7 +5885,7 @@ or empties an existing buffer and expects the user to fill the
 buffer using {\tt min::\EOL push} and {\tt min::\EOL end\_\EOL line}
 functions (see \pagref{WRITING-FILE-BUFFER}).
 
-\item[\ttmkey{buffer-\GT length}{in {\tt min::file}}]
+\item[\ttmkey{buffer-> length}{in {\tt min::file}}]
 The number of {\tt char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
 This is {\tt 0} when the buffer empty.
@@ -6618,19 +6598,19 @@ to the file's {\tt ostream}, {\tt ofile}, and/or
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{<<}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::file ofile,|\ARGBREAK
       \verb|  min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file )|
@@ -7286,17 +7266,17 @@ Copying characters into a printer is done by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, const min::str_ptr & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
@@ -7304,32 +7284,32 @@ Copying characters into a printer is done by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -7378,7 +7358,7 @@ Operations can be performed on printers by applying the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -7426,19 +7406,19 @@ into another {\tt min::\EOL printer}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{<<}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer oprinter,|\ARGBREAK
       \verb|  min::printer iprinter )|
@@ -8109,7 +8089,7 @@ can be presented to a {\tt std::\EOL ostream} by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}{of {\tt std::ostream \&}}\ARGBREAK
+    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  const min::op & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
@@ -8154,7 +8134,7 @@ operations:
             \verb|  const min::context_gen_flags * context_gen_flags )|
 \LABEL{MIN::PGEN_WITH_CONTEXT_GEN_FLAGS} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
@@ -9003,7 +8983,7 @@ by the code:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  const min::pline_numbers & pline_numbers )|
@@ -13034,7 +13014,7 @@ These are in \verb|min_parameters.h|.
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::ref<T>}}\ARGBREAK
 	  \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_->} \\
@@ -13111,7 +13091,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|T * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::ptr<T>}}\ARGBREAK
 	  \verb|( const min::ptr<T> & p )|
 \LABEL{MIN::PTR_->} \\
@@ -13156,7 +13136,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
-    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr<T>}}\ARGBREAK
+    & \TTOMKEY{<}{<}{of {\tt min::ptr<T>}}\ARGBREAK
       \verb|( const min::ptr<T> & p1,|\ARGBREAK
       \verb|  const min::ptr<T> & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
@@ -13166,7 +13146,7 @@ These are in \verb|min_parameters.h|.
       \verb|( min::ptr<T> & r, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
-    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr<T>}}%
+    & \TTOMKEY{--}{-{}-}{of {\tt min::ptr<T>}}%
     \hspace*{1.3in} [prefix {\tt --}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
@@ -14151,10 +14131,6 @@ In loose implementation: \\
 	& \MINKEY{packed\_struct\_ptr<S>} \verb|psp|
 	  \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt <S>}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct<S>::ptr}
-\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -14176,7 +14152,7 @@ In loose implementation: \\
           \verb|( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|S const * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb|( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -14199,10 +14175,6 @@ In loose implementation: \\
 	& \MINKEY{packed\_struct\_updptr<S>} \verb|psup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt <S>}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct<S>::updptr}
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -14220,7 +14192,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{0.8in}
 \verb|S * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb|( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
@@ -14375,10 +14347,6 @@ In loose implementation: \\
 	  \verb|      pvp|\ARGBREAK
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_ptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::ptr}
-\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -14400,7 +14368,7 @@ In loose implementation: \\
           \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|H const * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
@@ -14448,10 +14416,6 @@ In loose implementation: \\
 	  \verb|      pvup|\ARGBREAK
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_updptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::updptr}
-\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -14469,7 +14433,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.0in}
 \verb|H * |
-	& \TTOMKEY{-\GT}{-\GT}%
+	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
 	  \verb|( const min::packed_vec_updptr<E,H,L>|\ARGBREAK
 	  \verb|     & pvup )|
@@ -14515,10 +14479,6 @@ In loose implementation: \\
 	  \verb|      pvip|\ARGBREAK
 	  \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_insptr<E,H,L>|\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec<E,H,L>::insptr}
-\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
@@ -14599,7 +14559,7 @@ In loose implementation: \\
 \begin{TABULAR}{3.4in}
 \verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER} \\
-\verb|min::uns32 file| & \TTARMKEY{buffer-\GT length}{in {\tt min::file}}
+\verb|min::uns32 file| & \TTARMKEY{buffer-> length}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
@@ -14847,19 +14807,19 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{<<}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::file ofile,|\ARGBREAK
       \verb|  min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file )|
@@ -15092,49 +15052,49 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  const min::str_ptr & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -15142,7 +15102,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -15163,19 +15123,19 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{<<}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer oprinter,|\ARGBREAK
       \verb|  min::printer iprinter )|
@@ -15383,7 +15343,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}{of {\tt std::ostream \&}}\ARGBREAK
+    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
       \verb| ( std::ostream & out,|\ARGBREAK
       \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
@@ -15426,7 +15386,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
@@ -15625,7 +15585,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+    & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  const min::pline_numbers & pline_numbers )|
