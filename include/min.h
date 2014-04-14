@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 13 16:16:09 EDT 2014
+// Date:	Mon Apr 14 16:46:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6610,10 +6610,6 @@ namespace min {
     void init_print_flags
 	    ( min::ref<min::file> file,
 	      min::uns32 print_flags );
-
-    void init_spool_lines
-	    ( min::ref<min::file> file,
-	      min::uns32 spool_lines );
 
     void init_file_name
 	    ( min::ref<min::file> file,

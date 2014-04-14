@@ -5907,7 +5907,7 @@ The offset of the \TT{buffer} element just \underline{after} the last
 line-terminating NUL character in the \TT{buffer}.  Or \TT{0} if there
 are no line-terminating NUL characters.
 This is \TT{0} when the buffer is empty.
-Initialized to \TT{0} when the file is created and set by
+Initialized to \TT{0} when the file is created and set appropriately by
 \TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
@@ -5931,7 +5931,9 @@ The number of the next line to be returned by the
 function that is used by programs to read lines from a \TT{min::\EOL file}.
 Or the total number of lines in the file if there is no next line
 (there may still be a remaining portion of a partial line).
-The first line number is \TT{0}.  Reset when the file is rewound.
+The first line number is \TT{0}.
+Set to \TT{0} by \TT{min::\EOL init\_\EOL input\ldots} functions.
+Reset appropriately when the file is rewound.
 
 \item[\ttmkey{next\_\EOL offset}{in {\tt min::file}}]
 The offset in the \TT{buffer} of the first character of the
@@ -5941,14 +5943,16 @@ return \TT{NO\_\EOL LINE}, i.e., when \TT{next\_offset < end\_offset}).
 Specifically, \TT{buffer[next\_\EOL offset]} is
 the first character of the next line.
 
-Or when \TT{end\_offset <= next\_offset} and
-\TT{min::\EOL next\_\EOL line} returns \TT{NO\_\EOL LINE},
+Or when \TT{end\_offset <= next\_offset}, so that
+\TT{NO\_\EOL LINE} is returned by \TT{min::\EOL next\_\EOL line},
 the offset in the \TT{buffer} of the first character of the
 partial line at the end of the buffer
 that has not been previously skipped by
 the \TT{min::\EOL skip\_\EOL remaining} function
 (see \pagref{MIN::SKIP_REMAINING}).
-Reset when the file is rewound.
+
+Set to \TT{0} by \TT{min::\EOL init\_\EOL input\ldots} functions.
+Reset appropriately when the file is rewound.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
 If \TT{spool\_lines~!=~0} (see below), then
@@ -5962,7 +5966,9 @@ provided
 \begin{center}
 {\tt 0 < ( next\_line\_number - n ) <= line\_index->length}
 \end{center}
-Here it is guarenteed that
+If the file has not been rewound since it was initialized by
+a \TT{min::\EOL init\_\EOL input\ldots} function with
+\TT{spool\_lines~!=~0}, then it is guarenteed that
 \begin{center}
 \tt
 line\_index->length \\
@@ -5978,14 +5984,15 @@ If \TT{spool\_lines~==~min::ALL\_LINES}, which is just the largest possible
 \TT{m~==~n}, and all the lines in the file before the next line can be located
 using the line index.
 
-Otherwise, if \TT{spool\_lines~>~0}, the past history
-of calls to \TT{min::\EOL flush\_\EOL spool} determine
-\TT{line\_\EOL index->\EOL length} (see \pagref{LINE-INDEX-LENGTH}).
+Otherwise, if \TT{spool\_lines~>~0},
+\TT{line\_\EOL index->\EOL length} is determined by
+the past history of calls to \TT{min::\EOL flush\_\EOL spool} and
+\TT{min::rewind} (see \pagref{LINE-INDEX-LENGTH}).
 
-Created when \TT{spool\_\EOL lines} is set to a non-\TT{0} value,
-and reset to \TT{NULL\_STUB} when \TT{spool\_\EOL lines} is set to \TT{0}.
-\TT{line\_\EOL index->\EOL length} is reset
-when the file is rewound.
+Created when \TT{spool\_\EOL lines} is set to a non-\TT{0} value
+and set to \TT{min::\EOL NULL\_\EOL STUB}
+when \TT{spool\_\EOL lines} is set to a \TT{0} value.
+Truncated when a file is rewound.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 If \TT{0}, \TT{line\_index~==~min::NULL\_STUB} and there is

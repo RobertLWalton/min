@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 15:21:19 EDT 2014
+// Date:	Mon Apr 14 16:46:30 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1831,33 +1831,6 @@ void min::init_print_flags
     file->print_flags = print_flags;
 }
 
-inline void set_spool_lines
-	( min::file file,
-	  min::uns32 spool_lines )
-{
-    file->spool_lines = spool_lines;
-    if ( spool_lines != 0 )
-    {
-        if ( file->line_index == min::NULL_STUB )
-	    min::line_index_ref(file) =
-		::file_line_index_type.new_stub();
-    }
-    else
-    {
-        if ( file->line_index != min::NULL_STUB )
-	    min::line_index_ref(file) =
-		min::NULL_STUB;
-    }
-}
-
-void min::init_spool_lines
-	( min::ref<min::file> file,
-	  min::uns32 spool_lines )
-{
-    init ( file );
-    ::set_spool_lines ( file, spool_lines );
-}
-
 void min::init_file_name
 	( min::ref<min::file> file,
 	  min::gen file_name )
@@ -1906,8 +1879,19 @@ void min::init_input
     file->next_offset = 0;
 
     file->print_flags = print_flags;
-    min::line_index_ref ( file ) = min::NULL_STUB;
-    ::set_spool_lines ( file, spool_lines );
+    file->spool_lines = spool_lines;
+    if ( spool_lines != 0 )
+    {
+        if ( file->line_index == min::NULL_STUB )
+	    min::line_index_ref(file) =
+		::file_line_index_type.new_stub();
+    }
+    else
+    {
+        if ( file->line_index != min::NULL_STUB )
+	    min::line_index_ref(file) =
+		min::NULL_STUB;
+    }
 
     file->istream = NULL;
     ifile_ref(file) = NULL_STUB;
