@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 12 03:03:43 EDT 2014
+// Date:	Mon Apr 14 15:21:19 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1821,19 +1821,6 @@ void min::init ( min::ref<min::file> file )
 	    ::file_buffer_type.new_stub();
 	file_name_ref(file) = MISSING();
     }
-    else
-    {
-	if ( file->line_index != NULL_STUB )
-	{
-	    min::pop ( file->line_index,
-	               file->line_index->length );
-	    min::resize ( file->line_index,
-			  file_line_index_type
-			      .initial_max_length );
-	}
-    }
-    file->next_line_number = 0;
-    file->next_offset = 0;
 }
 
 void min::init_print_flags
@@ -1915,8 +1902,13 @@ void min::init_input
 	          file_buffer_type.initial_max_length );
     file->end_offset = 0;
     file->file_lines = min::NO_LINE;
+    file->next_line_number = 0;
+    file->next_offset = 0;
+
     file->print_flags = print_flags;
+    min::line_index_ref ( file ) = min::NULL_STUB;
     ::set_spool_lines ( file, spool_lines );
+
     file->istream = NULL;
     ifile_ref(file) = NULL_STUB;
     file_name_ref(file) = MISSING();
@@ -1928,11 +1920,8 @@ void min::init_input_stream
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
-    init_input ( file );
+    init_input ( file, print_flags, spool_lines );
     file->istream = & istream;
-    ifile_ref(file) = NULL_STUB;
-    file->print_flags = print_flags;
-    ::set_spool_lines ( file, spool_lines );
 }
 
 void min::init_input_file
@@ -1941,11 +1930,8 @@ void min::init_input_file
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
-    init_input ( file );
-    file->istream = NULL;
+    init_input ( file, print_flags, spool_lines );
     ifile_ref(file) = ifile;
-    file->print_flags = print_flags;
-    ::set_spool_lines ( file, spool_lines );
 }
 
 bool min::init_input_named_file
@@ -1954,12 +1940,8 @@ bool min::init_input_named_file
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
-    init_input ( file );
-    file->istream = NULL;
-    ifile_ref(file) = NULL_STUB;
+    init_input ( file, print_flags, spool_lines );
     file_name_ref(file) = file_name;
-    file->print_flags = print_flags;
-    ::set_spool_lines ( file, spool_lines );
 
     min::str_ptr fname ( file_name );
 
@@ -2067,11 +2049,7 @@ void min::init_input_string
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
-    init_input ( file );
-    file->istream = NULL;
-    ifile_ref(file) = NULL_STUB;
-    file->print_flags = print_flags;
-    ::set_spool_lines ( file, spool_lines );
+    init_input ( file, print_flags, spool_lines );
 
     uns64 length = ::strlen ( data );
     assert ( length < ( 1ull << 32 ) );
