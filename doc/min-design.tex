@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 13, 2014}
+\date{April 14, 2014}
  
 \maketitle
 
@@ -750,10 +750,10 @@ and \TT{min::NONE()} is a special value used only to
 indicate that a function argument or result does not exist.
 See \itemref{SPECIAL-VALUES}.
 
-The \TT{min::}\MINKEY{gen}\LABEL{MIN::GEN}
+The {\tt min::}\MINKEY{gen}\LABEL{MIN::GEN}
 type is defined as a C++ class that
 consists of a single \TT{private} element of type
-\TT{min::}\MINKEY{unsgen}, which is an unsigned integer.
+{\tt min::}\MINKEY{unsgen}, which is an unsigned integer.
 From the point of view of C++ type checking, a \TT{min::\EOL gen}
 value is a class, but from the computational point of view it is
 an unsigned integer.
@@ -961,7 +961,7 @@ and for direct string general values the datum holds 0-5 \TT{char}'s.
 
 The \TT{min::gen} type has the alignment
 properties of either \TT{min::uns32} or \TT{min::uns64},
-and \TT{min::}\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
+and {\tt min::}\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
 of these two types.
 
 Many \TT{min::gen} values, which are 32 or 64 bits, are divided into a subtype,
@@ -5800,8 +5800,18 @@ A MIN \key{file} is a sequence of UTF-8 encoded NUL-terminated
 lines plus descriptive information.  A {\tt min::}\MINKEY{file} value is a
 pointer to a packed structure that contains the descriptive information
 and also contains
-a pointer to a packed {\tt char} vector,
+a pointer to a packed \TT{char} vector,
 the \key{file buffer}\index{buffer!file}, that contains the lines.
+
+The main purpose of the \TT{min::file} type is to allow lines
+previously read to be retrieved so they can be printed in error messages.
+To this end, some or all read file lines are saved in the file buffer,
+and an index to these lines is maintained in
+a \key{line index}\index{index!file line}\index{file line index}.
+There are two main options for managing this: one is to retain
+\underline{all} previously read lines, and the other is to maintain
+only the last $N$ lines, where $N$ is the \ttmkey{spool\_lines}{of file}
+parameter of the file.
 
 The data types and members of a file are:
 
@@ -5862,84 +5872,88 @@ noted below.  They are:
 
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of {\tt char}'s that contains the lines of the file.  Each
-line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated, UTF-8
+line is encoded using modified UTF-8\footnote{Modified UTF-8 is UTF-8
+modified by using the overlong 2-byte encoding of NUL, so that strings
+may both contain the NUL character (in the overlong encoding)
+and be NUL terminated.}
+and NUL terminated.
+A non-NUL-terminated, modified UTF-8
 encoded, incomplete
 last line, called a \key{partial line}, may appear at the end of the buffer.
 
 Note that in general functions that load data into files do \underline{not}
-check for illegal UTF-8 encodings.  They typically treat NUL characters
-loaded into the buffer as if they were newline characters, and in any
-case must avoid NUL characters in the buffer that are not intended
-to be line-terminating.
+check for illegal UTF-8 encodings, and should not be used to load
+NUL characters into files.  Line terminating
+NUL characters should be loaded by the \TT{min::end\_line} function.
 
 Initialized to an empty buffer when the file is created.  The
-{\tt min::\EOL init\_\EOL input\ldots} functions arrange for filling
+\TT{min::\EOL init\_\EOL input\ldots} functions arrange for filling
 the buffer.
 Some of these functions fill the buffer with the complete file.
 Others arrange for the buffer to be filled as needed from
-the file {\tt istream} or {\tt ifile} members.  The 1-argument
-{\tt min::\EOL init\_\EOL input} function creates an empty buffer
+the file \TT{istream} or \TT{ifile} members.  The 1-argument
+\TT{min::\EOL init\_\EOL input} function creates an empty buffer
 or empties an existing buffer and expects the user to fill the
-buffer using {\tt min::\EOL push} and {\tt min::\EOL end\_\EOL line}
+buffer using \TT{min::\EOL push} and \TT{min::\EOL end\_\EOL line}
 functions (see \pagref{WRITING-FILE-BUFFER}).
 
 \item[\ttmkey{buffer-> length}{in {\tt min::file}}]
-The number of {\tt char} elements in the file buffer
+The number of \TT{char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
-This is {\tt 0} when the buffer empty.
+This is \TT{0} when the buffer empty.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
-The offset of the {\tt buffer} element just \underline{after} the last
-line-terminating NUL character in the {\tt buffer}.  Or {\tt 0} if there
+The offset of the \TT{buffer} element just \underline{after} the last
+line-terminating NUL character in the \TT{buffer}.  Or \TT{0} if there
 are no line-terminating NUL characters.
-This is {\tt 0} when the buffer is empty.
-Initialized to {\tt 0} when the file is created and set by
-{\tt min::\EOL init\_\EOL input\ldots} functions.
+This is \TT{0} when the buffer is empty.
+Initialized to \TT{0} when the file is created and set by
+\TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
-If all the {\tt char}'s in the file have been appended to the file {\tt buffer},
+If all the \TT{char}'s in the file have been appended to the file \TT{buffer},
 this is the number of complete lines in the file, which equals
-the number of NUL's in the {\tt buffer}.  Otherwise this equals
-{\tt min::\EOL NO\_\EOL LINE}.
+the number of NUL's in the \TT{buffer}.  Otherwise this equals
+\TT{min::\EOL NO\_\EOL LINE}.
 
-Initialized to {\tt min::\EOL NO\_\EOL LINE} when the file is created and by
-{\tt min::\EOL init\_\EOL input\ldots} functions that do not load
-the entire contents of the file into the file {\tt buffer}.
+Initialized to \TT{min::\EOL NO\_\EOL LINE} when the file is created and by
+\TT{min::\EOL init\_\EOL input\ldots} functions that do not load
+the entire contents of the file into the file \TT{buffer}.
 Set to the number of complete lines in the file
-by {\tt min::\EOL init\_\EOL input\ldots} functions that load
-the entire contents of the file into the file {\tt buffer}, or
-by {\tt min::\EOL next\_\EOL line} when that function
-reads an end of file from {\tt istream} or {\tt ifile}.
+by \TT{min::\EOL init\_\EOL input\ldots} functions that load
+the entire contents of the file into the file \TT{buffer}, or
+by \TT{min::\EOL next\_\EOL line} when that function
+reads an end of file from \TT{istream} or \TT{ifile}.
 
 \item[\ttmkey{next\_\EOL line\_\EOL number}{in {\tt min::file}}]
 The number of the next line to be returned by the
-{\tt min::\EOL next\_\EOL line}
-function that is used by programs to read lines from a {\tt min::\EOL file}.
+\TT{min::\EOL next\_\EOL line}
+function that is used by programs to read lines from a \TT{min::\EOL file}.
 Or the total number of lines in the file if there is no next line
 (there may still be a remaining portion of a partial line).
-The first line number is {\tt 0}.  Set to {\tt 0} when the
+The first line number is \TT{0}.  Set to \TT{0} when the
 file is rewound.
 
 \item[\ttmkey{next\_\EOL offset}{in {\tt min::file}}]
-The offset in the {\tt buffer} of the first character of the
-next line to be returned by the {\tt min::\EOL next\_\EOL line}
+The offset in the \TT{buffer} of the first character of the
+next line to be returned by the \TT{min::\EOL next\_\EOL line}
 function, when that function returns a line (i.e., does \underline{not}
-return {\tt NO\_\EOL LINE}).
+return \TT{NO\_\EOL LINE}).
 Specifically,
-that character is {\tt buffer[next\_\EOL offset]}.
-Or the offset in the {\tt buffer} of the first character of the
+that character is \TT{buffer[next\_\EOL offset]}.
+Or the offset in the \TT{buffer} of the first character of the
 partial line at the end of the buffer
 that has not been previously skipped by
-the {\tt min::\EOL skip\_\EOL remaining} function
+the \TT{min::\EOL skip\_\EOL remaining} function
 (see \pagref{MIN::SKIP_REMAINING}),
-in the case where the {\tt min::\EOL next\_\EOL line}
-function returns {\tt NO\_\EOL LINE}.
-Set to {\tt 0} when the file is rewound.
+in the case where the \TT{min::\EOL next\_\EOL line}
+function returns \TT{NO\_\EOL LINE}.
+Set to \TT{0} when the file is rewound.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
-If {\tt spool\_lines~!=~0} (see below), then
-{\tt line\_index[m]} is the offset in the buffer of the first
-character of line number {\tt n} (or of the line-terminating NUL
+If \TT{spool\_lines~!=~0} (see below), then
+\TT{line\_index[m]} is the offset in the buffer of the first
+character of line number \TT{n} (or of the line-terminating NUL
 if the line is empty), where
 \begin{center}
 {\tt m = line\_index->length - ( next\_line\_number - n )}
@@ -5948,33 +5962,33 @@ provided
 \begin{center}
 {\tt 0 < ( next\_line\_number - n ) <= line\_index->length}
 \end{center}
-If {\tt spool\_lines~==~min::ALL\_LINES}, then
-{\tt line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
-and {\tt m~==~n}.
-Otherwise, if {\tt spool\_lines~>~0}, the past history
-of calls to {\tt min::\EOL flush\_\EOL spool} determine
-{\tt line\_\EOL index->\EOL length} (see \pagref{LINE-INDEX-LENGTH}).
+If \TT{spool\_lines~==~min::ALL\_LINES}, then
+\TT{line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
+and \TT{m~==~n}.
+Otherwise, if \TT{spool\_lines~>~0}, the past history
+of calls to \TT{min::\EOL flush\_\EOL spool} determine
+\TT{line\_\EOL index->\EOL length} (see \pagref{LINE-INDEX-LENGTH}).
 
-Created when {\tt spool\_\EOL lines} is set to a non-{\tt 0} value,
-and reset to {\tt NULL\_STUB} when {\tt spool\_\EOL lines} is set to {\tt 0}.
-{\tt line\_\EOL index->\EOL length} is set to {\tt 0}
+Created when \TT{spool\_\EOL lines} is set to a non-\TT{0} value,
+and reset to \TT{NULL\_STUB} when \TT{spool\_\EOL lines} is set to \TT{0}.
+\TT{line\_\EOL index->\EOL length} is set to \TT{0}
 when the file is rewound.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
-If {\tt 0}, {\tt line\_index~==~min::NULL\_STUB} and there is
-no spooling.  Otherwise when {\tt min::flush\_spool(n)} is called,
-if there are more than {\tt spool\_\EOL lines} before line number
-{\tt n} in the {\tt line\_\EOL index}, lines before
-line number {\tt n} are deleted.
+If \TT{0}, \TT{line\_index~==~min::NULL\_STUB} and there is
+no spooling.  Otherwise when \TT{min::flush\_spool(n)} is called,
+if there are more than \TT{spool\_\EOL lines} before line number
+\TT{n} in the \TT{line\_\EOL index}, lines before
+line number \TT{n} are deleted.
 
-Set to {\tt 0} when the file is created.  Set to an argument
-that defaults to {\tt min::\EOL ALL\_\EOL LINES}
-by {\tt min::\EOL init\_\EOL input\ldots} functions.
+Set to \TT{0} when the file is created.  Set to an argument
+that defaults to \TT{min::\EOL ALL\_\EOL LINES}
+by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
-These are some of the printer {\tt print\_\EOL format.flags} used to print
+These are some of the printer \TT{print\_\EOL format.flags} used to print
 a file line for error message purposes,
-in particular by the {\tt min::\EOL print\_\EOL line}
+in particular by the \TT{min::\EOL print\_\EOL line}
 function (\pagref{MIN::PRINT_LINE}).
 The flags involved are:
 \begin{indpar}
@@ -6438,7 +6452,7 @@ The following function does this:
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Here \verb|line_number| is \verb|0| for the first line of the file,
+Here \TT{line\_number} is \TT{0} for the first line of the file,
 {\tt line\_index} must exist (i.e., not be {\tt NULL\_\EOL STUB}),
 and
 \begin{center}\begin{tabular}{rl}
@@ -6633,7 +6647,7 @@ as surrogates for the pointers in external files.
 A {\tt min::\EOL id\_\EOL map} is a packed vector with
 {\tt const min::\EOL stub~*} elements such that index of an element
 in the vector is the identifier of the element value.
-This identifier may appear in files as \verb|@|{\em index}.
+This identifier may appear in files as \TT{@}{\em index}.
 
 The stub pointers that can appear in an identifier map can point at
 objects, packed structures, packed vectors, labels, and longer strings.
