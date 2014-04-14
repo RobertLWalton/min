@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 12 03:03:56 EDT 2014
+// Date:	Mon Apr 14 16:45:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2341,7 +2341,6 @@ void test_file ( void )
     min::locatable_var<min::file> file3, file4;
     min::init_input_stream ( file3, istream );
     min::init_input ( file4 );
-    min::init_spool_lines ( file4, min::ALL_LINES );
     min::init_ofile ( file3, file4 );
     min::flush_file ( file3 );
     MIN_ASSERT ( data_length == file3->buffer->length );
