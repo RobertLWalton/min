@@ -5684,8 +5684,8 @@ An example use of a packed vector is:
 \begin{indpar}\begin{verbatim}
 struct pvh;
 struct pve;
-typedef min::packed_vec_ptr<pvh,pve> pvptr;
-typedef min::packed_vec_insptr<pvh,pve> pvinsptr;
+typedef min::packed_vec_ptr<pve,pvh> pvptr;
+typedef min::packed_vec_insptr<pve,pvh> pvinsptr;
     // Note: pointer types may be defined before
     //       header and element types are defined.
 
@@ -5748,12 +5748,16 @@ main ( ... )
 
     pve e3 = { name1, min::stub_of ( name2 ), 44 };
     min::push(pvip) = e3
-        // It is required that the right size of =
-        // not call relocating min::new_... functions.
+        // Here it is necessary that the right size of =
+        // not call relocating min::new_... functions
+	// because min::push returns a `pve &' value and
+	// not a min::ref<pve> value.
     MUP::acc_write_update ( pvip, e3.g ); 
     MUP::acc_write_update ( pvip, e3.s ); 
-        // pvp->length == 5
+        // We must call acc_write_update ourselves as
+	// pve is not itself a locatable type.
 
+        // pvp->length == 5
     min::resize ( pvip, 10 );
         // pvp->max_length == 10
 
@@ -5767,7 +5771,8 @@ main ( ... )
     s2 = e4.s;
         // We must make e4.g and e4.s locatable before
         // we call any more relocating functions, where we
-        // are assuming they are NOT related to name1 above.
+        // are assuming they might no longer be related to
+	// name1 and name2 above.
 
     pve e5[3];
     min::pop ( pvip, 2, e5 );
