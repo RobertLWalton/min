@@ -5900,7 +5900,7 @@ functions (see \pagref{WRITING-FILE-BUFFER}).
 \item[\ttmkey{buffer-> length}{in {\tt min::file}}]
 The number of \TT{char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
-This is \TT{0} when the buffer empty.
+This is \TT{0} when the buffer is empty.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
 The offset of the \TT{buffer} element just \underline{after} the last
@@ -5931,24 +5931,24 @@ The number of the next line to be returned by the
 function that is used by programs to read lines from a \TT{min::\EOL file}.
 Or the total number of lines in the file if there is no next line
 (there may still be a remaining portion of a partial line).
-The first line number is \TT{0}.  Set to \TT{0} when the
-file is rewound.
+The first line number is \TT{0}.  Reset when the file is rewound.
 
 \item[\ttmkey{next\_\EOL offset}{in {\tt min::file}}]
 The offset in the \TT{buffer} of the first character of the
 next line to be returned by the \TT{min::\EOL next\_\EOL line}
 function, when that function returns a line (i.e., does \underline{not}
-return \TT{NO\_\EOL LINE}).
-Specifically,
-that character is \TT{buffer[next\_\EOL offset]}.
-Or the offset in the \TT{buffer} of the first character of the
+return \TT{NO\_\EOL LINE}, i.e., when \TT{next\_offset < end\_offset}).
+Specifically, \TT{buffer[next\_\EOL offset]} is
+the first character of the next line.
+
+Or when \TT{end\_offset <= next\_offset} and
+\TT{min::\EOL next\_\EOL line} returns \TT{NO\_\EOL LINE},
+the offset in the \TT{buffer} of the first character of the
 partial line at the end of the buffer
 that has not been previously skipped by
 the \TT{min::\EOL skip\_\EOL remaining} function
-(see \pagref{MIN::SKIP_REMAINING}),
-in the case where the \TT{min::\EOL next\_\EOL line}
-function returns \TT{NO\_\EOL LINE}.
-Set to \TT{0} when the file is rewound.
+(see \pagref{MIN::SKIP_REMAINING}).
+Reset when the file is rewound.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
 If \TT{spool\_lines~!=~0} (see below), then
@@ -5962,27 +5962,42 @@ provided
 \begin{center}
 {\tt 0 < ( next\_line\_number - n ) <= line\_index->length}
 \end{center}
-If \TT{spool\_lines~==~min::ALL\_LINES}, then
-\TT{line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
-and \TT{m~==~n}.
+Here it is guarenteed that
+\begin{center}
+\tt
+line\_index->length \\
+>= \\
+min ( spool\_lines, next\_line\_number)
+\end{center}
+so at least \TT{min(spool\_lines, next\_line\_number)}
+lines can be located using the line index.
+
+If \TT{spool\_lines~==~min::ALL\_LINES}, which is just the largest possible
+\TT{min::uns32} integer, then \TT{spool\_lines >= next\_line\_number},
+\TT{line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number},
+\TT{m~==~n}, and all the lines in the file before the next line can be located
+using the line index.
+
 Otherwise, if \TT{spool\_lines~>~0}, the past history
 of calls to \TT{min::\EOL flush\_\EOL spool} determine
 \TT{line\_\EOL index->\EOL length} (see \pagref{LINE-INDEX-LENGTH}).
 
 Created when \TT{spool\_\EOL lines} is set to a non-\TT{0} value,
 and reset to \TT{NULL\_STUB} when \TT{spool\_\EOL lines} is set to \TT{0}.
-\TT{line\_\EOL index->\EOL length} is set to \TT{0}
+\TT{line\_\EOL index->\EOL length} is reset
 when the file is rewound.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 If \TT{0}, \TT{line\_index~==~min::NULL\_STUB} and there is
-no spooling.  Otherwise when \TT{min::flush\_spool(n)} is called,
+no spooling.  Otherwise when \TT{min::flush\_spool(n)} is called
+with \TT{n <= next\_\EOL line\_\EOL number}, then
 if there are more than \TT{spool\_\EOL lines} before line number
 \TT{n} in the \TT{line\_\EOL index}, lines before
 line number \TT{n} are deleted.
 
 Set to \TT{0} when the file is created.  Set to an argument
-that defaults to \TT{min::\EOL ALL\_\EOL LINES}
+that defaults to \TT{min::\EOL ALL\_\EOL LINES}, the largest
+\TT{min::uns32} number,
 by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
