@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 22:19:42 EDT 2014
+// Date:	Mon Apr 14 23:09:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2487,11 +2487,12 @@ void min::flush_spool
     if ( file->end_offset != 0 )
 	file->end_offset -= buffer_offset;
 
-    memmove ( & file->line_index[0],
-	      & file->line_index[lines_to_delete],
-		sizeof ( uns32 )
-	      * (   file->line_index->length
-	          - lines_to_delete ) );
+    uns32 lines_to_keep = file->line_index->length
+                        - lines_to_delete;
+    for ( uns32 i = 0; i < lines_to_keep; ++ i )
+        file->line_index[i] =
+	      file->line_index[i+lines_to_delete]
+	    - buffer_offset;
     min::pop ( file->line_index,
 	       lines_to_delete );
 }
