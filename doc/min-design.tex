@@ -6008,7 +6008,7 @@ no spooling.  Otherwise when \TT{min::flush\_spool(n)} is called
 with \TT{n <= next\_\EOL line\_\EOL number}, then
 if there are more than \TT{spool\_\EOL lines} before line number
 \TT{n} in the \TT{line\_\EOL index}, lines before
-line number \TT{n} are deleted.
+line number \TT{n - spool\_lines} are deleted.
 
 Set to \TT{0} when the file is created.  Set to an argument
 that defaults to \TT{min::\EOL ALL\_\EOL LINES}, the largest
@@ -6016,7 +6016,8 @@ that defaults to \TT{min::\EOL ALL\_\EOL LINES}, the largest
 by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
-These are some of the printer \TT{print\_\EOL format.flags} used to print
+These are some of the printer
+\TT{print\_\EOL format.flags} (see \pagref{PRINT_FORMAT_FLAGS}) used to print
 a file line for error message purposes,
 in particular by the \TT{min::\EOL print\_\EOL line}
 function (\pagref{MIN::PRINT_LINE}).
@@ -6141,11 +6142,6 @@ accomplished by the following:
 	  \verb|  min::uns32 print_flags )|
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}\ARGBREAK
-	     \verb|( min::ref<min::file> file,|\ARGBREAK
-             \verb|  min::uns32 spool_lines )|
-\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
-\verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
 	     \verb|( min::ref<min::file> file,|\ARGBREAK
              \verb|  min::gen file_name )|
@@ -6172,6 +6168,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
+				{\tt =} maximum {\tt min::uns32} value
 \LABEL{MIN::ALL_LINES} \\
 \end{tabular}\end{indpar}
 
@@ -6232,24 +6229,19 @@ accomplished by the following:
 
 All these {\tt min::}\MINKEY{init\ldots} functions create a {\tt file}
 and set their first argument if that argument initially
-has the value {\tt min::\EOL NULL\_\EOL STUB},
-and just rewind the file otherwise,
-resetting {\tt next\_\EOL line\_\EOL number},
-{\tt next\_\EOL offset}, and {\tt line\_\EOL index->\EOL length} if it
-exists to {\tt 0}.
+has the value {\tt min::\EOL NULL\_\EOL STUB}.
 
 The non-{\tt init\_\EOL input\ldots} functions just do this and set
 a file member.
 For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
-creates or rewinds the file and sets {\tt print\_\EOL flags},
+creates the file if necessary and sets {\tt print\_\EOL flags},
 while {\tt min::\EOL init\_\EOL ostream} just
-creates or rewinds the file and sets {\tt ostream}.
+creates the file if necessary and sets {\tt ostream}.
 
 The {\tt min::\EOL init\_\EOL input\ldots} functions
 reinitialize all members except {\tt ostream}, {\tt ofile},
 and {\tt printer}.  Like all file {\tt init} functions, these
-rewind the file, so successive calls the {\tt min::\EOL next\_\EOL line}
-will return successive lines of the file.
+create the file if necessary.
 All these functions take arguments that initialize {\tt print\_\EOL flags}
 and {\tt spool\_\EOL lines}.
 
@@ -14651,11 +14643,6 @@ In loose implementation: \\
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::uns32 print_flags )|
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}\ARGBREAK
-	     \verb|( min::ref<min::file> file,|\ARGBREAK
-             \verb|  min::uns32 spool_lines )|
-\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
 	     \verb|( min::ref<min::file> file,|\ARGBREAK
