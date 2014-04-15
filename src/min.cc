@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 16:46:30 EDT 2014
+// Date:	Mon Apr 14 22:19:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2461,13 +2461,17 @@ void min::flush_spool
     uns32 first_spool_line_number =
           file->next_line_number
 	- file->line_index->length;
-    if ( first_spool_line_number + file->spool_lines
-         >= line_number )
+    if ( first_spool_line_number >= line_number )
+        return;
+    uns32 spool_lines_before_line_number =
+        line_number - first_spool_line_number;
+    if (    spool_lines_before_line_number
+         <= file->spool_lines )
         return;
 
     uns32 lines_to_delete =
-        line_number - first_spool_line_number;
-    assert ( lines_to_delete > 0 );
+          spool_lines_before_line_number
+	- file->spool_lines;
     assert (   lines_to_delete
              < file->line_index->length );
 
