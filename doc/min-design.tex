@@ -5966,9 +5966,17 @@ provided
 \begin{center}
 {\tt 0 < ( next\_line\_number - n ) <= line\_index->length}
 \end{center}
+or equivalently,
+\begin{center}
+\tt
+next\_line\_number - line\_index->length \\
+<= n < \\
+next\_line\_number
+\end{center}
+
 If the file has not been rewound since it was initialized by
 a \TT{min::\EOL init\_\EOL input\ldots} function with
-\TT{spool\_lines~!=~0}, then it is guarenteed that
+\TT{spool\_lines~!=~0}, it is guarenteed that
 \begin{center}
 \tt
 line\_index->length \\
