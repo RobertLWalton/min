@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 15 22:28:08 EDT 2014
+// Date:	Wed Apr 16 06:20:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6668,6 +6668,47 @@ namespace min {
 	       print_flags, spool_lines );
     }
 
+    inline void end_line ( min::file file )
+    {
+        push(file->buffer) = 0;
+	++ file->end_count;
+	file->end_offset = file->buffer->length;
+    }
+    inline void end_line
+	    ( min::file file, min::uns32 offset )
+    {
+	MIN_ASSERT ( offset < file->buffer->length );
+	MIN_ASSERT ( offset >= file->end_offset );
+        file->buffer[offset] = 0;
+	file->end_offset = offset + 1;
+	++ file->end_count;
+    }
+
+    inline void complete_file ( min::file file )
+    {
+        file->file_lines = file->end_count;
+    }
+    inline bool file_is_complete ( min::file file )
+    {
+        return file->file_lines != NO_LINE;
+    }
+
+    bool load_named_file
+	    ( min::file file,
+	      min::gen file_name );
+
+    void load_string
+	    ( min::file file,
+	      min::ptr<const char> data );
+
+    inline void load_string
+	    ( min::file file,
+	      min::ptr<char> data )
+    {
+        load_string
+	    ( file, (min::ptr<const char>) data );
+    }
+
     min::uns32 next_line ( min::file file );
     min::uns32 line
 	    ( min::file file,
@@ -6688,14 +6729,6 @@ namespace min {
     {
         file->next_offset = file->buffer->length;
     }
-    inline void complete_file ( min::file file )
-    {
-        file->file_lines = file->end_count;
-    }
-    inline bool file_is_complete ( min::file file )
-    {
-        return file->file_lines != NO_LINE;
-    }
 
     inline min::uns32 partial_length
 	    ( min::file file )
@@ -6709,21 +6742,6 @@ namespace min {
 	return file->end_offset;
     }
 
-    inline void end_line ( min::file file )
-    {
-        push(file->buffer) = 0;
-	++ file->end_count;
-	file->end_offset = file->buffer->length;
-    }
-    inline void end_line
-	    ( min::file file, min::uns32 offset )
-    {
-	MIN_ASSERT ( offset < file->buffer->length );
-	MIN_ASSERT ( offset >= file->end_offset );
-        file->buffer[offset] = 0;
-	file->end_offset = offset + 1;
-	++ file->end_count;
-    }
     void flush_file
         ( min::file file,
 	  bool copy_completion = true );
