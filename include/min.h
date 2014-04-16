@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 16:46:21 EDT 2014
+// Date:	Tue Apr 15 22:28:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6533,6 +6533,7 @@ namespace min {
 
 	const min::packed_vec_insptr<char> buffer;
 	min::uns32 end_offset;
+	min::uns32 end_count;
 	min::uns32 file_lines;
 	min::uns32 next_line_number;
 	min::uns32 next_offset;
@@ -6687,6 +6688,10 @@ namespace min {
     {
         file->next_offset = file->buffer->length;
     }
+    inline void complete_file ( min::file file )
+    {
+        file->file_lines = file->end_count;
+    }
     inline bool file_is_complete ( min::file file )
     {
         return file->file_lines != NO_LINE;
@@ -6707,6 +6712,7 @@ namespace min {
     inline void end_line ( min::file file )
     {
         push(file->buffer) = 0;
+	++ file->end_count;
 	file->end_offset = file->buffer->length;
     }
     inline void end_line
@@ -6716,8 +6722,11 @@ namespace min {
 	MIN_ASSERT ( offset >= file->end_offset );
         file->buffer[offset] = 0;
 	file->end_offset = offset + 1;
+	++ file->end_count;
     }
-    void flush_file ( min::file file );
+    void flush_file
+        ( min::file file,
+	  bool copy_completion = true );
     void flush_line
 	    ( min::file file, min::uns32 offset );
     void flush_remaining ( min::file file );

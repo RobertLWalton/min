@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 23:09:59 EDT 2014
+// Date:	Wed Apr 16 05:34:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1874,6 +1874,7 @@ void min::init_input
     min::resize ( file->buffer,
 	          file_buffer_type.initial_max_length );
     file->end_offset = 0;
+    file->end_count = 0;
     file->file_lines = min::NO_LINE;
     file->next_line_number = 0;
     file->next_offset = 0;
@@ -2374,7 +2375,7 @@ min::printer operator <<
     return printer << min::restore_print_format;
 }
 
-void min::flush_file ( min::file file )
+void min::flush_file ( min::file file, bool copy_completion )
 {
     while ( true )
     {
@@ -2387,6 +2388,10 @@ void min::flush_file ( min::file file )
 	min::flush_remaining ( file );
 	min::skip_remaining ( file );
     }
+    if (    copy_completion
+         && min::file_is_complete ( file )
+	 && file->ofile != NULL_STUB )
+	min::complete_file (file->ofile );
 }
 
 void min::flush_line
