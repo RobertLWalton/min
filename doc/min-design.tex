@@ -6323,6 +6323,22 @@ You \underline{cannot} push characters to a file initialized by any
 {\tt min::\EOL init\_\EOL input\ldots} function other than
 {\tt min::\EOL init\_\EOL input}.
 
+You can append the contents of a string to a file initialized
+with {\tt min::\EOL init\_\EOL input} by using one of the functions:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::ref<min::file> file,|\ARGBREAK
+	  \verb|  min::ptr<const char> data)|\ARGBREAK
+\LABEL{MIN::LOAD_CONST_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::ref<min::file> file,|\ARGBREAK
+	  \verb|  min::ptr<char> data)|\ARGBREAK
+\LABEL{MIN::LOAD_STRING_OF_FILE} \\
+\end{tabular}\end{indpar}
+
 The {\tt min::init\_input\_named\_file} function
 sets the {\tt file\_\EOL name} member and
 loads the contents of the operating system file this names into the

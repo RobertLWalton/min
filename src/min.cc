@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 16 06:28:16 EDT 2014
+// Date:	Wed Apr 16 11:32:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1940,6 +1940,8 @@ bool min::load_named_file
 	( min::file file,
 	  min::gen file_name )
 {
+    MIN_ASSERT ( ! min::file_is_complete ( file ) );
+
     min::str_ptr fname ( file_name );
     min::uns32 offset = file->buffer->length;
 
@@ -1991,6 +1993,18 @@ bool min::load_named_file
     uns64 bytes =
         fread ( & file->buffer[offset], 1,
 	        (size_t) file_size, in );
+
+    if ( bytes < file_size )
+        min::pop ( file->buffer, file_size - bytes );
+
+    for ( uns32 i = offset;
+          i < file->buffer->length; ++ i )
+    {
+	char c = file->buffer[i];
+        if ( c == '\n' || c == 0 )
+	    min::end_line ( file, i );
+    }
+
     if ( bytes != file_size )
     {
 	if ( errno != 0 )
@@ -2010,8 +2024,7 @@ bool min::load_named_file
 	fclose ( in );
 	return false;
     }
-
-    if ( getc ( in ) != EOF )
+    else if ( getc ( in ) != EOF )
     {
 	ERR << "Reading file "
 	    << fname << ": "
@@ -2024,14 +2037,6 @@ bool min::load_named_file
     }
 
     fclose ( in );
-
-    for ( uns32 i = offset;
-          i < file->buffer->length; ++ i )
-    {
-	char c = file->buffer[i];
-        if ( c == '\n' || c == 0 )
-	    min::end_line ( file, i );
-    }
 
     return true;
 }
@@ -2051,6 +2056,8 @@ void min::load_string
 	( min::file file,
 	  min::ptr<const char> data )
 {
+    MIN_ASSERT ( ! min::file_is_complete ( file ) );
+
     uns64 length = ::strlen ( data );
     uns32 offset = file->buffer->length;
     assert ( length < ( 1ull << 32 ) - 1 - offset );
