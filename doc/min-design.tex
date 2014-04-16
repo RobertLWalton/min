@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 14, 2014}
+\date{April 16, 2014}
  
 \maketitle
 
@@ -5829,6 +5829,8 @@ The data types and members of a file are:
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{end\_count}{in {\tt min::file}}
+\LABEL{MIN::FILE_END_COUNT} \\
 \verb|min::uns32 file| & \TTARMKEY{file\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILE_LINES} \\
 \verb|min::uns32 file|
@@ -5910,11 +5912,17 @@ This is \TT{0} when the buffer is empty.
 Initialized to \TT{0} when the file is created and set appropriately by
 \TT{min::\EOL init\_\EOL input\ldots} functions.
 
+\item[\ttmkey{end\_\EOL count}{in {\tt min::file}}]
+The number of line-terminating NUL characters that have ever been
+placed into the \TT{buffer} for the file.
+Initialized to \TT{0} when the file is created or initialized
+for input by a \TT{min::\EOL init\_\EOL input\ldots} function.
+Incremented by \TT{min::\EOL end\_\EOL line}.
+
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
 If all the \TT{char}'s in the file have been appended to the file \TT{buffer},
 this is the number of complete lines in the file, which equals
-the number of NUL's in the \TT{buffer}.  Otherwise this equals
-\TT{min::\EOL NO\_\EOL LINE}.
+\TT{end\_count}. Otherwise this equals \TT{min::\EOL NO\_\EOL LINE}.
 
 Initialized to \TT{min::\EOL NO\_\EOL LINE} when the file is created and by
 \TT{min::\EOL init\_\EOL input\ldots} functions that do not load
@@ -5924,6 +5932,8 @@ by \TT{min::\EOL init\_\EOL input\ldots} functions that load
 the entire contents of the file into the file \TT{buffer}, or
 by \TT{min::\EOL next\_\EOL line} when that function
 reads an end of file from \TT{istream} or \TT{ifile}.
+Set to \TT{end\_count} by the \TT{complete\_file} function that marks
+a file has being complete.
 
 \item[\ttmkey{next\_\EOL line\_\EOL number}{in {\tt min::file}}]
 The number of the next line to be returned by the
@@ -6237,6 +6247,8 @@ For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
 creates the file if necessary and sets {\tt print\_\EOL flags},
 while {\tt min::\EOL init\_\EOL ostream} just
 creates the file if necessary and sets {\tt ostream}.
+Used on an existing file, these functions do nothing but change
+a file parameter.
 
 The {\tt min::\EOL init\_\EOL input\ldots} functions
 reinitialize all members except {\tt ostream}, {\tt ofile},
@@ -6276,8 +6288,21 @@ just pushes a line terminating NUL character to the end of
 {\tt buffer} and updates {\tt end\_\EOL offset} to equal the
 new buffer length.
 
-You can also append to such a file by making it the {\tt ofile}
-of another file and flushing this other file
+When a file initialized by {\tt min::\EOL init\_\EOL input}
+is complete, you should call the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{complete\_file} \verb|( min::file file )|
+\LABEL{MIN::COMPLETE_FILE} \\
+\end{tabular}\end{indpar}
+
+to mark the file as being complete.  After doing this, you should
+not push any more characters into the file's buffer or call
+\TT{min::\EOL end\_\EOL line} for the file.
+
+You can also append to a file initialized by {\tt min::\EOL init\_\EOL input}
+by making it the {\tt ofile} of another file and flushing this other file
 (see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
 For example,
 \begin{indpar}\begin{verbatim}
@@ -6290,6 +6315,9 @@ min::flush_file ( file2 );
 \end{verbatim}\end{indpar}
 Here {\tt min::\EOL flush\_\EOL file} copies any portion of
 {\tt file2} not previously flushed to the end of {\tt file1}.
+Also, it calls \TT{complete\_file} for \TT{file1} if \TT{file2}
+is complete (this last behavior can be suppressed by
+giving an extra argument to {\tt min::\EOL flush\_\EOL file}).
 
 You \underline{cannot} push characters to a file initialized by any
 {\tt min::\EOL init\_\EOL input\ldots} function other than
@@ -6584,7 +6612,9 @@ that the file has
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL file\RESIZE} \verb|( min::file file )|
+    & \MINKEY{flush\_\EOL file\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  bool copy_completion = true )|
 \LABEL{MIN::FLUSH_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6595,6 +6625,9 @@ file, and calls {\tt min::\EOL skip\_\EOL remaining}
 (\pagref{MIN::SKIP_REMAINING}) to skip over this partial line
 (so it will be invisible to subsequent calls to
 {\tt min::\EOL next\_\EOL line}).
+Lastly, if the \TT{copy\_\EOL completion} argument is \TT{true} and
+the file has an \TT{ofile}, the \TT{min::\EOL complete\_\EOL file}
+function is called for \TT{ofile} to mark that file as being complete.
 
 The flushing sub-actions of {\tt min::flush\_file} are available by using
 the following functions:
@@ -14595,6 +14628,8 @@ In loose implementation: \\
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{end\_count}{in {\tt min::file}}
+\LABEL{MIN::FILE_END_COUNT} \\
 \verb|min::uns32 file| & \TTARMKEY{file\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILE_LINES} \\
 \verb|min::uns32 file|
@@ -14809,6 +14844,12 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|void min::|
+    & \MINKEY{complete\_file} \verb|( min::file file )|
+\LABEL{MIN::COMPLETE_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::|
     & \MINKEY{end\_line\RESIZE}\ARGBREAK
           \verb|( min::file file,|\ARGBREAK
 	  \verb|  min::uns32 offset )|
@@ -14817,7 +14858,9 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL file\RESIZE} \verb|( min::file file )|
+    & \MINKEY{flush\_\EOL file\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  bool copy_completion = true )|
 \LABEL{MIN::FLUSH_FILE} \\
 \end{TABULAR}
 
