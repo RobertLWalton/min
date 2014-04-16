@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 16 05:34:38 EDT 2014
+// Date:	Wed Apr 16 06:28:16 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1927,8 +1927,21 @@ bool min::init_input_named_file
 {
     init_input ( file, print_flags, spool_lines );
     file_name_ref(file) = file_name;
+    if ( ! load_named_file ( file, file_name ) )
+        return false;
+    else
+    {
+	min::complete_file ( file );
+	return true;
+    }
+}
 
+bool min::load_named_file
+	( min::file file,
+	  min::gen file_name )
+{
     min::str_ptr fname ( file_name );
+    min::uns32 offset = file->buffer->length;
 
     // Use OS independent min::os::file_size.
     //
@@ -1946,7 +1959,7 @@ bool min::init_input_named_file
         return false;
     }
 
-    if ( file_size >= ( 1ull << 32 ) - 1 )
+    if ( file_size >= ( 1ull << 32 ) - 1 - offset )
     {
         ERR << "File "
 	    << fname << ": "
@@ -1972,13 +1985,11 @@ bool min::init_input_named_file
 	return false;
     }
 
-    min::resize
-	( file->buffer, (min::uns32) file_size + 1 );
     min::push ( file->buffer, file_size );
 
     errno = 0;
     uns64 bytes =
-        fread ( & file->buffer[0], 1,
+        fread ( & file->buffer[offset], 1,
 	        (size_t) file_size, in );
     if ( bytes != file_size )
     {
@@ -2014,15 +2025,12 @@ bool min::init_input_named_file
 
     fclose ( in );
 
-    file->file_lines = 0;
-    for ( uns32 i = 0; i < file->buffer->length; ++ i )
+    for ( uns32 i = offset;
+          i < file->buffer->length; ++ i )
     {
 	char c = file->buffer[i];
         if ( c == '\n' || c == 0 )
-	{
 	    min::end_line ( file, i );
-	    ++ file->file_lines;
-	}
     }
 
     return true;
@@ -2035,21 +2043,24 @@ void min::init_input_string
 	  min::uns32 spool_lines )
 {
     init_input ( file, print_flags, spool_lines );
+    load_string ( file, data );
+    complete_file ( file );
+}
 
+void min::load_string
+	( min::file file,
+	  min::ptr<const char> data )
+{
     uns64 length = ::strlen ( data );
-    assert ( length < ( 1ull << 32 ) );
+    uns32 offset = file->buffer->length;
+    assert ( length < ( 1ull << 32 ) - 1 - offset );
 
-    min::resize ( file->buffer, length );
     min::push ( file->buffer, length, data );
 
-    file->file_lines = 0;
-    for ( uns32 i = 0; i < length; ++ i )
+    for ( uns32 i = offset; i < length; ++ i )
     {
         if ( file->buffer[i] == '\n' )
-	{
 	    min::end_line ( file, i );
-	    ++ file->file_lines;
-	}
     }
 }
 
