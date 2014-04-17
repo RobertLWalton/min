@@ -133,8 +133,10 @@
 
 \newcommand{\minkey}[1]%
            {\TT{min::#1}\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\minmkey}[2]%
-           {\TT{min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\minikey}[2]%
+           {\TT{min::#1}\ttindex{min::#2}\ttindex{#2}}
+\newcommand{\minmkey}[3]%
+           {\TT{min::#1}\ttmindex{min::#2}{#3}\ttmindex{#2}{#3}}
 \newcommand{\MUPkey}[1]{\TT{MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
 \newcommand{\MUPmkey}[2]%
            {\TT{MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
@@ -199,13 +201,15 @@
 \newcommand{\TTMOKEY}[2]{\ttmokey{#1}{#2}}
 \newcommand{\TTDKEY}[1]{\ttdkey{#1}}
 \newcommand{\TTDMKEY}[2]{\ttdmkey{#1}{#2}}
-\newcommand{\TTNBKEY}[1]{\ttkey{#1}}
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
-\newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
-\newcommand{\MINIKEY}[2]{{\tt \bf #1}\minindex{#2}}
-\newcommand{\MINMKEY}[3]{{\tt \bf #1}\minmindex{#2}{#3}}
-\newcommand{\MINNBKEY}[1]{{\tt #1}\minindex{#1}}
-\newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
+\newcommand{\MINKEY}[1]%
+	   {\TT{#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\MINIKEY}[2]%
+           {\TT{#1}\ttindex{min::#2}\ttindex{#2}}
+\newcommand{\MINMKEY}[3]%
+           {\TT{#1}\ttmindex{min::#2}{#3}\ttmindex{#2}{#3}}
+\newcommand{\MUPKEY}[1]%
+	   {\TT{#1}\ttindex{MUP::#1}\ttindex{#1}}
 
 \newcommand{\REL}{$\,^R$}
 \newcommand{\COMPACT}{$\,^C$}
@@ -378,7 +382,7 @@ is obtained by the functions of that interface using the
 
 \begin{indpar}
 \begin{tabular}{lp{4.0in}}
-\TTNBKEY{MIN\_ASSERT}\TT{(}$e$\TT{)}
+\TTKEY{MIN\_ASSERT}\TT{(}$e$\TT{)}
 	& By default defined as `\TT{assert(}$e$\TT{)}' if
 	  \TT{MIN\_PROTECT} is defined to be \TT{1} (its default),
 	  and defined to be a no-operation otherwise.  Alternatively
@@ -389,7 +393,7 @@ is obtained by the functions of that interface using the
 \end{indpar}
 \begin{indpar}
 \begin{tabular}{lp{4.0in}}
-\TTNBKEY{MIN\_PROTECT}	& 1 (the default)
+\TTKEY{MIN\_PROTECT}	& 1 (the default)
                           if \TT{MIN\_ASSERT} is to be mapped to
 			  the C++ \ttkey{assert} macro if \TT{MIN\_ASSERT}
 			  not otherwise defined; 0 to map \TT{MIN\_ASSERT}
@@ -865,13 +869,13 @@ is selected for each type of general value according to the settings of
 the following `\skey{stub address packing parameter}\,' macros:
 
 \begin{indpar}\begin{tabular}{lp{3.0in}}
-\TTNBKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+\TTKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum absolute address of any stub as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_ABSOLUTE_STUB_ADDRESS} for
 	  defaults.
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{lp{3.0in}}
-\TTNBKEY{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+\TTKEY{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum address of any stub relative to a constant
 	  stub base address, as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_RELATIVE_STUB_ADDRESS} for
@@ -972,13 +976,9 @@ The following definitions are provided in \TT{min.h} to facilitate coding:
 
 \begin{indpar}
 \begin{tabular}{r@{}l}
-\verb|typedef |
-	& \verb|min::uns32|
-	  \verb|min::|\MINKEY{unsgen}\COMPACT
+\verb|typedef min::uns32 min::| & \MINKEY{unsgen}\COMPACT
 \LABEL{MIN::COMPACT_UNSGEN} \\
-\verb|typedef |
-	& \verb|min::uns64|
-	  \verb|min::|\MINKEY{unsgen}\LOOSE
+\verb|typedef min::uns64 min::| & \MINKEY{unsgen}\LOOSE
 \LABEL{MIN::LOOSE_UNSGEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_gen} \verb|( min::unsgen value )|
 \LABEL{MUP::NEW_GEN} \\
@@ -1034,12 +1034,12 @@ All these macros are defined in
 The macros set by the programmer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
-\TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
+\TTKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
 				  defaults to 0.
 \LABEL{MIN_IS_COMPACT}
 \end{tabular}\end{indpar}
 \begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
-\TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
+\TTKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
 				& Maximum number of garbage collector
 				  ephemeral levels allowed in
 				  \underline{any} execution of the
@@ -1051,14 +1051,14 @@ The macros which are normally set to default values computed from
 the above macro settings are:
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
-\TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
+\TTKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
 				  Must equal `{\tt !~MIN\_IS\_COMPACT}\,'.
 \LABEL{MIN_IS_LOOSE}
 \end{tabular}
 \end{indpar}
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
-\TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
+\TTKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
 				& The maximum number of stubs that can
 				  exist in \underline{any} execution
 				  of the compiled binary.  Defaults: \\
@@ -1074,7 +1074,7 @@ else:				& $2^{40-4e}$ \\
 \end{indpar}
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
-\TTNBKEY{MIN\_STUB\_BASE}
+\TTKEY{MIN\_STUB\_BASE}
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
           this must be a non-negative integer constant.  Defaults to
@@ -1085,7 +1085,7 @@ else:				& $2^{40-4e}$ \\
 \end{indpar}
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
-\multicolumn{2}{l}{\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}} \\
+\multicolumn{2}{l}{\TTKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}} \\
 	& The maximum address of any stub relative to the `stub base' (address
 	  of the first stub), as an unsigned integer constant.  Default: \\
 	& ~~{\tt 16*MIN\_MAX\_NUMBER\_OF\_STUBS - 1}.
@@ -1094,7 +1094,7 @@ else:				& $2^{40-4e}$ \\
 \end{indpar}
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
-\multicolumn{2}{l}{\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}} \\
+\multicolumn{2}{l}{\TTKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}} \\
 	& The maximum absolute address of any stub.  Defaults: \\
 	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
 	& ~~~~~~~~ \verb|  MIN_STUB_BASE| \\
@@ -1166,7 +1166,7 @@ The following protected functions return the value appropriate for a given
 subtype, after checking the subtype with a \TT{MIN\_ASSERT} statement:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\verb|const min::stub * | & \MINKEY{NULL\_STUB}
 \LABEL{MIN::NULL_STUB} \\
 \verb|const min::stub * min::| & \MINKEY{stub\_of} \verb|( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
@@ -1436,34 +1436,34 @@ The special values defined by MIN are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\TT{const min::gen min::}\MINNBKEY{MISSING()}]~%
+\item[\TT{const min::gen min::}\MINKEY{MISSING()}]~%
 	\LABEL{MIN::MISSING}\\
 Denotes a missing value or an empty set of values, and may be input
 or output and used as an attribute value.
-\item[\TT{const min::gen min::}\MINNBKEY{NONE()}]~%
+\item[\TT{const min::gen min::}\MINKEY{NONE()}]~%
 	\LABEL{MIN::NONE}\\
 Denotes a non-existent function value or result, but may \underline{not} be
 input or output or used in an attribute value or label.  May be used
 as a function argument or return value.
-\item[\TT{const min::gen min::}\MINNBKEY{ANY()}]~%
+\item[\TT{const min::gen min::}\MINKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
 An argument value used to specify that any value from a set of values may be
 used or returned.
-\item[\TT{const min::gen min::}\MINNBKEY{MULTI\_VALUED()}]~%
+\item[\TT{const min::gen min::}\MINKEY{MULTI\_VALUED()}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 A value returned to indicate that
 a set of values has more than one element.
-\item[\TT{const min::gen min::}\MINNBKEY{UNDEFINED()}]~%
+\item[\TT{const min::gen min::}\MINKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
 (\itemref{TYPED-OBJECTS}) that has no value and can be indirected.
-\item[\TT{const min::gen min::}\MINNBKEY{SUCCESS()}]~%
+\item[\TT{const min::gen min::}\MINKEY{SUCCESS()}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
-\item[\TT{const min::gen min::}\MINNBKEY{FAILURE()}]~%
+\item[\TT{const min::gen min::}\MINKEY{FAILURE()}]~%
 	\LABEL{MIN::FAILURE}\\
 A value returned to indicate a function has failed.
-\item[\TT{const min::gen min::}\MINNBKEY{ERROR()}]~%
+\item[\TT{const min::gen min::}\MINKEY{ERROR()}]~%
 	\LABEL{MIN::ERROR}\\
 A value returned to indicate a function call has suffered an error.
 The function may print an error message in
@@ -2124,7 +2124,7 @@ This can be done by the \TT{MIN\_STACKCOPY} macro
 which expands as follows:
 
 \begin{indpar}
-\TTNBKEY{MIN\_STACKCOPY} \verb|( T, name, length, source )|
+\TTKEY{MIN\_STACKCOPY} \verb|( T, name, length, source )|
 \LABEL{MIN_STACKCOPY}
 \\[1ex]
 expands to \\[1ex]
@@ -3479,7 +3479,7 @@ characters and \key{UTF-8} strings:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::|
-    & \MINNBKEY{UTF8\_ILLEGAL}
+    & \MINKEY{UTF8\_ILLEGAL}
 \LABEL{MIN::UTF8_ILLEGAL} \\
 \verb|min::uns32 min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
@@ -3505,7 +3505,7 @@ The \TT{min::uft8\_to\_unicode} function will accept
 \mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
 and also accept 7-byte encodings (first byte \TT{0xFE})
 so that $2^{32}-1$ can be encoded.  If it encounters an
-illegal encoding it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
+illegal encoding it returns \verb|min|::\MINKEY{UTF8\_\EOL ILLEGAL},%
 \label{UTF8_ILLEGAL}
 which is 2639 (hexadecimal),
 the `\key{white frowning face}%
@@ -4543,9 +4543,9 @@ named \TT{pstype} use
 	  \verb|  const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|  const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT_TYPE_WITH_BASE} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
+\verb|min::uns32 min::| & \MINKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
+\verb|min::uns32 min::| & \MINKEY{DISP\_END}
 \LABEL{MIN::DISP_END} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5790,9 +5790,6 @@ there is \underline{no need} for
 a refresh function analogous to the \TT{min::\EOL \ldots\_\EOL refresh}
 functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
-
-
-
 \subsection{Files}
 \label{FILES}
 
@@ -5873,7 +5870,7 @@ noted below.  They are:
 \begin{itemlist}[1.4in]
 
 \item[\ttmkey{buffer}{in {\tt min::file}}]
-The vector of {\tt char}'s that contains the lines of the file.  Each
+The vector of \TT{char}'s that contains the lines of the file.  Each
 line is encoded using modified UTF-8\footnote{Modified UTF-8 is UTF-8
 modified by using the overlong 2-byte encoding of NUL, so that strings
 may both contain the NUL character (in the overlong encoding)
@@ -6048,91 +6045,91 @@ min::DISPLAY\_EOL\_FLAG
 
 These flags also determine the column position of each character representative
 in the line, and are used to this end by the
-by the {\tt min::\EOL print\_\EOL line\_\EOL column}
+by the \TT{min::\EOL print\_\EOL line\_\EOL column}
 function (\pagref{MIN::PRINT_LINE_COLUMN}).
 
 For example, the carriage
 return prints as follows with the given flags:
 \begin{center}
 \begin{tabular}{l@{~~~~}l}
-{\tt min::GRAPHIC\_NSPACE\_FLAG} only
+\TT{min::GRAPHIC\_NSPACE\_FLAG} only
 	& {\tiny $\stackrel{\textstyle C~}{~R}$} ~~~ 1 column \\
-~~ but no {\tt min::ASCII\_FLAG}
+~~ but no \TT{min::ASCII\_FLAG}
 \\[1ex]
-{\tt min::GRAPHIC\_NSPACE\_FLAG} & {\tt <CR>} ~~~ 4 columns \\
-~~ and {\tt min::ASCII\_FLAG}
+\TT{min::GRAPHIC\_NSPACE\_FLAG} & \TT{<CR>} ~~~ 4 columns \\
+~~ and \TT{min::ASCII\_FLAG}
 \\[1ex]
-{\tt min::ALLOW\_NSPACE\_FLAG}   & the carriage return \\
-~~ but no {\tt min::GRAPHIC\_NSPACE\_FLAG} & character itself, \\
+\TT{min::ALLOW\_NSPACE\_FLAG}   & the carriage return \\
+~~ but no \TT{min::GRAPHIC\_NSPACE\_FLAG} & character itself, \\
 					   & 0 columns
 \\[1ex]
-no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
-~~ and no {\tt min::GRAPHIC\_NSPACE\_FLAG}  & 0 columns
+no \TT{min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
+~~ and no \TT{min::GRAPHIC\_NSPACE\_FLAG}  & 0 columns
 \end{tabular}
 \end{center}
 
-The {\tt min::print\_line} function and the other functions that use
-it print file lines with the printer {\tt print\_\EOL format.flags}
-set as in this {\tt print\_\EOL flags} file member, but with
-{\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
-off (see {\tt print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}).
+The \TT{min::print\_line} function and the other functions that use
+it print file lines with the printer \TT{print\_\EOL format.flags}
+set as in this \TT{print\_\EOL flags} file member, but with
+\TT{min::\EOL HBREAK\_\EOL FLAG} and \TT{min::\EOL GBREAK\_\EOL FLAG}
+off (see \TT{print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}).
 
-Set to {\tt 0} when the file is created.  Set to an argument
-that defaults to {\tt 0}
-by {\tt min::\EOL init\_\EOL input\ldots} functions.
+Set to \TT{0} when the file is created.  Set to an argument
+that defaults to \TT{0}
+by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{istream}{in {\tt min::file}}]
-If not {\tt NULL}, the {\tt min::\EOL next\_\EOL line} function
-reads lines from this {\tt std::\EOL istream} when it finds
+If not \TT{NULL}, the \TT{min::\EOL next\_\EOL line} function
+reads lines from this \TT{std::\EOL istream} when it finds
 there is no line to return to its caller.
-Set to {\tt NULL} when the file is created.
+Set to \TT{NULL} when the file is created.
 
 \item[\ttmkey{ifile}{in {\tt min::file}}]
-If not {\tt min::NULL\_STUB}, the {\tt min::\EOL next\_\EOL line} function
-reads lines from this {\tt min::\EOL file} when it finds
+If not \TT{min::NULL\_STUB}, the \TT{min::\EOL next\_\EOL line} function
+reads lines from this \TT{min::\EOL file} when it finds
 there is no line to return to its caller.
-Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
+Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 
-Note that it is a programming error if {\tt istream != NULL}
-\underline{and} {\tt ifile != NULL\_\EOL STUB}.
+Note that it is a programming error if \TT{istream != NULL}
+\underline{and} \TT{ifile != NULL\_\EOL STUB}.
 
 \item[\ttmkey{ostream}{in {\tt min::file}}]
-If not {\tt NULL}, the {\tt min::\EOL flush\_\EOL file} function
-outputs buffer {\tt char} elements to this {\tt std::\EOL ostream} when it finds
+If not \TT{NULL}, then the \TT{min::\EOL flush\_\EOL file} function
+outputs buffer \TT{char} elements to this \TT{std::\EOL ostream} when it finds
 there are elements not yet output.
-Set to {\tt NULL} when the file is created.
+Set to \TT{NULL} when the file is created.
 
 \item[\ttmkey{printer}{in {\tt min::file}}]
-If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
-outputs buffer {\tt char} elements
-to this {\tt min::\EOL printer} when it finds
+If not \TT{min::NULL\_STUB}, then the \TT{min::\EOL flush\_\EOL file} function
+outputs buffer \TT{char} elements
+to this \TT{min::\EOL printer} when it finds
 there are elements not yet output.
 Non-NUL elements in a
-line are output as per the {\tt min::\EOL verbatim}
+line are output as per the \TT{min::\EOL verbatim}
 printer operation (\pagref{MIN::VERBATIM}),
 and the line-terminating
-NUL elements are translated into sending {\tt min::eol} to the printer.
-Note that {\tt print\_\EOL flags} is \underline{not} used
-when buffer elements are flushed to {\tt printer}.
+NUL elements are translated into sending \TT{min::eol} to the printer.
+Note that \TT{print\_\EOL flags} is \underline{not} used
+when buffer elements are flushed to \TT{printer}.
 
-Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
+Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{ofile}{in {\tt min::file}}]
-If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
-outputs buffer {\tt char} elements to this {\tt min::\EOL file} when it finds
+If not \TT{min::NULL\_STUB}, then the \TT{min::\EOL flush\_\EOL file} function
+outputs buffer \TT{char} elements to this \TT{min::\EOL file} when it finds
 there are elements not yet output.
-Non-NUL elements are simply appended to the end of the {\tt ofile}, and
+Non-NUL elements are simply appended to the end of the \TT{ofile}, and
 line-terminating NUL elements are translated into calls to
-{\tt min::\EOL line\_\EOL end~(~ofile~)}.
-Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
+\TT{min::\EOL line\_\EOL end~(~ofile~)}.
+Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{file\_name}{in {\tt min::file}}]
-If not {\tt min::MISSING()}, this
+If not \TT{min::MISSING()}, this
 is the name of this file used for printing error messages
 concerning file lines, in particular by the
-{\tt min::\EOL pline\_\EOL numbers} constructor
+\TT{min::\EOL pline\_\EOL numbers} constructor
 (\pagref{MIN::PLINE_NUMBERS}).
-Set to {\tt min::\EOL MISSING()} when the file is created.
+Set to \TT{min::\EOL MISSING()} when the file is created.
 
 \end{itemlist}
 
@@ -6177,8 +6174,8 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
-				{\tt =} maximum {\tt min::uns32} value
+\verb|const min::uns32 min::| & \MINKEY{ALL\_LINES}
+				\TT{=} maximum \TT{min::uns32} value
 \LABEL{MIN::ALL_LINES} \\
 \end{tabular}\end{indpar}
 
@@ -6244,31 +6241,31 @@ accomplished by the following:
 \LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-All these {\tt min::}\MINKEY{init\ldots} functions create a {\tt file}
+All these \TT{min::}\MINKEY{init\ldots} functions create a \TT{file}
 and set their first argument if that argument initially
-has the value {\tt min::\EOL NULL\_\EOL STUB}.
+has the value \TT{min::\EOL NULL\_\EOL STUB}.
 
-The non-{\tt init\_\EOL input\ldots} functions just do this and set
+The non-\TT{init\_\EOL input\ldots} functions just do this and set
 a file member.
-For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
-creates the file if necessary and sets {\tt print\_\EOL flags},
-while {\tt min::\EOL init\_\EOL ostream} just
-creates the file if necessary and sets {\tt ostream}.
+For example, \TT{min::\EOL init\_\EOL print\_\EOL flags} just
+creates the file if necessary and sets \TT{print\_\EOL flags},
+while \TT{min::\EOL init\_\EOL ostream} just
+creates the file if necessary and sets \TT{ostream}.
 Used on an existing file, these functions do nothing but change
 a file parameter.
 
-The {\tt min::\EOL init\_\EOL input\ldots} functions
-reinitialize all members except {\tt ostream}, {\tt ofile},
-and {\tt printer}.  Like all file {\tt init} functions, these
+The \TT{min::\EOL init\_\EOL input\ldots} functions
+reinitialize all members except \TT{ostream}, \TT{ofile},
+and \TT{printer}.  Like all file \TT{init} functions, these
 create the file if necessary.
-All these functions take arguments that initialize {\tt print\_\EOL flags}
-and {\tt spool\_\EOL lines}.
+All these functions take arguments that initialize \TT{print\_\EOL flags}
+and \TT{spool\_\EOL lines}.
 
-The {\tt min::init\_input} function assumes
+The \TT{min::init\_input} function assumes
 input to the file will come from some outside source.  It empties the
-{\tt buffer} and sets
-{\tt istream} to {\tt NULL}, {\tt ifile} to {\tt min::\EOL NULL\_\EOL STUB},
-and {\tt file\_\EOL name} to {\tt min::\EOL MISSING()}.
+\TT{buffer} and sets
+\TT{istream} to \TT{NULL}, \TT{ifile} to \TT{min::\EOL NULL\_\EOL STUB},
+and \TT{file\_\EOL name} to \TT{min::\EOL MISSING()}.
 For example,\label{WRITING-FILE-BUFFER}
 \begin{indpar}\begin{verbatim}
 min::locatable_ptr<min::file> file;
@@ -6280,10 +6277,10 @@ min::push ( file->buffer, length, my_string );
 min::end_line ( file );
 ...
 \end{verbatim}\end{indpar}
-Here {\tt min::push} is just the packed vector push function
+Here \TT{min::push} is just the packed vector push function
 (\pagref{MIN::PACKED_VEC_PUSH}) applied
 to push character representatives
-to the end of the file {\tt buffer}, and the function:
+to the end of the file \TT{buffer}, and the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6292,10 +6289,10 @@ to the end of the file {\tt buffer}, and the function:
 \end{tabular}\end{indpar}
 
 just pushes a line terminating NUL character to the end of
-{\tt buffer} and updates {\tt end\_\EOL offset} to equal the
+\TT{buffer} and updates \TT{end\_\EOL offset} to equal the
 new buffer length.
 
-When a file initialized by {\tt min::\EOL init\_\EOL input}
+When a file initialized by \TT{min::\EOL init\_\EOL input}
 is complete, you should call the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6308,9 +6305,9 @@ to mark the file as being complete.  After doing this, you should
 not push any more characters into the file's buffer or call
 \TT{min::\EOL end\_\EOL line} for the file.
 
-You can also append to a file initialized by {\tt min::\EOL init\_\EOL input}
-by making it the {\tt ofile} of another file and flushing this other file
-(see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
+You can also append to a file initialized by \TT{min::\EOL init\_\EOL input}
+by making it the \TT{ofile} of another file and flushing this other file
+(see \TT{min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
 For example,
 \begin{indpar}\begin{verbatim}
 min::locatable_ptr<min::file> file1, file2;
@@ -6320,18 +6317,18 @@ init_ofile ( file2, file1 );
 . . . . .
 min::flush_file ( file2 );
 \end{verbatim}\end{indpar}
-Here {\tt min::\EOL flush\_\EOL file} copies any portion of
-{\tt file2} not previously flushed to the end of {\tt file1}.
+Here \TT{min::\EOL flush\_\EOL file} copies any portion of
+\TT{file2} not previously flushed to the end of \TT{file1}.
 Also, it calls \TT{complete\_file} for \TT{file1} if \TT{file2}
 is complete (this last behavior can be suppressed by
-giving an extra argument to {\tt min::\EOL flush\_\EOL file}).
+giving an extra argument to \TT{min::\EOL flush\_\EOL file}).
 
 You \underline{cannot} push characters to a file initialized by any
-{\tt min::\EOL init\_\EOL input\ldots} function other than
-{\tt min::\EOL init\_\EOL input}.
+\TT{min::\EOL init\_\EOL input\ldots} function other than
+\TT{min::\EOL init\_\EOL input}.
 
 You can append the contents of a string to a file initialized
-with {\tt min::\EOL init\_\EOL input} by using one of the functions:
+with \TT{min::\EOL init\_\EOL input} by using one of the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6373,69 +6370,69 @@ In this case, both
 `\TT{\textbackslash n}' line feeds and \TT{NUL} characters in the copy
 of the file contents are replaced by line terminating
 \TT{NUL}'s.  Also, if there is any error reading the file,
-an error message is written into {\tt min::\EOL error\_\EOL message}
+an error message is written into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}) and \TT{false} is returned, whereas if
 there is no read error \TT{true} is returned.
 The file must have a well defined size; it cannot be a named stream.
 When this function is called, \TT{file}
 must \underline{not} be complete.
 
-The {\tt min::init\_input\_string} function initializes the file
+The \TT{min::init\_input\_string} function initializes the file
 for input, loads that string into the file \TT{buffer}, and marks the file
 complete.
 Any \TT{const char * string} argument must
 \underline{not} be a pointer to a relocatable string.
 
-The {\tt min::init\_input\_named\_file} function
+The \TT{min::init\_input\_named\_file} function
 initializes the file for input,
-sets the {\tt file\_\EOL name} member,
+sets the \TT{file\_\EOL name} member,
 loads the contents of the operating system file this names into the
 file \TT{buffer}, and marks the file complete.
 The file must have a well defined size; it cannot be a named stream.
 If no error occurs reading the file, \TT{true}
 is returned.  Otherwise an error message is written into
-into {\tt min::\EOL error\_\EOL message}
+into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}) and \TT{false} is returned.
 
-The {\tt min::init\_input\_stream} function does not load data into
-the file {\tt buffer}, but instead empties the {\tt buffer}
-and sets the file {\tt istream} member
-which causes {\tt min::\EOL next\_\EOL line} to load lines into the
-file from the {\tt istream} as new lines are required.  Similarly
-the {\tt min::\EOL init\_\EOL input\_\EOL file} function sets
-{\tt ifile} which causes {\tt min::\EOL next\_\EOL line} to load lines
-into the file from the {\tt ifile} as new lines are required.
-In both cases, {\tt file\_lines} is initialized
-to {\tt min::\EOL NO\_\EOL LINE}, and not changed until
-an end of file is read from {\tt istream} or {\tt ifile}, at which time
-{\tt file\_\EOL line} is set to the number of lines in the file.
-In both cases, {\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
-See {\tt min::\EOL next\_\EOL line} below for more details.
+The \TT{min::init\_input\_stream} function does not load data into
+the file \TT{buffer}, but instead empties the \TT{buffer}
+and sets the file \TT{istream} member
+which causes \TT{min::\EOL next\_\EOL line} to load lines into the
+file from the \TT{istream} as new lines are required.  Similarly
+the \TT{min::\EOL init\_\EOL input\_\EOL file} function sets
+\TT{ifile} which causes \TT{min::\EOL next\_\EOL line} to load lines
+into the file from the \TT{ifile} as new lines are required.
+In both cases, \TT{file\_lines} is initialized
+to \TT{min::\EOL NO\_\EOL LINE}, and not changed until
+an end of file is read from \TT{istream} or \TT{ifile}, at which time
+\TT{file\_\EOL line} is set to the number of lines in the file.
+In both cases, \TT{file\_\EOL name} is set to \TT{min::\EOL MISSING()}.
+See \TT{min::\EOL next\_\EOL line} below for more details.
 
 Initializing a file rewinds it.  Then calls to
-{\tt min::\EOL next\_\EOL line} sequence through the file
+\TT{min::\EOL next\_\EOL line} sequence through the file
 lines:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
+\verb|const min::uns32 min::| & \MINKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \verb|min::uns32 min::|
     & \MINKEY{next\_line\RESIZE} \verb|( min::file file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::\EOL next\_\EOL line} function returns an
-{\tt offset} such that the file {\tt buffer[offset]} element
+The \TT{min::\EOL next\_\EOL line} function returns an
+\TT{offset} such that the file \TT{buffer[offset]} element
 is the first character of the next NUL-terminated line.
-If there is no such line, because we are at the end of the {\tt buffer},
-{\tt min::\EOL NO\_\EOL LINE} is returned instead.  In this case
+If there is no such line, because we are at the end of the \TT{buffer},
+\TT{min::\EOL NO\_\EOL LINE} is returned instead.  In this case
 there may still be a non-NUL-terminated partial line at the end
 of the file (see \pagref{PARTIAL-LINE}).
 
 A file is complete, in the sense the no more characters will be
-appended to its {\tt buffer}, if {\tt file\_\EOL lines} contains
+appended to its \TT{buffer}, if \TT{file\_\EOL lines} contains
 the number of complete lines in the file, and is not equal to
-{\tt min::\EOL NO\_\EOL LINE}.  This can be tested by
+\TT{min::\EOL NO\_\EOL LINE}.  This can be tested by
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -6443,42 +6440,42 @@ the number of complete lines in the file, and is not equal to
 \LABEL{MIN::FILE_IS_COMPLETE} \\
 \end{tabular}\end{indpar}
 
-If {\tt istream} is not {\tt NULL}, then when
-{\tt min::\EOL next\_\EOL line} encounters the
-end of {\tt buffer} and the file is not complete,
-{\tt min::\EOL next\_\EOL line}
-reads from {\tt istream} and pushes the characters read to
-the end of {\tt buffer}, until a linefeed, NUL, or end of file
-is read.  Both linefeeds and NUL's invoke {\tt min::\EOL end\_\EOL line}
+If \TT{istream} is not \TT{NULL}, then when
+\TT{min::\EOL next\_\EOL line} encounters the
+end of \TT{buffer} and the file is not complete,
+\TT{min::\EOL next\_\EOL line}
+reads from \TT{istream} and pushes the characters read to
+the end of \TT{buffer}, until a linefeed, NUL, or end of file
+is read.  Both linefeeds and NUL's invoke \TT{min::\EOL end\_\EOL line}
 to terminate the line.  If instead an end of file is read,
 the file is completed by setting
-{\tt file\_\EOL lines} to {\tt next\_\EOL line\_\EOL number},
-and no further use of {\tt istream} is made on this or subsequent calls to
-{\tt min::\EOL next\_\EOL line}.  In this case
+\TT{file\_\EOL lines} to \TT{next\_\EOL line\_\EOL number},
+and no further use of \TT{istream} is made on this or subsequent calls to
+\TT{min::\EOL next\_\EOL line}.  In this case
 a partial line may have been
-produced at the end of {\tt buffer}.
+produced at the end of \TT{buffer}.
 
-If {\tt min::\EOL next\_\EOL line} returns
-{\tt min::\EOL NO\_\EOL LINE}, the file may or may not be complete.
+If \TT{min::\EOL next\_\EOL line} returns
+\TT{min::\EOL NO\_\EOL LINE}, the file may or may not be complete.
 Certain files have the `\key{completeness property}', which means
-that {\tt min::\EOL next\_\EOL line} returns
-{\tt min::\EOL NO\_\EOL LINE} only if the file is complete.
-A file with a non-{\tt NULL} {\tt istream} has the completeness property.
+that \TT{min::\EOL next\_\EOL line} returns
+\TT{min::\EOL NO\_\EOL LINE} only if the file is complete.
+A file with a non-\TT{NULL} \TT{istream} has the completeness property.
 
-If the {\tt ifile} member of the file is not
-{\tt min::\EOL NULL\_\EOL STUB}, instead of the {\tt istream} member
-being non-{\tt NULL},
-{\tt min::\EOL next\_\EOL line} gets
+If the \TT{ifile} member of the file is not
+\TT{min::\EOL NULL\_\EOL STUB}, instead of the \TT{istream} member
+being non-\TT{NULL},
+\TT{min::\EOL next\_\EOL line} gets
 more characters by calling
-{\tt min::\EOL next\_\EOL line(ifile)} instead of by using
-{\tt istream}.  Characters in partial lines of {\tt ifile}
+\TT{min::\EOL next\_\EOL line(ifile)} instead of by using
+\TT{istream}.  Characters in partial lines of \TT{ifile}
 are also gotten when they become available,
-and the file is completed when {\tt ifile} becomes complete.
-The file has the completeness property only if {\tt ifile} has
+and the file is completed when \TT{ifile} becomes complete.
+The file has the completeness property only if \TT{ifile} has
 this property.
 
 The paritial line\label{PARTIAL-LINE} that may be in the file when
-{\tt min::\EOL next\_\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
+\TT{min::\EOL next\_\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
 can be returned by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6490,13 +6487,13 @@ can be returned by the functions:
 \LABEL{MIN::REMAINING_LENGTH} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::\EOL remaining\_\EOL length}
-function returns {\tt  buffer->\EOL length - next\_\EOL offset},
+The \TT{min::\EOL remaining\_\EOL length}
+function returns \TT{ buffer->\EOL length - next\_\EOL offset},
 the total number of partial line bytes, and
-the {\tt min::\EOL remaining\_\EOL offset} function returns
-{\tt next\_\EOL offset},
+the \TT{min::\EOL remaining\_\EOL offset} function returns
+\TT{next\_\EOL offset},
 the offset in the file buffer of the first of these bytes.
-Note that these bytes do \underline{not} end with {\tt NUL}.
+Note that these bytes do \underline{not} end with \TT{NUL}.
 After processing these bytes, the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6505,22 +6502,22 @@ After processing these bytes, the function:
 \LABEL{MIN::SKIP_REMAINING} \\
 \end{tabular}\end{indpar}
 
-can be used to set {\tt next\_\EOL offset}
-to be equal to {\tt buffer->\EOL length} in order to
+can be used to set \TT{next\_\EOL offset}
+to be equal to \TT{buffer->\EOL length} in order to
 prevent reprocessing the bytes.
 
-The {\tt min::skip\_remaining} function can have an undesirable
-interaction with the use of {\tt min::\EOL end\_\EOL line} to
+The \TT{min::skip\_remaining} function can have an undesirable
+interaction with the use of \TT{min::\EOL end\_\EOL line} to
 make an initial segment of a partial line into a complete line:
 see \pagref{SKIP_REMAINING_END_LINE}.  It also affects the next
-call to {\tt min::\EOL next\_\EOL line}; specifically, if remaining
+call to \TT{min::\EOL next\_\EOL line}; specifically, if remaining
 bytes are skipped, then added to and made into a complete line,
-the next call to {\tt min::\EOL next\_\EOL line} will return that line as if
+the next call to \TT{min::\EOL next\_\EOL line} will return that line as if
 it consisted of only of the non-skipped characters that were added
-after the call to {\tt min::\EOL skip\_\EOL remaining}.
+after the call to \TT{min::\EOL skip\_\EOL remaining}.
 
 At any time the complete partial line at the end of the file, including
-bytes skipped over by {\tt min::\EOL skip\_\EOL remaining}, can be
+bytes skipped over by \TT{min::\EOL skip\_\EOL remaining}, can be
 accessed by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6532,17 +6529,17 @@ accessed by the functions:
 \LABEL{MIN::PARTIAL_OFFSET} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::\EOL partial\_\EOL length}
-function returns {\tt  buffer->\EOL length - end\_\EOL offset},
+The \TT{min::\EOL partial\_\EOL length}
+function returns \TT{ buffer->\EOL length - end\_\EOL offset},
 the number of partial line bytes that have not
 been previously returned, and
-the {\tt min::\EOL partial\_\EOL offset} function returns
-{\tt end\_\EOL offset},
+the \TT{min::\EOL partial\_\EOL offset} function returns
+\TT{end\_\EOL offset},
 the offset in the file buffer of the first of these bytes.
-Note that these bytes do \underline{not} end with {\tt NUL}.
+Note that these bytes do \underline{not} end with \TT{NUL}.
 
-A main reason why the {\tt min::file} type exists is to allow lines
-previously returned by {\tt min::\EOL next\_\EOL line} to be retrieved
+A main reason why the \TT{min::file} type exists is to allow lines
+previously returned by \TT{min::\EOL next\_\EOL line} to be retrieved
 so they can be printed in error messages.
 The following function does this:
 
@@ -6555,39 +6552,39 @@ The following function does this:
 \end{tabular}\end{indpar}
 
 Here \TT{line\_number} is \TT{0} for the first line of the file,
-{\tt line\_index} must exist (i.e., not be {\tt NULL\_\EOL STUB}),
+\TT{line\_index} must exist (i.e., not be \TT{NULL\_\EOL STUB}),
 and
 \begin{center}\begin{tabular}{rl}
        & \tt file->next\_line\_number - file->line\_index->length \\
 \tt <= & \tt line\_number \\
 \tt < & \tt file->next\_line\_number
 \end{tabular}\end{center}
-is required.  If these conditions are not met, {\tt min::\EOL line}
-returns {\tt min::\EOL NO\_\EOL LINE}.
+is required.  If these conditions are not met, \TT{min::\EOL line}
+returns \TT{min::\EOL NO\_\EOL LINE}.
 
 Whether\label{LINE-INDEX-LENGTH}
 the required conditions are met depends upon
-the setting of {\tt spool\_\EOL lines}
-and possibly use of the {\tt min::\EOL flush\_\EOL spool} described below.
+the setting of \TT{spool\_\EOL lines}
+and possibly use of the \TT{min::\EOL flush\_\EOL spool} described below.
 
-If {\tt spool\_\EOL lines} equals {\tt 0},
-{\tt line\_\EOL index} does not exist, and {\tt min::\EOL line}
-always returns {\tt min::\EOL NO\_\EOL LINE}.
- If {\tt spool\_\EOL lines} equals
-\verb|min::|\MINNBKEY{ALL\_\EOL LINES}, the default argument setting
-for all {\tt min::\EOL init\_\EOL input\ldots} functions,
+If \TT{spool\_\EOL lines} equals \TT{0},
+\TT{line\_\EOL index} does not exist, and \TT{min::\EOL line}
+always returns \TT{min::\EOL NO\_\EOL LINE}.
+ If \TT{spool\_\EOL lines} equals
+\verb|min::|\MINKEY{ALL\_\EOL LINES}, the default argument setting
+for all \TT{min::\EOL init\_\EOL input\ldots} functions,
 then all lines
-previously returned by {\tt min::\EOL next\_\EOL line} are always available,
-{\tt line\_\EOL index->\EOL length} always equals
-{\tt next\_\EOL line\_\EOL number},
+previously returned by \TT{min::\EOL next\_\EOL line} are always available,
+\TT{line\_\EOL index->\EOL length} always equals
+\TT{next\_\EOL line\_\EOL number},
 and the above requirement reduces to
 \begin{center}
 \tt 0 <= line\_number < file->next\_line\_number
 \end{center}
 
-For other values of {\tt spool\_\EOL lines},
-{\tt line\_\EOL index} exists and
-{\tt line\_\EOL index->\EOL length} is a function of the history
+For other values of \TT{spool\_\EOL lines},
+\TT{line\_\EOL index} exists and
+\TT{line\_\EOL index->\EOL length} is a function of the history
 of calls to the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6599,12 +6596,12 @@ of calls to the function:
 \end{tabular}\end{indpar}
 
 This function deletes lines from the file buffer
-if there are more than {\tt spool\_\EOL lines}
-lines before the line of the given {\tt line\_\EOL number} in the buffer.
+if there are more than \TT{spool\_\EOL lines}
+lines before the line of the given \TT{line\_\EOL number} in the buffer.
 If this condition is met, all lines before the one with the given
-{\tt line\_\EOL number} are deleted.  If the {\tt line\_\EOL number}
-argument is omitted or equivalently given as {\tt min::\EOL NO\_\EOL LINE},
-it is replaced by {\tt next\_\EOL line\_\EOL number}.
+\TT{line\_\EOL number} are deleted.  If the \TT{line\_\EOL number}
+argument is omitted or equivalently given as \TT{min::\EOL NO\_\EOL LINE},
+it is replaced by \TT{next\_\EOL line\_\EOL number}.
 It is a programming error if
 \begin{center}
 \tt line\_number > file->next\_line\_number
@@ -6621,19 +6618,19 @@ It is possible to `rewind' a file with the function:
 \end{tabular}\end{indpar}
 
 This resets the next line that will be returned by
-{\tt min::\EOL next\_\EOL line} to some previously
-returned line.  {\tt min::rewind(n)} only succeeds if
-if {\tt n == 0} (the default),
-or if {\tt n == next\_\EOL line\_\EOL number}
+\TT{min::\EOL next\_\EOL line} to some previously
+returned line.  \TT{min::rewind(n)} only succeeds if
+if \TT{n == 0} (the default),
+or if \TT{n == next\_\EOL line\_\EOL number}
 (in this case the rewind function does nothing),
-or if {\tt min::line(n)} would \underline{not} return
-{\tt min::\EOL NO\_\EOL LINE}.
+or if \TT{min::line(n)} would \underline{not} return
+\TT{min::\EOL NO\_\EOL LINE}.
 It is a \underline{programming} error
-for {\tt min::\EOL rewind} to fail.  Normally rewind with {\tt n > 0} is only
-used with files whose {\tt spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
+for \TT{min::\EOL rewind} to fail.  Normally rewind with \TT{n > 0} is only
+used with files whose \TT{spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
 which eliminates the possibility of failure.
 
-If the last line in {\tt buffer} is a partial line,
+If the last line in \TT{buffer} is a partial line,
 the following function may be used to split this into
 a complete line possibly followed by a shorter partial line:
 
@@ -6645,8 +6642,8 @@ a complete line possibly followed by a shorter partial line:
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
-This function sets {\tt buffer[offset]} to NUL, overwriting
-any previous {\tt char} value of this buffer element, and
+This function sets \TT{buffer[offset]} to NUL, overwriting
+any previous \TT{char} value of this buffer element, and
 making this element the line-terminating NUL for an initial segment
 of the partial line at the end of the buffer.  The remainder of
 the partial line, if there is any, becomes the new partial line at the
@@ -6654,12 +6651,12 @@ end of the buffer.
 
 Note that a partial line \underline{cannot}\label{SKIP_REMAINING_END_LINE}
 be split using the
-last function if {\tt min::\EOL skip\_\EOL remaining}
+last function if \TT{min::\EOL skip\_\EOL remaining}
 (\pagref{MIN::SKIP_REMAINING}) has been used to skip past the
-{\tt offset} point where the NUL would be written.
+\TT{offset} point where the NUL would be written.
 
 The following function is used to copy or `flush' the lines in a file
-to any {\tt ostream}, {\tt ofile}, and/or {\tt printer}
+to any \TT{ostream}, \TT{ofile}, and/or \TT{printer}
 that the file has
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6670,18 +6667,18 @@ that the file has
 \LABEL{MIN::FLUSH_FILE} \\
 \end{tabular}\end{indpar}
 
-This function first calls {\tt min::next\_line} repeatedly
+This function first calls \TT{min::next\_line} repeatedly
 for the file, and flushes each line returned by that function.
 Then it flushes any partial line left over at the end of the
-file, and calls {\tt min::\EOL skip\_\EOL remaining}
+file, and calls \TT{min::\EOL skip\_\EOL remaining}
 (\pagref{MIN::SKIP_REMAINING}) to skip over this partial line
 (so it will be invisible to subsequent calls to
-{\tt min::\EOL next\_\EOL line}).
+\TT{min::\EOL next\_\EOL line}).
 Lastly, if the \TT{copy\_\EOL completion} argument is \TT{true} and
 the file has an \TT{ofile}, the \TT{min::\EOL complete\_\EOL file}
 function is called for \TT{ofile} to mark that file as being complete.
 
-The flushing sub-actions of {\tt min::flush\_file} are available by using
+The flushing sub-actions of \TT{min::flush\_file} are available by using
 the following functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6695,25 +6692,25 @@ the following functions:
 \LABEL{MIN::FLUSH_REMAINING} \\
 \end{tabular}\end{indpar}
 
-{\tt min::flush\_line} copies the line beginning at the given offset
-to any {\tt ostream}, {\tt ofile},
-and/or {\tt printer},
-while {\tt min::\EOL flush\_\EOL remaining} copies any remaining
+\TT{min::flush\_line} copies the line beginning at the given offset
+to any \TT{ostream}, \TT{ofile},
+and/or \TT{printer},
+while \TT{min::\EOL flush\_\EOL remaining} copies any remaining
 bytes in the partial line
 at the end of the file
-to any {\tt ostream}, {\tt ofile}, and/or
-{\tt printer}.
-Note that neither of these functions calls {\tt min::\EOL next\_\EOL line}
-or {\tt min::\EOL skip\_\EOL remaining}.
+to any \TT{ostream}, \TT{ofile}, and/or
+\TT{printer}.
+Note that neither of these functions calls \TT{min::\EOL next\_\EOL line}
+or \TT{min::\EOL skip\_\EOL remaining}.
 
-Note that \underline{none} of
-the {\tt min::\EOL flush\_file/\EOL line/\EOL remaining}
-functions call {\tt min::\EOL flush\_\EOL spool}.
+\underline{None} of
+the \TT{min::\EOL flush\_file/\EOL line/\EOL remaining}
+functions call \TT{min::\EOL flush\_\EOL spool}.
 
-The following {\tt <{}<} operators do the same thing as
+The following \TT{<{}<} operators do the same thing as
 {min::\EOL flush\_\EOL line} except that, instead of copying
-to the file's {\tt ostream}, {\tt ofile}, and/or
-{\tt printer}, they copy to their lefthand operand:
+to the file's \TT{ostream}, \TT{ofile}, and/or
+\TT{printer}, they copy to their lefthand operand:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
@@ -6736,23 +6733,23 @@ to the file's {\tt ostream}, {\tt ofile}, and/or
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Note that these {\tt <{}<} operators call the {\tt min::\EOL next\_\EOL line}
-and {\tt min::\EOL skip\_\EOL remaining} functions in the same way as
-{\tt min::\EOL flush\_\EOL file} does, and therefore
-these {\tt <{}<} operators interact with each other and with the
-{\tt min::\EOL flush\_\EOL file} function.  Generally such interaction
-is avoided by using only one of the {\tt <{}<} operators or only
-the {\tt min::\EOL flush\_\EOL file} function on a given file.
+Note that these \TT{<{}<} operators call the \TT{min::\EOL next\_\EOL line}
+and \TT{min::\EOL skip\_\EOL remaining} functions in the same way as
+\TT{min::\EOL flush\_\EOL file} does, and therefore
+these \TT{<{}<} operators interact with each other and with the
+\TT{min::\EOL flush\_\EOL file} function.  Generally such interaction
+is avoided by using only one of the \TT{<{}<} operators or only
+the \TT{min::\EOL flush\_\EOL file} function on a given file.
 
 \subsection{Identifier Maps}
 \label{IDENTIFIER-MAPS}
 
 \ikey{Identifier Maps}{identifier map} are used on input/output
-to translate {\tt const min::\EOL stub~*} pointers to small unsigned
+to translate \TT{const min::\EOL stub~*} pointers to small unsigned
 integer \smkey{identifier}s{in identifier map} that can be used
 as surrogates for the pointers in external files.
-A {\tt min::\EOL id\_\EOL map} is a packed vector with
-{\tt const min::\EOL stub~*} elements such that index of an element
+A \TT{min::\EOL id\_\EOL map} is a packed vector with
+\TT{const min::\EOL stub~*} elements such that index of an element
 in the vector is the identifier of the element value.
 This identifier may appear in files as \TT{@}{\em index}.
 
@@ -6806,79 +6803,79 @@ Creation and use of id maps is accomplished by the following:
 \end{tabular}\end{indpar}
 
 An identifier map maintains a 1-1 correspondence between
-{\tt const min::\EOL stub~*}
-pointers and small strictly positive {\tt min::\EOL uns32} identifiers.
-If {\tt map} is a {\tt min::\EOL id\_\EOL map},
-and {\tt (s,id)} is a correspondence stored in {\tt map} between
-a pointer {\tt s} and an identifier {\tt id}, then
+\TT{const min::\EOL stub~*}
+pointers and small strictly positive \TT{min::\EOL uns32} identifiers.
+If \TT{map} is a \TT{min::\EOL id\_\EOL map},
+and \TT{(s,id)} is a correspondence stored in \TT{map} between
+a pointer \TT{s} and an identifier \TT{id}, then
 \begin{center}
 \tt
 s == map[id] \\
 id == min::find ( map, s )
 \end{center}
 
-If {\tt id >= map->length} or if {\tt map[id]} is
-{\tt NULL\_\EOL STUB}, then {\tt id} is not in any correspondence
+If \TT{id >= map->length} or if \TT{map[id]} is
+\TT{NULL\_\EOL STUB}, then \TT{id} is not in any correspondence
 stored in the map.
 
-The identifier value {\tt 0} denotes a missing identifier,
+The identifier value \TT{0} denotes a missing identifier,
 and cannot be part of the
 correspondence stored in an identifier map.
-If {\tt min::\EOL find} returns {\tt 0}, then {\tt s} is not
+If \TT{min::\EOL find} returns \TT{0}, then \TT{s} is not
 in any correspondence stored in the map.
 
 
-The {\tt min::init} function may be used to create or reset a {\tt map}
-so that {\tt map->length == 1}.  {\tt map[0]} is set to equal
-{\tt min::\EOL NULL\_\EOL STUB}, and this {\tt map} element cannot
+The \TT{min::init} function may be used to create or reset a \TT{map}
+so that \TT{map->length == 1}.  \TT{map[0]} is set to equal
+\TT{min::\EOL NULL\_\EOL STUB}, and this \TT{map} element cannot
 be changed.
 
-If identifiers are being output, the {\tt min::find\_\EOL or\_\EOL add}
-function can be used to find the identifier of a stub.  If {\tt s} is already
-in the {\tt map}, its associated identifier is returned.  Otherwise {\tt s}
-is pushed to the end of the {\tt map} vector and assigned an identifier which
+If identifiers are being output, the \TT{min::find\_\EOL or\_\EOL add}
+function can be used to find the identifier of a stub.  If \TT{s} is already
+in the \TT{map}, its associated identifier is returned.  Otherwise \TT{s}
+is pushed to the end of the \TT{map} vector and assigned an identifier which
 is returned.  However, as a special case,
-{\tt min::\EOL find\_\EOL or\_\EOL add} returns
-{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL STUB}.
+\TT{min::\EOL find\_\EOL or\_\EOL add} returns
+\TT{0} if \TT{s} is \TT{min::\EOL NULL\_\EOL STUB}.
 
-When a stub is to be output, {\tt min::\EOL find\_\EOL and\_\EOL add}
+When a stub is to be output, \TT{min::\EOL find\_\EOL and\_\EOL add}
 may assign it an identifier so it can be
-output as `{\tt @}{\em identifier}', without the stub contents having been
+output as `\TT{@}{\em identifier}', without the stub contents having been
 output.  Then later the stub contents must be output, usually in a line of the
 form
 \begin{center}
-{\tt @}{\em identifier} {\tt =} {\em stub-contents}
+\TT{@}{\em identifier} \TT{=} {\em stub-contents}
 \end{center}
 In this context stub contents are usually output by such lines in order of
 their identifiers, smallest identifier first, with the identifier
-map member {\tt next} recording the smallest identifier which has
+map member \TT{next} recording the smallest identifier which has
 not yet been output.  This member is writable and can be updated
 when a stub's contents are printed.
 
-If identifiers are being input, {\tt map[id]} can be used to find the stub
-associated with {\tt id}, unless there is no such stub.
-If there is no stub associated with {\tt id}, a stub {\tt s}
-can be created and inserted into the map with the {\tt min::\EOL insert}
+If identifiers are being input, \TT{map[id]} can be used to find the stub
+associated with \TT{id}, unless there is no such stub.
+If there is no stub associated with \TT{id}, a stub \TT{s}
+can be created and inserted into the map with the \TT{min::\EOL insert}
 function, which will increase the length of the map if necessary to
-accomodate {\tt id}.
+accomodate \TT{id}.
 
-The {\tt min::find} function is not needed for either input or output.
-It merely returns the identifier associated with a stub {\tt s} if one exists,
-or returns {\tt 0} if no such identifier exists.
-{\tt min::\EOL find} also returns
-{\tt 0} if {\tt s} is {\tt min::\EOL NULL\_\EOL STUB}.
+The \TT{min::find} function is not needed for either input or output.
+It merely returns the identifier associated with a stub \TT{s} if one exists,
+or returns \TT{0} if no such identifier exists.
+\TT{min::\EOL find} also returns
+\TT{0} if \TT{s} is \TT{min::\EOL NULL\_\EOL STUB}.
 
 Part of an identifier map is a hash table that permits
-{\tt min::\EOL find\ldots} functions to work quickly.  This
+\TT{min::\EOL find\ldots} functions to work quickly.  This
 hash table is created by the first call to a
-{\tt min::\EOL find\ldots} function.
-The hash table, if it exists, is maintained by {\tt min::\EOL insert}
-and {\tt min::\EOL find\_\EOL and\_\EOL add},
+\TT{min::\EOL find\ldots} function.
+The hash table, if it exists, is maintained by \TT{min::\EOL insert}
+and \TT{min::\EOL find\_\EOL and\_\EOL add},
 unless the hash table has become too small to be efficient, in which case
 these functions discard it so a larger hash table will be created
-by the next call to a {\tt min::\EOL find\ldots} function.
-The {\tt map->\EOL occupied} member of the map records the number of
-{\tt map} vector elements that are not {\tt min::\EOL NULL\_\EOL STUB},
+by the next call to a \TT{min::\EOL find\ldots} function.
+The \TT{map->\EOL occupied} member of the map records the number of
+\TT{map} vector elements that are not \TT{min::\EOL NULL\_\EOL STUB},
 that is, the number of associations recorded in the map, and this is used
 to determine the proper size of the hash table.
 
@@ -7029,46 +7026,46 @@ accomplished by the following:
 {\tt print\_format.flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_HSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_HSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_VSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_VSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_NSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_NSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_NSPACE_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_HSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_HSPACE\_FLAG}
 \LABEL{MIN::ALLOW_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_VSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_VSPACE\_FLAG}
 \LABEL{MIN::ALLOW_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_NSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_NSPACE\_FLAG}
 \LABEL{MIN::ALLOW_NSPACE_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{ASCII\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ASCII\_FLAG}
 \LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL\_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{HBREAK\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{HBREAK\_FLAG}
 \LABEL{MIN::HBREAK_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GBREAK\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GBREAK\_FLAG}
 \LABEL{MIN::GBREAK_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_FLAG}
 \LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -8297,13 +8294,13 @@ The data structure for {\tt pgen} contexts is:
 {\tt PGEN\_}\ldots{} contexts:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
 \LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_INDENT}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
 \LABEL{MIN::PGEN_INDENT_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
 \LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
 \end{tabular}\end{indpar}
 
@@ -8404,37 +8401,37 @@ is as follows:
 \ldots{\tt \_gen\_flags} Flags:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
 \LABEL{MIN::GRAPHIC_STR_FLAG} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
 \LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
 \LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
 \LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
 \LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
 \LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
 \LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
 \LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
 \LABEL{MIN::STR_ID_FLAG} \\
 \end{tabular}\end{indpar}
 
@@ -11368,7 +11365,7 @@ or left out of a program according to the setting of the macro:
 
 \begin{indpar}
 \begin{tabular}{l}
-\TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS} \\
+\TTKEY{MIN\_USE\_OBJ\_AUX\_STUBS} \\
 ~~~~~ 1 if code to use object auxiliary stubs is to be compiled; \\
 ~~~~~ 0 if this code is not to be compiled; the default.
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
@@ -11516,7 +11513,7 @@ one of two syntaxes depending upon the setting of the following macro:
 
 \begin{indpar}
 \begin{tabular}{l}
-\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS} \\
+\TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS} \\
 ~~~~~ 1 if partial attribute labels are supported; \\
 ~~~~~ 0 if partial attribute labels are not supported.
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
@@ -12642,10 +12639,8 @@ This is a logical time to pay this cost.
 \renewcommand{\TTOMKEY}[3]{{\tt ~~operator~~#2~~}}
 \renewcommand{\TTMOKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\TTARMKEY}[2]{{\tt ~~->#1~~}}
-\renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINIKEY}[2]{{\tt ~~#1~~}}
-\renewcommand{\MINNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
 
@@ -12685,27 +12680,27 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTNBKEY{MIN\_IS\_COMPACT}
+\TTKEY{MIN\_IS\_COMPACT}
 \LABEL{MIN_IS_COMPACT} \\
-\TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
+\TTKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
 \LABEL{MIN_MAX_EPHEMERAL_LEVELS} \\
-\TTNBKEY{MIN\_IS\_LOOSE}
+\TTKEY{MIN\_IS\_LOOSE}
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
+\TTKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
 \LABEL{MIN_MAX_NUMBER_OF_STUBS} \\
-\TTNBKEY{MIN\_STUB\_BASE}
+\TTKEY{MIN\_STUB\_BASE}
 \LABEL{MIN_STUB_BASE} \\
-\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
+\TTKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\
-\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
+\TTKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
 \LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS} \\
-\TTNBKEY{MIN\_PROTECT}
+\TTKEY{MIN\_PROTECT}
 \LABEL{MIN_PROTECT} \\
-\TTNBKEY{MIN\_ASSERT($e$)}
+\TTKEY{MIN\_ASSERT($e$)}
 \LABEL{MIN_ASSERT} \\
-\TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
+\TTKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
-\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
+\TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
 
@@ -12890,7 +12885,7 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.8in}
-\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\verb|const min::stub * | & \MINKEY{NULL\_STUB}
 \LABEL{MIN::NULL_STUB} \\
 \end{TABULAR}
 
@@ -13073,21 +13068,21 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINNBKEY{MISSING()}
+\verb|min::gen min::| & \MINKEY{MISSING()}
 \LABEL{MIN::MISSING} \\
-\verb|min::gen min::| & \MINNBKEY{NONE()}
+\verb|min::gen min::| & \MINKEY{NONE()}
 \LABEL{MIN::NONE} \\
-\verb|min::gen min::| & \MINNBKEY{ANY()}
+\verb|min::gen min::| & \MINKEY{ANY()}
 \LABEL{MIN::ANY} \\
-\verb|min::gen min::| & \MINNBKEY{MULTI\_VALUED()}
+\verb|min::gen min::| & \MINKEY{MULTI\_VALUED()}
 \LABEL{MIN::MULTI_VALUED} \\
-\verb|min::gen min::| & \MINNBKEY{UNDEFINED()}
+\verb|min::gen min::| & \MINKEY{UNDEFINED()}
 \LABEL{MIN::UNDEFINED} \\
-\verb|min::gen min::| & \MINNBKEY{SUCCESS()}
+\verb|min::gen min::| & \MINKEY{SUCCESS()}
 \LABEL{MIN::SUCCESS} \\
-\verb|min::gen min::| & \MINNBKEY{FAILURE()}
+\verb|min::gen min::| & \MINKEY{FAILURE()}
 \LABEL{MIN::FAILURE} \\
-\verb|min::gen min::| & \MINNBKEY{ERROR()}
+\verb|min::gen min::| & \MINKEY{ERROR()}
 \LABEL{MIN::ERROR} \\
 \end{TABULAR}
 
@@ -13279,7 +13274,7 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTNBKEY{MIN\_STACKCOPY} \verb|( type, name, length, source )|
+\TTKEY{MIN\_STACKCOPY} \verb|( type, name, length, source )|
 \LABEL{MIN_STACKCOPY}
 \end{tabular}
 
@@ -13400,7 +13395,7 @@ In loose implementation: \\
 \bigskip
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTNBKEY{MIN\_REF} \verb|( type, name, ctype )|
+\TTKEY{MIN\_REF} \verb|( type, name, ctype )|
 \LABEL{MIN_REF}
 \end{tabular}
 
@@ -13748,7 +13743,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{2.2in}
 \verb|const min::uns32 min::|
-    & \MINNBKEY{UTF8\_ILLEGAL}
+    & \MINKEY{UTF8\_ILLEGAL}
 \LABEL{MIN::UTF8_ILLEGAL} \\
 \verb|min::uns32 min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
@@ -14194,9 +14189,9 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
-\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
+\verb|min::uns32 min::| & \MINKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
+\verb|min::uns32 min::| & \MINKEY{DISP\_END}
 \LABEL{MIN::DISP_END} \\
 \end{TABULAR}
 
@@ -14758,7 +14753,7 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
+\verb|const min::uns32 min::| & \MINKEY{ALL\_LINES}
 \LABEL{MIN::ALL_LINES} \\
 \end{TABULAR}
 
@@ -14855,7 +14850,7 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
+\verb|const min::uns32 min::| & \MINKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \end{TABULAR}
 
@@ -15149,46 +15144,46 @@ In loose implementation: \\
 \bigskip
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_HSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_HSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_VSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_VSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_NSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_NSPACE\_FLAG}
 \LABEL{MIN::GRAPHIC_NSPACE_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_HSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_HSPACE\_FLAG}
 \LABEL{MIN::ALLOW_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_VSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_VSPACE\_FLAG}
 \LABEL{MIN::ALLOW_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_NSPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ALLOW\_NSPACE\_FLAG}
 \LABEL{MIN::ALLOW_NSPACE_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{ASCII\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{ASCII\_FLAG}
 \LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL\_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{HBREAK\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{HBREAK\_FLAG}
 \LABEL{MIN::HBREAK_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GBREAK\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GBREAK\_FLAG}
 \LABEL{MIN::GBREAK_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{FLUSH\_ID\_MAP\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_FLAG}
 \LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_FLAGS}
 \LABEL{MIN::GRAPHIC_FLAGS} \\
 \end{TABULAR}
 
@@ -15552,29 +15547,29 @@ In loose implementation: \\
 \ldots{\tt \_gen\_flags}:
 \\[2ex]
 \begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
 \LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_STR\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
 \LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_LAB\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
 \LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_SPECIAL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
 \LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{BRACKET\_IMPLICIT\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
 \LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
 \LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
 \LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_EXP\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
 \LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_ID\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
 \LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_INDENT\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
 \LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{STR\_ID\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
 \LABEL{MIN::STR_ID_FLAG} \\
 \end{TABULAR}
 
@@ -15583,13 +15578,13 @@ In loose implementation: \\
 {\tt PGEN\_}\ldots contexts:
 \\[2ex]
 \begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_VALUE}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
 \LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_INDENT}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
 \LABEL{MIN::PGEN_INDENT_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_NAME}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINNBKEY{PGEN\_ELEMENT}
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
 \LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
 \end{TABULAR}
 
@@ -16355,7 +16350,7 @@ In loose implementation: \\
 
 \begin{indpar}[0.2in]
 \begin{TABULAR}{2.2in}
-(macro) & \TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
+(macro) & \TTKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
 \verb|bool min::|
 	& \MINKEY{use\_obj\_aux\_stubs}
@@ -16749,7 +16744,7 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
+\TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
 
