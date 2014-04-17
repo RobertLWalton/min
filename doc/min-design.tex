@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 16, 2014}
+\date{April 17, 2014}
  
 \maketitle
 
@@ -6224,17 +6224,24 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<const char> data,|\ARGBREAK
+	  \verb|  min::ptr<const char> string,|\ARGBREAK
 	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<char> data,|\ARGBREAK
+	  \verb|  min::ptr<char> string,|\ARGBREAK
 	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
+          \verb|( min::ref<min::file> file,|\ARGBREAK
+	  \verb|  const char * string,|\ARGBREAK
+	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 All these {\tt min::}\MINKEY{init\ldots} functions create a {\tt file}
@@ -6329,37 +6336,66 @@ with {\tt min::\EOL init\_\EOL input} by using one of the functions:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{load\_string\RESIZE}\ARGBREAK
-          \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<const char> data)|\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::ptr<const char> string )|\ARGBREAK
 \LABEL{MIN::LOAD_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{load\_string\RESIZE}\ARGBREAK
-          \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<char> data)|\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::ptr<char> string )|\ARGBREAK
 \LABEL{MIN::LOAD_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  const char * string )|\ARGBREAK
+\LABEL{MIN::LOAD_CHAR_PTR_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::init\_input\_named\_file} function
-sets the {\tt file\_\EOL name} member and
-loads the contents of the operating system file this names into the
-{\tt buffer}.
-After loading the file contents, newline characters in the buffer
-are converted to line-terminating NUL's.  NUL characters loaded into the
-buffer are also treated as line-terminating NUL's.
-The {\tt file\_\EOL lines} member is set to the number of line-terminating NUL's
-that end up in the buffer, and {\tt end\_\EOL offset} is set to point
-just after the last NUL.  Note that the file remains rewound.
-If there is no error in
-reading the operating system file, {\tt true} is returned by this function.  If
-there is an error, {\tt false} is returned, and an error message
-is written into {\tt min::\EOL error\_\EOL message}
-(\pagref{ERROR_MESSAGE}).
+These copy the \TT{string} to the end of the file \TT{buffer} and replace any
+`\TT{\textbackslash n}' line feeds in the copy with line terminating
+\TT{NUL}'s.  When these functions are called, \TT{file}
+must \underline{not} be complete.
+Any \TT{const char * string} argument must
+\underline{not} be a pointer to a relocatable string.
 
-The {\tt min::init\_input\_string} function similarly loads the contents
-of the file with the value of a given NUL-terminated {\tt data} string.
-Newline characters are converted to line-terminating NUL's.
-There is no possibility of error in this case, and
-{\tt file\_\EOL name} is set to {\tt min::\EOL MISSING()}.
+Similarly the contents of an operating system named file
+can be copied to the end of a file \TT{buffer} by the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|bool min::|
+    & \MINKEY{load\_named\_file\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::gen file_name )|\ARGBREAK
+\LABEL{MIN::LOAD_NAMED_FILE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+In this case, both
+`\TT{\textbackslash n}' line feeds and \TT{NUL} characters in the copy
+of the file contents are replaced by line terminating
+\TT{NUL}'s.  Also, if there is any error reading the file,
+an error message is written into {\tt min::\EOL error\_\EOL message}
+(\pagref{ERROR_MESSAGE}) and \TT{false} is returned, whereas if
+there is no read error \TT{true} is returned.
+The file must have a well defined size; it cannot be a named stream.
+When this function is called, \TT{file}
+must \underline{not} be complete.
+
+The {\tt min::init\_input\_string} function initializes the file
+for input, loads that string into the file \TT{buffer}, and marks the file
+complete.
+Any \TT{const char * string} argument must
+\underline{not} be a pointer to a relocatable string.
+
+The {\tt min::init\_input\_named\_file} function
+initializes the file for input,
+sets the {\tt file\_\EOL name} member,
+loads the contents of the operating system file this names into the
+file \TT{buffer}, and marks the file complete.
+The file must have a well defined size; it cannot be a named stream.
+If no error occurs reading the file, \TT{true}
+is returned.  Otherwise an error message is written into
+into {\tt min::\EOL error\_\EOL message}
+(\pagref{ERROR_MESSAGE}) and \TT{false} is returned.
 
 The {\tt min::init\_input\_stream} function does not load data into
 the file {\tt buffer}, but instead empties the {\tt buffer}
@@ -14758,29 +14794,62 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.2in}
 \verb|void min::|
-    & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
-          \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::gen file_name,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
-	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
-\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::ptr<const char> string )|\ARGBREAK
+\LABEL{MIN::LOAD_CONST_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::ptr<char> string )|\ARGBREAK
+\LABEL{MIN::LOAD_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{load\_string\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  const char * string )|\ARGBREAK
+\LABEL{MIN::LOAD_CHAR_PTR_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|bool min::|
+    & \MINKEY{load\_named\_file\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::gen file_name )|\ARGBREAK
+\LABEL{MIN::LOAD_NAMED_FILE_OF_FILE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<const char> data,|\ARGBREAK
+	  \verb|  min::ptr<const char> string,|\ARGBREAK
 	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::ptr<char> data,|\ARGBREAK
+	  \verb|  min::ptr<char> string,|\ARGBREAK
 	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
+          \verb|( min::ref<min::file> file,|\ARGBREAK
+	  \verb|  const char * string,|\ARGBREAK
+	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
+          \verb|( min::ref<min::file> file,|\ARGBREAK
+	  \verb|  min::gen file_name,|\ARGBREAK
+	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{TABULAR}
 
 \bigskip
