@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 16 06:20:33 EDT 2014
+// Date:	Thu Apr 17 01:42:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6653,18 +6653,29 @@ namespace min {
 
     void init_input_string
 	    ( min::ref<min::file> file,
-	      min::ptr<const char> data,
+	      min::ptr<const char> string,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     inline void init_input_string
 	    ( min::ref<min::file> file,
-	      min::ptr<char> data,
+	      min::ptr<char> string,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES )
     {
         init_input_string
-	    ( file, (min::ptr<const char>) data,
+	    ( file, (min::ptr<const char>) string,
+	       print_flags, spool_lines );
+    }
+
+    inline void init_input_string
+	    ( min::ref<min::file> file,
+	      const char * string,
+	      min::uns32 print_flags = 0,
+	      min::uns32 spool_lines = min::ALL_LINES )
+    {
+        init_input_string
+	    ( file, min::new_ptr ( string ),
 	       print_flags, spool_lines );
     }
 
@@ -6693,21 +6704,29 @@ namespace min {
         return file->file_lines != NO_LINE;
     }
 
-    bool load_named_file
-	    ( min::file file,
-	      min::gen file_name );
-
     void load_string
 	    ( min::file file,
-	      min::ptr<const char> data );
+	      min::ptr<const char> string );
 
     inline void load_string
 	    ( min::file file,
-	      min::ptr<char> data )
+	      min::ptr<char> string )
     {
         load_string
-	    ( file, (min::ptr<const char>) data );
+	    ( file, (min::ptr<const char>) string );
     }
+
+    inline void load_string
+	    ( min::file file,
+	      const char * string )
+    {
+        load_string
+	    ( file, min::new_ptr ( string ) );
+    }
+
+    bool load_named_file
+	    ( min::file file,
+	      min::gen file_name );
 
     min::uns32 next_line ( min::file file );
     min::uns32 line

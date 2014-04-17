@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 16 11:32:56 EDT 2014
+// Date:	Thu Apr 17 01:43:18 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1919,6 +1919,36 @@ void min::init_input_file
     ifile_ref(file) = ifile;
 }
 
+void min::init_input_string
+	( min::ref<min::file> file,
+	  min::ptr<const char> string,
+	  min::uns32 print_flags,
+	  min::uns32 spool_lines )
+{
+    init_input ( file, print_flags, spool_lines );
+    load_string ( file, string );
+    complete_file ( file );
+}
+
+void min::load_string
+	( min::file file,
+	  min::ptr<const char> string )
+{
+    MIN_ASSERT ( ! min::file_is_complete ( file ) );
+
+    uns64 length = ::strlen ( string );
+    uns32 offset = file->buffer->length;
+    assert ( length < ( 1ull << 32 ) - 1 - offset );
+
+    min::push ( file->buffer, length, string );
+
+    for ( uns32 i = offset; i < length; ++ i )
+    {
+        if ( file->buffer[i] == '\n' )
+	    min::end_line ( file, i );
+    }
+}
+
 bool min::init_input_named_file
 	( min::ref<min::file> file,
 	  min::gen file_name,
@@ -2039,36 +2069,6 @@ bool min::load_named_file
     fclose ( in );
 
     return true;
-}
-
-void min::init_input_string
-	( min::ref<min::file> file,
-	  min::ptr<const char> data,
-	  min::uns32 print_flags,
-	  min::uns32 spool_lines )
-{
-    init_input ( file, print_flags, spool_lines );
-    load_string ( file, data );
-    complete_file ( file );
-}
-
-void min::load_string
-	( min::file file,
-	  min::ptr<const char> data )
-{
-    MIN_ASSERT ( ! min::file_is_complete ( file ) );
-
-    uns64 length = ::strlen ( data );
-    uns32 offset = file->buffer->length;
-    assert ( length < ( 1ull << 32 ) - 1 - offset );
-
-    min::push ( file->buffer, length, data );
-
-    for ( uns32 i = offset; i < length; ++ i )
-    {
-        if ( file->buffer[i] == '\n' )
-	    min::end_line ( file, i );
-    }
 }
 
 min::uns32 min::next_line ( min::file file )
