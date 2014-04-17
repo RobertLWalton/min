@@ -6887,7 +6887,7 @@ control characters, and break long lines to enforce line length.
 Internally a {\tt min::\EOL printer} is
 a packed structure that points at a {\tt min::\EOL file} and contains
 additional information used to format lines put into the file.
-Values are written to printers via the \verb|<<| operator, much like the
+Values are written to printers via the \TT{<{}<} operator, much like the
 way values are written to {\tt std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating {\tt NUL}
 at the end of the printer file buffer, and optionally flushes the file.
@@ -7452,7 +7452,7 @@ When a \ttkey{NUL} is copied into a printer file buffer, which can only happen
 in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE\_\EOL FLAG} on,
 it is encoded as the overlong UTF-8 encoding {\tt 0xC0},{\tt 0x80}.
 
-Values of types other than `\verb|const char *|'
+Values of types other than `\TT{const char *}'
 which are presented to {\tt <{}<} are converted to `{\tt const char~*}' strings
 as follows:
 `{\tt char}' converts to a 1-{\tt char} string whose only element
@@ -7995,9 +7995,9 @@ encoded string, the following can be used:
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{tabular}\end{indpar}
 
-This function updates `\verb|column|'
-by applying the previous \verb|pwidth| function successively to the
-UNICODE characters encoded by the \verb|n| byte string \verb|s|.
+This function updates `\TT{column}'
+by applying the previous \TT{pwidth} function successively to the
+UNICODE characters encoded by the \TT{n} byte string \TT{s}.
 
 Numbers may be formatted by specified {\tt printf} formats and the results
 printed by using the following operations:
@@ -8257,7 +8257,7 @@ operations:
 \end{tabular}\end{indpar}
 
 The expression `{\tt printer\,<{}<\,min::pgen(v)}'
-prints the {\tt min::gen} value \verb|v| to the
+prints the {\tt min::gen} value \TT{v} to the
 {\tt printer} using
 \begin{center}
 \begin{tabular}{ll}
@@ -8506,7 +8506,7 @@ printed unwrapped; for example,
 \verb/"foo" {| .initiator "<Q>" |}/
 \end{center}
 prints as
-\verb|"foo"|.
+\TT{"foo"}.
 
 \item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
 If set, and if an object is not being printed as an expression as
@@ -8523,17 +8523,17 @@ is \underline{off}
 the object will be printed in the general form:
 \begin{center}
 \begin{tabular}{ll}
-\verb/{|/ {\em element} & \{ \verb|;| {\em attribute-name-and-values}
+\TT{\{|} {\em element} & \{ \TT{;} {\em attribute-name-and-values}
                           \}$^\star$ \\
-                        & \{ \verb|;| {\em reverse-attribute-name-and-values}
-                          \}$^\star$  \verb/|}/
+                        & \{ \TT{;} {\em reverse-attribute-name-and-values}
+                          \}$^\star$  \TT{|\}}
 \end{tabular}
 \end{center}
 and if this flag is \underline{on} the object will be printed in the
 general form:
 \begin{center}
 \begin{tabular}{r@{}l}
-XXX	& {\em element}$^\star$\verb/:|/ \\
+XXX	& {\em element}$^\star$\TT{:|} \\
 	& {\em attribute-name-and-values}\\
 	& \ldots\ldots\ldots\\
 	& {\em reverse-attribute-name-and-values}\\
@@ -8543,8 +8543,8 @@ XXX	& {\em element}$^\star$\verb/:|/ \\
 
 The two forms are is similar, with semi-colons in the first being
 replaced by line ends, indentation, and the indentation mark
-\verb/:|/ in the second, and the
-surrounding \verb/{|/ \verb/|}/ of the first being omitted in the second.
+\TT{:|} in the second, and the
+surrounding \TT{\{|} \TT{|\}} of the first being omitted in the second.
 The indentation is the column position when the value is output; in
 the above XXX is printed before the value is output and the indent is
 at the end of the XXX.
@@ -8748,9 +8748,9 @@ subsequence of characters equal to {\tt str\_\EOL post\-fix} is replaced
 by the characters of {\tt str\_\EOL quote}.
 
 For example, if
-{\tt str\_\EOL postfix} is \verb|"\""|, and
-{\tt str\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
-each \verb|"| in the {\tt min::gen} string that is being printed
+{\tt str\_\EOL postfix} is \TT{"\textbackslash""}, and
+{\tt str\_\EOL quote} is \TT{"<Q>"}, then \TT{<Q>} replaces
+each \TT{"} in the {\tt min::gen} string that is being printed
 (but of course not in {\tt str\_\EOL postfix}
 when that is printed just after the {\tt min::gen} string is printed).
 
@@ -8907,7 +8907,7 @@ These {\tt id\_map} flushing operations use the
 (\pagref{PGEN_INDENT}) with {\tt min::\EOL pgen}
 to print the {\em values} in lines of the form:
 \begin{center}
-\verb|@|i \verb|=| {\em value}
+\TT{@}i \TT{=} {\em value}
 \end{center}
 If a line is too long, it may be broken into multiple lines
 as specified by the printer parameters.
@@ -8918,11 +8918,11 @@ will cause the object will be printed on
 multiple lines whose form will be:\label{GEN-OBJ-FORM}
 \begin{center}
 \begin{tabular}{l}
-\verb/@/i \verb/=/ {\em element}$^\star$\verb/:|/ \\
-\verb|    |{\em attribute-name-and-values}\\
-\verb|    |\ldots\ldots\ldots\\
-\verb|    |{\em reverse-attribute-name-and-values}\\
-\verb|    |\ldots\ldots\ldots\\
+\TT{@}i \TT{=} {\em element}$^\star$\TT{:} \\
+~~~~{\em attribute-name-and-values}\\
+~~~~\ldots\ldots\ldots\\
+~~~~{\em reverse-attribute-name-and-values}\\
+~~~~\ldots\ldots\ldots\\
 \end{tabular}
 \end{center}
 
@@ -8930,27 +8930,27 @@ where:
 
 \begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
 {\em attribute-name-and-values} & ::= &
-    {\em attribute-name}\verb|[|{\em attribute-flags}\verb|]| \\
-    	&  & \verb|    =| {\em attribute-values}
+    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
+    	&  & \TT{~~~~=} {\em attribute-values}
 \\[1ex]
 {\em attribute-values} & ::= & {\em attribute-value} \\
-                       & $|$ & \verb/{|/ {\em attribute-value} \ldots
-		               \verb/|}/
+                       & $|$ & \TT{\{|} {\em attribute-value} \ldots
+		               \TT{|\}}
 \\[1ex]
 {\em attribute-value} & ::= & printed representation of value
 \end{tabular}
 
 \begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
 {\em reverse-attribute-name-and-values} & ::= &
-    {\em attribute-name}\verb|[|{\em attribute-flags}\verb|]| \\
-    	&  & \verb|    =| {\em reverse-attribute-values} \\
-	&  & \verb|    =| {\em reverse-attribute-name}
+    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
+    	&  & \TT{~~~~=} {\em reverse-attribute-values} \\
+	&  & \TT{~~~~=} {\em reverse-attribute-name}
 \\[1ex]
 {\em reverse-attribute-values} & ::= & {\em reverse-attribute-value} \\
-                       & $|$ & \verb/{|/ {\em reverse-attribute-value} \ldots
-		               \verb/|}/
+                       & $|$ & \TT{\{|} {\em reverse-attribute-value} \ldots
+		               \TT{|\}}
 \\[1ex]
-{\em reverse-attribute-value} & ::= & \verb|@|{\em natural-number}
+{\em reverse-attribute-value} & ::= & \TT{@}{\em natural-number}
 \end{tabular}
 
 Note that a {\em reverse-attribute-value} is always an object and is
@@ -8959,38 +8959,42 @@ that flag is off.
 
 The {\em attribute-flags} have the form:
 
+\newcommand{\TTBS}[1]{\TT{\textbackslash#1}}
 \begin{tabular}{rrl}
 {\em attribute-flags}
-    & ::= & \verb|[|{\em attribute-flag-name}$^\star$\verb|]| \\
+    & ::= & \TT{[}{\em attribute-flag-name}$^\star$\TT{]} \\
     & $|$ & {\em empty} \hspace*{2in}if no flags \\
 {\em attribute-flag-name} & ::= &
-        \verb|!| $|$ \verb|#| $|$ \verb|$| $|$ \verb|%| $|$ \verb|&|
-    $|$ \verb|*| $|$ \verb|+| $|$ \verb|-| $|$ \verb|/| $|$ \verb|=|
-    $|$ \verb|?| $|$ \verb|@| \\
-& $|$ & \verb|a| $|$ ... \verb|z| $|$ \verb|A| $|$ ... \verb|Z| \\
-& $|$ & \verb|~!| $|$ \verb|~#| $|$ \verb|~$| $|$ \verb|~%| $|$ \verb|~&|
-    $|$ \verb|~*| $|$ \verb|~+| $|$ \verb|~-| $|$ \verb|~/| $|$ \verb|~=|
-    $|$ \verb|~?| $|$ \verb|~@| \\
-& $|$ & \verb|~a| $|$ ... \verb|~z| $|$ \verb|~A| $|$ ... \verb|~Z| \\
-& $|$ & \verb|^!| $|$ \verb|^#| $|$ \verb|^$| $|$ \verb|^%| $|$ \verb|^&|
-    $|$ \verb|^*| $|$ \verb|^+| $|$ \verb|^-| $|$ \verb|^/| $|$ \verb|^=|
-    $|$ \verb|^?| $|$ \verb|^@| \\
-& $|$ & \verb|^a| $|$ ... \verb|^z| $|$ \verb|^A| $|$ ... \verb|^Z| \\
-& $|$ & \verb|\!| $|$ \verb|\#| $|$ \verb|\$| $|$ \verb|\%| $|$ \verb|\&|
-    $|$ \verb|\*| $|$ \verb|\+| $|$ \verb|\-| $|$ \verb|\/| $|$ \verb|\=|
-    $|$ \verb|\?| $|$ \verb|\@| \\
-& $|$ & \verb|\a| $|$ ... \verb|\z| $|$ \verb|\A| $|$ ... \verb|\Z| \\
-& $|$ & \verb|,|{\em flag-number}
+        \TT{!} $|$ \TT{\#} $|$ \TT{\$} $|$ \TT{\%} $|$ \TT{\&}
+    $|$ \TT{*} $|$ \TT{+} $|$ \TT{-} $|$ \TT{/} $|$ \TT{=}
+    $|$ \TT{?} $|$ \TT{@} \\
+& $|$ & \TT{a} $|$ \ldots{} $|$ \TT{z} $|$ \TT{A} $|$ \ldots{} $|$ \TT{Z} \\
+& $|$ & \TT{\~{ }!} $|$ \TT{\~{ }\#} $|$ \TT{\~{ }\$} $|$ \TT{\~{ }\%}
+  $|$ \TT{\~{ }\&} $|$ \TT{\~{ }*} $|$ \TT{\~{ }+} $|$ \TT{\~{ }-}
+  $|$ \TT{\~{ }/} $|$ \TT{\~{ }=} $|$ \TT{\~{ }?} $|$ \TT{\~{ }@} \\
+& $|$ & \TT{\~{ }a} $|$ \ldots{} $|$ \TT{\~{ }z}
+  $|$ \TT{\~{ }A} $|$ \ldots{} $|$ \TT{\~{ }Z} \\
+& $|$ & \TT{\^{ }!} $|$ \TT{\^{ }\#} $|$ \TT{\^{ }\$} $|$ \TT{\^{ }\%}
+  $|$ \TT{\^{ }\&} $|$ \TT{\^{ }*} $|$ \TT{\^{ }+} $|$ \TT{\^{ }-}
+  $|$ \TT{\^{ }/} $|$ \TT{\^{ }=} $|$ \TT{\^{ }?} $|$ \TT{\^{ }@} \\
+& $|$ & \TT{\^{ }a} $|$ \ldots{} $|$ \TT{\^{ }z} $|$ \TT{\^{ }A}
+  $|$ \ldots{} $|$ \TT{\^{ }Z} \\
+& $|$ & \TTBS{!} $|$ \TTBS{\#} $|$ \TTBS{\$} $|$ \TTBS{\%} $|$ \TTBS{\&}
+  $|$ \TTBS{*} $|$ \TTBS{+} $|$ \TTBS{-} $|$ \TTBS{/} $|$ \TTBS{=}
+  $|$ \TTBS{?} $|$ \TTBS{@} \\
+& $|$ & \TTBS{a} $|$ \ldots{} $|$ \TTBS{z}
+  $|$ \TTBS{A} $|$ \ldots{} $|$ \TTBS{Z} \\
+& $|$ & \TT{,}{\em flag-number}
 \end{tabular}
 
 Here {\em attribute-flag-names} are listed in the order of their flag number,
 where the default correspondence is
 \begin{center}
 \begin{tabular}{r@{~correspond to flag numbers~}l}
-\verb|!| \ldots{} \verb|Z| & \verb|0| \ldots{} \verb|63| \\
-\verb|~!| \ldots{} \verb|~Z| & \verb|64| \ldots{} \verb|127| \\
-\verb|^!| \ldots{} \verb|^Z| & \verb|128| \ldots{} \verb|191| \\
-\verb|\!| \ldots{} \verb|\Z| & \verb|192| \ldots{} \verb|255| \\
+\TT{!} \ldots{} \TT{Z} & \TT{0} \ldots{} \TT{63} \\
+\TT{\~{ }!} \ldots{} \TT{\~{ }Z} & \TT{64} \ldots{} \TT{127} \\
+\TT{\^{ }!} \ldots{} \TT{\^{ }Z} & \TT{128} \ldots{} \TT{191} \\
+\TTBS{!} \ldots{} \TTBS{Z} & \TT{192} \ldots{} \TT{255} \\
 \end{tabular}
 \end{center}
 The {\tt flag\_names} member of the effective {\tt gen\_format}
@@ -9085,7 +9089,7 @@ printed.
 Error messages typically consist of a description of the error
 followed by the lines involved printed with the above function
 (often the portions of the lines involved are marked by printing
-`\verb|^|' characters under them).  The error description before
+`\TT{\^{ }}' characters under them).  The error description before
 the lines typically ends with the name of the file containing
 the lines and the numbers of the lines.  This can be produced
 by the code:
@@ -9119,14 +9123,14 @@ An example use is
 \end{verbatim}\end{indpar}
 
 The line numbers printed by {\tt min::\EOL pline\_\EOL number}
-are \verb|1| greater than the line numbers given in the arguments,
+are \TT{1} greater than the line numbers given in the arguments,
 so the line number of the first line of a file is denoted by a
-\verb|0| argument which is printed as \verb|1|.
+\TT{0} argument which is printed as \TT{1}.
 
 There is a better way to print the lines of a file within an
 error message if the positions of the erroneous text in the file
 are known and are encoded in
-\verb|min::position| structures:
+\TT{min::position} structures:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{position}\ARGBREAK
@@ -9140,11 +9144,11 @@ are known and are encoded in
 \LABEL{MIN::POSITION_STRUCT} \\
 \end{tabular}\end{indpar}
 
-Here \verb|line| is the number of full lines before the line
-containing the position and \verb|offset| is the
+Here \TT{line} is the number of full lines before the line
+containing the position and \TT{offset} is the
 number of bytes before the position in the line.
 
-Two \verb|min::position| structures are needed to encode the boundaries
+Two \TT{min::position} structures are needed to encode the boundaries
 of a piece of text in a file.  Such a piece of text is called
 a `\key{phrase}', and its positions are encoded in a
 {\tt min::\EOL phrase\_\EOL position} structure:
@@ -9160,11 +9164,11 @@ a `\key{phrase}', and its positions are encoded in a
 \LABEL{MIN::PHRASE_POSITION_STRUCT} \\
 \end{tabular}\end{indpar}
 
-Here `\verb|begin|' encodes the position of the first character
-of the phrase in the file, and `\verb|end|' encodes the position
+Here `\TT{begin}' encodes the position of the first character
+of the phrase in the file, and `\TT{end}' encodes the position
 of the first character \underline{after} the phrase in the file.
 If the phrase is empty, {\tt begin == end}, and the position
-referenced by both `\verb|begin|' and `\verb|end|'
+referenced by both `\TT{begin}' and `\TT{end}'
 is the position of the empty phrase in the file.
 
 To print the line numbers of a phrase one can use the constructor:
@@ -9206,7 +9210,7 @@ To print a phrase one can use the function:
 \end{tabular}\end{indpar}
 
 The lines containing the phrase are printed, and under each phrase
-character a \verb|mark| is printed.  The lines are printed
+character a \TT{mark} is printed.  The lines are printed
 as per {\tt min::\EOL print\_\EOL line} using the
 {\tt blank\_\EOL line},
 {\tt end\_\EOL of\_\EOL file}, and
