@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 17, 2014}
+\date{April 18, 2014}
  
 \maketitle
 
@@ -3908,13 +3908,13 @@ the string value the pointer points at.
 
 The \TT{min::begin\_ptr\_of} function
 returns a \TT{min::ptr<const char>} pointer to
-the NUL-termin\-at\-ed vector of \TT{char}'s that is the string.
+the \TT{NUL}-termin\-at\-ed vector of \TT{char}'s that is the string.
 Its value can be implicitly converted to a `\TT{const char *}'
 that may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
 
 \TT{sp[i]} can be used to access the \TT{i+1}'st character of
-the NUL-terminated string.
+the \TT{NUL}-terminated string.
 There is no protection against the operator index
 being longer than the string length.
 
@@ -5793,7 +5793,7 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 \subsection{Files}
 \label{FILES}
 
-A MIN \key{file} is a sequence of UTF-8 encoded NUL-terminated
+A MIN \key{file} is a sequence of UTF-8 encoded \TT{NUL}-terminated
 lines plus descriptive information.  A {\tt min::}\MINKEY{file} value is a
 pointer to a packed structure that contains the descriptive information
 and also contains
@@ -5876,9 +5876,10 @@ modified by using the overlong 2-byte encoding of NUL, so that strings
 may both contain the NUL character (in the overlong encoding)
 and be NUL terminated.}
 and NUL terminated.
-A non-NUL-terminated, modified UTF-8
+A non-\TT{NUL}-terminated, modified UTF-8
 encoded, incomplete
-last line, called a \key{partial line}, may appear at the end of the buffer.
+last line, called a \key{partial line}\label{PARTIAL-LINE},
+may appear at the end of the buffer.
 
 Note that in general functions that load data into files do \underline{not}
 check for illegal UTF-8 encodings, and should not be used to load
@@ -6395,23 +6396,27 @@ into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}) and \TT{false} is returned.
 
 The \TT{min::init\_input\_stream} function does not load data into
-the file \TT{buffer}, but instead empties the \TT{buffer}
+the file \TT{buffer}, but instead initializes the file as per
+\TT{min::init\_input} with an empty \TT{buffer}
 and sets the file \TT{istream} member
-which causes \TT{min::\EOL next\_\EOL line} to load lines into the
-file from the \TT{istream} as new lines are required.  Similarly
+which causes the \TT{min::\EOL next\_\EOL line} function (see below)
+to load lines to the end of
+the file \TT{buffer}
+from \TT{istream} as new lines are required.  Similarly
 the \TT{min::\EOL init\_\EOL input\_\EOL file} function sets
 \TT{ifile} which causes \TT{min::\EOL next\_\EOL line} to load lines
-into the file from the \TT{ifile} as new lines are required.
+from \TT{ifile} as new lines are required.
 In both cases, \TT{file\_lines} is initialized
 to \TT{min::\EOL NO\_\EOL LINE}, and not changed until
 an end of file is read from \TT{istream} or \TT{ifile}, at which time
-\TT{file\_\EOL line} is set to the number of lines in the file.
-In both cases, \TT{file\_\EOL name} is set to \TT{min::\EOL MISSING()}.
-See \TT{min::\EOL next\_\EOL line} below for more details.
+\TT{file\_\EOL lines} is set to the number of lines in the file
+thereby marking the file as complete.
 
-Initializing a file rewinds it.  Then calls to
-\TT{min::\EOL next\_\EOL line} sequence through the file
-lines:
+Initializing a file with a \TT{min::\EOL init\_\EOL input\ldots} function
+sets \TT{next\_\EOL line\_\EOL number}
+and \TT{next\_\EOL line\_\EOL offset} to \TT{0}, thereby
+setting up the \TT{min::\EOL next\_\EOL line} function to
+sequence through file lines, beginning with the first line of the file:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{NO\_LINE}
@@ -6423,10 +6428,10 @@ lines:
 
 The \TT{min::\EOL next\_\EOL line} function returns an
 \TT{offset} such that the file \TT{buffer[offset]} element
-is the first character of the next NUL-terminated line.
+is the first character of the next \TT{NUL}-terminated line.
 If there is no such line, because we are at the end of the \TT{buffer},
 \TT{min::\EOL NO\_\EOL LINE} is returned instead.  In this case
-there may still be a non-NUL-terminated partial line at the end
+there may still be a non-\TT{NUL}-terminated partial line at the end
 of the file (see \pagref{PARTIAL-LINE}).
 
 A file is complete, in the sense the no more characters will be
@@ -6435,7 +6440,7 @@ the number of complete lines in the file, and is not equal to
 \TT{min::\EOL NO\_\EOL LINE}.  This can be tested by
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|bool min::|
     & \MINKEY{file\_\EOL is\_\EOL complete} \verb|( min::file file )|
 \LABEL{MIN::FILE_IS_COMPLETE} \\
 \end{tabular}\end{indpar}
@@ -6445,8 +6450,8 @@ If \TT{istream} is not \TT{NULL}, then when
 end of \TT{buffer} and the file is not complete,
 \TT{min::\EOL next\_\EOL line}
 reads from \TT{istream} and pushes the characters read to
-the end of \TT{buffer}, until a linefeed, NUL, or end of file
-is read.  Both linefeeds and NUL's invoke \TT{min::\EOL end\_\EOL line}
+the end of \TT{buffer}, until a linefeed, \TT{NUL}, or end of file
+is read.  Both linefeeds and \TT{NUL}'s invoke \TT{min::\EOL end\_\EOL line}
 to terminate the line.  If instead an end of file is read,
 the file is completed by setting
 \TT{file\_\EOL lines} to \TT{next\_\EOL line\_\EOL number},
@@ -6474,7 +6479,7 @@ and the file is completed when \TT{ifile} becomes complete.
 The file has the completeness property only if \TT{ifile} has
 this property.
 
-The paritial line\label{PARTIAL-LINE} that may be in the file when
+The paritial line (\pagref{PARTIAL-LINE}) that may be in the file when
 \TT{min::\EOL next\_\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
 can be returned by the functions:
 
@@ -6507,9 +6512,10 @@ to be equal to \TT{buffer->\EOL length} in order to
 prevent reprocessing the bytes.
 
 The \TT{min::skip\_remaining} function can have an undesirable
-interaction with the use of \TT{min::\EOL end\_\EOL line} to
-make an initial segment of a partial line into a complete line:
-see \pagref{SKIP_REMAINING_END_LINE}.  It also affects the next
+interaction with the use of the two argument \TT{min::\EOL end\_\EOL line}
+function (see below) to
+make an initial segment of a partial line into a complete line.
+It also affects the next
 call to \TT{min::\EOL next\_\EOL line}; specifically, if remaining
 bytes are skipped, then added to and made into a complete line,
 the next call to \TT{min::\EOL next\_\EOL line} will return that line as if
@@ -6531,12 +6537,36 @@ accessed by the functions:
 
 The \TT{min::\EOL partial\_\EOL length}
 function returns \TT{ buffer->\EOL length - end\_\EOL offset},
-the number of partial line bytes that have not
-been previously returned, and
+the total number of partial line bytes, and
 the \TT{min::\EOL partial\_\EOL offset} function returns
 \TT{end\_\EOL offset},
 the offset in the file buffer of the first of these bytes.
 Note that these bytes do \underline{not} end with \TT{NUL}.
+
+If the end of the \TT{buffer} contains a partial line,
+the following function may be used to split this into
+a complete line possibly followed by a shorter partial line:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{end\_line\RESIZE}\ARGBREAK
+          \verb|( min::file file,|\ARGBREAK
+	  \verb|  min::uns32 offset )|
+\LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
+\end{tabular}\end{indpar}
+
+This function sets \TT{buffer[offset]} to NUL, overwriting
+any previous \TT{char} value of this buffer element, and
+making this element the line-terminating NUL for an initial segment
+of the partial line at the end of the buffer.  The remainder of
+the partial line, if there is any, becomes the new partial line at the
+end of the buffer.
+
+Note that a partial line \underline{cannot}\label{SKIP_REMAINING_END_LINE}
+be split using the
+last function if \TT{min::\EOL skip\_\EOL remaining}
+(\pagref{MIN::SKIP_REMAINING}) has been used to skip past the
+\TT{offset} point where the NUL would be written.
 
 A main reason why the \TT{min::file} type exists is to allow lines
 previously returned by \TT{min::\EOL next\_\EOL line} to be retrieved
@@ -6565,7 +6595,8 @@ returns \TT{min::\EOL NO\_\EOL LINE}.
 Whether\label{LINE-INDEX-LENGTH}
 the required conditions are met depends upon
 the setting of \TT{spool\_\EOL lines}
-and possibly use of the \TT{min::\EOL flush\_\EOL spool} described below.
+and any use of the \TT{min::\EOL flush\_\EOL spool} or \TT{min::rewind}
+functions which are described below.
 
 If \TT{spool\_\EOL lines} equals \TT{0},
 \TT{line\_\EOL index} does not exist, and \TT{min::\EOL line}
@@ -6582,10 +6613,13 @@ and the above requirement reduces to
 \tt 0 <= line\_number < file->next\_line\_number
 \end{center}
 
-For other values of \TT{spool\_\EOL lines},
+For other values of \TT{spool\_\EOL lines}, which are useful
+if a very long input file is being read and some ability to
+look back a short ways is desired,
 \TT{line\_\EOL index} exists and
 \TT{line\_\EOL index->\EOL length} is a function of the history
-of calls to the function:
+of calls to the \TT{min::rewind} function (see below)
+and to the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -6598,14 +6632,21 @@ of calls to the function:
 This function deletes lines from the file buffer
 if there are more than \TT{spool\_\EOL lines}
 lines before the line of the given \TT{line\_\EOL number} in the buffer.
-If this condition is met, all lines before the one with the given
-\TT{line\_\EOL number} are deleted.  If the \TT{line\_\EOL number}
+If this condition is met, all lines before the one with number
+\begin{center}
+\tt max ( line\_number - spool\_lines, 0 )
+\end{center}
+are deleted from \TT{file->\EOL buffer} and \TT{file->\EOL line\_\EOL index}.
+If the \TT{line\_\EOL number}
 argument is omitted or equivalently given as \TT{min::\EOL NO\_\EOL LINE},
 it is replaced by \TT{next\_\EOL line\_\EOL number}.
-It is a programming error if
+It is required that
 \begin{center}
-\tt line\_number > file->next\_line\_number
+\tt 0 <= line\_number <= file->next\_line\_number
 \end{center}
+but it is never a programming error if \TT{line\_\EOL number} is within
+this range, even if no lines are deleted and even if \TT{spool\_\EOL lines}
+is \TT{0} and \TT{line\_\EOL index} does not exist.
 
 It is possible to `rewind' a file with the function:
 
@@ -6619,41 +6660,23 @@ It is possible to `rewind' a file with the function:
 
 This resets the next line that will be returned by
 \TT{min::\EOL next\_\EOL line} to some previously
-returned line.  \TT{min::rewind(n)} only succeeds if
-if \TT{n == 0} (the default),
-or if \TT{n == next\_\EOL line\_\EOL number}
-(in this case the rewind function does nothing),
-or if \TT{min::line(n)} would \underline{not} return
-\TT{min::\EOL NO\_\EOL LINE}.
-It is a \underline{programming} error
-for \TT{min::\EOL rewind} to fail.  Normally rewind with \TT{n > 0} is only
+returned line.  The file \TT{buffer} is not changed, but
+the file \TT{line\_\EOL index}, if it exists, may be truncated.
+
+\TT{min::rewind(n)} is in error if
+\TT{min::line(n)} would return \TT{min::\EOL NO\_\EOL LINE},
+(so line number \TT{n} has no entry in the file \TT{line\_\EOL index}),
+except for two special cases.
+The first special case is when \TT{n == next\_\EOL line\_\EOL number},
+in which case \TT{min::\EOL rewind(n)} does nothing.
+The second special case is when \TT{n == 0} (the default)
+and also \TT{spool\_\EOL lines == 0} (so that no lines have ever been
+deleted from the file), in which case the file is reset so the next
+line returned will be the first line of the file.
+
+Normally rewind with \TT{n > 0} is only
 used with files whose \TT{spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
-which eliminates the possibility of failure.
-
-If the last line in \TT{buffer} is a partial line,
-the following function may be used to split this into
-a complete line possibly followed by a shorter partial line:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{end\_line\RESIZE}\ARGBREAK
-          \verb|( min::file file,|\ARGBREAK
-	  \verb|  min::uns32 offset )|
-\LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
-\end{tabular}\end{indpar}
-
-This function sets \TT{buffer[offset]} to NUL, overwriting
-any previous \TT{char} value of this buffer element, and
-making this element the line-terminating NUL for an initial segment
-of the partial line at the end of the buffer.  The remainder of
-the partial line, if there is any, becomes the new partial line at the
-end of the buffer.
-
-Note that a partial line \underline{cannot}\label{SKIP_REMAINING_END_LINE}
-be split using the
-last function if \TT{min::\EOL skip\_\EOL remaining}
-(\pagref{MIN::SKIP_REMAINING}) has been used to skip past the
-\TT{offset} point where the NUL would be written.
+which eliminates the possibility of error.
 
 The following function is used to copy or `flush' the lines in a file
 to any \TT{ostream}, \TT{ofile}, and/or \TT{printer}
@@ -6674,8 +6697,9 @@ file, and calls \TT{min::\EOL skip\_\EOL remaining}
 (\pagref{MIN::SKIP_REMAINING}) to skip over this partial line
 (so it will be invisible to subsequent calls to
 \TT{min::\EOL next\_\EOL line}).
-Lastly, if the \TT{copy\_\EOL completion} argument is \TT{true} and
-the file has an \TT{ofile}, the \TT{min::\EOL complete\_\EOL file}
+Lastly, if the \TT{copy\_\EOL completion} argument is \TT{true},
+if the file is complete, and
+if the file has an \TT{ofile}, the \TT{min::\EOL complete\_\EOL file}
 function is called for \TT{ofile} to mark that file as being complete.
 
 The flushing sub-actions of \TT{min::flush\_file} are available by using
@@ -6700,15 +6724,15 @@ bytes in the partial line
 at the end of the file
 to any \TT{ostream}, \TT{ofile}, and/or
 \TT{printer}.
-Note that neither of these functions calls \TT{min::\EOL next\_\EOL line}
-or \TT{min::\EOL skip\_\EOL remaining}.
+Note that neither of these functions calls \TT{min::\EOL next\_\EOL line},
+\TT{min::\EOL skip\_\EOL remaining}, or \TT{min::\EOL complete\_\EOL file}.
 
 \underline{None} of
 the \TT{min::\EOL flush\_file/\EOL line/\EOL remaining}
 functions call \TT{min::\EOL flush\_\EOL spool}.
 
 The following \TT{<{}<} operators do the same thing as
-{min::\EOL flush\_\EOL line} except that, instead of copying
+\TT{min::\EOL flush\_\EOL line} except that, instead of copying
 to the file's \TT{ostream}, \TT{ofile}, and/or
 \TT{printer}, they copy to their lefthand operand:
 
@@ -6740,6 +6764,8 @@ these \TT{<{}<} operators interact with each other and with the
 \TT{min::\EOL flush\_\EOL file} function.  Generally such interaction
 is avoided by using only one of the \TT{<{}<} operators or only
 the \TT{min::\EOL flush\_\EOL file} function on a given file.
+Also note that the \TT{<{}<} operators never
+call \TT{min::\EOL complete\_\EOL file}.
 
 \subsection{Identifier Maps}
 \label{IDENTIFIER-MAPS}
