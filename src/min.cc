@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 18 20:52:35 EDT 2014
+// Date:	Sat Apr 19 07:07:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1339,7 +1339,7 @@ int min::strncmp
 min::gen MINT::new_str_stub_gen
 	( min::ptr<const char> p, min::unsptr n )
 {
-    uns32 hash = strnhash ( p, n );
+    uns32 hash = strnhash ( ! p, n );
     uns32 h = hash & MINT::str_hash_mask;
     const char * q;
 
@@ -1350,7 +1350,7 @@ min::gen MINT::new_str_stub_gen
 
         if (    n <= 8
 	     && type_of ( s ) == SHORT_STR
-	     && ::strncmp ( p, s->v.c8, n ) == 0
+	     && ::strncmp ( ! p, s->v.c8, n ) == 0
 	     && (    n == 8
 	          || s->v.c8[n] == 0 ) )
 	{
@@ -1362,10 +1362,10 @@ min::gen MINT::new_str_stub_gen
 	else if (    n > 8
 	          && type_of ( s ) == LONG_STR
 	          && ::strncmp
-		       ( p, q = MUP::str_of (
+		       ( ! p, q = MUP::str_of (
 			            MUP::long_str_of
 				        ( s ) ),
-			    n )
+			 n )
 		     == 0
 		  && q[n] == 0 )
 	{
@@ -1388,7 +1388,7 @@ min::gen MINT::new_str_stub_gen
 
         if (    n <= 8
 	     && type_of ( s2 ) == SHORT_STR
-	     && ::strncmp ( p, s2->v.c8, n ) == 0
+	     && ::strncmp ( ! p, s2->v.c8, n ) == 0
 	     && (    n == 8
 	          || s2->v.c8[n] == 0 ) )
 	{
@@ -1401,10 +1401,10 @@ min::gen MINT::new_str_stub_gen
 	else if (    n > 8
 	          && type_of ( s2 ) == LONG_STR
 	          && ::strncmp
-		       ( p, q = MUP::str_of (
+		       ( ! p, q = MUP::str_of (
 			            MUP::long_str_of
 				        ( s2 ) ),
-			    n )
+			  n )
 		     == 0
 		  && q[n] == 0 )
 	{
@@ -1421,7 +1421,7 @@ min::gen MINT::new_str_stub_gen
     {
 	MUP::set_type_of ( s2, SHORT_STR );
 	s2->v.u64 = 0;
-	::strncpy ( s2->v.c8, p, n );
+	::strncpy ( s2->v.c8, ! p, n );
     }
     else
     {
@@ -1439,7 +1439,8 @@ min::gen MINT::new_str_stub_gen
 	* (min::uns64 *)
 	  ( MUP::str_of(ls) + n - n % 8 ) = 0;
 
-	::strncpy ( (char *) MUP::str_of ( ls ), p, n );
+	::strncpy
+	    ( (char *) MUP::str_of ( ls ), ! p, n );
     }
 
     s = MUP::new_aux_stub ();
@@ -1656,7 +1657,7 @@ min::uns32 min::labhash
 min::gen min::new_lab_gen
 	( min::ptr<const min::gen> p, min::uns32 n )
 {
-    uns32 hash = labhash ( p, n );
+    uns32 hash = labhash ( ! p, n );
     uns32 h = hash & MINT::lab_hash_mask;
 
     // Search for existing label stub with given
@@ -1716,7 +1717,7 @@ min::gen min::new_lab_gen
     MINT::lab_header * lh = MINT::lab_header_of ( s2 );
     lh->length = n;
     lh->hash = hash;
-    memcpy ( lh + 1, p, n * sizeof ( min::gen ) );
+    memcpy ( lh + 1, ! p, n * sizeof ( min::gen ) );
 
     s = MUP::new_aux_stub ();
     MUP::set_ptr_of ( s, s2 );
@@ -1936,7 +1937,7 @@ void min::load_string
 {
     MIN_ASSERT ( ! min::file_is_complete ( file ) );
 
-    uns64 length = ::strlen ( string );
+    uns64 length = ::strlen ( ! string );
     uns32 offset = file->buffer->length;
     assert ( length < ( 1ull << 32 ) - 1 - offset );
 
@@ -1980,7 +1981,8 @@ bool min::load_named_file
     char error_buffer[512];
     uns64 file_size;
     if ( ! min::os::file_size
-               ( file_size, min::begin_ptr_of ( fname ),
+               ( file_size,
+	         ! min::begin_ptr_of ( fname ),
 	         error_buffer ) )
     {
 	ERR << "During attempt to find the size of"
@@ -2005,7 +2007,7 @@ bool min::load_named_file
     // while open/read is OS dependent.
 
     FILE * in =
-        fopen ( min::begin_ptr_of ( fname ), "r" );
+        fopen ( ! min::begin_ptr_of ( fname ), "r" );
 
     if ( in == NULL )
     {
@@ -2413,7 +2415,7 @@ void min::flush_line
     assert ( offset < file->end_offset );
 
     if ( file->ostream != NULL )
-        * file->ostream << file->buffer + offset
+        * file->ostream << ! ( file->buffer + offset )
 	                << std::endl;
 
     if ( file->ofile != NULL_STUB )
@@ -4968,7 +4970,7 @@ void min::reorganize
 	  vp.aux_offset_flags );
 
     memcpy ( (min::gen *) newb + header_size,
-             & var ( vp, 0 ),
+             ! & var ( vp, 0 ),
 	       ( unused_offset - header_size )
 	     * sizeof ( min::gen ) );
     memset ( (min::gen *) newb + unused_offset,
@@ -7674,7 +7676,9 @@ min::printer operator <<
     case min::op::PUNICODE2:
 	return MINT::print_unicode
 	    ( printer, op.v1.uptr,
-		(const min::uns32 *) op.v2.p );
+		MUP::new_ptr<const min::uns32>
+		    ( (const min::stub *) op.v2.p,
+		      op.v3.uptr ) );
     case min::op::PINT:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
@@ -7761,7 +7765,7 @@ min::printer operator <<
 		// code contains relocatable pointers.
 
 	        const char * p =
-		    min::end_ptr_of ( buffer );
+		    ! min::end_ptr_of ( buffer );
 		const char * q = p;
 		if ( p[-1] != 0 ) while ( true )
 		{
@@ -8372,14 +8376,15 @@ min::printer operator <<
 min::printer operator <<
 	( min::printer printer, min::ptr<const char> s )
 {
-    min::unsptr length = strlen ( s ) + 1;
-    MIN_STACK_COPY ( char, buffer, length, s );
+    min::unsptr length = strlen ( ! s ) + 1;
+    MIN_STACK_COPY ( char, buffer, length, ! s );
     return printer << buffer;
 }
 
 min::printer MINT::print_unicode
 	( min::printer printer,
-	  min::unsptr n, const min::uns32 * str )
+	  min::unsptr n,
+	  min::ptr<const min::uns32> str )
 {
     uns32 flags = printer->print_format.flags;
     uns32 line_length = printer->line_break.line_length;
@@ -9680,6 +9685,11 @@ static T pgen_exp
 
 // Execute min::pgen for output type T.
 //
+std::ostream & operator <<
+        ( std::ostream & s, min::ptr<const char> p )
+{
+    return s << ! p;
+}
 template < typename T >
 static T pgen
 	( T out,
