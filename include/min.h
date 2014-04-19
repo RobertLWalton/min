@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 18 22:33:07 EDT 2014
+// Date:	Sat Apr 19 06:26:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2701,6 +2701,10 @@ namespace min {
 	    ( const min::stub * s, T * location );
 
 	template < typename T >
+	min::ptr<T> new_ptr
+	    ( const min::stub * s, min::unsptr offset );
+
+	template < typename T >
 	min::ref<T> new_ref
 	    ( const min::stub * s, T const & location );
     }
@@ -2749,11 +2753,6 @@ namespace min {
 
 	    const min::stub * const s;
 	    const min::unsptr offset;
-
-	    operator T * ( void ) const
-	    {
-		return location();
-	    }
 
 	    T * operator -> ( void ) const
 	    {
@@ -2814,6 +2813,11 @@ namespace min {
 	    return * this;
 	}
 
+	T * operator ! ( void ) const
+	{
+	    return this->location();
+	}
+
     private:
 
 	ptr ( const min::stub * s,
@@ -2822,6 +2826,8 @@ namespace min {
 
 	friend min::ptr<T> unprotected::new_ptr<T>
 	    ( const min::stub * s, T * location );
+	friend min::ptr<T> unprotected::new_ptr<T>
+	    ( const min::stub * s, min::unsptr offset );
 	friend min::ptr<T> operator &<>
 	    ( const min::ref<T> & r );
 	friend class internal::ptr_base<T>;
@@ -3030,6 +3036,11 @@ namespace min {
 	    return * this;
 	}
 
+	min::gen * operator ! ( void ) const
+	{
+	    return this->location();
+	}
+
     private:
 
 	ptr ( const min::stub * s,
@@ -3041,6 +3052,10 @@ namespace min {
 	    unprotected::new_ptr<min::gen>
 		( const min::stub * s,
 		  min::gen * location );
+	friend min::ptr<min::gen>
+	    unprotected::new_ptr<min::gen>
+		( const min::stub * s,
+		  min::unsptr offset );
 	friend min::ptr<min::gen> operator &<>
 	    ( const min::ref<min::gen> & r );
 	friend class internal::ptr_base<min::gen>;
@@ -3078,6 +3093,11 @@ namespace min {
 	    return * this;
 	}
 
+	const min::stub ** operator ! ( void ) const
+	{
+	    return this->location();
+	}
+
     private:
 
 	ptr ( const min::stub * s,
@@ -3089,6 +3109,10 @@ namespace min {
 	    unprotected::new_ptr<const min::stub *>
 		( const min::stub * s,
 		  const min::stub ** location );
+	friend min::ptr<const min::stub *>
+	    unprotected::new_ptr<const min::stub *>
+		( const min::stub * s,
+		  min::unsptr offset );
 	friend min::ptr<const min::stub *> operator &<>
 	    ( const min::ref<const min::stub *> & r );
 	friend class
@@ -3107,6 +3131,13 @@ namespace min {
     T buffer[length]; \
     memcpy ( buffer, (T const *) (source), \
              sizeof ( T ) * (length) )
+ 
+    template < typename T >
+    inline min::ptr<T> unprotected::new_ptr
+        ( const min::stub * s, min::unsptr offset )
+    {
+        return min::ptr<T> ( s, offset );
+    }
  
     template < typename T >
     inline min::ptr<T> unprotected::new_ptr
@@ -3455,6 +3486,10 @@ namespace min { \
 	    return * this; \
 	} \
 	\
+	T * operator ! ( void ) const \
+	{ \
+	    return this->location(); \
+	} \
     private: \
 	\
 	ptr ( const min::stub * s, \
@@ -3464,6 +3499,9 @@ namespace min { \
 	friend min::ptr< T > unprotected::new_ptr< T > \
 	    ( const min::stub * s, \
 	      T * location ); \
+	friend min::ptr< T > unprotected::new_ptr< T > \
+	    ( const min::stub * s, \
+	      min::unsptr offset ); \
 	friend min::ptr< T > operator &<> \
 	    ( const min::ref< T > & r ); \
 	friend class internal::ptr_base< T >; \
@@ -3718,7 +3756,7 @@ namespace min { \
     { \
 	if ( pvip->length >= pvip->max_length ) \
 	    pvip.reserve ( 1 ); \
-	T * p = end_ptr_of ( pvip ); \
+	T * p = ! end_ptr_of ( pvip ); \
 	* (const min::stub **) p = NULL; \
 	++ * (MIN_TYPE_L *) & pvip->length; \
 	return unprotected::new_ref ( pvip, * p ); \
@@ -3735,8 +3773,8 @@ namespace min { \
 	if ( pvip->length + n > pvip->max_length ) \
 	    pvip.reserve ( n ); \
 	const min::stub ** p = \
-	    (const min::stub **) (T *) \
-	    end_ptr_of ( pvip ); \
+	    (const min::stub **) \
+	    ! end_ptr_of ( pvip ); \
 	if ( vp ) \
 	{ \
 	    memcpy ( p, vp, n * sizeof ( T ) ); \
@@ -3759,8 +3797,8 @@ namespace min { \
 	if ( pvip->length + n > pvip->max_length ) \
 	    pvip.reserve ( n ); \
 	const min::stub ** p = \
-	    (const min::stub **) (T *) \
-	    end_ptr_of ( pvip ); \
+	    (const min::stub **) \
+	    ! end_ptr_of ( pvip ); \
 	memcpy ( p, vp, n * sizeof ( T ) ); \
 	unprotected::acc_write_update \
 	    ( pvip, p, n ); \
@@ -4335,11 +4373,11 @@ namespace min {
 #	if MIN_IS_COMPACT
 		if ( n <= 3 )
 		    return unprotected::
-			   new_direct_str_gen ( p, n );
+			   new_direct_str_gen ( ! p, n );
 #	elif MIN_IS_LOOSE
 		if ( n <= 5 )
 		    return unprotected::
-			   new_direct_str_gen ( p, n );
+			   new_direct_str_gen ( ! p, n );
 #	endif
 	    return internal::new_str_stub_gen ( p, n );
 	}
@@ -4362,14 +4400,14 @@ namespace min {
 	    ( min::ptr<const char> p )
     {
 	return internal::new_str_gen
-	    ( p, ::strlen ( p ) );
+	    ( p, ::strlen ( ! p ) );
     }
 
     inline min::gen new_str_gen
             ( min::ptr<const char> p, min::unsptr n )
     {
         return internal::new_str_gen
-	    ( p, internal::strnlen ( p, n ) );
+	    ( p, internal::strnlen ( ! p, n ) );
     }
 
     // Compensate for the lack of implicit conversion
@@ -4380,7 +4418,7 @@ namespace min {
     {
 	return internal::new_str_gen
 	    ( (min::ptr<const char>) p,
-	      ::strlen ( p ) );
+	      ::strlen ( ! p ) );
     }
 
     inline min::gen new_str_gen
@@ -4388,7 +4426,7 @@ namespace min {
     {
         return internal::new_str_gen
 	    ( (min::ptr<const char>) p,
-	      internal::strnlen ( p, n ) );
+	      internal::strnlen ( ! p, n ) );
     }
 
     min::gen new_str_gen
@@ -4403,7 +4441,7 @@ namespace min {
 	      min::unsptr n )
     {
         return new_str_gen
-	    ( (const min::uns32 *) p, n );
+	    ( ! p, n );
     }
 
     // Compensate for the lack of implicit conversion
@@ -4414,7 +4452,7 @@ namespace min {
 	      min::unsptr n )
     {
         return new_str_gen
-	    ( (const min::uns32 *) p, n );
+	    ( ! p, n );
     }
 
     // UTF-8 Conversion Functions
@@ -6149,7 +6187,7 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	E * p = end_ptr_of ( pvip );
+	E * p = ! end_ptr_of ( pvip );
 	memset ( p, 0, sizeof ( E ) );
 	++ * (L *) & pvip->length;
 	return * p;
@@ -6161,7 +6199,7 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	min::gen * p = end_ptr_of ( pvip );
+	min::gen * p = ! end_ptr_of ( pvip );
 	new ( p ) min::gen();
 	++ * (L *) & pvip->length;
 	return unprotected::new_ref ( pvip, * p );
@@ -6174,7 +6212,7 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	const min::stub ** p = end_ptr_of ( pvip );
+	const min::stub ** p = ! end_ptr_of ( pvip );
 	* p = NULL_STUB;
 	++ * (L *) & pvip->length;
 	return unprotected::new_ref ( pvip, * p );
@@ -6187,7 +6225,7 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	E * p = end_ptr_of ( pvip );
+	E * p = ! end_ptr_of ( pvip );
 	if ( vp )
 	    memcpy ( p, vp, n * sizeof ( E ) );
 	else
@@ -6203,7 +6241,7 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	min::gen * p = end_ptr_of ( pvip );
+	min::gen * p = ! end_ptr_of ( pvip );
 	if ( vp )
 	{
 	    memcpy ( p, vp, n * sizeof ( min::gen ) );
@@ -6225,7 +6263,7 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	const min::stub ** p = end_ptr_of ( pvip );
+	const min::stub ** p = ! end_ptr_of ( pvip );
 	if ( vp )
 	{
 	    memcpy ( p, vp,
@@ -6246,8 +6284,8 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	E * p = end_ptr_of ( pvip );
-	memcpy ( p, vp, n * sizeof ( E ) );
+	E * p = ! end_ptr_of ( pvip );
+	memcpy ( p, ! vp, n * sizeof ( E ) );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -6266,8 +6304,8 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	min::gen * p = end_ptr_of ( pvip );
-	memcpy ( p, vp, n * sizeof ( min::gen ) );
+	min::gen * p = ! end_ptr_of ( pvip );
+	memcpy ( p, ! vp, n * sizeof ( min::gen ) );
 	unprotected::acc_write_update ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
@@ -6282,8 +6320,8 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	const min::stub ** p = end_ptr_of ( pvip );
-	memcpy ( p, vp,
+	const min::stub ** p = ! end_ptr_of ( pvip );
+	memcpy ( p, ! vp,
 		 n * sizeof ( const min::stub * ) );
 	unprotected::acc_write_update ( pvip, p, n );
 	* (L *) & pvip->length += n;
@@ -6305,7 +6343,7 @@ namespace min {
 	* (L *) & pvip->length -= n;
 	if ( vp )
 	    memcpy ( vp,
-		     end_ptr_of ( pvip ),
+		     ! end_ptr_of ( pvip ),
 		     n * sizeof ( E ) );
     }
 
@@ -11605,11 +11643,12 @@ namespace min {
 	    : opcode ( opcode ) { v1.i32 = i; }
 	op ( op::OPCODE opcode,
 	     min::unsptr length,
-	     const uns32 * buffer )
+	     min::ptr<const uns32> buffer )
 	    : opcode ( opcode )
 	{
 	    v1.uptr = length;
-	    v2.p = (void *) buffer;
+	    v2.p = (void *) buffer.s;
+	    v3.uptr = buffer.offset;
 	}
 	op ( op::OPCODE opcode,
 	     min::int64 i,
@@ -11672,9 +11711,17 @@ namespace min {
 
     inline op punicode
 	    ( min::unsptr length,
-	      const min::uns32 * str )
+	      min::ptr<const min::uns32> str )
     {
         return op ( op::PUNICODE2, length, str );
+    }
+
+    inline op punicode
+	    ( min::unsptr length,
+	      const min::uns32 * str )
+    {
+        return op ( op::PUNICODE2, length,
+	            min::new_ptr ( str ) );
     }
 
     inline op pint
@@ -11804,7 +11851,17 @@ namespace min {
 
         min::printer print_unicode
 		( min::printer printer,
-		  min::unsptr n, const min::uns32 * p );
+		  min::unsptr n,
+		  min::ptr<const min::uns32> p );
+
+        inline min::printer print_unicode
+		( min::printer printer,
+		  min::unsptr n,
+		  const min::uns32 * p )
+	{
+	    return print_unicode
+	        ( printer, n, min::new_ptr ( p ) );
+	}
     }
 
     inline void pwidth
