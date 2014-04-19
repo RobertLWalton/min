@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 17 01:43:18 EDT 2014
+// Date:	Fri Apr 18 20:52:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2093,8 +2093,7 @@ min::uns32 min::next_line ( min::file file )
 
 	    if ( c == EOF )
 	    {
-	        file->file_lines =
-		    file->next_line_number;
+		min::complete_file ( file );
 	        return min::NO_LINE;
 	    }
 	}
@@ -2105,33 +2104,29 @@ min::uns32 min::next_line ( min::file file )
 
 	    if ( ioffset == min::NO_LINE )
 	    {
-		ioffset = ifile->next_offset;
-		uns32 length = ifile->buffer->length
-			     - ioffset;
+		ioffset =
+		    min::remaining_offset ( ifile );
+		uns32 length =
+		    min::remaining_length ( ifile );
 	        if ( length > 0 )
 		{
 		    min::push
-			( file->buffer, length,
-			  & ifile->buffer[ioffset] );
-		    ifile->next_offset =
-		        ifile->buffer->length;
+		        ( file->buffer, length,
+			  ifile->buffer + ioffset );
+		    min::skip_remaining ( ifile );
 		}
-
-	        file->file_lines =
-		    file->next_line_number;
+		if ( min::file_is_complete ( ifile ) )
+		    min::complete_file ( file );
 		return min::NO_LINE;
 	    }
 
 	    uns32 length =
 		::strlen ( & ifile->buffer[ioffset] );
 	    min::push ( file->buffer, length,
-	                & ifile->buffer[ioffset] );
+	                ifile->buffer + ioffset );
 	}
 	else
-	{
-	    file->file_lines = file->next_line_number;
 	    return min::NO_LINE;
-	}
 
 	min::end_line ( file );
     }
@@ -2418,22 +2413,23 @@ void min::flush_line
     assert ( offset < file->end_offset );
 
     if ( file->ostream != NULL )
-        * file->ostream << & file->buffer[offset]
+        * file->ostream << file->buffer + offset
 	                << std::endl;
 
     if ( file->ofile != NULL_STUB )
     {
+	min::file ofile = file->ofile;
         uns32 length =
 	    ::strlen ( & file->buffer[offset] );
-	min::push ( file->ofile->buffer, length,
-	            & file->buffer[offset] );
-	min::end_line ( file->ofile );
+	min::push ( ofile->buffer, length,
+	            file->buffer + offset );
+	min::end_line ( ofile );
     }
 
     if ( file->printer != NULL_STUB )
         file->printer << min::save_print_format
 		      << min::verbatim
-		      << & file->buffer[offset]
+		      << file->buffer + offset
 		      << min::restore_print_format
 		      << min::eol;
 }

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 17 01:42:26 EDT 2014
+// Date:	Fri Apr 18 22:33:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6249,6 +6249,13 @@ namespace min {
 	E * p = end_ptr_of ( pvip );
 	memcpy ( p, vp, n * sizeof ( E ) );
 	* (L *) & pvip->length += n;
+    }
+    template < typename E, typename H, typename L >
+    inline void push
+	( typename min::packed_vec_insptr<E,H,L> pvip,
+	  min::unsptr n, min::ptr<E> vp )
+    {
+        push ( pvip, n, (min::ptr<const E>) vp );
     }
     template < typename H, typename L >
     inline void push
