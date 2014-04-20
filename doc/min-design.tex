@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 18, 2014}
+\date{April 20, 2014}
  
 \maketitle
 
@@ -1773,8 +1773,8 @@ The functions for creating and using reference types are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T & |
-    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref<T>}}
+\verb|T |
+    & \TTOMKEY{T}{T}{of {\tt min::ref<T>}}
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
@@ -1830,10 +1830,12 @@ of type \TT{T} stores the value in the location.  Setting a reference
 \underline{not} copy the internal pointers, but instead copies the
 value at the \TT{r2} location to the \TT{r} location.
 
-A \TT{min::ref<T>} value is implicitly convertible to the type \TT{T \&}.
+A \TT{min::ref<T>} value is implicitly convertible to the type \TT{T}
+by reading the value referenced.
 As this implicit conversion
 is not activated by C++ in the case of an expression of the form
-`\TT{r->\ldots}', `\TT{operator~->}' of a \TT{min::\EOL ref<T>}
+`\TT{r->\ldots}'\label{REF->},
+`\TT{operator~->}' of a \TT{min::\EOL ref<T>}
 argument is defined to invoke the conversion explicitly.
 Similarly for \TT{operator ==} and \TT{operator !=}.
 In addition, these are defined to make the conversion when
@@ -1843,6 +1845,15 @@ second argument is of this latter type, so that expressions such as
 \tt r == min::NULL\_STUB
 \end{center}
 can be used.
+
+The implicit conversion of a \TT{min::\EOL ref<T>} value \TT{r} to a \TT{T}
+value is \underline{not} activated by the C++ `\TT{.}' operator,
+so if \TT{T} is a structure type with member \TT{m}, then \TT{r.m}
+fails.  One must use \TT{(\&r)->m} instead, which works because
+the `\TT{->}' operator has been defined for \TT{min::\EOL ptr<T>}
+values (see \pagref{PTR->}).
+Unfortunately C++ does not allow a similar definition for the
+`\TT{.}' operator.
 
 \TT{min::ref<T>} values are returned by protected functions described
 elsewhere:
@@ -1912,7 +1923,11 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T * location )|
-\LABEL{MUP::NEW_PTR} \\
+\LABEL{MUP::NEW_PTR_OF_LOCATION} \\
+\verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr<T>}\ARGBREAK
+    \verb|( const min::stub * s,|\ARGBREAK
+    \verb|  min::unsptr offset )|
+\LABEL{MUP::NEW_PTR_OF_OFFSET} \\
 \verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
     \verb|( T * location )|
 \LABEL{MIN::NEW_PTR} \\
@@ -1951,27 +1966,21 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| \TT{const}
-                     or \verb|T| is \underline{not} locatable]
+\verb|min::ref<T> | & \verb|p|\TTBMKEY{i}{of {\tt min::ptr}}
 \LABEL{MIN::PTR_[]} \\
-\verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| \underline{not} \TT{const}
-                     and \verb|T| is locatable]
-\LABEL{MIN::PTR_TO_STUB_[]} \\
-\verb|min::ptr<T> p|
-    & \TTMOKEY{+}{of {\tt min::ptr}}\verb|i|
+\verb|min::ptr<T> |
+    & \verb|p|\TTMOKEY{+}{of {\tt min::ptr}}\verb|i|
 \LABEL{MIN::PTR_+} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}ll}
 \verb|T * |
-	& \TTOMKEY{T *}{T *}{of {\tt min::ptr<T>}}
-	  \verb|( const min::ptr<T> & p )|
-\LABEL{MIN::T*_OF_PTR} \\
+	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}
+	  \verb|( const min::ptr<T> & p )| & [unprotected]
+\LABEL{MIN::!_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}
-	   \verb|( const min::ptr<S> & p )| ~~~~~ [unprotected]
+	   \verb|( const min::ptr<S> & p )| & [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -1984,10 +1993,14 @@ copies the pointer itself; i.e., the pointer to the stub and the offset.
 
 Another difference is the if a \TT{min::\EOL ref<T>} value \TT{r}
 designates a location \TT{v} containing a \TT{T} value, then
-\TT{r->\ldots} is equivalent to \TT{v->\ldots}.
+\TT{r->\ldots}\label{PTR->} is equivalent to \TT{v->\ldots}.
 But if a \TT{min::\EOL ptr<T>} value \TT{p}
 points at location \TT{v} containing a \TT{T}, then
 \TT{p->\ldots} is equivalent to \TT{(\&v)->\ldots}.
+This is because
+the \TT{->} operator has been defined for \TT{min::\EOL ptr<T>}
+types to return \TT{\&v}, but for \TT{min::\EOL ref<T>} types
+it returns \TT{v} (see \pagref{REF->}).
 
 A \TT{min::\EOL ptr<T>} value can be created by applying the
 \TT{\&} operator to a \TT{min::\EOL ref<T>} value or to a
@@ -2000,11 +2013,17 @@ pointer value by applying the
 A \TT{min::\EOL ptr<T>} value can also be created by the
 unprotected \TT{MUP::\EOL new\_\EOL ptr} function which
 constructs a \TT{min::\EOL ptr<T>} value
-from a pointer \TT{s} to a stub and a pointer to
-within the body associated with that stub.
+from a pointer \TT{s} to a stub and either a pointer to
+within the body associated with that stub, or an offset
+relative to the beginning of that body.
 However, unlike \TT{MUP::\EOL new\_\EOL ref},
 the location pointed at within a body may not be \TT{const} unless \TT{T} is
-\TT{const}.
+\TT{const}.  Also unlike \TT{MUP::\EOL new\_\EOL ref}, an offset
+can be given instead of a pointer to within the body, but
+then the type \TT{T} must be included in the function name,
+which is \TT{MUP::\EOL new\_\EOL ptr<T>}
+and not just \TT{MUP::\EOL new\_\EOL ptr}, as \TT{T} cannot
+be deduced from the argument types.
 
 A \TT{min::\EOL ptr<T>} value can be created by the
 protected \TT{min::\EOL new\_\EOL ptr} function from
@@ -2013,65 +2032,46 @@ in static or stack memory.
 
 Given a \TT{min::\EOL ptr<T>} value \TT{p} and an index \TT{i} of some
 suitable index type \TT{I} (such as \TT{int} or \TT{min::\EOL uns32}),
-\TT{p[i]} is a `\TT{T \&}' or `\TT{min::\EOL ref<T>}'
+\TT{p[i]} is a \TT{min::\EOL ref<T>}
 reference value for the \TT{i+1}'st element of
 the vector with elements of type \TT{T} pointed at by \TT{p}, and
 \TT{p+i} is a \TT{min::\EOL ptr<T>} pointer to that element.
 
-If \TT{T} is \TT{const} or is not a locatable value type
-(\pagref{LOCATABLE-VALUE}), then
-\TT{p[i]} is only a `\TT{T \&}' reference, and
-\underline{not} a \TT{min:\EOL ref<T>} reference.  As such it is
-in effect an unprotected body pointer that will become undefined whenever
-a relocatable function is called.
-However, if \TT{T} is locatable and not \TT{const},
-it may contain a \TT{min::gen} or `\TT{const min::\EOL stub *}' value,
-and therefore cannot be simply written using a
-`\TT{T \&}' reference
-without calling a \TT{min::\EOL acc\_\EOL write\_\EOL update} function
-explicitly.
-However, it can be written using a
-\TT{min::\EOL ref<T>} reference,
-which will call the \TT{min::\EOL acc\_\EOL write\_\EOL update} function
-implicitly,
-so a \TT{min::\EOL ref<T>} reference is returned by \TT{p[i]} if
-\TT{T} is locatable and not `\TT{const}'.
+Because \TT{p[i]} has type \TT{min::\EOL ref<T>} when \TT{p} has
+type \TT{min::\EOL ptr<T>}, the expression \TT{p[i].m} fails when
+\TT{T} is a structure type with member \TT{m} (see \pagref{REF->}).
+In this case it is
+necessary to use the alternative but usually equivalent expression
+\TT{(\&p[i])->m}, which is undeniably awkward.
 
-One might ask whether \TT{p[i]} should always have a \TT{min::\EOL ref<T>}
-reference value, and why it should ever have a `\TT{T \&}' reference
-value.  The answer is that if \TT{T} is a structure type with a member
-\TT{m}, then \TT{p[i].m} will not work if \TT{p[i]} has type
-\TT{min::\EOL ref<T>}, but it will work if \TT{p[i]} has type
-`\TT{T \&}'.  This is unfortunate, but we must deal with this as best
-we can.  (Ideally C++ would have an `\TT{operator .}' which better
-enables non-standard reference types just as
-`\TT{operator ->}' better enables non-standard pointer types).
-When \TT{T} is itself a non-\TT{const}
-pointer value, such as a \TT{min::gen} or
-`\TT{const min::\EOL stub~*}' value, then it is perfectly alright
-to have \TT{p[i]} be a \TT{min::\EOL ref<T>} reference, and in
-fact it is even more desirable since writing the pointer value
-needs to implicitly call \TT{min::\EOL acc\_\EOL write\_\EOL update}.
-So we make it a rule that the \TT{[\,]} operator returns a
-\TT{min::ref<T>} value only in the case that \TT{T} is
-\TT{min::\EOL gen} or is convertible to `\TT{const min::\EOL stub~*}',
-and \TT{T} is not \TT{const}.
+This is an unfortunate tradeoff between making the
+the value of \TT{p[i]} protected from relocation
+but harder to use when \TT{T} is a structure type of a vector element,
+and the alternative of making the value of \TT{p[i]}
+the type `\TT{T \&}', which would allow \TT{p[i].m}
+to work properly, but which contains an unprotected relocatable pointer.
+Unfortunately C++ does not permit definitions of `\TT{operator .}' in
+the manner that it permits definitions of `\TT{operator ->}', or else
+this awkwardness would not arise.
 
-An important consequence of this rule is that an expression such as
-\TT{\& p[i]} usually returns an unprotected relocatable pointer which can only
-be used temporarily.  Unless the value pointed at is locatable
-and not \TT{const}, such an expression is best used only as a source
-argument for functions like C++ \TT{memcpy} or \TT{strlen}.
-
-A pointer of type \TT{min::ptr<T>} can be implicitly converted to a
-pointer of type `\TT{T*}' when used as a function argument.
+A pointer of type \TT{min::ptr<T>} can be \underline{explicitly} converted
+to an unprotected relocatable
+pointer of type `\TT{T*}' by the unary `\TT{!}' operator.
 This can be of use in code such as
 \begin{indpar}\begin{verbatim}
 ptr<char> s = ...;
-int length = strlen ( s );
+int length = strlen ( ! s );
 char buffer[length+1];
-strcpy ( buffer, s );
+strcpy ( buffer, ! s );
 \end{verbatim}\end{indpar}
+
+In this case the value of the unary `\TT{!}' is a pointer \underline{not}
+protected from relocation, so its only good use is to pass it to a
+function such as \TT{strlen} or \TT{strcpy} which will not relocate
+anything.  One must be careful that other arguments in the same statement
+do not perform relocation, as then with the wrong optimized
+order of argument evaluation `\TT{!}' can be performed just before a
+relocation and its result used just afterwords.
 
 If \TT{p} is of type \TT{min::ptr<S>}, then \TT{min::ptr<T>(p)} is just
 \TT{p} coerced to the type \TT{min::\EOL ptr<T>} without any change to the
@@ -3849,8 +3849,8 @@ a \key{string pointer}:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char & sp|
-    & \TTBMKEY{i}{of {\tt min::str\_ptr}}
+\verb|char |
+    & \verb|sp|\TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
@@ -3909,8 +3909,9 @@ the string value the pointer points at.
 The \TT{min::begin\_ptr\_of} function
 returns a \TT{min::ptr<const char>} pointer to
 the \TT{NUL}-termin\-at\-ed vector of \TT{char}'s that is the string.
-Its value can be implicitly converted to a `\TT{const char *}'
-that may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
+Its value can be converted to a `\TT{const char *}' by the unitary
+`\TT{!}' operator, and that value
+may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
 
 \TT{sp[i]} can be used to access the \TT{i+1}'st character of
@@ -4121,10 +4122,8 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb|( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|const min::gen & |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
-	  \verb|( const min::lab_ptr & labp,|\ARGBREAK
-	  \verb|  min::uns32 i )|
+\verb|min::gen |
+    & \verb|labp|\TTBMKEY{i}{of {\tt min::lab\_ptr}}
 \LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4173,12 +4172,8 @@ The \TT{min::\EOL begin\_\EOL ptr\_\EOL of} and
 \TT{min::\EOL end\_\EOL ptr\_\EOL of}
 functions return \TT{min::\EOL ptr<const min::\EOL gen>} values that
 point at the first label element and the location just after the
-last label element, respectively.  Unlike `\TT{\& labp[0]}',
-\TT{min::\EOL begin\_\EOL ptr\_\EOL} of will not suffer an error if
-the label length is \TT{0}, and unlike
-`\TT{\& labp[lablen(labp)]}',
-\TT{min::\EOL end\_\EOL ptr\_\EOL of} will not suffer an error.
-In addition these functions return \TT{min::ptr} pointers that
+last label element, respectively.
+These functions return \TT{min::ptr} pointers that
 remain valid even if the label body is relocated.
 
 The length of a label is the number of elements (general values) in the label.
@@ -4358,10 +4353,8 @@ and furthermore do not check subscript ranges:
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb|( MUP::lab_ptr & labp, const min::stub * s )|
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
-\verb|const min::gen & |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt MUP::lab\_ptr}}\ARGBREAK
-	  \verb|( const MUP::lab_ptr & labp,|\ARGBREAK
-	  \verb|  min::uns32 i )|
+\verb|min::gen |
+    & \verb|labp|\TTBMKEY{i}{of {\tt MUP::lab\_ptr}}
 \LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -13153,8 +13146,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|T & |
-    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref<T>}}\ARGBREAK
+\verb|T |
+    & \TTOMKEY{T}{{\tt T}}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
@@ -13212,7 +13205,11 @@ These are in \verb|min_parameters.h|.
 \verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T * location )|
-\LABEL{MUP::NEW_PTR} \\
+\LABEL{MUP::NEW_PTR_OF_LOCATION} \\
+\verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr<T>}\ARGBREAK
+    \verb|( const min::stub * s,|\ARGBREAK
+    \verb|  min::unsptr offset )|
+\LABEL{MUP::NEW_PTR_OF_OFFSET} \\
 \verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
     \verb|( T * location )|
 \LABEL{MIN::NEW_PTR} \\
@@ -13253,14 +13250,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{0.2in} [if \verb|T| {\tt const}
-                     or \verb|T| is \underline{not} locatable]
-\LABEL{MIN::PTR_[]} \\
 \verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{0.2in} [if \verb|T| \underline{not} {\tt const}
-                     and \verb|T| is locatable]
-\LABEL{MIN::PTR_TO_STUB_[]} \\
+\LABEL{MIN::PTR_[]} \\
 \verb|min::ptr<T> p|
     & \TTMOKEY{+}{of {\tt min::ptr}}\verb|i|
 \LABEL{MIN::PTR_+} \\
@@ -13268,10 +13259,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|T * |
-	& \TTOMKEY{T *}{T *}%
-	          {of {\tt min::ptr<T>}}\ARGBREAK
-	  \verb|( const min::ptr<T> & p )|
-\LABEL{MIN::T*_OF_PTR} \\
+	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}
+	  \verb|( const min::ptr<T> & p )| ~ [unprotected]
+\LABEL{MIN::!_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}\ARGBREAK
 	  \verb|( const min::ptr<S> & p )| ~ [unprotected]
@@ -13884,10 +13874,8 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
-\verb|const char & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::str\_ptr}}\ARGBREAK
-      \verb|( const min::str_ptr & sp,|\ARGBREAK
-      \verb|  int index )|
+\verb|char |
+    & \verb|sp|\TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK

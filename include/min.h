@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 06:26:59 EDT 2014
+// Date:	Sun Apr 20 07:28:58 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2720,7 +2720,7 @@ namespace min {
 	    const min::stub * const s;
 	    const min::unsptr offset;
 
-	    operator T & ( void ) const
+	    operator T ( void ) const
 	    {
 		return * location();
 	    }
@@ -2759,7 +2759,7 @@ namespace min {
 		return location();
 	    }
 
-	    template <typename I> T & operator []
+	    template <typename I> ref<T> operator []
 		    ( I index ) const
 	    {
 		return * ptr<T> ( this->s,
@@ -4167,13 +4167,12 @@ namespace min {
 	// Operator[] MUST be a member and cannot
 	// be a friend.
 	//
-	char const & operator [] ( int index ) const
+	char operator [] ( int index ) const
 	{
-	    return
-		( (const char * )
-		  unprotected::long_str_of ( s ) )
-		[sizeof ( unprotected::long_str )
-		 + index];
+	    return ( (const char *)
+	             unprotected::long_str_of ( s ) )
+	           [   sizeof ( unprotected::long_str )
+		     + index ];
 	}
 
 	str_ptr & operator = ( const min::stub * s )
@@ -4678,7 +4677,7 @@ namespace min {
 		return * this;
 	    }
 
-	    min::gen const & operator []
+	    min::gen operator []
 	        ( min::uns32 i ) const
 	    {
 		return base()[i];
@@ -4755,7 +4754,7 @@ namespace min {
 	    return * this;
 	}
 
-	min::gen const & operator []
+	min::gen operator []
 	    ( min::uns32 i ) const
 	{
 	    MIN_ASSERT ( i < header()->length );
