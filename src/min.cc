@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 19 07:07:23 EDT 2014
+// Date:	Sun Apr 20 07:28:39 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1470,7 +1470,8 @@ bool min::strto ( min::int32 & value,
 		  const min::str_ptr sp, int & i,
 		  int base )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::int64 v = strtol ( beginp, & endp, base );
@@ -1486,7 +1487,8 @@ bool min::strto ( min::int64 & value,
 		  const min::str_ptr sp, int & i,
 		  int base )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::int64 v = strtoll ( beginp, & endp, base );
@@ -1501,7 +1503,8 @@ bool min::strto ( min::uns32 & value,
 		  const min::str_ptr sp, int & i,
 		  int base )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::uns64 v = strtoul ( beginp, & endp, base );
@@ -1517,7 +1520,8 @@ bool min::strto ( min::uns64 & value,
 		  const min::str_ptr sp, int & i,
 		  int base )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::uns64 v = strtoull ( beginp, & endp, base );
@@ -1531,7 +1535,8 @@ bool min::strto ( min::uns64 & value,
 bool min::strto ( min::float32 & value,
 		  const min::str_ptr sp, int & i )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::float32 v = strtof ( beginp, & endp );
@@ -1545,7 +1550,8 @@ bool min::strto ( min::float32 & value,
 bool min::strto ( min::float64 & value,
 		  const min::str_ptr sp, int & i )
 {
-    char * beginp = (char *) & sp[i];
+    const char * beginp =
+        ! ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::float64 v = strtod ( beginp, & endp );
@@ -9734,7 +9740,9 @@ static T pgen
 	    )
 	{
 	    char * first = (char *)
-	        std::strstr ( & sp[0], f->str_postfix );
+	        std::strstr
+		    ( ! min::begin_ptr_of ( sp ),
+		      f->str_postfix );
 	    if ( first == NULL )
 		return out << f->str_prefix
 			   << min::save_print_format
@@ -9748,7 +9756,8 @@ static T pgen
 		min::uns32 length = min::strlen ( sp );
 
 	        MIN_STACK_COPY
-		    ( char, str, length + 1, & sp[0] );
+		    ( char, str, length + 1,
+		      ! min::begin_ptr_of ( sp ) );
 
 		char * p = str;
 		length = std::strlen ( f->str_postfix );
