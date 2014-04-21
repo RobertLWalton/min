@@ -1509,25 +1509,25 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvip[0].j == 88 true.
+    (&pvip[0])->j == 88 true.
 min_interface_test.cc:XXXX assert:
     pvp->length == 1 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[0].j == 88 true.
+    (&pvp[0])->j == 88 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[1].j == 11 true.
+    (&pvp[1])->j == 11 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[2].j == 22 true.
+    (&pvp[2])->j == 22 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[3].j == 33 true.
+    (&pvp[3])->j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvp->length == 4 true.
 min_interface_test.cc:XXXX assert:
@@ -1559,15 +1559,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[0].j == 11 true.
+    (&pvp[0])->j == 11 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[1].j == 22 true.
+    (&pvp[1])->j == 22 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[2].j == 33 true.
+    (&pvp[2])->j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvp != v true.
 min_interface_test.cc:XXXX assert:
@@ -1575,13 +1575,13 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[2].j == 33 true.
+    (&pvp[2])->j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvip2 == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvip2[2].j == 33 true.
+    (&pvip2[2])->j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvip->length == 3 true.
 min_interface_test.cc:XXXX assert:
@@ -1591,13 +1591,13 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvip[3].j == 88 true.
+    (&pvip[3])->j == 88 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvip[3].j == 77 true.
+    (&pvip[3])->j == 77 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
@@ -1605,15 +1605,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[4].j == 11 true.
+    (&pvp[4])->j == 11 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[5].j == 22 true.
+    (&pvp[5])->j == 22 true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
-    pvp[6].j == 33 true.
+    (&pvp[6])->j == 33 true.
 
 Finish Packed Vectors Test!
 

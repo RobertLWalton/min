@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 20 07:28:58 EDT 2014
+// Date:	Mon Apr 21 06:42:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2836,6 +2836,24 @@ namespace min {
 }
 
 template < typename T >
+inline bool operator ==
+    ( const min::ptr<T> & p1, const min::ptr<T> & p2 )
+{
+    return p1.s == p2.s
+	   &&
+	   p1.offset == p2.offset;
+}
+
+template < typename T >
+inline bool operator !=
+    ( const min::ptr<T> & p1, const min::ptr<T> & p2 )
+{
+    return p1.s != p2.s
+	   ||
+	   p1.offset != p2.offset;
+}
+
+template < typename T >
 inline bool operator <
     ( const min::ptr<T> & p1, const min::ptr<T> & p2 )
 {
@@ -4372,11 +4390,13 @@ namespace min {
 #	if MIN_IS_COMPACT
 		if ( n <= 3 )
 		    return unprotected::
-			   new_direct_str_gen ( ! p, n );
+			   new_direct_str_gen
+			       ( ! p, n );
 #	elif MIN_IS_LOOSE
 		if ( n <= 5 )
 		    return unprotected::
-			   new_direct_str_gen ( ! p, n );
+			   new_direct_str_gen
+			       ( ! p, n );
 #	endif
 	    return internal::new_str_stub_gen ( p, n );
 	}
@@ -5161,16 +5181,16 @@ namespace min {
 	    : internal::packed_struct_ptr_base<S>
 		() {}
 
-	S const * operator -> ( void ) const
+	min::ptr<const S> operator -> ( void ) const
 	{
-	    return (S const *)
-		   unprotected::ptr_of ( this->s );
+	    return min::unprotected::new_ptr<const S>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
-	S const & operator * ( void ) const
+	min::ref<const S> operator * ( void ) const
 	{
-	    return * (S const *)
-		   unprotected::ptr_of ( this->s );
+	    return * min::unprotected::new_ptr<const S>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
 	packed_struct_ptr & operator =
@@ -5226,16 +5246,16 @@ namespace min {
 	packed_struct_updptr ( void )
 	    : packed_struct_ptr<S>() {}
 
-	S * operator -> ( void ) const
+	min::ptr<S> operator -> ( void ) const
 	{
-	    return (S *)
-		   unprotected::ptr_of ( this->s );
+	    return min::unprotected::new_ptr<S>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
-	S & operator * ( void ) const
+	min::ref<S> operator * ( void ) const
 	{
-	    return * (S *)
-		   unprotected::ptr_of ( this->s );
+	    return * min::unprotected::new_ptr<const S>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
 	packed_struct_updptr & operator =
@@ -5587,24 +5607,23 @@ namespace min {
 	    : internal::packed_vec_ptr_base<E,H,L>
 	    () {}
 
-	H const * operator -> ( void ) const
+	min::ptr<const H> operator -> ( void ) const
 	{
-	    return (H const *)
-		   unprotected::ptr_of ( this->s );
+	    return min::unprotected::new_ptr<const H>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
-	E const & operator [] ( L i ) const
+	min::ref<const E> operator [] ( L i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
 	    MIN_ASSERT ( i < hp->length );
-	    return * (E const *)
-		( (uns8 *) hp
-		  +
-		  internal::packed_vec_ptr_base<E,H,L>
-		  ::computed_header_size
-		  +
-		  i * sizeof ( E ) );
+	    return * min::unprotected::new_ptr<const E>
+	       ( this->s,
+		 internal::packed_vec_ptr_base<E,H,L>
+		         ::computed_header_size
+		 +
+		 i * sizeof ( E ) );
 	}
 
 	min::ptr<E const> operator + ( L i )
@@ -5718,25 +5737,23 @@ namespace min {
 	packed_vec_updptr ( void )
 	    : packed_vec_ptr<E,H,L>() {}
 
-	H * operator -> ( void ) const
+	min::ptr<H> operator -> ( void ) const
 	{
-	    return (H *)
-		   unprotected::ptr_of ( this->s );
+	    return min::unprotected::new_ptr<H>
+	       ( this->s, (min::unsptr) 0 );
 	}
 
-	E & operator [] ( L i ) const
+	min::ref<E> operator [] ( L i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
 	    MIN_ASSERT ( i < hp->length );
-	    return
-	        * (E *)
-		( (uns8 *) hp
-		  +
-		  internal::packed_vec_ptr_base<E,H,L>
-		  ::computed_header_size
-		  +
-		  i * sizeof ( E ) );
+	    return * min::unprotected::new_ptr<E>
+	       ( this->s,
+		 internal::packed_vec_ptr_base<E,H,L>
+		         ::computed_header_size
+		 +
+		 i * sizeof ( E ) );
 	}
 
 	min::ptr<E> operator + ( L i )
@@ -5777,174 +5794,6 @@ namespace min {
 	}
     };
 
-    template < typename H, typename L >
-    class packed_vec_updptr<min::gen,H,L>
-	: public packed_vec_ptr<min::gen,H,L>
-    {
-
-    public:
-
-	packed_vec_updptr
-	        ( const min::packed_vec_updptr
-			    <min::gen,H,L>
-		      & pvup )
-	    : packed_vec_ptr<min::gen,H,L> ( pvup.s ) {}
-	packed_vec_updptr ( min::gen g )
-	    : packed_vec_ptr<min::gen,H,L> ( g ) {}
-	packed_vec_updptr
-		( const min::stub * s )
-	    : packed_vec_ptr<min::gen,H,L> ( s ) {}
-	packed_vec_updptr ( void )
-	    : packed_vec_ptr<min::gen,H,L>() {}
-
-	H * operator -> ( void ) const
-	{
-	    return (H *)
-		   unprotected::ptr_of ( this->s );
-	}
-
-	min::ref<min::gen> operator []
-		( L i ) const
-	{
-	    H * hp = (H *)
-		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
-	    return unprotected::new_ref
-	        ( this->s,
-	          * (min::gen *)
-		  ( (uns8 *) hp
-		    +
-		    internal
-		    ::packed_vec_ptr_base<min::gen,H,L>
-		    ::computed_header_size
-		    +
-		    i * sizeof ( min::gen ) ) );
-	}
-
-	min::ptr<min::gen> operator + ( L i )
-	    const
-	{
-	    H * hp = (H *)
-		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
-	    return min::unprotected::new_ptr
-		( this->s,
-		  ( min::gen *)
-		  ( (uns8 *) hp
-		    +
-		    internal::packed_vec_ptr_base
-		    		<min::gen,H,L>
-		            ::computed_header_size
-		    +
-		    i * sizeof ( min::gen ) ) );
-	}
-
-	packed_vec_updptr & operator =
-		( const min::stub * s )
-	{
-	    new ( this ) packed_vec_ptr<min::gen,H,L>
-	    			( s );
-	    return * this;
-	}
-
-	packed_vec_updptr & operator =
-		( min::gen g )
-	{
-	    new ( this ) packed_vec_ptr<min::gen,H,L>
-	    			( g );
-	    return * this;
-	}
-
-	static min::uns32 DISP ( void )
-	{
-	    return OFFSETOF
-	        ( & packed_vec_updptr::s );
-	}
-    };
-
-    template < typename H, typename L >
-    class packed_vec_updptr<const min::stub *,H,L>
-	: public packed_vec_ptr<const min::stub *,H,L>
-    {
-
-    public:
-
-	packed_vec_updptr
-	        ( const min::packed_vec_updptr
-			    <const min::stub *,H,L>
-		      & pvup )
-	    : packed_vec_ptr<const min::stub *,H,L>
-	    ( pvup.s ) {}
-	packed_vec_updptr ( min::gen g )
-	    : packed_vec_ptr<const min::stub *,H,L>
-	    ( g ) {}
-	packed_vec_updptr
-		( const min::stub * s )
-	    : packed_vec_ptr<const min::stub *,H,L>
-	    ( s ) {}
-	packed_vec_updptr ( void )
-	    : packed_vec_ptr<const min::stub *,H,L>() {}
-
-	H * operator -> ( void ) const
-	{
-	    return (H *)
-		   unprotected::ptr_of ( this->s );
-	}
-
-	min::ref<const min::stub *> operator []
-		( L i ) const
-	{
-	    H * hp = (H *)
-		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
-	    return unprotected::new_ref
-	        ( this->s,
-	          * (const min::stub **)
-		  ( (uns8 *) hp
-		    +
-		    internal
-		    ::packed_vec_ptr_base
-		          <const min::stub *,H,L>
-		    ::computed_header_size
-		    +
-		    i * sizeof ( const min::stub * ) )
-		);
-	}
-
-	min::ptr<const min::stub *> operator +
-		( L i ) const
-	{
-	    H * hp = (H *)
-		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
-	    return min::unprotected::new_ptr
-		( this->s,
-		  ( const min::stub **)
-		  ( (uns8 *) hp
-		    +
-		    internal::packed_vec_ptr_base
-				<const min::stub *,H,L>
-		            ::computed_header_size
-		    +
-		    i * sizeof ( const min::stub * ) )
-		);
-	}
-
-	packed_vec_updptr & operator =
-		( const min::stub * s )
-	{
-	    new ( this )
-	        packed_vec_ptr<const min::stub *,H,L>
-		    ( s );
-	    return * this;
-	}
-
-	static min::uns32 DISP ( void )
-	{
-	    return OFFSETOF
-	        ( & packed_vec_updptr::s );
-	}
-    };
 
     template < typename S,
                typename E, typename H, typename L >

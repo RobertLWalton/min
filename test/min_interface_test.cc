@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 14 16:45:53 EDT 2014
+// Date:	Mon Apr 21 06:47:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2201,10 +2201,10 @@ void test_packed_vectors ( void )
                NULL, 88, { 0 } };
     min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
-    MIN_ASSERT ( pvip[0].j == 88 );
+    MIN_ASSERT ( (&pvip[0])->j == 88 );
     pvptr pvp = min::new_stub_gen ( v );
     MIN_ASSERT ( pvp->length == 1 );
-    MIN_ASSERT ( pvp[0].j == 88 );
+    MIN_ASSERT ( (&pvp[0])->j == 88 );
 
     pve e2[3] = { { min::MISSING(), min::NONE(),
                     NULL, 11, { 0 } },
@@ -2213,9 +2213,9 @@ void test_packed_vectors ( void )
                   { min::MISSING(), min::NONE(),
 		    NULL, 33, { 0 } } };
     min::push ( pvip, 3, e2 );
-    MIN_ASSERT ( pvp[1].j == 11 );
-    MIN_ASSERT ( pvp[2].j == 22 );
-    MIN_ASSERT ( pvp[3].j == 33 );
+    MIN_ASSERT ( (&pvp[1])->j == 11 );
+    MIN_ASSERT ( (&pvp[2])->j == 22 );
+    MIN_ASSERT ( (&pvp[3])->j == 33 );
 
 
     MIN_ASSERT ( pvp->length == 4 );
@@ -2245,35 +2245,35 @@ void test_packed_vectors ( void )
     min::reserve ( pvip, 10 );
     MIN_ASSERT ( pvip->length == 3 );
     MIN_ASSERT ( pvip->max_length == 15 );
-    MIN_ASSERT ( pvp[0].j == 11 );
-    MIN_ASSERT ( pvp[1].j == 22 );
-    MIN_ASSERT ( pvp[2].j == 33 );
+    MIN_ASSERT ( (&pvp[0])->j == 11 );
+    MIN_ASSERT ( (&pvp[1])->j == 22 );
+    MIN_ASSERT ( (&pvp[2])->j == 33 );
 
     pvp = min::NULL_STUB;
     MIN_ASSERT ( pvp != v );
     pvp = v;
     MIN_ASSERT ( pvp == v );
-    MIN_ASSERT ( pvp[2].j == 33 );
+    MIN_ASSERT ( (&pvp[2])->j == 33 );
 
     pvinsptr pvip2;
     MIN_ASSERT ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
-    MIN_ASSERT ( pvip2[2].j == 33 );
+    MIN_ASSERT ( (&pvip2[2])->j == 33 );
 
     MIN_ASSERT ( pvip->length == 3 );
     MIN_ASSERT ( pvip->pvip == min::NULL_STUB );
     pvip->pvip = pvp;
     min::push(pvip->pvip) = e1;
     MIN_ASSERT ( pvip->length == 4 );
-    MIN_ASSERT ( pvip[3].j == 88 );
-    pvip->pvip[3].j = 77;
-    MIN_ASSERT ( pvip[3].j == 77 );
+    MIN_ASSERT ( (&pvip[3])->j == 88 );
+    (&pvip->pvip[3])->j = 77;
+    MIN_ASSERT ( (&pvip[3])->j == 77 );
 
     min::push ( pvip, 3, &pvip[0] );
     MIN_ASSERT ( pvip->length == 7 );
-    MIN_ASSERT ( pvp[4].j == 11 );
-    MIN_ASSERT ( pvp[5].j == 22 );
-    MIN_ASSERT ( pvp[6].j == 33 );
+    MIN_ASSERT ( (&pvp[4])->j == 11 );
+    MIN_ASSERT ( (&pvp[5])->j == 22 );
+    MIN_ASSERT ( (&pvp[6])->j == 33 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;
@@ -2294,25 +2294,25 @@ void test_file ( void )
 	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n" ) );
     MIN_ASSERT
         (    strcmp ( "Line 1",
-	              & file1->buffer
-		          [min::next_line(file1)] )
+	              ! & file1->buffer
+		              [min::next_line(file1)] )
 	  == 0 );
     MIN_ASSERT
         (    strcmp ( "Line 2",
-	              & file1->buffer
-		          [min::next_line(file1)] )
+	              ! & file1->buffer
+		              [min::next_line(file1)] )
 	  == 0 );
     MIN_ASSERT
         (    strcmp ( "Line 3",
-	              & file1->buffer
-		          [min::next_line(file1)] )
+	              ! & file1->buffer
+		              [min::next_line(file1)] )
 	  == 0 );
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file1 ) );
     MIN_ASSERT
         (    strcmp ( "Line 2",
-	              & file1->buffer
-		          [min::line(file1,1)] )
+	              ! & file1->buffer
+		              [min::line(file1,1)] )
 	  == 0 );
 
     min::locatable_var<min::file> file2;
@@ -2323,13 +2323,13 @@ void test_file ( void )
 	  0 );
     MIN_ASSERT
         (    strcmp ( "Line 0",
-	              & file2->buffer
-		          [min::next_line(file2)] )
+	              ! & file2->buffer
+		              [min::next_line(file2)] )
 	  == 0 );
     MIN_ASSERT
         (    strcmp ( "Line 1",
-	              & file2->buffer
-		          [min::next_line(file2)] )
+	              ! & file2->buffer
+		              [min::next_line(file2)] )
 	  == 0 );
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file2 ) );
@@ -2345,18 +2345,18 @@ void test_file ( void )
     min::flush_file ( file3 );
     MIN_ASSERT ( data_length == file3->buffer->length );
     MIN_ASSERT ( data_length == file4->buffer->length );
-    MIN_ASSERT ( strncmp ( & file3->buffer[0],
-    			   & file4->buffer[0],
+    MIN_ASSERT ( strncmp ( ! & file3->buffer[0],
+    			   ! & file4->buffer[0],
                            data_length ) == 0 );
     MIN_ASSERT
         (    strcmp ( "Line A",
-	              & file4->buffer
-		          [min::next_line(file4)] )
+	              ! & file4->buffer
+		              [min::next_line(file4)] )
 	  == 0 );
     MIN_ASSERT
         (    strcmp ( "Line B",
-	              & file4->buffer
-		          [min::next_line(file4)] )
+	              ! & file4->buffer
+		              [min::next_line(file4)] )
 	  == 0 );
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file4 ) );
@@ -2376,8 +2376,8 @@ void test_file ( void )
     min::flush_file ( file5 );
     MIN_ASSERT (    file4->buffer->length
                  == file5->buffer->length );
-    MIN_ASSERT (    strncmp ( & file4->buffer[0],
-    			      & file5->buffer[0],
+    MIN_ASSERT (    strncmp ( ! & file4->buffer[0],
+    			      ! & file5->buffer[0],
                               file4->buffer->length )
 		 == 0 );
 
@@ -2388,8 +2388,8 @@ void test_file ( void )
     min::next_line ( file5 );
     MIN_ASSERT
         (    strcmp ( "Partial Line",
-	              & file5->buffer
-		          [min::next_line(file5)] )
+	              ! & file5->buffer
+		              [min::next_line(file5)] )
 	  == 0 );
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file5 ) );
