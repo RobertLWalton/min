@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:42:43 EDT 2014
+// Date:	Mon Apr 21 15:00:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2707,6 +2707,10 @@ namespace min {
 	template < typename T >
 	min::ref<T> new_ref
 	    ( const min::stub * s, T const & location );
+
+	template < typename T >
+	min::ref<T> new_ref
+	    ( const min::stub * s, min::unsptr offset );
     }
 
     namespace internal {
@@ -2744,6 +2748,161 @@ namespace min {
 		      + offset );
 	    }
 	};
+    }
+
+    template < typename T >
+    class ref : public internal::ref_base<T>
+    {
+
+    public:
+
+	// We must prevent the default operator =.
+	//
+	ref<T> const & operator =
+		( const ref<T> & r ) const
+	{
+	    * this->location() = * r.location();
+	    return * this;
+	}
+
+	ref<T> const & operator = ( T value ) const
+	{
+	    * this->location() = value;
+	    return * this;
+	}
+
+    private:
+
+	friend min::ref<T> unprotected::new_ref<T>
+	    ( const min::stub * s, T const & location );
+
+	friend min::ref<T> unprotected::new_ref<T>
+	    ( const min::stub * s, min::unsptr offset );
+
+	friend min::ref<T> operator *<>
+	    ( const min::ptr<T> & p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<T> ( s, offset ) {}
+
+        ref ( void )
+	    : internal::ref_base<T> ( NULL, 0 ) {}
+    };
+
+    template <>
+    class ref<min::gen>
+	: public internal::ref_base<min::gen>
+    {
+
+    public:
+
+	// We must prevent the default operator =.
+	//
+	ref<min::gen> const & operator =
+	    ( const ref<min::gen> & r ) const
+	{
+	    min::gen value = * r.location();
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return * this;
+	}
+
+	ref<min::gen> const & operator =
+		( min::gen value ) const
+	{
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return * this;
+	}
+
+	ref<min::gen> const & operator =
+	    ( const min::locatable_var<min::gen> & var )
+	    const;
+	    // Because this specialization is instan-
+	    // tiated when it is declared, it is instan-
+	    // tiated before locatable_var<min::gen>
+	    // is declared, and we cannot include the
+	    // function body here.  Its below.
+
+    private:
+
+	friend min::ref<min::gen>
+	       unprotected::new_ref<min::gen>
+	    ( const min::stub * s,
+	      const min::gen & location );
+
+	friend min::ref<min::gen>
+	       unprotected::new_ref<min::gen>
+	    ( const min::stub * s, min::unsptr offset );
+
+	friend min::ref<min::gen> operator *<>
+	    ( const min::ptr<min::gen> & p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<min::gen> ( s, offset )
+	    {}
+    };
+
+    template <>
+    class ref<const min::stub *>
+	: public internal::ref_base<const min::stub *>
+    {
+
+    public:
+
+	// We must prevent the default operator =.
+	//
+	ref<const min::stub *> const & operator =
+	    ( const ref<const min::stub *> & r ) const
+	{
+	    const min::stub * value = * r.location();
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return * this;
+	}
+
+	ref<const min::stub *> const & operator =
+		( const min::stub * value ) const
+	{
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return * this;
+	}
+
+	ref<const min::stub *> const & operator =
+	    ( const min::locatable_var
+	                <const min::stub *> & var )
+	    const;
+
+    private:
+
+	friend min::ref<const min::stub *>
+	       unprotected::new_ref<const min::stub *>
+	    ( const min::stub * s,
+	      const min::stub * const & location );
+
+	friend min::ref<const min::stub *>
+	       unprotected::new_ref<const min::stub *>
+	    ( const min::stub * s, min::unsptr offset );
+
+	friend min::ref<const min::stub *> operator *<>
+	    ( const min::ptr<const min::stub *> & p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<const min::stub *>
+	          ( s, offset )
+	    {}
+    };
+
+    namespace internal {
 
 	template < typename T >
 	class ptr_base
@@ -2777,6 +2936,11 @@ namespace min {
 				  * index );
 	    }
 
+	    T * operator ! ( void ) const
+	    {
+		return this->location();
+	    }
+
 	protected:
 
 	    ptr_base ( const min::stub * s,
@@ -2791,7 +2955,6 @@ namespace min {
 		      + offset );
 	    }
 	};
-
     }
 
     template < typename T >
@@ -2811,11 +2974,6 @@ namespace min {
 	{
 	    new ( this ) ptr<T> ( p.s, p.offset );
 	    return * this;
-	}
-
-	T * operator ! ( void ) const
-	{
-	    return this->location();
 	}
 
     private:
@@ -2880,262 +3038,8 @@ inline min::ptr<T> operator -- ( min::ptr<T> & p )
 
 namespace min {
 
-    template < typename T >
-    class ref : public internal::ref_base<T>
-    {
-
-    public:
-
-	// We must prevent the default operator =.
-	//
-	ref<T> const & operator =
-		( const ref<T> & r ) const
-	{
-	    * this->location() = * r.location();
-	    return * this;
-	}
-
-	ref<T> const & operator = ( T value ) const
-	{
-	    * this->location() = value;
-	    return * this;
-	}
-
-    private:
-
-	friend min::ref<T> unprotected::new_ref<T>
-	    ( const min::stub * s, T const & location );
-
-	friend min::ref<T> operator *<>
-	    ( const min::ptr<T> & p );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<T> ( s, offset ) {}
-
-        ref ( void )
-	    : internal::ref_base<T> ( NULL, 0 ) {}
-    };
-
-    template <>
-    class ref<min::gen>
-	: public internal::ref_base<min::gen>
-    {
-
-    public:
-
-	// We must prevent the default operator =.
-	//
-	ref<min::gen> const & operator =
-	    ( const ref<min::gen> & r ) const
-	{
-	    min::gen value = * r.location();
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<min::gen> const & operator =
-		( min::gen value ) const
-	{
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<min::gen> const & operator =
-	    ( const min::locatable_var<min::gen> & var )
-	    const;
-	    // Because this specialization is instan-
-	    // tiated when it is declared, it is instan-
-	    // tiated before locatable_var<min::gen>
-	    // is declared, and we cannot include the
-	    // function body here.  Its below.
-
-    private:
-
-	friend min::ref<min::gen>
-	       unprotected::new_ref<min::gen>
-	    ( const min::stub * s,
-	      const min::gen & location );
-
-	friend min::ref<min::gen> operator *<>
-	    ( const min::ptr<min::gen> & p );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<min::gen> ( s, offset )
-	    {}
-    };
-
-    template <>
-    class ref<const min::stub *>
-	: public internal::ref_base<const min::stub *>
-    {
-
-    public:
-
-	// We must prevent the default operator =.
-	//
-	ref<const min::stub *> const & operator =
-	    ( const ref<const min::stub *> & r ) const
-	{
-	    const min::stub * value = * r.location();
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<const min::stub *> const & operator =
-		( const min::stub * value ) const
-	{
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<const min::stub *> const & operator =
-	    ( const min::locatable_var
-	                <const min::stub *> & var )
-	    const;
-
-    private:
-
-	friend min::ref<const min::stub *>
-	       unprotected::new_ref<const min::stub *>
-	    ( const min::stub * s,
-	      const min::stub * const & location );
-
-	friend min::ref<const min::stub *> operator *<>
-	    ( const min::ptr<const min::stub *> & p );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<const min::stub *>
-	          ( s, offset )
-	    {}
-    };
-
     // The following must come after the ref<T>
     // declarations as the later must be complete.
-
-    template <>
-    class ptr<min::gen>
-        : public internal::ptr_base<min::gen>
-    {
-
-    public:
-
-        ptr ( void )
-	    : internal::ptr_base<min::gen> ( NULL, 0 )
-	    {}
-
-	template <typename S>
-        ptr ( const ptr<S> & p )
-	    : internal::ptr_base<min::gen>
-	        ( p.s, p.offset ) {}
-
-	template <typename I>
-	min::ref<min::gen> operator [] ( I index ) const
-	{
-	    return * ( * this + index );
-	}
-
-	ptr<min::gen> & operator =
-		( const ptr<min::gen> & p )
-	{
-	    new ( this )
-	        ptr<min::gen> ( p.s, p.offset );
-	    return * this;
-	}
-
-	min::gen * operator ! ( void ) const
-	{
-	    return this->location();
-	}
-
-    private:
-
-	ptr ( const min::stub * s,
-	      min::unsptr offset )
-	    : internal::ptr_base<min::gen> ( s, offset )
-	    {}
-
-	friend min::ptr<min::gen>
-	    unprotected::new_ptr<min::gen>
-		( const min::stub * s,
-		  min::gen * location );
-	friend min::ptr<min::gen>
-	    unprotected::new_ptr<min::gen>
-		( const min::stub * s,
-		  min::unsptr offset );
-	friend min::ptr<min::gen> operator &<>
-	    ( const min::ref<min::gen> & r );
-	friend class internal::ptr_base<min::gen>;
-    };
-
-    template <>
-    class ptr<const min::stub *>
-        : public internal::ptr_base<const min::stub *>
-    {
-
-    public:
-
-        ptr ( void )
-	    : internal::ptr_base<const min::stub *>
-		( NULL, 0 ) {}
-
-	template <typename S>
-        ptr ( const ptr<S> & p )
-	    : internal::ptr_base<const min::stub *>
-	        ( p.s, p.offset ) {}
-
-	template <typename I>
-	min::ref<const min::stub *> operator []
-		( I index ) const
-	{
-	    return * ( * this + index );
-	}
-
-	ptr<const min::stub *> & operator =
-		( const ptr<const min::stub *> & p )
-	{
-	    new ( this )
-	        ptr<const min::stub *>
-		    ( p.s, p.offset );
-	    return * this;
-	}
-
-	const min::stub ** operator ! ( void ) const
-	{
-	    return this->location();
-	}
-
-    private:
-
-	ptr ( const min::stub * s,
-	      min::unsptr offset )
-	    : internal::ptr_base<const min::stub *>
-	        ( s, offset ) {}
-
-	friend min::ptr<const min::stub *>
-	    unprotected::new_ptr<const min::stub *>
-		( const min::stub * s,
-		  const min::stub ** location );
-	friend min::ptr<const min::stub *>
-	    unprotected::new_ptr<const min::stub *>
-		( const min::stub * s,
-		  min::unsptr offset );
-	friend min::ptr<const min::stub *> operator &<>
-	    ( const min::ref<const min::stub *> & r );
-	friend class
-	    internal::ptr_base<const min::stub *>;
-    };
 
 #   define MIN_REF(type,name,ctype) \
     inline min::ref< type > name##_ref \
@@ -3172,6 +3076,13 @@ namespace min {
     {
 	return unprotected::new_ptr<T>
 	    ( ZERO_STUB, p );
+    }
+ 
+    template < typename T >
+    inline min::ref<T> unprotected::new_ref
+        ( const min::stub * s, min::unsptr offset )
+    {
+        return min::ref<T> ( s, offset );
     }
 
     template < typename T >
@@ -3476,54 +3387,6 @@ inline bool operator != ( T v, const min::ref<T> & r )
 # define MIN_COMMA ,
 # define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
-    template < TARGS > \
-    class ptr< T > : public internal::ptr_base< T > \
-    { \
-    \
-    public: \
-	\
-        ptr ( void ) \
-	    : internal::ptr_base< T > ( NULL, 0 ) {} \
-	\
-	template <typename MIN_TYPE_S> \
-        ptr ( const ptr<MIN_TYPE_S> & p ) \
-	    : internal::ptr_base< T > \
-	          ( p.s, p.offset ) \
-	    {} \
-	\
-	template <typename MIN_TYPE_I> \
-	min::ref< T > operator [] \
-		( MIN_TYPE_I index ) const \
-	{ \
-	    return * ( * this + index ); \
-	} \
-	\
-	ptr< T > & operator = ( const ptr< T > & p ) \
-	{ \
-	    new ( this ) ptr< T > ( p.s, p.offset ); \
-	    return * this; \
-	} \
-	\
-	T * operator ! ( void ) const \
-	{ \
-	    return this->location(); \
-	} \
-    private: \
-	\
-	ptr ( const min::stub * s, \
-	      min::unsptr offset ) \
-	    : internal::ptr_base< T > ( s, offset ) {} \
-	\
-	friend min::ptr< T > unprotected::new_ptr< T > \
-	    ( const min::stub * s, \
-	      T * location ); \
-	friend min::ptr< T > unprotected::new_ptr< T > \
-	    ( const min::stub * s, \
-	      min::unsptr offset ); \
-	friend min::ptr< T > operator &<> \
-	    ( const min::ref< T > & r ); \
-	friend class internal::ptr_base< T >; \
-    }; \
     \
     template < TARGS > \
     class ref< T > : public internal::ref_base< T > \
