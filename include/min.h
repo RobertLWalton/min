@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 15:32:11 EDT 2014
+// Date:	Mon Apr 21 15:48:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,7 +23,9 @@
 //	Initializer Interface
 //	Process Interface
 //	Allocator/Collector/Compactor Interface
-//	Locatable Variables, References, and Pointers
+//	References
+//	Pointers
+//	Locatable Variables
 //	Numbers
 //	Strings
 //	Labels
@@ -2673,36 +2675,20 @@ namespace min { namespace internal {
 
 } }
 
-// Locatable Variables, References, and Pointers
-// --------- ---------- ----------- --- --------
+// References
+// ----------
 
 namespace min {
 
     extern const min::stub * ZERO_STUB;
 
     template < typename T >
-    class locatable_var;
-
-    template < typename T >
     class ref;
 
     template < typename T >
-    class ptr;
-
-    template < typename T >
-    min::ptr<T> operator & ( const min::ref<T> & r );
-    template < typename T >
-    min::ref<T> operator * ( const min::ptr<T> & p );
+    class locatable_var;
 
     namespace unprotected {
-
-	template < typename T >
-	min::ptr<T> new_ptr
-	    ( const min::stub * s, T * location );
-
-	template < typename T >
-	min::ptr<T> new_ptr
-	    ( const min::stub * s, min::unsptr offset );
 
 	template < typename T >
 	min::ref<T> new_ref
@@ -2925,6 +2911,34 @@ namespace min {
 	    ( ZERO_STUB, location );
     }
 
+#   define MIN_REF(type,name,ctype) \
+    inline min::ref< type > name##_ref \
+               ( ctype container ) \
+    { \
+        return min::unprotected::new_ref \
+	    ( container, container->name ); \
+    }
+}
+
+// Pointers
+// --------
+
+namespace min {
+
+    template < typename T >
+    class ptr;
+
+    namespace unprotected {
+
+	template < typename T >
+	min::ptr<T> new_ptr
+	    ( const min::stub * s, T * location );
+
+	template < typename T >
+	min::ptr<T> new_ptr
+	    ( const min::stub * s, min::unsptr offset );
+    }
+
     namespace internal {
 
 	template < typename T >
@@ -3058,17 +3072,6 @@ inline min::ptr<T> operator -- ( min::ptr<T> & p )
 
 namespace min {
 
-    // The following must come after the ref<T>
-    // declarations as the later must be complete.
-
-#   define MIN_REF(type,name,ctype) \
-    inline min::ref< type > name##_ref \
-               ( ctype container ) \
-    { \
-        return min::unprotected::new_ref \
-	    ( container, container->name ); \
-    }
-
 #   define MIN_STACK_COPY(T,buffer,length,source) \
     T buffer[length]; \
     memcpy ( buffer, (T const *) (source), \
@@ -3112,6 +3115,12 @@ namespace min {
 	return unprotected::new_ref<T>
 	    ( p.s, p.offset );
     }
+}
+
+// Locatable Variables
+// --------- ---------
+
+namespace min {
 
     namespace internal
     {
