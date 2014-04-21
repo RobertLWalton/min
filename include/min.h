@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 15:00:34 EDT 2014
+// Date:	Mon Apr 21 15:32:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2779,9 +2779,6 @@ namespace min {
 	friend min::ref<T> unprotected::new_ref<T>
 	    ( const min::stub * s, min::unsptr offset );
 
-	friend min::ref<T> operator *<>
-	    ( const min::ptr<T> & p );
-
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<T> ( s, offset ) {}
 
@@ -2839,11 +2836,12 @@ namespace min {
 	       unprotected::new_ref<min::gen>
 	    ( const min::stub * s, min::unsptr offset );
 
-	friend min::ref<min::gen> operator *<>
-	    ( const min::ptr<min::gen> & p );
-
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<min::gen> ( s, offset )
+	    {}
+
+        ref ( void )
+	    : internal::ref_base<min::gen> ( NULL, 0 )
 	    {}
     };
 
@@ -2893,14 +2891,39 @@ namespace min {
 	       unprotected::new_ref<const min::stub *>
 	    ( const min::stub * s, min::unsptr offset );
 
-	friend min::ref<const min::stub *> operator *<>
-	    ( const min::ptr<const min::stub *> & p );
-
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<const min::stub *>
 	          ( s, offset )
 	    {}
+
+        ref ( void )
+	    : internal::ref_base<const min::stub *>
+	    ( NULL, 0 ) {}
     };
+ 
+    template < typename T >
+    inline min::ref<T> unprotected::new_ref
+        ( const min::stub * s, min::unsptr offset )
+    {
+        return min::ref<T> ( s, offset );
+    }
+
+    template < typename T >
+    inline min::ref<T> unprotected::new_ref
+        ( const min::stub * s, T const & location )
+    {
+        return min::ref<T>
+	    ( s, (uns8 *) & location
+		 -
+		 (uns8 *) unprotected::ptr_of ( s ) );
+    }
+
+    template < typename T >
+    inline min::ref<T> new_ref ( T & location )
+    {
+	return unprotected::new_ref<T>
+	    ( ZERO_STUB, location );
+    }
 
     namespace internal {
 
@@ -2921,19 +2944,19 @@ namespace min {
 	    template <typename I> ref<T> operator []
 		    ( I index ) const
 	    {
-		return * ptr<T> ( this->s,
-				    this->offset
-				  +   sizeof ( T )
-				    * index );
+		return unprotected::new_ref<T>
+		    ( this->s,
+		      this->offset +   sizeof ( T )
+				     * index );
 	    }
 
 	    template <typename I> ptr<T> operator +
 		    ( I index ) const
 	    {
-		return ptr<T> ( this->s,
-				  this->offset
-				+   sizeof ( T )
-				  * index );
+		return unprotected::new_ptr<T>
+		    ( this->s,
+		      this->offset +   sizeof ( T )
+				     * index );
 	    }
 
 	    T * operator ! ( void ) const
@@ -2986,9 +3009,6 @@ namespace min {
 	    ( const min::stub * s, T * location );
 	friend min::ptr<T> unprotected::new_ptr<T>
 	    ( const min::stub * s, min::unsptr offset );
-	friend min::ptr<T> operator &<>
-	    ( const min::ref<T> & r );
-	friend class internal::ptr_base<T>;
     };
 
 }
@@ -3077,42 +3097,20 @@ namespace min {
 	return unprotected::new_ptr<T>
 	    ( ZERO_STUB, p );
     }
- 
-    template < typename T >
-    inline min::ref<T> unprotected::new_ref
-        ( const min::stub * s, min::unsptr offset )
-    {
-        return min::ref<T> ( s, offset );
-    }
-
-    template < typename T >
-    inline min::ref<T> unprotected::new_ref
-        ( const min::stub * s, T const & location )
-    {
-        return min::ref<T>
-	    ( s, (uns8 *) & location
-		 -
-		 (uns8 *) unprotected::ptr_of ( s ) );
-    }
-
-    template < typename T >
-    inline min::ref<T> new_ref ( T & location )
-    {
-	return unprotected::new_ref<T>
-	    ( ZERO_STUB, location );
-    }
 
     template < typename T >
     inline min::ptr<T> operator &
 	    ( const min::ref<T> & r )
     {
-        return ptr<T> ( r.s, r.offset );
+        return unprotected::new_ptr<T>
+	    ( r.s, r.offset );
     }
     template < typename T >
     inline min::ref<T> operator *
 	    ( const min::ptr<T> & p )
     {
-	return min::ref<T> ( p.s, p.offset );
+	return unprotected::new_ref<T>
+	    ( p.s, p.offset );
     }
 
     namespace internal
@@ -3446,12 +3444,16 @@ namespace min { \
 	    ( const min::stub * s, \
 	      T const & location ); \
 	\
-	friend min::ref< T > operator *<> \
-	    ( const min::ptr< T > & p ); \
+	friend min::ref< T > unprotected::new_ref< T > \
+	    ( const min::stub * s, \
+	      min::unsptr offset ); \
 	\
         ref ( const min::stub * s, \
 	      min::unsptr offset ) \
 	    : internal::ref_base< T > ( s, offset ) {} \
+	\
+        ref ( void ) \
+	    : internal::ref_base<T> ( NULL, 0 ) {} \
     }; \
     \
     template < TARGS > \
