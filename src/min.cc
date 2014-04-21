@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 20 07:28:39 EDT 2014
+// Date:	Mon Apr 21 06:45:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2029,7 +2029,7 @@ bool min::load_named_file
 
     errno = 0;
     uns64 bytes =
-        fread ( & file->buffer[offset], 1,
+        fread ( ! & file->buffer[offset], 1,
 	        (size_t) file_size, in );
 
     if ( bytes < file_size )
@@ -2129,7 +2129,7 @@ min::uns32 min::next_line ( min::file file )
 	    }
 
 	    uns32 length =
-		::strlen ( & ifile->buffer[ioffset] );
+		::strlen ( ! & ifile->buffer[ioffset] );
 	    min::push ( file->buffer, length,
 	                ifile->buffer + ioffset );
 	}
@@ -2140,7 +2140,7 @@ min::uns32 min::next_line ( min::file file )
     }
 
     file->next_offset +=
-        1 + ::strlen ( & file->buffer[line_offset] );
+        1 + ::strlen ( ! & file->buffer[line_offset] );
     ++ file->next_line_number;
 
     if ( file->line_index != NULL_STUB )
@@ -2205,14 +2205,14 @@ min::uns32 min::print_line
 	}
     }
     else
-        length = ::strlen ( & file->buffer[offset] );
+        length = ::strlen ( ! & file->buffer[offset] );
 
     // Move line to stack so that (1) it will not be
     // relocatable when printer is called, and (2) it
     // will end with NUL even if it is a partial line.
     //
     char buffer[length+1];
-    memcpy ( buffer, & file->buffer[offset], length );
+    memcpy ( buffer, ! & file->buffer[offset], length );
     buffer[length] = 0;
 
     // Blank line check.
@@ -2303,9 +2303,9 @@ min::uns32 min::print_line_column
 	else return 0;
     }
     else
-        length = ::strlen ( & file->buffer[offset] );
+        length = ::strlen ( ! & file->buffer[offset] );
 
-    min::pwidth ( column, & file->buffer[offset],
+    min::pwidth ( column, ! & file->buffer[offset],
     		  position.offset <= length ?
 		      position.offset : length,
                   print_flags );
@@ -2428,7 +2428,7 @@ void min::flush_line
     {
 	min::file ofile = file->ofile;
         uns32 length =
-	    ::strlen ( & file->buffer[offset] );
+	    ::strlen ( ! & file->buffer[offset] );
 	min::push ( ofile->buffer, length,
 	            file->buffer + offset );
 	min::end_line ( ofile );
@@ -2452,7 +2452,7 @@ void min::flush_remaining ( min::file file )
 
     if ( file->ostream != NULL )
     {
-        * file->ostream << & file->buffer[offset];
+        * file->ostream << ! & file->buffer[offset];
 	std::flush ( * file->ostream );
     }
 
@@ -2505,8 +2505,8 @@ void min::flush_spool
     uns32 buffer_offset =
 	file->line_index[lines_to_delete];
     if ( buffer_offset < file->buffer->length )
-	memmove ( & file->buffer[0],
-		  & file->buffer[buffer_offset],
+	memmove ( ! & file->buffer[0],
+		  ! & file->buffer[buffer_offset],
 		    file->buffer->length
 		  - buffer_offset );
     min::pop ( file->buffer, buffer_offset );
@@ -2562,13 +2562,13 @@ std::ostream & operator <<
     {
         min::uns32 offset = min::next_line ( file );
 	if ( offset == min::NO_LINE ) break;
-	out << & file->buffer[offset] << std::endl;
+	out << ! & file->buffer[offset] << std::endl;
     }
 
     if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-        out << & file->buffer[file->next_offset];
+        out << ! & file->buffer[file->next_offset];
 	min::pop ( file->buffer );
 	file->next_offset = file->buffer->length;
     }
@@ -2583,7 +2583,7 @@ min::file operator <<
         min::uns32 offset = min::next_line ( ifile );
 	if ( offset == min::NO_LINE ) break;
         min::uns32 length =
-	    ::strlen ( & ifile->buffer[offset] );
+	    ::strlen ( ! & ifile->buffer[offset] );
 	min::push ( ofile->buffer, length,
 	            & ifile->buffer[offset] );
 	min::end_line ( ofile );
@@ -7926,8 +7926,8 @@ min::printer operator <<
 
 	    min::push ( buffer, n );
 	    if ( len > 0 )
-	        memmove ( & buffer[offset + n],
-		          & buffer[offset],
+	        memmove ( ! & buffer[offset + n],
+		          ! & buffer[offset],
 			  len );
 
 	    printer->column += n;
@@ -8250,8 +8250,8 @@ static bool insert_line_break ( min::printer printer )
 	// back.
     for ( i = 0; i < line_break_stack->length; ++ i )
     {
-        if ( line_break_stack[i].column
-	     > line_break_stack[i].indent )
+        if ( (&line_break_stack[i])->column
+	     > (&line_break_stack[i])->indent )
 	{
 	    line_break = line_break_stack[i];
 	    break;
@@ -8292,8 +8292,8 @@ static bool insert_line_break ( min::printer printer )
 	//
 	if ( movelen > 0 )
 	    memmove
-	        ( & buffer[begoff+line_break.indent+1],
-		  & buffer[endoff],
+	        ( ! & buffer[begoff+line_break.indent+1],
+		  ! & buffer[endoff],
 		  movelen );
 	min::pop
 	    ( buffer, gap - line_break.indent - 1 );
@@ -8306,8 +8306,9 @@ static bool insert_line_break ( min::printer printer )
 	    ( buffer, line_break.indent + 1 - gap );
 	if ( movelen > 0 )
 	    memmove
-	        ( & buffer[begoff+line_break.indent+1],
-		  & buffer[endoff],
+	        ( ! & buffer[begoff+line_break.indent
+		                   +1],
+		  ! & buffer[endoff],
 		  movelen );
     }
 
@@ -8333,9 +8334,12 @@ static bool insert_line_break ( min::printer printer )
         line_break_stack[i++] = line_break;
 	for ( ; i < line_break_stack->length; ++ i )
 	{
-	    line_break_stack[i].offset += offset_adj;
-	    line_break_stack[i].column += column_adj;
-	    line_break_stack[i].indent += column_adj;
+	    (&line_break_stack[i])->offset +=
+	        offset_adj;
+	    (&line_break_stack[i])->column +=
+	        column_adj;
+	    (&line_break_stack[i])->indent +=
+	        column_adj;
 	}
 	printer->line_break.offset += offset_adj;
 	printer->line_break.column += column_adj;
