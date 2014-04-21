@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:45:35 EDT 2014
+// Date:	Mon Apr 21 07:20:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2396,7 +2396,8 @@ min::printer operator <<
     return printer << min::restore_print_format;
 }
 
-void min::flush_file ( min::file file, bool copy_completion )
+void min::flush_file
+	( min::file file, bool copy_completion )
 {
     while ( true )
     {
@@ -8292,7 +8293,8 @@ static bool insert_line_break ( min::printer printer )
 	//
 	if ( movelen > 0 )
 	    memmove
-	        ( ! & buffer[begoff+line_break.indent+1],
+	        ( ! & buffer[ begoff
+		             +line_break.indent+1],
 		  ! & buffer[endoff],
 		  movelen );
 	min::pop
