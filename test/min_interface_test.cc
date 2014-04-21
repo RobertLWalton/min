@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 06:47:11 EDT 2014
+// Date:	Mon Apr 21 07:20:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1793,8 +1793,8 @@ void test_strings ( void )
     min::gen s1e308x = min::new_str_gen ( "1e308x" );
     min::gen s1e309 = min::new_str_gen ( "1e309" );
     min::gen s1em307 = min::new_str_gen ( "1e-307" );
-    // If denormalized numbers are supported, 1e-323 will
-    // be convertable with loss of precision, but
+    // If denormalized numbers are supported, 1e-323
+    // will be convertable with loss of precision, but
     // 1e-324 will not be.
     min::gen s1em324 = min::new_str_gen ( "1e-324" );
 
