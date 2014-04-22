@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 04:32:32 EDT 2014
+// Date:	Tue Apr 22 06:13:39 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3303,6 +3303,15 @@ inline bool operator != ( T v, const min::ref<T> & r )
 namespace min { \
     \
     template < TARGS > \
+    inline void write_update \
+	    ( const min::stub * s, T v ) \
+    { \
+        qed(v); \
+        unprotected::acc_write_update \
+	    ( s, (const min::stub *) v ); \
+    } \
+    \
+    template < TARGS > \
     class locatable_var< T > : public T \
     { \
     \
@@ -5775,53 +5784,12 @@ namespace min {
 	    pvip.reserve ( n );
 	E * p = ! end_ptr_of ( pvip );
 	if ( vp )
+	{
 	    memcpy ( p, vp, n * sizeof ( E ) );
+	    write_update ( pvip, p, n );
+	}
 	else
 	    memset ( p, 0, n * sizeof ( E ) );
-	* (L *) & pvip->length += n;
-    }
-    template < typename H, typename L >
-    inline void push
-	( typename min::packed_vec_insptr<min::gen,H,L>
-	           pvip,
-	  min::unsptr n, min::gen const * vp = NULL )
-    {
-	if ( n == 0 ) return;
-	if ( pvip->length + n > pvip->max_length )
-	    pvip.reserve ( n );
-	min::gen * p = ! end_ptr_of ( pvip );
-	if ( vp )
-	{
-	    memcpy ( p, vp, n * sizeof ( min::gen ) );
-	    write_update
-		( pvip, p, n );
-	}
-	else
-	    memset ( p, 0, n * sizeof ( min::gen ) );
-	* (L *) & pvip->length += n;
-    }
-    template < typename H, typename L >
-    inline void push
-	( typename min::packed_vec_insptr
-			   <const min::stub *,H,L>
-	           pvip,
-	  min::unsptr n,
-	  const min::stub * const * vp = NULL )
-    {
-	if ( n == 0 ) return;
-	if ( pvip->length + n > pvip->max_length )
-	    pvip.reserve ( n );
-	const min::stub ** p = ! end_ptr_of ( pvip );
-	if ( vp )
-	{
-	    memcpy ( p, vp,
-	             n * sizeof ( const min::stub * ) );
-	    write_update
-		( pvip, p, n );
-	}
-	else
-	    memset ( p, 0,
-	             n * sizeof ( const min::stub * ) );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -5834,6 +5802,7 @@ namespace min {
 	    pvip.reserve ( n );
 	E * p = ! end_ptr_of ( pvip );
 	memcpy ( p, ! vp, n * sizeof ( E ) );
+	write_update ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -5842,37 +5811,6 @@ namespace min {
 	  min::unsptr n, min::ptr<E> vp )
     {
         push ( pvip, n, (min::ptr<const E>) vp );
-    }
-    template < typename H, typename L >
-    inline void push
-	( typename min::packed_vec_insptr<min::gen,H,L>
-	           pvip,
-	  min::unsptr n, min::ptr<const min::gen> vp )
-    {
-	if ( n == 0 ) return;
-	if ( pvip->length + n > pvip->max_length )
-	    pvip.reserve ( n );
-	min::gen * p = ! end_ptr_of ( pvip );
-	memcpy ( p, ! vp, n * sizeof ( min::gen ) );
-	write_update ( pvip, p, n );
-	* (L *) & pvip->length += n;
-    }
-    template < typename H, typename L >
-    inline void push
-	( typename min::packed_vec_insptr
-			   <const min::stub *,H,L>
-	           pvip,
-	  min::unsptr n,
-	  min::ptr<const min::stub * const> vp )
-    {
-	if ( n == 0 ) return;
-	if ( pvip->length + n > pvip->max_length )
-	    pvip.reserve ( n );
-	const min::stub ** p = ! end_ptr_of ( pvip );
-	memcpy ( p, ! vp,
-		 n * sizeof ( const min::stub * ) );
-	write_update ( pvip, p, n );
-	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
     inline E pop
