@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 06:13:39 EDT 2014
+// Date:	Tue Apr 22 06:39:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1835,6 +1835,8 @@ namespace min { namespace internal {
 
 namespace min { namespace unprotected {
 
+    extern const min::stub * ZERO_STUB;
+
     // Function executed whenever a pointer to stub s2
     // is stored in a datum with stub s1.  s1 is the
     // source of the written pointer and s2 is the
@@ -1846,6 +1848,7 @@ namespace min { namespace unprotected {
 	      const min::stub * s2 )
     {
         if ( s2 == NULL ) return;
+	if ( s1 == ZERO_STUB ) return;
         uns64 f = (    min::unprotected
 	                  ::control_of ( s1 )
 	            >> min::internal::ACC_FLAG_PAIRS )
@@ -1935,33 +1938,58 @@ namespace min { namespace unprotected {
 
 namespace min {
 
+    // The following is a workaround for the fact that
+    // some function specializations are not allowed but
+    // the corresponding class specializations are
+    // allowed.  So we define a class of no members
+    // whose constructors are the functions we desire.
+    //
+    // For types T that cannot point to stubs, these
+    // constructors are no-operations.  For types T that
+    // can point to stubs, the constructors call acc_
+    // write_update with the arguments given the
+    // constructor.
+
     template < typename T >
-    inline void write_update
-	    ( const min::stub * s, T v )
-    {}
+    struct write_update
+    {
+        // For general types T these are nop's.
+	//
+	write_update ( const min::stub * s, T v ) {}
+	write_update ( const min::stub * s,
+	               T const * p, min::unsptr n ) {}
+    };
 
     template <>
-    inline void write_update<const min::stub *>
+    struct write_update<const min::stub *>
+    {
+        write_update
 	    ( const min::stub * s, const min::stub * v )
-    {
-        unprotected::acc_write_update ( s, v );
-    }
+	{
+	    unprotected::acc_write_update ( s, v );
+	}
+	write_update ( const min::stub * s,
+	               const min::stub * const * p,
+		       min::unsptr n )
+	{
+	    unprotected::acc_write_update ( s, p, n );
+	}
+    };
 
     template <>
-    inline void write_update<min::gen>
-	    ( const min::stub * s, min::gen v )
+    struct write_update<min::gen>
     {
-        unprotected::acc_write_update ( s, v );
-    }
-
-    template < typename T >
-    inline void write_update
-	    ( const min::stub * s,
-	      T const * p, min::unsptr n )
-    {
-        while ( n -- )
-	    write_update<T> ( s, * p ++ );
-    }
+        write_update ( const min::stub * s, min::gen v )
+	{
+	    unprotected::acc_write_update ( s, v );
+	}
+	write_update ( const min::stub * s,
+	               min::gen const * p,
+		       min::unsptr n )
+	{
+	    unprotected::acc_write_update ( s, p, n );
+	}
+    };
 }
 
 namespace min { namespace internal {
@@ -2711,8 +2739,6 @@ namespace min { namespace internal {
 
 namespace min {
 
-    extern const min::stub * ZERO_STUB;
-
     template < typename T >
     class ref;
 
@@ -2780,16 +2806,14 @@ namespace min {
 	{
 	    T value = r;
 	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		write_update<T> ( this->s, value );
+	    write_update<T> X ( this->s, value );
 	    return * this;
 	}
 
 	ref<T> const & operator = ( T value ) const
 	{
 	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		write_update<T> ( this->s, value );
+	    write_update<T> X ( this->s, value );
 	    return * this;
 	}
 
@@ -2799,8 +2823,7 @@ namespace min {
 	{
 	    T value = var;
 	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		write_update<T> ( this->s, value );
+	    write_update<T> X ( this->s, value );
 	    return * this;
 	}
 
@@ -2840,7 +2863,7 @@ namespace min {
     inline min::ref<T> new_ref ( T & location )
     {
 	return unprotected::new_ref<T>
-	    ( ZERO_STUB, location );
+	    ( unprotected::ZERO_STUB, location );
     }
 
 #   define MIN_REF(type,name,ctype) \
@@ -3030,7 +3053,7 @@ namespace min {
     inline min::ptr<T> new_ptr ( T * p )
     {
 	return unprotected::new_ptr<T>
-	    ( ZERO_STUB, p );
+	    ( unprotected::ZERO_STUB, p );
     }
 
     template < typename T >
@@ -3149,13 +3172,13 @@ namespace min {
 	operator min::ref<min::gen> ( void ) const
 	{
 	    return unprotected::new_ref<min::gen>
-	        ( ZERO_STUB, this->value );
+	        ( unprotected::ZERO_STUB, this->value );
 	}
 
 	min::ptr<min::gen> operator & ( void )
 	{
 	    return & unprotected::new_ref<min::gen>
-	        ( ZERO_STUB, this->value );
+	        ( unprotected::ZERO_STUB, this->value );
 	}
     };
 
@@ -3221,7 +3244,7 @@ namespace min {
 	{
 	    return unprotected::new_ref
 		    <const min::stub *>
-	        ( ZERO_STUB, this->value );
+	        ( unprotected::ZERO_STUB, this->value );
 	}
 
 	min::ptr<const min::stub *> operator &
@@ -3229,7 +3252,7 @@ namespace min {
 	{
 	    return & unprotected::new_ref
 		    <const min::stub *>
-	        ( ZERO_STUB, this->value );
+	        ( unprotected::ZERO_STUB, this->value );
 	}
     };
 
@@ -3303,13 +3326,21 @@ inline bool operator != ( T v, const min::ref<T> & r )
 namespace min { \
     \
     template < TARGS > \
-    inline void write_update \
-	    ( const min::stub * s, T v ) \
+    struct write_update<T> \
     { \
-        qed(v); \
-        unprotected::acc_write_update \
-	    ( s, (const min::stub *) v ); \
-    } \
+        write_update ( const min::stub * s, T v ) \
+	{ \
+	    unprotected::acc_write_update \
+		( s, (const min::stub *) v ); \
+	} \
+	write_update ( const min::stub * s, \
+	               T const * p, \
+		       min::unsptr n ) \
+	{ \
+	    unprotected::acc_write_update \
+	        ( s, (const min::stub **) p, n ); \
+	} \
+    }; \
     \
     template < TARGS > \
     class locatable_var< T > : public T \
@@ -3381,13 +3412,15 @@ namespace min { \
 	operator min::ref< T > ( void ) const \
 	{ \
 	    return unprotected::new_ref< T > \
-	        ( ZERO_STUB, * (T *) this ); \
+	        ( unprotected::ZERO_STUB, \
+		  * (T *) this ); \
 	} \
 	\
 	min::ptr< T > operator & ( void ) \
 	{ \
 	    return & unprotected::new_ref< T > \
-	        ( ZERO_STUB, * (T *) this ); \
+	        ( unprotected::ZERO_STUB, \
+		  * (T *) this ); \
 	} \
     }; \
     \
@@ -3516,8 +3549,7 @@ namespace min { \
 	if ( vp ) \
 	{ \
 	    memcpy ( p, vp, n * sizeof ( T ) ); \
-	    write_update \
-		( pvip, p, n ); \
+	    write_update<T> X ( pvip, p, n ); \
 	} \
 	else \
 	    memset ( p, 0, n * sizeof ( T ) ); \
@@ -3538,8 +3570,7 @@ namespace min { \
 	    (const min::stub **) \
 	    ! end_ptr_of ( pvip ); \
 	memcpy ( p, vp, n * sizeof ( T ) ); \
-	write_update \
-	    ( pvip, p, n ); \
+	write_update<T> X ( pvip, p, n ); \
 	* (MIN_TYPE_L *) & pvip->length += n; \
     } \
 } \
@@ -4090,7 +4121,7 @@ namespace min {
     {
 	return unprotected::new_ptr
 	    ( sp.s != & sp.pseudo_stub ?
-		  sp.s : ZERO_STUB,
+		  sp.s : unprotected::ZERO_STUB,
 	      ( (const char * )
 		unprotected::long_str_of ( sp.s ) )
 	      + sizeof ( unprotected::long_str )
@@ -5786,7 +5817,7 @@ namespace min {
 	if ( vp )
 	{
 	    memcpy ( p, vp, n * sizeof ( E ) );
-	    write_update ( pvip, p, n );
+	    write_update<E> X ( pvip, p, n );
 	}
 	else
 	    memset ( p, 0, n * sizeof ( E ) );
@@ -5802,7 +5833,7 @@ namespace min {
 	    pvip.reserve ( n );
 	E * p = ! end_ptr_of ( pvip );
 	memcpy ( p, ! vp, n * sizeof ( E ) );
-	write_update ( pvip, p, n );
+	write_update<E> X ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -7744,8 +7775,7 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 		     + vp.unused_offset,
 		     p, sizeof ( min::gen ) * n );
-	    write_update
-	        ( vp.s, p, n );
+	    write_update<min::gen> X ( vp.s, p, n );
         }
 	vp.unused_offset += n;
     }
@@ -7777,8 +7807,7 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 	             + vp.aux_offset,
 		     p, sizeof ( min::gen ) * n );
-	    write_update
-	        ( vp.s, p, n );
+	    write_update<min::gen> X ( vp.s, p, n );
 	}
     }
 
@@ -9158,7 +9187,7 @@ namespace min {
         MIN_ASSERT ( lp.current != LIST_END() );
         MIN_ASSERT ( ! is_sublist ( lp.current ) );
         MIN_ASSERT ( ! is_sublist ( value ) );
-	write_update
+	write_update<min::gen> X
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS
@@ -9190,7 +9219,7 @@ namespace min {
 		     ! is_sublist ( value ) );
 	internal::remove_sublist
 	       ( lp.base, lp.total_size, lp.current );
-	write_update
+	write_update<min::gen> X
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS

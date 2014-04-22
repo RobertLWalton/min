@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 07:20:13 EDT 2014
+// Date:	Tue Apr 22 06:21:44 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -519,7 +519,8 @@ void MINT::thread_interrupt ( void ) {}  // TBD
 // -----------------------------
 
 static min::stub ZERO_STUB;
-const min::stub * min::ZERO_STUB = & ::ZERO_STUB;
+const min::stub * min::unprotected::ZERO_STUB =
+    & ::ZERO_STUB;
 
 MINT::locatable_gen * MINT::locatable_gen_last;
 MINT::locatable_var * MINT::locatable_var_last;
