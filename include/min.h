@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 04:28:09 EDT 2014
+// Date:	Tue Apr 22 04:32:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3303,76 +3303,6 @@ inline bool operator != ( T v, const min::ref<T> & r )
 namespace min { \
     \
     template < TARGS > \
-    class ref< T > : public internal::ref_base< T > \
-    { \
-    \
-    public: \
-	\
-	/* We must prevent the default operator =.
-	*/ \
-	ref< T > const & operator = \
-		( ref< T > const & r ) const \
-	{ \
-	    T value = * r.location(); \
-	    * this->location() = value; \
-	    if ( this->s != ZERO_STUB ) \
-		write_update \
-		    ( this->s, value ); \
-	    return * this; \
-	} \
-	\
-	ref< T > const & operator = ( T value ) const \
-	{ \
-	    * this->location() = value; \
-	    if ( this->s != ZERO_STUB ) \
-		write_update \
-		    ( this->s, value ); \
-	    return * this; \
-	} \
-	\
-	ref< T > const & operator = \
-	    ( const min::locatable_var < T > \
-		    & var ) const \
-	{ \
-	    T value = var; \
-	    * this->location() = value; \
-	    if ( this->s != ZERO_STUB ) \
-		write_update \
-		    ( this->s, value ); \
-	    return * this; \
-	} \
-	\
-	/* For some reason == MUST be defined as a
-	   member if it is to be recognized. */ \
-	bool operator == ( const min::stub * s ) const \
-	{ \
-	    return * this->location() == s; \
-	} \
-	\
-	bool operator != ( const min::stub * s ) const \
-	{ \
-	    return * this->location() != s; \
-	} \
-	\
-    private: \
-	\
-	friend min::ref< T > unprotected::new_ref< T > \
-	    ( const min::stub * s, \
-	      T const & location ); \
-	\
-	friend min::ref< T > unprotected::new_ref< T > \
-	    ( const min::stub * s, \
-	      min::unsptr offset ); \
-	\
-        ref ( const min::stub * s, \
-	      min::unsptr offset ) \
-	    : internal::ref_base< T > ( s, offset ) {} \
-	\
-        ref ( void ) \
-	    : internal::ref_base<T> ( NULL, 0 ) {} \
-    }; \
-    \
-    template < TARGS > \
     class locatable_var< T > : public T \
     { \
     \
@@ -3603,7 +3533,21 @@ namespace min { \
 	    ( pvip, p, n ); \
 	* (MIN_TYPE_L *) & pvip->length += n; \
     } \
+} \
+template < TARGS > \
+bool operator == \
+	( const min::ref<T> & r, const min::stub * s ) \
+{ \
+    return (const min::stub *) (T) r == s; \
+} \
+\
+template < TARGS > \
+bool operator != \
+	( const min::ref<T> & r, const min::stub * s ) \
+{ \
+    return (const min::stub *) (T) r != s; \
 }
+
 
 // Numbers
 // -------
