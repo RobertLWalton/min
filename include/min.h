@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 15:48:36 EDT 2014
+// Date:	Tue Apr 22 04:28:09 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1933,6 +1933,37 @@ namespace min { namespace unprotected {
 
 } }
 
+namespace min {
+
+    template < typename T >
+    inline void write_update
+	    ( const min::stub * s, T v )
+    {}
+
+    template <>
+    inline void write_update<const min::stub *>
+	    ( const min::stub * s, const min::stub * v )
+    {
+        unprotected::acc_write_update ( s, v );
+    }
+
+    template <>
+    inline void write_update<min::gen>
+	    ( const min::stub * s, min::gen v )
+    {
+        unprotected::acc_write_update ( s, v );
+    }
+
+    template < typename T >
+    inline void write_update
+	    ( const min::stub * s,
+	      T const * p, min::unsptr n )
+    {
+        while ( n -- )
+	    write_update<T> ( s, * p ++ );
+    }
+}
+
 namespace min { namespace internal {
 
     // Stub allocation is from a single list of stubs
@@ -2747,13 +2778,29 @@ namespace min {
 	ref<T> const & operator =
 		( const ref<T> & r ) const
 	{
-	    * this->location() = * r.location();
+	    T value = r;
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		write_update<T> ( this->s, value );
 	    return * this;
 	}
 
 	ref<T> const & operator = ( T value ) const
 	{
 	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		write_update<T> ( this->s, value );
+	    return * this;
+	}
+
+	ref<T> const & operator =
+	    ( const min::locatable_var<T> & var )
+	    const
+	{
+	    T value = var;
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		write_update<T> ( this->s, value );
 	    return * this;
 	}
 
@@ -2772,121 +2819,6 @@ namespace min {
 	    : internal::ref_base<T> ( NULL, 0 ) {}
     };
 
-    template <>
-    class ref<min::gen>
-	: public internal::ref_base<min::gen>
-    {
-
-    public:
-
-	// We must prevent the default operator =.
-	//
-	ref<min::gen> const & operator =
-	    ( const ref<min::gen> & r ) const
-	{
-	    min::gen value = * r.location();
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<min::gen> const & operator =
-		( min::gen value ) const
-	{
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<min::gen> const & operator =
-	    ( const min::locatable_var<min::gen> & var )
-	    const;
-	    // Because this specialization is instan-
-	    // tiated when it is declared, it is instan-
-	    // tiated before locatable_var<min::gen>
-	    // is declared, and we cannot include the
-	    // function body here.  Its below.
-
-    private:
-
-	friend min::ref<min::gen>
-	       unprotected::new_ref<min::gen>
-	    ( const min::stub * s,
-	      const min::gen & location );
-
-	friend min::ref<min::gen>
-	       unprotected::new_ref<min::gen>
-	    ( const min::stub * s, min::unsptr offset );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<min::gen> ( s, offset )
-	    {}
-
-        ref ( void )
-	    : internal::ref_base<min::gen> ( NULL, 0 )
-	    {}
-    };
-
-    template <>
-    class ref<const min::stub *>
-	: public internal::ref_base<const min::stub *>
-    {
-
-    public:
-
-	// We must prevent the default operator =.
-	//
-	ref<const min::stub *> const & operator =
-	    ( const ref<const min::stub *> & r ) const
-	{
-	    const min::stub * value = * r.location();
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<const min::stub *> const & operator =
-		( const min::stub * value ) const
-	{
-	    * this->location() = value;
-	    if ( this->s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( this->s, value );
-	    return * this;
-	}
-
-	ref<const min::stub *> const & operator =
-	    ( const min::locatable_var
-	                <const min::stub *> & var )
-	    const;
-
-    private:
-
-	friend min::ref<const min::stub *>
-	       unprotected::new_ref<const min::stub *>
-	    ( const min::stub * s,
-	      const min::stub * const & location );
-
-	friend min::ref<const min::stub *>
-	       unprotected::new_ref<const min::stub *>
-	    ( const min::stub * s, min::unsptr offset );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<const min::stub *>
-	          ( s, offset )
-	    {}
-
-        ref ( void )
-	    : internal::ref_base<const min::stub *>
-	    ( NULL, 0 ) {}
-    };
- 
     template < typename T >
     inline min::ref<T> unprotected::new_ref
         ( const min::stub * s, min::unsptr offset )
@@ -3148,7 +3080,8 @@ namespace min {
     }
  
     template < typename T >
-    class locatable_var : public T
+    class locatable_var
+        // This class is unused if T is not specialized.
     {
 
     private:
@@ -3308,32 +3241,6 @@ namespace min {
 	typedef min::locatable_gen locatable_num_gen;
 #   endif
 
-    inline min::ref<min::gen> const &
-        min::ref<min::gen>::operator =
-	    ( const min::locatable_var<min::gen> & var )
-	    const
-    {
-	min::gen value = var;
-	* this->location() = value;
-	if ( this->s != ZERO_STUB )
-	    unprotected::acc_write_update
-		( this->s, value );
-	return * this;
-    }
-
-    inline min::ref<const min::stub *> const &
-        min::ref<const min::stub *>::operator =
-	    ( const min::locatable_var
-	          <const min::stub *> & var ) const
-    {
-	const min::stub * value = var;
-	* this->location() = value;
-	if ( this->s != ZERO_STUB )
-	    unprotected::acc_write_update
-		( this->s, value );
-	return * this;
-    }
-
 }
 
 // For some reason r == v will not automatically
@@ -3409,7 +3316,7 @@ namespace min { \
 	    T value = * r.location(); \
 	    * this->location() = value; \
 	    if ( this->s != ZERO_STUB ) \
-		unprotected::acc_write_update \
+		write_update \
 		    ( this->s, value ); \
 	    return * this; \
 	} \
@@ -3418,7 +3325,7 @@ namespace min { \
 	{ \
 	    * this->location() = value; \
 	    if ( this->s != ZERO_STUB ) \
-		unprotected::acc_write_update \
+		write_update \
 		    ( this->s, value ); \
 	    return * this; \
 	} \
@@ -3430,7 +3337,7 @@ namespace min { \
 	    T value = var; \
 	    * this->location() = value; \
 	    if ( this->s != ZERO_STUB ) \
-		unprotected::acc_write_update \
+		write_update \
 		    ( this->s, value ); \
 	    return * this; \
 	} \
@@ -3670,7 +3577,7 @@ namespace min { \
 	if ( vp ) \
 	{ \
 	    memcpy ( p, vp, n * sizeof ( T ) ); \
-	    unprotected::acc_write_update \
+	    write_update \
 		( pvip, p, n ); \
 	} \
 	else \
@@ -3692,7 +3599,7 @@ namespace min { \
 	    (const min::stub **) \
 	    ! end_ptr_of ( pvip ); \
 	memcpy ( p, vp, n * sizeof ( T ) ); \
-	unprotected::acc_write_update \
+	write_update \
 	    ( pvip, p, n ); \
 	* (MIN_TYPE_L *) & pvip->length += n; \
     } \
@@ -5904,38 +5811,13 @@ namespace min {
     // <L> as an actual template argument).
 
     template < typename E, typename H, typename L >
-    inline E & push
+    inline min::ref<E> push
 	( typename min::packed_vec_insptr<E,H,L> pvip )
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
 	E * p = ! end_ptr_of ( pvip );
 	memset ( p, 0, sizeof ( E ) );
-	++ * (L *) & pvip->length;
-	return * p;
-    }
-    template < typename H, typename L >
-    inline min::ref<min::gen> push
-	( typename min::packed_vec_insptr<min::gen,H,L>
-	           pvip )
-    {
-	if ( pvip->length >= pvip->max_length )
-	    pvip.reserve ( 1 );
-	min::gen * p = ! end_ptr_of ( pvip );
-	new ( p ) min::gen();
-	++ * (L *) & pvip->length;
-	return unprotected::new_ref ( pvip, * p );
-    }
-    template < typename H, typename L >
-    inline min::ref<const min::stub *> push
-	( typename min::packed_vec_insptr
-			   <const min::stub *,H,L>
-	           pvip )
-    {
-	if ( pvip->length >= pvip->max_length )
-	    pvip.reserve ( 1 );
-	const min::stub ** p = ! end_ptr_of ( pvip );
-	* p = NULL_STUB;
 	++ * (L *) & pvip->length;
 	return unprotected::new_ref ( pvip, * p );
     }
@@ -5967,7 +5849,7 @@ namespace min {
 	if ( vp )
 	{
 	    memcpy ( p, vp, n * sizeof ( min::gen ) );
-	    unprotected::acc_write_update
+	    write_update
 		( pvip, p, n );
 	}
 	else
@@ -5990,7 +5872,7 @@ namespace min {
 	{
 	    memcpy ( p, vp,
 	             n * sizeof ( const min::stub * ) );
-	    unprotected::acc_write_update
+	    write_update
 		( pvip, p, n );
 	}
 	else
@@ -6028,7 +5910,7 @@ namespace min {
 	    pvip.reserve ( n );
 	min::gen * p = ! end_ptr_of ( pvip );
 	memcpy ( p, ! vp, n * sizeof ( min::gen ) );
-	unprotected::acc_write_update ( pvip, p, n );
+	write_update ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
     template < typename H, typename L >
@@ -6045,7 +5927,7 @@ namespace min {
 	const min::stub ** p = ! end_ptr_of ( pvip );
 	memcpy ( p, ! vp,
 		 n * sizeof ( const min::stub * ) );
-	unprotected::acc_write_update ( pvip, p, n );
+	write_update ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -7980,7 +7862,7 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 		     + vp.unused_offset,
 		     p, sizeof ( min::gen ) * n );
-	    unprotected::acc_write_update
+	    write_update
 	        ( vp.s, p, n );
         }
 	vp.unused_offset += n;
@@ -8013,7 +7895,7 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 	             + vp.aux_offset,
 		     p, sizeof ( min::gen ) * n );
-	    unprotected::acc_write_update
+	    write_update
 	        ( vp.s, p, n );
 	}
     }
@@ -9394,7 +9276,7 @@ namespace min {
         MIN_ASSERT ( lp.current != LIST_END() );
         MIN_ASSERT ( ! is_sublist ( lp.current ) );
         MIN_ASSERT ( ! is_sublist ( value ) );
-	unprotected::acc_write_update
+	write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS
@@ -9426,7 +9308,7 @@ namespace min {
 		     ! is_sublist ( value ) );
 	internal::remove_sublist
 	       ( lp.base, lp.total_size, lp.current );
-	unprotected::acc_write_update
+	write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS
