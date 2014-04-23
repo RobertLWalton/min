@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 06:21:44 EDT 2014
+// Date:	Tue Apr 22 14:23:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -54,6 +54,10 @@
 
 min::initializer * MINT::last_initializer = NULL;
 bool MINT::initialization_done = false;
+
+template < typename T, typename S >
+min::locatable_var<S,S> *
+    min::locatable_var<T,S>::last = NULL;
 
 # include "../unicode/unicode_class.h"
 
@@ -210,13 +214,6 @@ void MINT::initialize ( void )
     PTR_CHECK ( min::packed_vec_ptr<int,int> );
     PTR_CHECK ( min::packed_vec_updptr<int,int> );
     PTR_CHECK ( min::packed_vec_insptr<int,int> );
-
-    assert
-        ( OFFSETOF ( & MINT::locatable_gen::previous )
-	  == sizeof ( const min::stub * ) );
-    assert
-        ( OFFSETOF ( & MINT::locatable_var::previous )
-	  == sizeof ( const min::stub * ) );
 
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";
@@ -521,9 +518,6 @@ void MINT::thread_interrupt ( void ) {}  // TBD
 static min::stub ZERO_STUB;
 const min::stub * min::unprotected::ZERO_STUB =
     & ::ZERO_STUB;
-
-MINT::locatable_gen * MINT::locatable_gen_last;
-MINT::locatable_var * MINT::locatable_var_last;
 
 min::unsptr MINT::number_of_free_stubs;
 
@@ -1011,9 +1005,9 @@ void MINT::thread_scavenger_routine
     if ( sc.thread_state == 0 )
     {
         sc.locatable_gen_last =
-	    MINT::locatable_gen_last;
+	    min::locatable_gen::last;
         sc.locatable_var_last =
-	    MINT::locatable_var_last;
+	    min::locatable_stub::last;
     }
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
@@ -1025,7 +1019,7 @@ void MINT::thread_scavenger_routine
 	    sc.thread_state = 1;
 	    return;
 	}
-	min::gen v = sc.locatable_gen_last->value;
+	min::gen v = (min::gen) * sc.locatable_gen_last;
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
@@ -1046,7 +1040,8 @@ void MINT::thread_scavenger_routine
 	    return;
 	}
 	min::stub * s2 =
-	    (min::stub *) sc.locatable_var_last->value;
+	    (min::stub *)
+	    (const min::stub *) * sc.locatable_var_last;
 	if ( s2 != NULL )
 	{
 	    MIN_SCAVENGE_S2

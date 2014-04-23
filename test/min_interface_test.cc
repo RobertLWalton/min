@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 21 07:20:43 EDT 2014
+// Date:	Tue Apr 22 13:50:48 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -484,8 +484,8 @@ void MINT::acc_initializer ( void )
 //
 bool find_ptr_locator ( void * address )
 {
-    MINT::locatable_var * locator =
-        MINT::locatable_var_last;
+    min::locatable_stub * locator =
+	min::locatable_stub::last;
 
     while ( locator )
     {
@@ -500,12 +500,12 @@ bool find_ptr_locator ( void * address )
 //
 bool find_gen_locator ( void * address )
 {
-    MINT::locatable_gen * locator =
-        MINT::locatable_gen_last;
+    min::locatable_gen * locator =
+        min::locatable_gen::last;
 
     while ( locator )
     {
-        if ( & locator->value == address )
+        if ( locator == address )
 	    return true;
 	locator = locator->previous;
     }
@@ -517,8 +517,9 @@ bool find_gen_locator ( void * address )
 //
 int count_gen_locators ( void )
 {
-    MINT::locatable_gen * locator =
-        MINT::locatable_gen_last;
+    min::locatable_gen * locator =
+        min::locatable_gen::last;
+
     int count = 0;
     while ( locator )
     {
@@ -2064,10 +2065,6 @@ void test_packed_structs ( void )
     cout << endl;
     cout << "Start Packed Structs Test!" << endl;
 
-    MIN_ASSERT
-        (    8 * min::OFFSETOF
-	           ( & MINT::locatable_var::previous )
-	  == MIN_PTR_BITS );
     MIN_ASSERT
         (    8 * min::OFFSETOF
 	           ( & min::locatable_var<ps1updptr>

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 06:39:51 EDT 2014
+// Date:	Wed Apr 23 04:56:20 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2494,6 +2494,19 @@ namespace min { namespace unprotected {
 
 } }
 
+namespace min {
+
+    class stub_class;
+
+    template < typename T, typename S = stub_class >
+    class locatable_var;
+
+    typedef locatable_var<min::gen,min::gen>
+        locatable_gen;
+    typedef locatable_var<min::stub_class,min::stub_class>
+        locatable_stub;
+}
+
 namespace min { namespace internal {
 
     // Scavenging a stub is done by calling a stub type
@@ -2564,8 +2577,6 @@ namespace min { namespace internal {
     // restart function if that function finds that a
     // stub is being scavenged.
     //
-    struct locatable_var;
-    struct locatable_gen;
     struct scavenge_control
     {
         // For definitions of s1 and s2 see above.
@@ -2642,16 +2653,15 @@ namespace min { namespace internal {
 	   // 0 to start from beginning, non-0 to
 	   // continue.
 
-	min::internal::locatable_var *
-		locatable_var_last;
-	min::internal::locatable_gen *
-		locatable_gen_last;
-	    // Pointers to locatable variables from
-	    // which to resume if thread_state != 0.
+	min::locatable_stub * locatable_var_last;
+	min::locatable_gen * locatable_gen_last;
+	   // Pointers to locatable variables from
+	   // which to resume if thread_state != 0.
+  
     };
 
     // Function to scavenge the static and thread loca-
-    // table_gen, locatable_num_gen, and locatable_var
+    // table_gen, locatable_num_gen, and locatable_stub
     // structures, finding all pointers therein to acc
     // stubs s2.  For each s2 found, a particular flag
     // of s2, designated by sc.stub_flag, is checked
@@ -2742,9 +2752,6 @@ namespace min {
     template < typename T >
     class ref;
 
-    template < typename T >
-    class locatable_var;
-
     namespace unprotected {
 
 	template < typename T >
@@ -2799,7 +2806,8 @@ namespace min {
 
     public:
 
-	// We must prevent the default operator =.
+	// We must define an explicit copy assignment
+	// operator.
 	//
 	ref<T> const & operator =
 		( const ref<T> & r ) const
@@ -2810,20 +2818,13 @@ namespace min {
 	    return * this;
 	}
 
-	ref<T> const & operator = ( T value ) const
-	{
-	    * this->location() = value;
-	    write_update<T> X ( this->s, value );
-	    return * this;
-	}
-
+	template < typename V >
 	ref<T> const & operator =
-	    ( const min::locatable_var<T> & var )
-	    const
+		( V const & value ) const
 	{
-	    T value = var;
-	    * this->location() = value;
-	    write_update<T> X ( this->s, value );
+	    T v = (T) value;
+	    * this->location() = v;
+	    write_update<T> X ( this->s, v );
 	    return * this;
 	}
 
@@ -2873,6 +2874,32 @@ namespace min {
         return min::unprotected::new_ref \
 	    ( container, container->name ); \
     }
+}
+
+// r == v will not automatically convert r to type v,
+// so:
+//
+template < typename T >
+inline bool operator == ( const min::ref<T> & r, T v )
+{
+    return (T) r == v;
+}
+
+template < typename T >
+inline bool operator == ( T v, const min::ref<T> & r )
+{
+    return v == (T) r;
+}
+template < typename T >
+inline bool operator != ( const min::ref<T> & r, T v )
+{
+    return (T) r != v;
+}
+
+template < typename T >
+inline bool operator != ( T v, const min::ref<T> & r )
+{
+    return v != (T) r;
 }
 
 // Pointers
@@ -3026,11 +3053,6 @@ inline min::ptr<T> operator -- ( min::ptr<T> & p )
 }
 
 namespace min {
-
-#   define MIN_STACK_COPY(T,buffer,length,source) \
-    T buffer[length]; \
-    memcpy ( buffer, (T const *) (source), \
-             sizeof ( T ) * (length) )
  
     template < typename T >
     inline min::ptr<T> unprotected::new_ptr
@@ -3071,192 +3093,128 @@ namespace min {
 	    ( p.s, p.offset );
     }
 }
+
+# define MIN_STACK_COPY(T,buffer,length,source) \
+    T buffer[length]; \
+    memcpy ( buffer, (T const *) (source), \
+             sizeof ( T ) * (length) )
 
 // Locatable Variables
 // --------- ---------
 
 namespace min {
 
-    namespace internal
-    {
-        struct locatable_gen_base
-	{
-	    min::gen value;
-	};
-        struct locatable_gen
-	    : public locatable_gen_base
-	{
-	    locatable_gen * previous;
-	};
-	extern locatable_gen * locatable_gen_last;
+    // See declarations of locatable_... above.
 
-        struct locatable_var_base
-	{
-	    const min::stub * value;
-	};
-	struct locatable_var
-	    : public locatable_var_base
-	{
-	    locatable_var * previous;
-	};
-	extern locatable_var * locatable_var_last;
-    }
- 
-    template < typename T >
-    class locatable_var
-        // This class is unused if T is not specialized.
+    class stub_class
     {
 
     private:
 
-        locatable_var ( void ) {}
+	const min::stub * value;
 
+    public:
+
+	template < typename U >
+	stub_class ( U s )
+	    : value ( (const min::stub *) s ) {}
+
+	stub_class ( void )
+	    : value ( NULL ) {}
+
+	template < typename U >
+	stub_class & operator = ( U s )
+	{
+	    value = (const min::stub *) s;
+	    return * this;
+	}
+
+	operator const min::stub * ( void )
+	{
+	    return value;
+	}
     };
 
-    template <>
-    class locatable_var<min::gen>
-	: protected internal::locatable_gen_base
+    template < typename T, typename S >
+    class locatable_var : public T
     {
-    public:
-        internal::locatable_gen * previous;
-	    // Made public so we can check offset.
-
-    private:
-
-        locatable_var
-	        ( const locatable_var<min::gen> & var )
-	    : internal::locatable_gen_base ()
-	{}
 
     public:
 
-        locatable_var ( void )
+        locatable_var ( void ) : T()
 	{
-	    value = MISSING();
-	    previous = internal::locatable_gen_last;
-	    internal::locatable_gen_last =
-	        (internal::locatable_gen *) this;
+	    previous = locatable_var<S,S>::last;
+	    locatable_var<S,S>::last =
+		(locatable_var<S,S> *) this;
 	}
-        locatable_var ( min::gen g )
+
+	// We must define an explicit copy constructor.
+	//
+        locatable_var ( const locatable_var<T,S> & var )
+	    : T ( (T const &) var )
 	{
-	    value = g;
-	    previous = internal::locatable_gen_last;
-	    internal::locatable_gen_last =
-	        (internal::locatable_gen *) this;
+	    previous = locatable_var<S,S>::last;
+	    locatable_var<S,S>::last =
+		(locatable_var<S,S> *) this;
 	}
-        ~ locatable_var ( void )
+
+	template < typename U >
+	locatable_var ( U const & value )
+	    : T ( (T const &) value )
+	{
+	    previous = locatable_var<S,S>::last;
+	    locatable_var<S,S>::last =
+		(locatable_var<S,S> *) this;
+	}
+
+	~ locatable_var ( void )
 	{
 	    assert
-	      (    internal::locatable_gen_last
-	        == (internal::locatable_gen *) this );
-	    internal::locatable_gen_last = previous;
-	}
-
-	operator min::gen ( void ) const
-	{
-	    return this->value;
-	}
-	locatable_var<min::gen> & operator =
-	    ( const locatable_var<min::gen> & var )
-	{
-	    this->value = var;
-	    return * this;
-	}
-	locatable_var<min::gen> & operator =
-		( min::gen value )
-	{
-	    this->value = value;
-	    return * this;
-	}
-
-	operator min::ref<min::gen> ( void ) const
-	{
-	    return unprotected::new_ref<min::gen>
-	        ( unprotected::ZERO_STUB, this->value );
-	}
-
-	min::ptr<min::gen> operator & ( void )
-	{
-	    return & unprotected::new_ref<min::gen>
-	        ( unprotected::ZERO_STUB, this->value );
-	}
-    };
-
-    template <>
-    class locatable_var<const min::stub *>
-	: protected internal::locatable_var_base
-    {
-    public:
-        internal::locatable_var * previous;
-	    // Made public so we can check offset.
-
-    private:
-
-        locatable_var
-	        ( const locatable_var<const min::stub *>
-		        & var )
-	{}
-
-    public:
-
-        locatable_var ( void )
-	{
-	    value = NULL;
-	    previous = internal::locatable_var_last;
-	    internal::locatable_var_last =
-	        (internal::locatable_var *) this;
-	}
-        locatable_var ( const min::stub * s )
-	{
-	    value = s;
-	    previous = internal::locatable_var_last;
-	    internal::locatable_var_last =
-	        (internal::locatable_var *) this;
-	}
-        ~ locatable_var ( void )
-	{
+		(    (locatable_var<S,S>::last)
+		  == (locatable_var<S,S> *) this );
 	    assert
-	      (    internal::locatable_var_last
-	        == (internal::locatable_var *) this );
-	    internal::locatable_var_last = previous;
+	        (    & this->previous
+		  == & ((locatable_var<S,S> *) this)
+		        -> previous );
+	             
+	    locatable_var<S,S>::last = previous;
 	}
 
-	operator const min::stub * ( void ) const
+	template < typename U >
+	locatable_var<T,S> & operator =
+		( U const & value )
 	{
-	    return this->value;
-	}
-	locatable_var<const min::stub *> & operator =
-	    ( const locatable_var<const min::stub *>
-	            & var )
-	{
-	    this->value = var;
-	    return * this;
-	}
-	locatable_var<const min::stub *> & operator =
-		( const min::stub * value )
-	{
-	    this->value = value;
+	    new ( this ) T ( (T const &) value );
 	    return * this;
 	}
 
-	operator min::ref<const min::stub *>
-		( void ) const
+	// We must define an explicit copy assignment
+	// operator.
+	//
+        locatable_var<T,S> & operator =
+		( const locatable_var<T,S> & var )
 	{
-	    return unprotected::new_ref
-		    <const min::stub *>
-	        ( unprotected::ZERO_STUB, this->value );
+	    new ( this ) T ( (T const &) var );
+	    return * this;
 	}
 
-	min::ptr<const min::stub *> operator &
-		( void )
+	operator min::ref<T> ( void ) const
 	{
-	    return & unprotected::new_ref
-		    <const min::stub *>
-	        ( unprotected::ZERO_STUB, this->value );
+	    return unprotected::new_ref<T>
+	        ( min::unprotected::ZERO_STUB,
+		  * (T *) this );
 	}
+
+	min::ptr<T> operator & ( void )
+	{
+	    return unprotected::new_ptr<T>
+	        ( min::unprotected::ZERO_STUB,
+		  (T *) this );
+	}
+
+	locatable_var<S,S> * previous;
+	static locatable_var<S,S> * last;
     };
-
-    typedef locatable_var<min::gen> locatable_gen;
 
 #   if MIN_IS_LOOSE
 	typedef min::gen locatable_num_gen;
@@ -3264,36 +3222,6 @@ namespace min {
 	typedef min::locatable_gen locatable_num_gen;
 #   endif
 
-}
-
-// For some reason r == v will not automatically
-// convert r to type v.
-//
-// Do not change min::ref<T> to const min::ref<T> &
-// in the below as it produces strange ambiguity
-// results.
-//
-template < typename T >
-inline bool operator == ( const min::ref<T> & r, T v )
-{
-    return (T) r == v;
-}
-
-template < typename T >
-inline bool operator == ( T v, const min::ref<T> & r )
-{
-    return v == (T) r;
-}
-template < typename T >
-inline bool operator != ( const min::ref<T> & r, T v )
-{
-    return (T) r != v;
-}
-
-template < typename T >
-inline bool operator != ( T v, const min::ref<T> & r )
-{
-    return v != (T) r;
 }
 
 // Use MIN_STUB_PTR_CLASS(TARGS,T) if the type
@@ -3339,88 +3267,6 @@ namespace min { \
 	{ \
 	    unprotected::acc_write_update \
 	        ( s, (const min::stub **) p, n ); \
-	} \
-    }; \
-    \
-    template < TARGS > \
-    class locatable_var< T > : public T \
-    { \
-    \
-    public: \
-    \
-        internal::locatable_var * previous; \
-	    /* Made public so we can check offset. */ \
-    \
-    private: \
-    \
-        locatable_var \
-	    ( const locatable_var< T > & var ) \
-	{} \
-    \
-    public: \
-    \
-        locatable_var ( void ) \
-	    : T ( NULL_STUB ) \
-	{ \
-	    previous = internal::locatable_var_last; \
-	    internal::locatable_var_last = \
-	        (internal::locatable_var *) this; \
-	    MIN_ASSERT \
-	        ( OFFSETOF \
-		      ( & locatable_var< T > \
-		          ::previous ) \
-		  == sizeof ( const min::stub * ) ); \
-	} \
-        locatable_var ( T v ) \
-	    : T ( v ) \
-	{ \
-	    previous = internal::locatable_var_last; \
-	    internal::locatable_var_last = \
-	        (internal::locatable_var *) this; \
-	    MIN_ASSERT \
-	        ( OFFSETOF \
-		      ( & locatable_var< T > \
-		          ::previous ) \
-		  == sizeof ( const min::stub * ) ); \
-	} \
-        ~ locatable_var ( void ) \
-	{ \
-	    assert (    internal::locatable_var_last \
-	             == (internal::locatable_var *) \
-		        this ); \
-	    internal::locatable_var_last = previous; \
-	} \
-        \
-	locatable_var< T > & operator = \
-	        ( const locatable_var< T > & var ) \
-	{ \
-	    new ( this ) T ( var ); \
-	    return * this; \
-	} \
-	locatable_var< T > & operator = ( T value ) \
-	{ \
-	    new ( this ) T ( value ); \
-	    return * this; \
-	} \
-	locatable_var< T > & operator = \
-		( const min::stub * s ) \
-	{ \
-	    new ( this ) T ( s ); \
-	    return * this; \
-	} \
-	\
-	operator min::ref< T > ( void ) const \
-	{ \
-	    return unprotected::new_ref< T > \
-	        ( unprotected::ZERO_STUB, \
-		  * (T *) this ); \
-	} \
-	\
-	min::ptr< T > operator & ( void ) \
-	{ \
-	    return & unprotected::new_ref< T > \
-	        ( unprotected::ZERO_STUB, \
-		  * (T *) this ); \
 	} \
     }; \
     \
