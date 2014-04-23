@@ -1754,7 +1754,7 @@ The functions for creating and using reference types are:
 \LABEL{MUP::NEW_REF_OF_OFFSET} \\
 \verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
     \verb|( T & location )| \\
-    & where \TT(location) is \underline{not} relocatable
+    & where \TT{location} is \underline{not} relocatable
 \LABEL{MIN::NEW_REF} \\
 \end{tabular}\end{indpar}
 
@@ -1933,11 +1933,6 @@ Associated with the \TT{min::\EOL ref<T>} reference type is
 the companion \TT{min::\EOL ptr<T>} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{ptr<T>} \verb| p|
-\LABEL{MIN::PTR_OF_T} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::|\MINKEY{ptr<T>}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T * location )|
@@ -1947,8 +1942,14 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
     \verb|  min::unsptr offset )|
 \LABEL{MUP::NEW_PTR_OF_OFFSET} \\
 \verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
-    \verb|( T * location )|
+    \verb|( T * location )| \\
+    & where \TT{location} is \underline{not} relocatable
 \LABEL{MIN::NEW_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{ptr<T>} \verb| p|
+\LABEL{MIN::PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2008,16 +2009,19 @@ a stub and an offset within the body of the stub.
 A main difference is that \TT{=} for reference values copies the
 values of the locations pointed at, while \TT{=} for pointer values
 copies the pointer itself; i.e., the pointer to the stub and the offset.
+Similarly \TT{==} for reference values compares the values of
+the locations pointed at, whereas \TT{==} for pointer values
+compares the pointers.
 
-Another difference is the if a \TT{min::\EOL ref<T>} value \TT{r}
-designates a location \TT{v} containing a \TT{T} value, then
+Another difference is that if a \TT{min::\EOL ref<T>} value \TT{r}
+designates a location containing a \TT{T} value \TT{v}, then
 \TT{r->\ldots}\label{PTR->} is equivalent to \TT{v->\ldots}.
 But if a \TT{min::\EOL ptr<T>} value \TT{p}
-points at location \TT{v} containing a \TT{T}, then
-\TT{p->\ldots} is equivalent to \TT{(\&v)->\ldots}.
+points at location \TT{loc} containing a \TT{T} value \TT{v}, then
+\TT{p->\ldots} is equivalent to \TT{(\&loc)->\ldots}.
 This is because
 the \TT{->} operator has been defined for \TT{min::\EOL ptr<T>}
-types to return \TT{\&v}, but for \TT{min::\EOL ref<T>} types
+types to return \TT{\&loc}, but for \TT{min::\EOL ref<T>} types
 it returns \TT{v} (see \pagref{REF->}).
 
 A \TT{min::\EOL ptr<T>} value can be created by applying the
@@ -2097,7 +2101,8 @@ actual value of \TT{p}, just as {(T *)(q)} is a coercion of \TT{q}
 if \TT{q} has type `\TT{S *}'.  Such coercions are inherently
 unprotected, of course.
 
-Several pointer operators are defined on \TT{min::ptr<T>} values:
+The following operators defined on \TT{min::ptr<T>} values
+allow these values to be used to step through a vector:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
@@ -2132,6 +2137,21 @@ false if the two pointers point at different relocatable bodies.
 So one should use the pointers to access data only if the smaller
 pointer is still \TT{<} than the larger pointer.
 
+The following permit a \TT{min::\EOL ptr<T>} equivalent of the
+\TT{NULL} value:
+
+\begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ptr<T>}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+\LABEL{MIN::==_OF_PTR_OF_T} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ptr<T>}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+\LABEL{MIN::!=_OF_PTR_OF_T} \\
+\end{tabular}\end{indpar}
+
+TBD
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
 \label{STACK-TEMPORARIES-OF-RELOCATABLE-VECTORS}
@@ -13145,7 +13165,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::NEW_REF_OF_OFFSET} \\
 \verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
     \verb|( T & location )| \\
-    & where \TT(location) is \underline{not} relocatable
+    & where \TT{location} is \underline{not} relocatable
 \LABEL{MIN::NEW_REF} \\
 \end{TABULAR}
 
@@ -13240,7 +13260,8 @@ These are in \verb|min_parameters.h|.
     \verb|  min::unsptr offset )|
 \LABEL{MUP::NEW_PTR_OF_OFFSET} \\
 \verb|min::|\MINKEY{ptr<T>}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
-    \verb|( T * location )|
+    \verb|( T * location )| \\
+    & where \TT{location} is \underline{not} relocatable
 \LABEL{MIN::NEW_PTR} \\
 \end{TABULAR}
 
@@ -13288,7 +13309,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|T * |
-	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}
+	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}\ARGBREAK
 	  \verb|( const min::ptr<T> & p )| ~ [unprotected]
 \LABEL{MIN::!_OF_PTR} \\
 \verb|min::ptr<T> |
@@ -13313,6 +13334,17 @@ These are in \verb|min_parameters.h|.
     \hspace*{1.3in} [prefix {\tt --}]\ARGBREAK
       \verb|( min::ptr<T> & r )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ptr<T>}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+\LABEL{MIN::==_OF_PTR_OF_T} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ptr<T>}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+\LABEL{MIN::!=_OF_PTR_OF_T} \\
 \end{TABULAR}
 
 \end{indpar}
