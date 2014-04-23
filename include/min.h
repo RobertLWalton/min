@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 12:59:52 EDT 2014
+// Date:	Wed Apr 23 14:23:15 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2928,7 +2928,7 @@ namespace min {
 	    : s ( p.s ), offset ( p.offset ) {}
 
 	// Because s and offset are consts, we must
-	// provide explicit copy assignment operator.
+	// provide an explicit copy assignment operator.
 	//
 	ptr<T> & operator = ( const ptr<T> & p )
 	{
@@ -3018,6 +3018,7 @@ inline min::ptr<T> operator ++
 {
     min::ptr<T> result = p;
     * (min::unsptr *) & p.offset += sizeof ( T );
+	// Overrides p.offset being read-only.
     return result;
 }
 
@@ -3025,6 +3026,7 @@ template < typename T >
 inline min::ptr<T> operator -- ( min::ptr<T> & p )
 {
     * (min::unsptr *) & p.offset -= sizeof ( T );
+	// Overrides p.offset being read-only.
     return p;
 }
 
