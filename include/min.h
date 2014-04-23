@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 05:49:41 EDT 2014
+// Date:	Wed Apr 23 12:59:52 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2773,7 +2773,8 @@ namespace min {
 	const min::unsptr offset;
 
 	// We must define an explicit copy assignment
-	// operator.
+	// operator which copies the values referenced
+	// and not the references.
 	//
 	ref<T> const & operator =
 		( const ref<T> & r ) const
@@ -2853,14 +2854,6 @@ namespace min {
 	return unprotected::new_ref<T>
 	    ( unprotected::ZERO_STUB, location );
     }
-
-#   define MIN_REF(type,name,ctype) \
-    inline min::ref< type > name##_ref \
-               ( ctype container ) \
-    { \
-        return min::unprotected::new_ref \
-	    ( container, container->name ); \
-    }
 }
 
 // r == v will not automatically convert r to type v,
@@ -2888,6 +2881,14 @@ inline bool operator != ( T v, const min::ref<T> & r )
 {
     return v != (T) r;
 }
+
+# define MIN_REF(type,name,ctype) \
+    inline min::ref< type > name##_ref \
+               ( ctype container ) \
+    { \
+        return min::unprotected::new_ref \
+	    ( container, container->name ); \
+    }
 
 // Pointers
 // --------
