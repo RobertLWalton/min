@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 14:23:15 EDT 2014
+// Date:	Wed Apr 23 15:25:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3205,23 +3205,16 @@ namespace min {
 // template< TARGS > class T is convertable to a
 // const min::stub * value.  This
 //
-//   * Redefines ref<T> so its operator = calls acc_
-//     write_update and so that == and != work if the
-//     second argument is a const min::stub * value.
+//   * Redefines write_update<T> to call MUP::acc_write_
+//     update.
 //
-//   * Redefines locatable_var<T> so its const min::stub
-//     * value is in fact locatable.
-//
-//   * Redefines packed_vec_updptr<T,...> so that its
-//     [] operator returns a ref<T> value.
-//
-//   * Redefines push(pv,...) for packed vectors so that
-//     either ref<T> is returned or acc_write_update is
-//     called.
+//   * Defines == and != when the left argument is a
+//     ref<T> value and the right argument is a const
+//     min::stub * value.
 //
 // Notes:
 //
-//    * In TARGS use MIN_COMMA for comma.
+//    * In TARGS and T use MIN_COMMA for comma.
 //
 //    * In the macro definition, avoid `T>' as T may end
 //      with `>'.  Also avoid `TARGS>'.
@@ -3246,156 +3239,6 @@ namespace min { \
 	        ( s, (const min::stub **) p, n ); \
 	} \
     }; \
-    \
-    template < TARGS, typename MIN_TYPE_H, \
-                      typename MIN_TYPE_L > \
-    class packed_vec_updptr<T,MIN_TYPE_H,MIN_TYPE_L> \
-	: public packed_vec_ptr \
-	             <T,MIN_TYPE_H,MIN_TYPE_L> \
-    { \
-    \
-    public: \
-	\
-	packed_vec_updptr \
-	        ( const min::packed_vec_updptr \
-			<T,MIN_TYPE_H,MIN_TYPE_L> \
-			& pvup ) \
-	{ \
-	    this->s = pvup.s; \
-	} \
-	packed_vec_updptr ( min::gen g ) \
-	    : packed_vec_ptr<T,MIN_TYPE_H,MIN_TYPE_L> \
-	    ( g ) {} \
-	packed_vec_updptr \
-		( const min::stub * s ) \
-	    : packed_vec_ptr<T,MIN_TYPE_H,MIN_TYPE_L> \
-	    ( s ) {} \
-	packed_vec_updptr ( void ) \
-	    : packed_vec_ptr<T,MIN_TYPE_H,MIN_TYPE_L> \
-	    () {} \
-	\
-	MIN_TYPE_H * operator -> ( void ) const \
-	{ \
-	    return (MIN_TYPE_H *) \
-		   unprotected::ptr_of ( this->s ); \
-	} \
-	\
-	min::ptr< T > operator + ( MIN_TYPE_L i ) \
-	    const \
-	{ \
-	    MIN_TYPE_H * hp = (MIN_TYPE_H *) \
-		unprotected::ptr_of ( this->s ); \
-	    MIN_ASSERT ( i < hp->length ); \
-	    return unprotected::new_ptr \
-	        ( this->s, \
-	          (T *) \
-		  ( (uns8 *) hp \
-		    + \
-		    internal::packed_vec_ptr_base \
-		        <T,MIN_TYPE_H,MIN_TYPE_L> \
-		    ::computed_header_size \
-		    + \
-		    i * sizeof ( T ) ) ); \
-	} \
-	\
-	min::ref< T > operator [] \
-		( MIN_TYPE_L i ) const \
-	{ \
-	    MIN_TYPE_H * hp = (MIN_TYPE_H *) \
-		unprotected::ptr_of ( this->s ); \
-	    MIN_ASSERT ( i < hp->length ); \
-	    return unprotected::new_ref \
-	        ( this->s, \
-	          * (T *) \
-		  ( (uns8 *) hp \
-		    + \
-		    internal::packed_vec_ptr_base \
-		        <T,MIN_TYPE_H,MIN_TYPE_L> \
-		    ::computed_header_size \
-		    + \
-		    i * sizeof ( T ) ) ); \
-	} \
-	\
-	packed_vec_updptr & operator = \
-		( const min::stub * s ) \
-	{ \
-	    new ( this ) packed_vec_ptr \
-	                     <T,MIN_TYPE_H,MIN_TYPE_L> \
-	    	( s ); \
-	    return * this; \
-	} \
-	\
-	packed_vec_updptr & operator = \
-		( min::gen g ) \
-	{ \
-	    new ( this ) packed_vec_ptr \
-	                     <T,MIN_TYPE_H,MIN_TYPE_L> \
-	    	( g ); \
-	    return * this; \
-	} \
-	\
-	static min::uns32 DISP ( void ) \
-	{ \
-	    return OFFSETOF \
-	        ( & packed_vec_updptr::s ); \
-	} \
-    }; \
-    template < TARGS, typename MIN_TYPE_H, \
-                      typename MIN_TYPE_L > \
-    inline min::ref< T > push \
-	( typename \
-	  min::packed_vec_insptr \
-	      <T,MIN_TYPE_H,MIN_TYPE_L> \
-	  pvip ) \
-    { \
-	if ( pvip->length >= pvip->max_length ) \
-	    pvip.reserve ( 1 ); \
-	T * p = ! end_ptr_of ( pvip ); \
-	* (const min::stub **) p = NULL; \
-	++ * (MIN_TYPE_L *) & pvip->length; \
-	return unprotected::new_ref ( pvip, * p ); \
-    } \
-    template < TARGS, typename MIN_TYPE_H, \
-                      typename MIN_TYPE_L > \
-    inline void push \
-	( typename \
-	  min::packed_vec_insptr \
-	      <T,MIN_TYPE_H,MIN_TYPE_L> pvip, \
-	  MIN_TYPE_L n, T const * vp = NULL ) \
-    { \
-	if ( n == 0 ) return; \
-	if ( pvip->length + n > pvip->max_length ) \
-	    pvip.reserve ( n ); \
-	const min::stub ** p = \
-	    (const min::stub **) \
-	    ! end_ptr_of ( pvip ); \
-	if ( vp ) \
-	{ \
-	    memcpy ( p, vp, n * sizeof ( T ) ); \
-	    write_update<T> X ( pvip, p, n ); \
-	} \
-	else \
-	    memset ( p, 0, n * sizeof ( T ) ); \
-	* (MIN_TYPE_L *) & pvip->length += n; \
-    } \
-    template < TARGS, typename MIN_TYPE_H, \
-                      typename MIN_TYPE_L > \
-    inline void push \
-	( typename \
-	  min::packed_vec_insptr \
-	      <T,MIN_TYPE_H,MIN_TYPE_L> pvip, \
-	  MIN_TYPE_L n, min::ptr< const T > vp ) \
-    { \
-	if ( n == 0 ) return; \
-	if ( pvip->length + n > pvip->max_length ) \
-	    pvip.reserve ( n ); \
-	const min::stub ** p = \
-	    (const min::stub **) \
-	    ! end_ptr_of ( pvip ); \
-	memcpy ( p, vp, n * sizeof ( T ) ); \
-	write_update<T> X ( pvip, p, n ); \
-	* (MIN_TYPE_L *) & pvip->length += n; \
-    } \
 } \
 template < TARGS > \
 bool operator == \
@@ -5350,15 +5193,12 @@ namespace min {
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
 	    MIN_ASSERT ( i < hp->length );
-	    return min::unprotected::new_ptr
+	    return min::unprotected::new_ptr<E>
 		( this->s,
-		  ( E *)
-		  ( (uns8 *) hp
-		    +
-		    internal::packed_vec_ptr_base<E,H,L>
-		            ::computed_header_size
-		    +
-		    i * sizeof ( E ) ) );
+		  internal::packed_vec_ptr_base<E,H,L>
+		          ::computed_header_size
+		  +
+		  i * sizeof ( E ) );
 	}
 
 	packed_vec_updptr & operator =
