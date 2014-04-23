@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 04:56:20 EDT 2014
+// Date:	Wed Apr 23 05:49:41 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2763,48 +2763,14 @@ namespace min {
 	    ( const min::stub * s, min::unsptr offset );
     }
 
-    namespace internal {
-
-	template < typename T >
-	class ref_base
-	{
-
-	public:
-
-	    const min::stub * const s;
-	    const min::unsptr offset;
-
-	    operator T ( void ) const
-	    {
-		return * location();
-	    }
-
-	    T operator -> ( void ) const
-	    {
-		return * location();
-	    }
-
-	protected:
-
-	    ref_base ( const min::stub * s,
-	               min::unsptr offset )
-		: s ( s ), offset ( offset ) {}
-
-	    T * location ( void ) const
-	    {
-		return (T *)
-		    (   (uns8 *)
-		        unprotected::ptr_of ( s )
-		      + offset );
-	    }
-	};
-    }
-
     template < typename T >
-    class ref : public internal::ref_base<T>
+    class ref
     {
 
     public:
+
+	const min::stub * const s;
+	const min::unsptr offset;
 
 	// We must define an explicit copy assignment
 	// operator.
@@ -2828,19 +2794,40 @@ namespace min {
 	    return * this;
 	}
 
+	operator T ( void ) const
+	{
+	    return * location();
+	}
+
+	T operator -> ( void ) const
+	{
+	    return * location();
+	}
+
     private:
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : s ( s ), offset ( offset ) {}
+
+	T * location ( void ) const
+	{
+	    return (T *)
+		(   (uns8 *)
+		    unprotected::ptr_of ( s )
+		  + offset );
+	}
+
+	// Making this private prohibits uninitialized
+	// references.
+	//
+        ref ( void )
+	    : s ( NULL ), offset ( 0 ) {}
 
 	friend min::ref<T> unprotected::new_ref<T>
 	    ( const min::stub * s, T const & location );
 
 	friend min::ref<T> unprotected::new_ref<T>
 	    ( const min::stub * s, min::unsptr offset );
-
-        ref ( const min::stub * s, min::unsptr offset )
-	    : internal::ref_base<T> ( s, offset ) {}
-
-        ref ( void )
-	    : internal::ref_base<T> ( NULL, 0 ) {}
     };
 
     template < typename T >
@@ -2921,85 +2908,73 @@ namespace min {
 	    ( const min::stub * s, min::unsptr offset );
     }
 
-    namespace internal {
-
-	template < typename T >
-	class ptr_base
-	{
-
-	public:
-
-	    const min::stub * const s;
-	    const min::unsptr offset;
-
-	    T * operator -> ( void ) const
-	    {
-		return location();
-	    }
-
-	    template <typename I> ref<T> operator []
-		    ( I index ) const
-	    {
-		return unprotected::new_ref<T>
-		    ( this->s,
-		      this->offset +   sizeof ( T )
-				     * index );
-	    }
-
-	    template <typename I> ptr<T> operator +
-		    ( I index ) const
-	    {
-		return unprotected::new_ptr<T>
-		    ( this->s,
-		      this->offset +   sizeof ( T )
-				     * index );
-	    }
-
-	    T * operator ! ( void ) const
-	    {
-		return this->location();
-	    }
-
-	protected:
-
-	    ptr_base ( const min::stub * s,
-		       min::unsptr offset )
-		: s ( s ), offset ( offset ) {}
-
-	    T * location ( void ) const
-	    {
-		return (T *)
-		    (   (uns8 *)
-			unprotected::ptr_of ( s )
-		      + offset );
-	    }
-	};
-    }
-
     template < typename T >
-    class ptr : public internal::ptr_base<T>
+    class ptr
     {
 
     public:
 
-        ptr ( void )
-	    : internal::ptr_base<T> ( NULL, 0 ) {}
+	const min::stub * const s;
+	const min::unsptr offset;
 
+        ptr ( void )
+	    : s ( NULL ), offset ( 0 ) {}
+
+        // Permit unprotected conversions of pointers.
+	//
 	template <typename S>
         ptr ( const ptr<S> & p )
-	    : internal::ptr_base<T> ( p.s, p.offset ) {}
+	    : s ( p.s ), offset ( p.offset ) {}
 
+	// Because s and offset are consts, we must
+	// provide explicit copy assignment operator.
+	//
 	ptr<T> & operator = ( const ptr<T> & p )
 	{
 	    new ( this ) ptr<T> ( p.s, p.offset );
 	    return * this;
 	}
 
+	T * operator -> ( void ) const
+	{
+	    return location();
+	}
+
+	T * operator ! ( void ) const
+	{
+	    return location();
+	}
+
+	template <typename I> ref<T> operator []
+		( I index ) const
+	{
+	    return unprotected::new_ref<T>
+		( this->s,
+		  this->offset +   sizeof ( T )
+				 * index );
+	}
+
+	template <typename I> ptr<T> operator +
+		( I index ) const
+	{
+	    return unprotected::new_ptr<T>
+		( this->s,
+		  this->offset +   sizeof ( T )
+				 * index );
+	}
+
     private:
 
-	ptr ( const min::stub * s,
-	      min::unsptr offset )
-	    : internal::ptr_base<T> ( s, offset ) {}
+        ptr ( const min::stub * s, min::unsptr offset )
+	    : s ( s ), offset ( offset ) {}
+
+	T * location ( void ) const
+	{
+	    return (T *)
+		(   (uns8 *)
+		    unprotected::ptr_of ( s )
+		  + offset );
+	}
 
 	friend min::ptr<T> unprotected::new_ptr<T>
 	    ( const min::stub * s, T * location );
@@ -3115,17 +3090,16 @@ namespace min {
 
     public:
 
-	template < typename U >
-	stub_class ( U s )
-	    : value ( (const min::stub *) s ) {}
+	stub_class ( const min::stub * const & s )
+	    : value ( s ) {}
 
 	stub_class ( void )
 	    : value ( NULL ) {}
 
-	template < typename U >
-	stub_class & operator = ( U s )
+	stub_class & operator =
+		( const min::stub * const & s )
 	{
-	    value = (const min::stub *) s;
+	    value = s;
 	    return * this;
 	}
 
@@ -3160,7 +3134,7 @@ namespace min {
 
 	template < typename U >
 	locatable_var ( U const & value )
-	    : T ( (T const &) value )
+	    : T ( value )
 	{
 	    previous = locatable_var<S,S>::last;
 	    locatable_var<S,S>::last =
@@ -3184,7 +3158,7 @@ namespace min {
 	locatable_var<T,S> & operator =
 		( U const & value )
 	{
-	    new ( this ) T ( (T const &) value );
+	    new ( this ) T ( value );
 	    return * this;
 	}
 
