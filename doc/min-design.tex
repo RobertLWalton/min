@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 20, 2014}
+\date{April 23, 2014}
  
 \maketitle
 
@@ -1747,23 +1747,34 @@ The functions for creating and using reference types are:
 \verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T const & location )|
-\LABEL{MUP::NEW_REF} \\
+\LABEL{MUP::NEW_REF_OF_LOCATION} \\
+\verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref<T>}\ARGBREAK
+    \verb|( const min::stub * s,|\ARGBREAK
+    \verb|  min::unsptr offset )|
+\LABEL{MUP::NEW_REF_OF_OFFSET} \\
 \verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
-    \verb|( T & location )|
+    \verb|( T & location )| \\
+    & where \TT(location) is \underline{not} relocatable
 \LABEL{MIN::NEW_REF} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::stub * MUP::| & \MUPKEY{ZERO\_STUB}
+\LABEL{MUP::ZERO_STUB} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_STUB} \\
-\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
+\verb|min::unsptr const r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, T value )|
+      \verb|( const min::ref<T> & r, V value )| \\
+    & where \TT(V) values are convertable to \TT(T) values
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
@@ -1875,21 +1886,26 @@ object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
 
 The unprotected \TT{MUP::new\_ref} function is used by these
 protected functions to construct a \TT{min::\EOL ref<T>} value
-from a pointer \TT{s} to a stub and a \TT{const} location
-within the body associated with that stub.  Note that if the
-location is of a `\TT{T const}' type the resulting
+from a pointer \TT{s} to a stub and either a \TT{const} location
+within the body associated with that stub or an \TT{offset}
+within the body
+(i.e., an address in bytes relative to the beginning of the body).
+Note that in either case, and in particular for a location
+of a `\TT{T const}' type, the resulting
 \TT{min::\EOL ref<T>} reference value will allow the location
 to be written.  This is done because locations inside data bodies
 that point at stubs are declared as `\TT{const}' locations
-so they are not directly writable, but these locations can be
-written using \TT{min::\EOL ref<T>} values.
+so they cannot be written without using
+the \TT{MIN\_\EOL REF} macro to construct a
+\TT{min::\EOL ref<T>} value: see \pagref{MIN_REF_USAGE}.
 
 The protected \TT{min::new\_ref} function may be used to construct
-a \TT{min::\EOL ref<T>} value from a non-relocatable location,
+a \TT{min::\EOL ref<T>} value from a \underline{non-relocatable} location,
 such as a global location or a location in the stack.
 This function constructs a \TT{min::\EOL ref<T>} value whose
-stub is the special \TT{min::\EOL ZERO\_\EOL STUB} stub that
-has a zero body pointer and whose offset is the address of the
+stub is the special \TT{MUP::\EOL ZERO\_\EOL STUB} stub that
+has a body pointer equal to \TT{0} so the offset of the
+\TT{min::\EOL ref<T>} value may be the address of the
 non-relocatable location.
 
 Actually there are two kinds of \TT{min::\EOL ref<T>} types that
@@ -1905,11 +1921,13 @@ location implicitly calls the
 \TT{min::\EOL acc\_\EOL write\_\EOL update} functions of
 Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
 involved, unless the \TT{min::\EOL ref<T>} value references
-\TT{min::\EOL ZERO\_\EOL STUB}.
-If \TT{T} is not locatable or if the
-\TT{min::\EOL ref<T>} value references \TT{min::\EOL ZERO\_\EOL STUB},
-the \TT{min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
-called.
+\TT{MUP::\EOL ZERO\_\EOL STUB}
+or the value stored is \TT{min::\EOL NULL\_\EOL STUB}.
+If \TT{T} is not locatable, or if the
+\TT{min::\EOL ref<T>} value references \TT{MUP::\EOL ZERO\_\EOL STUB},
+or if the value stored is \TT{min::\EOL NULL\_\EOL STUB},
+then the \TT{min::\EOL acc\_\EOL write\_\EOL update} functions
+are \underline{not} implicitly called.
 
 Associated with the \TT{min::\EOL ref<T>} reference type is
 the companion \TT{min::\EOL ptr<T>} pointer type:
@@ -1936,7 +1954,7 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
+\verb|min::unsptr const p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{tabular}\end{indpar}
 
@@ -2549,7 +2567,7 @@ members `\TT{const}', so accidentally updating locatable members
 without calling \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 is prevented.
 
-To make the above easier to code, the \TT{MIN\_REF} macro
+To make the above easier to code, the \TT{MIN\_REF}\label{MIN_REF_USAGE} macro
 is provided which expands as follows:
 
 \begin{indpar}
@@ -13120,23 +13138,34 @@ These are in \verb|min_parameters.h|.
 \verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
     \verb|  T const & location )|
-\LABEL{MUP::NEW_REF} \\
+\LABEL{MUP::NEW_REF_OF_LOCATION} \\
+\verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref<T>}\ARGBREAK
+    \verb|( const min::stub * s,|\ARGBREAK
+    \verb|  min::unsptr offset )|
+\LABEL{MUP::NEW_REF_OF_OFFSET} \\
 \verb|min::|\MINKEY{ref<T>}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
-    \verb|( T & location )|
+    \verb|( T & location )| \\
+    & where \TT(location) is \underline{not} relocatable
 \LABEL{MIN::NEW_REF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::stub * MUP::| & \MUPKEY{ZERO\_STUB}
+\LABEL{MUP::ZERO_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
 \verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_STUB} \\
-\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
+\verb|min::unsptr const r| & \TTDMKEY{offset}{in {\tt min::ref<T>}}
 \LABEL{MIN::REF_OFFSET} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, T value )|
+      \verb|( const min::ref<T> & r, V value )| \\
+    & where \TT(V) values are convertable to \TT(T) values
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
@@ -13218,7 +13247,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
+\verb|min::unsptr const p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{TABULAR}
 
