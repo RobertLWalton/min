@@ -2311,37 +2311,15 @@ The main operations that can be performed on a
 value into it or out of it.  Setting one \TT{min::\EOL locatable\_\EOL gen}
 location equal to another copies the \TT{min::gen} value of the locations,
 and not the location structure itself.
-
-Due to a technical difficulty with C++, it is not possible to use
-\TT{=} in a \TT{min::\EOL locatable\_\EOL gen} initializer.
-Specifically:
-
-\begin{indpar}\begin{verbatim}
-min::gen c = ...;
-min::locatable_gen x = c;               // Does NOT compile!
-min::locatable_gen y ( c );             // OK
-min::locatable_gen z;                   // OK
-z = c;                                  // OK
-min::gen d = y;                         // OK
-min::locatable_gen v ( x );             // Does NOT compile!
-min::locatable_gen w ( (min::gen) x );  // OK
-\end{verbatim}\end{indpar}
-
-The reason that the initialization of \TT{x} does not work is that
-\label{LOCATABLE-VAR-COPY-CONSTRUCTOR}
-when \TT{=} is used with an initializer in C++, the right side is
-first converted to the type of the left side in a temporary, and then a
-\underline{copy constructor} is applied to move the result to the
-left side's location.  But we cannot allow \TT{min::\EOL locatable\_\EOL gen}
-temporaries, so we disable the \TT{min::\EOL locatable\_\EOL gen}
-copy constructor by making it \TT{private}.  Also the initialization
-of \TT{v} fails because it uses this private copy constructor,
-but that of \TT{w} succeeds because it uses the \TT{min::gen} copy constructor.
+Setting a \TT{min::\EOL locatable\_\EOL gen} location to a
+\TT{min::\EOL gen} value \TT{v} writes \TT{v} to the location.
+A \TT{min::\EOL locatable\_\EOL gen} locatable variable
+is implicitly convertible to a \TT{min::\EOL gen} type, which is
+implemented by simply reading the value of the variable.
 
 A \TT{min::\EOL locatable\_\EOL gen} locatable variable
 \label{LOCATABLE_VAR_REF}
-is implicitly convertible to a
-reference
+is also implicitly convertible to a reference
 of type \TT{min::\EOL ref<min::gen>}
 that references the \TT{min::gen}
 value stored in the locatable variable.
@@ -2359,18 +2337,20 @@ static min::locatable_gen v;
 . . . . . . . . . .
 void f ( ref<min::gen> r );
 . . . . . . . . . .
-void some_function ( min::gen x, min::gen y )
+min::gen some_function ( min::gen x, min::gen y )
 {
-    min::locatable_gen q ( x );
+    min::locatable_gen q = x;
     min::ptr<min::gen> p = & q;
+    min::ref<min::gen> r = q;
     . . .
     v = q;     // Copies the min::gen value of q to v.
     * p = y;   // Sets q to y.
+    r = x;     // Sets q to x.
     . . .
     f ( v );   // Converts v to min::ref<min::gen>
-    ..
-
+    f ( q );   // Converts q to min::ref<min::gen>
     . . .
+    return q;  // Returns the value of q.
 }
 \end{verbatim}\end{indpar}
 

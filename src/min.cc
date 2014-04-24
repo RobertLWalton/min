@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 03:43:45 EDT 2014
+// Date:	Thu Apr 24 11:07:10 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1738,8 +1738,8 @@ min::gen min::new_lab_gen
 	( const char * s1,
 	  const char * s2 )
 {
-    min::locatable_gen g1 ( min::new_str_gen ( s1 ) );
-    min::locatable_gen g2 ( min::new_str_gen ( s2 ) );
+    min::locatable_gen g1 = min::new_str_gen ( s1 );
+    min::locatable_gen g2 = min::new_str_gen ( s2 );
     min::gen elements[2] = { g1, g2 };
     return min::new_lab_gen ( elements, 2 );
 }
@@ -1749,9 +1749,9 @@ min::gen min::new_lab_gen
 	  const char * s2,
 	  const char * s3 )
 {
-    min::locatable_gen g1 ( min::new_str_gen ( s1 ) );
-    min::locatable_gen g2 ( min::new_str_gen ( s2 ) );
-    min::locatable_gen g3 ( min::new_str_gen ( s3 ) );
+    min::locatable_gen g1 = min::new_str_gen ( s1 );
+    min::locatable_gen g2 = min::new_str_gen ( s2 );
+    min::locatable_gen g3 = min::new_str_gen ( s3 );
     min::gen elements[3] = { g1, g2, g3 };
     return min::new_lab_gen ( elements, 3 );
 }
