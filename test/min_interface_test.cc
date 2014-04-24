@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 13:50:48 EDT 2014
+// Date:	Thu Apr 24 11:12:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2415,13 +2415,13 @@ void test_identifier_map ( void )
     MIN_ASSERT ( ::id_map->occupied == 0 );
     MIN_ASSERT ( ::id_map->next == 1 );
 
-    min::locatable_gen g1
-        ( min::new_str_gen
-	      ( "this is a long string" ) );
-    min::locatable_gen g2
-        ( min::new_lab_gen ( "a", "label" ) );
-    min::locatable_gen g3
-        ( min::new_obj_gen ( 10 ) );
+    min::locatable_gen g1 =
+        min::new_str_gen
+	    ( "this is a long string" );
+    min::locatable_gen g2 =
+        min::new_lab_gen ( "a", "label" );
+    min::locatable_gen g3 =
+        min::new_obj_gen ( 10 );
     const min::stub * s1 = min::stub_of ( g1 );
     const min::stub * s2 = min::stub_of ( g2 );
     const min::stub * s3 = min::stub_of ( g3 );
@@ -4404,16 +4404,16 @@ void test_object_printing ( void )
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator
-	    ( min::new_lab_gen ( ".", "initiator" ) );
+	min::locatable_gen initiator =
+	    min::new_lab_gen ( ".", "initiator" );
 	min::locate ( ap, initiator );
 	min::set ( ap, min::new_str_gen ( "{" ) );
-	min::locatable_gen separator
-	    ( min::new_lab_gen ( ".", "separator" ) );
+	min::locatable_gen separator =
+	    min::new_lab_gen ( ".", "separator" );
 	min::locate ( ap, separator );
 	min::set ( ap, min::new_str_gen ( "," ) );
-	min::locatable_gen terminator
-	    ( min::new_lab_gen ( ".", "terminator" ) );
+	min::locatable_gen terminator =
+	    min::new_lab_gen ( ".", "terminator" );
 	min::locate ( ap, terminator );
 	min::set ( ap, min::new_str_gen ( "}" ) );
 	min::attr_push ( vp, 2 );
@@ -4438,16 +4438,16 @@ void test_object_printing ( void )
 	vp[3] = obj;
 	vp[4] = obj;
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator
-	    ( min::new_lab_gen ( ".", "initiator" ) );
+	min::locatable_gen initiator =
+	    min::new_lab_gen ( ".", "initiator" );
 	min::locate ( ap, initiator );
 	min::set ( ap, min::new_str_gen ( "[" ) );
-	min::locatable_gen separator
-	    ( min::new_lab_gen ( ".", "separator" ) );
+	min::locatable_gen separator =
+	    min::new_lab_gen ( ".", "separator" );
 	min::locate ( ap, separator );
 	min::set ( ap, min::new_str_gen ( ";" ) );
-	min::locatable_gen terminator
-	    ( min::new_lab_gen ( ".", "terminator" ) );
+	min::locatable_gen terminator =
+	    min::new_lab_gen ( ".", "terminator" );
 	min::locate ( ap, terminator );
 	min::set ( ap, min::new_str_gen ( "]" ) );
     }
