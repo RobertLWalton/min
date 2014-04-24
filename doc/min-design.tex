@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 23, 2014}
+\date{April 24, 2014}
  
 \maketitle
 
@@ -1898,8 +1898,15 @@ that point at stubs are declared as `\TT{const}' locations
 so they cannot be written without using
 the \TT{MIN\_\EOL REF} macro to construct a
 \TT{min::\EOL ref<T>} value: see \pagref{MIN_REF_USAGE}.
+Note also that when an offset is given to
+\TT{MUP::\EOL new\_\EOL ref<T>}, the type \TT{T}
+must be included in the function name,
+which is \TT{MUP::\EOL new\_\EOL ref<T>}
+and not just \TT{MUP::\EOL new\_\EOL ref}, as \TT{T} cannot
+be deduced from the argument types.
 
-The protected \TT{min::new\_ref} function may be used to construct
+The protected \TT{min::new\_ref} function\label{NEW_REF_USAGE}
+may be used to construct
 a \TT{min::\EOL ref<T>} value from a \underline{non-relocatable} location,
 such as a global location or a location in the stack.
 This function constructs a \TT{min::\EOL ref<T>} value whose
@@ -2008,10 +2015,10 @@ Internally a \TT{min::\EOL ptr<T>} value is exactly like a
 a stub and an offset within the body of the stub.
 A main difference is that \TT{=} for reference values copies the
 values of the locations pointed at, while \TT{=} for pointer values
-copies the pointer itself; i.e., the pointer to the stub and the offset.
+copies the pointers themselves; i.e., the pointer to the stub and the offset.
 Similarly \TT{==} for reference values compares the values of
 the locations pointed at, whereas \TT{==} for pointer values
-compares the pointers.
+compares the pointers themselves.
 
 Another difference is that if a \TT{min::\EOL ref<T>} value \TT{r}
 designates a location containing a \TT{T} value \TT{v}, then
@@ -2021,8 +2028,10 @@ points at location \TT{loc} containing a \TT{T} value \TT{v}, then
 \TT{p->\ldots} is equivalent to \TT{(\&loc)->\ldots}.
 This is because
 the \TT{->} operator has been defined for \TT{min::\EOL ptr<T>}
-types to return \TT{\&loc}, but for \TT{min::\EOL ref<T>} types
-it returns \TT{v} (see \pagref{REF->}).
+types to return \TT{\&loc}, the location designated by the pointer,
+but for \TT{min::\EOL ref<T>} types
+it returns \TT{v} (see \pagref{REF->}), the location designated by
+the value in the location designated by the reference.
 
 A \TT{min::\EOL ptr<T>} value can be created by applying the
 \TT{\&} operator to a \TT{min::\EOL ref<T>} value or to a
@@ -2032,25 +2041,17 @@ A \TT{min::\EOL ref<T>} value can be recovered from a
 pointer value by applying the
 \TT{*} operator to the \TT{min::\EOL ptr<T>} value.
 
-A \TT{min::\EOL ptr<T>} value can also be created by the
-unprotected \TT{MUP::\EOL new\_\EOL ptr} function which
-constructs a \TT{min::\EOL ptr<T>} value
-from a pointer \TT{s} to a stub and either a pointer to
-within the body associated with that stub, or an offset
-relative to the beginning of that body.
-However, unlike \TT{MUP::\EOL new\_\EOL ref},
-the location pointed at within a body may not be \TT{const} unless \TT{T} is
-\TT{const}.  Also unlike \TT{MUP::\EOL new\_\EOL ref}, an offset
-can be given instead of a pointer to within the body, but
-then the type \TT{T} must be included in the function name,
-which is \TT{MUP::\EOL new\_\EOL ptr<T>}
-and not just \TT{MUP::\EOL new\_\EOL ptr}, as \TT{T} cannot
-be deduced from the argument types.
-
-A \TT{min::\EOL ptr<T>} value can be created by the
-protected \TT{min::\EOL new\_\EOL ptr} function from
-a non-relocatable pointer to a value of type \TT{T} that is located
-in static or stack memory.
+Creation of \TT{min::\EOL ptr<T>} values by \TT{\ldots::new\_\EOL ptr}
+functions is just like
+creation of \TT{min::\EOL ref<T>} values by \TT{\ldots::new\_\EOL ref}
+functions (see \pagref{NEW_REF_USAGE}) with one exception.
+Unlike \TT{MUP::\EOL new\_\EOL ref}, for which a \TT{const~T~\&}
+location creates a \TT{min::\EOL ref<T>} reference in which \TT{T}
+is \underline{not} \TT{const},
+for \TT{MUP::\EOL new\_\EOL ptr}
+a \TT{T~*} location creates a \TT{min::\EOL ptr<T>} pointer in which
+the pointer \TT{T} is \TT{const} if and only if the location \TT{T}
+is \TT{const}.
 
 Given a \TT{min::\EOL ptr<T>} value \TT{p} and an index \TT{i} of some
 suitable index type \TT{I} (such as \TT{int} or \TT{min::\EOL uns32}),
@@ -2097,7 +2098,7 @@ relocation and its result used just afterwords.
 
 If \TT{p} is of type \TT{min::ptr<S>}, then \TT{min::ptr<T>(p)} is just
 \TT{p} coerced to the type \TT{min::\EOL ptr<T>} without any change to the
-actual value of \TT{p}, just as {(T *)(q)} is a coercion of \TT{q}
+actual value of \TT{p}, just as \TT{(T *)(q)} is a coercion of \TT{q}
 if \TT{q} has type `\TT{S *}'.  Such coercions are inherently
 unprotected, of course.
 
@@ -2125,8 +2126,8 @@ allow these values to be used to step through a vector:
 These are just what is required to take the \TT{min::\EOL ptr<T>}
 values of
 \TT{min::\EOL begin\_\EOL ptr\_\EOL of} and
-\TT{min::\EOL end\_\EOL ptr\_\EOL of} applied to various type specific
-object pointers and step through the vector bracketed by the
+\TT{min::\EOL end\_\EOL ptr\_\EOL of} applied to various objects
+and step through the vector bracketed by the
 resulting pointers.  See, for example, 
 \TT{min::\EOL begin\_\EOL ptr\_\EOL of} on
 \pagref{MIN::BEGIN_PTR_OF_STR_PTR}
@@ -2137,8 +2138,13 @@ false if the two pointers point at different relocatable bodies.
 So one should use the pointers to access data only if the smaller
 pointer is still \TT{<} than the larger pointer.
 
-The following permit a \TT{min::\EOL ptr<T>} equivalent of the
-\TT{NULL} value:
+There is a protected \TT{min::\EOL ptr<T>} constructor of no
+variables that constructs a variable with a
+\mkey{null}{of {\tt min::ptr<T>} type} value that is
+like \TT{NULL}, in that it cannot equal any useful pointer value,
+and will probably cause a memory fault if dereferenced.
+To allow pointers to be tested for this null value the following
+are defined:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
@@ -2151,23 +2157,38 @@ The following permit a \TT{min::\EOL ptr<T>} equivalent of the
 \LABEL{MIN::!=_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
-TBD
+Example usages are:
+\begin{indpar}\begin{verbatim}
+ptr<char> s = ...;
+. . . . .
+if ( s != min::ptr<char>() )
+{
+    . . . . .
+}
+
+ptr<int> null_p, p = ...;
+. . . . .
+if ( p != null_p )
+{
+    . . . . .
+}
+\end{verbatim}\end{indpar}
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
 \label{STACK-TEMPORARIES-OF-RELOCATABLE-VECTORS}
 
 Sometimes it is useful to make a non-relocatable copy of
 a vector that is resident in a body that might be relocated.
-This can be done by the \TT{MIN\_STACKCOPY} macro
+This can be done by the \TT{MIN\_\EOL STACK\_\EOL COPY} macro
 which expands as follows:
 
 \begin{indpar}
-\TTKEY{MIN\_STACKCOPY} \verb|( T, name, length, source )|
-\LABEL{MIN_STACKCOPY}
+\TTKEY{MIN\_STACK\_COPY} \verb|( T, name, length, source )|
+\LABEL{MIN_STACK_COPY}
 \\[1ex]
 expands to \\[1ex]
 \verb|T name [length];| \\
-\verb|memcpy ( name, (T const *) (source),| \\
+\verb|memcpy ( name, ! (source),| \\
 \verb|         sizeof ( T ) * (length) )|
 \end{indpar}
 
@@ -13355,8 +13376,8 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTKEY{MIN\_STACKCOPY} \verb|( type, name, length, source )|
-\LABEL{MIN_STACKCOPY}
+\TTKEY{MIN\_STACK\_COPY} \verb|( type, name, length, source )|
+\LABEL{MIN_STACK_COPY}
 \end{tabular}
 
 \end{indpar}

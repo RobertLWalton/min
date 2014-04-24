@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 23 15:25:00 EDT 2014
+// Date:	Thu Apr 24 03:37:52 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3072,10 +3072,22 @@ namespace min {
     }
 }
 
-# define MIN_STACK_COPY(T,buffer,length,source) \
-    T buffer[length]; \
-    memcpy ( buffer, (T const *) (source), \
-             sizeof ( T ) * (length) )
+namespace min {
+
+    template < typename T >
+    inline void min_stack_copy
+        ( T * destination, T const * source,
+	  min::unsptr length )
+    {
+        ::memcpy ( destination, source,
+	           (sizeof (T)) * length );
+    }
+
+#   define MIN_STACK_COPY(T,name,length,source) \
+	T name[length]; \
+	min::min_stack_copy \
+	    ( name, ! (source), (length) )
+}
 
 // Locatable Variables
 // --------- ---------

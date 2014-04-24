@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 22 14:23:08 EDT 2014
+// Date:	Thu Apr 24 03:43:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8385,7 +8385,7 @@ min::printer operator <<
 	( min::printer printer, min::ptr<const char> s )
 {
     min::unsptr length = strlen ( ! s ) + 1;
-    MIN_STACK_COPY ( char, buffer, length, ! s );
+    MIN_STACK_COPY ( char, buffer, length, s );
     return printer << buffer;
 }
 
@@ -9759,7 +9759,7 @@ static T pgen
 
 	        MIN_STACK_COPY
 		    ( char, str, length + 1,
-		      ! min::begin_ptr_of ( sp ) );
+		      min::begin_ptr_of ( sp ) );
 
 		char * p = str;
 		length = std::strlen ( f->str_postfix );
