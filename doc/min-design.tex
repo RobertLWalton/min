@@ -2287,15 +2287,28 @@ with certainty to be numbers, in locations of type
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen const & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
-\verb|min::ref<min::gen> |
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::ref<const min::gen> |
     & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen const & var )|
+\LABEL{MIN::CONST_LOCATABLE_GEN_TO_REF_GEN} \\
+\verb|min::ref<min::gen> |
+    & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
-\verb|min::ptr<min::gen> |
+\verb|min::ptr<const min::gen> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen const & var )|
+\LABEL{MIN::AMPERSAND_CONST_LOCATABLE_GEN} \\
+\verb|min::ptr<min::gen> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -2319,8 +2332,9 @@ The main operations that can be performed on a
 value into it or out of it.  Setting one \TT{min::\EOL locatable\_\EOL gen}
 location equal to another copies the \TT{min::gen} value of the locations,
 and not the location structure itself.
-Setting a \TT{min::\EOL locatable\_\EOL gen} location to a
-\TT{min::\EOL gen} value \TT{v} writes \TT{v} to the location.
+Setting a \TT{min::\EOL locatable\_\EOL gen} location to a value \TT{v}
+that is convertable to a \TT{min::\EOL gen} value writes the
+converted value to the location.
 A \TT{min::\EOL locatable\_\EOL gen} locatable variable
 is implicitly convertible to a \TT{min::\EOL gen} type, which is
 implemented by simply reading the value of the variable.
@@ -2331,19 +2345,25 @@ is also implicitly convertible to a reference
 of type \TT{min::\EOL ref<min::gen>}
 that references the \TT{min::gen}
 value stored in the locatable variable.
+Note that if the locatable variable is \TT{const}, the reference type
+will be \TT{min::\EOL ref<const min::gen>}, which does not allow
+the variable to be written.
 
 Applying the \TT{\&} operator to a
 \label{LOCATABLE_VAR_PTR}
 \TT{min::\EOL locatable\_\EOL gen} locatable variable
 returns a pointer of type \TT{min::\EOL ptr<min::gen>} that points
 at the locatable variable.
+Note that if the locatable variable is \TT{const}, the pointer type
+will be \TT{min::\EOL ptr<const min::gen>}, which does not allow
+the variable to be written.
 
-Some more \TT{min::locatable\_gen} examples are:
+Some \TT{min::locatable\_gen} examples are:
 
 \begin{indpar}\begin{verbatim}
 static min::locatable_gen v;
 . . . . . . . . . .
-void f ( ref<min::gen> r );
+void f ( ref<min::gen> const & r );
 . . . . . . . . . .
 min::gen some_function ( min::gen x, min::gen y )
 {
@@ -13409,15 +13429,28 @@ These are in \verb|min_parameters.h|.
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & const var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::ref<const min::gen> |
+    & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen const & var )|
+\LABEL{MIN::CONST_LOCATABLE_GEN_TO_REF_GEN} \\
 \verb|min::ref<min::gen> |
     & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & const var )|
+      \verb|( min::locatable_gen & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
+\verb|min::ptr<const min::gen> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen const & var )|
+\LABEL{MIN::AMPERSAND_CONST_LOCATABLE_GEN} \\
 \verb|min::ptr<min::gen> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & const var )|
+      \verb|( min::locatable_gen & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
 \end{TABULAR}
 

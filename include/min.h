@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 25 12:40:42 EDT 2014
+// Date:	Fri Apr 25 16:27:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3188,7 +3188,14 @@ namespace min {
 	    return * this;
 	}
 
-	operator min::ref<T> ( void ) const
+	operator min::ref<T> ( void )
+	{
+	    return unprotected::new_ref<T>
+	        ( min::unprotected::ZERO_STUB,
+		  * (T *) this );
+	}
+
+	operator min::ref<T const> ( void ) const
 	{
 	    return unprotected::new_ref<T>
 	        ( min::unprotected::ZERO_STUB,
@@ -3196,6 +3203,13 @@ namespace min {
 	}
 
 	min::ptr<T> operator & ( void )
+	{
+	    return unprotected::new_ptr<T>
+	        ( min::unprotected::ZERO_STUB,
+		  (T *) this );
+	}
+
+	min::ptr<T const> operator & ( void ) const
 	{
 	    return unprotected::new_ptr<T>
 	        ( min::unprotected::ZERO_STUB,
