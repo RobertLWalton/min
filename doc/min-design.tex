@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 24, 2014}
+\date{April 25, 2014}
  
 \maketitle
 
@@ -1773,43 +1773,43 @@ The functions for creating and using reference types are:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, V value )| \\
-    & where \TT(V) values are convertable to \TT(T) values
+      \verb|( min::ref<T> const & r, V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r,|\ARGBREAK
-      \verb|  const min::ref<T> & r2 )|
+      \verb|( min::ref<T> const & r,|\ARGBREAK
+      \verb|  min::ref<T> const & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T |
     & \TTOMKEY{T}{T}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r )|
+      \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
 	& \TTOMKEY{->}{->}{of {\tt min::ref<T>}}
-	   \verb|( const min::ref<T> & r )|
+	   \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r, T v )|
+      \verb|( min::ref<T> const & r, T v )|
 \LABEL{MIN::==REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
-      \verb|( T v, const min::ref<T> & r )|
+      \verb|( T v, min::ref<T> const & r )|
 \LABEL{MIN::==T_AND_REF} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r, T v )|
+      \verb|( min::ref<T> const & r, T v )|
 \LABEL{MIN::!=REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
-      \verb|( T v, const min::ref<T> & r )|
+      \verb|( T v, min::ref<T> const & r )|
 \LABEL{MIN::!=T_AND_REF} \\
 \end{tabular}\end{indpar}
 
@@ -1821,11 +1821,11 @@ i.e., \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} or
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r, const min::stub * s )|
+      \verb|( min::ref<T> const & r, const min::stub * s )|
 \LABEL{MIN::==REF_AND_STUB} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r, const min::stub * s )|
+      \verb|( min::ref<T> const & r, const min::stub * s )|
 \LABEL{MIN::!=REF_AND_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -1962,32 +1962,32 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|min::unsptr const p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
+\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr<T>}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}
-      \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> & p, min::ptr<T> const & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T * |
 	& \TTOMKEY{->}{->}{of {\tt min::ptr<T>}}
-	  \verb|( const min::ptr<T> & p )|
+	  \verb|( min::ptr<T> const & p )|
 \LABEL{MIN::PTR_->} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}{of {\tt min::ref<T>}}
-      \verb|( const min::ref<T> & r )|
+      \verb|( min::ref<T> const & r )|
 \LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
 \verb|min::ref<T> |
     & \TTOMKEY{*}{*}{of {\tt min::ptr<T>}}
-      \verb|( const min::ptr<T> & p )|
+      \verb|( min::ptr<T> const & p )|
 \LABEL{MIN::=*_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
@@ -2002,11 +2002,11 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \begin{indpar}\begin{tabular}{r@{}ll}
 \verb|T * |
 	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}
-	  \verb|( const min::ptr<T> & p )| & [unprotected]
+	  \verb|( min::ptr<T> const & p )| & [unprotected]
 \LABEL{MIN::!_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}
-	   \verb|( const min::ptr<S> & p )| & [unprotected]
+	   \verb|( min::ptr<S> const & p )| & [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -2108,8 +2108,8 @@ allow these values to be used to step through a vector:
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
     & \TTOMKEY{<}{<}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1,|\ARGBREAK
-      \verb|  const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1,|\ARGBREAK
+      \verb|  min::ptr<T> const & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}
@@ -2149,11 +2149,11 @@ are defined:
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1, min::ptr<T> const & p2 )|
 \LABEL{MIN::==_OF_PTR_OF_T} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1, min::ptr<T> const & p2 )|
 \LABEL{MIN::!=_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
@@ -2259,35 +2259,43 @@ with certainty to be numbers, in locations of type
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
 \verb|(constructor) min::| & \MINKEY{locatable\_gen}
-    \verb|var ( min::gen value )|
-\LABEL{MIN::LOCATABLE_GEN_OF_GEN} \\
+    \verb|var ( min::locatable_gen const & var )|
+\LABEL{MIN::LOCATABLE_GEN_OF_VAR} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}
+    \verb|var ( V const & value )| \\
+    & where \TT{V} values are convertable to \TT{min::gen} values
+\LABEL{MIN::LOCATABLE_GEN_OF_VALUE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|min::locatable_gen & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & var,|\ARGBREAK
-      \verb|  min::gen value )|
-\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
-\verb|min::locatable_gen & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & var,|\ARGBREAK
-      \verb|  const min::locatable_gen & var2 )|
+      \verb|  min::locatable_gen const & var2 )|
 \LABEL{MIN::=LOCATABLE_GEN_OF_LOCATABLE_GEN} \\
+\verb|min::locatable_gen & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & var,|\ARGBREAK
+      \verb|  V const & value )| \\
+    & where \TT{V} values are convertable to \TT{min::gen} values
+\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|min::gen |
     & \TTOMKEY{min::gen}{min::gen}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen const & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::ref<min::gen> |
     & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen const & var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
 \verb|min::ptr<min::gen> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen const & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -2383,7 +2391,7 @@ this may be done with the code:
 \verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
-      \verb|  const min::locatable_var<T> & var2 )|
+      \verb|  min::locatable_var<T> const & var2 )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
@@ -2391,17 +2399,17 @@ this may be done with the code:
 \verb|const min::stub * |
     & \TTOMKEY{min::stub *}{const min::stub *}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> const & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
 \verb|min::ref<T> |
     & \TTOMKEY{min::ref<T>}{min::ref<T>}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> const & var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> const & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
@@ -2426,12 +2434,6 @@ is implicitly convertible to a
 reference of type \TT{min::\EOL ref<T>}, and can be pointed at
 by a pointer of type \TT{min::\EOL ptr<T>} obtained by applying
 the \TT{\&} operator to the locatable variable.
-
-And as with \TT{min::\EOL locatable\_\EOL gen} locatable variables,
-due to a technical difficulty with C++ it is not possible to use
-\TT{=} to pass an initializer
-to a \TT{min::\EOL locatable\_\EOL var<T>} constructor
-(See \pagref{LOCATABLE-VAR-COPY-CONSTRUCTOR}).
 
 An example usage is:
 
@@ -3873,7 +3875,7 @@ a \key{string pointer}:
 \LABEL{MIN::=_STR_PTR_OF_GEN} \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
-      \verb|( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+      \verb|( min::str_ptr & sp1, min::str_ptr const & sp2 )|
 \LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
@@ -3883,7 +3885,7 @@ a \key{string pointer}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|operator |
-    & \MINKEY{bool} \verb|( const min::str_ptr & sp )|
+    & \MINKEY{bool} \verb|( min::str_ptr const & sp )|
 \LABEL{BOOL_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -3892,30 +3894,30 @@ a \key{string pointer}:
     & \verb|sp|\TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( const min::str_ptr & sp )|
+    & \MINKEY{begin\_ptr\_of} \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( const min::str_ptr & sp )|
+\verb|min::unsptr min::| & \MINKEY{strlen} \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const min::str_ptr & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]
 \verb|char * min::|
-    & \MINKEY{strcpy} \verb|( char * p, const min::str_ptr & sp )|
+    & \MINKEY{strcpy} \verb|( char * p, min::str_ptr const & sp )|
 \LABEL{MIN::STRCPY_OF_STR_PTR} \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb|( char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp, min::unsptr n )|
+      \verb|  min::str_ptr const & sp, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_PTR} \\[1ex]
 \verb|int min::|
-    & \MINKEY{strcmp} \verb|( const char * p, const min::str_ptr & sp )|
+    & \MINKEY{strcmp} \verb|( const char * p, min::str_ptr const & sp )|
 \LABEL{MIN::STRCMP_OF_STR_PTR} \\
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp, min::unsptr n )|
+      \verb|  min::str_ptr const & sp, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
 \end{tabular}\end{indpar}
 
@@ -3972,12 +3974,12 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -3985,12 +3987,12 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr & const sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -3998,11 +4000,11 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  min::str_ptr & const sp, int & i )|
 \LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  min::str_ptr & const sp, int & i )|
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4031,7 +4033,7 @@ function is equivalent to \TT{min::begin\_ptr\_of()} with its
 result cast to `\TT{const char *}':
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( const min::str_ptr & sp )|
+\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( min::str_ptr const & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4151,7 +4153,7 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt min::lab\_ptr}}\ARGBREAK
-          \verb|( const min::lab_ptr & labp )|
+          \verb|( min::lab_ptr const & labp )|
 \LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \verb|min::lab_ptr & | &
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
@@ -4382,7 +4384,7 @@ and furthermore do not check subscript ranges:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::lab\_ptr}}\ARGBREAK
-          \verb|( const MUP::lab_ptr & labp )|
+          \verb|( MUP::lab_ptr const & labp )|
 \LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \verb|MUP::lab_ptr & | &
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
@@ -4792,16 +4794,16 @@ have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-          \verb|(const min::packed_struct_ptr<S> & psp )|
+          \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|S const * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|(const min::packed_struct_ptr<S> & psp )|
+	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
 \verb|S const & |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|(const min::packed_struct_ptr<S> & psp )|
+	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4881,11 +4883,11 @@ pointer type is:
 \verb|S * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_updptr<S> & psup )|
+	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
 \verb|S & |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_updptr<S> & psup )|
+	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \end{tabular}\end{indpar}
 
@@ -5374,12 +5376,12 @@ packed vector pointer type which has the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-          \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
+          \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|H const * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-	  \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
+	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5495,7 +5497,7 @@ pointer type is:
 \verb|H * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::packed_vec_updptr<E,H,L> & pvup )|
+	  \verb|( min::packed_vec_updptr<E,H,L> const & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7452,7 +7454,7 @@ Copying characters into a printer is done by the
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer, const min::str_ptr & s )|
+      \verb|( min::printer printer, min::str_ptr const & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -7534,7 +7536,7 @@ Operations can be performed on printers by applying the
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  const min::op & op )|
+      \verb|  min::op const & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
 \end{tabular}\end{indpar}
 
@@ -8265,7 +8267,7 @@ can be presented to a {\tt std::\EOL ostream} by the
 \verb|std::ostream & |
     & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
-      \verb|  const min::op & op )|
+      \verb|  min::op const & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
 \end{tabular}\end{indpar}
 
@@ -9164,7 +9166,7 @@ by the code:
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  const min::pline_numbers & pline_numbers )|
+      \verb|  min::pline_numbers const & pline_numbers )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
 
@@ -9234,7 +9236,7 @@ To print the line numbers of a phrase one can use the constructor:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
     \verb|( min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position & position )|
+    \verb|  min::phrase_position const & position )|
 \LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
 \end{tabular}\end{indpar}
 
@@ -9256,7 +9258,7 @@ To print a phrase one can use the function:
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
       \verb|  char mark = '^',|\ARGBREAK
       \verb|  const char * blank_line =|\ARGBREAK
       \verb|      "<BLANK-LINE>",|\ARGBREAK
@@ -9296,7 +9298,7 @@ uses the function:
 \verb|min::uns32 min::|
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position )|
+      \verb|  min::phrase_position const & position )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
 
@@ -9336,7 +9338,7 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 print_flags,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
       \verb|  char mark = '^',|\ARGBREAK
       \verb|  const char * blank_line =|\ARGBREAK
       \verb|      "<BLANK-LINE>",|\ARGBREAK
@@ -9352,7 +9354,7 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::uns32 print_flags,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position )|
+      \verb|  min::phrase_position const & position )|
 \LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -9378,7 +9380,7 @@ record the phrase positions of elements of any linear vector:
   & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
     \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
     \verb|  min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position & position,|\ARGBREAK
+    \verb|  min::phrase_position const & position,|\ARGBREAK
     \verb|  min::uns32 max_length )|
 \LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
 \end{tabular}\end{indpar}
@@ -9955,7 +9957,7 @@ may be created by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( const min::obj_vec_ptr & vp )|
+          \verb|( min::obj_vec_ptr const & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -10071,7 +10073,7 @@ The operations
 \verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
 	& [same as {\tt min::attr}]\\&
-	  \multicolumn{2}{l}{~(~const min::obj\_vec\_ptr \& vp,}\\&
+	  \multicolumn{2}{l}{~(~min::obj\_vec\_ptr const \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
@@ -10096,7 +10098,7 @@ Also in this vein, the operations
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<const min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
@@ -10139,7 +10141,7 @@ to permit writing elements.  Its functions are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb|( const min::obj_vec_updptr & vp )|
+          \verb|( min::obj_vec_updptr const & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -10177,7 +10179,7 @@ to permit writing elements.  Its functions are:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<min::gen> |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -10185,7 +10187,7 @@ to permit writing elements.  Its functions are:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
@@ -10235,7 +10237,7 @@ The additional functions for this type of pointer are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb|( const min::obj_vec_insptr & vp )|
+          \verb|( min::obj_vec_insptr const & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
@@ -13158,7 +13160,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
-    \verb|  T const & location )|
+    \verb|  T & const location )|
 \LABEL{MUP::NEW_REF_OF_LOCATION} \\
 \verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref<T>}\ARGBREAK
     \verb|( const min::stub * s,|\ARGBREAK
@@ -13185,56 +13187,56 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, V value )| \\
-    & where \TT(V) values are convertable to \TT(T) values
+      \verb|( min::ref<T> const & r, V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r,|\ARGBREAK
-      \verb|  const min::ref<T> & r2 )|
+      \verb|( min::ref<T> const & r,|\ARGBREAK
+      \verb|  min::ref<T> const & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|T |
     & \TTOMKEY{T}{{\tt T}}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r )|
+      \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::ref<T>}}\ARGBREAK
-	  \verb|( const min::ref<T> & r )|
+	  \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_->} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, T v )|
+      \verb|( min::ref<T> const & r, T v )|
 \LABEL{MIN::==REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( T v, const min::ref<T> & r )|
+      \verb|( T v, min::ref<T> const & r )|
 \LABEL{MIN::==T_AND_REF} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r, T v )|
+      \verb|( min::ref<T> const & r, T v )|
 \LABEL{MIN::!=REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( T v, const min::ref<T> & r )|
+      \verb|( T v, min::ref<T> &const  r )|
 \LABEL{MIN::!=T_AND_REF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r,|\ARGBREAK
+      \verb|( min::ref<T> const & r,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::==REF_AND_STUB} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r,|\ARGBREAK
+      \verb|( min::ref<T> const & r,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::!=REF_AND_STUB} \\
 \end{TABULAR}
@@ -13277,7 +13279,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::ptr<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}\ARGBREAK
       \verb|( min::ptr<T> & p,|\ARGBREAK
-      \verb|  const min::ptr<T> & p2 )|
+      \verb|  min::ptr<T> const & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
 \end{TABULAR}
 
@@ -13285,18 +13287,18 @@ These are in \verb|min_parameters.h|.
 \verb|T * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::ptr<T>}}\ARGBREAK
-	  \verb|( const min::ptr<T> & p )|
+	  \verb|( min::ptr<T> const & p )|
 \LABEL{MIN::PTR_->} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}{of {\tt min::ref<T>}}\ARGBREAK
-      \verb|( const min::ref<T> & r )|
+      \verb|( min::ref<T> const & r )|
 \LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
 \verb|min::ref<T> |
     & \TTOMKEY{*}{*}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p )|
+      \verb|( min::ptr<T> const & p )|
 \LABEL{MIN::=*_OF_PTR_OF_T} \\
 \end{TABULAR}
 
@@ -13311,19 +13313,19 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|T * |
 	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}\ARGBREAK
-	  \verb|( const min::ptr<T> & p )| ~ [unprotected]
+	  \verb|( min::ptr<T> const & p )| ~ [unprotected]
 \LABEL{MIN::!_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}\ARGBREAK
-	  \verb|( const min::ptr<S> & p )| ~ [unprotected]
+	  \verb|( min::ptr<S> const & p )| ~ [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|bool |
     & \TTOMKEY{<}{<}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1,|\ARGBREAK
-      \verb|  const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1,|\ARGBREAK
+      \verb|  min::ptr<T> const & p2 )|
 \LABEL{MIN::<_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}%
@@ -13340,11 +13342,11 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.0in}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1, min::ptr<T> const & p2 )|
 \LABEL{MIN::==_OF_PTR_OF_T} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ptr<T>}}\ARGBREAK
-      \verb|( const min::ptr<T> & p1, const min::ptr<T> & p2 )|
+      \verb|( min::ptr<T> const & p1, min::ptr<T> const & p2 )|
 \LABEL{MIN::!=_OF_PTR_OF_T} \\
 \end{TABULAR}
 
@@ -13368,43 +13370,54 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb|( void )|
+\verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
-\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
-    \verb| var ( min::gen value )|
-\LABEL{MIN::LOCATABLE_GEN_OF_GEN} \\
-\verb|min::gen |
-    & \TTOMKEY{min::gen}{min::gen}%
-              {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & location )|
-\LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
-\verb|min::gen |
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}
+    \verb|var ( min::locatable_gen const & var )|
+\LABEL{MIN::LOCATABLE_GEN_OF_VAR} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}
+    \verb|var ( V const & value )| \\
+    & where \TT{V} values are convertable to \TT{min::gen} values
+\LABEL{MIN::LOCATABLE_GEN_OF_VALUE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::locatable_gen & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & location,|\ARGBREAK
-      \verb|  min::gen value )|
-\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
-\verb|min::gen |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & location,|\ARGBREAK
-      \verb|  const min::locatable_gen & p )|
+      \verb|( min::locatable_gen & var,|\ARGBREAK
+      \verb|  min::locatable_gen const & var2 )|
 \LABEL{MIN::=LOCATABLE_GEN_OF_LOCATABLE_GEN} \\
+\verb|min::locatable_gen & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & var,|\ARGBREAK
+      \verb|  V const & value )| \\
+    & where \TT{V} values are convertable to \TT{min::gen} values
+\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen |
     & \TTOMKEY{min::gen}{min::gen}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen & location )|
+\LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::gen |
+    & \TTOMKEY{min::gen}{min::gen}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & const var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::ref<min::gen> |
     & \TTOMKEY{min::ref<min::gen>}{min::ref<min::gen>}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen & const var )|
 \LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
 \verb|min::ptr<min::gen> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & var )|
+      \verb|( min::locatable_gen & const var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
 \end{TABULAR}
 
@@ -13443,7 +13456,7 @@ In loose implementation: \\
 \verb|T |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
       \verb|( min::locatable_var<T> & location,|\ARGBREAK
-      \verb|  const min::locatable_var<T> & p )|
+      \verb|  min::locatable_var<T> const & p )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
 \end{TABULAR}
 
@@ -13451,17 +13464,17 @@ In loose implementation: \\
 \verb|const min::stub * |
     & \TTOMKEY{min::stub *}{const min::stub *}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> & const var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
 \verb|min::ref<T> |
     & \TTOMKEY{min::ref<T>}{min::ref<T>}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> & const var )|
 \LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( const min::locatable_var<T> & var )|
+      \verb|( min::locatable_var<T> & const var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{TABULAR}
 
@@ -13921,7 +13934,7 @@ In loose implementation: \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
       \verb|( min::str_ptr & sp1,|\ARGBREAK
-      \verb|  const min::str_ptr & sp2 )|
+      \verb|  min::str_ptr const & sp2 )|
 \LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
 \verb|min::str_ptr & |
     & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
@@ -13931,7 +13944,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{2.2in}
 \verb|operator |
-    & \MINKEY{bool} \verb|( const min::str_ptr & sp )|
+    & \MINKEY{bool} \verb|( min::str_ptr const & sp )|
 \LABEL{BOOL_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -13941,33 +13954,33 @@ In loose implementation: \\
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
-      \verb|( const min::str_ptr & sp )|
+      \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{strlen} \verb|( min::gen v )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
-\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( const min::str_ptr & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash} \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]
 \verb|char * min::| & \MINKEY{strcpy}\ARGBREAK
-      \verb|( char * p, const min::str_ptr & sp )|
+      \verb|( char * p, min::str_ptr const & sp )|
 \LABEL{MIN::STRCPY_OF_STR_PTR} \\
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb|( char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp,|\ARGBREAK
+      \verb|  min::str_ptr const & sp,|\ARGBREAK
       \verb|  min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_PTR} \\[1ex]
 \verb|int min::|
     & \MINKEY{strcmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp )|
+      \verb|  min::str_ptr const & sp )|
 \LABEL{MIN::STRCMP_OF_STR_PTR} \\
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  const min::str_ptr & sp,|\ARGBREAK
+      \verb|  min::str_ptr const & sp,|\ARGBREAK
       \verb|  min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
 \end{TABULAR}
@@ -13975,12 +13988,12 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
 \end{TABULAR}
@@ -13988,12 +14001,12 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
 \end{TABULAR}
@@ -14001,11 +14014,11 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float32 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  min::str_ptr const & sp, int & i )|
 \LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float64 & value,|\ARGBREAK
-	\verb|  const min::str_ptr & sp, int & i )|
+	\verb|  min::str_ptr const & sp, int & i )|
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -14017,7 +14030,7 @@ In loose implementation: \\
 
 
 \begin{TABULAR}{1.8in}
-\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( const min::str_ptr & sp )|
+\verb|const char * MUP::| & \MUPKEY{str\_of} \verb|( min::str_ptr const & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -14061,7 +14074,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.6in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt min::lab\_ptr}}\ARGBREAK
-          \verb|( const min::lab_ptr & labp )|
+          \verb|( min::lab_ptr const & labp )|
 \LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \verb|min::lab_ptr & | &
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
@@ -14074,7 +14087,7 @@ In loose implementation: \\
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
 \verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
-	  \verb|( const min::lab_ptr & labp,|\ARGBREAK
+	  \verb|( min::lab_ptr const & labp,|\ARGBREAK
 	  \verb|  min::uns32 i )|
 \LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{TABULAR}
@@ -14192,7 +14205,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.4in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::lab\_ptr}}\ARGBREAK
-          \verb|( const MUP::lab_ptr & labp )|
+          \verb|( MUP::lab_ptr const & labp )|
 \LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \verb|MUP::lab_ptr & | &
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
@@ -14204,7 +14217,7 @@ In loose implementation: \\
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
 \verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt MUP::lab\_ptr}}\ARGBREAK
-	  \verb|( const MUP::lab_ptr & labp,|\ARGBREAK
+	  \verb|( MUP::lab_ptr const & labp,|\ARGBREAK
 	  \verb|  min::uns32 i )|
 \LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{TABULAR}
@@ -14343,16 +14356,16 @@ In loose implementation: \\
 \begin{TABULAR}{1.0in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-          \verb|( const min::packed_struct_ptr<S> & psp )|
+          \verb|( min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|S const * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_ptr<S> & psp )|
+	  \verb|( min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
 \verb|S const & |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_ptr<S> & psp )|
+	  \verb|( min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{TABULAR}
 
@@ -14388,11 +14401,11 @@ In loose implementation: \\
 \verb|S * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_updptr<S> & psup )|
+	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
 \verb|S & |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
-	  \verb|( const min::packed_struct_updptr<S> & psup )|
+	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \end{TABULAR}
 
@@ -14559,12 +14572,12 @@ In loose implementation: \\
 \begin{TABULAR}{1.0in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-          \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
+          \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|H const * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-	  \verb|( const min::packed_vec_ptr<E,H,L> & pvp )|
+	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \end{TABULAR}
 
@@ -15296,7 +15309,7 @@ In loose implementation: \\
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  const min::str_ptr & s )|
+      \verb|  min::str_ptr const & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}%
@@ -15334,7 +15347,7 @@ In loose implementation: \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  const min::op & op )|
+      \verb|  min::op const & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
 \end{TABULAR}
 
@@ -15575,7 +15588,7 @@ In loose implementation: \\
 \verb|std::ostream & |
     & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
       \verb| ( std::ostream & out,|\ARGBREAK
-      \verb|   const min::op & op )|
+      \verb|   min::op const & op )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
 \end{TABULAR}
 
@@ -15818,7 +15831,7 @@ In loose implementation: \\
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  const min::pline_numbers & pline_numbers )|
+      \verb|  min::pline_numbers const & pline_numbers )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{TABULAR}
 
@@ -15857,7 +15870,7 @@ In loose implementation: \\
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
       \verb|  char mark = '^',|\ARGBREAK
       \verb|  const char * blank_line =|\ARGBREAK
       \verb|      "<BLANK-LINE>",|\ARGBREAK
@@ -15899,7 +15912,7 @@ In loose implementation: \\
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 print_flags,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
       \verb|  char mark = '^',|\ARGBREAK
       \verb|  const char * blank_line =|\ARGBREAK
       \verb|      "<BLANK-LINE>",|\ARGBREAK
@@ -15915,7 +15928,7 @@ In loose implementation: \\
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::uns32 print_flags,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position & position )|
+      \verb|  min::phrase_position const & position )|
 \LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
 \end{TABULAR}
 
@@ -15941,7 +15954,7 @@ In loose implementation: \\
   & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
     \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
     \verb|  min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position & position,|\ARGBREAK
+    \verb|  min::phrase_position const & position,|\ARGBREAK
     \verb|  min::uns32 max_length )|
 \LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
 \end{TABULAR}
@@ -16066,7 +16079,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( const min::obj_vec_ptr & vp )|
+          \verb|( min::obj_vec_ptr const & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -16127,7 +16140,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 \verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
@@ -16138,7 +16151,7 @@ In loose implementation: \\
 \begin{TABULAR}{2.2in}
 \verb|min::ptr<const min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
@@ -16173,7 +16186,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb|( const min::obj_vec_updptr & vp )|
+          \verb|( min::obj_vec_updptr const & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -16211,7 +16224,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 \verb|min::ref<min::gen> |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
 \end{TABULAR}
@@ -16219,7 +16232,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 \verb|min::ptr<min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
@@ -16255,7 +16268,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb|( const min::obj_vec_insptr & vp )|
+          \verb|( min::obj_vec_insptr const & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK

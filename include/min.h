@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 11:13:58 EDT 2014
+// Date:	Fri Apr 25 12:40:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3148,8 +3148,8 @@ namespace min {
 		(locatable_var<S,S> *) this;
 	}
 
-	template < typename U >
-	locatable_var ( U const & value )
+	template < typename V >
+	locatable_var ( V const & value )
 	    : T ( value )
 	{
 	    previous = locatable_var<S,S>::last;
@@ -3170,9 +3170,9 @@ namespace min {
 	    locatable_var<S,S>::last = previous;
 	}
 
-	template < typename U >
+	template < typename V >
 	locatable_var<T,S> & operator =
-		( U const & value )
+		( V const & value )
 	{
 	    new ( this ) T ( value );
 	    return * this;
