@@ -4,6 +4,12 @@
     ( OFFSETOF<S,const min::uns32> ( & S::control ) == 0 ) true.
 ../include/min.h:XXXX assert:
     ( OFFSETOF<H,const min::uns32> ( & H::control ) == 0 ) true.
+../include/min.h:XXXX assert:
+    OFFSETOF ( & locatable_var<T>::previous ) == OFFSETOF ( & locatable_stub_ptr::previous ) true.
+../include/min.h:XXXX assert:
+    OFFSETOF ( & locatable_var<T>::previous ) == OFFSETOF ( & locatable_stub_ptr::previous ) true.
+../include/min.h:XXXX assert:
+    OFFSETOF ( & locatable_var<T>::previous ) == OFFSETOF ( & locatable_stub_ptr::previous ) true.
 
 Initialize!
 min_interface_test.cc:XXXX assert:
@@ -1342,8 +1348,6 @@ min_interface_test.cc:XXXX assert:
 Finish Names Test!
 
 Start Packed Structs Test!
-min_interface_test.cc:XXXX assert:
-    8 * min::OFFSETOF ( & min::locatable_var<ps1updptr> ::previous ) == MIN_PTR_BITS true.
 ps1type.name = ps1type
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1401,8 +1405,6 @@ Finish Packed Structs Test!
 Start Packed Vectors Test!
 min_interface_test.cc:XXXX assert:
     sizeof ( pve ) == 32 true.
-min_interface_test.cc:XXXX assert:
-    8 * min::OFFSETOF ( & min::locatable_var<pvinsptr> ::previous ) == MIN_PTR_BITS true.
 pvtype.name = pvtype
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v ) == pvtype.subtype true.

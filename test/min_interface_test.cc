@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 11:12:01 EDT 2014
+// Date:	Sat Apr 26 11:18:30 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -484,14 +484,15 @@ void MINT::acc_initializer ( void )
 //
 bool find_ptr_locator ( void * address )
 {
-    min::locatable_stub * locator =
-	min::locatable_stub::last;
+    min::locatable_stub_ptr * locator =
+	MINT::locatable_stub_ptr_last;
 
     while ( locator )
     {
         if ( locator == address )
 	    return true;
-	locator = locator->previous;
+	locator =
+	    MINT::locatable_var_previous ( locator );
     }
     return false;
 }
@@ -501,13 +502,14 @@ bool find_ptr_locator ( void * address )
 bool find_gen_locator ( void * address )
 {
     min::locatable_gen * locator =
-        min::locatable_gen::last;
+        MINT::locatable_gen_last;
 
     while ( locator )
     {
         if ( locator == address )
 	    return true;
-	locator = locator->previous;
+	locator =
+	    MINT::locatable_var_previous ( locator );
     }
     return false;
 }
@@ -518,13 +520,14 @@ bool find_gen_locator ( void * address )
 int count_gen_locators ( void )
 {
     min::locatable_gen * locator =
-        min::locatable_gen::last;
+        MINT::locatable_gen_last;
 
     int count = 0;
     while ( locator )
     {
         ++ count;
-	locator = locator->previous;
+	locator =
+	    MINT::locatable_var_previous ( locator );
     }
     return count;
 }
@@ -2065,12 +2068,6 @@ void test_packed_structs ( void )
     cout << endl;
     cout << "Start Packed Structs Test!" << endl;
 
-    MIN_ASSERT
-        (    8 * min::OFFSETOF
-	           ( & min::locatable_var<ps1updptr>
-		          ::previous )
-	  == MIN_PTR_BITS );
-
     cout << "ps1type.name = " << ps1type.name << endl;
 
     const min::stub * v1 = ps1type.new_stub();
@@ -2177,12 +2174,6 @@ void test_packed_vectors ( void )
     cout << "Start Packed Vectors Test!" << endl;
 
     MIN_ASSERT ( sizeof ( pve ) == 32 );
-
-    MIN_ASSERT
-        (    8 * min::OFFSETOF
-	           ( & min::locatable_var<pvinsptr>
-		          ::previous )
-	  == MIN_PTR_BITS );
 
     cout << "pvtype.name = " << pvtype.name << endl;
 

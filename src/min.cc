@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 24 11:07:10 EDT 2014
+// Date:	Sat Apr 26 11:18:20 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -55,9 +55,10 @@
 min::initializer * MINT::last_initializer = NULL;
 bool MINT::initialization_done = false;
 
-template < typename T, typename S >
-min::locatable_var<S,S> *
-    min::locatable_var<T,S>::last = NULL;
+min::locatable_stub_ptr *
+    MINT::locatable_stub_ptr_last = NULL;
+min::locatable_gen *
+    MINT::locatable_gen_last = NULL;
 
 # include "../unicode/unicode_class.h"
 
@@ -1005,9 +1006,9 @@ void MINT::thread_scavenger_routine
     if ( sc.thread_state == 0 )
     {
         sc.locatable_gen_last =
-	    min::locatable_gen::last;
+	    MINT::locatable_gen_last;
         sc.locatable_var_last =
-	    min::locatable_stub::last;
+	    MINT::locatable_stub_ptr_last;
     }
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
@@ -1028,7 +1029,8 @@ void MINT::thread_scavenger_routine
 	}
 	++ sc.gen_count;
         sc.locatable_gen_last =
-	    sc.locatable_gen_last->previous;
+	    MINT::locatable_var_previous
+	        ( sc.locatable_gen_last );
     }
 
     while ( sc.locatable_var_last != NULL )
@@ -1049,7 +1051,8 @@ void MINT::thread_scavenger_routine
 	}
 	++ sc.gen_count;
 	sc.locatable_var_last =
-	    sc.locatable_var_last->previous;
+	    MINT::locatable_var_previous
+	        ( sc.locatable_var_last );
     }
 
     sc.stub_flag_accumulator = accumulator;
