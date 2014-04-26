@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 25, 2014}
+\date{April 26, 2014}
  
 \maketitle
 
@@ -2249,11 +2249,93 @@ between \TT{min::gen} values known to be numeric and those
 that might not be, so loose implementations can encounter less overhead
 when dealing with numeric \TT{min::gen} values.
 
-In order to be locatable by the garbage collector, \TT{min::gen}
-values in static or stack memory must be stored in locations of type
-{\tt min::}\MINKEY{locatable\_\EOL gen}, or, if they a \underline{known}
-with certainty to be numbers, in locations of type
-{\tt min::}\MINKEY{locatable\_\EOL num\_\EOL gen}:
+In addition to \TT{min::gen} values that might point at stubs,
+\TT{min::packed\_\ldots{}xxxptr<\ldots>} values and \TT{const min::stub~*}
+values must be locatable.
+
+Locatable values of type \TT{T} in static or stack memory must be stored
+in locations of type {\tt min::}\MINKEY{locatable\_\EOL var<T>}:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|class min::| & \MINKEY{locatable\_var<T>} \TT{: public T}
+\LABEL{MIN::LOCATABLE_VAR_BASECLASS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}\ARGBREAK
+    \verb| var ( void )|
+\LABEL{MIN::LOCATABLE_VAR} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}\ARGBREAK
+    \verb|var ( min::locatable_var<T> const & var )|
+\LABEL{MIN::LOCATABLE_VAR_OF_VAR} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}\ARGBREAK
+    \verb|var ( V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
+\LABEL{MIN::LOCATABLE_VAR_OF_VALUE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::locatable_var<T> & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var,|\ARGBREAK
+      \verb|  min::locatable_var<T> const & var2 )|
+\LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
+\verb|min::locatable_var<T> & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var,|\ARGBREAK
+      \verb|  V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
+\LABEL{MIN::=LOCATABLE_VAR_OF_VALUE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|T const & |
+    & \TTOMKEY{T const \&}{T const \&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_T_CONST} \\
+\verb|T & |
+    & \TTOMKEY{T const \&}{T const \&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_T} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::ref<T> |
+    & \TTOMKEY{min::ref<T>}{min::ref<T>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::ref<T const> |
+    & \TTOMKEY{min::ref<T const>}{min::ref<T const>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::CONST_LOCATABLE_VAR_TO_REF_CONST_T} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{min::ref<T>}{min::ref<T>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
+\verb|min::ptr<T const> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::AMPERSAND_CONST_LOCATABLE_VAR} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
+\LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
+\end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| var ( void )|
@@ -2278,7 +2360,7 @@ with certainty to be numbers, in locations of type
       \verb|( min::locatable_gen & var,|\ARGBREAK
       \verb|  V const & value )| \\
     & where \TT{V} values are convertable to \TT{min::gen} values
-\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
+\LABEL{MIN::=LOCATABLE_GEN_OF_VALUE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
@@ -2392,35 +2474,46 @@ When such values are stored in static or stack memory,
 this may be done with the code:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_var<T>}\verb| var ( void )|
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}
+    \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_var<T>} \verb| var ( T value )|
-\LABEL{MIN::LOCATABLE_VAR_OF_T} \\
-\verb|min::locatable_var<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( min::locatable_var<T> & var,|\ARGBREAK
-      \verb|  T value )|
-\LABEL{MIN::=LOCATABLE_VAR} \\
-\verb|min::locatable_var<T> & |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
-      \verb|( min::locatable_var<T> & var,|\ARGBREAK
-      \verb|  const min::stub * s )|
-\LABEL{MIN::=LOCATABLE_VAR_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}
+    \verb|var ( min::locatable_var<T> const & var )|
+\LABEL{MIN::LOCATABLE_VAR_OF_VAR} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_var<T>}
+    \verb|var ( V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
+\LABEL{MIN::LOCATABLE_VAR_OF_VALUE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  min::locatable_var<T> const & var2 )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
+\verb|min::locatable_var<T> & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var,|\ARGBREAK
+      \verb|  V const & value )| \\
+    & where \TT{V} values are convertable to \TT{T} values
+\LABEL{MIN::=LOCATABLE_VAR_OF_VALUE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|const min::stub * |
-    & \TTOMKEY{min::stub *}{const min::stub *}%
+\verb|T const & |
+    & \TTOMKEY{T const \&}{T const \&}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> const & var )|
-\LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
+\LABEL{MIN::LOCATABLE_VAR_TO_T_CONST} \\
+\verb|T & |
+    & \TTOMKEY{T const \&}{T const \&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_T} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|min::ref<T> |
     & \TTOMKEY{min::ref<T>}{min::ref<T>}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
@@ -2430,6 +2523,29 @@ this may be done with the code:
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::ref<T const> |
+    & \TTOMKEY{min::ref<T const>}{min::ref<T const>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::CONST_LOCATABLE_VAR_TO_REF_CONST_T} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{min::ref<T>}{min::ref<T>}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
+\verb|min::ptr<T const> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> const & var )|
+\LABEL{MIN::AMPERSAND_CONST_LOCATABLE_VAR} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var<T>}}\ARGBREAK
+      \verb|( min::locatable_var<T> & var )|
 \LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
@@ -13412,7 +13528,7 @@ These are in \verb|min_parameters.h|.
       \verb|( min::locatable_gen & var,|\ARGBREAK
       \verb|  V const & value )| \\
     & where \TT{V} values are convertable to \TT{min::gen} values
-\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
+\LABEL{MIN::=LOCATABLE_GEN_OF_VALUE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
