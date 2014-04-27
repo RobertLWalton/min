@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 26, 2014}
+\date{April 27, 2014}
  
 \maketitle
 
@@ -1874,8 +1874,8 @@ packed structures & see \TT{MIN\_REF}
 packed vector headers & see \TT{MIN\_REF}
     \pagref{MIN_REF} and \pagref{PACKED_VEC_MIN_REF} \\
 packed vector elements	& see \TT{operator []}
-    \pagref{PACKED_VEC_[]_REF},
-    \TT{push} function \pagref{PACKED_VEC_PUSH_REF} \\
+    \pagref{MIN::PACKED_VEC_PTR_[]},
+    \TT{push} function \pagref{MIN::PACKED_VEC_PUSH} \\
 locatable variables	& see \TT{operator min::ref<T>}
     \pagref{LOCATABLE_VAR_REF} \\
 object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
@@ -2589,7 +2589,7 @@ MIN_REF ( min::gen, g, S_ptr )
 MIN_REF ( S_ptr, p, S_ptr )
 \end{verbatim}\end{indpar}
 
-This methodology and the \TT{MIN\_\EOL REF} macro are frequently
+The \TT{MIN\_\EOL REF} macro is frequently
 used with packed structures (see \itemref{PACKED-STRUCTURES}) and
 packed vectors (see \itemref{PACKED-VECTORS}).
 
@@ -4767,12 +4767,12 @@ have the usage:
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|S const * |
+\verb|min::ptr<S const> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|S const & |
+\verb|min::ref<S const> |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
@@ -4809,7 +4809,7 @@ equals \TT{min::\EOL NULL\_\EOL STUB}.
 
 A \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} pointer is also
 internally a `\TT{S const **}' value that is made to behave externally like a
-`\TT{S const *}' value with respect to the \TT{->} and
+`\TT{min::\EOL ptr<S~const>}' value with respect to the \TT{->} and
 unary \TT{*} operators.  Thus looking ahead at the example below,
 if \TT{upv} is a
 \TT{min::\EOL packed\_\EOL struct\_\EOL ptr<S>} value
@@ -4851,12 +4851,12 @@ pointer type is:
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|S * |
+\verb|min::ptr<S> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|S & |
+\verb|min::ref<S> |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
 	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
@@ -4864,8 +4864,8 @@ pointer type is:
 
 The \TT{->} and \TT{*} operators are redefined (i.e., \underline{not}
 inherited) so that they
-return `\TT{S~*}' and `\TT{S~\&}' values instead of
-`\TT{S~const~*}' and `\TT{S~const~\&}' values.
+return `\TT{min::\EOL ptr<S>}' and `\TT{min::\EOL ref<S>}' values instead of
+`\TT{min::\EOL ptr<S~const>}' and `\TT{min::\EOL ref<S~const>}' values.
 
 \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>} pointers can be
 converted implicitly to \TT{const min::stub *} values because
@@ -4877,7 +4877,7 @@ the \TT{min::\EOL packed\_\EOL struct\_\EOL updptr<S>} pointer type.
 \TT{min::\EOL packed\_\EOL\ldots ptr<\ldots>}
 elements of packed structures must be locatable.
 The \TT{MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
-macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
+macro described on \pagref{MIN_REF}
 should be used with a \TT{min::\EOL packed\_\EOL
 struct\_\EOL updptr<S>} container type
 for locatable elements of a packed structure.
@@ -4927,6 +4927,8 @@ main ( ... )
 
     pv_ref(upv) = pv;
     upv = pstype.new_gen();
+        // new.stub() could be used here in place of new_gen()
+
     // Now upv->i == 0, pv->i == 55, pv->pv->i == 55,
     //     upv->pv == min::NULL_STUB
 
@@ -5349,18 +5351,23 @@ packed vector pointer type which has the usage:
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
           \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|H const * |
+\verb|min::ptr<H const> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
+\verb|min::ref<H const> |
+	& \TTOMKEY{*}{*}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_*} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const L pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const L pvp| & \TTARMKEY{max\_length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_MAX_LENGTH} \\
-\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ref<E const> pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
@@ -5377,8 +5384,12 @@ packed vector pointer type which has the usage:
 
 As for packed structures, read-only packed vector pointers used as the left
 operand of \TT{->} are converted to
-`\TT{H const *}'.  This can be used to access the `\TT{length}'
+\TT{min::\EOL ptr<H const>} pointers.
+This can be used to access the `\TT{length}'
 and \TT{max\_length} members of the header.
+
+Similarly, as for packed structures the \TT{*} operator converts
+read only packed vector pointers to \TT{min::\EOL ref<H const>} references.
 
 In addition subscripting read-only packed vector
 pointers gives read-only access to the elements of the vector.  The subscripting
@@ -5389,19 +5400,17 @@ check that \TT{0<=i<pvp->length}).
 The vector elements in a
 packed vector are organized as a C language vector so that
 \begin{center}
-\TT{(\& pvp[0])[i]} is the same as \TT{pvp[i]}
+\TT{(!~\& pvp[0])[i]} references the same element as \TT{pvp[i]}
 \end{center}
-but the vector elements are stored in a body whose address can change
+But the vector elements are stored in a body whose address can change
 if a relocating function is called, so C pointers to packed vector
 elements are relocatable.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
-function, so, for example, `\TT{\& pvp[i]}' may be used as an
+function, so, for example, `\TT{!~\& pvp[i]}' may be used as an
 argument to \TT{memcpy}.
 
 \TT{pvp+i} can be used to compute a \TT{min::ptr<E const>} pointer that
 points at the \TT{pvp[i]} vector element.
-The \TT{min::ptr<E const>} pointer will still be valid if the packed vector
-body is relocated.
 The \TT{MIN\_\EOL ASSERT} check \TT{0<=i<pvp->length}
 is performed when \TT{pvp+i} is computed.
 
@@ -5410,16 +5419,13 @@ except the latter would fail if \TT{pvp->\EOL length == 0}.
 \TT{min::end\_ptr(pvp)} is the same as `\TT{pvp + pvp->length}'
 except the latter will always fail because the index is not less than
 \TT{pvp->length}.
-The \TT{min::ptr<E const>} values of these functions are implicitly
-convertible to `\TT{E const *}' values, and so can be passed to
-functions like \TT{memcpy}.
 
 For example, if \TT{memcpy} is used to copy
 from the vector, use \TT{min::begin\_\EOL ptr(pvp)}:
 \begin{indpar}\begin{verbatim}
-memcpy ( ..., min::begin_ptr(pvp), sizeof ( E ) * pvp->length );
+memcpy ( ..., ! min::begin_ptr(pvp), sizeof ( E ) * pvp->length );
 \end{verbatim}\end{indpar}
-Using \TT{\& pvp[0]} instead of \TT{min::begin\_ptr(pvp)}
+Using \TT{!~\& pvp[0]} instead of \TT{!~min::begin\_ptr(pvp)}
 will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvp->\EOL length == 0}.
 
 The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr<E,H,L>}
@@ -5465,19 +5471,20 @@ pointer type is:
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|H * |
+\verb|min::ptr<H> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
 	  \verb|( min::packed_vec_updptr<E,H,L> const & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
+\verb|min::ref<H> |
+	& \TTOMKEY{*}{*}%
+	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
+	  \verb|( min::packed_vec_updptr<E,H,L> const & pvup )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_*} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
 \verb|min::ptr<E> pvup|
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
@@ -5491,21 +5498,14 @@ pointer type is:
 \LABEL{MIN::END_PTR_OF_PACKED_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
-The \TT{->}, \TT{[]}, and \TT{+} operators and
+The \TT{->}, \TT{*}, \TT{[]}, and \TT{+} operators and
 \TT{min::begin\_ptr\_of()} and \TT{min::end\_ptr\_of()} functions are
 redefined (i.e., \underline{not}
 inherited) so that they
-return `\TT{H~*}', `\TT{E~\&},
-or `\TT{min::\EOL ptr<E>}' values
-instead of `\TT{H~const~*}', `\TT{E~const~\&}', or
-`\TT{min::\EOL ptr<E const>}' values.
-The \TT{[]} operator\label{PACKED_VEC_[]_REF}
-is further redefined if \TT{E} is a locatable type
-so that a \TT{min::\EOL ref<E>} value is returned instead of
-a `\TT{E~\&}' value.  This does for vector elements that are
-not structures what
-\TT{MIN\_REF} defined \TT{\ldots\_ref} functions do for structure
-elements.
+return `\TT{min::\EOL ptr<H>}'
+or `\TT{min::\EOL ref<E>}' values
+instead of `\TT{min::\EOL ptr<H~const>}'
+or `\TT{min::\EOL ref<E const>}' values.
 
 The \TT{MIN\_REF}\label{PACKED_VEC_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
@@ -5562,14 +5562,9 @@ pointer type is:
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|E & min::|
-	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|\\&
-	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|min::ref<E> min::|
-	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|\\&
-          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
+	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|
+\LABEL{MIN::PACKED_VEC_PUSH} \\[2ex]
 \verb|void min::|
 	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
@@ -5579,6 +5574,11 @@ pointer type is:
 	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
 	  \verb|  min::uns32 n, min::ptr<const E> vp )|
+\LABEL{MIN::PACKED_VEC_PUSH_PTR_CONST} \\
+\verb|void min::|
+	& \MINKEY{push\RESIZE}\ARGBREAK
+	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
+	  \verb|  min::uns32 n, min::ptr<E> vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5591,6 +5591,11 @@ pointer type is:
 	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
 	  \verb|  min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
+\verb|void min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
+	  \verb|  min::uns32 n, min::ptr<E> vp )|
+\LABEL{MIN::PACKED_VEC_POP_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -5630,18 +5635,7 @@ intended use is
 push(pvip) = v;
 \end{verbatim}\end{indpar}
 where \TT{v} is the value of the element to be added to the vector.
-If the element type \TT{E} is locatable, \TT{min::\EOL push\RESIZE}
-returns a \TT{min::\EOL ref<E>} reference.%
-\label{PACKED_VEC_PUSH_REF}
-Otherwise, if \TT{E} is not locatable, an
-`\TT{E \&}' reference is returned.
-
-Note that \TT{\& min::push(pvip)}
-is an \underline{unprotected} body pointer if \TT{E} is not
-locatable.
-Very importantly, this means that \TT{v} \underline{must not}
-be a relocating expression.  Since \TT{v} does not have locatable type,
-this should not normally be an issue, but if \TT{v} is
+If \TT{v} is
 a structure type containing locatable elements, the situation is
 tricky: see the below example.
 
@@ -5653,10 +5647,13 @@ new elements are placed within the packed vector in the same
 memory order as they appear in the \TT{vp} vector.
 Here \TT{vp} cannot be an unprotected body pointer, as the data
 it points at might be relocated during the execution of \TT{push}.
-It can either be a non-body pointer or a \TT{min:\EOL ptr<const E>} pointer.
-In either case \TT{min::\EOL acc\_\EOL write\_\EOL update} 
+It can either be a non-body pointer, a \TT{min:\EOL ptr<const E>} pointer,
+or a \TT{min:\EOL ptr<E>} pointer.
+In any case \TT{min::\EOL acc\_\EOL write\_\EOL update} 
 (\itemref{ACC-WRITE-UPDATE-FUNCTIONS})
 is called by \TT{min::\EOL push} if \TT{E} is locatable.
+Again the situation is tricky if \TT{v} is
+a structure type containing locatable elements: see the below example.
 
 The \TT{min::pop} function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
@@ -5755,12 +5752,12 @@ main ( ... )
     min::push(pvip) = e3
         // Here it is necessary that the right size of =
         // not call relocating min::new_... functions
-	// because min::push returns a `pve &' value and
-	// not a min::ref<pve> value.
+        // because min::push returns a `pve &' value and
+        // not a min::ref<pve> value.
     MUP::acc_write_update ( pvip, e3.g ); 
     MUP::acc_write_update ( pvip, e3.s ); 
         // We must call acc_write_update ourselves as
-	// pve is not itself a locatable type.
+        // pve is not itself a locatable type.
 
         // pvp->length == 5
     min::resize ( pvip, 10 );
@@ -5777,7 +5774,7 @@ main ( ... )
         // We must make e4.g and e4.s locatable before
         // we call any more relocating functions, where we
         // are assuming they might no longer be related to
-	// name1 and name2 above.
+        // name1 and name2 above.
 
     pve e5[3];
     min::pop ( pvip, 2, e5 );
@@ -14281,14 +14278,17 @@ These are in \verb|min_parameters.h|.
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb|( min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|S const * |
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::ptr<S const> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|( min::packed_struct_ptr<S> const & psp )|
+	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|S const & |
+\verb|min::ref<S const> |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb|( min::packed_struct_ptr<S> const & psp )|
+	  \verb|(min::packed_struct_ptr<S> const & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{TABULAR}
 
@@ -14320,13 +14320,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
 \end{TABULAR}
 
-\begin{TABULAR}{0.8in}
-\verb|S * |
+\begin{TABULAR}{1.2in}
+\verb|min::ptr<S> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|S & |
+\verb|min::ref<S> |
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
 	  \verb|( min::packed_struct_updptr<S> const & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
@@ -14497,19 +14497,27 @@ These are in \verb|min_parameters.h|.
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
           \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|H const * |
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::ptr<H const> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
+\verb|min::ref<H const> |
+	& \TTOMKEY{*}{*}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+	  \verb|( min::packed_vec_ptr<E,H,L> const & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_*} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{2.0in}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const L pvp| & \TTARMKEY{max\_length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_MAX_LENGTH} \\
-\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ref<E const> pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
@@ -14564,21 +14572,24 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
-\verb|H * |
+\verb|min::ptr<H> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-	  \verb|( const min::packed_vec_updptr<E,H,L>|\ARGBREAK
-	  \verb|     & pvup )|
+	  \verb|( min::packed_vec_updptr<E,H,L> const & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
+\verb|min::ref<H> |
+	& \TTOMKEY{*}{*}%
+	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
+	  \verb|( min::packed_vec_updptr<E,H,L> const & pvup )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_*} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|min::ptr<E> pvup|
+    & \TTMOKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
+\LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
 \verb|min::ptr<E>  min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::packed_vec_updptr<E,H,L> pvup )|
@@ -14629,19 +14640,24 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|E & min::|
-	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|\\&
-	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|min::ref<E> min::|
-	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|\\&
-          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
+	& \MINKEY{push\RESIZE} \verb|( packed_vec_insptr<E,H,L> pvip )|
+\LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|void min::|
 	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
 	  \verb|  min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
+\verb|void min::|
+	& \MINKEY{push\RESIZE}\ARGBREAK
+	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
+	  \verb|  min::uns32 n, min::ptr<const E> vp )|
+\LABEL{MIN::PACKED_VEC_PUSH_PTR_CONST} \\
+\verb|void min::|
+	& \MINKEY{push\RESIZE}\ARGBREAK
+	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
+	  \verb|  min::uns32 n, min::ptr<E> vp )|
+\LABEL{MIN::PACKED_VEC_PUSH_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -14654,6 +14670,11 @@ These are in \verb|min_parameters.h|.
 	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
 	  \verb|  min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
+\verb|void min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb|( packed_vec_insptr<E,H,L> pvip,|\ARGBREAK
+	  \verb|  min::uns32 n, min::ptr<E> vp )|
+\LABEL{MIN::PACKED_VEC_POP_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}

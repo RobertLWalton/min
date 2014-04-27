@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 27 01:09:06 EDT 2014
+// Date:	Sun Apr 27 16:43:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5139,13 +5139,19 @@ namespace min {
 	    : internal::packed_vec_ptr_base<E,H,L>
 	    () {}
 
-	min::ptr<const H> operator -> ( void ) const
+	min::ptr<H const> operator -> ( void ) const
 	{
 	    return min::unprotected::new_ptr<const H>
 	       ( this->s, (min::unsptr) 0 );
 	}
 
-	min::ref<const E> operator [] ( L i ) const
+	min::ref<H const> operator * ( void ) const
+	{
+	    return min::unprotected::new_ref<const H>
+	       ( this->s, (min::unsptr) 0 );
+	}
+
+	min::ref<E const> operator [] ( L i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
@@ -5272,6 +5278,12 @@ namespace min {
 	min::ptr<H> operator -> ( void ) const
 	{
 	    return min::unprotected::new_ptr<H>
+	       ( this->s, (min::unsptr) 0 );
+	}
+
+	min::ref<H> operator * ( void ) const
+	{
+	    return min::unprotected::new_ref<H>
 	       ( this->s, (min::unsptr) 0 );
 	}
 
@@ -5626,6 +5638,13 @@ namespace min {
 	    memcpy ( vp,
 		     ! end_ptr_of ( pvip ),
 		     n * sizeof ( E ) );
+    }
+    template < typename E, typename H, typename L >
+    inline void pop
+	( typename min::packed_vec_insptr<E,H,L> pvip,
+	  min::unsptr n, min::ptr<E> vp )
+    {
+        pop<E,H,L> ( pvip, ! vp );
     }
 
     template < typename E, typename H, typename L >
