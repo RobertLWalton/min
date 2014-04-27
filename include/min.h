@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 26 11:13:06 EDT 2014
+// Date:	Sun Apr 27 01:09:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2786,11 +2786,10 @@ namespace min {
 	    return * this;
 	}
 
-	template < typename V >
 	ref<T> const & operator =
-		( V const & value ) const
+		( T const & value ) const
 	{
-	    T v = (T) value;
+	    T v = value;
 	    * this->location() = v;
 	    write_update<T> X ( this->s, v );
 	    return * this;
@@ -3200,15 +3199,14 @@ namespace min {
 
 	// We must define an explicit copy constructor.
 	//
-        locatable_var ( const locatable_var<T> & var )
-	    : T ( (T const &) var )
+        locatable_var ( locatable_var<T> const & var )
+	    : T ( var )
 	{
 	    previous = internal::push_locatable_var<T>
 		( this );
 	}
 
-	template < typename V >
-	locatable_var ( V const & value )
+	locatable_var ( T const & value )
 	    : T ( value )
 	{
 	    previous = internal::push_locatable_var<T>
@@ -3221,9 +3219,8 @@ namespace min {
 		( this, previous );
 	}
 
-	template < typename V >
 	locatable_var<T> & operator =
-		( V const & value )
+		( T const & value )
 	{
 	    new ( this ) T ( value );
 	    return * this;
