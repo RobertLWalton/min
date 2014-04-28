@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 27, 2014}
+\date{April 28, 2014}
  
 \maketitle
 
@@ -6631,10 +6631,11 @@ and to the function:
 \LABEL{MIN::FLUSH_SPOOL} \\
 \end{tabular}\end{indpar}
 
-This function deletes lines from the file buffer
+Provided \TT{spool\_\EOL lines > 0},
+this function deletes lines from the file buffer
 if there are more than \TT{spool\_\EOL lines}
 lines before the line of the given \TT{line\_\EOL number} in the buffer.
-If this condition is met, all lines before the one with number
+In this case all lines before the one with number
 \begin{center}
 \tt max ( line\_number - spool\_lines, 0 )
 \end{center}
@@ -6648,7 +6649,7 @@ It is required that
 \end{center}
 but it is never a programming error if \TT{line\_\EOL number} is within
 this range, even if no lines are deleted and even if \TT{spool\_\EOL lines}
-is \TT{0} and \TT{line\_\EOL index} does not exist.
+is \TT{0} (and therefore \TT{line\_\EOL index} does not exist).
 
 It is possible to `rewind' a file with the function:
 

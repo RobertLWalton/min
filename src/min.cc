@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 26 11:18:20 EDT 2014
+// Date:	Mon Apr 28 05:39:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2458,13 +2458,13 @@ void min::flush_remaining ( min::file file )
 
     if ( file->ofile != NULL_STUB )
 	min::push ( file->ofile->buffer, length,
-	            & file->buffer[offset] );
+	            file->buffer + offset );
 
     if ( file->printer != NULL_STUB )
     {
         file->printer << min::save_print_format
 		      << min::verbatim
-		      << & file->buffer[offset]
+		      << file->buffer + offset
 		      << min::restore_print_format;
     }
 
@@ -2527,18 +2527,10 @@ void min::flush_spool
 void min::rewind
 	( min::file file, min::uns32 line_number )
 {
-    if ( file->next_line_number == line_number )
-        return;
+    min::uns32 line_offset =
+        min::line ( file, line_number );
 
-    if ( line_number == 0 )
-    {
-	if ( file->line_index != NULL_STUB )
-	    min::pop ( file->line_index,
-	               file->line_index->length );
-	file->next_line_number = 0;
-	file->next_offset = 0;
-    }
-    else
+    if ( line_offset != min::NO_LINE )
     {
 	assert ( file->line_index != NULL_STUB );
 	assert ( line_number < file->next_line_number );
@@ -2546,12 +2538,19 @@ void min::rewind
 	    file->next_line_number - line_number;
 	assert (    file->line_index->length
 		 >= lines_to_back_up );
-	file->next_offset =
-	    file->line_index
-	       [  file->line_index->length
-		- lines_to_back_up ];
-	min::pop ( file->line_index, lines_to_back_up );
+	file->next_offset = line_offset;
 	file->next_line_number = line_number;
+	min::pop ( file->line_index, lines_to_back_up );
+    }
+    else if (    line_number == 0
+	      && file->spool_lines == 0 )
+    {
+	file->next_line_number = 0;
+	file->next_offset = 0;
+    }
+    else if ( file->next_line_number != line_number )
+    {
+	MIN_ABORT ( "bad rewind line_number" );
     }
 }
 
