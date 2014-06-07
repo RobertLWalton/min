@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 28 05:39:06 EDT 2014
+// Date:	Sat Jun  7 05:16:04 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1892,6 +1892,14 @@ void min::init_input
         if ( file->line_index == min::NULL_STUB )
 	    min::line_index_ref(file) =
 		::file_line_index_type.new_stub();
+	else
+	{
+	    min::pop ( file->line_index,
+		       file->line_index->length );
+	    min::resize ( file->line_index,
+			  file_line_index_type
+			      .initial_max_length );
+	}
     }
     else
     {
@@ -1944,7 +1952,7 @@ void min::load_string
 
     uns64 length = ::strlen ( ! string );
     uns32 offset = file->buffer->length;
-    assert ( length < ( 1ull << 32 ) - 1 - offset );
+    assert ( length <= ( 1ull << 32 ) - 1 - offset );
 
     min::push ( file->buffer, length, string );
 
@@ -1993,16 +2001,16 @@ bool min::load_named_file
 	ERR << "During attempt to find the size of"
 	       " file "
 	    << fname << ": "
-	    << min::reserve ( 20 )
+	    << min::reserve ( 40 )
 	    << error_buffer << min::eol;
         return false;
     }
 
-    if ( file_size >= ( 1ull << 32 ) - 1 - offset )
+    if ( file_size > ( 1ull << 32 ) - 1 - offset )
     {
         ERR << "File "
 	    << fname << ": "
-	    << min::reserve ( 20 )
+	    << min::reserve ( 40 )
 	    << "File too large ( size = " << file_size
 	    << " bytes)" << min::eol;
 	return false;
@@ -2018,7 +2026,7 @@ bool min::load_named_file
     {
         ERR << "Opening file "
 	    << fname << ": "
-	    << min::reserve ( 20 )
+	    << min::reserve ( 40 )
 	    << strerror ( errno )
 	    << min::eol;
 	return false;
@@ -2028,7 +2036,7 @@ bool min::load_named_file
 
     errno = 0;
     uns64 bytes =
-        fread ( ! & file->buffer[offset], 1,
+        fread ( ! ( file->buffer + offset ), 1,
 	        (size_t) file_size, in );
 
     if ( bytes < file_size )
@@ -2047,13 +2055,13 @@ bool min::load_named_file
 	if ( errno != 0 )
 	    ERR << "Reading file "
 		<< fname << ": "
-	        << min::reserve ( 20 )
+	        << min::reserve ( 40 )
 		<< strerror ( errno )
 		<< min::eol;
 	else
 	    ERR << "Reading file "
 		<< fname << ": "
-	        << min::reserve ( 20 )
+	        << min::reserve ( 40 )
 		<< " Only " << bytes
 		<< " bytes out of " << file_size
 		<< " read"
@@ -2065,7 +2073,7 @@ bool min::load_named_file
     {
 	ERR << "Reading file "
 	    << fname << ": "
-	    << min::reserve ( 20 )
+	    << min::reserve ( 40 )
 	    << "File longer than expected (more than "
 	    << file_size << " bytes were read)"
 	    << min::eol;
@@ -2128,7 +2136,8 @@ min::uns32 min::next_line ( min::file file )
 	    }
 
 	    uns32 length =
-		::strlen ( ! & ifile->buffer[ioffset] );
+		::strlen
+		    ( ! ( ifile->buffer + ioffset ) );
 	    min::push ( file->buffer, length,
 	                ifile->buffer + ioffset );
 	}
@@ -2139,7 +2148,8 @@ min::uns32 min::next_line ( min::file file )
     }
 
     file->next_offset +=
-        1 + ::strlen ( ! & file->buffer[line_offset] );
+        1 + ::strlen
+	        ( ! ( file->buffer + line_offset ) );
     ++ file->next_line_number;
 
     if ( file->line_index != NULL_STUB )
@@ -2204,14 +2214,16 @@ min::uns32 min::print_line
 	}
     }
     else
-        length = ::strlen ( ! & file->buffer[offset] );
+        length =
+	    ::strlen ( ! ( file->buffer + offset ) );
 
     // Move line to stack so that (1) it will not be
     // relocatable when printer is called, and (2) it
     // will end with NUL even if it is a partial line.
     //
     char buffer[length+1];
-    memcpy ( buffer, ! & file->buffer[offset], length );
+    memcpy ( buffer, ! ( file->buffer + offset ),
+             length );
     buffer[length] = 0;
 
     // Blank line check.
@@ -2229,7 +2241,7 @@ min::uns32 min::print_line
     else
     {
 	const char * p = & buffer[0];
-	while ( * p && ( * p <= ' ' || * p == 0x3F ) )
+	while ( * p && ( * p <= ' ' || * p == 0x7F ) )
 	    ++ p;
 	if ( * p == 0 )
 	{
@@ -2302,9 +2314,10 @@ min::uns32 min::print_line_column
 	else return 0;
     }
     else
-        length = ::strlen ( ! & file->buffer[offset] );
+        length =
+	    ::strlen ( ! ( file->buffer + offset ) );
 
-    min::pwidth ( column, ! & file->buffer[offset],
+    min::pwidth ( column, ! ( file->buffer + offset ),
     		  position.offset <= length ?
 		      position.offset : length,
                   print_flags );
@@ -2428,7 +2441,7 @@ void min::flush_line
     {
 	min::file ofile = file->ofile;
         uns32 length =
-	    ::strlen ( ! & file->buffer[offset] );
+	    ::strlen ( ! ( file->buffer + offset ) );
 	min::push ( ofile->buffer, length,
 	            file->buffer + offset );
 	min::end_line ( ofile );
@@ -2452,7 +2465,7 @@ void min::flush_remaining ( min::file file )
 
     if ( file->ostream != NULL )
     {
-        * file->ostream << ! & file->buffer[offset];
+        * file->ostream << ! ( file->buffer + offset );
 	std::flush ( * file->ostream );
     }
 
@@ -2505,8 +2518,8 @@ void min::flush_spool
     uns32 buffer_offset =
 	file->line_index[lines_to_delete];
     if ( buffer_offset < file->buffer->length )
-	memmove ( ! & file->buffer[0],
-		  ! & file->buffer[buffer_offset],
+	memmove ( ! ( file->buffer + 0 ) ,
+		  ! ( file->buffer + buffer_offset ),
 		    file->buffer->length
 		  - buffer_offset );
     min::pop ( file->buffer, buffer_offset );
@@ -2561,13 +2574,13 @@ std::ostream & operator <<
     {
         min::uns32 offset = min::next_line ( file );
 	if ( offset == min::NO_LINE ) break;
-	out << ! & file->buffer[offset] << std::endl;
+	out << ! ( file->buffer + offset ) << std::endl;
     }
 
     if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-        out << ! & file->buffer[file->next_offset];
+        out << ! ( file->buffer + file->next_offset );
 	min::pop ( file->buffer );
 	file->next_offset = file->buffer->length;
     }
@@ -2582,9 +2595,9 @@ min::file operator <<
         min::uns32 offset = min::next_line ( ifile );
 	if ( offset == min::NO_LINE ) break;
         min::uns32 length =
-	    ::strlen ( ! & ifile->buffer[offset] );
+	    ::strlen ( ! ( ifile->buffer + offset ) );
 	min::push ( ofile->buffer, length,
-	            & ifile->buffer[offset] );
+	            ifile->buffer + offset );
 	min::end_line ( ofile );
     }
 
@@ -2612,7 +2625,8 @@ min::printer operator <<
     {
         min::uns32 offset = min::next_line ( file );
 	if ( offset == min::NO_LINE ) break;
-	printer << & file->buffer[offset] << min::eol;
+	printer << ( file->buffer + offset )
+	        << min::eol;
     }
 
     printer << min::restore_print_format;
