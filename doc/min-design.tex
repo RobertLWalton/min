@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 28, 2014}
+\date{June 9, 2014}
  
 \maketitle
 
@@ -1215,7 +1215,7 @@ cout << v.s;
 
 The \TT{min::direct\_str\_of} function merely copies the 3 or
 5 \TT{char}'s of the \TT{min::gen} direct string value and
-appends a NUL character.
+appends a \TT{NUL} character.
 It does this by writing an appropriate value into \TT{v.u}.
 
 The \TT{min::\ldots{}\_aux\_of}, the \TT{min::index\_of} function,
@@ -3362,7 +3362,7 @@ that its argument is a number without doing any \TT{MIN\_ASSERT} check:
 \label{STRINGS}
 
 In MIN all \skey{string}s\index{strings@strings}
-are NUL terminated UTF-8 encoded UNICODE character strings.
+are \TT{NUL} terminated UTF-8 encoded UNICODE character strings.
 \key{UTF-8} encodes 32-bit UNICODE characters in 1 to 7 \TT{char}'s.
 
 All ASCII characters are encoded as themselves in
@@ -3376,14 +3376,14 @@ It is possible for a string to be miscoded UTF-8.  Unless otherwise
 mentioned, the functions given below, including the protected functions,
 do \underline{not} check for this.
 
-A MIN string value cannot store the NUL character as legal UTF-8.
+A MIN string value cannot store the \TT{NUL} character as legal UTF-8.
 But it is possible to use the `\key{modified UTF-8}'
 \label{MODIFIED-UTF-8} encoding instead of
 strict UTF-8.  The difference is that strict UTF-8 encodes the NUL
 character in a single byte as an ASCII NUL, whereas modified UTF-8
-encodes the NUL character as the `overlong' 2-byte string `\TT{0xC0,0x80}'
+encodes the \TT{NUL} character as the `overlong' 2-byte string `\TT{0xC0,0x80}'
 (which is not legal in strict UTF-8 because it is not the shortest
-possible encoding of NUL in UTF-8).
+possible encoding of \TT{NUL} in UTF-8).
 
 There are two kinds of string stubs: short strings and long strings.
 In addition, a string of up to 3 \TT{char}'s can be stored within a 32-bit
@@ -3441,7 +3441,7 @@ The following functions create new general string values:
 The \TT{min::new\_str\_gen} functions copy the input string after the
 manner of \TT{strcpy} and \TT{strncpy}, respectively.  That is,
 they copy from \TT{p}
-until a NUL is copied or \TT{n} characters have been copied, whichever
+until a \TT{NUL} is copied or \TT{n} characters have been copied, whichever
 comes first.  The forms with a \TT{min::ptr<const char>}
 or \TT{min::ptr<char>}
 argument are for use when the input string is part of a relocatable body.
@@ -3762,7 +3762,7 @@ the following functions are provided:
 \LABEL{MIN::STRNHASH} \\
 \end{tabular}\end{indpar}
 
-Both \TT{strhash} and \TT{strnhash} accept NUL terminated strings, but
+Both \TT{strhash} and \TT{strnhash} accept \TT{NUL} terminated strings, but
 \TT{strnhash} stops reading the string after the first \TT{n} characters
 if none of these characters is NUL.
 
@@ -3934,7 +3934,7 @@ being longer than the string length.
 For direct and short strings the string pointer, when it is created,
 copies the string \TT{char}'s into a buffer internal to the string pointer,
 in order to save the \TT{char}'s in a direct string value, or to
-add a missing NUL to the end of the short string \TT{char} vector.
+add a missing \TT{NUL} to the end of the short string \TT{char} vector.
 In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
 at the string proper inside a relocatable string body.
@@ -4017,7 +4017,7 @@ and long strings.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
 \minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
-an immutable \TT{min::\EOL uns64} stub value that holds a NUL padded
+an immutable \TT{min::\EOL uns64} stub value that holds a \TT{NUL} padded
 8 \TT{char} vector and can be read by
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4039,8 +4039,8 @@ u.buf[8] = 0;	// Be sure result is NUL terminated.
 cout << u.buf;
 \end{verbatim}\end{indpar}
 
-Short string values are NUL (zero) padded 0 to 8 \TT{char}
-strings.  To be sure any value read is NUL terminated, a NUL (zero)
+Short string values are \TT{NUL} (zero) padded 0 to 8 \TT{char}
+strings.  To be sure any value read is \TT{NUL} terminated, a \TT{NUL} (zero)
 must be stored after the value read, as is done by \TT{u.buf[8] = 0}
 in the example.  Of course, short string values have more
 characters than can be stored in a direct string
@@ -4049,13 +4049,13 @@ characters than can be stored in a direct string
 A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
 \minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
 a value that is a pointer to a \MUPkey{long\_str} type body
-which holds an arbitrary length NUL terminated \TT{char} string.
+which holds an arbitrary length \TT{NUL} terminated \TT{char} string.
 
 The long string body consists of the 32-bit length and 32-bit hash value
 of the string, followed by a \TT{char}
 vector containing the string proper with the terminating NUL.  The
 \TT{char} vector is padded to a multiple of 8 bytes with NUL
-bytes, but the terminating NUL and the padding are not included
+bytes, but the terminating \TT{NUL} and the padding are not included
 in the length.  The length is larger than 8.
 
 The following are unprotected functions to return a relocatable pointer to the
@@ -4256,7 +4256,7 @@ label elements are numbers and strings of fewer than 10 characters,
 the hash of a label is equivalent to the hash of the
 string made by concatenating a prefix and then the label elements, where each
 string of fewer than 10 characters is padded to 10 characters
-by prefacing it with NUL characters.  Note that
+by prefacing it with \TT{NUL} characters.  Note that
 numbers are treated as 8 character strings; see
 \pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
 hash value \TT{min::\EOL labhash\_\EOL initial = 1009}.
@@ -5824,7 +5824,7 @@ The data types and members of a file are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER} \\
-\verb|min::uns32 file| & \TTARMKEY{buffer-> length}{in {\tt min::file}}
+\verb|min::uns32 file| & \TTARMKEY{buffer->length}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
@@ -5874,10 +5874,10 @@ noted below.  They are:
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of \TT{char}'s that contains the lines of the file.  Each
 line is encoded using modified UTF-8\footnote{Modified UTF-8 is UTF-8
-modified by using the overlong 2-byte encoding of NUL, so that strings
-may both contain the NUL character (in the overlong encoding)
-and be NUL terminated.}
-and NUL terminated.
+modified by using the overlong 2-byte encoding of \TT{NUL}, so that strings
+may both contain the \TT{NUL} character (in the overlong encoding)
+and be \TT{NUL} terminated.}
+and \TT{NUL} terminated.
 A non-\TT{NUL}-terminated, modified UTF-8
 encoded, incomplete
 last line, called a \key{partial line}\label{PARTIAL-LINE},
@@ -5885,8 +5885,8 @@ may appear at the end of the buffer.
 
 Note that in general functions that load data into files do \underline{not}
 check for illegal UTF-8 encodings, and should not be used to load
-NUL characters into files.  Line terminating
-NUL characters should be loaded by the \TT{min::end\_line} function.
+\TT{NUL} characters into files.  Line terminating
+\TT{NUL} characters should be loaded by the \TT{min::end\_line} function.
 
 Initialized to an empty buffer when the file is created.  The
 \TT{min::\EOL init\_\EOL input\ldots} functions arrange for filling
@@ -5896,28 +5896,37 @@ Others arrange for the buffer to be filled as needed from
 the file \TT{istream} or \TT{ifile} members.  The 1-argument
 \TT{min::\EOL init\_\EOL input} function creates an empty buffer
 or empties an existing buffer and expects the user to fill the
-buffer using \TT{min::\EOL push} and \TT{min::\EOL end\_\EOL line}
+buffer using \TT{min::\EOL push}, \TT{min::load\_\ldots},
+and \TT{min::\EOL end\_\EOL line}
 functions (see \pagref{WRITING-FILE-BUFFER}).
 
-\item[\ttmkey{buffer-> length}{in {\tt min::file}}]
+\item[\ttmkey{buffer->length}{in {\tt min::file}}]
 The number of \TT{char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
 This is \TT{0} when the buffer is empty.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
 The offset of the \TT{buffer} element just \underline{after} the last
-line-terminating NUL character in the \TT{buffer}.  Or \TT{0} if there
-are no line-terminating NUL characters.
+line-terminating \TT{NUL} character in the \TT{buffer}.  Or \TT{0} if there
+are no line-terminating \TT{NUL} characters.
 This is \TT{0} when the buffer is empty.
 Initialized to \TT{0} when the file is created and set appropriately by
-\TT{min::\EOL init\_\EOL input\ldots} functions.
+\TT{min::\EOL init\_\EOL input\ldots}
+and \TT{min::\EOL load\_\ldots}
+functions.
 
 \item[\ttmkey{end\_\EOL count}{in {\tt min::file}}]
-The number of line-terminating NUL characters that have ever been
+The number of line-terminating \TT{NUL} characters that have ever been
 placed into the \TT{buffer} for the file.
 Initialized to \TT{0} when the file is created or initialized
 for input by a \TT{min::\EOL init\_\EOL input\ldots} function.
-Incremented by \TT{min::\EOL end\_\EOL line}.
+Incremented by \TT{min::\EOL load\_\ldots} and
+\TT{min::\EOL end\_\EOL line}.
+
+When spooling is used, lines may be deleted from the beginning of
+the \TT{buffer}, but \TT{end\_\EOL count} will not be changed, so
+\TT{end\_\EOL count} may not be the number of \TT{NUL} characters
+\underline{currently} in the buffer.
 
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
 If all the \TT{char}'s in the file have been appended to the file \TT{buffer},
@@ -5959,7 +5968,10 @@ the offset in the \TT{buffer} of the first character of the
 partial line at the end of the buffer
 that has not been previously skipped by
 the \TT{min::\EOL skip\_\EOL remaining} function
-(see \pagref{MIN::SKIP_REMAINING}).
+(see \pagref{MIN::SKIP_REMAINING}).  This partial line may be
+empty, and it is \underline{not} \TT{NUL} terminated:
+see \TT{min::\EOL remaining\_\EOL length} on
+\pagref{MIN::REMAINING_LENGTH}.
 
 Set to \TT{0} by \TT{min::\EOL init\_\EOL input\ldots} functions.
 Reset appropriately when the file is rewound.
@@ -5967,7 +5979,7 @@ Reset appropriately when the file is rewound.
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
 If \TT{spool\_lines~!=~0} (see below), then
 \TT{line\_index[m]} is the offset in the buffer of the first
-character of line number \TT{n} (or of the line-terminating NUL
+character of line number \TT{n} (or of the line-terminating \TT{NUL}
 if the line is empty), where
 \begin{center}
 {\tt m = line\_index->length - ( next\_line\_number - n )}
@@ -6010,7 +6022,8 @@ the past history of calls to \TT{min::\EOL flush\_\EOL spool} and
 Created when \TT{spool\_\EOL lines} is set to a non-\TT{0} value
 and set to \TT{min::\EOL NULL\_\EOL STUB}
 when \TT{spool\_\EOL lines} is set to a \TT{0} value.
-Truncated when a file is rewound.
+Truncated when a file is rewound and downsized when
+\TT{min::\EOL flush\_\EOL spool} is called.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 If \TT{0}, \TT{line\_index~==~min::NULL\_STUB} and there is
@@ -6071,11 +6084,12 @@ no \TT{min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
 \end{tabular}
 \end{center}
 
-The \TT{min::print\_line} function and the other functions that use
-it print file lines with the printer \TT{print\_\EOL format.flags}
-set as in this \TT{print\_\EOL flags} file member, but with
-\TT{min::\EOL HBREAK\_\EOL FLAG} and \TT{min::\EOL GBREAK\_\EOL FLAG}
-off (see \TT{print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}).
+The \TT{min::print\_line} function, and the other functions that use
+it, print file lines with the printer \TT{print\_\EOL format.flags}
+mentioned above set as in this \TT{print\_\EOL flags} file member, with the
+\TT{min::\EOL HBREAK\_\EOL FLAG} and \TT{min::\EOL GBREAK\_\EOL FLAG} set
+off, and with other flags set by the printer's format flags:
+see \TT{print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}.
 
 Set to \TT{0} when the file is created.  Set to an argument
 that defaults to \TT{0}
@@ -6122,7 +6136,7 @@ If not \TT{min::NULL\_STUB}, then the \TT{min::\EOL flush\_\EOL file} function
 outputs buffer \TT{char} elements to this \TT{min::\EOL file} when it finds
 there are elements not yet output.
 Non-NUL elements are simply appended to the end of the \TT{ofile}, and
-line-terminating NUL elements are translated into calls to
+line-terminating \TT{NUL} elements are translated into calls to
 \TT{min::\EOL line\_\EOL end~(~ofile~)}.
 Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 
@@ -6291,9 +6305,9 @@ to the end of the file \TT{buffer}, and the function:
 \LABEL{MIN::END_LINE_FILE} \\
 \end{tabular}\end{indpar}
 
-just pushes a line terminating NUL character to the end of
-\TT{buffer} and updates \TT{end\_\EOL offset} to equal the
-new buffer length.
+pushes a line terminating \TT{NUL} character to the end of
+\TT{buffer}, updates \TT{end\_\EOL offset} to equal the
+new buffer length, and increments \TT{end\_\EOL count}.
 
 When a file initialized by \TT{min::\EOL init\_\EOL input}
 is complete, you should call the function:
@@ -6304,7 +6318,8 @@ is complete, you should call the function:
 \LABEL{MIN::COMPLETE_FILE} \\
 \end{tabular}\end{indpar}
 
-to mark the file as being complete.  After doing this, you should
+to mark the file as being complete by copying \TT{end\_\EOL count}
+to \TT{file\_\EOL lines}.  After doing this, you should
 not push any more characters into the file's buffer or call
 \TT{min::\EOL end\_\EOL line} for the file.
 
@@ -6481,7 +6496,7 @@ and the file is completed when \TT{ifile} becomes complete.
 The file has the completeness property only if \TT{ifile} has
 this property.
 
-The paritial line (\pagref{PARTIAL-LINE}) that may be in the file when
+The paritial line (\pagref{PARTIAL-LINE}) that may end the file when
 \TT{min::\EOL next\_\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
 can be returned by the functions:
 
@@ -6559,7 +6574,7 @@ a complete line possibly followed by a shorter partial line:
 
 This function sets \TT{buffer[offset]} to NUL, overwriting
 any previous \TT{char} value of this buffer element, and
-making this element the line-terminating NUL for an initial segment
+making this element the line-terminating \TT{NUL} for an initial segment
 of the partial line at the end of the buffer.  The remainder of
 the partial line, if there is any, becomes the new partial line at the
 end of the buffer.
@@ -6568,7 +6583,7 @@ Note that a partial line \underline{cannot}\label{SKIP_REMAINING_END_LINE}
 be split using the
 last function if \TT{min::\EOL skip\_\EOL remaining}
 (\pagref{MIN::SKIP_REMAINING}) has been used to skip past the
-\TT{offset} point where the NUL would be written.
+\TT{offset} point where the \TT{NUL} would be written.
 
 A main reason why the \TT{min::file} type exists is to allow lines
 previously returned by \TT{min::\EOL next\_\EOL line} to be retrieved
@@ -6735,7 +6750,8 @@ the \TT{min::\EOL flush\_file/\EOL line/\EOL remaining}
 functions call \TT{min::\EOL flush\_\EOL spool}.
 
 The following \TT{<{}<} operators do the same thing as
-\TT{min::\EOL flush\_\EOL line} except that, instead of copying
+\TT{min::\EOL flush\_\EOL file} with a \TT{false} \TT{copy\_\EOL complete}
+argument, except that, instead of copying
 to the file's \TT{ostream}, \TT{ofile}, and/or
 \TT{printer}, they copy to their lefthand operand:
 
@@ -14709,7 +14725,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{3.4in}
 \verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER} \\
-\verb|min::uns32 file| & \TTARMKEY{buffer-> length}{in {\tt min::file}}
+\verb|min::uns32 file| & \TTARMKEY{buffer->length}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
 \verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_END_OFFSET} \\
