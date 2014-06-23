@@ -7846,13 +7846,18 @@ The `later entries' are entries with larger {\tt i}.  Note that
 after using an entry to insert a line end, that entry's
 {\tt line\_\EOL break.offset}
 and {\tt line\_\EOL break.column} are reset to make its break point
-be just after the indentation spaces that are inserted after the line end,
-just as would happen if a line break stack entry were not used.  This sets
-{\tt break\_\EOL stack[i].column} equal to {\tt break\_\EOL stack[i].indent},
+be just after the indentation spaces that are inserted after the line end.
+This sets {\tt break\_\EOL stack[i].column}
+equal to {\tt break\_\EOL stack[i].indent},
 and thus disables {\tt break\_\EOL stack[i]} so it will not be reused.
 Note also that if \underline{no} line break stack entry is enabled,
 break point operation proceeds using the printer {\tt line\_\EOL break}
 as if the line break stack did not exist.
+Lastly note that {\tt break\_\EOL stack[i].line\_\EOL length} is never
+used during these operations; its only use is to restore 
+{\tt line\_\EOL break.line\_\EOL length} when the {\tt break\_\EOL stack}
+is popped.
+
 
 Management of nested list indentation can be done with the help of
 the {\tt line\_\EOL break\_\EOL stack} using the operations:
@@ -7925,8 +7930,10 @@ a line break is triggered just before printing the `{\tt ,}' following
 `{\tt fff}'.  The first element in the line break stack was pushed
 just after printing `{\tt \{~}'% }
 and is disabled as it is at the beginning of the line.
-The second element was pushed just after printing `{\tt [~}' and is
-enabled, so it is used, and in the process it is disabled.
+The second element, pushed just after printing `{\tt [~}', has
+{\tt column} just after `{\tt bbb,~}', and {\tt indent}
+just after `{\tt \{~}', and so it is
+enabled and used, and in the process it is disabled.
 At this point the output is
 \begin{center}
 \tt
@@ -7938,9 +7945,12 @@ At this point the output is
 The third element was pushed after printing `{\tt (~}' and it
 is updated when the second element is used so it still faithfully
 reflects the point just after `{\tt (~}'.
-When the second `{\tt h}' is about to be printed, there are no
-enabled break points left in the line break stack, so the non-stack
-break point before the first `{\tt h}' is used.
+Next this third element is popped after printing `{\tt ~),~}'.
+Then when the second `{\tt h}' is about to be printed, neither of the
+two break points left in the line break stack are enabled, so the non-stack
+break point before the first `{\tt h}' is used.  At this point the
+current {\tt indent} is that which was saved and restore by the popped
+third element, and this indent is just after `{\tt[~}'.
 
 The \key{begin message} and {\tt end message} operations can be used
 to surround the body of an error message or other message:
@@ -8020,7 +8030,15 @@ can be printed using the following operations:
       \verb|( min::unsptr length,|\ARGBREAK
       \verb|  const min::uns32 * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<const min::uns32> str )|
+\LABEL{MIN::PUNICODE_BUFFER} \\
 \end{tabular}\end{indpar}
+
+Here it must be remembered that a `{\tt const min::uns32~*}' pointer
+{\tt str} must not be relocatable.
 
 Sometimes it is desirable to find out how many columns a
 single UNICODE character will take for a given value of
