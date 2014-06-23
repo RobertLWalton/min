@@ -3,7 +3,7 @@
 //
 // File:	utf8look.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 23 04:48:44 EDT 2012
+// Date:	Mon Jun 16 15:23:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cstring>
 extern "C" {
 #include <fontconfig/fontconfig.h>
 }

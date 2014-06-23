@@ -97,37 +97,50 @@
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
 \newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
-\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
 \newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
+
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+
 \newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
 \newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
-\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
+
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+
 \newcommand{\ttbkey}[1]{\TT{[#1]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttbmkey}[2]{\TT{[#1]}\index{#1@{\tt [#1]}!#2}}
+
 \newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
+
 \newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
     \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
 \newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
     \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
+
 \newcommand{\ttarmkey}[2]{{\tt ->}\TT{#1}\index{#1@{\tt #1}!#2}}
+
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
 \newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
 \newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
 \newcommand{\ttomkey}[3]{\TT{operator #2}\index{#1@{\tt operator #2}!{#3}}}
 \newcommand{\ttmokey}[2]{\TT{#1}\index{#1@{\tt operator #1}!{#2}}}
+
 \newcommand{\ttfkey}[2]{\TT{#1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+
 \newcommand{\ttakey}[2]{\TT{#1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{\TT{#1}\index{#2@{\tt #1}!#3}}
+
 \newcommand{\subskey}[1]{$\mathbf{^{#1}}$\index{#1@$^{#1}$}}
 \newcommand{\subsmkey}[2]{$\mathbf{^{#1}}$\index{#1@$^{#1}$!#2}}
 
@@ -236,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 9, 2014}
+\date{June 23, 2014}
  
 \maketitle
 
@@ -6986,6 +6999,8 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::file printer->| & \TTMKEY{file}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_FILE} \\
+\verb|std::ostream * printer->| & \TTMKEY{ostream}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_OSTREAM} \\
 \verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
 \end{tabular}\end{indpar}
@@ -7063,8 +7078,8 @@ accomplished by the following:
 \verb|min::id_map printer->|
     & \TTMKEY{\EOL id\_\EOL map}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP} \\
-\verb|min::uns32 printer->id_map->|
-    & \TTMKEY{next}{in {\tt min::\EOL printer::\EOL id\_\EOL map}}
+\verb|min::uns32 printer->|
+    & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{tabular}\end{indpar}
 
@@ -7283,7 +7298,7 @@ The possibilities are:
     <FS>, <GS>, <RS>, <US>, <SP>, <DEL>
 \end{indpar}
 
-For example, `{\tt <FF>}' represents the form-feed characters, and
+For example, `{\tt <FF>}' represents the form-feed character, and
 `{\tt <SP>}' represents the single space character.
 
 If {\tt GRAPHIC\_XXX\_FLAG} is on and {\tt ASCII\_FLAG} is
@@ -7298,9 +7313,9 @@ All these character representations take exactly 1 column.
 The sum of the {\tt min::GRAPHIC\_XXX\_FLAG}'s:
 \begin{indpar}
 \tt
-min::GRAPHIC\_HSPACE \\
-min::GRAPHIC\_VSPACE \\
-min::GRAPHIC\_NSPACE
+min::GRAPHIC\_HSPACE\_FLAG \\
+min::GRAPHIC\_VSPACE\_FLAG \\
+min::GRAPHIC\_NSPACE\_FLAG
 \end{indpar}
 
 \item[\ttmkey{ASCII\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
@@ -7389,8 +7404,8 @@ characters in non-graphic mode,
 and UNICODE diacritical combining marks in non-ASCII mode.
 
 \item[\ttmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of a {\tt min::\EOL eol} operation.
+If this flag is on, a {\tt min::flush()} printer operation (\pagref{MIN::FLUSH})
+is executed at the very end of a {\tt min::\EOL eol} operation.
 
 \item[\ttmkey{FLUSH\_ID\_MAP\_FLAG}%
     {in printer {\tt print\_\EOL format.flags}}]~\\
@@ -7418,7 +7433,8 @@ Initialized to an empty stack.
 \item[\ttmkey{id\_\EOL map}{in {\tt min::printer}}]~\\
 Used to find or create identifiers when printing values with stubs
 and {\tt min::gen} values that contain stub pointers.
-See \pagref{IDENTIFIER-MAPS}.
+See \itemref{IDENTIFIER-MAPS} and
+{\tt flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
 
 \end{itemlist}
 
@@ -8426,7 +8442,7 @@ This is for printing vector elements.
 \item[\ttkey{PGEN\_INDENT}]
 \label{PGEN_INDENT}
 This is for printing the top level value in the context of
-{\tt flush\_\EOL id\_\EOL map}a(\pagref{MIN::FLUSH_ID_MAP}).
+{\tt flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
 
 \end{itemlist}
 
@@ -15116,6 +15132,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|min::file printer->| & \TTMKEY{file}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_FILE} \\
+\verb|std::ostream * printer->| & \TTMKEY{ostream}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_OSTREAM} \\
 \verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
 \end{TABULAR}
@@ -15247,8 +15265,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::file printer->|
     & \TTMKEY{id\_\EOL map}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP} \\
-\verb|min::uns32 printer->obj_id_map->|
-    & \TTMKEY{next}{in {\tt min::\EOL printer::\EOL id\_\EOL map}}
+\verb|min::uns32 printer->|
+    & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{TABULAR}
 
