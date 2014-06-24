@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 27 16:43:59 EDT 2014
+// Date:	Tue Jun 24 13:55:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10740,7 +10740,7 @@ namespace min {
 namespace min {
 
     typedef bool suppress_matrix[256][256];
-    typedef min::uns32 context_gen_flags[4];
+    typedef min::uns32 context_gen_flags[6];
 
     extern const min::suppress_matrix
         & default_suppress_matrix;
@@ -11351,10 +11351,12 @@ namespace min {
     };
 
     enum {
-        PGEN_VALUE			= 0,
+        PGEN_TOP			= 0,
 	PGEN_INDENT			= 1,
-	PGEN_NAME			= 2,
-	PGEN_ELEMENT			= 3
+	PGEN_PUNCTUATION		= 2,
+	PGEN_NAME			= 3,
+        PGEN_VALUE			= 4,
+	PGEN_ELEMENT			= 5
     };
 
     extern const min::context_gen_flags
@@ -11385,7 +11387,7 @@ namespace min {
     inline op pgen ( min::gen v )
     {
         return op ( op::PGEN_CONTEXT, v,
-	            min::PGEN_VALUE );
+	            min::PGEN_TOP );
     }
 
     inline op pgen

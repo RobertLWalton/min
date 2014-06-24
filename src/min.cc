@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  7 05:16:04 EDT 2014
+// Date:	Tue Jun 24 14:10:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9010,6 +9010,8 @@ const min::context_gen_flags
     ::DEFAULT_VALUE_GEN_FLAGS,
     ::DEFAULT_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
     ::DEFAULT_NAME_GEN_FLAGS,
+    ::DEFAULT_NAME_GEN_FLAGS,
+    ::DEFAULT_VALUE_GEN_FLAGS,
     ::DEFAULT_NAME_GEN_FLAGS
 };
 
@@ -9024,6 +9026,8 @@ const min::context_gen_flags
     ::NO_EXP_VALUE_GEN_FLAGS,
     ::NO_EXP_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
     ::NO_EXP_NAME_GEN_FLAGS,
+    ::NO_EXP_NAME_GEN_FLAGS,
+    ::NO_EXP_VALUE_GEN_FLAGS,
     ::NO_EXP_NAME_GEN_FLAGS
 };
 
@@ -9391,7 +9395,7 @@ static T pgen_exp
 		{
 		    pgen ( out,
 		           (*context_gen_flags)
-			       [min::PGEN_NAME],
+			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
 		    out << " ";
@@ -9439,7 +9443,7 @@ static T pgen_exp
 	}
 
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 
@@ -9453,7 +9457,7 @@ static T pgen_exp
 	    {
 		pgen ( out,
 		       (*context_gen_flags)
-			   [min::PGEN_NAME],
+			   [min::PGEN_PUNCTUATION],
 		       separator,
 		       context_gen_flags, f );
 		out << " ";
@@ -9483,7 +9487,7 @@ static T pgen_exp
 		{
 		    pgen ( out,
 		           (*context_gen_flags)
-			       [min::PGEN_NAME],
+			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
 		    out << " ";
@@ -9507,7 +9511,7 @@ static T pgen_exp
 	    out << min::spaces_if_before_indent
 	        << min::suppressible_space;
 	    pgen ( out,
-	           (*context_gen_flags)[min::PGEN_NAME],
+	           (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	           terminator,
 	           context_gen_flags, f );
 	    return out << " ";
@@ -9518,7 +9522,7 @@ static T pgen_exp
         // Bracketed Expression.
 
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 	out << min::suppressible_space
@@ -9533,7 +9537,7 @@ static T pgen_exp
 		{
 		    pgen ( out,
 		           (*context_gen_flags)
-			       [min::PGEN_NAME],
+			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
 		    out << " ";
@@ -9554,7 +9558,7 @@ static T pgen_exp
 	out << min::spaces_if_before_indent
 	    << min::suppressible_space;
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
 	return out << min::restore_indent;
@@ -9574,7 +9578,7 @@ static T pgen_exp
 	out << min::save_print_format
 	    << min::nohbreak;
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 	out << min::suppressible_space
@@ -9596,7 +9600,7 @@ static T pgen_exp
 		    out << " " << min::set_break;
 		    min::uns32 gen_flags =
 			(*context_gen_flags)
-			    [min::PGEN_VALUE];
+			    [min::PGEN_TOP];
 		    gen_flags &= ~ min::OBJ_ID_FLAG;
 		    gen_flags |= min::OBJ_EXP_FLAG;
 		    pgen ( out, gen_flags,
@@ -9625,7 +9629,7 @@ static T pgen_exp
 		out << min::suppressible_space;
 		pgen ( out,
 		       (*context_gen_flags)
-		           [min::PGEN_NAME],
+		           [min::PGEN_PUNCTUATION],
 		       terminator,
 		       context_gen_flags, f );
 		return out << min::restore_indent
@@ -9636,7 +9640,7 @@ static T pgen_exp
 		out << min::suppressible_space;
 		pgen ( out,
 		       (*context_gen_flags)
-		           [min::PGEN_NAME],
+		           [min::PGEN_PUNCTUATION],
 		       middle,
 		       context_gen_flags, f );
 		out << min::restore_indent;
@@ -9646,7 +9650,7 @@ static T pgen_exp
 	{
 	    out << min::suppressible_space;
 	    pgen ( out,
-		   (*context_gen_flags)[min::PGEN_NAME],
+		   (*context_gen_flags)[min::PGEN_PUNCTUATION],
 		   terminator,
 		   context_gen_flags, f );
 	    return out << min::restore_indent
@@ -9656,7 +9660,7 @@ static T pgen_exp
 	{
 	    out << min::suppressible_space;
 	    pgen ( out,
-		   (*context_gen_flags)[min::PGEN_NAME],
+		   (*context_gen_flags)[min::PGEN_PUNCTUATION],
 		   middle,
 		   context_gen_flags, f );
 	    out << min::restore_indent;
@@ -9674,7 +9678,7 @@ static T pgen_exp
 		{
 		    pgen ( out,
 		           (*context_gen_flags)
-			       [min::PGEN_NAME],
+			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
 		    out << " ";
@@ -9695,11 +9699,11 @@ static T pgen_exp
 
 	out << " ";
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       middle,
 	       context_gen_flags, f );
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_NAME],
+	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
 	return out << min::restore_indent
