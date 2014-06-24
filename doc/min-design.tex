@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 23, 2014}
+\date{June 24, 2014}
  
 \maketitle
 
@@ -8341,7 +8341,7 @@ prints the {\tt min::gen} value \TT{v} to the
 \begin{center}
 \begin{tabular}{ll}
 & {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL
-    flags[PGEN\_VALUE]}, \\
+    flags[PGEN\_TOP]}, \\
 & {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}, \\
 and & {\tt printer->\EOL print\_\EOL format.gen\_\EOL format} \\
 \end{tabular}
@@ -8352,7 +8352,7 @@ to control the printing.
 `{\tt printer\,<{}<\,min::pgen(v)}'
 
 The expression `{\tt printer\,<{}<\,min::pgen\_name(v)}' is similar but
-uses the {\tt PGEN\_NAME} context instead of {\tt PGEN\_VALUE}
+uses the {\tt PGEN\_NAME} context instead of {\tt PGEN\_TOP}
 to select from
 {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
 
@@ -8373,12 +8373,16 @@ The data structure for {\tt pgen} contexts is:
 {\tt PGEN\_}\ldots{} contexts:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_TOP}
+\LABEL{MIN::PGEN_TOP_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
 \LABEL{MIN::PGEN_INDENT_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_PUNCTUATION}
+\LABEL{MIN::PGEN_PUNCTUATION_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
 \LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
 \end{tabular}\end{indpar}
@@ -8395,7 +8399,7 @@ The data structure for {\tt pgen} contexts is:
 \verb|const min::context_gen_flags min::|%
     \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
 \LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
-\verb|    // default_context_gen_flags[PGEN_VALUE]:| \\
+\verb|    // default_context_gen_flags[PGEN_TOP]:| \\
 \verb|    //    min::GRAPHIC_STR_FLAG| \\
 \verb|    //  + min::BRACKET_STR_FLAG| \\
 \verb|    //  + min::BRACKET_LAB_FLAG| \\
@@ -8414,12 +8418,31 @@ The data structure for {\tt pgen} contexts is:
 \end{tabular}
 \\
 \begin{tabular}{l}
+\verb|    // default_context_gen_flags[PGEN_PUNCTUATION]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
+\verb|    //  + min::OBJ_ID_FLAG| \\
+\end{tabular}
+\\
+\\
+\begin{tabular}{l}
 \verb|    // default_context_gen_flags[PGEN_NAME]:| \\
 \verb|    //    min::GRAPHIC_STR_FLAG| \\
 \verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
 \verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
 \verb|    //  + min::OBJ_EXP_FLAG| \\
 \verb|    //  + min::OBJ_ID_FLAG| \\
+\end{tabular}
+\\
+\begin{tabular}{l}
+\verb|    // default_context_gen_flags[PGEN_VALUE]:| \\
+\verb|    //    min::GRAPHIC_STR_FLAG| \\
+\verb|    //  + min::BRACKET_STR_FLAG| \\
+\verb|    //  + min::BRACKET_LAB_FLAG| \\
+\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
+\verb|    //  + min::OBJ_EXP_FLAG| \\
 \end{tabular}
 \\
 \begin{tabular}{l}
@@ -8446,21 +8469,29 @@ The uses of the various {\tt pgen} contexts are:
 
 \begin{itemlist}[0.4in]
 
-\item[\ttkey{PGEN\_VALUE}]
-This is for printing the top level {\tt min::gen} values
-and the values of non-double-arrow, non-vector-element attributes.
-
-\item[\ttkey{PGEN\_NAME}]
-This is for printing attribute labels and expression punctuation
-such as {\tt .initiator}'s, {\tt .separator}'s, and {\tt .terminator}'s.
-
-\item[\ttkey{PGEN\_ELEMENT}]
-This is for printing vector elements.
+\item[\ttkey{PGEN\_TOP}]
+This is for printing the top level {\tt min::gen} values.
 
 \item[\ttkey{PGEN\_INDENT}]
 \label{PGEN_INDENT}
 This is for printing the top level value in the context of
 {\tt flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
+
+\item[\ttkey{PGEN\_PUNCTUATION}]
+This is for printing punctuation including
+{\tt .initiator}'s, {\tt .separator}'s, and {\tt .terminator}'s,
+and also including {\tt .type}'s when these are printed as marks.
+
+\item[\ttkey{PGEN\_NAME}]
+This is for printing attribute labels, {\tt .type}'s not printed as marks,
+and names in general.
+
+\item[\ttkey{PGEN\_VALUE}]
+This is for printing non-double-arrow, non-vector-element attribute
+values.
+
+\item[\ttkey{PGEN\_ELEMENT}]
+This is for printing vector element values.
 
 \end{itemlist}
 
