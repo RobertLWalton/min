@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jul 23 14:40:38 EDT 2012
+# Date:		Wed Jun 25 04:09:16 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -50,7 +50,7 @@ latin1look:	latin1look.cc
 	rm -f latin1look
 	g++ -o latin1look latin1look.cc
 
-latin1-utf8:
+latin1-utf8:	utf8look
 	@utf8look 00A0 00A1 00A2 00A3 00A4 00A5 00A6 00A7
 	@utf8look 00A8 00A9 00AA 00AB 00AC 00AD 00AE 00AF
 	@utf8look 00B0 00B1 00B2 00B3 00B4 00B5 00B6 00B7
@@ -64,7 +64,7 @@ latin1-utf8:
 	@utf8look 00F0 00F1 00F2 00F3 00F4 00F5 00F6 00F7
 	@utf8look 00F8 00F9 00FA 00FB 00FC 00FD 00FE 00FF
 
-latin1-latin1:
+latin1-latin1:	latin1look
 	@latin1look 00A0 00A1 00A2 00A3 00A4 00A5 00A6 00A7
 	@latin1look 00A8 00A9 00AA 00AB 00AC 00AD 00AE 00AF
 	@latin1look 00B0 00B1 00B2 00B3 00B4 00B5 00B6 00B7
@@ -82,7 +82,3 @@ clean:
 	rm -f make_unicode_class.out \
 	      make_unicode_class utf8look latin1look \
 	      print_unicode
-
-
-
-
