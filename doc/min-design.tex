@@ -206,6 +206,7 @@
 \newlength{\ARGBREAKLENGTH}
 \settowidth{\ARGBREAKLENGTH}{\tt ~~~~}
 \newcommand{\ARGBREAK}[1][\ARGBREAKLENGTH]{\\&\hspace*{#1}}
+\newcommand{\ARGSKIP}[2][\ARGBREAKLENGTH]{\\[#2]&\hspace*{#1}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
 \newcommand{\TTARMKEY}[2]{\ttarmkey{#1}{#2}}
 \newcommand{\TTBKEY}[1]{\ttbkey{#1}}
@@ -249,7 +250,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 24, 2014}
+\date{June 26, 2014}
  
 \maketitle
 
@@ -3660,7 +3661,7 @@ on Figure~\ref{UNICODE-CLASSES}.
 \\[2ex]
 \tt N & nonspacing mark \\
 \tt S & spacing mark \\
-\tt E & enclosing mark \\
+\tt E & enclosing mark
 \\[2ex]
 \tt D & decimal number \\
 \tt R & letter number \\
@@ -3683,7 +3684,7 @@ on Figure~\ref{UNICODE-CLASSES}.
 \\[2ex]
 \tt s & space separator \\
 \tt l & line separator \\
-\tt p & paragraph separator \\
+\tt p & paragraph separator
 \\[2ex]
 \tt x & control \\
 \tt z & format \\
@@ -8034,7 +8035,7 @@ can be printed using the following operations:
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
       \verb|  min::ptr<const min::uns32> str )|
-\LABEL{MIN::PUNICODE_BUFFER} \\
+\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{tabular}\end{indpar}
 
 Here it must be remembered that a `{\tt const min::uns32~*}' pointer
@@ -8426,7 +8427,6 @@ The data structure for {\tt pgen} contexts is:
 \verb|    //  + min::OBJ_ID_FLAG| \\
 \end{tabular}
 \\
-\\
 \begin{tabular}{l}
 \verb|    // default_context_gen_flags[PGEN_NAME]:| \\
 \verb|    //    min::GRAPHIC_STR_FLAG| \\
@@ -8479,7 +8479,7 @@ This is for printing the top level value in the context of
 
 \item[\ttkey{PGEN\_PUNCTUATION}]
 This is for printing punctuation including
-{\tt .initiator}'s, {\tt .separator}'s, and {\tt .terminator}'s,
+{\tt .initiator}'s, {\tt .separa\-tor}'s, and {\tt .terminator}'s,
 and also including {\tt .type}'s when these are printed as marks.
 
 \item[\ttkey{PGEN\_NAME}]
@@ -8673,92 +8673,92 @@ Otherwise string values are printed normally.
 The detailed structure and meaning of the general value format
 is as follows:
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|struct min::|\MINKEY{gen\_format}\\
-\LABEL{MIN::GEN_FORMAT} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|{|\\
-    \verb|  min::printer ( * pgen )|\\
-    \verb|       ( min::printer printer,|\\
-    \verb|         min::uns32 gen_flags,|\\
-    \verb|         min::gen v,|\\
-    \verb|         const min::context_gen_flags * context_gen_flags,|\\
-    \verb|         const min::gen_format * g );|\\
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{gen\_format} =}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::printer ( * pgen )|\ARGBREAK
+    \verb|       ( min::printer printer,|\ARGBREAK
+    \verb|         min::uns32 gen_flags,|\ARGBREAK
+    \verb|         min::gen v,|\ARGBREAK
+    \verb|         const min::context_gen_flags * context_gen_flags,|\ARGBREAK
+    \verb|         const min::gen_format * g );|\ARGBREAK
 \ttmindex{pgen}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  // Members beyond this point may be moved and|\\
-    \verb|  // new members may be added.|\\
-    \verb||\\
-    \verb|  const char *             number_format;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  // Members beyond this point may be moved and|\ARGBREAK
+    \verb|  // new members may be added.|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const char *             number_format;|\ARGBREAK
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const char *             str_prefix;|\\
-    \verb|  const char *             str_postfix;|\\
-    \verb|  const char *             str_quote;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  const char *             str_prefix;|\ARGBREAK
+    \verb|  const char *             str_postfix;|\ARGBREAK
+    \verb|  const min::char_names *  str_char_names;|\ARGBREAK
+    \verb|  const min::char_flags *  str_char_flags;|\ARGBREAK
+    \verb|  const char *             str_char_name_prefix;|\ARGBREAK
+    \verb|  const char *             str_char_name_postfix;|\ARGBREAK
+    \verb|  const char *             str_concatenator;|\ARGBREAK
+    \verb|  min::uns32               str_max_length;|\ARGBREAK
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{str\_quote}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const char *             lab_prefix;|\\
-    \verb|  const char *             lab_separator;|\\
-    \verb|  const char *             lab_postfix;|\\
+\ttmindex{str\_char\_names}{in {\tt min::gen\_format}}
+\ttmindex{str\_char\_name\_prefix}{in {\tt min::gen\_format}}
+\ttmindex{str\_char\_name\_postfix}{in {\tt min::gen\_format}}
+\ttmindex{str\_concatenator}{in {\tt min::gen\_format}}
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  const char *             lab_prefix;|\ARGBREAK
+    \verb|  const char *             lab_separator;|\ARGBREAK
+    \verb|  const char *             lab_postfix;|\ARGBREAK
 \ttmindex{lab\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{lab\_separator}{in {\tt min::gen\_format}}
 \ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const char *             special_prefix;|\\
-    \verb|  const char *             special_postfix;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  const char *             special_prefix;|\ARGBREAK
+    \verb|  const char *             special_postfix;|\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
+    \verb|                           special_names;|\ARGBREAK
 \ttmindex{special\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{special\_postfix}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const char *             implicit_prefix;|\\
-    \verb|  const char *             implicit_postfix;|\\
+\ttmindex{special\_names}{in {\tt min::gen\_format}}
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  const char *             implicit_prefix;|\ARGBREAK
+    \verb|  const char *             implicit_postfix;|\ARGBREAK
 \ttmindex{implicit\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{implicit\_postfix}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  min::packed_vec_ptr<const char *>|\\
-    \verb|                           special_names;|\\
-\ttmindex{special\_names}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  const min::suppress_matrix *|\\
-    \verb|                           suppress_matrix;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  const min::suppress_matrix *|\ARGBREAK
+    \verb|                           suppress_matrix;|\ARGBREAK
 \ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  min::uns32               str_max_length;|\\
-    \verb|  min::packed_vec_ptr<min::gen>|\\
-    \verb|                           exp_ok_attrs;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::gen>|\ARGBREAK
+    \verb|                           exp_ok_attrs;|\ARGBREAK
 \ttmindex{str\_max\_length}{in {\tt min::gen\_format}}
 \ttmindex{exp\_ok\_attrs}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
-\begin{indpar}[5em]\begin{tabular}{l}
-    \verb|  min::packed_vec_ptr<const char *>|\\
-    \verb|                           flag_names;|\\
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
+    \verb|                           flag_names;|\ARGBREAK
     \verb|};|
 \ttmindex{flag\_names}{in {\tt min::gen\_format}}
-\end{tabular}\end{indpar}
+\LABEL{MIN::GEN_FORMAT}
+\end{tabular}
+\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::default_pgen,|\ARGBREAK
-    \verb|  "%.15g",             // number_format|\ARGBREAK
-    \verb|  "`","'","<Q>",       // str_prefix/postfix/quote|\ARGBREAK
+    \verb|  "%.15g",              // number_format|\ARGBREAK
+    \verb|  "\"","\"",            // str_prefix/postfix|\ARGBREAK
+    \verb|  & min::default_char_names,|\ARGBREAK
+    \verb|  & min::default_char_flags,|\ARGBREAK
+    \verb|  "<",">",             // str_char_name_prefix/postfix|\ARGBREAK
+    \verb|  " # ",8,             // str_concatenate/str_max_length|\ARGBREAK
     \verb|  "[: "," "," :]",     // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$ "," $]",         // special_prefix/postfix|\ARGBREAK
+    \verb|  min::NULL_STUB,      // special_names|\ARGBREAK
     \verb|  "[. "," .]",         // implicit_prefix/postfix|\ARGBREAK
-    \verb|  min::NULL_STUB       // special_names|\ARGBREAK
     \verb|  & min::default_suppress_matrix,|\ARGBREAK
-    \verb|  8,                   // str_max_length|\ARGBREAK
     \verb|  min::default_exp_ok_attrs|\ARGBREAK
     \verb|  min::default_flag_names|\ARGBREAK
     \verb|};|
@@ -8775,15 +8775,46 @@ is as follows:
 \LABEL{MIN::DEFAULT_PGEN} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::packed_vec_ptr<const char *> min::|
-    & \TTKEY{standard\_\EOL special\_\EOL names}
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<const char *> min::|%
+    \MINKEY{standard\_\EOL special\_\EOL names}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\verb|    //     [0 .. 7] == |\\
+\verb|    //        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\\
+\verb|    //        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|\\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef const char * min::|
+    & \MINKEY{char\_names}\verb|[256]|
+\LABEL{MIN::CHAR_NAMES} \\
+\verb|typedef min::uns32 * min::|
+    & \MINKEY{char\_flags}\verb|[256]|
+\LABEL{MIN::CHAR_FLAGS} \\
 \verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
 \LABEL{MIN::SUPPRESS_MATRIX} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::char_names min::|%
+    \MINKEY{default\_\EOL char\_\EOL names}
+\LABEL{MIN::DEFAULT_CHAR_NAMES} \\
+\verb|    // All entries NULL except:|\\
+\verb|    //     [0x00 .. 0x20] ==|\\
+\verb|    //       "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",|\\
+\verb|    //       "BS",  "HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",|\\
+\verb|    //       "DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",|\\
+\verb|    //       "CAN", "EM",  "SUB", "ESC", "FS",  "GS",  "FS",  "US",|\\
+\verb|    //       "SP"|\\
+\verb|    //     [0x22] == "Q"   // Quote "|\\
+\verb|    //     [0x7F] == "DEL"|\\
+\verb|    //     [0x82 .. 0xA0] ==|\\
+\verb|    //                     "BPH", "NBH", "IND", "NEL", "SSA", "ESA",|\\
+\verb|    //       "HTS", "HTJ", "VTS", "PLD", "PLU", "RI",  "SS2", "SS3",|\\
+\verb|    //       "DCS", "PU1", "PU2", "STS", "CCH", "MW",  "SPA", "EPA",|\\
+\verb|    //       "SOS", NULL,  "SCI", "CSI", "ST",  "OSC", "PM",  "APC",|\\
+\verb|    //       "NBSP"|\\
+\verb|    //     [0xAD] == "SHY"|\\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -15481,6 +15512,11 @@ These are in \verb|min_parameters.h|.
       \verb|( min::unsptr length,|\ARGBREAK
       \verb|  const min::uns32 * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<const min::uns32> str )|
+\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -15699,12 +15735,16 @@ These are in \verb|min_parameters.h|.
 {\tt PGEN\_}\ldots contexts:
 \\[2ex]
 \begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_TOP}
+\LABEL{MIN::PGEN_TOP_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
 \LABEL{MIN::PGEN_INDENT_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_PUNCTUATION}
+\LABEL{MIN::PGEN_PUNCTUATION_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
 \LABEL{MIN::PGEN_NAME_CONTEXT} \\
+\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
+\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
 \verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
 \LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
 \end{TABULAR}
@@ -15739,23 +15779,35 @@ These are in \verb|min_parameters.h|.
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
     \verb|  // new members may be added.|\ARGBREAK
     \verb||\ARGBREAK
-    \verb|  const char *           number_format;|\ARGBREAK
-    \verb|  const char *           str_prefix;|\ARGBREAK
-    \verb|  const char *           str_postfix;|\ARGBREAK
-    \verb|  const char *           str_quote;|\ARGBREAK
-    \verb|  const char *           lab_prefix;|\ARGBREAK
-    \verb|  const char *           lab_separator;|\ARGBREAK
-    \verb|  const char *           lab_postfix;|\ARGBREAK
-    \verb|  const char *           special_prefix;|\ARGBREAK
-    \verb|  const char *           special_postfix;|\ARGBREAK
-    \verb|  const char *           implicit_prefix;|\ARGBREAK
-    \verb|  const char *           implicit_postfix;|\ARGBREAK
-    \verb|  const char * const *   special_names;|\ARGBREAK
-    \verb|  min::uns32             special_names_size;|\ARGBREAK
+    \verb|  const char *             number_format;|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const char *             str_prefix;|\ARGBREAK
+    \verb|  const char *             str_postfix;|\ARGBREAK
+    \verb|  const min::char_names *  str_char_names;|\ARGBREAK
+    \verb|  const min::char_flags *  str_char_flags;|\ARGBREAK
+    \verb|  const char *             str_char_name_prefix;|\ARGBREAK
+    \verb|  const char *             str_char_name_postfix;|\ARGBREAK
+    \verb|  const char *             str_concatenator;|\ARGBREAK
+    \verb|  min::uns32               str_max_length;|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const char *             lab_prefix;|\ARGBREAK
+    \verb|  const char *             lab_separator;|\ARGBREAK
+    \verb|  const char *             lab_postfix;|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const char *             special_prefix;|\ARGBREAK
+    \verb|  const char *             special_postfix;|\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
+    \verb|                           special_names;|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const char *             implicit_prefix;|\ARGBREAK
+    \verb|  const char *             implicit_postfix;|\ARGBREAK
+    \verb||\ARGBREAK
     \verb|  const min::suppress_matrix *|\ARGBREAK
-    \verb|                         suppress_matrix;|\ARGBREAK
-    \verb|  min::uns32             str_max_length;|\ARGBREAK
-    \verb|  min::packed_vec_ptr<min::gen>  exp_ok_attrs;|\ARGBREAK
+    \verb|                           suppress_matrix;|\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::gen>|\ARGBREAK
+    \verb|                           exp_ok_attrs;|\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
+    \verb|                           flag_names;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::GEN_FORMAT} \\
 \end{TABULAR}
@@ -15774,13 +15826,31 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{2.4in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
 \verb|min::| & \MINKEY{standard\_\EOL special\_\EOL names}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{2.4in}
+\verb|typedef const char * min::|
+    & \MINKEY{char\_names}\verb|[256]|
+\LABEL{MIN::CHAR_NAMES} \\
+\multicolumn{2}{l}{\tt const min::char\_names} \\
+\verb|min::| & \MINKEY{default\_\EOL char\_\EOL names}
+\LABEL{MIN::DEFAULT_CHAR_NAMES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|typedef min::uns32 * min::|
+    & \MINKEY{char\_flags}\verb|[256]|
+\LABEL{MIN::CHAR_FLAGS} \\
+\multicolumn{2}{l}{\tt const min::char\_flags} \\
+\verb|min::| & \MINKEY{default\_\EOL char\_\EOL flags}
+\LABEL{MIN::DEFAULT_CHAR_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
 \verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
 \LABEL{MIN::SUPPRESS_MATRIX} \\
 \multicolumn{2}{l}{\tt const min::suppress\_matrix} \\
@@ -15788,22 +15858,24 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{2.4in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
 \verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
 \LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{2.4in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
 \verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
 \LABEL{MIN::DEFAULT_FLAG_NAMES} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.0in}
+\begin{TABULAR}{2.4in}
 \verb| min::gen_format min::| & \MINKEY{default\_gen\_format}
 \LABEL{MIN::DEFAULT_GEN_FORMAT} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.6in}
 \verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
