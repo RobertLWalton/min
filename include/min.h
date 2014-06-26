@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 24 13:55:59 EDT 2014
+// Date:	Thu Jun 26 15:44:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10739,9 +10739,15 @@ namespace min {
 
 namespace min {
 
-    typedef bool suppress_matrix[256][256];
     typedef min::uns32 context_gen_flags[6];
+    typedef const char * char_names[256];
+    typedef min::uns32 char_flags[256];
+    typedef bool suppress_matrix[256][256];
 
+    extern const min::char_names
+        & default_char_names;
+    extern const min::char_flags
+        & default_char_flags;
     extern const min::suppress_matrix
         & default_suppress_matrix;
 
@@ -11315,22 +11321,36 @@ namespace min {
 	// new members may be added.
 
         const char *         number_format;
+
 	const char *         str_prefix;
 	const char *         str_postfix;
-	const char *         str_quote;
+	const min::char_names *
+			     str_char_names;
+	const min::char_flags *
+			     str_char_flags;
+	const char *         str_char_name_prefix;
+	const char *         str_char_name_postfix;
+	const char *         str_concatenator;
+	uns32		     str_max_length;
+	const char *         str_quote;		// Deprecated
+
 	const char *         lab_prefix;
 	const char *         lab_separator;
 	const char *         lab_postfix;
+
 	const char *         special_prefix;
 	const char *         special_postfix;
-	const char *         implicit_prefix;
-	const char *         implicit_postfix;
 	packed_vec_ptr<const char *>
 	                     special_names;
+
+	const char *         implicit_prefix;
+	const char *         implicit_postfix;
+
 	const min::suppress_matrix * suppress_matrix;
-	uns32		     str_max_length;
+
 	packed_vec_ptr<min::gen>
 			     exp_ok_attrs;
+
 	packed_vec_ptr<const char *>
 	                     flag_names;
     };
