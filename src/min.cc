@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 26 16:13:16 EDT 2014
+// Date:	Sat Jun 28 06:34:31 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1466,6 +1466,46 @@ min::gen min::new_str_gen
     while ( n -- )
         m += min::unicode_to_utf8 ( q, * p ++ );
     return internal::new_str_gen ( buffer, m );
+}
+
+min::uns32 min::utf8_to_unicode
+    ( min::uns32 * & u, const min::uns32 * endu,
+      const char * & s, const char * ends )
+{
+    min::uns32 * original_u = u;
+    while ( u < endu && s < ends )
+    {
+        * u ++ = utf8_to_unicode ( s, ends );
+    }
+    return u - original_u;
+}
+
+min::uns32 min::unicode_to_utf8
+    ( char * & s, const char * ends,
+      const min::uns32 * & u,
+      const min::uns32 * endu )
+{
+    char * original_s = s;
+    while ( u < endu && s + 7 < ends )
+    {
+        unicode_to_utf8 ( s, * u ++ );
+    }
+    if ( u < endu && s < ends )
+    {
+        char buffer[7];
+	while ( u < endu && s < ends )
+	{
+	    char * b = buffer;
+	    min::unsptr len =
+	        unicode_to_utf8 ( b, * u );
+	    assert ( len <= 7 );
+	    if ( s + len > ends ) break;
+	    std::strncpy ( s, buffer, len );
+	    s += len;
+	    ++ u;
+	}
+    }
+    return s - original_s;
 }
 
 bool min::strto ( min::int32 & value,
