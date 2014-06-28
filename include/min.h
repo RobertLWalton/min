@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 28 06:19:26 EDT 2014
+// Date:	Sat Jun 28 12:30:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4008,10 +4008,10 @@ namespace min {
 
     // UTF-8 Conversion Functions
 
-    const uns32 ILLEGAL_UTF8 = 0x2639;
-	// == `white frowning face',
+    const uns32 ILLEGAL_UTF8 = 0xFFFD;
+	// == `unicode replacement character',
 
-    inline uns32 utf8_to_unicode
+    inline unsptr utf8_to_unicode
     	( const char * & s, const char * ends )
     {
         if ( s >= ends ) return ILLEGAL_UTF8;
@@ -4057,7 +4057,7 @@ namespace min {
 	return unicode;
     }
 
-    uns32 utf8_to_unicode
+    unsptr utf8_to_unicode
     	( min::uns32 * & u, const min::uns32 * endu,
 	  const char * & s, const char * ends );
 
@@ -4102,7 +4102,7 @@ namespace min {
 	return s - initial_s;
     }
 
-    uns32 unicode_to_utf8
+    unsptr unicode_to_utf8
 	( char * & s, const char * ends,
     	  const min::uns32 * & u,
 	  const min::uns32 * endu );

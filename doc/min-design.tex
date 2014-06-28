@@ -231,17 +231,6 @@
 \newcommand{\RESIZE}{$\,^S$}
 \newcommand{\REORG}{$\,^O$}
 
-\newcommand{\ILLEGALCHAR}{
-    \makebox[0.1in]{\raisebox{-0.05in}{
-	\begin{picture}(0.2,0.2)
-	\put(0.1,0.1){\circle{0.12}} 
-	\put(0.075,0.125){\makebox(0.01,0.01){.}}
-	\put(0.115,0.125){\makebox(0.01,0.01){.}}
-	\put(0.103,0.072){\oval(0.06,0.06)[t]}
-	\end{picture}
-    }}
-}
-
 \begin{document}
         
 \title{Internal Design\\[2ex]of the\\[2ex]
@@ -250,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 26, 2014}
+\date{June 28, 2014}
  
 \maketitle
 
@@ -2005,7 +1994,7 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::ref<T> | & \verb|p|\TTBMKEY{i}{of {\tt min::ptr}}
+\verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
 \LABEL{MIN::PTR_[]} \\
 \verb|min::ptr<T> |
     & \verb|p|\TTMOKEY{+}{of {\tt min::ptr}}\verb|i|
@@ -3533,11 +3522,9 @@ and also accept 7-byte encodings (first byte \TT{0xFE})
 so that $2^{32}-1$ can be encoded.  If it encounters an
 illegal encoding it returns \verb|min|::\MINKEY{UTF8\_\EOL ILLEGAL},%
 \label{UTF8_ILLEGAL}
-which is 2639 (hexadecimal),
-the `\key{white frowning face}%
-\index{frowning face}%
-\index{face, white frowning}',
-\ILLEGALCHAR.
+which is FFFD (hexadecimal),
+the `\key{unicode replacement character}%
+\index{replacement character}\,'.
 In this case \TT{s} is updated to point just after the illegal encoding.
 Applying the \TT{min::uft8\_to\_unicode} function repeatedly
 until \TT{s >= ends} and will produce a sequence of UNICODE
@@ -3559,6 +3546,39 @@ for \ttmkey{NUL}{UTF-8 encoding}
 is called `modified UTF-8').  No other overlong encodings are output.
 At most 7 bytes will be output, and
 \TT{s} must point to a byte string buffer with at least 7 bytes.
+
+Strings of UNICODE characters can be converted to/from strings
+of UTF-8 encoded characters by the functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( min::uns32 * & u, const min::uns32 * endu,|\ARGBREAK
+      \verb|  const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, const char * ends,|\ARGBREAK
+      \verb|   const min::uns32 * & u,|\ARGBREAK
+      \verb|   const min::uns32 * endu )|
+\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
+\end{tabular}\end{indpar}
+
+The first of these repeatedly executes
+\begin{center}
+\tt * u ++ = min::utf8\_to\_unicode ( s, ends );
+\end{center}
+while \TT{u < endu} and \TT{s < ends}.
+The second repeatedly executes
+\begin{center}
+\tt min::unicode\_to\_utf8 ( s, * u ++ );
+\end{center}
+while \TT{s < ends} and \TT{u < endu} provided the
+next repetion will \underline{not} end with \TT{s > ends}
+(so the \TT{s} string end will not be overrun).
+Both these functions increment both \TT{s} and \TT{u} and return
+the number of string elements, \TT{min::uns32}'s or \TT{char}'s respectively,
+written.
 
 It is sometimes useful to divide UNICODE characters into
 \skey{UNICODE class}{es}.  The function
@@ -3875,8 +3895,8 @@ a \key{string pointer}:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|char |
-    & \verb|sp|\TTBMKEY{i}{of {\tt min::str\_ptr}}
+\verb|char sp|
+    & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of} \verb|( min::str_ptr const & sp )|
@@ -4148,8 +4168,8 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb|( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen |
-    & \verb|labp|\TTBMKEY{i}{of {\tt min::lab\_ptr}}
+\verb|min::gen labp|
+    & \TTBMKEY{i}{of {\tt min::lab\_ptr}}
 \LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4379,8 +4399,8 @@ and furthermore do not check subscript ranges:
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb|( MUP::lab_ptr & labp, const min::stub * s )|
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen |
-    & \verb|labp|\TTBMKEY{i}{of {\tt MUP::lab\_ptr}}
+\verb|min::gen labp|
+    & \TTBMKEY{i}{of {\tt MUP::lab\_ptr}}
 \LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -7343,11 +7363,9 @@ to occupy {\tt 0} columns.
 
 If the {\tt ASCII\_FLAG} is on,
 ill-formed UTF-8 encodings are printed as `{\tt <ILL>}'.  If it is
-off, they are printed as character 2639 (hexadecimal),
-the `\key{white frowning face}%
-\index{frowning face}%
-\index{face, white frowning}',
-\ILLEGALCHAR.
+off, they are printed as character FFFD (hexadecimal),
+the `\key{unicode replacement character}%
+\index{replacement character}\,'.
 
 \item[\ttmkey{ALLOW\_HSPACE\_FLAG}%
                {in printer {\tt print\_\EOL format.flags}}]
@@ -8675,7 +8693,7 @@ is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{gen\_format} =}\ARGBREAK
+                       min::\MINKEY{gen\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
@@ -13463,7 +13481,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LOCATABLE_STUB_PTR} \\
 \end{TABULAR}
 
-\begin{TABULAR}{3.0in}
+\begin{TABULAR}{3.2in}
 \multicolumn{2}{l}{In compact implementation:} \\
 ~~~~\verb|typedef min::locatable_gen  min::| & \MINKEY{locatable\_num\_gen}
 \LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
@@ -13472,7 +13490,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{locatable\_var<T>}\ARGBREAK
     \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
@@ -13484,7 +13502,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LOCATABLE_VAR_OF_VALUE} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
+\begin{TABULAR}{2.1in}
 \verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var<T>}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
@@ -13873,6 +13891,9 @@ These are in \verb|min_parameters.h|.
 \verb|const min::uns32 min::|
     & \MINKEY{UTF8\_ILLEGAL}
 \LABEL{MIN::UTF8_ILLEGAL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
 \verb|min::uns32 min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s )|
@@ -13881,6 +13902,20 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
       \verb|( char * & s, min::uns32 c )|
 \LABEL{MIN::UNICODE_TO_UTF8} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( min::uns32 * & u, const min::uns32 * endu,|\ARGBREAK
+      \verb|  const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, const char * ends,|\ARGBREAK
+      \verb|   const min::uns32 * & u,|\ARGBREAK
+      \verb|   const min::uns32 * endu )|
+\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -13975,15 +14010,15 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::=_STR_PTR_OF_STUB} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
+\begin{TABULAR}{2.4in}
 \verb|operator |
     & \MINKEY{bool} \verb|( min::str_ptr const & sp )|
 \LABEL{BOOL_OF_STR_PTR} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
-\verb|char |
-    & \verb|sp|\TTBMKEY{i}{of {\tt min::str\_ptr}}
+\begin{TABULAR}{2.4in}
+\verb|char sp|
+    & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
@@ -14684,7 +14719,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.0in}
+\begin{TABULAR}{1.2in}
 \verb|min::ptr<H> |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
@@ -15775,12 +15810,12 @@ These are in \verb|min_parameters.h|.
     \verb|         min::gen v,|\ARGBREAK
     \verb|         min::context_gen_flags * context_gen_flags,|\ARGBREAK
     \verb|         const min::gen_format * g );|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
     \verb|  // new members may be added.|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             number_format;|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             str_prefix;|\ARGBREAK
     \verb|  const char *             str_postfix;|\ARGBREAK
     \verb|  const min::char_names *  str_char_names;|\ARGBREAK
@@ -15789,19 +15824,19 @@ These are in \verb|min_parameters.h|.
     \verb|  const char *             str_char_name_postfix;|\ARGBREAK
     \verb|  const char *             str_concatenator;|\ARGBREAK
     \verb|  min::uns32               str_max_length;|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             lab_prefix;|\ARGBREAK
     \verb|  const char *             lab_separator;|\ARGBREAK
     \verb|  const char *             lab_postfix;|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             special_prefix;|\ARGBREAK
     \verb|  const char *             special_postfix;|\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
     \verb|                           special_names;|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             implicit_prefix;|\ARGBREAK
     \verb|  const char *             implicit_postfix;|\ARGBREAK
-    \verb||\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
     \verb|  const min::suppress_matrix *|\ARGBREAK
     \verb|                           suppress_matrix;|\ARGBREAK
     \verb|  min::packed_vec_ptr<min::gen>|\ARGBREAK

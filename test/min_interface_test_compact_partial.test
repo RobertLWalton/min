@@ -1007,6 +1007,11 @@ min_interface_test.cc:XXXX assert:
     s == sbuffer + 2 * 7 true.
 min_interface_test.cc:XXXX assert:
     memcmp ( Ubuffer, Ubuffer2, sizeof ( Ubuffer ) ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    len == 7 true.
+min_interface_test.cc:XXXX assert:
+    Ubuffer2[6] == min::ILLEGAL_UTF8 true.
+ÀÁÂÃÄÅ☹
 
 Finish Strings Test!
 

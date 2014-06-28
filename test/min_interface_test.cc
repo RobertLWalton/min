@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 28 07:07:57 EDT 2014
+// Date:	Sat Jun 28 12:29:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1862,7 +1862,7 @@ void test_strings ( void )
 	      u, Ubuffer + 7 );
 	MIN_ASSERT ( s - sbuffer == 2*7 );
 	MIN_ASSERT ( len == 2*7 );
-	* s == 0;
+	* s = 0;
 	cout << sbuffer << endl;
 
 	min::uns32 Ubuffer2[8];
@@ -1876,6 +1876,23 @@ void test_strings ( void )
 	MIN_ASSERT (    memcmp ( Ubuffer, Ubuffer2,
 	                         sizeof ( Ubuffer ) )
 		     == 0 );
+
+	u2 = Ubuffer2;
+	s2 = sbuffer;
+	len = min::utf8_to_unicode
+	    ( u2, u2 + 8, s2, s2 + 2 * 7 - 1 );
+	MIN_ASSERT ( len == 7 );
+	MIN_ASSERT ( Ubuffer2[6] == min::ILLEGAL_UTF8 );
+
+	char sbuffer3[20];
+	char * s3 = sbuffer3;
+	const min::uns32 * u3 = Ubuffer2;
+	len = min::unicode_to_utf8
+	    ( s3, s3 + sizeof ( sbuffer3 ),
+	      u3, u3 + 7 );
+	* s3 = 0;
+	cout << sbuffer3 << endl;
+
     }
     
     cout << endl;
