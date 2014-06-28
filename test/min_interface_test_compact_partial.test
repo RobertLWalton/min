@@ -994,6 +994,19 @@ min_interface_test.cc:XXXX assert:
     min::strto ( sd, sdspace ) true.
 min_interface_test.cc:XXXX assert:
     sd == -123.4e-15 true.
+min_interface_test.cc:XXXX assert:
+    s - sbuffer == 2*7 true.
+min_interface_test.cc:XXXX assert:
+    len == 2*7 true.
+ÀÁÂÃÄÅÆ
+min_interface_test.cc:XXXX assert:
+    len == 7 true.
+min_interface_test.cc:XXXX assert:
+    u2 - Ubuffer2 == 7 true.
+min_interface_test.cc:XXXX assert:
+    s == sbuffer + 2 * 7 true.
+min_interface_test.cc:XXXX assert:
+    memcmp ( Ubuffer, Ubuffer2, sizeof ( Ubuffer ) ) == 0 true.
 
 Finish Strings Test!
 

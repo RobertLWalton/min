@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 26 11:18:30 EDT 2014
+// Date:	Sat Jun 28 07:07:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1848,6 +1848,35 @@ void test_strings ( void )
     MIN_ASSERT ( si == -123 );
     MIN_ASSERT ( min::strto ( sd, sdspace ) );
     MIN_ASSERT ( sd == -123.4e-15 );
+
+    // `A' with latin1 diacritics
+    //
+    const min::uns32 Ubuffer[7] =
+        { 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6 };
+    {
+	char sbuffer[2*7+1];
+	char * s = sbuffer;
+	const min::uns32 * u = Ubuffer;
+	min::unsptr len = min::unicode_to_utf8
+	    ( s, s + sizeof ( sbuffer ),
+	      u, Ubuffer + 7 );
+	MIN_ASSERT ( s - sbuffer == 2*7 );
+	MIN_ASSERT ( len == 2*7 );
+	* s == 0;
+	cout << sbuffer << endl;
+
+	min::uns32 Ubuffer2[8];
+	min::uns32 * u2 = Ubuffer2;
+	const char * s2 = sbuffer;
+	len = min::utf8_to_unicode
+	    ( u2, u2 + 8, s2, s2 + 2 * 7 );
+	MIN_ASSERT ( len == 7 );
+	MIN_ASSERT ( u2 - Ubuffer2 == 7 );
+	MIN_ASSERT ( s == sbuffer + 2 * 7 );
+	MIN_ASSERT (    memcmp ( Ubuffer, Ubuffer2,
+	                         sizeof ( Ubuffer ) )
+		     == 0 );
+    }
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
