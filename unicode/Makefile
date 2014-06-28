@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Jun 25 04:09:16 EDT 2014
+# Date:		Sat Jun 28 00:49:52 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -15,14 +15,28 @@ WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
 	 -Wno-char-subscripts
 
+FROM = http://www.unicode.org/Public/UCD/latest/ucd/extracted
+
+DERIVED = DerivedCombiningClass.txt \
+	  DerivedGeneralCategory.txt \
+	  DerivedNumericValues.txt
+
 all:	make_unicode_class.diff utf8look
+
+curl:
+	rm -f ${DERIVED}
+	make ${DERIVED}
+
+${DERIVED}:
+	rm -f $@
+	curl ${FROM}/$@ >$@
 
 make_unicode_class:	make_unicode_class.cc
 	rm -f make_unicode_class
 	g++ ${WFLAGS} -o make_unicode_class \
 	    make_unicode_class.cc
 
-make_unicode_class.out:	make_unicode_class
+make_unicode_class.out:	make_unicode_class ${DERIVED}
 	rm -f unicode_class.h make_unicode_class.out
 	make_unicode_class > make_unicode_class.out
 	cat make_unicode_class.out
