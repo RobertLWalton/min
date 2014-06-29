@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 28 08:01:43 EDT 2014
+// Date:	Sat Jun 28 17:08:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9195,6 +9195,19 @@ const min::op min::flush_one_id
     ( min::op::FLUSH_ONE_ID );
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
+
+// Execute pgen (below) in case string is to be
+// bracketed.
+//
+template < typename T >
+static T pgen_bracketed_str
+	( T out,
+	  min::uns32 gen_flags,
+	  const min::str_ptr & sp,
+	  const min::gen_format * f,
+	  min::uns32 width )
+{
+}
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
 // effective.
