@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 16:19:45 EDT 2014
+// Date:	Mon Jun 30 16:32:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10,7 +10,7 @@
 
 namespace min { namespace unicode {
 
-typedef min::uns32 Uchar;
+typedef unsigned int Uchar;
     // Must be 32 bit integer.
 
 extern const unsigned unicode_index_size;
@@ -24,7 +24,6 @@ extern const unsigned short unicode_index[];
     //
     // unicode_types[unicode_index[c]] is the type of c.
 
-extern const unsigned unicode_types_size;
 struct unicode_type
     // unicode_types[unicode_index[c]] is the type c.
 {

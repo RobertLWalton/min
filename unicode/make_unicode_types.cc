@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 15:37:12 EDT 2014
+// Date:	Mon Jun 30 16:49:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -248,7 +248,7 @@ void initialize ( void )
 void final_check ( void )
 {
     unsigned count[unicode_max_index];
-    for ( int i = 0; i < unicode_max_index; ++ i )
+    for ( unsigned i = 0; i < unicode_max_index; ++ i )
         count[i] = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
@@ -256,7 +256,7 @@ void final_check ( void )
 	assert ( i < unicode_max_index );
         ++ count[i];
     }
-    for ( int i = 0; i < unicode_max_index; ++ i )
+    for ( unsigned i = 0; i < unicode_max_index; ++ i )
     {
 	unicode_type & type = unicode_types[i];
         if ( count[i] == type.reference_count
@@ -273,7 +273,7 @@ void final_check ( void )
 	cout << "ERROR: in final check of ";
 	print_unicode_type ( i );
 
-	for ( int i2 = 0; i2 < i; ++ i2 )
+	for ( unsigned i2 = 0; i2 < i; ++ i2 )
 	{
 	    unicode_type & type2 = unicode_types[i2];
 	    if ( type.category != type2.category )
@@ -327,7 +327,7 @@ void store_name ( Uchar c, const char * name )
 	return;
     }
 
-    int name_length = strlen ( name );
+    unsigned name_length = strlen ( name );
     assert ( name_length > 0 );
 
     // Allocate new type.
@@ -336,7 +336,7 @@ void store_name ( Uchar c, const char * name )
     type.name = unicode_names_size;
     type.name_length = name_length;
     type.name_columns = name_length;
-    for ( int j = 0; j < name_length; ++ j )
+    for ( unsigned j = 0; j < name_length; ++ j )
         unicode_names[unicode_names_size++] = name[j];
 
     // Check for name being used more than once.
@@ -416,7 +416,7 @@ void store_numeric_value
 	    return;
 	}
 
-	unicode_type & type = new_unicode_type ( c );
+	new_unicode_type ( c );
 	i = unicode_index[c];
     }
 
@@ -865,7 +865,7 @@ void read_general_category ( void )
 	}
 
 	unsigned char category = 0;
-	for ( int j = 0;
+	for ( unsigned j = 0;
 	      j < unicode_categories_size;
 	      ++ j )
 	{
@@ -977,9 +977,11 @@ void output ( void )
         << unicode_categories_size << endl;
 
     out << endl << "# define UNICODE_CATEGORIES";
-    for ( int j = 0; j < unicode_categories_size; ++ j )
+    for ( unsigned j = 0; j < unicode_categories_size;
+                          ++ j )
     {
 	unicode_category & d = unicode_categories[j];
+	if ( j != 0 ) out << ",";
 	out << " \\\n    { ";
 	if ( d.unicode_name == NULL )
 	    out << "NULL";
@@ -1001,12 +1003,13 @@ void output ( void )
 
     out << endl << "# define UNICODE_TYPES";
 
-    for ( int t = 0; t < unicode_max_index; ++ t )
+    for ( unsigned t = 0; t < unicode_max_index; ++ t )
     {
 	unicode_type & type = unicode_types[t];
 	char category[20];
 	sprintf ( category, "%02X",
 	          (short) type.category );
+	if ( t != 0 ) out << ",";
         out << " \\\n    { 0x" << category
 	    << ", " << type.name
 	    << ", " << (short) type.name_length
