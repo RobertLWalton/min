@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 29 15:11:43 EDT 2014
+// Date:	Sun Jun 29 22:22:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,8 +15,10 @@
 # include <cstdarg>
 # include <cctype>
 # include <cstring>
+# include <cassert>
 using std::cout;
 using std::endl;
+using std::setw;
 using std::hex;
 using std::dec;
 using std::ifstream;
@@ -38,108 +40,181 @@ const unsigned unicode_index_size = 0x30000;
 unsigned char unicode_index[unicode_index_size];
     // Index table.  Initially full of 0's.
     //
-    // unicode_index[x] is the type of x.
+    // unicode_index[c] is the index of c.  Indices are
+    // very changeable, and may not be the same week
+    // to week (unlike the category of c which should
+    // never change).
     //
-    // Each x < 256 that is not a letter has its own
-    // private type.  Each character with a name has its
-    // own private type.  The types of other characters
-    // are in 1-1 correspondence with their characters
-    // categories.
+    // unicode_types[unicode_index[c]] is the type of c.
+    //
+    // Each character with a name has its own private
+    // type.  The types of other characters are shared
+    // so all characters with no name but with the same
+    // category and numeric value (which may be missing)
+    // have the same type.  Note that as each character
+    // c < 256 that is not a letter or digit and that
+    // does not have a name is its own category, this
+    // means that all these characters have their own
+    // private type.
 
 struct unicode_type
-    // unicode_types[t] is the description of type t.
+    // unicode_types[unicode_index[c]] is the type c.
     //
     // Names must be stored first, then numerators and
-    // denominators, then categories.  A type may NOT
-    // have both a name and numerator/denominator.
+    // denominators, then categories.  See the store_...
+    // functions below.
 {
-    char category;
-        // Character category.  See table output in
-	// unicode_types.h.
+    unsigned char category;
+        // Character category.  See the category table
+	// below for general categories.  However, as an
+	// exception, characters c < 256 are their own
+	// categories (i.e., the category of `+' is `+')
+	// if they are not a letter or digit and do not
+	// have a name (i.e., are not SP or DEL, etc.).
 
-    short name;
-    char name_length;
-    char name_columns;
+    unsigned short name;
+    unsigned char name_length;
+    unsigned char name_columns;
         // If name != 0, then the character has a name
 	// that begins with unicode_names[name] and
 	// has name_length unicode characters that take
 	// name_columns print columns when printed
-	// consecutively.
+	// consecutively.  Examples are HT, SP, LF, DEL;
+	// e.g., control characters and space characters
+	// have names.  Names are assigned by the
+	// UNICODE standard and are NOT made up.
 
     signed char numerator, denominator;
-        // For number characters, the value of the
-	// character as numerator/denominator.  For
-	// integers denominator is 1.  numerator
-	// may be negative, denominator must be > 0.
+        // For number characters, the numeric value of
+	// the character as numerator/denominator.  For
+	// integer values the denominator is 1.  The
+	// numerator may be negative, but the denomina-
+	// tor must be > 0.
 
 } unicode_types[256];
-unsigned unicode_types_size = 0;
-    //unicode_types_size is number of elements actually
-    //used.
+unsigned unicode_max_index = 0;
+    // unicode_max_index is maximum character index and
+    // therefore is the number of unicode_types elements
+    // actually used.
 
 Uchar unicode_names[16000];
 unsigned unicode_names_size = 0;
-    // See unicode_type.  `unsigned int' must be 32
-    // bits.  unicode_names_size is number of elements
-    // actually used.
+    // See unicode_type.  unicode_names_size is number
+    // of elements of unicode_names actually used.
 
-// Encode category as a single letter.  If category is
-// unknown, return 0 instead.
+// Table that encodes UNICODE general category to our
+// MIN category map.  The UNICODE general category is
+// 2 letters, while the MIN category is 1 letter and is
+// better suited to making lookup-by-category tables.
+// We also add the special MIN category `w' for
+// characters with no UNICODE category.
 //
-char encode_category ( const char * category )
+struct category_description
 {
-    return
-	strncmp ( "Lu", category, 2 ) == 0 ? 'U' :
-	strncmp ( "Ll", category, 2 ) == 0 ? 'L' :
-	strncmp ( "Lt", category, 2 ) == 0 ? 'T' :
-	strncmp ( "Lm", category, 2 ) == 0 ? 'M' :
-	strncmp ( "Lo", category, 2 ) == 0 ? 'O' :
+    const char * unicode_name;
+    unsigned char category;  // MIN category.
+    const char * unicode_description;
+} category_descriptions[] = {
+    { "Lu", 'U', "Upper case letter" },
+    { "Ll", 'L', "Lower case letter" },
+    { "Lt", 'T', "Title case letter" },
+    { "Lm", 'M', "Modifier letter" },
+    { "Lo", 'O', "Other letter" },
 
-	strncmp ( "Mn", category, 2 ) == 0 ? 'N' :
-	strncmp ( "Mc", category, 2 ) == 0 ? 'S' :
-	strncmp ( "Me", category, 2 ) == 0 ? 'E' :
+    { "Mn", 'N', "Nonspacing mark" },
+    { "Mc", 'S', "Spacing mark" },
+    { "Me", 'E', "Enclosing mark" },
 
-	strncmp ( "Nd", category, 2 ) == 0 ? 'D' :
-	strncmp ( "Nl", category, 2 ) == 0 ? 'R' :
-	strncmp ( "No", category, 2 ) == 0 ? 'H' :
+    { "Nd", 'D', "Decimal number" },
+    { "Nl", 'R', "Letter number" },
+    { "No", 'H', "Other number" },
 
-	strncmp ( "Pc", category, 2 ) == 0 ? 'n' :
-	strncmp ( "Pd", category, 2 ) == 0 ? 'd' :
-	strncmp ( "Ps", category, 2 ) == 0 ? 'o' :
-	strncmp ( "Pe", category, 2 ) == 0 ? 'c' :
-	strncmp ( "Pi", category, 2 ) == 0 ? 'i' :
-	strncmp ( "Pf", category, 2 ) == 0 ? 'f' :
-	strncmp ( "Po", category, 2 ) == 0 ? 'h' :
+    { "Pc", 'n', "Connector punctuation" },
+    { "Pd", 'd', "Dash punctuation" },
+    { "Ps", 'o', "Open punctuation" },
+    { "Pe", 'c', "Close punctuation" },
+    { "Pi", 'i', "Initial punctuation" },
+    { "Pf", 'f', "Final punctuation" },
+    { "Po", 'h', "Other punctuation" },
 
-	strncmp ( "Sm", category, 2 ) == 0 ? 'm' :
-	strncmp ( "Sc", category, 2 ) == 0 ? 'y' :
-	strncmp ( "Sk", category, 2 ) == 0 ? 'r' :
-	strncmp ( "So", category, 2 ) == 0 ? 't' :
+    { "Sm", 'm', "Math symbol" },
+    { "Sc", 'y', "Currency symbol" },
+    { "Sk", 'r', "Modifier symbol" },
+    { "So", 't', "Other symbol" },
 
-	strncmp ( "Zs", category, 2 ) == 0 ? 's' :
-	strncmp ( "Zl", category, 2 ) == 0 ? 'l' :
-	strncmp ( "Zp", category, 2 ) == 0 ? 'p' :
+    { "Zs", 's', "Space Separator" },
+    { "Zl", 'l', "Line Separator" },
+    { "Zp", 'p', "Paragraph Separator" },
 
-	strncmp ( "Cc", category, 2 ) == 0 ? 'x' :
-	strncmp ( "Cf", category, 2 ) == 0 ? 'z' :
-	strncmp ( "Cs", category, 2 ) == 0 ? 'g' :
-	strncmp ( "Co", category, 2 ) == 0 ? 'v' :
-	strncmp ( "Cn", category, 2 ) == 0 ? 'u' :
-	0;
+    { "Cc", 'x', "Control" },
+    { "Cf", 'z', "Format" },
+    { "Cs", 'g', "Surrogate" },
+    { "Co", 'v', "Private Use" },
+
+    { "Cn", 'u', "Unassigned" },
+    { NULL, 'w', "Unspecified" }
+};
+const unsigned number_of_category_descriptions =
+      sizeof ( category_descriptions )
+    / sizeof ( category_description );
+const unsigned char UNSPECIFIED_CATEGORY = 'w';
+
+// Initialize tables.  unicode_types[0] gets category
+// 'w' and 0 becomes the index for characters not
+// assigned any category, name, or numeric value.
+//
+void initialize ( void )
+{
+    assert ( unicode_max_index == 0 );
+
+    unicode_type & type =
+        unicode_types[unicode_max_index++];
+
+    type.name = type.name_length
+              = type.name_columns = 0;
+    type.numerator = type.denominator = 0;
+    type.category = UNSPECIFIED_CATEGORY;
 }
 
-// Store name into a character.  Complain if character
-// has previously been given a name.  Complain if name
-// already used by another character.
+// Do some integrity checking of the tables.
 //
-// The name must be ASCII graphic characters presented
-// as a character string.  This is converted to unicode.
-// The output database allows more complex names, but
+void final_check ( void )
+{
+    unsigned count[256];
+    for ( int i = 0; i < unicode_max_index; ++ i )
+        count[i] = 0;
+    for ( Uchar c = 0; c < unicode_index_size; ++ c )
+        ++ count[unicode_index[c]];
+    for ( int i = 0; i < unicode_max_index; ++ i )
+    {
+        if ( count[i] > 0 ) continue;
+	unicode_type & type = unicode_types[i];
+	cout << "ERROR: unused type:" << endl
+	     << "       name_length = "
+	     << type.name_length << endl
+	     << "       numerator = "
+	     << type.numerator << endl
+	     << "       denominator = "
+	     << type.denominator << endl
+	     << "       category = "
+	     << type.category << endl;
+    }
+}
+
+// Store UNICODE name for a character.  Complain if
+// character has previously been given a name.  Complain
+// if name already used by another character.
+//
+// The name must be a string of ASCII graphic characters
+// presented as a const char * string.  This is convert-
+// ed to unicode.  The unicode_types database allows
+// more complex names with combining diacritics, but
 // currently these are not used by the UNICODE standard.
 //
 void store_name ( Uchar c, const char * name )
 {
     assert ( c < unicode_index_size );
+
     if ( unicode_index[c] != 0 )
     {
         unicode_type & type =
@@ -147,8 +222,8 @@ void store_name ( Uchar c, const char * name )
 	assert ( type.name_length > 0 );
 	    // Names should be set before number values
 	    // and categories.
-	line_error ( "character 0x%X assigned more than"
-	             " one name", c );
+	line_error ( "character %02X assigned more than"
+	             " one name; line ignored", c );
 	return;
     }
 
@@ -157,159 +232,221 @@ void store_name ( Uchar c, const char * name )
 
     // Allocate new type.
     //
-    unicode_index[c] = unicode_types_size;
+    unicode_index[c] = unicode_max_index;
     unicode_type & type =
-        unicode_types[unicode_types_size++];
+        unicode_types[unicode_max_index++];
     type.name = unicode_names_size;
     type.name_length = name_length;
     type.name_columns = name_length;
-    type.numerator = type_denominator
-                   = type.category = 0;
-    for ( int i = 0; i < name_length; ++ i )
-        unicode_names[unicode_name_size++] = name[i];
+    type.numerator = type.denominator = 0;
+    type.category = UNSPECIFIED_CATEGORY;
+    for ( int j = 0; j < name_length; ++ j )
+        unicode_names[unicode_names_size++] = name[j];
 
     // Check for name being used more than once.
     //
-    for ( int t = 0; t < unicode_types_size - 1; ++ t )
+    for ( unsigned i = 0; i < unicode_max_index - 1;
+                          ++ i )
     {
-        unicode_type & type2 = unicode_types[t];
+        unicode_type & type2 = unicode_types[i];
 	if ( type2.name_length != type.name_length )
 	    continue;
-	Uchar p = unicode_names + type.name;
-	Uchar p2 = unicode_names + type2.name;
-	int i = 0;
-	while ( i < type.name_length
-	        &&
-		* p ++ == * p2 ++ ) ++ i;
-        if ( i != type.name_length ) continue;
 
-	line_error ( "character name `%s' used more"
-		     " than once", name );
-	break;
+	if ( memcmp ( unicode_names + type.name,
+	              unicode_names + type2.name,
+		        type.name_length
+		      * sizeof ( Uchar ) )
+             == 0 )
+	{
+	    line_error ( "character name `%s' used more"
+			 " than once; line accepted",
+			 name );
+	    break;
+	}
     }
 }
 
-// Store numerator/demominator into a character.
-// Complain if character has previously been given a
-// name.  Complain if character already has a numerator/
-// denominator.  Complain if numerator or demonimator
-// out of range.  Do nothing if there is a complaint.
+// Store numeric value numerator/demominator for a
+// character.  Complain if character has previously been
+// given a numeric value.  Complain if numerator or
+// demonimator out of range.
 //
-void store_number_value
+void store_numeric_value
     ( Uchar c, long numerator, long denominator )
 {
     assert ( c < unicode_index_size );
-    if ( unicode_index[c] != 0 )
-    {
-        unicode_type & type =
-	    unicode_types[unicode_index[c]];
-	line_error (
-	    type.name_length > 0 ?
-	    "character 0x%X previously assigned a name"
-	    " also has a numeric value" :
-	    "character 0x%X has two numeric values",
-	    c );
-	return;
-    }
 
     if ( numerator < -127 || 127 < numerator
          ||
 	 denominator <= 0 || 127 < denominator )
     {
-	line_error ( "character 0x%X is assigned a"
+	line_error ( "character %02X is assigned a"
 	             " numerator or denominator out of"
-	             " range", c );
+	             " range; line ignored", c );
 	return;
     }
 
-    // Search for a type with the same numeric value.
-    //
-    for ( int t = 0; t < unicode_types_size; ++ t )
+    unsigned i = unicode_index[c];
+    if ( i != 0 )
     {
-        unicode_type & type = unicode_types[t];
-	if ( type.numerator != numerator ) continue;
-	if ( type.denominator != denominator ) continue;
-	unicode_index[c] = t;
-	return;
+	if ( unicode_types[i].denominator != 0 )
+	{
+	    line_error (
+		"character %02X assigned more than one"
+		" numeric value; line ignored", c );
+	    return;
+	}
+    }
+    else
+    {
+	// Search for a type with the same numeric
+	// value and no name.
+	//
+	for ( i = 0; i < unicode_max_index; ++ i )
+	{
+	    unicode_type & type = unicode_types[i];
+	    if ( type.name_length > 0 )
+	        continue;
+	    if ( type.numerator != numerator )
+	        continue;
+	    if ( type.denominator != denominator )
+	        continue;
+	    unicode_index[c] = i;
+	    return;
+	}
+
+	i = unicode_max_index ++;
+	unicode_type & type = unicode_types[i];
+	type.name = type.name_length
+	          = type.name_columns = 0;
+	type.category = UNSPECIFIED_CATEGORY;
     }
 
-    // Allocate new type.
-    //
-    unicode_index[c] = unicode_types_size;
-    unicode_type & type =
-        unicode_types[unicode_types_size++];
-    type.name = type.name_length
-              = type.name_columns
-	      = type.category = 0;
-    type.numerator = numerator;
-    type.denominator = denominator;
-
-    return;
+    unicode_types[i].numerator = numerator;
+    unicode_types[i].denominator = denominator;
 }
 
 // Store category into a character.  Complain if charac-
-// ter has previously been given a different category.
-// Complain if category is not legal.  Do nothing if
-// there is a complaint.
+// ter has previously been given a different category
+// (other then UNSPECIFIED_CATEGORY).  (Also if charac-
+// has a numeric value detecting whether it has been
+// given a different category may not be possible.)
+// Complain if category is not legal.
 //
-void store_category
-    ( Uchar c, const char * category )
+// Note that categories of characters c < 256 may be
+// changed to equal c; see above.
+//
+void store_category ( Uchar c, unsigned char category )
 {
     assert ( c < unicode_index_size );
 
-    char cat = encode_category ( category );
-    if ( cat == 0 )
+    unsigned i = unicode_index[c];
+    if ( i != 0 )
     {
-	line_error ( "character 0x%X is assigned an"
-	             " unknown category `%s'",
-		     c, category );
+        unicode_type & type = unicode_types[i];
+
+	if ( type.name_length != 0 )
+	{
+	    if ( type.category == UNSPECIFIED_CATEGORY )
+		type.category = category;
+	    else
+		line_error ( "character %02X assigned"
+			     " more than one category;"
+			     " line ignored", c );
+
+	}
+	else if ( type.denominator != 0 )
+	{
+	    if ( type.category == UNSPECIFIED_CATEGORY )
+	        type.category = category;
+	    else if ( type.category != category )
+	    {
+	        // Type is shared between several
+		// characters with no name but the same
+		// numeric value; find another type
+		// with the same numeric value and the
+		// new category, or make such a type.
+		//
+		for ( i = 0; i < unicode_max_index;
+		             ++ i )
+		{
+		    unicode_type & type2 =
+			unicode_types[i];
+		    if ( type2.name_length > 0 )
+		        continue;
+		    if (    type2.numerator
+		         != type.numerator )
+		        continue;
+		    if (    type2.denominator
+		         != type.denominator )
+		        continue;
+		    if ( type2.category != category )
+		    {
+		        assert ( type2.category
+			         !=
+				 UNSPECIFIED_CATEGORY );
+			continue;
+		    }
+		    unicode_index[c] = i;
+		    return;
+		}
+
+		// Search failed.  Allocate new type.
+		//
+		i = unicode_max_index ++;
+		unicode_type & type2 =
+		    unicode_types[i];
+		type2.name = type2.name_length
+		           = type2.name_columns = 0;
+		type2.numerator = type.numerator;
+		type2.denominator = type.denominator;
+		type2.category = category;
+	    }
+	}
+	else
+	{
+	    assert (    type.category
+	             != UNSPECIFIED_CATEGORY );
+	    line_error ( "character %02X assigned"
+			 " more than one category;"
+			 " line ignored", c );
+	}
+
 	return;
     }
 
-    if ( unicode_index[c] != 0 )
+    if ( c < 256 && category != 'L' && category != 'U' )
     {
-        unicode_type & type =
-	    unicode_types[unicode_index[c]];
-	if ( type.name_length == 0 && c < 256 )
-	    cat = c;
-
-	if ( type.category == 0 )
-	    type.category = cat;
-	else if ( type.category != cat )
-	    line_error ( "character 0x%X assigned"
-			 " more than one catagory",
-			 c );
-	return;
+        assert ( ! isdigit ( c ) );
+        assert ( ! isalpha ( c ) );
+	category = c;
     }
-
-    if ( c < 256 ) cat = c;
-
-    // Search for a type with the same category value
-    // and no name, denominator, or numerator.
-    //
-    for ( int t = 0; t < unicode_types_size; ++ t )
+    else
     {
-        unicode_type & type = unicode_types[t];
-	if ( type.category != cat ) continue;
-	if ( type.numerator != 0 ) continue;
-	if ( type.denominator != 0 ) continue;
-	if ( type.name_length != 0 ) continue;
-	unicode_index[c] = t;
-	return;
+	// Search for a type with the same category
+	// value and no name, denominator, or numerator.
+	//
+	for ( i = 0; i < unicode_max_index; ++ i )
+	{
+	    unicode_type & type = unicode_types[i];
+	    if ( type.category != category ) continue;
+	    if ( type.denominator != 0 ) continue;
+	    if ( type.name_length != 0 ) continue;
+	    unicode_index[c] = i;
+	    return;
+	}
     }
 
     // Allocate new type.
     //
-    unicode_index[c] = unicode_types_size;
-    unicode_type & type =
-        unicode_types[unicode_types_size++];
+    i = unicode_max_index ++;
+    unicode_index[c] = i;
+    unicode_type & type = unicode_types[i];
     type.name = type.name_length
               = type.name_columns
 	      = type.numerator
 	      = type.denominator = 0;
-    type.category = cat;
-
-    return;
+    type.category = category;
 }
 
 // Current input data:
@@ -330,7 +467,7 @@ void line_error ( const char * format, ... )
     va_list args;
     va_start ( args, format );
     char buffer[200];
-    vsfprint ( buffer, format, args );
+    vsprintf ( buffer, format, args );
 
     cout << "ERROR: " << buffer << endl
          << "       in line " << line_count
@@ -473,12 +610,12 @@ bool read_range ( Uchar & low, Uchar & high )
 void check_range ( Uchar low, Uchar & high,
                    bool print_on_error = true )
 {
-    if ( high >= unicode_class_size )
+    if ( high >= unicode_index_size )
     {
 	if ( print_on_error )
-	    line_error ( "code above 0x%X used",
+	    line_error ( "code above %02X used",
 			 unicode_index_size - 1 );
-	high = unicode_class_size - 1;
+	high = unicode_index_size - 1;
     }
 }
 
@@ -493,7 +630,7 @@ bool read_field ( const char * line )
     line = skip_whitespace ( line );
     if ( * line == 0 ) return false;
     const char * p = line;
-    while ( * p && ! whitespace ( * p )
+    while ( * p && ! isspace ( * p )
                 && * p != ';' && * p != '#' )
         ++ p;
     if ( p == line ) return false;
@@ -520,7 +657,7 @@ void read_numeric_values ( void )
 	if ( ! read_field ( p ) )
 	    line_error ( "third field not found" );
 
-	const char * q;
+	char * q;
 	long numerator = strtol ( p, & q, 10 );
 	if ( q == p )
 	    line_error ( "bad numeric third field" );
@@ -557,7 +694,7 @@ void read_general_category ( void )
     {
         const char * p = line;
 	p = skip_to_next ( p );
-	p = skip ( p );
+	p = skip_to_next ( p );
 
 	if ( ! read_field ( p ) )
 	    line_error ( "first field not found" );
@@ -570,37 +707,38 @@ void read_general_category ( void )
 	    continue;
 	}
 
-	char category = encode_category ( field );
+	unsigned char category = 0;
+	for ( int j = 0;
+	      j < number_of_category_descriptions;
+	      ++ j )
+	{
+	    category_description & d =
+		category_descriptions[j];
+	    if ( strcmp ( field, d.unicode_name ) == 0 )
+	    {
+		category = d.category;
+		break;
+	    }
+	}
 	if ( category == 0 )
 	{
-	    line_error
-	        ( "unrecognized category `%s'",
-		  field );
-		  " 2 characters long" );
-	    continue;
+	    line_error ( "characters assigned an"
+			 " unknown category `%s'; line"
+			 " ignored", field );
+	    return;
 	}
 
-	check_range ( low, high, category != 'u'
-	                         &&
-				 category != 'v' );
+	bool print_on_error =
+	    strcmp ( field, "Co" ) != 0
+	    &&
+	    strcmp ( field, "Cn" ) != 0;
+	check_range ( low, high, print_on_error );
 
 	for ( Uchar c = low; c <= high; ++ c  )
 	    store_category ( c, category );
     }
 
     ::close();
-}
-
-// Find missing general categories and set them to `w'.
-//
-void set_missing_types ( void )
-{
-    Uchar c;
-    for ( Uchar c = 0; c < unicode_index_size; ++ c )
-    {
-        if ( unicode_index[c] == 0 )
-	    store_category ( c, 'w' );
-    }
 }
 
 // Read DerivedCombiningClass.txt
@@ -615,8 +753,7 @@ void read_combining_class ( void )
         check_range ( low, high );
 
         const char * p = line;
-	p = skip ( p );
-	if ( * p == 0 ) continue;
+	p = skip_to_next ( p );
 	if ( ! read_field ( p ) )
 	    line_error ( "first field not found" );
 
@@ -638,7 +775,7 @@ void read_combining_class ( void )
 		 ( cc > 0 && cat != 'S' && cat != 'E' )
 	       )
 	        line_error
-		    ( "for character code 0x%X"
+		    ( "for character code %02X"
 		      " combining class %d conflicts"
 		      " with UNICODE category %c",
 		      c, cc, cat );
@@ -743,9 +880,10 @@ int main ( int argc, const char ** argv )
 
     cout << setiosflags ( ios_base::uppercase );
 
+    initialize();
     read_numeric_values();
     read_general_category();
-    find_missing_classes();
     read_combining_class();
+    final_check();
     output();
 }
