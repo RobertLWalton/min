@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jun 28 21:29:07 EDT 2014
+# Date:		Mon Jun 30 15:40:07 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,7 +23,7 @@ DERIVED = DerivedCombiningClass.txt \
 NAMES = NameAliases.txt
 
 
-all:	make_unicode_class.diff utf8look
+all:	make_unicode_types.diff utf8look
 
 curl:
 	rm -f ${DERIVED} ${NAMES}
@@ -37,26 +37,27 @@ ${NAMES}:
 	rm -f $@
 	curl ${FROM}/$@ >$@
 
-make_unicode_class:	make_unicode_class.cc
-	rm -f make_unicode_class
-	g++ ${WFLAGS} -o make_unicode_class \
-	    make_unicode_class.cc
+make_unicode_types:	make_unicode_types.cc
+	rm -f make_unicode_types
+	g++ ${WFLAGS} -o make_unicode_types \
+	    make_unicode_types.cc
 
-make_unicode_class.out:	make_unicode_class ${DERIVED}
-	rm -f unicode_class.h make_unicode_class.out
-	make_unicode_class > make_unicode_class.out
-	cat make_unicode_class.out
+make_unicode_types.out:	make_unicode_types \
+	${DERIVED} ${NAMES}
+	rm -f unicode_types.h make_unicode_types.out
+	make_unicode_types > make_unicode_types.out
+	cat make_unicode_types.out
 
-make_unicode_class.test:	make_unicode_class.out
-	rm -f make_unicode_class.test
-	cp -p make_unicode_class.out \
-	      make_unicode_class.test
+make_unicode_types.test:	make_unicode_types.out
+	rm -f make_unicode_types.test
+	cp -p make_unicode_types.out \
+	      make_unicode_types.test
 
-make_unicode_class.diff:	make_unicode_class.out
-	echo DIFFING make_unicode_class.test \
-	             make_unicode_class.out
-	@diff make_unicode_class.test \
-	      make_unicode_class.out
+make_unicode_types.diff:	make_unicode_types.out
+	echo DIFFING make_unicode_types.test \
+	             make_unicode_types.out
+	@diff make_unicode_types.test \
+	      make_unicode_types.out
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode
@@ -99,6 +100,6 @@ latin1-latin1:	latin1look
 	@latin1look 00F8 00F9 00FA 00FB 00FC 00FD 00FE 00FF
 
 clean:
-	rm -f make_unicode_class.out \
-	      make_unicode_class utf8look latin1look \
+	rm -f make_unicode_types.out \
+	      make_unicode_types utf8look latin1look \
 	      print_unicode
