@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 29 22:22:36 EDT 2014
+// Date:	Mon Jun 30 02:15:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,7 @@
 # include <fstream>
 # include <cstdlib>
 # include <cstdarg>
+# include <climits>
 # include <cctype>
 # include <cstring>
 # include <cassert>
@@ -34,10 +35,10 @@ typedef unsigned int Uchar;
 // and printing the current line.   If fatal is true,
 // exit program.
 //
-void line_error ( const char * message, ... );
+void line_error ( const char * format, ... );
 
 const unsigned unicode_index_size = 0x30000;
-unsigned char unicode_index[unicode_index_size];
+unsigned short unicode_index[unicode_index_size];
     // Index table.  Initially full of 0's.
     //
     // unicode_index[c] is the index of c.  Indices are
@@ -57,6 +58,7 @@ unsigned char unicode_index[unicode_index_size];
     // means that all these characters have their own
     // private type.
 
+const unsigned unicode_types_size = 512;
 struct unicode_type
     // unicode_types[unicode_index[c]] is the type c.
     //
@@ -84,14 +86,17 @@ struct unicode_type
 	// have names.  Names are assigned by the
 	// UNICODE standard and are NOT made up.
 
-    signed char numerator, denominator;
+    signed long long numerator, denominator;
         // For number characters, the numeric value of
 	// the character as numerator/denominator.  For
 	// integer values the denominator is 1.  The
 	// numerator may be negative, but the denomina-
 	// tor must be > 0.
+	//
+	// Some languages have numeric values of one
+	// trillion.
 
-} unicode_types[256];
+} unicode_types[unicode_types_size];
 unsigned unicode_max_index = 0;
     // unicode_max_index is maximum character index and
     // therefore is the number of unicode_types elements
@@ -180,11 +185,15 @@ void initialize ( void )
 //
 void final_check ( void )
 {
-    unsigned count[256];
+    unsigned count[unicode_max_index];
     for ( int i = 0; i < unicode_max_index; ++ i )
         count[i] = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
-        ++ count[unicode_index[c]];
+    {
+        unsigned i = unicode_index[c];
+	assert ( i < unicode_max_index );
+        ++ count[i];
+    }
     for ( int i = 0; i < unicode_max_index; ++ i )
     {
         if ( count[i] > 0 ) continue;
@@ -232,6 +241,7 @@ void store_name ( Uchar c, const char * name )
 
     // Allocate new type.
     //
+    assert ( unicode_max_index < unicode_types_size );
     unicode_index[c] = unicode_max_index;
     unicode_type & type =
         unicode_types[unicode_max_index++];
@@ -272,13 +282,14 @@ void store_name ( Uchar c, const char * name )
 // demonimator out of range.
 //
 void store_numeric_value
-    ( Uchar c, long numerator, long denominator )
+    ( Uchar c,
+      long long numerator, long long denominator )
 {
     assert ( c < unicode_index_size );
 
-    if ( numerator < -127 || 127 < numerator
+    if ( numerator < LLONG_MIN || LLONG_MAX < numerator
          ||
-	 denominator <= 0 || 127 < denominator )
+	 denominator <= 0 || LLONG_MAX < denominator )
     {
 	line_error ( "character %02X is assigned a"
 	             " numerator or denominator out of"
@@ -315,7 +326,10 @@ void store_numeric_value
 	    return;
 	}
 
+	assert
+	    ( unicode_max_index < unicode_types_size );
 	i = unicode_max_index ++;
+	unicode_index[c] = i;
 	unicode_type & type = unicode_types[i];
 	type.name = type.name_length
 	          = type.name_columns = 0;
@@ -393,6 +407,8 @@ void store_category ( Uchar c, unsigned char category )
 
 		// Search failed.  Allocate new type.
 		//
+		assert (   unicode_max_index
+		         < unicode_types_size );
 		i = unicode_max_index ++;
 		unicode_type & type2 =
 		    unicode_types[i];
@@ -439,6 +455,7 @@ void store_category ( Uchar c, unsigned char category )
 
     // Allocate new type.
     //
+    assert (   unicode_max_index < unicode_types_size );
     i = unicode_max_index ++;
     unicode_index[c] = i;
     unicode_type & type = unicode_types[i];
@@ -453,7 +470,9 @@ void store_category ( Uchar c, unsigned char category )
 //
 char const * file;
 ifstream in;
-const unsigned line_size = 80;
+const unsigned line_size = 500;
+    // Derived file lines are automatically generated
+    // can be long.
 char line[line_size+2];
     // Input line.
 unsigned line_count;
@@ -512,11 +531,15 @@ void close ( void )
 bool read_line ( void )
 {
     ++ line_count;
-    if ( in.getline ( line, sizeof ( line ) ) )
+    if ( in.getline ( line, sizeof ( line ) ),
+         ! in.eof() )
     {
         line[line_size+1] = 0;
         if ( strlen ( line ) > line_size )
+	{
 	    line_error ( "line too long" );
+	    in.clear();
+	}
 	return true;
     }
     else
@@ -658,15 +681,15 @@ void read_numeric_values ( void )
 	    line_error ( "third field not found" );
 
 	char * q;
-	long numerator = strtol ( p, & q, 10 );
+	long long numerator = strtoll ( p, & q, 10 );
 	if ( q == p )
 	    line_error ( "bad numeric third field" );
 
-	long denominator = 1;
+	long long denominator = 1;
 	if ( * q == '/' )
 	{
 	    p = ++ q;
-	    denominator = strtol ( p, & q, 10 );
+	    denominator = strtoll ( p, & q, 10 );
 	    if ( q == p )
 		line_error
 		    ( "bad numeric third field" );
@@ -693,7 +716,6 @@ void read_general_category ( void )
     while ( read_range ( low, high ) )
     {
         const char * p = line;
-	p = skip_to_next ( p );
 	p = skip_to_next ( p );
 
 	if ( ! read_field ( p ) )
