@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 02:15:06 EDT 2014
+// Date:	Mon Jun 30 06:54:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,6 +96,10 @@ struct unicode_type
 	// Some languages have numeric values of one
 	// trillion.
 
+    unsigned reference_count;
+        // Number of index entries pointing at this
+	// type.  Just used for integrity checking.
+
 } unicode_types[unicode_types_size];
 unsigned unicode_max_index = 0;
     // unicode_max_index is maximum character index and
@@ -159,10 +163,32 @@ struct category_description
     { "Cn", 'u', "Unassigned" },
     { NULL, 'w', "Unspecified" }
 };
-const unsigned number_of_category_descriptions =
+const unsigned category_descriptions_size =
       sizeof ( category_descriptions )
     / sizeof ( category_description );
 const unsigned char UNSPECIFIED_CATEGORY = 'w';
+
+// Allocate a new unicode_type and set unicode_index[c]
+// to its index.  Return the new type.
+//
+unicode_type & new_unicode_type ( Uchar c )
+{
+    assert
+	( unicode_max_index < unicode_types_size );
+
+    unsigned i = unicode_index[c];
+    -- unicode_types[i].reference_count;
+    i = unicode_max_index ++;
+    unicode_index[c] = i;
+
+    unicode_type & type = unicode_types[i];
+    type.category = UNSPECIFIED_CATEGORY;
+    type.name = type.name_length
+	      = type.name_columns = 0;
+    type.numerator = type.denominator = 0;
+    type.reference_count = 1;
+    return type;
+}
 
 // Initialize tables.  unicode_types[0] gets category
 // 'w' and 0 becomes the index for characters not
@@ -171,14 +197,8 @@ const unsigned char UNSPECIFIED_CATEGORY = 'w';
 void initialize ( void )
 {
     assert ( unicode_max_index == 0 );
-
-    unicode_type & type =
-        unicode_types[unicode_max_index++];
-
-    type.name = type.name_length
-              = type.name_columns = 0;
-    type.numerator = type.denominator = 0;
-    type.category = UNSPECIFIED_CATEGORY;
+    unicode_type & type = new_unicode_type ( 0 );
+    type.reference_count = unicode_index_size;
 }
 
 // Do some integrity checking of the tables.
@@ -241,15 +261,10 @@ void store_name ( Uchar c, const char * name )
 
     // Allocate new type.
     //
-    assert ( unicode_max_index < unicode_types_size );
-    unicode_index[c] = unicode_max_index;
-    unicode_type & type =
-        unicode_types[unicode_max_index++];
+    unicode_type & type = new_unicode_type ( c );
     type.name = unicode_names_size;
     type.name_length = name_length;
     type.name_columns = name_length;
-    type.numerator = type.denominator = 0;
-    type.category = UNSPECIFIED_CATEGORY;
     for ( int j = 0; j < name_length; ++ j )
         unicode_names[unicode_names_size++] = name[j];
 
@@ -322,18 +337,16 @@ void store_numeric_value
 	        continue;
 	    if ( type.denominator != denominator )
 	        continue;
+
+	    assert ( unicode_index[c] == 0 );
+	    -- unicode_types[0].reference_count;
+	    ++ type.reference_count;
 	    unicode_index[c] = i;
 	    return;
 	}
 
-	assert
-	    ( unicode_max_index < unicode_types_size );
-	i = unicode_max_index ++;
-	unicode_index[c] = i;
-	unicode_type & type = unicode_types[i];
-	type.name = type.name_length
-	          = type.name_columns = 0;
-	type.category = UNSPECIFIED_CATEGORY;
+	unicode_type & type = new_unicode_type ( c );
+	i = unicode_index[c];
     }
 
     unicode_types[i].numerator = numerator;
@@ -401,19 +414,16 @@ void store_category ( Uchar c, unsigned char category )
 				 UNSPECIFIED_CATEGORY );
 			continue;
 		    }
+		    -- type.reference_count;
 		    unicode_index[c] = i;
+		    ++ type2.reference_count;
 		    return;
 		}
 
 		// Search failed.  Allocate new type.
 		//
-		assert (   unicode_max_index
-		         < unicode_types_size );
-		i = unicode_max_index ++;
 		unicode_type & type2 =
-		    unicode_types[i];
-		type2.name = type2.name_length
-		           = type2.name_columns = 0;
+		    new_unicode_type ( c );
 		type2.numerator = type.numerator;
 		type2.denominator = type.denominator;
 		type2.category = category;
@@ -448,6 +458,10 @@ void store_category ( Uchar c, unsigned char category )
 	    if ( type.category != category ) continue;
 	    if ( type.denominator != 0 ) continue;
 	    if ( type.name_length != 0 ) continue;
+
+	    assert ( unicode_index[c] == 0 );
+	    -- unicode_types[0].reference_count;
+	    ++ type.reference_count;
 	    unicode_index[c] = i;
 	    return;
 	}
@@ -455,14 +469,7 @@ void store_category ( Uchar c, unsigned char category )
 
     // Allocate new type.
     //
-    assert (   unicode_max_index < unicode_types_size );
-    i = unicode_max_index ++;
-    unicode_index[c] = i;
-    unicode_type & type = unicode_types[i];
-    type.name = type.name_length
-              = type.name_columns
-	      = type.numerator
-	      = type.denominator = 0;
+    unicode_type & type = new_unicode_type ( c );
     type.category = category;
 }
 
@@ -731,12 +738,14 @@ void read_general_category ( void )
 
 	unsigned char category = 0;
 	for ( int j = 0;
-	      j < number_of_category_descriptions;
+	      j < category_descriptions_size;
 	      ++ j )
 	{
 	    category_description & d =
 		category_descriptions[j];
-	    if ( strcmp ( field, d.unicode_name ) == 0 )
+	    if ( d.unicode_name != NULL
+	         &&
+		 strcmp ( field, d.unicode_name ) == 0 )
 	    {
 		category = d.category;
 		break;
@@ -827,45 +836,27 @@ void output ( void )
       "\n"
       "// Character Categories:\n"
       "//\n"
-      "# define UNICODE_CATEGORIES \\\n"
-      "   { 'U', \"Upper case letter\" }, \\\n"
-      "   { 'L', \"Lower case letter\" }, \\\n"
-      "   { 'T', \"Title case letter\" }, \\\n"
-      "   { 'M', \"Modifier letter\" }, \\\n"
-      "   { 'O', \"Other letter\" }, \\\n"
-      "   \\\n"
-      "   { 'N', \"Nonspacing mark\" }, \\\n"
-      "   { 'S', \"Spacing mark\" }, \\\n"
-      "   { 'E', \"Enclosing mark\" }, \\\n"
-      "   \\\n"
-      "   { 'D', \"Decimal number\" }, \\\n"
-      "   { 'R', \"Letter number\" }, \\\n"
-      "   { 'H', \"Other number\" }, \\\n"
-      "   \\\n"
-      "   { 'n', \"Connector punctuation\" }, \\\n"
-      "   { 'd', \"Dash punctuation\" }, \\\n"
-      "   { 'o', \"Open punctuation\" }, \\\n"
-      "   { 'c', \"Close punctuation\" }, \\\n"
-      "   { 'i', \"Initial punctuation\" }, \\\n"
-      "   { 'f', \"Final punctuation\" }, \\\n"
-      "   { 'h', \"Other punctuation\" }, \\\n"
-      "   \\\n"
-      "   { 'm', \"Math symbol\" }, \\\n"
-      "   { 'y', \"Currency symbol\" }, \\\n"
-      "   { 'r', \"Modifier symbol\" }, \\\n"
-      "   { 't', \"Other symbol\" }, \\\n"
-      "   \\\n"
-      "   { 's', \"Space Separator\" }, \\\n"
-      "   { 'l', \"Line Separator\" }, \\\n"
-      "   { 'p', \"Paragraph Separator\" }, \\\n"
-      "   \\\n"
-      "   { 'x', \"Control\" }, \\\n"
-      "   { 'z', \"Format\" }, \\\n"
-      "   { 'g', \"Surrogate\" }, \\\n"
-      "   { 'v', \"Private Use\" }, \\\n"
-      "   { 'u', \"Unassigned\" }, \\\n"
-      "   \\\n"
-      "   { 'w', \"Unspecified\" }\n"
+      "# define UNICODE_CATEGORIES \\\n";
+    for ( int j = 0;
+	  j < category_descriptions_size;
+	  ++ j )
+    {
+	category_description & d =
+	    category_descriptions[j];
+	out << "    { ";
+	if ( d.unicode_name == NULL )
+	    out << "NULL";
+	else out << '"' << d.unicode_name << '"';
+	out << ", '" << d.category << "', "
+	    << '"' << d.unicode_description << '"'
+	    << " }";
+	if ( j != category_descriptions_size - 1 )
+	    out << " \\";
+	out << endl;
+    }
+
+    out <<
+      "\n"
       "\n"
       "// The c+1'st integer in UNICODE_INDICIES\n"
       "// is the character type index of the UNICODE\n"
@@ -882,13 +873,13 @@ void output ( void )
     out << "# define UNICODE_INDICES \\\n";
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-        if ( c % 16 == 0 )
+        if ( c % 8 == 0 )
 	{
 	    if ( c > 0 ) out << ", \\" << endl;
 	    out << "    ";
 	}
 	else
-	    cout << ", ";
+	    out << ", ";
 	out << setw ( 3 ) << unicode_index[c];
     }
     out << "" << endl;
