@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 06:54:37 EDT 2014
+// Date:	Mon Jun 30 12:34:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -190,6 +190,48 @@ unicode_type & new_unicode_type ( Uchar c )
     return type;
 }
 
+void print_unicode_type ( unsigned i )
+{
+    assert ( i < unicode_max_index );
+    unicode_type & type = unicode_types[i];
+
+    cout << "type " << i << ":" << endl
+	 << "       name_length = "
+	 << (int) type.name_length << endl
+	 << "       numerator = "
+	 << type.numerator << endl
+	 << "       denominator = "
+	 << type.denominator << endl
+	 << "       category = "
+	 << type.category << endl
+	 << "       reference count = "
+	 << type.reference_count << endl;
+
+    unsigned count = 0;
+    for ( Uchar c = 0; c < unicode_index_size; ++ c )
+    {
+	if ( i != unicode_index[c] ) continue;
+
+	Uchar c2 = c + 1;
+	while ( c2 < unicode_index_size
+		&&
+		i == unicode_index[c2] )
+	    ++ c2;
+
+	count += (c2 - c );
+	if ( c2 == c + 1 )
+	    printf ( "       code = %02X\n", c );
+	else
+	    printf ( "       codes = %02X..%02X\n",
+		     c, c2-1 );
+
+	c = c2;
+    }
+    if ( count != type.reference_count )
+        cout << "    ERROR: reference count should be"
+	        " = " << count << endl;
+}
+
 // Initialize tables.  unicode_types[0] gets category
 // 'w' and 0 becomes the index for characters not
 // assigned any category, name, or numeric value.
@@ -216,17 +258,46 @@ void final_check ( void )
     }
     for ( int i = 0; i < unicode_max_index; ++ i )
     {
-        if ( count[i] > 0 ) continue;
 	unicode_type & type = unicode_types[i];
-	cout << "ERROR: unused type:" << endl
-	     << "       name_length = "
-	     << type.name_length << endl
-	     << "       numerator = "
-	     << type.numerator << endl
-	     << "       denominator = "
-	     << type.denominator << endl
-	     << "       category = "
-	     << type.category << endl;
+        if ( count[i] == type.reference_count
+	     &&
+	     ( count[i] > 0 || i == 0 )
+	     &&
+	     ( type.denominator > 0
+	       ||
+	       type.numerator ==  0 )
+	     &&
+	     type.name_columns <= type.name_length )
+           continue;
+
+	cout << "ERROR: in final check of ";
+	print_unicode_type ( i );
+
+	for ( int i2 = 0; i2 < i; ++ i2 )
+	{
+	    unicode_type & type2 = unicode_types[i2];
+	    if ( type.category != type2.category )
+	        continue;
+	    if ( type.name_length != type2.name_length )
+	        continue;
+	    if (    memcmp ( unicode_names + type.name,
+	                     unicode_names + type2.name,
+			       type.name_length
+			     * sizeof ( Uchar ) )
+	         != 0 )
+	        continue;
+	    if ( type.denominator != type2.denominator )
+	        continue;
+	    if ( type.numerator != type2.numerator )
+	        continue;
+
+	    cout << "ERROR: in final check; two"
+	            "distinct types match:" << endl;
+	    cout << "  (1) ";
+	    print_unicode_type ( i );
+	    cout << "  (2) ";
+	    print_unicode_type ( i2 );
+	}
     }
 }
 
@@ -634,19 +705,31 @@ bool read_range ( Uchar & low, Uchar & high )
 
 // Check range to be sure hi < unicode_index_size.  If
 // yes, do nothing.  If no, print error message if
-// print_on_error is true, and reset hi to unicode_
+// print_on_error is true, and reset `high' to unicode_
 // index_size in any case.
 //
-void check_range ( Uchar low, Uchar & high,
+// Return `low <= high' after any resetting of `high'.
+//
+bool check_range ( Uchar low, Uchar & high,
                    bool print_on_error = true )
 {
     if ( high >= unicode_index_size )
     {
-	if ( print_on_error )
-	    line_error ( "code above %02X used",
-			 unicode_index_size - 1 );
 	high = unicode_index_size - 1;
+	if ( print_on_error )
+	{
+	    if ( low <= high )
+		line_error ( "code above %02X used;"
+			     " range reset to"
+			     " %02X..%02X",
+			     high, low, high );
+	    else
+		line_error ( "code above %02X used;"
+			     " line ignored",
+			     unicode_index_size - 1 );
+	}
     }
+    return low <= high;
 }
 
 // Read current field into `field'.  Return true if
@@ -669,6 +752,50 @@ bool read_field ( const char * line )
     return true;
 }
 
+// Read NameAliases.txt
+//
+void read_names ( void )
+{
+    ::open ( "NameAliases.txt" );
+
+    Uchar low, high;
+    while ( read_range ( low, high ) )
+    {
+        if ( ! check_range ( low, high, false ) )
+	    continue;
+
+        const char * p = line;
+	p = skip_to_next ( p );
+	const char * q = skip_to_next ( p );
+	if ( ! read_field ( q ) )
+	{
+	    line_error ( "second field not found;"
+	                 " line ignored" );
+	    continue;
+	}
+	if ( strcmp ( field, "abbreviation" ) != 0 )
+	    continue;
+	if ( ! read_field ( p ) )
+	{
+	    line_error ( "first field not found;"
+	                 " line ignored" );
+	    continue;
+	}
+	if ( low < high )
+	{
+	    line_error ( "multiple characters given the"
+	                 " same name; line ignored" );
+	    continue;
+	}
+	else if ( low > high )
+	    continue;
+
+	store_name ( low, field );
+    }
+
+    ::close();
+}
+
 // Read DerivedNumericValues.txt.
 //
 void read_numeric_values ( void )
@@ -678,7 +805,8 @@ void read_numeric_values ( void )
     Uchar low, high;
     while ( read_range ( low, high ) )
     {
-        check_range ( low, high );
+        if ( ! check_range ( low, high ) )
+	    continue;
 
         const char * p = line;
 	p = skip_to_next ( p );
@@ -763,7 +891,9 @@ void read_general_category ( void )
 	    strcmp ( field, "Co" ) != 0
 	    &&
 	    strcmp ( field, "Cn" ) != 0;
-	check_range ( low, high, print_on_error );
+	if ( ! check_range ( low, high,
+	                     print_on_error ) )
+	    continue;
 
 	for ( Uchar c = low; c <= high; ++ c  )
 	    store_category ( c, category );
@@ -781,7 +911,8 @@ void read_combining_class ( void )
     Uchar low, high;
     while ( read_range ( low, high ) )
     {
-        check_range ( low, high );
+        if ( ! check_range ( low, high, false ) )
+	    continue;
 
         const char * p = line;
 	p = skip_to_next ( p );
@@ -818,10 +949,10 @@ void read_combining_class ( void )
 
 void output ( void )
 {
-    ofstream out ( "unicode_types.h" );
+    ofstream out ( "unicode_types.cc" );
     if ( ! out )
     {
-        cout << "ERROR: could not open unicode_types.h"
+        cout << "ERROR: could not open unicode_types.cc"
 	        " for output" << endl;
 	exit ( 1 );
     }
@@ -830,7 +961,7 @@ void output ( void )
     out <<
       "// UNICODE Character Type Data\n"
       "//\n"
-      "// File:	unicode_types.h\n"
+      "// File:	unicode_types.cc\n"
       "\n"
       "// Generated by make_unicode_types.cc\n"
       "\n"
@@ -894,6 +1025,7 @@ int main ( int argc, const char ** argv )
     cout << setiosflags ( ios_base::uppercase );
 
     initialize();
+    read_names();
     read_numeric_values();
     read_general_category();
     read_combining_class();
