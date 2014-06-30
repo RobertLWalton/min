@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jul 22 07:03:32 EDT 2012
+# Date:		Mon Jun 30 16:43:34 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -172,6 +172,13 @@ min_os_test.dump:	min_os_test
 min_acc_test.out:	\
 	RUNENV = \
 	    MIN_CONFIG="debug=pmc"
+
+min_unicode.o:	../src/min_unicode.cc \
+		../include/min_unicode.h \
+		../unicode/unicode_types.cc
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -c ../src/min_unicode.cc \
 
 
 ${INTERFACE_PROGRAMS}:		\
