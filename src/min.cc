@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 28 17:08:33 EDT 2014
+// Date:	Tue Jul  1 13:10:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,13 +59,6 @@ min::locatable_stub_ptr *
     MINT::locatable_stub_ptr_last = NULL;
 min::locatable_gen *
     MINT::locatable_gen_last = NULL;
-
-# include "../unicode/unicode_class.h"
-
-min::uns8 MINT::unicode_class[UNICODE_CLASS_SIZE+1] =
-    UNICODE_CLASS;
-min::uns32 MINT::unicode_class_size =
-    UNICODE_CLASS_SIZE;
 
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
@@ -197,18 +190,6 @@ static void init_default_suppress_matrix ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
-
-    for ( min::uns32 i = 0; i < 256; ++ i )
-    {
-        if ( MINT::unicode_class[i] == 'L' )
-	    continue;
-        if ( MINT::unicode_class[i] == 'U' )
-	    continue;
-	MINT::unicode_class[i] = i;
-    }
-
-    // Unicode class must be initialized before default
-    // suppress matrix is initialized.
 
     init_default_char_names();
     init_default_suppress_matrix();
