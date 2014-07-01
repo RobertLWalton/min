@@ -1,5 +1,40 @@
 ==================== UNICODE DATA DUMP:
 
+
+CATEGORIES:
+
+Lu  U  Upper case letter
+Ll  L  Lower case letter
+Lt  T  Title case letter
+Lm  M  Modifier letter
+Lo  O  Other letter
+Mn  N  Nonspacing mark
+Mc  S  Spacing mark
+Me  E  Enclosing mark
+Nd  D  Decimal number
+Nl  R  Letter number
+No  H  Other number
+Pc  n  Connector punctuation
+Pd  d  Dash punctuation
+Ps  o  Open punctuation
+Pe  c  Close punctuation
+Pi  i  Initial punctuation
+Pf  f  Final punctuation
+Po  h  Other punctuation
+Sm  m  Math symbol
+Sc  y  Currency symbol
+Sk  r  Modifier symbol
+So  t  Other symbol
+Zs  s  Space Separator
+Zl  l  Line Separator
+Zp  p  Paragraph Separator
+Cc  x  Control
+Cf  z  Format
+Cs  g  Surrogate
+Co  v  Private Use
+Cn  u  Unassigned
+    w  Unspecified
+
 type 0:
        name_length = 0
        name_columns = 0
