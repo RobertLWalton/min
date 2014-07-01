@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jun 30 15:40:07 EDT 2014
+# Date:		Mon Jun 30 22:12:27 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -37,7 +37,8 @@ ${NAMES}:
 	rm -f $@
 	curl ${FROM}/$@ >$@
 
-make_unicode_types:	make_unicode_types.cc
+make_unicode_types:	make_unicode_types.cc \
+			output_unicode_types.cc
 	rm -f make_unicode_types
 	g++ ${WFLAGS} -o make_unicode_types \
 	    make_unicode_types.cc
