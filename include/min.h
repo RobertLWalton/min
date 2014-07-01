@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 28 12:30:33 EDT 2014
+// Date:	Tue Jul  1 13:04:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,7 @@
 // Include parameters.
 //
 # include "min_parameters.h"
+# include "min_unicode.h"
 # include <iostream>
 # include <climits>
 # include <cstring>
@@ -4107,16 +4108,14 @@ namespace min {
     	  const min::uns32 * & u,
 	  const min::uns32 * endu );
 
-    namespace internal {
-        extern min::uns8 unicode_class[];
-	extern min::uns32 unicode_class_size;
-    }
-
     inline min::uns8 unicode_class ( uns32 c )
     {
 	return
-	    c < internal::unicode_class_size ?
-	        internal::unicode_class[c] : 'w';
+	    c < unicode::unicode_index_size ?
+	        unicode::unicode_types
+		    [unicode::unicode_index[c]]
+		        .category :
+		'w';
     }
 }
 

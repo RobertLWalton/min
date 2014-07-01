@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul  1 06:53:04 EDT 2014
+# Date:		Tue Jul  1 12:40:36 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -26,7 +26,7 @@ WFLAGS = -Wall -Wextra \
 INCLUDE_FILES = \
 	../include/min_parameters.h \
 	../include/min.h \
-	../unicode/unicode_class.h
+	../include/min_unicode.h
 
 LIBRARIES =
 
@@ -38,6 +38,8 @@ INTERFACE_PROGRAMS = \
     ${foreach c,${TEST_CASES},min_interface_test_$c} 
 OS_PROGRAMS = \
     min_os_test
+UNICODE_PROGRAMS = \
+    min_unicode_test
 BUILTIN_PROGRAMS = \
     min_builtin_test min_builtin_replacement_test
 ACC_PROGRAMS = \
@@ -47,6 +49,7 @@ OPTIMIZATION_NON_PROGRAMS = \
 
 PROGRAMS = ${INTERFACE_PROGRAMS} \
            ${OS_PROGRAMS} \
+           ${UNICODE_PROGRAMS} \
            ${BUILTIN_PROGRAMS} \
            ${ACC_PROGRAMS}
 
@@ -189,16 +192,36 @@ min_unicode_test:	min_unicode_test.cc \
 	    -o min_unicode_test \
 	    min_unicode_test.cc min_unicode.o
 
+min_unicode_test.code \
+min_unicode_test.dump:	min_unicode_test
+	rm -rf min_unicode_test.code \
+	       min_unicode_test.dump
+	min_unicode_test
 
+min_unicode_test.diff:	../unicode/unicode_types.cc \
+			../unicode/unicode_types.dump \
+			min_unicode_test.code \
+			min_unicode_test.dump
+	@echo DIFFING ../unicode/unicode_types.cc \
+	              min_unicode_test.code
+	-@diff --minimal \
+	              ../unicode/unicode_types.cc \
+	              min_unicode_test.code
+	@echo DIFFING ../unicode/unicode_types.dump \
+	              min_unicode_test.dump
+	-@diff --minimal \
+	              ../unicode/unicode_types.dump \
+	              min_unicode_test.dump
 
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \
-		${INCLUDE_FILES} Makefile
+		min_unicode.o ${INCLUDE_FILES} Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_interface_test.cc \
-	    ../src/min.cc ../src/min_os.cc
+	    ../src/min.cc ../src/min_os.cc \
+	    min_unicode.o
 
 min_os_test:		\
 		min_os_test.cc \
@@ -231,11 +254,14 @@ min_acc_test:		\
 		../src/min_acc.cc \
 		../include/min_acc.h \
 		../include/min_acc_parameters.h \
-		${INCLUDE_FILES} Makefile
+		${INCLUDE_FILES} Makefile \
+		../src/min.cc ../src/min_os.cc \
+		min_unicode.o
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    ../src/min_acc.cc ../src/min.cc \
+	    min_unicode.o \
 	    ../src/min_os.cc min_acc_test.cc
 
 min_relocation_optimization_test.out:	\
@@ -249,4 +275,5 @@ min_relocation_optimization_test.out:	\
 	   min_relocation_optimization_test.out
 
 clean:
-	rm -f ${PROGRAMS} ${PROGRAMS:=.out} min.o
+	rm -f ${PROGRAMS} ${TESTS:=.out} \
+	      *.dump *.code *.o
