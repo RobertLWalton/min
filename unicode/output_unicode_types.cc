@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 22:02:18 EDT 2014
+// Date:	Tue Jul  1 04:40:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,73 +17,108 @@
 // entries pointing at it, and print its name (if any)
 // from unicode_names.
 //
-void print_unicode_type ( unsigned i )
+void print_unicode_type
+	( unsigned t, ostream & out = cout )
 {
-    assert ( i < unicode_max_index );
-    unicode_type & type = unicode_types[i];
+    assert ( t < unicode_max_index );
+    unicode_type & type = unicode_types[t];
 
-    cout << "type " << i << ":" << endl;
+    out << "type " << t << ":" << endl;
     if ( type.name_length > 0 )
     {
-        cout << "       name = `";
-	for ( i = 0; i < type.name_length; ++ i )
+        out << "       name = `";
+	for ( unsigned i = 0; i < type.name_length;
+	                      ++ i )
 	{
 	    Uchar c = unicode_names[type.name+i];
 	    assert ( ' ' < c && c < 0xFF );
 	        // Currently only ASCII names are
 		// supported.
-	    cout << (char) c;
+	    out << (char) c;
 	}
-	cout << "'" << endl;
+	out << "'" << endl;
     }
-    cout << "       name_length = "
-	 << (int) type.name_length << endl
-	 << "       name_columns = "
-	 << (int) type.name_columns << endl
-	 << "       numerator = "
-	 << type.numerator << endl
-	 << "       denominator = "
-	 << type.denominator << endl
-	 << "       category = "
-	 << type.category << endl
-	 << "       reference count = "
-	 << type.reference_count << endl;
+    char category[100];
+    sprintf ( category, "0x%02X", type.category );
+    if (    type.category < 127
+         && isgraph ( type.category ) )
+    {
+	char * p = category + strlen ( category );
+	sprintf ( p, " = %c", (char) type.category );
+    }
+
+    out << "       name_length = "
+	<< (int) type.name_length << endl
+	<< "       name_columns = "
+	<< (int) type.name_columns << endl
+	<< "       numerator = "
+	<< type.numerator << endl
+	<< "       denominator = "
+	<< type.denominator << endl
+	<< "       category = "
+	<< category << endl
+	<< "       reference count = "
+	<< type.reference_count << endl;
 
     unsigned count = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-	if ( i != unicode_index[c] ) continue;
+	if ( t != unicode_index[c] ) continue;
 
 	Uchar c2 = c + 1;
 	while ( c2 < unicode_index_size
 		&&
-		i == unicode_index[c2] )
+		t == unicode_index[c2] )
 	    ++ c2;
 
 	count += (c2 - c );
+	char buffer[200];
 	if ( c2 == c + 1 )
-	    printf ( "       code = %02X\n", c );
+	    sprintf ( buffer,
+	              "       code = %02X", c );
 	else
-	    printf ( "       codes = %02X..%02X\n",
-		     c, c2-1 );
+	    sprintf ( buffer,
+	              "       codes = %02X..%02X",
+		      c, c2-1 );
+	out << buffer << endl;
 
 	c = c2;
     }
     if ( count != type.reference_count )
-        cout << "    ERROR: reference count should be"
-	        " = " << count << endl;
+        out << "    ERROR: reference count should be"
+	       " = " << count << endl;
 }
 
-void output ( void )
+void dump ( const char * filename )
 {
-    ofstream out ( "unicode_types.cc" );
+    ofstream out ( filename );
     if ( ! out )
     {
-        cout << "ERROR: could not open unicode_types.cc"
-	        " for output" << endl;
+        cout << "ERROR: could not open " << filename
+	     << " for output" << endl;
 	exit ( 1 );
     }
-    out << setiosflags ( ios_base::uppercase );
+    out << "==================== UNICODE DATA DUMP:"
+	<< endl;
+
+    for ( unsigned t = 0; t < unicode_max_index; ++ t )
+    {
+	out << endl;
+        print_unicode_type ( t, out );
+    }
+
+    out.close();
+}
+
+void output ( const char * filename )
+{
+    ofstream out ( filename );
+    if ( ! out )
+    {
+        cout << "ERROR: could not open " << filename
+	     << " for output" << endl;
+	exit ( 1 );
+    }
 
     out <<
       "// UNICODE Character Type Data\n"
