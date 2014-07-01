@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 06:08:51 EDT 2014
+// Date:	Tue Jul  1 06:57:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -24,7 +24,8 @@ void print_categories ( ostream & out = cout )
     for ( unsigned i = 0; i < unicode_categories_size;
                           ++ i )
     {
-        unicode_category & cat = unicode_categories[i];
+        const unicode_category & cat =
+	    unicode_categories[i];
         out << ( cat.unicode_name == NULL ? "  " :
 	         cat.unicode_name )
 	    << "  " << cat.category
@@ -41,7 +42,7 @@ void print_unicode_type
 	( unsigned t, ostream & out = cout )
 {
     assert ( t < unicode_types_size );
-    unicode_type & type = unicode_types[t];
+    const unicode_type & type = unicode_types[t];
 
     out << "type " << t << ":" << endl;
     if ( type.name_length > 0 )
@@ -165,7 +166,8 @@ void output ( const char * filename )
     for ( unsigned j = 0; j < unicode_categories_size;
                           ++ j )
     {
-	unicode_category & d = unicode_categories[j];
+	const unicode_category & d =
+	    unicode_categories[j];
 	if ( j != 0 ) out << ",";
 	out << " \\\n    { ";
 	if ( d.unicode_name == NULL )
@@ -190,7 +192,7 @@ void output ( const char * filename )
 
     for ( unsigned t = 0; t < unicode_types_size; ++ t )
     {
-	unicode_type & type = unicode_types[t];
+	const unicode_type & type = unicode_types[t];
 	char category[20];
 	sprintf ( category, "%02X",
 	          (short) type.category );
@@ -268,7 +270,7 @@ void final_check ( void )
     }
     for ( unsigned i = 0; i < unicode_types_size; ++ i )
     {
-	unicode_type & type = unicode_types[i];
+	const unicode_type & type = unicode_types[i];
         if ( count[i] == type.reference_count
 	     &&
 	     ( count[i] > 0 || i == 0 )
@@ -285,7 +287,8 @@ void final_check ( void )
 
 	for ( unsigned i2 = 0; i2 < i; ++ i2 )
 	{
-	    unicode_type & type2 = unicode_types[i2];
+	    const unicode_type & type2 =
+	        unicode_types[i2];
 	    if ( type.category != type2.category )
 	        continue;
 	    if ( type.name_length != type2.name_length )
