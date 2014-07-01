@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jun 30 22:12:27 EDT 2014
+# Date:		Tue Jul  1 05:28:09 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,7 +23,9 @@ DERIVED = DerivedCombiningClass.txt \
 NAMES = NameAliases.txt
 
 
-all:	make_unicode_types.diff utf8look
+all:	make_unicode_types.diff \
+	unicode_types.dump \
+	utf8look
 
 curl:
 	rm -f ${DERIVED} ${NAMES}
@@ -59,6 +61,10 @@ make_unicode_types.diff:	make_unicode_types.out
 	             make_unicode_types.out
 	@diff make_unicode_types.test \
 	      make_unicode_types.out
+
+unicode_types.dump:	make_unicode_types
+	rm -f unicode_types.dump
+	make_unicode_types unicode_types.dump
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode

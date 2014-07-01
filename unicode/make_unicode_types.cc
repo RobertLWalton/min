@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 21:59:30 EDT 2014
+// Date:	Tue Jul  1 04:50:30 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -919,5 +919,8 @@ int main ( int argc, const char ** argv )
     read_general_category();
     read_combining_class();
     final_check();
-    output();
+    if ( argc > 1 )
+        dump ( argv[1] );
+    else
+	output ( "unicode_types.cc" );
 }
