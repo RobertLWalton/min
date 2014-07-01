@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 06:57:25 EDT 2014
+// Date:	Tue Jul  1 12:32:50 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,7 @@
 // This file contains routines to check and output the
 // MIN UNICODE database.  This file is to be `#include'd
 // in other files such as make_unicode_types.cc and
-// test_unicode_types.cc.
+// min_unicode_test.cc.
 
 // Print unicode_categories.
 //

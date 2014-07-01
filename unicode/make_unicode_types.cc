@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 06:05:43 EDT 2014
+// Date:	Tue Jul  1 11:14:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,14 +49,12 @@ unsigned short unicode_index[unicode_index_size];
     // unicode_types[unicode_index[c]] is the type of c.
     //
     // Each character with a name has its own private
-    // type.  The types of other characters are shared
-    // so all characters with no name but with the same
-    // category and numeric value (which may be missing)
-    // have the same type.  Note that as each character
-    // c < 256 that is not a letter or digit and that
-    // does not have a name is its own category, this
-    // means that all these characters have their own
-    // private type.
+    // type.  Each character c < 256 that is not a
+    // letter < 127 has its own private type.  The types
+    // of other characters are shared so all characters
+    // with no name but with the same category and
+    // numeric value (which may be missing) have the
+    // same type.
 
 const unsigned unicode_types_max_size = 512;
 struct unicode_type
@@ -71,8 +69,7 @@ struct unicode_type
 	// below for general categories.  However, as an
 	// exception, characters c < 256 are their own
 	// categories (i.e., the category of `+' is `+')
-	// if they are not a letter or digit and do not
-	// have a name (i.e., are not SP or DEL, etc.).
+	// if they are not a letter < 127.
 
     unsigned short name;
     unsigned char name_length;
@@ -343,6 +340,19 @@ void store_category ( Uchar c, unsigned char category )
 {
     assert ( c < unicode_index_size );
 
+    if ( c < 256 && ( c < 'A' || 'Z' < c )
+		 && ( c < 'a' || 'z' <= c ) )
+    {
+        assert (    category != 'N'
+	         && category != 'S'
+		 && category !='E' );
+	    // Replacing spacing mark categories will
+	    // get us into trouble when DerivedCombin-
+	    // ingClass.txt is read.
+
+        category = c;
+    }
+
     unsigned i = unicode_index[c];
     if ( i != 0 )
     {
@@ -417,30 +427,21 @@ void store_category ( Uchar c, unsigned char category )
 	return;
     }
 
-    if ( c < 256 && category != 'L' && category != 'U' )
+    // Search for a type with the same category
+    // value and no name, denominator, or numerator.
+    //
+    for ( i = 0; i < unicode_types_size; ++ i )
     {
-        assert ( ! isdigit ( c ) );
-        assert ( ! isalpha ( c ) );
-	category = c;
-    }
-    else
-    {
-	// Search for a type with the same category
-	// value and no name, denominator, or numerator.
-	//
-	for ( i = 0; i < unicode_types_size; ++ i )
-	{
-	    unicode_type & type = unicode_types[i];
-	    if ( type.category != category ) continue;
-	    if ( type.denominator != 0 ) continue;
-	    if ( type.name_length != 0 ) continue;
+	unicode_type & type = unicode_types[i];
+	if ( type.category != category ) continue;
+	if ( type.denominator != 0 ) continue;
+	if ( type.name_length != 0 ) continue;
 
-	    assert ( unicode_index[c] == 0 );
-	    -- unicode_types[0].reference_count;
-	    ++ type.reference_count;
-	    unicode_index[c] = i;
-	    return;
-	}
+	assert ( unicode_index[c] == 0 );
+	-- unicode_types[0].reference_count;
+	++ type.reference_count;
+	unicode_index[c] = i;
+	return;
     }
 
     // Allocate new type.
