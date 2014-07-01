@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jun 30 16:43:34 EDT 2014
+# Date:		Tue Jul  1 06:53:04 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -176,9 +176,19 @@ min_acc_test.out:	\
 min_unicode.o:	../src/min_unicode.cc \
 		../include/min_unicode.h \
 		../unicode/unicode_types.cc
+	rm -f min_unicode.o
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -c ../src/min_unicode.cc \
+
+min_unicode_test:	min_unicode_test.cc \
+			min_unicode.o
+	rm -f min_unicode_test
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -o min_unicode_test \
+	    min_unicode_test.cc min_unicode.o
+
 
 
 ${INTERFACE_PROGRAMS}:		\
