@@ -2,16 +2,36 @@
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 04:40:06 EDT 2014
+// Date:	Tue Jul  1 06:08:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// This file contains routines to output the MIN UNICODE
-// database.  This file is to be `#include'd in other
-// files such as make_unicode_types.cc and test_unicode_
-// types.cc.
+// This file contains routines to check and output the
+// MIN UNICODE database.  This file is to be `#include'd
+// in other files such as make_unicode_types.cc and
+// test_unicode_types.cc.
+
+// Print unicode_categories.
+//
+void print_categories ( ostream & out = cout )
+{
+    out << endl
+        << "CATEGORIES:"
+	<< endl
+	<< endl;
+    for ( unsigned i = 0; i < unicode_categories_size;
+                          ++ i )
+    {
+        unicode_category & cat = unicode_categories[i];
+        out << ( cat.unicode_name == NULL ? "  " :
+	         cat.unicode_name )
+	    << "  " << cat.category
+	    << "  " << cat.unicode_description
+	    << endl;
+    }
+}
 
 // Print unicode_types[i], list the unicode_index
 // entries pointing at it, and print its name (if any)
@@ -20,7 +40,7 @@
 void print_unicode_type
 	( unsigned t, ostream & out = cout )
 {
-    assert ( t < unicode_max_index );
+    assert ( t < unicode_types_size );
     unicode_type & type = unicode_types[t];
 
     out << "type " << t << ":" << endl;
@@ -101,7 +121,10 @@ void dump ( const char * filename )
     out << "==================== UNICODE DATA DUMP:"
 	<< endl;
 
-    for ( unsigned t = 0; t < unicode_max_index; ++ t )
+    out << endl;
+    print_categories ( out );
+
+    for ( unsigned t = 0; t < unicode_types_size; ++ t )
     {
 	out << endl;
         print_unicode_type ( t, out );
@@ -161,11 +184,11 @@ void output ( const char * filename )
       "// TYPES_SIZE is the size of the vector.\n";
 
     out << endl << "# define UNICODE_TYPES_SIZE "
-        << unicode_max_index << endl;
+        << unicode_types_size << endl;
 
     out << endl << "# define UNICODE_TYPES";
 
-    for ( unsigned t = 0; t < unicode_max_index; ++ t )
+    for ( unsigned t = 0; t < unicode_types_size; ++ t )
     {
 	unicode_type & type = unicode_types[t];
 	char category[20];
@@ -228,4 +251,62 @@ void output ( const char * filename )
     out << endl;
 
     out.close();
+}
+
+// Do some integrity checking of the tables.
+//
+void final_check ( void )
+{
+    unsigned count[unicode_types_size];
+    for ( unsigned i = 0; i < unicode_types_size; ++ i )
+        count[i] = 0;
+    for ( Uchar c = 0; c < unicode_index_size; ++ c )
+    {
+        unsigned i = unicode_index[c];
+	assert ( i < unicode_types_size );
+        ++ count[i];
+    }
+    for ( unsigned i = 0; i < unicode_types_size; ++ i )
+    {
+	unicode_type & type = unicode_types[i];
+        if ( count[i] == type.reference_count
+	     &&
+	     ( count[i] > 0 || i == 0 )
+	     &&
+	     ( type.denominator > 0
+	       ||
+	       type.numerator ==  0 )
+	     &&
+	     type.name_columns <= type.name_length )
+           continue;
+
+	cout << "ERROR: in final check of ";
+	print_unicode_type ( i );
+
+	for ( unsigned i2 = 0; i2 < i; ++ i2 )
+	{
+	    unicode_type & type2 = unicode_types[i2];
+	    if ( type.category != type2.category )
+	        continue;
+	    if ( type.name_length != type2.name_length )
+	        continue;
+	    if (    memcmp ( unicode_names + type.name,
+	                     unicode_names + type2.name,
+			       type.name_length
+			     * sizeof ( Uchar ) )
+	         != 0 )
+	        continue;
+	    if ( type.denominator != type2.denominator )
+	        continue;
+	    if ( type.numerator != type2.numerator )
+	        continue;
+
+	    cout << "ERROR: in final check; two"
+	            "distinct types match:" << endl;
+	    cout << "  (1) ";
+	    print_unicode_type ( i );
+	    cout << "  (2) ";
+	    print_unicode_type ( i2 );
+	}
+    }
 }

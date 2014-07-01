@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 04:50:30 EDT 2014
+// Date:	Tue Jul  1 06:05:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,7 +58,7 @@ unsigned short unicode_index[unicode_index_size];
     // means that all these characters have their own
     // private type.
 
-const unsigned unicode_types_size = 512;
+const unsigned unicode_types_max_size = 512;
 struct unicode_type
     // unicode_types[unicode_index[c]] is the type c.
     //
@@ -100,13 +100,14 @@ struct unicode_type
         // Number of index entries pointing at this
 	// type.  Just used for integrity checking.
 
-} unicode_types[unicode_types_size];
-unsigned unicode_max_index = 0;
-    // unicode_max_index is maximum character index and
+} unicode_types[unicode_types_max_size];
+unsigned unicode_types_size = 0;
+    // unicode_types_size is maximum character index and
     // therefore is the number of unicode_types elements
     // actually used.
 
-Uchar unicode_names[16000];
+const unsigned unicode_names_max_size = 16000;
+Uchar unicode_names[unicode_names_max_size];
 unsigned unicode_names_size = 0;
     // See unicode_type.  unicode_names_size is number
     // of elements of unicode_names actually used.
@@ -174,11 +175,11 @@ const unsigned char UNSPECIFIED_CATEGORY = 'w';
 unicode_type & new_unicode_type ( Uchar c )
 {
     assert
-	( unicode_max_index < unicode_types_size );
+	( unicode_types_size < unicode_types_max_size );
 
     unsigned i = unicode_index[c];
     -- unicode_types[i].reference_count;
-    i = unicode_max_index ++;
+    i = unicode_types_size ++;
     unicode_index[c] = i;
 
     unicode_type & type = unicode_types[i];
@@ -198,67 +199,9 @@ unicode_type & new_unicode_type ( Uchar c )
 //
 void initialize ( void )
 {
-    assert ( unicode_max_index == 0 );
+    assert ( unicode_types_size == 0 );
     unicode_type & type = new_unicode_type ( 0 );
     type.reference_count = unicode_index_size;
-}
-
-// Do some integrity checking of the tables.
-//
-void final_check ( void )
-{
-    unsigned count[unicode_max_index];
-    for ( unsigned i = 0; i < unicode_max_index; ++ i )
-        count[i] = 0;
-    for ( Uchar c = 0; c < unicode_index_size; ++ c )
-    {
-        unsigned i = unicode_index[c];
-	assert ( i < unicode_max_index );
-        ++ count[i];
-    }
-    for ( unsigned i = 0; i < unicode_max_index; ++ i )
-    {
-	unicode_type & type = unicode_types[i];
-        if ( count[i] == type.reference_count
-	     &&
-	     ( count[i] > 0 || i == 0 )
-	     &&
-	     ( type.denominator > 0
-	       ||
-	       type.numerator ==  0 )
-	     &&
-	     type.name_columns <= type.name_length )
-           continue;
-
-	cout << "ERROR: in final check of ";
-	print_unicode_type ( i );
-
-	for ( unsigned i2 = 0; i2 < i; ++ i2 )
-	{
-	    unicode_type & type2 = unicode_types[i2];
-	    if ( type.category != type2.category )
-	        continue;
-	    if ( type.name_length != type2.name_length )
-	        continue;
-	    if (    memcmp ( unicode_names + type.name,
-	                     unicode_names + type2.name,
-			       type.name_length
-			     * sizeof ( Uchar ) )
-	         != 0 )
-	        continue;
-	    if ( type.denominator != type2.denominator )
-	        continue;
-	    if ( type.numerator != type2.numerator )
-	        continue;
-
-	    cout << "ERROR: in final check; two"
-	            "distinct types match:" << endl;
-	    cout << "  (1) ";
-	    print_unicode_type ( i );
-	    cout << "  (2) ";
-	    print_unicode_type ( i2 );
-	}
-    }
 }
 
 // Store UNICODE name for a character.  Complain if
@@ -296,12 +239,14 @@ void store_name ( Uchar c, const char * name )
     type.name = unicode_names_size;
     type.name_length = name_length;
     type.name_columns = name_length;
+    assert (    unicode_names_size + name_length
+             <= unicode_names_max_size );
     for ( unsigned j = 0; j < name_length; ++ j )
         unicode_names[unicode_names_size++] = name[j];
 
     // Check for name being used more than once.
     //
-    for ( unsigned i = 0; i < unicode_max_index - 1;
+    for ( unsigned i = 0; i < unicode_types_size - 1;
                           ++ i )
     {
         unicode_type & type2 = unicode_types[i];
@@ -359,7 +304,7 @@ void store_numeric_value
 	// Search for a type with the same numeric
 	// value and no name.
 	//
-	for ( i = 0; i < unicode_max_index; ++ i )
+	for ( i = 0; i < unicode_types_size; ++ i )
 	{
 	    unicode_type & type = unicode_types[i];
 	    if ( type.name_length > 0 )
@@ -425,7 +370,7 @@ void store_category ( Uchar c, unsigned char category )
 		// with the same numeric value and the
 		// new category, or make such a type.
 		//
-		for ( i = 0; i < unicode_max_index;
+		for ( i = 0; i < unicode_types_size;
 		             ++ i )
 		{
 		    unicode_type & type2 =
@@ -483,7 +428,7 @@ void store_category ( Uchar c, unsigned char category )
 	// Search for a type with the same category
 	// value and no name, denominator, or numerator.
 	//
-	for ( i = 0; i < unicode_max_index; ++ i )
+	for ( i = 0; i < unicode_types_size; ++ i )
 	{
 	    unicode_type & type = unicode_types[i];
 	    if ( type.category != category ) continue;

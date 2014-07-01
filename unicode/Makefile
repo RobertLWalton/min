@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul  1 05:28:09 EDT 2014
+# Date:		Tue Jul  1 05:35:55 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -108,5 +108,10 @@ latin1-latin1:	latin1look
 
 clean:
 	rm -f make_unicode_types.out \
-	      make_unicode_types utf8look latin1look \
-	      print_unicode
+	      make_unicode_types \
+	      utf8look \
+	      latin1look \
+	      print_unicode \
+	      unicode_types.cc \
+	      unicode_types.dump
+
