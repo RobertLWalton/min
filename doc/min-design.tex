@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 28, 2014}
+\date{July 2, 2014}
  
 \maketitle
 
@@ -552,6 +552,7 @@ the size of each number is clear:
 \minkey{unsgen}	& unsigned integer of same length as a general value
                   (32 or 64 bits, see \itemref{GENERAL-VALUES})
                   \\
+\minkey{Uchar}	& unsigned 32-bit integer (used as UNICODE character) \\
 \end{tabular}
 \end{center}%
 \LABEL{MIN::UNS8}%
@@ -567,6 +568,7 @@ the size of each number is clear:
 \LABEL{MIN::UNSPTR}%
 \LABEL{MIN::INTPTR}%
 \LABEL{MIN::UNSGEN}%
+\LABEL{MIN::UCHAR}%
 \label{INT}%
 \label{UNS}
 
@@ -3471,21 +3473,21 @@ vectors of UNICODE characters:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( const min::uns32 * p, min::unsptr n )|
+      \verb|( const min::Uchar * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( min::ptr<const min::uns32> p, min::unsptr n )|
+      \verb|( min::ptr<const min::Uchar> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_CONST_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( min::ptr<min::uns32> p, min::unsptr n )|
+      \verb|( min::ptr<min::Uchar> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
 
-Here UNICODE characters are represented as \TT{min::uns32} values,
+Here UNICODE characters are represented as \TT{min::Uchar} values,
 and the strings are \underline{not} terminated by a zero
-\TT{min::uns32} value, which is encoded as
+\TT{min::Uchar} value, which is encoded as
 the 2 string bytes `\TT{0xC0,0x80}'
 using modified UTF-8 (\pagref{MODIFIED-UTF-8}).
 
@@ -3493,16 +3495,16 @@ The following may be used to convert between UNICODE
 characters and \key{UTF-8} strings:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::|
+\verb|const min::Uchar min::|
     & \MINKEY{UTF8\_ILLEGAL}
 \LABEL{MIN::UTF8_ILLEGAL} \\
-\verb|min::uns32 min::|
+\verb|min::Uchar min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_TO_UNICODE} \\
 \verb|min::unsptr min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb|( char * & s, min::uns32 c )|
+      \verb|( char * & s, min::Uchar c )|
 \LABEL{MIN::UNICODE_TO_UTF8} \\
 \end{tabular}\end{indpar}
 
@@ -3553,14 +3555,14 @@ of UTF-8 encoded characters by the functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( min::uns32 * & u, const min::uns32 * endu,|\ARGBREAK
+      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
       \verb|  const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
 \verb|min::unsptr min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
       \verb| ( char * & s, const char * ends,|\ARGBREAK
-      \verb|   const min::uns32 * & u,|\ARGBREAK
-      \verb|   const min::uns32 * endu )|
+      \verb|   const min::Uchar * & u,|\ARGBREAK
+      \verb|   const min::Uchar * endu )|
 \LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
 \end{tabular}\end{indpar}
 
@@ -3577,19 +3579,19 @@ while \TT{s < ends} and \TT{u < endu} provided the
 next repetion will \underline{not} end with \TT{s > ends}
 (so the \TT{s} string end will not be overrun).
 Both these functions increment both \TT{s} and \TT{u} and return
-the number of string elements, \TT{min::uns32}'s or \TT{char}'s respectively,
+the number of string elements, \TT{min::Uchar}'s or \TT{char}'s respectively,
 written.
 
 It is sometimes useful to divide UNICODE characters into
-\skey{UNICODE class}{es}.  The function
+\ikey{UNICODE categories}{UNICODE category}.  The function
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns8 min::| & \MINKEY{unicode\_class} \verb|( min::uns32 c )|
-\LABEL{MIN::UNICODE_CLASS}
+\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
+\LABEL{MIN::UNICODE_CATEGORY}
 \end{tabular}\end{indpar}
 
-returns the UNICODE class of the UNICODE character \TT{c}.
-The UNICODE classes of all
+returns the UNICODE category of the UNICODE character \TT{c}.
+The UNICODE categories of all
 ASCII and LATIN-1\footnote{
 \raggedright
 Note that some possibly useful LATIN-1 non-letter characters
@@ -3646,27 +3648,25 @@ composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
 LATIN-1 control codes cannot currently be input and have
 no special MIN support for output.}
 characters (characters with codes \TT{< 256})
-are the characters themselves, e.g., the UNICODE class of
+are the characters themselves, e.g., the UNICODE category of
 `\TT{*}' is \TT{'*'}, \underline{except}:
 \begin{center}
 \begin{tabular}{l@{~}l}
-\TT{'U'} & is the class of upper case letters; \\
+\TT{'U'} & is the category of upper case letters; \\
            & \TT{A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
 	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
-\TT{'L'} & is the class of lower case letters; \\
+\TT{'L'} & is the category of lower case letters; \\
            & \TT{a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
 	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
 \end{tabular}
 \end{center}
 
-The UNICODE class of a character with code \TT{>= 256} is determined
-by the UNICODE character `\mkey{general category}{UNICODE}' and the
-UNICODE character `\mkey{numeric value}{UNICODE}'.
-If the numeric value is a single
-decimal digit, this becomes the UNICODE class of the character.
-Otherwise the general category of the character is encoded
-in a UNICODE class that is a single ASCII letter as indicated
-on Figure~\ref{UNICODE-CLASSES}.
+The UNICODE category of a character with code \TT{>= 256} is determined
+by the UNICODE character `\mkey{general category}{UNICODE}'.
+The general category of the character is encoded
+in a \TT{min::\EOL unicode\_\EOL category} value
+that is a single ASCII letter as indicated
+on Figure~\ref{UNICODE-CATEGORIES}.
 
 \begin{boxedfigure}
 \small
@@ -3716,8 +3716,8 @@ on Figure~\ref{UNICODE-CLASSES}.
 \end{tabular}
 \end{tabular}
 \end{center}
-\caption{\TT{min::unicode\_class} values}
-\label{UNICODE-CLASSES}
+\caption{\TT{min::unicode\_category} values}
+\label{UNICODE-CATEGORIES}
 \end{boxedfigure}
 
 The following functions test a \TT{min::gen} value to see if it
@@ -8983,8 +8983,8 @@ where
 \begin{center}
 \tt
 \begin{tabular}{l}
-B = min::unicode\_class ( b ) \\
-C = min::unicode\_class ( c ) \\
+B = min::unicode\_category ( b ) \\
+C = min::unicode\_category ( c ) \\
 b = {\rm the previous printed UNICODE character} \\
 c = {\rm the following printed UNICODE character} \\
 \end{tabular}
@@ -12900,6 +12900,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::INTPTR} \\
 \verb|min::| & \MINKEY{unsgen}
 \LABEL{MIN::UNSGEN} \\
+\verb|min::| & \MINKEY{Uchar}
+\LABEL{MIN::UCHAR} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -13874,48 +13876,53 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( const min::uns32 * p, min::unsptr n )|
+      \verb|( const min::Uchar * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( min::ptr<const min::uns32> p,|\ARGBREAK
+      \verb|( min::ptr<const min::Uchar> p,|\ARGBREAK
       \verb|  min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_CONST_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb|( min::ptr<min::uns32> p, min::unsptr n )|
+      \verb|( min::ptr<min::Uchar> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::|
+\verb|const min::Uchar min::|
     & \MINKEY{UTF8\_ILLEGAL}
 \LABEL{MIN::UTF8_ILLEGAL} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
+\verb|min::Uchar min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s )|
 \LABEL{MIN::UTF8_TO_UNICODE} \\
 \verb|min::unsptr min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb|( char * & s, min::uns32 c )|
+      \verb|( char * & s, min::Uchar c )|
 \LABEL{MIN::UNICODE_TO_UTF8} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|min::unsptr min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( min::uns32 * & u, const min::uns32 * endu,|\ARGBREAK
+      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
       \verb|  const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
 \verb|min::unsptr min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
       \verb| ( char * & s, const char * ends,|\ARGBREAK
-      \verb|   const min::uns32 * & u,|\ARGBREAK
-      \verb|   const min::uns32 * endu )|
+      \verb|   const min::Uchar * & u,|\ARGBREAK
+      \verb|   const min::Uchar * endu )|
 \LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
+\LABEL{MIN::UNICODE_CATEGORY}
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -15540,17 +15547,17 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|min::op min::|
-    & \MINKEY{punicode}\verb|( min::uns32 c )|
+    & \MINKEY{punicode}\verb|( min::Uchar c )|
 \LABEL{MIN::PUNICODE} \\
 \verb|min::op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  const min::uns32 * str )|
+      \verb|  const min::Uchar * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \verb|min::op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  min::ptr<const min::uns32> str )|
+      \verb|  min::ptr<const min::Uchar> str )|
 \LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{TABULAR}
 

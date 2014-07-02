@@ -1,5 +1,5 @@
 latin1look
-make_unicode_class
-make_unicode_class.out
+make_unicode_types
+make_unicode_types.out
 print_unicode
 utf8look
