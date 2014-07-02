@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 06:06:36 EDT 2014
+// Date:	Wed Jul  2 13:20:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9148,16 +9148,21 @@ const min::context_gen_flags
     ::NO_EXP_NAME_GEN_FLAGS
 };
 
+static const min::Uchar str_prefix[] = {'"',0};
+static const min::Uchar str_postfix[] = {'"',0};
+static const min::Uchar str_postfix_name[] = {'<','Q','>',0};
+static const min::Uchar str_char_name_prefix[] = {'<',0};
+static const min::Uchar str_char_name_postfix[] = {'>',0};
+static const min::Uchar str_concatenator[] = {'#', 0};
 const min::gen_format min::default_gen_format =
 {
     min::default_pgen,
 
     "%.15g",
-
-    "\"","\"",
-    & min::default_char_names,
-    & min::default_char_flags,
-    "<", ">", " # ", 8, "<Q>",
+    
+    ::str_prefix, ::str_postfix, ::str_postfix_name,
+    ::str_char_name_prefix, ::str_char_name_postfix,
+    ::str_concatenator, 8, "\"", "\"", "<Q>",
 
     "[: ", " ", " :]",
 

@@ -8709,14 +8709,13 @@ is as follows:
     \verb|  const char *             number_format;|\ARGBREAK
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             str_prefix;|\ARGBREAK
-    \verb|  const char *             str_postfix;|\ARGBREAK
-    \verb|  const min::char_names *  str_char_names;|\ARGBREAK
-    \verb|  const min::char_flags *  str_char_flags;|\ARGBREAK
-    \verb|  const char *             str_char_name_prefix;|\ARGBREAK
-    \verb|  const char *             str_char_name_postfix;|\ARGBREAK
-    \verb|  const char *             str_concatenator;|\ARGBREAK
-    \verb|  min::uns32               str_max_length;|\ARGBREAK
+    \verb|  const min::Uchar *       str_prefix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_postfix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_postfix_name;|\ARGBREAK
+    \verb|  const min::Uchar *       str_char_name_prefix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_char_name_postfix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_concatenator;|\ARGBREAK
+    \verb|  min::uns32         	     str_max_length;|\ARGBREAK
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
 \ttmindex{str\_char\_names}{in {\tt min::gen\_format}}
@@ -8766,12 +8765,11 @@ is as follows:
                        min::\MINKEY{default\_gen\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::default_pgen,|\ARGBREAK
-    \verb|  "%.15g",              // number_format|\ARGBREAK
-    \verb|  "\"","\"",            // str_prefix/postfix|\ARGBREAK
-    \verb|  & min::default_char_names,|\ARGBREAK
-    \verb|  & min::default_char_flags,|\ARGBREAK
-    \verb|  "<",">",             // str_char_name_prefix/postfix|\ARGBREAK
-    \verb|  " # ",8,             // str_concatenate/str_max_length|\ARGBREAK
+    \verb|  "%.15g",             // number_format|\ARGBREAK
+    \verb|  U"\"", U"\"",        // str_prefix/postfix|\ARGBREAK
+    \verb|  U"<Q>",              // str_postfix_name|\ARGBREAK
+    \verb|  U"<", U">",          // str_char_name_prefix/postfix|\ARGBREAK
+    \verb|  U"#", 8,             // str_concatenate/str_max_length|\ARGBREAK
     \verb|  "[: "," "," :]",     // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "[$ "," $]",         // special_prefix/postfix|\ARGBREAK
     \verb|  min::NULL_STUB,      // special_names|\ARGBREAK
@@ -8872,6 +8870,9 @@ is as follows:
 \verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
 \verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
 \end{tabular}\end{indpar}
+
+In above, \TT{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
+converted to a \TT{const min::\EOL Uchar} vector with ending \TT{0} element.
 
 The {\tt min::gen\_format} members are:
 
@@ -15823,14 +15824,13 @@ These are in \verb|min_parameters.h|.
     \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             number_format;|\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             str_prefix;|\ARGBREAK
-    \verb|  const char *             str_postfix;|\ARGBREAK
-    \verb|  const min::char_names *  str_char_names;|\ARGBREAK
-    \verb|  const min::char_flags *  str_char_flags;|\ARGBREAK
-    \verb|  const char *             str_char_name_prefix;|\ARGBREAK
-    \verb|  const char *             str_char_name_postfix;|\ARGBREAK
-    \verb|  const char *             str_concatenator;|\ARGBREAK
-    \verb|  min::uns32               str_max_length;|\ARGBREAK
+    \verb|  const min::Uchar *       str_prefix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_postfix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_postfix_name;|\ARGBREAK
+    \verb|  const min::Uchar *       str_char_name_prefix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_char_name_postfix;|\ARGBREAK
+    \verb|  const min::Uchar *       str_concatenator;|\ARGBREAK
+    \verb|  min::uns32         	     str_max_length;|\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             lab_prefix;|\ARGBREAK
     \verb|  const char *             lab_separator;|\ARGBREAK
