@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 13:04:35 EDT 2014
+// Date:	Wed Jul  2 05:46:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -98,6 +98,7 @@ namespace min {
     typedef signed short int16;
 
     typedef unsigned MIN_INT32_TYPE uns32;
+    typedef unsigned MIN_INT32_TYPE Uchar;
     typedef signed MIN_INT32_TYPE int32;
     typedef float float32;
 
@@ -3982,14 +3983,14 @@ namespace min {
     }
 
     min::gen new_str_gen
-            ( const min::uns32 * p, min::unsptr n );
+            ( const min::Uchar * p, min::unsptr n );
 
-    // new_str_gen with min::uns32 characters converts
+    // new_str_gen with min::Uchar characters converts
     // to a UTF-8 char string in the stack and there-
     // fore handles relocatable min::ptr's.
     //
     inline min::gen new_str_gen
-            ( min::ptr<const min::uns32> p,
+            ( min::ptr<const min::Uchar> p,
 	      min::unsptr n )
     {
         return new_str_gen
@@ -3997,10 +3998,10 @@ namespace min {
     }
 
     // Compensate for the lack of implicit conversion
-    // from ptr<uns32> to ptr<const uns32>.
+    // from ptr<Uchar> to ptr<const Uchar>.
     //
     inline min::gen new_str_gen
-            ( min::ptr<min::uns32> p,
+            ( min::ptr<min::Uchar> p,
 	      min::unsptr n )
     {
         return new_str_gen
@@ -4009,10 +4010,10 @@ namespace min {
 
     // UTF-8 Conversion Functions
 
-    const uns32 ILLEGAL_UTF8 = 0xFFFD;
+    const Uchar ILLEGAL_UTF8 = 0xFFFD;
 	// == `unicode replacement character',
 
-    inline unsptr utf8_to_unicode
+    inline Uchar utf8_to_unicode
     	( const char * & s, const char * ends )
     {
         if ( s >= ends ) return ILLEGAL_UTF8;
@@ -4059,11 +4060,11 @@ namespace min {
     }
 
     unsptr utf8_to_unicode
-    	( min::uns32 * & u, const min::uns32 * endu,
+    	( min::Uchar * & u, const min::Uchar * endu,
 	  const char * & s, const char * ends );
 
     inline unsptr unicode_to_utf8
-	    ( char * & s, uns32 unicode )
+	    ( char * & s, Uchar unicode )
     {
 	if ( unicode == 0 )
 	{
@@ -4105,10 +4106,10 @@ namespace min {
 
     unsptr unicode_to_utf8
 	( char * & s, const char * ends,
-    	  const min::uns32 * & u,
-	  const min::uns32 * endu );
+    	  const min::Uchar * & u,
+	  const min::Uchar * endu );
 
-    inline min::uns8 unicode_class ( uns32 c )
+    inline min::uns8 unicode_category ( Uchar c )
     {
 	return
 	    c < unicode::unicode_index_size ?
@@ -10808,14 +10809,14 @@ namespace min {
 	// are set during printer operation.
 
 	const min::suppress_matrix * suppress_matrix;
-	min::uns8 previous_unicode_class;
+	min::uns8 previous_unicode_category;
 	min::uns32 previous_print_flags;
 	    // Let the next character to be printed be
-	    // c, C = min::unicode_class ( c ), and
-	    // B = previous_unicode_class (if
+	    // c, C = min::unicode_category ( c ), and
+	    // B = previous_unicode_category (if
 	    // suppress_matrix != NULL and the previous
 	    // printed character is b then B = min::
-	    // unicode_class ( b ) ).
+	    // unicode_category ( b ) ).
 	    //
 	    // Then just before the next character to be
 	    // printed is output, a single space char-
@@ -10962,7 +10963,16 @@ namespace min {
 	    : opcode ( opcode ) { v1.i32 = i; }
 	op ( op::OPCODE opcode,
 	     min::unsptr length,
-	     min::ptr<const uns32> buffer )
+	     min::ptr<const Uchar> buffer )
+	    : opcode ( opcode )
+	{
+	    v1.uptr = length;
+	    v2.p = (void *) buffer.s;
+	    v3.uptr = buffer.offset;
+	}
+	op ( op::OPCODE opcode,
+	     min::unsptr length,
+	     min::ptr<Uchar> buffer )
 	    : opcode ( opcode )
 	{
 	    v1.uptr = length;
@@ -11023,21 +11033,28 @@ namespace min {
 	    ( min::ref<min::printer> printer,
 	      std::ostream & ostream );
 
-    inline op punicode ( min::uns32 c )
+    inline op punicode ( min::Uchar c )
     {
         return op ( op::PUNICODE1, c );
     }
 
     inline op punicode
 	    ( min::unsptr length,
-	      min::ptr<const min::uns32> str )
+	      min::ptr<const min::Uchar> str )
     {
         return op ( op::PUNICODE2, length, str );
     }
 
     inline op punicode
 	    ( min::unsptr length,
-	      const min::uns32 * str )
+	      min::ptr<min::Uchar> str )
+    {
+        return op ( op::PUNICODE2, length, str );
+    }
+
+    inline op punicode
+	    ( min::unsptr length,
+	      const min::Uchar * str )
     {
         return op ( op::PUNICODE2, length,
 	            min::new_ptr ( str ) );

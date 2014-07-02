@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 13:10:53 EDT 2014
+// Date:	Wed Jul  2 06:06:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1439,7 +1439,7 @@ min::gen MINT::new_str_stub_gen
 }
 
 min::gen min::new_str_gen
-	( const min::uns32 * p, min::unsptr n )
+	( const min::Uchar * p, min::unsptr n )
 {
     char buffer[8*n+1];
     char * q = buffer;
@@ -1450,10 +1450,10 @@ min::gen min::new_str_gen
 }
 
 min::unsptr min::utf8_to_unicode
-    ( min::uns32 * & u, const min::uns32 * endu,
+    ( min::Uchar * & u, const min::Uchar * endu,
       const char * & s, const char * ends )
 {
-    min::uns32 * original_u = u;
+    min::Uchar * original_u = u;
     while ( u < endu && s < ends )
     {
         * u ++ = utf8_to_unicode ( s, ends );
@@ -1463,8 +1463,8 @@ min::unsptr min::utf8_to_unicode
 
 min::unsptr min::unicode_to_utf8
     ( char * & s, const char * ends,
-      const min::uns32 * & u,
-      const min::uns32 * endu )
+      const min::Uchar * & u,
+      const min::Uchar * endu )
 {
     char * original_s = s;
     while ( u < endu && s + 7 < ends )
@@ -7431,9 +7431,9 @@ static min::uns32 space[1] = { ' ' };
 
 // Return true iff c is non-spacing combining mark.
 //
-inline bool is_non_spacing ( min::uns32 c )
+inline bool is_non_spacing ( min::Uchar c )
 {
-    return min::unicode_class ( c ) == 'N';
+    return min::unicode_category ( c ) == 'N';
 }
 
 // Representations for printing control characters in
@@ -7827,8 +7827,8 @@ min::printer operator <<
 		}
 	    }
 
-	    printer->previous_unicode_class =
-		min::unicode_class ( b );
+	    printer->previous_unicode_category =
+		min::unicode_category ( b );
 	    printer->previous_print_flags =
 	        printer->print_format.flags;
 		    
@@ -8444,8 +8444,8 @@ min::printer MINT::print_unicode
     {
         if ( n == 0 ) return printer;
 
-	uns8 B = printer->previous_unicode_class;
-	uns8 C = min::unicode_class ( str[0] );
+	uns8 B = printer->previous_unicode_category;
+	uns8 C = min::unicode_category ( str[0] );
 	bool suppress =
 	    ( * printer->suppress_matrix )[B][C];
 
@@ -9050,9 +9050,6 @@ static void init_default_char_names ( void )
     ::default_char_names[0xAD] = "SHY";
 }
 
-// Unicode class must be initialized before default
-// suppress matrix is initialized.
-
 static void init_default_suppress_matrix ( void )
 {
     for ( unsigned i = 0; i < 256; ++ i )
@@ -9075,13 +9072,14 @@ static void init_default_suppress_matrix ( void )
         ::default_suppress_matrix[i][','] = true;
         ::default_suppress_matrix[i][';'] = true;
 
-	min::uns8 b = min::unicode_class ( i );
+	min::uns8 b = min::unicode_category ( i );
 
 	if ( b == 'U' || b == 'L' )
 	{
 	    for ( unsigned j = 0; j < 256; ++ j )
 	    {
-		min::uns8 c = min::unicode_class ( j );
+		min::uns8 c =
+		    min::unicode_category ( j );
 		if ( c == 'U' || c == 'L' ) continue;
 		if ( c == '\'' ) continue;
 		::default_suppress_matrix[b][c] = true;
@@ -9095,7 +9093,8 @@ static void init_default_suppress_matrix ( void )
 	{
 	    for ( unsigned j = 0; j < 256; ++ j )
 	    {
-		min::uns8 c = min::unicode_class ( j );
+		min::uns8 c =
+		    min::unicode_category ( j );
 		if ( '0' <= c && c <= '9' ) continue;
 		if ( c == ',' ) continue;
 		if ( c == '.' ) continue;
@@ -9184,7 +9183,8 @@ template < typename T >
 static T pgen_bracketed_str
 	( T out,
 	  min::uns32 gen_flags,
-	  const min::str_ptr & sp,
+	  const min::Uchar * string,
+	  const min::uns32 length,
 	  const min::gen_format * f,
 	  min::uns32 width )
 {
@@ -9582,7 +9582,8 @@ static T pgen_exp
 	}
 
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 
@@ -9650,7 +9651,8 @@ static T pgen_exp
 	    out << min::spaces_if_before_indent
 	        << min::suppressible_space;
 	    pgen ( out,
-	           (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	           (*context_gen_flags)
+		       [min::PGEN_PUNCTUATION],
 	           terminator,
 	           context_gen_flags, f );
 	    return out << " ";
@@ -9661,7 +9663,8 @@ static T pgen_exp
         // Bracketed Expression.
 
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 	out << min::suppressible_space
@@ -9697,7 +9700,8 @@ static T pgen_exp
 	out << min::spaces_if_before_indent
 	    << min::suppressible_space;
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
 	return out << min::restore_indent;
@@ -9717,7 +9721,8 @@ static T pgen_exp
 	out << min::save_print_format
 	    << min::nohbreak;
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 	out << min::suppressible_space
@@ -9789,7 +9794,8 @@ static T pgen_exp
 	{
 	    out << min::suppressible_space;
 	    pgen ( out,
-		   (*context_gen_flags)[min::PGEN_PUNCTUATION],
+		   (*context_gen_flags)
+		       [min::PGEN_PUNCTUATION],
 		   terminator,
 		   context_gen_flags, f );
 	    return out << min::restore_indent
@@ -9799,7 +9805,8 @@ static T pgen_exp
 	{
 	    out << min::suppressible_space;
 	    pgen ( out,
-		   (*context_gen_flags)[min::PGEN_PUNCTUATION],
+		   (*context_gen_flags)
+		       [min::PGEN_PUNCTUATION],
 		   middle,
 		   context_gen_flags, f );
 	    out << min::restore_indent;
@@ -9838,11 +9845,13 @@ static T pgen_exp
 
 	out << " ";
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       middle,
 	       context_gen_flags, f );
 	pgen ( out,
-	       (*context_gen_flags)[min::PGEN_PUNCTUATION],
+	       (*context_gen_flags)
+	           [min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
 	return out << min::restore_indent
