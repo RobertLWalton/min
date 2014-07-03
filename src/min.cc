@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 13:20:35 EDT 2014
+// Date:	Thu Jul  3 05:04:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9181,6 +9181,22 @@ const min::op min::flush_one_id
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
+// Return the length and number of columns of a UNICODE
+// vector.
+// 
+inline min::unsptr unicode_length
+	( min::Uchar * p, min::uns32 & columns )
+{
+    min::unsptr length = 0;
+    columns = 0;
+    while ( min::Uchar c = * p ++ )
+    {
+	++ length;
+	columns += ! ::is_non_spacing ( c );
+    }
+    return length;
+}
+
 // Execute pgen (below) in case string is to be
 // bracketed.
 //
@@ -9193,6 +9209,16 @@ static T pgen_bracketed_str
 	  const min::gen_format * f,
 	  min::uns32 width )
 {
+
+    min::uns32 prefix_columns, postfix_columns,
+               postfix_name_columns;
+    min::unsptr prefix_length = unicode_length
+    	( f->str_prefix_new, prefix_columns );
+    min::unsptr postfix_length = unicode_length
+    	( f->str_postfix_new, postfix_columns );
+    min::unsptr postfix_name_length = unicode_length
+    	( f->str_postfix_name, postfix_name_columns );
+    
 }
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
