@@ -36,1117 +36,781 @@ Cn  u  Unassigned
     w  Unspecified
 
 type 0:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x77 = w
        reference count = 0
 
 type 1:
        name = `NUL'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x00
        reference count = 1
        code = 00
 
 type 2:
        name = `SOH'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x01
        reference count = 1
        code = 01
 
 type 3:
        name = `STX'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x02
        reference count = 1
        code = 02
 
 type 4:
        name = `ETX'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x03
        reference count = 1
        code = 03
 
 type 5:
        name = `EOT'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x04
        reference count = 1
        code = 04
 
 type 6:
        name = `ENQ'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x05
        reference count = 1
        code = 05
 
 type 7:
        name = `ACK'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x06
        reference count = 1
        code = 06
 
 type 8:
        name = `BEL'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x07
        reference count = 1
        code = 07
 
 type 9:
        name = `BS'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x08
        reference count = 1
        code = 08
 
 type 10:
        name = `HT'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x09
        reference count = 1
        code = 09
 
 type 11:
        name = `LF'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0A
        reference count = 1
        code = 0A
 
 type 12:
        name = `VT'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0B
        reference count = 1
        code = 0B
 
 type 13:
        name = `FF'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0C
        reference count = 1
        code = 0C
 
 type 14:
        name = `CR'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0D
        reference count = 1
        code = 0D
 
 type 15:
        name = `SO'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0E
        reference count = 1
        code = 0E
 
 type 16:
        name = `SI'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x0F
        reference count = 1
        code = 0F
 
 type 17:
        name = `DLE'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x10
        reference count = 1
        code = 10
 
 type 18:
        name = `DC1'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x11
        reference count = 1
        code = 11
 
 type 19:
        name = `DC2'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x12
        reference count = 1
        code = 12
 
 type 20:
        name = `DC3'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x13
        reference count = 1
        code = 13
 
 type 21:
        name = `DC4'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x14
        reference count = 1
        code = 14
 
 type 22:
        name = `NAK'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x15
        reference count = 1
        code = 15
 
 type 23:
        name = `SYN'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x16
        reference count = 1
        code = 16
 
 type 24:
        name = `ETB'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x17
        reference count = 1
        code = 17
 
 type 25:
        name = `CAN'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x18
        reference count = 1
        code = 18
 
 type 26:
        name = `EOM'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x19
        reference count = 1
        code = 19
 
 type 27:
        name = `SUB'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1A
        reference count = 1
        code = 1A
 
 type 28:
        name = `ESC'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1B
        reference count = 1
        code = 1B
 
 type 29:
        name = `FS'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1C
        reference count = 1
        code = 1C
 
 type 30:
        name = `GS'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1D
        reference count = 1
        code = 1D
 
 type 31:
        name = `RS'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1E
        reference count = 1
        code = 1E
 
 type 32:
        name = `US'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x1F
        reference count = 1
        code = 1F
 
 type 33:
        name = `SP'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x20
        reference count = 1
        code = 20
 
 type 34:
        name = `DEL'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7F
        reference count = 1
        code = 7F
 
 type 35:
        name = `PAD'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x80
        reference count = 1
        code = 80
 
 type 36:
        name = `HOP'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x81
        reference count = 1
        code = 81
 
 type 37:
        name = `BPH'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x82
        reference count = 1
        code = 82
 
 type 38:
        name = `NBH'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x83
        reference count = 1
        code = 83
 
 type 39:
        name = `IND'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x84
        reference count = 1
        code = 84
 
 type 40:
        name = `NEL'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x85
        reference count = 1
        code = 85
 
 type 41:
        name = `SSA'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x86
        reference count = 1
        code = 86
 
 type 42:
        name = `ESA'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x87
        reference count = 1
        code = 87
 
 type 43:
        name = `HTS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x88
        reference count = 1
        code = 88
 
 type 44:
        name = `HTJ'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x89
        reference count = 1
        code = 89
 
 type 45:
        name = `VTS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8A
        reference count = 1
        code = 8A
 
 type 46:
        name = `PLD'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8B
        reference count = 1
        code = 8B
 
 type 47:
        name = `PLU'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8C
        reference count = 1
        code = 8C
 
 type 48:
        name = `RI'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8D
        reference count = 1
        code = 8D
 
 type 49:
        name = `SS2'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8E
        reference count = 1
        code = 8E
 
 type 50:
        name = `SS3'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x8F
        reference count = 1
        code = 8F
 
 type 51:
        name = `DCS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x90
        reference count = 1
        code = 90
 
 type 52:
        name = `PU1'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x91
        reference count = 1
        code = 91
 
 type 53:
        name = `PU2'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x92
        reference count = 1
        code = 92
 
 type 54:
        name = `STS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x93
        reference count = 1
        code = 93
 
 type 55:
        name = `CCH'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x94
        reference count = 1
        code = 94
 
 type 56:
        name = `MW'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x95
        reference count = 1
        code = 95
 
 type 57:
        name = `SPA'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x96
        reference count = 1
        code = 96
 
 type 58:
        name = `EPA'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x97
        reference count = 1
        code = 97
 
 type 59:
        name = `SOS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x98
        reference count = 1
        code = 98
 
 type 60:
        name = `SGC'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x99
        reference count = 1
        code = 99
 
 type 61:
        name = `SCI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9A
        reference count = 1
        code = 9A
 
 type 62:
        name = `CSI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9B
        reference count = 1
        code = 9B
 
 type 63:
        name = `ST'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9C
        reference count = 1
        code = 9C
 
 type 64:
        name = `OSC'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9D
        reference count = 1
        code = 9D
 
 type 65:
        name = `PM'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9E
        reference count = 1
        code = 9E
 
 type 66:
        name = `APC'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x9F
        reference count = 1
        code = 9F
 
 type 67:
        name = `NBSP'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA0
        reference count = 1
        code = A0
 
 type 68:
        name = `SHY'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAD
        reference count = 1
        code = AD
 
 type 69:
        name = `CGJ'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 34F
 
 type 70:
        name = `ALM'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 61C
 
 type 71:
        name = `FVS1'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180B
 
 type 72:
        name = `FVS2'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180C
 
 type 73:
        name = `FVS3'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180D
 
 type 74:
        name = `MVS'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 180E
 
 type 75:
        name = `ZWSP'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200B
 
 type 76:
        name = `ZWNJ'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200C
 
 type 77:
        name = `ZWJ'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200D
 
 type 78:
        name = `LRM'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200E
 
 type 79:
        name = `RLM'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200F
 
 type 80:
        name = `LRE'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202A
 
 type 81:
        name = `RLE'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202B
 
 type 82:
        name = `PDF'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202C
 
 type 83:
        name = `LRO'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202D
 
 type 84:
        name = `RLO'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202E
 
 type 85:
        name = `NNBSP'
-       name_length = 5
-       name_columns = 5
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 1
        code = 202F
 
 type 86:
        name = `MMSP'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 1
        code = 205F
 
 type 87:
        name = `WJ'
-       name_length = 2
-       name_columns = 2
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2060
 
 type 88:
        name = `LRI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2066
 
 type 89:
        name = `RLI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2067
 
 type 90:
        name = `FSI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2068
 
 type 91:
        name = `PDI'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2069
 
 type 92:
        name = `VS1'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE00
 
 type 93:
        name = `VS2'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE01
 
 type 94:
        name = `VS3'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE02
 
 type 95:
        name = `VS4'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE03
 
 type 96:
        name = `VS5'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE04
 
 type 97:
        name = `VS6'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE05
 
 type 98:
        name = `VS7'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE06
 
 type 99:
        name = `VS8'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE07
 
 type 100:
        name = `VS9'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE08
 
 type 101:
        name = `VS10'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE09
 
 type 102:
        name = `VS11'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0A
 
 type 103:
        name = `VS12'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0B
 
 type 104:
        name = `VS13'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0C
 
 type 105:
        name = `VS14'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0D
 
 type 106:
        name = `VS15'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0E
 
 type 107:
        name = `VS16'
-       name_length = 4
-       name_columns = 4
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0F
 
 type 108:
        name = `BOM'
-       name_length = 3
-       name_columns = 3
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = FEFF
 
 type 109:
-       name_length = 0
-       name_columns = 0
-       numerator = -1
-       denominator = 2
+       numerator/denominator = -1/2
        category = 0x48 = H
        reference count = 1
        code = F33
 
 type 110:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 1
+       numerator/denominator = 0/1
        category = 0x4F = O
        reference count = 2
        code = 96F6
        code = F9B2
 
 type 111:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 16
+       numerator/denominator = 1/16
        category = 0x48 = H
        reference count = 3
        code = 9F4
@@ -1154,55 +818,37 @@ type 111:
        code = A833
 
 type 112:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 10
+       numerator/denominator = 1/10
        category = 0x48 = H
        reference count = 1
        code = 2152
 
 type 113:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 9
+       numerator/denominator = 1/9
        category = 0x48 = H
        reference count = 1
        code = 2151
 
 type 114:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 8
+       numerator/denominator = 1/8
        category = 0x52 = R
        reference count = 1
        code = 1245F
 
 type 115:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 7
+       numerator/denominator = 1/7
        category = 0x48 = H
        reference count = 1
        code = 2150
 
 type 116:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 6
+       numerator/denominator = 1/6
        category = 0x52 = R
        reference count = 1
        code = 12461
 
 type 117:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 16
+       numerator/denominator = 3/16
        category = 0x48 = H
        reference count = 3
        code = 9F6
@@ -1210,19 +856,13 @@ type 117:
        code = A835
 
 type 118:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 5
+       numerator/denominator = 1/5
        category = 0x48 = H
        reference count = 1
        code = 2155
 
 type 119:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 4
+       numerator/denominator = 1/4
        category = 0x52 = R
        reference count = 4
        code = 10140
@@ -1230,10 +870,7 @@ type 119:
        codes = 12462..12463
 
 type 120:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 3
+       numerator/denominator = 1/3
        category = 0x52 = R
        reference count = 3
        code = 1245A
@@ -1241,56 +878,38 @@ type 120:
        code = 12465
 
 type 121:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 8
+       numerator/denominator = 3/8
        category = 0x48 = H
        reference count = 1
        code = 215C
 
 type 122:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 5
+       numerator/denominator = 2/5
        category = 0x48 = H
        reference count = 1
        code = 2156
 
 type 123:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 2
+       numerator/denominator = 1/2
        category = 0x52 = R
        reference count = 2
        code = 10141
        code = 12464
 
 type 124:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 5
+       numerator/denominator = 3/5
        category = 0x48 = H
        reference count = 1
        code = 2157
 
 type 125:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 8
+       numerator/denominator = 5/8
        category = 0x48 = H
        reference count = 1
        code = 215D
 
 type 126:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 3
+       numerator/denominator = 2/3
        category = 0x52 = R
        reference count = 3
        code = 1245B
@@ -1298,46 +917,31 @@ type 126:
        code = 12466
 
 type 127:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 4
+       numerator/denominator = 3/4
        category = 0xBE
        reference count = 1
        code = BE
 
 type 128:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 5
+       numerator/denominator = 4/5
        category = 0x48 = H
        reference count = 1
        code = 2158
 
 type 129:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 6
+       numerator/denominator = 5/6
        category = 0x52 = R
        reference count = 1
        code = 1245C
 
 type 130:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 8
+       numerator/denominator = 7/8
        category = 0x48 = H
        reference count = 1
        code = 215E
 
 type 131:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0x4F = O
        reference count = 6
        code = 4E00
@@ -1348,19 +952,13 @@ type 131:
        code = 2092A
 
 type 132:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 2
+       numerator/denominator = 3/2
        category = 0x48 = H
        reference count = 1
        code = F2B
 
 type 133:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0x4F = O
        reference count = 10
        code = 3483
@@ -1375,19 +973,13 @@ type 133:
        code = 22390
 
 type 134:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 2
+       numerator/denominator = 5/2
        category = 0x48 = H
        reference count = 1
        code = F2C
 
 type 135:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0x4F = O
        reference count = 12
        code = 4E09
@@ -1401,19 +993,13 @@ type 135:
        code = 23B1B
 
 type 136:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 2
+       numerator/denominator = 7/2
        category = 0x48 = H
        reference count = 1
        code = F2D
 
 type 137:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 1
+       numerator/denominator = 4/1
        category = 0x4F = O
        reference count = 6
        code = 4E96
@@ -1424,19 +1010,13 @@ type 137:
        code = 2626D
 
 type 138:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 2
+       numerator/denominator = 9/2
        category = 0x48 = H
        reference count = 1
        code = F2E
 
 type 139:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 1
+       numerator/denominator = 5/1
        category = 0x4F = O
        reference count = 5
        code = 3405
@@ -1446,19 +1026,13 @@ type 139:
        code = 20121
 
 type 140:
-       name_length = 0
-       name_columns = 0
-       numerator = 11
-       denominator = 2
+       numerator/denominator = 11/2
        category = 0x48 = H
        reference count = 1
        code = F2F
 
 type 141:
-       name_length = 0
-       name_columns = 0
-       numerator = 6
-       denominator = 1
+       numerator/denominator = 6/1
        category = 0x4F = O
        reference count = 6
        code = 516D
@@ -1469,19 +1043,13 @@ type 141:
        code = 20AEA
 
 type 142:
-       name_length = 0
-       name_columns = 0
-       numerator = 13
-       denominator = 2
+       numerator/denominator = 13/2
        category = 0x48 = H
        reference count = 1
        code = F30
 
 type 143:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 1
+       numerator/denominator = 7/1
        category = 0x4F = O
        reference count = 5
        code = 3B4D
@@ -1491,38 +1059,26 @@ type 143:
        code = 20001
 
 type 144:
-       name_length = 0
-       name_columns = 0
-       numerator = 15
-       denominator = 2
+       numerator/denominator = 15/2
        category = 0x48 = H
        reference count = 1
        code = F31
 
 type 145:
-       name_length = 0
-       name_columns = 0
-       numerator = 8
-       denominator = 1
+       numerator/denominator = 8/1
        category = 0x4F = O
        reference count = 2
        code = 516B
        code = 634C
 
 type 146:
-       name_length = 0
-       name_columns = 0
-       numerator = 17
-       denominator = 2
+       numerator/denominator = 17/2
        category = 0x48 = H
        reference count = 1
        code = F32
 
 type 147:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 1
+       numerator/denominator = 9/1
        category = 0x4F = O
        reference count = 4
        code = 4E5D
@@ -1531,10 +1087,7 @@ type 147:
        code = 2F890
 
 type 148:
-       name_length = 0
-       name_columns = 0
-       numerator = 10
-       denominator = 1
+       numerator/denominator = 10/1
        category = 0x4F = O
        reference count = 5
        code = 4EC0
@@ -1544,30 +1097,21 @@ type 148:
        code = F9FD
 
 type 149:
-       name_length = 0
-       name_columns = 0
-       numerator = 11
-       denominator = 1
+       numerator/denominator = 11/1
        category = 0x52 = R
        reference count = 2
        code = 216A
        code = 217A
 
 type 150:
-       name_length = 0
-       name_columns = 0
-       numerator = 12
-       denominator = 1
+       numerator/denominator = 12/1
        category = 0x52 = R
        reference count = 2
        code = 216B
        code = 217B
 
 type 151:
-       name_length = 0
-       name_columns = 0
-       numerator = 13
-       denominator = 1
+       numerator/denominator = 13/1
        category = 0x48 = H
        reference count = 4
        code = 246C
@@ -1576,10 +1120,7 @@ type 151:
        code = 24ED
 
 type 152:
-       name_length = 0
-       name_columns = 0
-       numerator = 14
-       denominator = 1
+       numerator/denominator = 14/1
        category = 0x48 = H
        reference count = 4
        code = 246D
@@ -1588,10 +1129,7 @@ type 152:
        code = 24EE
 
 type 153:
-       name_length = 0
-       name_columns = 0
-       numerator = 15
-       denominator = 1
+       numerator/denominator = 15/1
        category = 0x48 = H
        reference count = 4
        code = 246E
@@ -1600,10 +1138,7 @@ type 153:
        code = 24EF
 
 type 154:
-       name_length = 0
-       name_columns = 0
-       numerator = 16
-       denominator = 1
+       numerator/denominator = 16/1
        category = 0x48 = H
        reference count = 5
        code = 9F9
@@ -1613,219 +1148,147 @@ type 154:
        code = 24F0
 
 type 155:
-       name_length = 0
-       name_columns = 0
-       numerator = 17
-       denominator = 1
+       numerator/denominator = 17/1
        category = 0x52 = R
        reference count = 1
        code = 16EE
 
 type 156:
-       name_length = 0
-       name_columns = 0
-       numerator = 18
-       denominator = 1
+       numerator/denominator = 18/1
        category = 0x52 = R
        reference count = 1
        code = 16EF
 
 type 157:
-       name_length = 0
-       name_columns = 0
-       numerator = 19
-       denominator = 1
+       numerator/denominator = 19/1
        category = 0x52 = R
        reference count = 1
        code = 16F0
 
 type 158:
-       name_length = 0
-       name_columns = 0
-       numerator = 20
-       denominator = 1
+       numerator/denominator = 20/1
        category = 0x4F = O
        reference count = 2
        code = 5344
        code = 5EFF
 
 type 159:
-       name_length = 0
-       name_columns = 0
-       numerator = 21
-       denominator = 1
+       numerator/denominator = 21/1
        category = 0x48 = H
        reference count = 1
        code = 3251
 
 type 160:
-       name_length = 0
-       name_columns = 0
-       numerator = 22
-       denominator = 1
+       numerator/denominator = 22/1
        category = 0x48 = H
        reference count = 1
        code = 3252
 
 type 161:
-       name_length = 0
-       name_columns = 0
-       numerator = 23
-       denominator = 1
+       numerator/denominator = 23/1
        category = 0x48 = H
        reference count = 1
        code = 3253
 
 type 162:
-       name_length = 0
-       name_columns = 0
-       numerator = 24
-       denominator = 1
+       numerator/denominator = 24/1
        category = 0x48 = H
        reference count = 1
        code = 3254
 
 type 163:
-       name_length = 0
-       name_columns = 0
-       numerator = 25
-       denominator = 1
+       numerator/denominator = 25/1
        category = 0x48 = H
        reference count = 1
        code = 3255
 
 type 164:
-       name_length = 0
-       name_columns = 0
-       numerator = 26
-       denominator = 1
+       numerator/denominator = 26/1
        category = 0x48 = H
        reference count = 1
        code = 3256
 
 type 165:
-       name_length = 0
-       name_columns = 0
-       numerator = 27
-       denominator = 1
+       numerator/denominator = 27/1
        category = 0x48 = H
        reference count = 1
        code = 3257
 
 type 166:
-       name_length = 0
-       name_columns = 0
-       numerator = 28
-       denominator = 1
+       numerator/denominator = 28/1
        category = 0x48 = H
        reference count = 1
        code = 3258
 
 type 167:
-       name_length = 0
-       name_columns = 0
-       numerator = 29
-       denominator = 1
+       numerator/denominator = 29/1
        category = 0x48 = H
        reference count = 1
        code = 3259
 
 type 168:
-       name_length = 0
-       name_columns = 0
-       numerator = 30
-       denominator = 1
+       numerator/denominator = 30/1
        category = 0x4F = O
        reference count = 2
        code = 5345
        code = 20983
 
 type 169:
-       name_length = 0
-       name_columns = 0
-       numerator = 31
-       denominator = 1
+       numerator/denominator = 31/1
        category = 0x48 = H
        reference count = 1
        code = 325B
 
 type 170:
-       name_length = 0
-       name_columns = 0
-       numerator = 32
-       denominator = 1
+       numerator/denominator = 32/1
        category = 0x48 = H
        reference count = 1
        code = 325C
 
 type 171:
-       name_length = 0
-       name_columns = 0
-       numerator = 33
-       denominator = 1
+       numerator/denominator = 33/1
        category = 0x48 = H
        reference count = 1
        code = 325D
 
 type 172:
-       name_length = 0
-       name_columns = 0
-       numerator = 34
-       denominator = 1
+       numerator/denominator = 34/1
        category = 0x48 = H
        reference count = 1
        code = 325E
 
 type 173:
-       name_length = 0
-       name_columns = 0
-       numerator = 35
-       denominator = 1
+       numerator/denominator = 35/1
        category = 0x48 = H
        reference count = 1
        code = 325F
 
 type 174:
-       name_length = 0
-       name_columns = 0
-       numerator = 36
-       denominator = 1
+       numerator/denominator = 36/1
        category = 0x48 = H
        reference count = 1
        code = 32B1
 
 type 175:
-       name_length = 0
-       name_columns = 0
-       numerator = 37
-       denominator = 1
+       numerator/denominator = 37/1
        category = 0x48 = H
        reference count = 1
        code = 32B2
 
 type 176:
-       name_length = 0
-       name_columns = 0
-       numerator = 38
-       denominator = 1
+       numerator/denominator = 38/1
        category = 0x48 = H
        reference count = 1
        code = 32B3
 
 type 177:
-       name_length = 0
-       name_columns = 0
-       numerator = 39
-       denominator = 1
+       numerator/denominator = 39/1
        category = 0x48 = H
        reference count = 1
        code = 32B4
 
 type 178:
-       name_length = 0
-       name_columns = 0
-       numerator = 40
-       denominator = 1
+       numerator/denominator = 40/1
        category = 0x4F = O
        reference count = 3
        code = 534C
@@ -1833,91 +1296,61 @@ type 178:
        code = 2099C
 
 type 179:
-       name_length = 0
-       name_columns = 0
-       numerator = 41
-       denominator = 1
+       numerator/denominator = 41/1
        category = 0x48 = H
        reference count = 1
        code = 32B6
 
 type 180:
-       name_length = 0
-       name_columns = 0
-       numerator = 42
-       denominator = 1
+       numerator/denominator = 42/1
        category = 0x48 = H
        reference count = 1
        code = 32B7
 
 type 181:
-       name_length = 0
-       name_columns = 0
-       numerator = 43
-       denominator = 1
+       numerator/denominator = 43/1
        category = 0x48 = H
        reference count = 1
        code = 32B8
 
 type 182:
-       name_length = 0
-       name_columns = 0
-       numerator = 44
-       denominator = 1
+       numerator/denominator = 44/1
        category = 0x48 = H
        reference count = 1
        code = 32B9
 
 type 183:
-       name_length = 0
-       name_columns = 0
-       numerator = 45
-       denominator = 1
+       numerator/denominator = 45/1
        category = 0x48 = H
        reference count = 1
        code = 32BA
 
 type 184:
-       name_length = 0
-       name_columns = 0
-       numerator = 46
-       denominator = 1
+       numerator/denominator = 46/1
        category = 0x48 = H
        reference count = 1
        code = 32BB
 
 type 185:
-       name_length = 0
-       name_columns = 0
-       numerator = 47
-       denominator = 1
+       numerator/denominator = 47/1
        category = 0x48 = H
        reference count = 1
        code = 32BC
 
 type 186:
-       name_length = 0
-       name_columns = 0
-       numerator = 48
-       denominator = 1
+       numerator/denominator = 48/1
        category = 0x48 = H
        reference count = 1
        code = 32BD
 
 type 187:
-       name_length = 0
-       name_columns = 0
-       numerator = 49
-       denominator = 1
+       numerator/denominator = 49/1
        category = 0x48 = H
        reference count = 1
        code = 32BE
 
 type 188:
-       name_length = 0
-       name_columns = 0
-       numerator = 50
-       denominator = 1
+       numerator/denominator = 50/1
        category = 0x52 = R
        reference count = 12
        code = 216C
@@ -1931,10 +1364,7 @@ type 188:
        code = 12468
 
 type 189:
-       name_length = 0
-       name_columns = 0
-       numerator = 60
-       denominator = 1
+       numerator/denominator = 60/1
        category = 0x48 = H
        reference count = 9
        code = 1377
@@ -1948,10 +1378,7 @@ type 189:
        code = 1D36E
 
 type 190:
-       name_length = 0
-       name_columns = 0
-       numerator = 70
-       denominator = 1
+       numerator/denominator = 70/1
        category = 0x48 = H
        reference count = 9
        code = 1378
@@ -1965,10 +1392,7 @@ type 190:
        code = 1D36F
 
 type 191:
-       name_length = 0
-       name_columns = 0
-       numerator = 80
-       denominator = 1
+       numerator/denominator = 80/1
        category = 0x48 = H
        reference count = 9
        code = 1379
@@ -1982,19 +1406,13 @@ type 191:
        code = 1D370
 
 type 192:
-       name_length = 0
-       name_columns = 0
-       numerator = 90
-       denominator = 1
+       numerator/denominator = 90/1
        category = 0x52 = R
        reference count = 1
        code = 10341
 
 type 193:
-       name_length = 0
-       name_columns = 0
-       numerator = 100
-       denominator = 1
+       numerator/denominator = 100/1
        category = 0x4F = O
        reference count = 3
        code = 4F70
@@ -2002,10 +1420,7 @@ type 193:
        code = 964C
 
 type 194:
-       name_length = 0
-       name_columns = 0
-       numerator = 200
-       denominator = 1
+       numerator/denominator = 200/1
        category = 0x48 = H
        reference count = 3
        code = 1011A
@@ -2013,19 +1428,13 @@ type 194:
        code = 10E73
 
 type 195:
-       name_length = 0
-       name_columns = 0
-       numerator = 300
-       denominator = 1
+       numerator/denominator = 300/1
        category = 0x52 = R
        reference count = 1
        code = 1016B
 
 type 196:
-       name_length = 0
-       name_columns = 0
-       numerator = 400
-       denominator = 1
+       numerator/denominator = 400/1
        category = 0x48 = H
        reference count = 3
        code = 1011C
@@ -2033,10 +1442,7 @@ type 196:
        code = 10E75
 
 type 197:
-       name_length = 0
-       name_columns = 0
-       numerator = 500
-       denominator = 1
+       numerator/denominator = 500/1
        category = 0x52 = R
        reference count = 10
        code = 216E
@@ -2047,10 +1453,7 @@ type 197:
        codes = 1016C..10170
 
 type 198:
-       name_length = 0
-       name_columns = 0
-       numerator = 600
-       denominator = 1
+       numerator/denominator = 600/1
        category = 0x48 = H
        reference count = 3
        code = 1011E
@@ -2058,10 +1461,7 @@ type 198:
        code = 10E77
 
 type 199:
-       name_length = 0
-       name_columns = 0
-       numerator = 700
-       denominator = 1
+       numerator/denominator = 700/1
        category = 0x48 = H
        reference count = 3
        code = 1011F
@@ -2069,10 +1469,7 @@ type 199:
        code = 10E78
 
 type 200:
-       name_length = 0
-       name_columns = 0
-       numerator = 800
-       denominator = 1
+       numerator/denominator = 800/1
        category = 0x48 = H
        reference count = 3
        code = 10120
@@ -2080,19 +1477,13 @@ type 200:
        code = 10E79
 
 type 201:
-       name_length = 0
-       name_columns = 0
-       numerator = 900
-       denominator = 1
+       numerator/denominator = 900/1
        category = 0x52 = R
        reference count = 1
        code = 1034A
 
 type 202:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000
-       denominator = 1
+       numerator/denominator = 1000/1
        category = 0x4F = O
        reference count = 3
        code = 4EDF
@@ -2100,37 +1491,25 @@ type 202:
        code = 9621
 
 type 203:
-       name_length = 0
-       name_columns = 0
-       numerator = 2000
-       denominator = 1
+       numerator/denominator = 2000/1
        category = 0x48 = H
        reference count = 1
        code = 10123
 
 type 204:
-       name_length = 0
-       name_columns = 0
-       numerator = 3000
-       denominator = 1
+       numerator/denominator = 3000/1
        category = 0x48 = H
        reference count = 1
        code = 10124
 
 type 205:
-       name_length = 0
-       name_columns = 0
-       numerator = 4000
-       denominator = 1
+       numerator/denominator = 4000/1
        category = 0x48 = H
        reference count = 1
        code = 10125
 
 type 206:
-       name_length = 0
-       name_columns = 0
-       numerator = 5000
-       denominator = 1
+       numerator/denominator = 5000/1
        category = 0x52 = R
        reference count = 4
        code = 2181
@@ -2139,83 +1518,56 @@ type 206:
        code = 10172
 
 type 207:
-       name_length = 0
-       name_columns = 0
-       numerator = 6000
-       denominator = 1
+       numerator/denominator = 6000/1
        category = 0x48 = H
        reference count = 1
        code = 10127
 
 type 208:
-       name_length = 0
-       name_columns = 0
-       numerator = 7000
-       denominator = 1
+       numerator/denominator = 7000/1
        category = 0x48 = H
        reference count = 1
        code = 10128
 
 type 209:
-       name_length = 0
-       name_columns = 0
-       numerator = 8000
-       denominator = 1
+       numerator/denominator = 8000/1
        category = 0x48 = H
        reference count = 1
        code = 10129
 
 type 210:
-       name_length = 0
-       name_columns = 0
-       numerator = 9000
-       denominator = 1
+       numerator/denominator = 9000/1
        category = 0x48 = H
        reference count = 1
        code = 1012A
 
 type 211:
-       name_length = 0
-       name_columns = 0
-       numerator = 10000
-       denominator = 1
+       numerator/denominator = 10000/1
        category = 0x4F = O
        reference count = 2
        code = 4E07
        code = 842C
 
 type 212:
-       name_length = 0
-       name_columns = 0
-       numerator = 20000
-       denominator = 1
+       numerator/denominator = 20000/1
        category = 0x48 = H
        reference count = 1
        code = 1012C
 
 type 213:
-       name_length = 0
-       name_columns = 0
-       numerator = 30000
-       denominator = 1
+       numerator/denominator = 30000/1
        category = 0x48 = H
        reference count = 1
        code = 1012D
 
 type 214:
-       name_length = 0
-       name_columns = 0
-       numerator = 40000
-       denominator = 1
+       numerator/denominator = 40000/1
        category = 0x48 = H
        reference count = 1
        code = 1012E
 
 type 215:
-       name_length = 0
-       name_columns = 0
-       numerator = 50000
-       denominator = 1
+       numerator/denominator = 50000/1
        category = 0x52 = R
        reference count = 3
        code = 2187
@@ -2223,110 +1575,74 @@ type 215:
        code = 10156
 
 type 216:
-       name_length = 0
-       name_columns = 0
-       numerator = 60000
-       denominator = 1
+       numerator/denominator = 60000/1
        category = 0x48 = H
        reference count = 1
        code = 10130
 
 type 217:
-       name_length = 0
-       name_columns = 0
-       numerator = 70000
-       denominator = 1
+       numerator/denominator = 70000/1
        category = 0x48 = H
        reference count = 1
        code = 10131
 
 type 218:
-       name_length = 0
-       name_columns = 0
-       numerator = 80000
-       denominator = 1
+       numerator/denominator = 80000/1
        category = 0x48 = H
        reference count = 1
        code = 10132
 
 type 219:
-       name_length = 0
-       name_columns = 0
-       numerator = 90000
-       denominator = 1
+       numerator/denominator = 90000/1
        category = 0x48 = H
        reference count = 1
        code = 10133
 
 type 220:
-       name_length = 0
-       name_columns = 0
-       numerator = 100000
-       denominator = 1
+       numerator/denominator = 100000/1
        category = 0x52 = R
        reference count = 1
        code = 2188
 
 type 221:
-       name_length = 0
-       name_columns = 0
-       numerator = 216000
-       denominator = 1
+       numerator/denominator = 216000/1
        category = 0x52 = R
        reference count = 1
        code = 12432
 
 type 222:
-       name_length = 0
-       name_columns = 0
-       numerator = 432000
-       denominator = 1
+       numerator/denominator = 432000/1
        category = 0x52 = R
        reference count = 1
        code = 12433
 
 type 223:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000000
-       denominator = 1
+       numerator/denominator = 1000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B5E
 
 type 224:
-       name_length = 0
-       name_columns = 0
-       numerator = 100000000
-       denominator = 1
+       numerator/denominator = 100000000/1
        category = 0x4F = O
        reference count = 2
        code = 4EBF
        code = 5104
 
 type 225:
-       name_length = 0
-       name_columns = 0
-       numerator = 10000000000
-       denominator = 1
+       numerator/denominator = 10000000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B60
 
 type 226:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000000000000
-       denominator = 1
+       numerator/denominator = 1000000000000/1
        category = 0x4F = O
        reference count = 1
        code = 5146
 
 type 227:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x75 = u
        reference count = 75476
        codes = 378..379
@@ -2926,10 +2242,7 @@ type 227:
        codes = 2FA1E..2FFFF
 
 type 228:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x55 = U
        reference count = 1460
        codes = 41..5A
@@ -3554,280 +2867,187 @@ type 228:
        code = 1D7CA
 
 type 229:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC0
        reference count = 1
        code = C0
 
 type 230:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC1
        reference count = 1
        code = C1
 
 type 231:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC2
        reference count = 1
        code = C2
 
 type 232:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC3
        reference count = 1
        code = C3
 
 type 233:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC4
        reference count = 1
        code = C4
 
 type 234:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC5
        reference count = 1
        code = C5
 
 type 235:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC6
        reference count = 1
        code = C6
 
 type 236:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC7
        reference count = 1
        code = C7
 
 type 237:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC8
        reference count = 1
        code = C8
 
 type 238:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xC9
        reference count = 1
        code = C9
 
 type 239:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCA
        reference count = 1
        code = CA
 
 type 240:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCB
        reference count = 1
        code = CB
 
 type 241:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCC
        reference count = 1
        code = CC
 
 type 242:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCD
        reference count = 1
        code = CD
 
 type 243:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCE
        reference count = 1
        code = CE
 
 type 244:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xCF
        reference count = 1
        code = CF
 
 type 245:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD0
        reference count = 1
        code = D0
 
 type 246:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD1
        reference count = 1
        code = D1
 
 type 247:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD2
        reference count = 1
        code = D2
 
 type 248:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD3
        reference count = 1
        code = D3
 
 type 249:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD4
        reference count = 1
        code = D4
 
 type 250:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD5
        reference count = 1
        code = D5
 
 type 251:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD6
        reference count = 1
        code = D6
 
 type 252:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD8
        reference count = 1
        code = D8
 
 type 253:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD9
        reference count = 1
        code = D9
 
 type 254:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDA
        reference count = 1
        code = DA
 
 type 255:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDB
        reference count = 1
        code = DB
 
 type 256:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDC
        reference count = 1
        code = DC
 
 type 257:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDD
        reference count = 1
        code = DD
 
 type 258:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDE
        reference count = 1
        code = DE
 
 type 259:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4C = L
        reference count = 1807
        codes = 61..79
@@ -4454,10 +3674,7 @@ type 259:
        code = 1D7CB
 
 type 260:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 35
        code = 7A
@@ -4472,307 +3689,205 @@ type 260:
        codes = 1D173..1D17A
 
 type 261:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB5
        reference count = 1
        code = B5
 
 type 262:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xDF
        reference count = 1
        code = DF
 
 type 263:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE0
        reference count = 1
        code = E0
 
 type 264:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE1
        reference count = 1
        code = E1
 
 type 265:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE2
        reference count = 1
        code = E2
 
 type 266:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE3
        reference count = 1
        code = E3
 
 type 267:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE4
        reference count = 1
        code = E4
 
 type 268:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE5
        reference count = 1
        code = E5
 
 type 269:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE6
        reference count = 1
        code = E6
 
 type 270:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE7
        reference count = 1
        code = E7
 
 type 271:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE8
        reference count = 1
        code = E8
 
 type 272:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xE9
        reference count = 1
        code = E9
 
 type 273:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xEA
        reference count = 1
        code = EA
 
 type 274:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xEB
        reference count = 1
        code = EB
 
 type 275:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xEC
        reference count = 1
        code = EC
 
 type 276:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xED
        reference count = 1
        code = ED
 
 type 277:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xEE
        reference count = 1
        code = EE
 
 type 278:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xEF
        reference count = 1
        code = EF
 
 type 279:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF0
        reference count = 1
        code = F0
 
 type 280:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF1
        reference count = 1
        code = F1
 
 type 281:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF2
        reference count = 1
        code = F2
 
 type 282:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF3
        reference count = 1
        code = F3
 
 type 283:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF4
        reference count = 1
        code = F4
 
 type 284:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF5
        reference count = 1
        code = F5
 
 type 285:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF6
        reference count = 1
        code = F6
 
 type 286:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF8
        reference count = 1
        code = F8
 
 type 287:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF9
        reference count = 1
        code = F9
 
 type 288:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFA
        reference count = 1
        code = FA
 
 type 289:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFB
        reference count = 1
        code = FB
 
 type 290:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFC
        reference count = 1
        code = FC
 
 type 291:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFD
        reference count = 1
        code = FD
 
 type 292:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFE
        reference count = 1
        code = FE
 
 type 293:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xFF
        reference count = 1
        code = FF
 
 type 294:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x54 = T
        reference count = 31
        code = 1C5
@@ -4787,10 +3902,7 @@ type 294:
        code = 1FFC
 
 type 295:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4D = M
        reference count = 248
        codes = 2B0..2C1
@@ -4851,28 +3963,19 @@ type 295:
        codes = 16F93..16F9F
 
 type 296:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAA
        reference count = 1
        code = AA
 
 type 297:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xBA
        reference count = 1
        code = BA
 
 type 298:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4F = O
        reference count = 99032
        code = 1BB
@@ -5363,10 +4466,7 @@ type 298:
        codes = 2F891..2FA1D
 
 type 299:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1158
        codes = 300..34E
@@ -5624,10 +4724,7 @@ type 299:
        codes = 1E8D0..1E8D6
 
 type 300:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x45 = E
        reference count = 13
        codes = 488..489
@@ -5637,10 +4734,7 @@ type 300:
        codes = A670..A672
 
 type 301:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x53 = S
        reference count = 399
        code = 903
@@ -5792,100 +4886,67 @@ type 301:
        codes = 1D16D..1D172
 
 type 302:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 1
+       numerator/denominator = 0/1
        category = 0x30 = 0
        reference count = 1
        code = 30
 
 type 303:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0x31 = 1
        reference count = 1
        code = 31
 
 type 304:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0x32 = 2
        reference count = 1
        code = 32
 
 type 305:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0x33 = 3
        reference count = 1
        code = 33
 
 type 306:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 1
+       numerator/denominator = 4/1
        category = 0x34 = 4
        reference count = 1
        code = 34
 
 type 307:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 1
+       numerator/denominator = 5/1
        category = 0x35 = 5
        reference count = 1
        code = 35
 
 type 308:
-       name_length = 0
-       name_columns = 0
-       numerator = 6
-       denominator = 1
+       numerator/denominator = 6/1
        category = 0x36 = 6
        reference count = 1
        code = 36
 
 type 309:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 1
+       numerator/denominator = 7/1
        category = 0x37 = 7
        reference count = 1
        code = 37
 
 type 310:
-       name_length = 0
-       name_columns = 0
-       numerator = 8
-       denominator = 1
+       numerator/denominator = 8/1
        category = 0x38 = 8
        reference count = 1
        code = 38
 
 type 311:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 1
+       numerator/denominator = 9/1
        category = 0x39 = 9
        reference count = 1
        code = 39
 
 type 312:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 1
+       numerator/denominator = 0/1
        category = 0x44 = D
        reference count = 53
        code = 660
@@ -5943,10 +5004,7 @@ type 312:
        code = 1D7F6
 
 type 313:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0x44 = D
        reference count = 53
        code = 661
@@ -6004,10 +5062,7 @@ type 313:
        code = 1D7F7
 
 type 314:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0x44 = D
        reference count = 53
        code = 662
@@ -6065,10 +5120,7 @@ type 314:
        code = 1D7F8
 
 type 315:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0x44 = D
        reference count = 53
        code = 663
@@ -6126,10 +5178,7 @@ type 315:
        code = 1D7F9
 
 type 316:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 1
+       numerator/denominator = 4/1
        category = 0x44 = D
        reference count = 53
        code = 664
@@ -6187,10 +5236,7 @@ type 316:
        code = 1D7FA
 
 type 317:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 1
+       numerator/denominator = 5/1
        category = 0x44 = D
        reference count = 53
        code = 665
@@ -6248,10 +5294,7 @@ type 317:
        code = 1D7FB
 
 type 318:
-       name_length = 0
-       name_columns = 0
-       numerator = 6
-       denominator = 1
+       numerator/denominator = 6/1
        category = 0x44 = D
        reference count = 53
        code = 666
@@ -6309,10 +5352,7 @@ type 318:
        code = 1D7FC
 
 type 319:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 1
+       numerator/denominator = 7/1
        category = 0x44 = D
        reference count = 53
        code = 667
@@ -6370,10 +5410,7 @@ type 319:
        code = 1D7FD
 
 type 320:
-       name_length = 0
-       name_columns = 0
-       numerator = 8
-       denominator = 1
+       numerator/denominator = 8/1
        category = 0x44 = D
        reference count = 53
        code = 668
@@ -6431,10 +5468,7 @@ type 320:
        code = 1D7FE
 
 type 321:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 1
+       numerator/denominator = 9/1
        category = 0x44 = D
        reference count = 53
        code = 669
@@ -6492,10 +5526,7 @@ type 321:
        code = 1D7FF
 
 type 322:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0x52 = R
        reference count = 15
        code = 2160
@@ -6513,10 +5544,7 @@ type 322:
        code = 12458
 
 type 323:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0x52 = R
        reference count = 19
        code = 2161
@@ -6537,10 +5565,7 @@ type 323:
        code = 12459
 
 type 324:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0x52 = R
        reference count = 19
        code = 2162
@@ -6560,10 +5585,7 @@ type 324:
        code = 12457
 
 type 325:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 1
+       numerator/denominator = 4/1
        category = 0x52 = R
        reference count = 20
        code = 2163
@@ -6584,10 +5606,7 @@ type 325:
        code = 12469
 
 type 326:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 1
+       numerator/denominator = 5/1
        category = 0x52 = R
        reference count = 21
        code = 2164
@@ -6612,10 +5631,7 @@ type 326:
        code = 1246A
 
 type 327:
-       name_length = 0
-       name_columns = 0
-       numerator = 6
-       denominator = 1
+       numerator/denominator = 6/1
        category = 0x52 = R
        reference count = 13
        code = 2165
@@ -6633,10 +5649,7 @@ type 327:
        code = 1246B
 
 type 328:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 1
+       numerator/denominator = 7/1
        category = 0x52 = R
        reference count = 13
        code = 2166
@@ -6652,10 +5665,7 @@ type 328:
        code = 1246C
 
 type 329:
-       name_length = 0
-       name_columns = 0
-       numerator = 8
-       denominator = 1
+       numerator/denominator = 8/1
        category = 0x52 = R
        reference count = 12
        code = 2167
@@ -6671,10 +5681,7 @@ type 329:
        code = 1246D
 
 type 330:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 1
+       numerator/denominator = 9/1
        category = 0x52 = R
        reference count = 14
        code = 2168
@@ -6690,10 +5697,7 @@ type 330:
        code = 1246E
 
 type 331:
-       name_length = 0
-       name_columns = 0
-       numerator = 10
-       denominator = 1
+       numerator/denominator = 10/1
        category = 0x52 = R
        reference count = 12
        code = 2169
@@ -6706,10 +5710,7 @@ type 331:
        code = 103D3
 
 type 332:
-       name_length = 0
-       name_columns = 0
-       numerator = 100
-       denominator = 1
+       numerator/denominator = 100/1
        category = 0x52 = R
        reference count = 6
        code = 216D
@@ -6720,10 +5721,7 @@ type 332:
        code = 103D5
 
 type 333:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000
-       denominator = 1
+       numerator/denominator = 1000/1
        category = 0x52 = R
        reference count = 6
        code = 216F
@@ -6733,104 +5731,71 @@ type 333:
        code = 10171
 
 type 334:
-       name_length = 0
-       name_columns = 0
-       numerator = 10000
-       denominator = 1
+       numerator/denominator = 10000/1
        category = 0x52 = R
        reference count = 2
        code = 2182
        code = 10155
 
 type 335:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 1
+       numerator/denominator = 0/1
        category = 0x52 = R
        reference count = 2
        code = 3007
        code = A6EF
 
 type 336:
-       name_length = 0
-       name_columns = 0
-       numerator = 20
-       denominator = 1
+       numerator/denominator = 20/1
        category = 0x52 = R
        reference count = 2
        code = 3039
        code = 103D4
 
 type 337:
-       name_length = 0
-       name_columns = 0
-       numerator = 30
-       denominator = 1
+       numerator/denominator = 30/1
        category = 0x52 = R
        reference count = 2
        code = 303A
        code = 10165
 
 type 338:
-       name_length = 0
-       name_columns = 0
-       numerator = 40
-       denominator = 1
+       numerator/denominator = 40/1
        category = 0x52 = R
        reference count = 1
        code = 12467
 
 type 339:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0xB2
        reference count = 1
        code = B2
 
 type 340:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0xB3
        reference count = 1
        code = B3
 
 type 341:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0xB9
        reference count = 1
        code = B9
 
 type 342:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 4
+       numerator/denominator = 1/4
        category = 0xBC
        reference count = 1
        code = BC
 
 type 343:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 2
+       numerator/denominator = 1/2
        category = 0xBD
        reference count = 1
        code = BD
 
 type 344:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 8
+       numerator/denominator = 1/8
        category = 0x48 = H
        reference count = 4
        code = 9F5
@@ -6839,10 +5804,7 @@ type 344:
        code = A834
 
 type 345:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 4
+       numerator/denominator = 1/4
        category = 0x48 = H
        reference count = 6
        code = 9F7
@@ -6853,10 +5815,7 @@ type 345:
        code = 10E7C
 
 type 346:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 4
+       numerator/denominator = 3/4
        category = 0x48 = H
        reference count = 5
        code = 9F8
@@ -6866,10 +5825,7 @@ type 346:
        code = 10178
 
 type 347:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 2
+       numerator/denominator = 1/2
        category = 0x48 = H
        reference count = 8
        code = B73
@@ -6881,10 +5837,7 @@ type 347:
        code = 10E7B
 
 type 348:
-       name_length = 0
-       name_columns = 0
-       numerator = 10
-       denominator = 1
+       numerator/denominator = 10/1
        category = 0x48 = H
        reference count = 32
        code = BF0
@@ -6921,10 +5874,7 @@ type 348:
        code = 1D369
 
 type 349:
-       name_length = 0
-       name_columns = 0
-       numerator = 100
-       denominator = 1
+       numerator/denominator = 100/1
        category = 0x48 = H
        reference count = 17
        code = BF1
@@ -6946,10 +5896,7 @@ type 349:
        code = 16B5C
 
 type 350:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000
-       denominator = 1
+       numerator/denominator = 1000/1
        category = 0x48 = H
        reference count = 9
        code = BF2
@@ -6963,10 +5910,7 @@ type 350:
        code = 111F4
 
 type 351:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 1
+       numerator/denominator = 0/1
        category = 0x48 = H
        reference count = 12
        code = C78
@@ -6981,10 +5925,7 @@ type 351:
        codes = 1F10B..1F10C
 
 type 352:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 1
+       numerator/denominator = 1/1
        category = 0x48 = H
        reference count = 37
        code = C79
@@ -7026,10 +5967,7 @@ type 352:
        code = 1F102
 
 type 353:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 1
+       numerator/denominator = 2/1
        category = 0x48 = H
        reference count = 31
        code = C7A
@@ -7065,10 +6003,7 @@ type 353:
        code = 1F103
 
 type 354:
-       name_length = 0
-       name_columns = 0
-       numerator = 3
-       denominator = 1
+       numerator/denominator = 3/1
        category = 0x48 = H
        reference count = 31
        code = C7B
@@ -7104,10 +6039,7 @@ type 354:
        code = 1F104
 
 type 355:
-       name_length = 0
-       name_columns = 0
-       numerator = 4
-       denominator = 1
+       numerator/denominator = 4/1
        category = 0x48 = H
        reference count = 29
        code = 136C
@@ -7140,10 +6072,7 @@ type 355:
        code = 1F105
 
 type 356:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 1
+       numerator/denominator = 5/1
        category = 0x48 = H
        reference count = 25
        code = 136D
@@ -7173,10 +6102,7 @@ type 356:
        code = 1F106
 
 type 357:
-       name_length = 0
-       name_columns = 0
-       numerator = 6
-       denominator = 1
+       numerator/denominator = 6/1
        category = 0x48 = H
        reference count = 21
        code = 136E
@@ -7202,10 +6128,7 @@ type 357:
        code = 1F107
 
 type 358:
-       name_length = 0
-       name_columns = 0
-       numerator = 7
-       denominator = 1
+       numerator/denominator = 7/1
        category = 0x48 = H
        reference count = 21
        code = 136F
@@ -7231,10 +6154,7 @@ type 358:
        code = 1F108
 
 type 359:
-       name_length = 0
-       name_columns = 0
-       numerator = 8
-       denominator = 1
+       numerator/denominator = 8/1
        category = 0x48 = H
        reference count = 21
        code = 1370
@@ -7260,10 +6180,7 @@ type 359:
        code = 1F109
 
 type 360:
-       name_length = 0
-       name_columns = 0
-       numerator = 9
-       denominator = 1
+       numerator/denominator = 9/1
        category = 0x48 = H
        reference count = 21
        code = 1371
@@ -7289,10 +6206,7 @@ type 360:
        code = 1F10A
 
 type 361:
-       name_length = 0
-       name_columns = 0
-       numerator = 20
-       denominator = 1
+       numerator/denominator = 20/1
        category = 0x48 = H
        reference count = 23
        code = 1373
@@ -7320,10 +6234,7 @@ type 361:
        code = 1D36A
 
 type 362:
-       name_length = 0
-       name_columns = 0
-       numerator = 30
-       denominator = 1
+       numerator/denominator = 30/1
        category = 0x48 = H
        reference count = 10
        code = 1374
@@ -7338,10 +6249,7 @@ type 362:
        code = 1D36B
 
 type 363:
-       name_length = 0
-       name_columns = 0
-       numerator = 40
-       denominator = 1
+       numerator/denominator = 40/1
        category = 0x48 = H
        reference count = 10
        code = 1375
@@ -7356,10 +6264,7 @@ type 363:
        code = 1D36C
 
 type 364:
-       name_length = 0
-       name_columns = 0
-       numerator = 50
-       denominator = 1
+       numerator/denominator = 50/1
        category = 0x48 = H
        reference count = 12
        code = 1376
@@ -7376,10 +6281,7 @@ type 364:
        code = 1D36D
 
 type 365:
-       name_length = 0
-       name_columns = 0
-       numerator = 90
-       denominator = 1
+       numerator/denominator = 90/1
        category = 0x48 = H
        reference count = 8
        code = 137A
@@ -7392,10 +6294,7 @@ type 365:
        code = 1D371
 
 type 366:
-       name_length = 0
-       name_columns = 0
-       numerator = 10000
-       denominator = 1
+       numerator/denominator = 10000/1
        category = 0x48 = H
        reference count = 4
        code = 137C
@@ -7404,20 +6303,14 @@ type 366:
        code = 16B5D
 
 type 367:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 3
+       numerator/denominator = 1/3
        category = 0x48 = H
        reference count = 2
        code = 2153
        code = 10E7D
 
 type 368:
-       name_length = 0
-       name_columns = 0
-       numerator = 2
-       denominator = 3
+       numerator/denominator = 2/3
        category = 0x48 = H
        reference count = 3
        code = 2154
@@ -7425,28 +6318,19 @@ type 368:
        code = 10E7E
 
 type 369:
-       name_length = 0
-       name_columns = 0
-       numerator = 1
-       denominator = 6
+       numerator/denominator = 1/6
        category = 0x48 = H
        reference count = 1
        code = 2159
 
 type 370:
-       name_length = 0
-       name_columns = 0
-       numerator = 5
-       denominator = 6
+       numerator/denominator = 5/6
        category = 0x48 = H
        reference count = 1
        code = 215A
 
 type 371:
-       name_length = 0
-       name_columns = 0
-       numerator = 11
-       denominator = 1
+       numerator/denominator = 11/1
        category = 0x48 = H
        reference count = 4
        code = 246A
@@ -7455,10 +6339,7 @@ type 371:
        code = 24EB
 
 type 372:
-       name_length = 0
-       name_columns = 0
-       numerator = 12
-       denominator = 1
+       numerator/denominator = 12/1
        category = 0x48 = H
        reference count = 4
        code = 246B
@@ -7467,10 +6348,7 @@ type 372:
        code = 24EC
 
 type 373:
-       name_length = 0
-       name_columns = 0
-       numerator = 17
-       denominator = 1
+       numerator/denominator = 17/1
        category = 0x48 = H
        reference count = 4
        code = 2470
@@ -7479,10 +6357,7 @@ type 373:
        code = 24F1
 
 type 374:
-       name_length = 0
-       name_columns = 0
-       numerator = 18
-       denominator = 1
+       numerator/denominator = 18/1
        category = 0x48 = H
        reference count = 4
        code = 2471
@@ -7491,10 +6366,7 @@ type 374:
        code = 24F2
 
 type 375:
-       name_length = 0
-       name_columns = 0
-       numerator = 19
-       denominator = 1
+       numerator/denominator = 19/1
        category = 0x48 = H
        reference count = 4
        code = 2472
@@ -7503,10 +6375,7 @@ type 375:
        code = 24F3
 
 type 376:
-       name_length = 0
-       name_columns = 0
-       numerator = 300
-       denominator = 1
+       numerator/denominator = 300/1
        category = 0x48 = H
        reference count = 3
        code = 1011B
@@ -7514,10 +6383,7 @@ type 376:
        code = 10E74
 
 type 377:
-       name_length = 0
-       name_columns = 0
-       numerator = 500
-       denominator = 1
+       numerator/denominator = 500/1
        category = 0x48 = H
        reference count = 3
        code = 1011D
@@ -7525,10 +6391,7 @@ type 377:
        code = 10E76
 
 type 378:
-       name_length = 0
-       name_columns = 0
-       numerator = 900
-       denominator = 1
+       numerator/denominator = 900/1
        category = 0x48 = H
        reference count = 3
        code = 10121
@@ -7536,46 +6399,31 @@ type 378:
        code = 10E7A
 
 type 379:
-       name_length = 0
-       name_columns = 0
-       numerator = 5000
-       denominator = 1
+       numerator/denominator = 5000/1
        category = 0x48 = H
        reference count = 1
        code = 10126
 
 type 380:
-       name_length = 0
-       name_columns = 0
-       numerator = 50000
-       denominator = 1
+       numerator/denominator = 50000/1
        category = 0x48 = H
        reference count = 1
        code = 1012F
 
 type 381:
-       name_length = 0
-       name_columns = 0
-       numerator = 100000000
-       denominator = 1
+       numerator/denominator = 100000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B5F
 
 type 382:
-       name_length = 0
-       name_columns = 0
-       numerator = 1000000000000
-       denominator = 1
+       numerator/denominator = 1000000000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B61
 
 type 383:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 13
        code = 1680
@@ -7583,55 +6431,37 @@ type 383:
        code = 3000
 
 type 384:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x6C = l
        reference count = 1
        code = 2028
 
 type 385:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x70 = p
        reference count = 1
        code = 2029
 
 type 386:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x76 = v
        reference count = 6400
        codes = E000..F8FF
 
 type 387:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x67 = g
        reference count = 2048
        codes = D800..DFFF
 
 type 388:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2D = -
        reference count = 1
        code = 2D
 
 type 389:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x64 = d
        reference count = 23
        code = 58A
@@ -7652,37 +6482,25 @@ type 389:
        code = FF0D
 
 type 390:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x28 = (
        reference count = 1
        code = 28
 
 type 391:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x5B = [
        reference count = 1
        code = 5B
 
 type 392:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7B = {
        reference count = 1
        code = 7B
 
 type 393:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x6F = o
        reference count = 72
        code = F3A
@@ -7759,37 +6577,25 @@ type 393:
        code = FF62
 
 type 394:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x29 = )
        reference count = 1
        code = 29
 
 type 395:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x5D = ]
        reference count = 1
        code = 5D
 
 type 396:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7D = }
        reference count = 1
        code = 7D
 
 type 397:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x63 = c
        reference count = 70
        code = F3B
@@ -7863,19 +6669,13 @@ type 397:
        code = FF63
 
 type 398:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x5F = _
        reference count = 1
        code = 5F
 
 type 399:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x6E = n
        reference count = 9
        codes = 203F..2040
@@ -7885,190 +6685,127 @@ type 399:
        code = FF3F
 
 type 400:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x21 = !
        reference count = 1
        code = 21
 
 type 401:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x22 = "
        reference count = 1
        code = 22
 
 type 402:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x23 = #
        reference count = 1
        code = 23
 
 type 403:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x25 = %
        reference count = 1
        code = 25
 
 type 404:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x26 = &
        reference count = 1
        code = 26
 
 type 405:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x27 = '
        reference count = 1
        code = 27
 
 type 406:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2A = *
        reference count = 1
        code = 2A
 
 type 407:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2C = ,
        reference count = 1
        code = 2C
 
 type 408:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2E = .
        reference count = 1
        code = 2E
 
 type 409:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2F = /
        reference count = 1
        code = 2F
 
 type 410:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3A = :
        reference count = 1
        code = 3A
 
 type 411:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3B = ;
        reference count = 1
        code = 3B
 
 type 412:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3F = ?
        reference count = 1
        code = 3F
 
 type 413:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x40 = @
        reference count = 1
        code = 40
 
 type 414:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x5C = \
        reference count = 1
        code = 5C
 
 type 415:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA1
        reference count = 1
        code = A1
 
 type 416:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA7
        reference count = 1
        code = A7
 
 type 417:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB6
        reference count = 1
        code = B6
 
 type 418:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB7
        reference count = 1
        code = B7
 
 type 419:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xBF
        reference count = 1
        code = BF
 
 type 420:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x68 = h
        reference count = 464
        code = 37E
@@ -8212,100 +6949,67 @@ type 420:
        code = 1BC9F
 
 type 421:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x2B = +
        reference count = 1
        code = 2B
 
 type 422:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3C = <
        reference count = 1
        code = 3C
 
 type 423:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3D = =
        reference count = 1
        code = 3D
 
 type 424:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x3E = >
        reference count = 1
        code = 3E
 
 type 425:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7C = |
        reference count = 1
        code = 7C
 
 type 426:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x7E = ~
        reference count = 1
        code = 7E
 
 type 427:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAC
        reference count = 1
        code = AC
 
 type 428:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB1
        reference count = 1
        code = B1
 
 type 429:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xD7
        reference count = 1
        code = D7
 
 type 430:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xF7
        reference count = 1
        code = F7
 
 type 431:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x6D = m
        reference count = 938
        code = 3F6
@@ -8366,55 +7070,37 @@ type 431:
        codes = 1EEF0..1EEF1
 
 type 432:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x24 = $
        reference count = 1
        code = 24
 
 type 433:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA2
        reference count = 1
        code = A2
 
 type 434:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA3
        reference count = 1
        code = A3
 
 type 435:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA4
        reference count = 1
        code = A4
 
 type 436:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA5
        reference count = 1
        code = A5
 
 type 437:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x79 = y
        reference count = 47
        code = 58F
@@ -8434,64 +7120,43 @@ type 437:
        codes = FFE5..FFE6
 
 type 438:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x5E = ^
        reference count = 1
        code = 5E
 
 type 439:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x60 = `
        reference count = 1
        code = 60
 
 type 440:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA8
        reference count = 1
        code = A8
 
 type 441:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAF
        reference count = 1
        code = AF
 
 type 442:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB4
        reference count = 1
        code = B4
 
 type 443:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB8
        reference count = 1
        code = B8
 
 type 444:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x72 = r
        reference count = 110
        codes = 2C2..2C5
@@ -8518,46 +7183,31 @@ type 444:
        code = FFE3
 
 type 445:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA6
        reference count = 1
        code = A6
 
 type 446:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xA9
        reference count = 1
        code = A9
 
 type 447:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAE
        reference count = 1
        code = AE
 
 type 448:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xB0
        reference count = 1
        code = B0
 
 type 449:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x74 = t
        reference count = 5078
        code = 482
@@ -8723,19 +7373,13 @@ type 449:
        codes = 1F890..1F8AD
 
 type 450:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xAB
        reference count = 1
        code = AB
 
 type 451:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x69 = i
        reference count = 11
        code = 2018
@@ -8750,19 +7394,13 @@ type 451:
        code = 2E20
 
 type 452:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0xBB
        reference count = 1
        code = BB
 
 type 453:
-       name_length = 0
-       name_columns = 0
-       numerator = 0
-       denominator = 0
+       numerator/denominator = 0/0
        category = 0x66 = f
        reference count = 9
        code = 2019

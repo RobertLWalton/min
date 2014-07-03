@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 16:07:42 EDT 2014
+// Date:	Thu Jul  3 07:18:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4108,6 +4108,24 @@ namespace min {
 	( char * & s, const char * ends,
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
+
+    // A Ustring is a sequence of Uchars the first of
+    // which encodes the length and number of columns
+    // of the remainder.
+    //
+    typedef Uchar Ustring;
+    inline min::uns32 Ustring_length ( Ustring * p )
+    {
+        return * p & 0xFFFF;
+    }
+    inline min::uns32 Ustring_columns ( Ustring * p )
+    {
+        return * p >> 16;
+    }
+    inline Uchar * Ustring_chars ( Ustring * p )
+    {
+        return p + 1;
+    }
 
     inline min::uns8 unicode_category ( Uchar c )
     {
@@ -11347,12 +11365,12 @@ namespace min {
 
         const char *         number_format;
 
-	const Uchar *        str_prefix_new;
-	const Uchar *        str_postfix_new;
-	const Uchar *        str_postfix_name;
-	const Uchar *        str_char_name_prefix;
-	const Uchar *        str_char_name_postfix;
-	const Uchar *        str_concatenator;
+	const Ustring *      str_prefix_new;
+	const Ustring *      str_postfix_new;
+	const Ustring *      str_postfix_name;
+	const Ustring *      str_char_name_prefix;
+	const Ustring *      str_char_name_postfix;
+	const Ustring *      str_concatenator;
 	uns32	     	     str_max_length;
 	const char *         str_prefix;   // Deprecated
 	const char *         str_postfix;  // Deprecated

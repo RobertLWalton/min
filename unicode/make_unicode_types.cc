@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 11:14:07 EDT 2014
+// Date:	Thu Jul  3 06:00:48 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,16 +72,23 @@ struct unicode_type
 	// if they are not a letter < 127.
 
     unsigned short name;
-    unsigned char name_length;
-    unsigned char name_columns;
         // If name != 0, then the character has a name
-	// that begins with unicode_names[name] and
-	// has name_length unicode characters that take
-	// name_columns print columns when printed
-	// consecutively.  Examples are HT, SP, LF, DEL;
-	// e.g., control characters and space characters
-	// have names.  Names are assigned by the
-	// UNICODE standard and are NOT made up.
+	// that begins with unicode_names[name+1],
+	// while uncode[name] holds the name length in
+	// Uchars in its low order 16 bits, and the
+	// number of columns used in its high order
+	// 16 bits.  To compute the number of columns,
+	// it is assumed all UNICODE characters take
+	// one column, except non-spacing marks, with
+	// category 'N', take zero columns.  This
+	// further assumes control characters are not
+	// in names.
+	//
+	// Examples are HT, SP, LF, DEL; e.g., control
+	// characters and space characters have names.
+	//
+	// Names are assigned by the UNICODE standard
+	// and are NOT made up.
 
     signed long long numerator, denominator;
         // For number characters, the numeric value of
@@ -181,8 +188,7 @@ unicode_type & new_unicode_type ( Uchar c )
 
     unicode_type & type = unicode_types[i];
     type.category = UNSPECIFIED_CATEGORY;
-    type.name = type.name_length
-	      = type.name_columns = 0;
+    type.name = 0;
     type.numerator = type.denominator = 0;
     type.reference_count = 1;
     return type;
@@ -193,12 +199,15 @@ unicode_type & new_unicode_type ( Uchar c )
 // Initialize tables.  unicode_types[0] gets category
 // 'w' and 0 becomes the index for characters not
 // assigned any category, name, or numeric value.
+// First element of unicode_names is unused.
 //
 void initialize ( void )
 {
     assert ( unicode_types_size == 0 );
     unicode_type & type = new_unicode_type ( 0 );
     type.reference_count = unicode_index_size;
+    assert ( unicode_names_size == 0 );
+    unicode_names[unicode_names_size++] = 0;
 }
 
 // Store UNICODE name for a character.  Complain if
@@ -219,7 +228,7 @@ void store_name ( Uchar c, const char * name )
     {
         unicode_type & type =
 	    unicode_types[unicode_index[c]];
-	assert ( type.name_length > 0 );
+	assert ( type.name != 0 );
 	    // Names should be set before number values
 	    // and categories.
 	line_error ( "character %02X assigned more than"
@@ -234,10 +243,10 @@ void store_name ( Uchar c, const char * name )
     //
     unicode_type & type = new_unicode_type ( c );
     type.name = unicode_names_size;
-    type.name_length = name_length;
-    type.name_columns = name_length;
-    assert (    unicode_names_size + name_length
+    assert (    unicode_names_size + 1 + name_length
              <= unicode_names_max_size );
+    unicode_names[unicode_names_size++] =
+        ( name_length << 16 ) + name_length;
     for ( unsigned j = 0; j < name_length; ++ j )
         unicode_names[unicode_names_size++] = name[j];
 
@@ -247,12 +256,16 @@ void store_name ( Uchar c, const char * name )
                           ++ i )
     {
         unicode_type & type2 = unicode_types[i];
-	if ( type2.name_length != type.name_length )
+	if ( type2.name == 0 )
+	    continue;
+	unsigned name_length2 =
+	    unicode_names[type2.name] & 0xFFFF;
+	if ( name_length != name_length2 )
 	    continue;
 
-	if ( memcmp ( unicode_names + type.name,
-	              unicode_names + type2.name,
-		        type.name_length
+	if ( memcmp ( unicode_names + type.name + 1,
+	              unicode_names + type2.name + 1,
+		        name_length
 		      * sizeof ( Uchar ) )
              == 0 )
 	{
@@ -304,7 +317,7 @@ void store_numeric_value
 	for ( i = 0; i < unicode_types_size; ++ i )
 	{
 	    unicode_type & type = unicode_types[i];
-	    if ( type.name_length > 0 )
+	    if ( type.name != 0 )
 	        continue;
 	    if ( type.numerator != numerator )
 	        continue;
@@ -358,7 +371,7 @@ void store_category ( Uchar c, unsigned char category )
     {
         unicode_type & type = unicode_types[i];
 
-	if ( type.name_length != 0 )
+	if ( type.name != 0 )
 	{
 	    if ( type.category == UNSPECIFIED_CATEGORY )
 		type.category = category;
@@ -385,7 +398,7 @@ void store_category ( Uchar c, unsigned char category )
 		{
 		    unicode_type & type2 =
 			unicode_types[i];
-		    if ( type2.name_length > 0 )
+		    if ( type2.name != 0 )
 		        continue;
 		    if (    type2.numerator
 		         != type.numerator )
@@ -435,7 +448,7 @@ void store_category ( Uchar c, unsigned char category )
 	unicode_type & type = unicode_types[i];
 	if ( type.category != category ) continue;
 	if ( type.denominator != 0 ) continue;
-	if ( type.name_length != 0 ) continue;
+	if ( type.name != 0 ) continue;
 
 	assert ( unicode_index[c] == 0 );
 	-- unicode_types[0].reference_count;

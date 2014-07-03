@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 30 16:32:59 EDT 2014
+// Date:	Thu Jul  3 07:13:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,16 +37,23 @@ struct unicode_type
 	// SP or DEL, etc.).
 
     unsigned short name;
-    unsigned char name_length;
-    unsigned char name_columns;
         // If name != 0, then the character has a name
-	// that begins with unicode_names[name] and
-	// has name_length unicode characters that take
-	// name_columns print columns when printed
-	// consecutively.  Examples are HT, SP, LF, DEL;
-	// e.g., control characters and space characters
-	// have names.  Names are assigned by the
-	// UNICODE standard and are NOT made up.
+	// that begins with unicode_names[name+1],
+	// while uncode[name] holds the name length in
+	// Uchars in its low order 16 bits, and the
+	// number of columns used in its high order
+	// 16 bits.  To compute the number of columns,
+	// it is assumed all UNICODE characters take
+	// one column, except non-spacing marks, with
+	// category 'N', take zero columns.  This
+	// further assumes control characters are not
+	// in names.
+	//
+	// Examples are HT, SP, LF, DEL; e.g., control
+	// characters and space characters have names.
+	//
+	// Names are assigned by the UNICODE standard
+	// and are NOT made up.
 
     signed long long numerator, denominator;
         // For number characters, the numeric value of

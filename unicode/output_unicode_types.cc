@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 12:32:50 EDT 2014
+// Date:	Thu Jul  3 07:11:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,13 +45,18 @@ void print_unicode_type
     const unicode_type & type = unicode_types[t];
 
     out << "type " << t << ":" << endl;
-    if ( type.name_length > 0 )
+    if ( type.name != 0 )
     {
         out << "       name = `";
-	for ( unsigned i = 0; i < type.name_length;
-	                      ++ i )
+	Uchar header = unicode_names[type.name];
+	unsigned name_length = header & 0xFFFF;
+	unsigned name_columns = header >> 16;
+	assert ( name_columns == name_length );
+	    // Non-spacing marks are not currently
+	    // supported.
+	for ( unsigned i = 0; i < name_length; ++ i )
 	{
-	    Uchar c = unicode_names[type.name+i];
+	    Uchar c = unicode_names[type.name+1+i];
 	    assert ( ' ' < c && c < 0xFF );
 	        // Currently only ASCII names are
 		// supported.
@@ -68,14 +73,9 @@ void print_unicode_type
 	sprintf ( p, " = %c", (char) type.category );
     }
 
-    out << "       name_length = "
-	<< (int) type.name_length << endl
-	<< "       name_columns = "
-	<< (int) type.name_columns << endl
-	<< "       numerator = "
-	<< type.numerator << endl
-	<< "       denominator = "
-	<< type.denominator << endl
+    out << "       numerator/denominator = "
+	<< type.numerator << "/" << type.denominator
+	<< endl
 	<< "       category = "
 	<< category << endl
 	<< "       reference count = "
@@ -199,8 +199,6 @@ void output ( const char * filename )
 	if ( t != 0 ) out << ",";
         out << " \\\n    { 0x" << category
 	    << ", " << type.name
-	    << ", " << (short) type.name_length
-	    << ", " << (short) type.name_columns
 	    << ", " << type.numerator
 	    << ", " << type.denominator
 	    << ", " << type.reference_count
@@ -225,7 +223,7 @@ void output ( const char * filename )
 	if ( ' ' <= c && c < 0xFF )
 	    sprintf ( buf, "'%c'", (char) c );
 	else
-	    sprintf ( buf, "%02X", c );
+	    sprintf ( buf, "0x%02X", c );
 
 	if ( i != 0 ) out << ", ";
         if ( i % 5 == 0 ) out << "\\\n    ";
@@ -271,19 +269,9 @@ void final_check ( void )
     for ( unsigned i = 0; i < unicode_types_size; ++ i )
     {
 	const unicode_type & type = unicode_types[i];
-        if ( count[i] == type.reference_count
-	     &&
-	     ( count[i] > 0 || i == 0 )
-	     &&
-	     ( type.denominator > 0
-	       ||
-	       type.numerator ==  0 )
-	     &&
-	     type.name_columns <= type.name_length )
-           continue;
-
-	cout << "ERROR: in final check of ";
-	print_unicode_type ( i );
+	unsigned name_length =
+	    type.name == 0 ? 0 :
+	        unicode_names[type.name] & 0xFFFF;
 
 	for ( unsigned i2 = 0; i2 < i; ++ i2 )
 	{
@@ -291,11 +279,16 @@ void final_check ( void )
 	        unicode_types[i2];
 	    if ( type.category != type2.category )
 	        continue;
-	    if ( type.name_length != type2.name_length )
+	    unsigned name_length2 =
+		type2.name == 0 ? 0 :
+		    unicode_names[type2.name] & 0xFFFF;
+	    if ( name_length != name_length2 )
 	        continue;
-	    if (    memcmp ( unicode_names + type.name,
-	                     unicode_names + type2.name,
-			       type.name_length
+	    if (    memcmp (   unicode_names
+	                     + type.name + 1,
+	                       unicode_names
+			     + type2.name + 1,
+			       name_length
 			     * sizeof ( Uchar ) )
 	         != 0 )
 	        continue;
@@ -311,5 +304,23 @@ void final_check ( void )
 	    cout << "  (2) ";
 	    print_unicode_type ( i2 );
 	}
+
+	unsigned name_columns =
+	    type.name == 0 ? 0 :
+	        unicode_names[type.name] >> 16;
+
+        if ( count[i] == type.reference_count
+	     &&
+	     ( count[i] > 0 || i == 0 )
+	     &&
+	     ( type.denominator > 0
+	       ||
+	       type.numerator ==  0 )
+	     &&
+	     name_columns == name_length )
+           continue;
+
+	cout << "ERROR: in final check of ";
+	print_unicode_type ( i );
     }
 }
