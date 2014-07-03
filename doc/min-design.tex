@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 2, 2014}
+\date{July 3, 2014}
  
 \maketitle
 
@@ -3719,6 +3719,42 @@ on Figure~\ref{UNICODE-CATEGORIES}.
 \caption{\TT{min::unicode\_category} values}
 \label{UNICODE-CATEGORIES}
 \end{boxedfigure}
+
+Constant \skey{UNICODE string}s can be represented
+as \TT{const min::\EOL Ustring *} values
+which are sequences of 32 bit unsigned integers.  The first integer,
+called the \mkey{header}{of {\tt Ustring}},
+holds the length of the string (not counting the header) in its
+low order 16 bits, and the number of print columns the string
+will take in its high order 16 bits.  The remainder of the integers
+are \TT{Uchar} values encoding the UNICODE characters.
+In computing the number of print columns, UNICODE characters are all
+assumed to take 1 column except for the non-spacing marks
+(e.g., combining diacritics), the characters with MIN category \TT{'N'},
+which are assumed to take 0 columns.
+
+The following are for programming with \TT{Ustring}'s:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
+\LABEL{MIN::USTRING} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_length} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_columns} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_COLUMNS} \\
+\verb|const min::Uchar * min::|
+    & \MINKEY{unicode\_string} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_STRING} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::unicode\_\EOL length} function returns the number
+of \TT{Uchar}'s in the \TT{Ustring}.
+The \TT{min::unicode\_\EOL columns} function returns the number
+of print columns these take.
+The \TT{min::unicode\_\EOL string} function returns a pointer
+to the \TT{Uchar} vector in the \TT{Ustring}.
 
 The following functions test a \TT{min::gen} value to see if it
 is a string and obtain information from
@@ -13924,6 +13960,26 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 \verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
 \LABEL{MIN::UNICODE_CATEGORY}
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
+\LABEL{MIN::USTRING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_length} \ARGBREAK
+      \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_columns}\ARGBREAK
+      \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_COLUMNS} \\
+\verb|const min::Uchar * min::|
+    & \MINKEY{unicode\_string} \ARGBREAK
+      \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_STRING} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
