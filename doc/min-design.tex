@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 3, 2014}
+\date{July 4, 2014}
  
 \maketitle
 
@@ -3721,7 +3721,7 @@ on Figure~\ref{UNICODE-CATEGORIES}.
 \end{boxedfigure}
 
 Constant \skey{UNICODE string}s can be represented
-as \TT{const min::\EOL Ustring *} values
+as \TT{const min::\EOL Ustring *}\ttindex{Ustring}\label{USTRING} values
 which are sequences of 32 bit unsigned integers.  The first integer,
 called the \mkey{header}{of {\tt Ustring}},
 holds the length of the string (not counting the header) in its
@@ -8078,17 +8078,17 @@ can be printed using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{punicode} \verb|( min::uns32 c )|
+    & \MINKEY{punicode} \verb|( min::Uchar c )|
 \LABEL{MIN::PUNICODE} \\
 \verb|min::op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  const min::uns32 * str )|
+      \verb|  const min::Uchar * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \verb|min::op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  min::ptr<const min::uns32> str )|
+      \verb|  min::ptr<const min::Uchar> str )|
 \LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -8112,7 +8112,7 @@ is input to the function as the
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  min::uns32 c,|\ARGBREAK
+         \verb|  min::Uchar c,|\ARGBREAK
          \verb|  min::uns32 print_flags )|
 \LABEL{MIN::PWIDTH} \\
 \end{tabular}\end{indpar}
@@ -8745,12 +8745,12 @@ is as follows:
     \verb|  const char *             number_format;|\ARGBREAK
 \ttmindex{number\_format}{in {\tt min::gen\_format}}
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::Uchar *       str_prefix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_postfix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_postfix_name;|\ARGBREAK
-    \verb|  const min::Uchar *       str_char_name_prefix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_char_name_postfix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_concatenator;|\ARGBREAK
+    \verb|  const min::Ustring *     str_prefix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_postfix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_postfix_name;|\ARGBREAK
+    \verb|  const min::Ustring *     str_char_name_prefix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_char_name_postfix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_concatenator;|\ARGBREAK
     \verb|  min::uns32         	     str_max_length;|\ARGBREAK
 \ttmindex{str\_prefix}{in {\tt min::gen\_format}}
 \ttmindex{str\_postfix}{in {\tt min::gen\_format}}
@@ -8907,8 +8907,9 @@ is as follows:
 \verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
 \end{tabular}\end{indpar}
 
-In above, \TT{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
-converted to a \TT{const min::\EOL Uchar} vector with ending \TT{0} element.
+In the above, \ttkey{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
+converted to a \TT{const min::\EOL Uchar *} vector with initial header
+element: see \pagref{USTRING}.
 
 The {\tt min::gen\_format} members are:
 
@@ -15624,7 +15625,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  min::uns32 c,|\ARGBREAK
+         \verb|  min::Uchar c,|\ARGBREAK
          \verb|  min::uns32 flags )|
 \LABEL{MIN::PWIDTH} \\
 \verb|void min::|
@@ -15880,12 +15881,12 @@ These are in \verb|min_parameters.h|.
     \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             number_format;|\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::Uchar *       str_prefix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_postfix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_postfix_name;|\ARGBREAK
-    \verb|  const min::Uchar *       str_char_name_prefix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_char_name_postfix;|\ARGBREAK
-    \verb|  const min::Uchar *       str_concatenator;|\ARGBREAK
+    \verb|  const min::Ustring *     str_prefix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_postfix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_postfix_name;|\ARGBREAK
+    \verb|  const min::Ustring *     str_char_name_prefix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_char_name_postfix;|\ARGBREAK
+    \verb|  const min::Ustring *     str_concatenator;|\ARGBREAK
     \verb|  min::uns32         	     str_max_length;|\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  const char *             lab_prefix;|\ARGBREAK
