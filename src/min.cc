@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  3 13:24:24 EDT 2014
+// Date:	Thu Jul  3 22:10:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,7 @@
 # include <cctype>
 # define MUP min::unprotected
 # define MINT min::internal
+# define UNI min::unicode
 
 # define ERR min::init ( min::error_message ) \
     << min::set_indent ( 7 ) << "ERROR: "
@@ -9187,24 +9188,8 @@ const min::op min::flush_one_id
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
-// Return the length and number of columns of a UNICODE
-// vector.
-// 
-inline min::unsptr unicode_length
-	( min::Uchar * p, min::uns32 & columns )
-{
-    min::unsptr length = 0;
-    columns = 0;
-    while ( min::Uchar c = * p ++ )
-    {
-	++ length;
-	columns += ! ::is_non_spacing ( c );
-    }
-    return length;
-}
-
 // Execute pgen (below) in case string is to be
-// bracketed.
+// bracketed.  String must NOT be relocatable.
 //
 template < typename T >
 static T pgen_bracketed_str
@@ -9216,14 +9201,131 @@ static T pgen_bracketed_str
 	  min::uns32 width )
 {
 
-    min::uns32 prefix_columns, postfix_columns,
-               postfix_name_columns;
-    min::unsptr prefix_length = unicode_length
-    	( f->str_prefix_new, prefix_columns );
-    min::unsptr postfix_length = unicode_length
-    	( f->str_postfix_new, postfix_columns );
-    min::unsptr postfix_name_length = unicode_length
-    	( f->str_postfix_name, postfix_name_columns );
+    min::uns32 reduced_width = width
+               - min::Ustring_columns
+	             ( f->str_prefix_new )
+               - min::Ustring_columns
+	             ( f->str_postfix_new );
+    assert ( reduced_width >= 10 );
+
+    min::uns32 char_name_fix_width =
+                 min::Ustring_columns
+	             ( f->str_char_name_prefix )
+               + min::Ustring_columns
+	             ( f->str_char_name_postfix );
+
+    min::uns32 postfix_length =
+        min::Ustring_length ( f->str_postfix_new );
+    const min::Uchar * postfix_string =
+        min::Ustring_chars ( f->str_postfix_new );
+
+    out << min::pUstring ( f->str_prefix_new );
+
+    min::uns32 remaining_width = reduced_width;
+
+    min::uns32 i = 0;
+    while ( i < length )
+    {
+	// Strategy is to process a character and
+	// continue if we have not run out of
+	// remaining_width, or to set remaining_width
+	// to 0 without processing the character and
+	// continue to break string before character.
+	//
+	if ( remaining_width == 0 )
+	{
+	    out << min::punicode ( i, string )
+		<< min::pUstring
+		      ( f->str_postfix_new )
+		<< " "
+		<< min::set_break
+		<< min::pUstring
+		      ( f->str_concatenator )
+		<< " "
+		<< min::set_break
+		<< min::pUstring
+		      ( f->str_postfix_new );
+	    length -= i;
+	    string += i;
+	    i = 0;
+	    remaining_width = reduced_width;
+	}
+
+        min::Uchar c = string[i];
+
+	if ( c >= UNI::unicode_index_size )
+	{
+	    // Unusual very large character; treat as 1
+	    // print column.
+	    //
+	    -- remaining_width;
+	    ++ i;
+	    continue;
+	}
+
+	if ( c == postfix_string[0] )
+	{
+	    if ( length - i >= postfix_length
+	         &&
+		    memcmp ( string + i, postfix_string,
+		             postfix_length )
+		 == 0 )
+	    {
+		min::uns32 columns =
+		     min::Ustring_columns
+		         ( f->str_postfix_name );
+	        if ( remaining_width >= columns )
+	        {
+		    out << min::punicode ( i, string )
+		        << min::pUstring
+			      ( f->str_postfix_name );
+		    ++ i;
+		    length -= i;
+		    string += i;
+		    i = 0;
+		    remaining_width -= columns;
+		}
+		else remaining_width = 0;
+		continue;
+	    }
+	}
+
+	UNI::unicode_type & Utype =
+	    UNI::unicode_types[UNI::unicode_index[c]];
+
+	if ( Utype.name != 0 )
+	{
+	    const min::Ustring * name =
+	        UNI::unicode_names + Utype.name;
+	    min::uns32 columns =
+	        min::Ustring_columns ( name )
+		+
+		char_name_fix_width;
+	    if ( columns <= remaining_width )
+	    {
+	        out << min::punicode ( i, string )
+		    << min::pUstring
+		           ( f->str_char_name_prefix )
+		    << min::pUstring ( name )
+		    << min::pUstring
+		           ( f->str_char_name_postfix );
+
+		++ i;
+		length -= i;
+		string += i;
+		i = 0;
+		remaining_width -= columns;
+	    }
+	    else remaining_width = 0;
+	}
+	else if ( Utype.category == 'N' )
+	    ++ i;
+	else
+	{
+	    -- remaining_width;
+	    ++ i;
+	}
+    }
     
 }
 

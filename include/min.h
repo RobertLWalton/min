@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  3 07:18:21 EDT 2014
+// Date:	Fri Jul  4 06:04:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4114,15 +4114,18 @@ namespace min {
     // of the remainder.
     //
     typedef Uchar Ustring;
-    inline min::uns32 Ustring_length ( Ustring * p )
+    inline min::uns32 Ustring_length
+            ( const Ustring * p )
     {
         return * p & 0xFFFF;
     }
-    inline min::uns32 Ustring_columns ( Ustring * p )
+    inline min::uns32 Ustring_columns
+            ( const Ustring * p )
     {
         return * p >> 16;
     }
-    inline Uchar * Ustring_chars ( Ustring * p )
+    inline const Uchar * Ustring_chars
+            ( const Ustring * p )
     {
         return p + 1;
     }
@@ -11078,6 +11081,15 @@ namespace min {
 	            min::new_ptr ( str ) );
     }
 
+    inline op pUstring
+	    ( const min::Ustring * str )
+    {
+        return op ( op::PUNICODE2,
+	            min::Ustring_length ( str ),
+	            min::new_ptr
+		      ( min::Ustring_chars ( str ) ) );
+    }
+
     inline op pint
 	    ( min::int64 i,
               const char * printf_format )
@@ -11200,18 +11212,18 @@ namespace min {
     namespace internal
     {
 	void pwidth
-	    ( uns32 & column, uns32 c,
+	    ( uns32 & column, Uchar c,
 	      uns32 print_flags );
 
         min::printer print_unicode
 		( min::printer printer,
 		  min::unsptr n,
-		  min::ptr<const min::uns32> p );
+		  min::ptr<const min::Uchar> p );
 
         inline min::printer print_unicode
 		( min::printer printer,
 		  min::unsptr n,
-		  const min::uns32 * p )
+		  const min::Uchar * p )
 	{
 	    return print_unicode
 	        ( printer, n, min::new_ptr ( p ) );
@@ -11220,7 +11232,7 @@ namespace min {
 
     inline void pwidth
 	( min::uns32 & column,
-	  min::uns32 c, min::uns32 print_flags )
+	  min::Uchar c, min::uns32 print_flags )
     {
 	// Handle common cases and call out-of-line for
 	// less common cases.
@@ -11293,7 +11305,7 @@ inline min::printer operator <<
 	( min::printer printer,
 	  char c )
 {
-    min::uns32 unicode = c;
+    min::Uchar unicode = c;
     return min::internal::print_unicode
 	    ( printer, 1, & unicode );
 }
