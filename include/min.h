@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 06:04:42 EDT 2014
+// Date:	Fri Jul  4 16:41:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11377,16 +11377,13 @@ namespace min {
 
         const char *         number_format;
 
-	const Ustring *      str_prefix_new;
-	const Ustring *      str_postfix_new;
+	const Ustring *      str_prefix;
+	const Ustring *      str_postfix;
 	const Ustring *      str_postfix_name;
 	const Ustring *      str_char_name_prefix;
 	const Ustring *      str_char_name_postfix;
 	const Ustring *      str_concatenator;
 	uns32	     	     str_max_length;
-	const char *         str_prefix;   // Deprecated
-	const char *         str_postfix;  // Deprecated
-	const char *         str_quote;	   // Deprecated
 
 	const char *         lab_prefix;
 	const char *         lab_separator;

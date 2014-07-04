@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  3 22:10:51 EDT 2014
+// Date:	Fri Jul  4 15:49:44 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8112,7 +8112,9 @@ std::ostream & operator <<
 	return ::ostream_unicode
 	    ( out, min::ostream_print_format.flags,
 	      op.v1.uptr,
-	      (const min::uns32 *) op.v2.p );
+   	      ! MUP::new_ptr<const min::uns32>
+		    ( (const min::stub *) op.v2.p,
+		      op.v3.uptr ) );
     case min::op::PINT:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
@@ -9169,7 +9171,7 @@ const min::gen_format min::default_gen_format =
     
     ::str_prefix, ::str_postfix, ::str_postfix_name,
     ::str_char_name_prefix, ::str_char_name_postfix,
-    ::str_concatenator, 8, "\"", "\"", "<Q>",
+    ::str_concatenator, 8,
 
     "[: ", " ", " :]",
 
@@ -9191,21 +9193,28 @@ const min::op min::flush_id_map
 // Execute pgen (below) in case string is to be
 // bracketed.  String must NOT be relocatable.
 //
+// Width is maximum number of columns to be taken by
+// the string and its brackets, but excluding any
+// concatenator.  After printing the first segment of
+// a multi-segment string, width is reduced by the
+// number of columns taken by the concatenator plus one
+// space.
+//
 template < typename T >
 static T pgen_bracketed_str
 	( T out,
 	  min::uns32 gen_flags,
 	  const min::Uchar * string,
-	  const min::uns32 length,
+	  min::uns32 length,
 	  const min::gen_format * f,
 	  min::uns32 width )
 {
 
     min::uns32 reduced_width = width
                - min::Ustring_columns
-	             ( f->str_prefix_new )
+	             ( f->str_prefix )
                - min::Ustring_columns
-	             ( f->str_postfix_new );
+	             ( f->str_postfix );
     assert ( reduced_width >= 10 );
 
     min::uns32 char_name_fix_width =
@@ -9215,11 +9224,11 @@ static T pgen_bracketed_str
 	             ( f->str_char_name_postfix );
 
     min::uns32 postfix_length =
-        min::Ustring_length ( f->str_postfix_new );
+        min::Ustring_length ( f->str_postfix );
     const min::Uchar * postfix_string =
-        min::Ustring_chars ( f->str_postfix_new );
+        min::Ustring_chars ( f->str_postfix );
 
-    out << min::pUstring ( f->str_prefix_new );
+    out << min::pUstring ( f->str_prefix );
 
     min::uns32 remaining_width = reduced_width;
 
@@ -9231,26 +9240,32 @@ static T pgen_bracketed_str
 	// remaining_width, or to set remaining_width
 	// to 0 without processing the character and
 	// continue to break string before character.
+
+	// First make sure we have some remaining_width.
 	//
 	if ( remaining_width == 0 )
 	{
 	    out << min::punicode ( i, string )
 		<< min::pUstring
-		      ( f->str_postfix_new )
+		      ( f->str_postfix )
 		<< " "
 		<< min::set_break
 		<< min::pUstring
 		      ( f->str_concatenator )
 		<< " "
-		<< min::set_break
 		<< min::pUstring
-		      ( f->str_postfix_new );
+		      ( f->str_postfix );
 	    length -= i;
 	    string += i;
 	    i = 0;
-	    remaining_width = reduced_width;
+	    remaining_width = reduced_width
+	                    - min::Ustring_columns
+			        ( f->str_concatenator )
+			    - 1;
 	}
 
+	// Next, process character.
+	//
         min::Uchar c = string[i];
 
 	if ( c >= UNI::unicode_index_size )
@@ -9271,6 +9286,10 @@ static T pgen_bracketed_str
 		             postfix_length )
 		 == 0 )
 	    {
+	        // Found substring of `string' equal to
+		// str_postfix.  Output str_postfix_name
+		// in place of substring found.
+		//
 		min::uns32 columns =
 		     min::Ustring_columns
 		         ( f->str_postfix_name );
@@ -9290,11 +9309,15 @@ static T pgen_bracketed_str
 	    }
 	}
 
-	UNI::unicode_type & Utype =
+	const UNI::unicode_type & Utype =
 	    UNI::unicode_types[UNI::unicode_index[c]];
 
 	if ( Utype.name != 0 )
 	{
+	    // Character has a name.  Output name
+	    // surrounded by str_char_name_...fix's
+	    // in place of character.
+	    //
 	    const min::Ustring * name =
 	        UNI::unicode_names + Utype.name;
 	    min::uns32 columns =
@@ -9326,7 +9349,10 @@ static T pgen_bracketed_str
 	    ++ i;
 	}
     }
-    
+
+    return out << min::punicode ( i, string )
+	       << min::pUstring
+	              ( f->str_postfix );
 }
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
@@ -10045,48 +10071,21 @@ static T pgen
 	     &&
 	     f->str_postfix != NULL
 	     &&
-	     f->str_quote != NULL
+	     f->str_postfix_name != NULL
 	    )
 	{
-	    char * first = (char *)
-	        std::strstr
-		    ( ! min::begin_ptr_of ( sp ),
-		      f->str_postfix );
-	    if ( first == NULL )
-		return out << f->str_prefix
-			   << min::save_print_format
-			   << min::set_print_flags
-			       ( graphic_flags )
-			   << min::begin_ptr_of ( sp )
-			   << min::restore_print_format
-			   << f->str_postfix;
-	    else
-	    {
-		min::uns32 length = min::strlen ( sp );
-
-	        MIN_STACK_COPY
-		    ( char, str, length + 1,
-		      min::begin_ptr_of ( sp ) );
-
-		char * p = str;
-		length = std::strlen ( f->str_postfix );
-
-	        out << f->str_prefix;
-		while ( ( first = std::strstr
-			    ( p, f->str_postfix ) ) )
-		{
-		    * first = 0;
-		    out << min::save_print_format
-			<< min::set_print_flags
-			     ( graphic_flags )
-		        << p
-		        << min::restore_print_format;
-		    out << f->str_quote;
-		    p = first + length;
-		}
-
-		return out << p << f->str_postfix;
-	    }
+	    min::uns32 slength = min::strlen ( sp );
+	    min::Uchar buffer[slength + 1];
+	    const char * s = ! min::begin_ptr_of ( sp );
+	    const char * ends = s + slength;
+	    min::Uchar * u = buffer;
+	    const min::Uchar * endu = u + slength + 1;
+	    min::uns32 blength =
+	        min::utf8_to_unicode
+		    ( u, endu, s, ends );
+	    return ::pgen_bracketed_str<T>
+	        ( out, gen_flags, buffer, blength,
+		  f, 20 );
 	}
 	else
 	    return out << min::save_print_format

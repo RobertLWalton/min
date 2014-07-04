@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  2 06:08:16 EDT 2014
+// Date:	Fri Jul  4 16:42:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2575,7 +2575,7 @@ void test_printer ( void )
 
     char buffer[128*8];
     char * bp = buffer;
-    for ( min::uns32 c = 0xA1; c <= 0xFF; ++ c )
+    for ( min::Uchar c = 0xA1; c <= 0xFF; ++ c )
     {
         if ( c % 8 == 0 ) * bp ++ = ' ';
 	min::unicode_to_utf8 ( bp, c );
@@ -2644,9 +2644,9 @@ void test_printer ( void )
 	    << min::reserve ( 1 ) << "J"
 	    << min::eom;
 
-    min::uns32 ubuffer[128];
-    min::uns32 * ubp = ubuffer;
-    for ( min::uns32 c = 0xA1; c <= 0xFF; ++ c )
+    min::Uchar ubuffer[128];
+    min::Uchar * ubp = ubuffer;
+    for ( min::Uchar c = 0xA1; c <= 0xFF; ++ c )
     {
         if ( c % 8 == 0 ) * ubp ++ = ' ';
 	* ubp ++ = c;
