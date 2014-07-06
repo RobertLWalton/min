@@ -3,813 +3,813 @@
 
 CATEGORIES:
 
-Lu  U  Upper case letter
-Ll  L  Lower case letter
-Lt  T  Title case letter
-Lm  M  Modifier letter
-Lo  O  Other letter
-Mn  N  Nonspacing mark
-Mc  S  Spacing mark
-Me  E  Enclosing mark
-Nd  D  Decimal number
-Nl  R  Letter number
-No  H  Other number
-Pc  n  Connector punctuation
-Pd  d  Dash punctuation
-Ps  o  Open punctuation
-Pe  c  Close punctuation
-Pi  i  Initial punctuation
-Pf  f  Final punctuation
-Po  h  Other punctuation
-Sm  m  Math symbol
-Sc  y  Currency symbol
-Sk  r  Modifier symbol
-So  t  Other symbol
-Zs  s  Space Separator
-Zl  l  Line Separator
-Zp  p  Paragraph Separator
-Cc  x  Control
-Cf  z  Format
-Cs  g  Surrogate
-Co  v  Private Use
-Cn  u  Unassigned
-    w  Unspecified
+D Nd  Decimal Number
+E Me  Enclosing Mark
+H No  Other Number
+L Ll  Lower Case Letter
+M Lm  Modifier Letter
+N Mn  Nonspacing Mark
+O Lo  Other Letter
+R Nl  Letter Number
+S Mc  Spacing Mark
+T Lt  Title Case Letter
+U Lu  Upper Case Letter
+c Pe  Close Punctuation
+d Pd  Dash Punctuation
+f Pf  Final Punctuation
+g Cs  Surrogate
+h Po  Other Punctuation
+i Pi  Initial Punctuation
+l Zl  Line Separator
+m Sm  Math Symbol
+n Pc  Connector Punctuation
+o Ps  Open Punctuation
+p Zp  Paragraph Separator
+r Sk  Modifier Symbol
+s Zs  Space Separator
+t So  Other Symbol
+u Cn  Unassigned
+v Co  Private Use
+w     Unspecified
+x Cc  Control
+y Sc  Currency Symbol
+z Cf  Format
 
-type 0:
+index 0:
        numerator/denominator = 0/0
        category = 0x77 = w
        reference count = 0
 
-type 1:
+index 1:
        name = `NUL'
        numerator/denominator = 0/0
        category = 0x00
        reference count = 1
        code = 00
 
-type 2:
+index 2:
        name = `SOH'
        numerator/denominator = 0/0
        category = 0x01
        reference count = 1
        code = 01
 
-type 3:
+index 3:
        name = `STX'
        numerator/denominator = 0/0
        category = 0x02
        reference count = 1
        code = 02
 
-type 4:
+index 4:
        name = `ETX'
        numerator/denominator = 0/0
        category = 0x03
        reference count = 1
        code = 03
 
-type 5:
+index 5:
        name = `EOT'
        numerator/denominator = 0/0
        category = 0x04
        reference count = 1
        code = 04
 
-type 6:
+index 6:
        name = `ENQ'
        numerator/denominator = 0/0
        category = 0x05
        reference count = 1
        code = 05
 
-type 7:
+index 7:
        name = `ACK'
        numerator/denominator = 0/0
        category = 0x06
        reference count = 1
        code = 06
 
-type 8:
+index 8:
        name = `BEL'
        numerator/denominator = 0/0
        category = 0x07
        reference count = 1
        code = 07
 
-type 9:
+index 9:
        name = `BS'
        numerator/denominator = 0/0
        category = 0x08
        reference count = 1
        code = 08
 
-type 10:
+index 10:
        name = `HT'
        numerator/denominator = 0/0
        category = 0x09
        reference count = 1
        code = 09
 
-type 11:
+index 11:
        name = `LF'
        numerator/denominator = 0/0
        category = 0x0A
        reference count = 1
        code = 0A
 
-type 12:
+index 12:
        name = `VT'
        numerator/denominator = 0/0
        category = 0x0B
        reference count = 1
        code = 0B
 
-type 13:
+index 13:
        name = `FF'
        numerator/denominator = 0/0
        category = 0x0C
        reference count = 1
        code = 0C
 
-type 14:
+index 14:
        name = `CR'
        numerator/denominator = 0/0
        category = 0x0D
        reference count = 1
        code = 0D
 
-type 15:
+index 15:
        name = `SO'
        numerator/denominator = 0/0
        category = 0x0E
        reference count = 1
        code = 0E
 
-type 16:
+index 16:
        name = `SI'
        numerator/denominator = 0/0
        category = 0x0F
        reference count = 1
        code = 0F
 
-type 17:
+index 17:
        name = `DLE'
        numerator/denominator = 0/0
        category = 0x10
        reference count = 1
        code = 10
 
-type 18:
+index 18:
        name = `DC1'
        numerator/denominator = 0/0
        category = 0x11
        reference count = 1
        code = 11
 
-type 19:
+index 19:
        name = `DC2'
        numerator/denominator = 0/0
        category = 0x12
        reference count = 1
        code = 12
 
-type 20:
+index 20:
        name = `DC3'
        numerator/denominator = 0/0
        category = 0x13
        reference count = 1
        code = 13
 
-type 21:
+index 21:
        name = `DC4'
        numerator/denominator = 0/0
        category = 0x14
        reference count = 1
        code = 14
 
-type 22:
+index 22:
        name = `NAK'
        numerator/denominator = 0/0
        category = 0x15
        reference count = 1
        code = 15
 
-type 23:
+index 23:
        name = `SYN'
        numerator/denominator = 0/0
        category = 0x16
        reference count = 1
        code = 16
 
-type 24:
+index 24:
        name = `ETB'
        numerator/denominator = 0/0
        category = 0x17
        reference count = 1
        code = 17
 
-type 25:
+index 25:
        name = `CAN'
        numerator/denominator = 0/0
        category = 0x18
        reference count = 1
        code = 18
 
-type 26:
+index 26:
        name = `EOM'
        numerator/denominator = 0/0
        category = 0x19
        reference count = 1
        code = 19
 
-type 27:
+index 27:
        name = `SUB'
        numerator/denominator = 0/0
        category = 0x1A
        reference count = 1
        code = 1A
 
-type 28:
+index 28:
        name = `ESC'
        numerator/denominator = 0/0
        category = 0x1B
        reference count = 1
        code = 1B
 
-type 29:
+index 29:
        name = `FS'
        numerator/denominator = 0/0
        category = 0x1C
        reference count = 1
        code = 1C
 
-type 30:
+index 30:
        name = `GS'
        numerator/denominator = 0/0
        category = 0x1D
        reference count = 1
        code = 1D
 
-type 31:
+index 31:
        name = `RS'
        numerator/denominator = 0/0
        category = 0x1E
        reference count = 1
        code = 1E
 
-type 32:
+index 32:
        name = `US'
        numerator/denominator = 0/0
        category = 0x1F
        reference count = 1
        code = 1F
 
-type 33:
+index 33:
        name = `SP'
        numerator/denominator = 0/0
        category = 0x20
        reference count = 1
        code = 20
 
-type 34:
+index 34:
        name = `DEL'
        numerator/denominator = 0/0
        category = 0x7F
        reference count = 1
        code = 7F
 
-type 35:
+index 35:
        name = `PAD'
        numerator/denominator = 0/0
        category = 0x80
        reference count = 1
        code = 80
 
-type 36:
+index 36:
        name = `HOP'
        numerator/denominator = 0/0
        category = 0x81
        reference count = 1
        code = 81
 
-type 37:
+index 37:
        name = `BPH'
        numerator/denominator = 0/0
        category = 0x82
        reference count = 1
        code = 82
 
-type 38:
+index 38:
        name = `NBH'
        numerator/denominator = 0/0
        category = 0x83
        reference count = 1
        code = 83
 
-type 39:
+index 39:
        name = `IND'
        numerator/denominator = 0/0
        category = 0x84
        reference count = 1
        code = 84
 
-type 40:
+index 40:
        name = `NEL'
        numerator/denominator = 0/0
        category = 0x85
        reference count = 1
        code = 85
 
-type 41:
+index 41:
        name = `SSA'
        numerator/denominator = 0/0
        category = 0x86
        reference count = 1
        code = 86
 
-type 42:
+index 42:
        name = `ESA'
        numerator/denominator = 0/0
        category = 0x87
        reference count = 1
        code = 87
 
-type 43:
+index 43:
        name = `HTS'
        numerator/denominator = 0/0
        category = 0x88
        reference count = 1
        code = 88
 
-type 44:
+index 44:
        name = `HTJ'
        numerator/denominator = 0/0
        category = 0x89
        reference count = 1
        code = 89
 
-type 45:
+index 45:
        name = `VTS'
        numerator/denominator = 0/0
        category = 0x8A
        reference count = 1
        code = 8A
 
-type 46:
+index 46:
        name = `PLD'
        numerator/denominator = 0/0
        category = 0x8B
        reference count = 1
        code = 8B
 
-type 47:
+index 47:
        name = `PLU'
        numerator/denominator = 0/0
        category = 0x8C
        reference count = 1
        code = 8C
 
-type 48:
+index 48:
        name = `RI'
        numerator/denominator = 0/0
        category = 0x8D
        reference count = 1
        code = 8D
 
-type 49:
+index 49:
        name = `SS2'
        numerator/denominator = 0/0
        category = 0x8E
        reference count = 1
        code = 8E
 
-type 50:
+index 50:
        name = `SS3'
        numerator/denominator = 0/0
        category = 0x8F
        reference count = 1
        code = 8F
 
-type 51:
+index 51:
        name = `DCS'
        numerator/denominator = 0/0
        category = 0x90
        reference count = 1
        code = 90
 
-type 52:
+index 52:
        name = `PU1'
        numerator/denominator = 0/0
        category = 0x91
        reference count = 1
        code = 91
 
-type 53:
+index 53:
        name = `PU2'
        numerator/denominator = 0/0
        category = 0x92
        reference count = 1
        code = 92
 
-type 54:
+index 54:
        name = `STS'
        numerator/denominator = 0/0
        category = 0x93
        reference count = 1
        code = 93
 
-type 55:
+index 55:
        name = `CCH'
        numerator/denominator = 0/0
        category = 0x94
        reference count = 1
        code = 94
 
-type 56:
+index 56:
        name = `MW'
        numerator/denominator = 0/0
        category = 0x95
        reference count = 1
        code = 95
 
-type 57:
+index 57:
        name = `SPA'
        numerator/denominator = 0/0
        category = 0x96
        reference count = 1
        code = 96
 
-type 58:
+index 58:
        name = `EPA'
        numerator/denominator = 0/0
        category = 0x97
        reference count = 1
        code = 97
 
-type 59:
+index 59:
        name = `SOS'
        numerator/denominator = 0/0
        category = 0x98
        reference count = 1
        code = 98
 
-type 60:
+index 60:
        name = `SGC'
        numerator/denominator = 0/0
        category = 0x99
        reference count = 1
        code = 99
 
-type 61:
+index 61:
        name = `SCI'
        numerator/denominator = 0/0
        category = 0x9A
        reference count = 1
        code = 9A
 
-type 62:
+index 62:
        name = `CSI'
        numerator/denominator = 0/0
        category = 0x9B
        reference count = 1
        code = 9B
 
-type 63:
+index 63:
        name = `ST'
        numerator/denominator = 0/0
        category = 0x9C
        reference count = 1
        code = 9C
 
-type 64:
+index 64:
        name = `OSC'
        numerator/denominator = 0/0
        category = 0x9D
        reference count = 1
        code = 9D
 
-type 65:
+index 65:
        name = `PM'
        numerator/denominator = 0/0
        category = 0x9E
        reference count = 1
        code = 9E
 
-type 66:
+index 66:
        name = `APC'
        numerator/denominator = 0/0
        category = 0x9F
        reference count = 1
        code = 9F
 
-type 67:
+index 67:
        name = `NBSP'
        numerator/denominator = 0/0
        category = 0xA0
        reference count = 1
        code = A0
 
-type 68:
+index 68:
        name = `SHY'
        numerator/denominator = 0/0
        category = 0xAD
        reference count = 1
        code = AD
 
-type 69:
+index 69:
        name = `CGJ'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 34F
 
-type 70:
+index 70:
        name = `ALM'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 61C
 
-type 71:
+index 71:
        name = `FVS1'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180B
 
-type 72:
+index 72:
        name = `FVS2'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180C
 
-type 73:
+index 73:
        name = `FVS3'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = 180D
 
-type 74:
+index 74:
        name = `MVS'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 180E
 
-type 75:
+index 75:
        name = `ZWSP'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200B
 
-type 76:
+index 76:
        name = `ZWNJ'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200C
 
-type 77:
+index 77:
        name = `ZWJ'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200D
 
-type 78:
+index 78:
        name = `LRM'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200E
 
-type 79:
+index 79:
        name = `RLM'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 200F
 
-type 80:
+index 80:
        name = `LRE'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202A
 
-type 81:
+index 81:
        name = `RLE'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202B
 
-type 82:
+index 82:
        name = `PDF'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202C
 
-type 83:
+index 83:
        name = `LRO'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202D
 
-type 84:
+index 84:
        name = `RLO'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 202E
 
-type 85:
+index 85:
        name = `NNBSP'
        numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 1
        code = 202F
 
-type 86:
+index 86:
        name = `MMSP'
        numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 1
        code = 205F
 
-type 87:
+index 87:
        name = `WJ'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2060
 
-type 88:
+index 88:
        name = `LRI'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2066
 
-type 89:
+index 89:
        name = `RLI'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2067
 
-type 90:
+index 90:
        name = `FSI'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2068
 
-type 91:
+index 91:
        name = `PDI'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = 2069
 
-type 92:
+index 92:
        name = `VS1'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE00
 
-type 93:
+index 93:
        name = `VS2'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE01
 
-type 94:
+index 94:
        name = `VS3'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE02
 
-type 95:
+index 95:
        name = `VS4'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE03
 
-type 96:
+index 96:
        name = `VS5'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE04
 
-type 97:
+index 97:
        name = `VS6'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE05
 
-type 98:
+index 98:
        name = `VS7'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE06
 
-type 99:
+index 99:
        name = `VS8'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE07
 
-type 100:
+index 100:
        name = `VS9'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE08
 
-type 101:
+index 101:
        name = `VS10'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE09
 
-type 102:
+index 102:
        name = `VS11'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0A
 
-type 103:
+index 103:
        name = `VS12'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0B
 
-type 104:
+index 104:
        name = `VS13'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0C
 
-type 105:
+index 105:
        name = `VS14'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0D
 
-type 106:
+index 106:
        name = `VS15'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0E
 
-type 107:
+index 107:
        name = `VS16'
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1
        code = FE0F
 
-type 108:
+index 108:
        name = `BOM'
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 1
        code = FEFF
 
-type 109:
+index 109:
        numerator/denominator = -1/2
        category = 0x48 = H
        reference count = 1
        code = F33
 
-type 110:
+index 110:
        numerator/denominator = 0/1
        category = 0x4F = O
        reference count = 2
        code = 96F6
        code = F9B2
 
-type 111:
+index 111:
        numerator/denominator = 1/16
        category = 0x48 = H
        reference count = 3
@@ -817,37 +817,37 @@ type 111:
        code = B75
        code = A833
 
-type 112:
+index 112:
        numerator/denominator = 1/10
        category = 0x48 = H
        reference count = 1
        code = 2152
 
-type 113:
+index 113:
        numerator/denominator = 1/9
        category = 0x48 = H
        reference count = 1
        code = 2151
 
-type 114:
+index 114:
        numerator/denominator = 1/8
        category = 0x52 = R
        reference count = 1
        code = 1245F
 
-type 115:
+index 115:
        numerator/denominator = 1/7
        category = 0x48 = H
        reference count = 1
        code = 2150
 
-type 116:
+index 116:
        numerator/denominator = 1/6
        category = 0x52 = R
        reference count = 1
        code = 12461
 
-type 117:
+index 117:
        numerator/denominator = 3/16
        category = 0x48 = H
        reference count = 3
@@ -855,13 +855,13 @@ type 117:
        code = B77
        code = A835
 
-type 118:
+index 118:
        numerator/denominator = 1/5
        category = 0x48 = H
        reference count = 1
        code = 2155
 
-type 119:
+index 119:
        numerator/denominator = 1/4
        category = 0x52 = R
        reference count = 4
@@ -869,7 +869,7 @@ type 119:
        code = 12460
        codes = 12462..12463
 
-type 120:
+index 120:
        numerator/denominator = 1/3
        category = 0x52 = R
        reference count = 3
@@ -877,38 +877,38 @@ type 120:
        code = 1245D
        code = 12465
 
-type 121:
+index 121:
        numerator/denominator = 3/8
        category = 0x48 = H
        reference count = 1
        code = 215C
 
-type 122:
+index 122:
        numerator/denominator = 2/5
        category = 0x48 = H
        reference count = 1
        code = 2156
 
-type 123:
+index 123:
        numerator/denominator = 1/2
        category = 0x52 = R
        reference count = 2
        code = 10141
        code = 12464
 
-type 124:
+index 124:
        numerator/denominator = 3/5
        category = 0x48 = H
        reference count = 1
        code = 2157
 
-type 125:
+index 125:
        numerator/denominator = 5/8
        category = 0x48 = H
        reference count = 1
        code = 215D
 
-type 126:
+index 126:
        numerator/denominator = 2/3
        category = 0x52 = R
        reference count = 3
@@ -916,31 +916,31 @@ type 126:
        code = 1245E
        code = 12466
 
-type 127:
+index 127:
        numerator/denominator = 3/4
        category = 0xBE
        reference count = 1
        code = BE
 
-type 128:
+index 128:
        numerator/denominator = 4/5
        category = 0x48 = H
        reference count = 1
        code = 2158
 
-type 129:
+index 129:
        numerator/denominator = 5/6
        category = 0x52 = R
        reference count = 1
        code = 1245C
 
-type 130:
+index 130:
        numerator/denominator = 7/8
        category = 0x48 = H
        reference count = 1
        code = 215E
 
-type 131:
+index 131:
        numerator/denominator = 1/1
        category = 0x4F = O
        reference count = 6
@@ -951,13 +951,13 @@ type 131:
        code = 5F0C
        code = 2092A
 
-type 132:
+index 132:
        numerator/denominator = 3/2
        category = 0x48 = H
        reference count = 1
        code = F2B
 
-type 133:
+index 133:
        numerator/denominator = 2/1
        category = 0x4F = O
        reference count = 10
@@ -972,13 +972,13 @@ type 133:
        code = F978
        code = 22390
 
-type 134:
+index 134:
        numerator/denominator = 5/2
        category = 0x48 = H
        reference count = 1
        code = F2C
 
-type 135:
+index 135:
        numerator/denominator = 3/1
        category = 0x4F = O
        reference count = 12
@@ -992,13 +992,13 @@ type 135:
        code = 22998
        code = 23B1B
 
-type 136:
+index 136:
        numerator/denominator = 7/2
        category = 0x48 = H
        reference count = 1
        code = F2D
 
-type 137:
+index 137:
        numerator/denominator = 4/1
        category = 0x4F = O
        reference count = 6
@@ -1009,13 +1009,13 @@ type 137:
        code = 200E2
        code = 2626D
 
-type 138:
+index 138:
        numerator/denominator = 9/2
        category = 0x48 = H
        reference count = 1
        code = F2E
 
-type 139:
+index 139:
        numerator/denominator = 5/1
        category = 0x4F = O
        reference count = 5
@@ -1025,13 +1025,13 @@ type 139:
        code = 4F0D
        code = 20121
 
-type 140:
+index 140:
        numerator/denominator = 11/2
        category = 0x48 = H
        reference count = 1
        code = F2F
 
-type 141:
+index 141:
        numerator/denominator = 6/1
        category = 0x4F = O
        reference count = 6
@@ -1042,13 +1042,13 @@ type 141:
        code = F9D3
        code = 20AEA
 
-type 142:
+index 142:
        numerator/denominator = 13/2
        category = 0x48 = H
        reference count = 1
        code = F30
 
-type 143:
+index 143:
        numerator/denominator = 7/1
        category = 0x4F = O
        reference count = 5
@@ -1058,26 +1058,26 @@ type 143:
        code = 6F06
        code = 20001
 
-type 144:
+index 144:
        numerator/denominator = 15/2
        category = 0x48 = H
        reference count = 1
        code = F31
 
-type 145:
+index 145:
        numerator/denominator = 8/1
        category = 0x4F = O
        reference count = 2
        code = 516B
        code = 634C
 
-type 146:
+index 146:
        numerator/denominator = 17/2
        category = 0x48 = H
        reference count = 1
        code = F32
 
-type 147:
+index 147:
        numerator/denominator = 9/1
        category = 0x4F = O
        reference count = 4
@@ -1086,7 +1086,7 @@ type 147:
        code = 7396
        code = 2F890
 
-type 148:
+index 148:
        numerator/denominator = 10/1
        category = 0x4F = O
        reference count = 5
@@ -1096,21 +1096,21 @@ type 148:
        code = F973
        code = F9FD
 
-type 149:
+index 149:
        numerator/denominator = 11/1
        category = 0x52 = R
        reference count = 2
        code = 216A
        code = 217A
 
-type 150:
+index 150:
        numerator/denominator = 12/1
        category = 0x52 = R
        reference count = 2
        code = 216B
        code = 217B
 
-type 151:
+index 151:
        numerator/denominator = 13/1
        category = 0x48 = H
        reference count = 4
@@ -1119,7 +1119,7 @@ type 151:
        code = 2494
        code = 24ED
 
-type 152:
+index 152:
        numerator/denominator = 14/1
        category = 0x48 = H
        reference count = 4
@@ -1128,7 +1128,7 @@ type 152:
        code = 2495
        code = 24EE
 
-type 153:
+index 153:
        numerator/denominator = 15/1
        category = 0x48 = H
        reference count = 4
@@ -1137,7 +1137,7 @@ type 153:
        code = 2496
        code = 24EF
 
-type 154:
+index 154:
        numerator/denominator = 16/1
        category = 0x48 = H
        reference count = 5
@@ -1147,147 +1147,147 @@ type 154:
        code = 2497
        code = 24F0
 
-type 155:
+index 155:
        numerator/denominator = 17/1
        category = 0x52 = R
        reference count = 1
        code = 16EE
 
-type 156:
+index 156:
        numerator/denominator = 18/1
        category = 0x52 = R
        reference count = 1
        code = 16EF
 
-type 157:
+index 157:
        numerator/denominator = 19/1
        category = 0x52 = R
        reference count = 1
        code = 16F0
 
-type 158:
+index 158:
        numerator/denominator = 20/1
        category = 0x4F = O
        reference count = 2
        code = 5344
        code = 5EFF
 
-type 159:
+index 159:
        numerator/denominator = 21/1
        category = 0x48 = H
        reference count = 1
        code = 3251
 
-type 160:
+index 160:
        numerator/denominator = 22/1
        category = 0x48 = H
        reference count = 1
        code = 3252
 
-type 161:
+index 161:
        numerator/denominator = 23/1
        category = 0x48 = H
        reference count = 1
        code = 3253
 
-type 162:
+index 162:
        numerator/denominator = 24/1
        category = 0x48 = H
        reference count = 1
        code = 3254
 
-type 163:
+index 163:
        numerator/denominator = 25/1
        category = 0x48 = H
        reference count = 1
        code = 3255
 
-type 164:
+index 164:
        numerator/denominator = 26/1
        category = 0x48 = H
        reference count = 1
        code = 3256
 
-type 165:
+index 165:
        numerator/denominator = 27/1
        category = 0x48 = H
        reference count = 1
        code = 3257
 
-type 166:
+index 166:
        numerator/denominator = 28/1
        category = 0x48 = H
        reference count = 1
        code = 3258
 
-type 167:
+index 167:
        numerator/denominator = 29/1
        category = 0x48 = H
        reference count = 1
        code = 3259
 
-type 168:
+index 168:
        numerator/denominator = 30/1
        category = 0x4F = O
        reference count = 2
        code = 5345
        code = 20983
 
-type 169:
+index 169:
        numerator/denominator = 31/1
        category = 0x48 = H
        reference count = 1
        code = 325B
 
-type 170:
+index 170:
        numerator/denominator = 32/1
        category = 0x48 = H
        reference count = 1
        code = 325C
 
-type 171:
+index 171:
        numerator/denominator = 33/1
        category = 0x48 = H
        reference count = 1
        code = 325D
 
-type 172:
+index 172:
        numerator/denominator = 34/1
        category = 0x48 = H
        reference count = 1
        code = 325E
 
-type 173:
+index 173:
        numerator/denominator = 35/1
        category = 0x48 = H
        reference count = 1
        code = 325F
 
-type 174:
+index 174:
        numerator/denominator = 36/1
        category = 0x48 = H
        reference count = 1
        code = 32B1
 
-type 175:
+index 175:
        numerator/denominator = 37/1
        category = 0x48 = H
        reference count = 1
        code = 32B2
 
-type 176:
+index 176:
        numerator/denominator = 38/1
        category = 0x48 = H
        reference count = 1
        code = 32B3
 
-type 177:
+index 177:
        numerator/denominator = 39/1
        category = 0x48 = H
        reference count = 1
        code = 32B4
 
-type 178:
+index 178:
        numerator/denominator = 40/1
        category = 0x4F = O
        reference count = 3
@@ -1295,61 +1295,61 @@ type 178:
        code = 2098C
        code = 2099C
 
-type 179:
+index 179:
        numerator/denominator = 41/1
        category = 0x48 = H
        reference count = 1
        code = 32B6
 
-type 180:
+index 180:
        numerator/denominator = 42/1
        category = 0x48 = H
        reference count = 1
        code = 32B7
 
-type 181:
+index 181:
        numerator/denominator = 43/1
        category = 0x48 = H
        reference count = 1
        code = 32B8
 
-type 182:
+index 182:
        numerator/denominator = 44/1
        category = 0x48 = H
        reference count = 1
        code = 32B9
 
-type 183:
+index 183:
        numerator/denominator = 45/1
        category = 0x48 = H
        reference count = 1
        code = 32BA
 
-type 184:
+index 184:
        numerator/denominator = 46/1
        category = 0x48 = H
        reference count = 1
        code = 32BB
 
-type 185:
+index 185:
        numerator/denominator = 47/1
        category = 0x48 = H
        reference count = 1
        code = 32BC
 
-type 186:
+index 186:
        numerator/denominator = 48/1
        category = 0x48 = H
        reference count = 1
        code = 32BD
 
-type 187:
+index 187:
        numerator/denominator = 49/1
        category = 0x48 = H
        reference count = 1
        code = 32BE
 
-type 188:
+index 188:
        numerator/denominator = 50/1
        category = 0x52 = R
        reference count = 12
@@ -1363,7 +1363,7 @@ type 188:
        code = 10174
        code = 12468
 
-type 189:
+index 189:
        numerator/denominator = 60/1
        category = 0x48 = H
        reference count = 9
@@ -1377,7 +1377,7 @@ type 189:
        code = 118EF
        code = 1D36E
 
-type 190:
+index 190:
        numerator/denominator = 70/1
        category = 0x48 = H
        reference count = 9
@@ -1391,7 +1391,7 @@ type 190:
        code = 118F0
        code = 1D36F
 
-type 191:
+index 191:
        numerator/denominator = 80/1
        category = 0x48 = H
        reference count = 9
@@ -1405,13 +1405,13 @@ type 191:
        code = 118F1
        code = 1D370
 
-type 192:
+index 192:
        numerator/denominator = 90/1
        category = 0x52 = R
        reference count = 1
        code = 10341
 
-type 193:
+index 193:
        numerator/denominator = 100/1
        category = 0x4F = O
        reference count = 3
@@ -1419,7 +1419,7 @@ type 193:
        code = 767E
        code = 964C
 
-type 194:
+index 194:
        numerator/denominator = 200/1
        category = 0x48 = H
        reference count = 3
@@ -1427,13 +1427,13 @@ type 194:
        code = 102F4
        code = 10E73
 
-type 195:
+index 195:
        numerator/denominator = 300/1
        category = 0x52 = R
        reference count = 1
        code = 1016B
 
-type 196:
+index 196:
        numerator/denominator = 400/1
        category = 0x48 = H
        reference count = 3
@@ -1441,7 +1441,7 @@ type 196:
        code = 102F6
        code = 10E75
 
-type 197:
+index 197:
        numerator/denominator = 500/1
        category = 0x52 = R
        reference count = 10
@@ -1452,7 +1452,7 @@ type 197:
        code = 10153
        codes = 1016C..10170
 
-type 198:
+index 198:
        numerator/denominator = 600/1
        category = 0x48 = H
        reference count = 3
@@ -1460,7 +1460,7 @@ type 198:
        code = 102F8
        code = 10E77
 
-type 199:
+index 199:
        numerator/denominator = 700/1
        category = 0x48 = H
        reference count = 3
@@ -1468,7 +1468,7 @@ type 199:
        code = 102F9
        code = 10E78
 
-type 200:
+index 200:
        numerator/denominator = 800/1
        category = 0x48 = H
        reference count = 3
@@ -1476,13 +1476,13 @@ type 200:
        code = 102FA
        code = 10E79
 
-type 201:
+index 201:
        numerator/denominator = 900/1
        category = 0x52 = R
        reference count = 1
        code = 1034A
 
-type 202:
+index 202:
        numerator/denominator = 1000/1
        category = 0x4F = O
        reference count = 3
@@ -1490,25 +1490,25 @@ type 202:
        code = 5343
        code = 9621
 
-type 203:
+index 203:
        numerator/denominator = 2000/1
        category = 0x48 = H
        reference count = 1
        code = 10123
 
-type 204:
+index 204:
        numerator/denominator = 3000/1
        category = 0x48 = H
        reference count = 1
        code = 10124
 
-type 205:
+index 205:
        numerator/denominator = 4000/1
        category = 0x48 = H
        reference count = 1
        code = 10125
 
-type 206:
+index 206:
        numerator/denominator = 5000/1
        category = 0x52 = R
        reference count = 4
@@ -1517,56 +1517,56 @@ type 206:
        code = 1014E
        code = 10172
 
-type 207:
+index 207:
        numerator/denominator = 6000/1
        category = 0x48 = H
        reference count = 1
        code = 10127
 
-type 208:
+index 208:
        numerator/denominator = 7000/1
        category = 0x48 = H
        reference count = 1
        code = 10128
 
-type 209:
+index 209:
        numerator/denominator = 8000/1
        category = 0x48 = H
        reference count = 1
        code = 10129
 
-type 210:
+index 210:
        numerator/denominator = 9000/1
        category = 0x48 = H
        reference count = 1
        code = 1012A
 
-type 211:
+index 211:
        numerator/denominator = 10000/1
        category = 0x4F = O
        reference count = 2
        code = 4E07
        code = 842C
 
-type 212:
+index 212:
        numerator/denominator = 20000/1
        category = 0x48 = H
        reference count = 1
        code = 1012C
 
-type 213:
+index 213:
        numerator/denominator = 30000/1
        category = 0x48 = H
        reference count = 1
        code = 1012D
 
-type 214:
+index 214:
        numerator/denominator = 40000/1
        category = 0x48 = H
        reference count = 1
        code = 1012E
 
-type 215:
+index 215:
        numerator/denominator = 50000/1
        category = 0x52 = R
        reference count = 3
@@ -1574,74 +1574,74 @@ type 215:
        code = 10147
        code = 10156
 
-type 216:
+index 216:
        numerator/denominator = 60000/1
        category = 0x48 = H
        reference count = 1
        code = 10130
 
-type 217:
+index 217:
        numerator/denominator = 70000/1
        category = 0x48 = H
        reference count = 1
        code = 10131
 
-type 218:
+index 218:
        numerator/denominator = 80000/1
        category = 0x48 = H
        reference count = 1
        code = 10132
 
-type 219:
+index 219:
        numerator/denominator = 90000/1
        category = 0x48 = H
        reference count = 1
        code = 10133
 
-type 220:
+index 220:
        numerator/denominator = 100000/1
        category = 0x52 = R
        reference count = 1
        code = 2188
 
-type 221:
+index 221:
        numerator/denominator = 216000/1
        category = 0x52 = R
        reference count = 1
        code = 12432
 
-type 222:
+index 222:
        numerator/denominator = 432000/1
        category = 0x52 = R
        reference count = 1
        code = 12433
 
-type 223:
+index 223:
        numerator/denominator = 1000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B5E
 
-type 224:
+index 224:
        numerator/denominator = 100000000/1
        category = 0x4F = O
        reference count = 2
        code = 4EBF
        code = 5104
 
-type 225:
+index 225:
        numerator/denominator = 10000000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B60
 
-type 226:
+index 226:
        numerator/denominator = 1000000000000/1
        category = 0x4F = O
        reference count = 1
        code = 5146
 
-type 227:
+index 227:
        numerator/denominator = 0/0
        category = 0x75 = u
        reference count = 75476
@@ -2241,7 +2241,7 @@ type 227:
        codes = 2B81E..2F7FF
        codes = 2FA1E..2FFFF
 
-type 228:
+index 228:
        numerator/denominator = 0/0
        category = 0x55 = U
        reference count = 1460
@@ -2866,187 +2866,187 @@ type 228:
        codes = 1D790..1D7A8
        code = 1D7CA
 
-type 229:
+index 229:
        numerator/denominator = 0/0
        category = 0xC0
        reference count = 1
        code = C0
 
-type 230:
+index 230:
        numerator/denominator = 0/0
        category = 0xC1
        reference count = 1
        code = C1
 
-type 231:
+index 231:
        numerator/denominator = 0/0
        category = 0xC2
        reference count = 1
        code = C2
 
-type 232:
+index 232:
        numerator/denominator = 0/0
        category = 0xC3
        reference count = 1
        code = C3
 
-type 233:
+index 233:
        numerator/denominator = 0/0
        category = 0xC4
        reference count = 1
        code = C4
 
-type 234:
+index 234:
        numerator/denominator = 0/0
        category = 0xC5
        reference count = 1
        code = C5
 
-type 235:
+index 235:
        numerator/denominator = 0/0
        category = 0xC6
        reference count = 1
        code = C6
 
-type 236:
+index 236:
        numerator/denominator = 0/0
        category = 0xC7
        reference count = 1
        code = C7
 
-type 237:
+index 237:
        numerator/denominator = 0/0
        category = 0xC8
        reference count = 1
        code = C8
 
-type 238:
+index 238:
        numerator/denominator = 0/0
        category = 0xC9
        reference count = 1
        code = C9
 
-type 239:
+index 239:
        numerator/denominator = 0/0
        category = 0xCA
        reference count = 1
        code = CA
 
-type 240:
+index 240:
        numerator/denominator = 0/0
        category = 0xCB
        reference count = 1
        code = CB
 
-type 241:
+index 241:
        numerator/denominator = 0/0
        category = 0xCC
        reference count = 1
        code = CC
 
-type 242:
+index 242:
        numerator/denominator = 0/0
        category = 0xCD
        reference count = 1
        code = CD
 
-type 243:
+index 243:
        numerator/denominator = 0/0
        category = 0xCE
        reference count = 1
        code = CE
 
-type 244:
+index 244:
        numerator/denominator = 0/0
        category = 0xCF
        reference count = 1
        code = CF
 
-type 245:
+index 245:
        numerator/denominator = 0/0
        category = 0xD0
        reference count = 1
        code = D0
 
-type 246:
+index 246:
        numerator/denominator = 0/0
        category = 0xD1
        reference count = 1
        code = D1
 
-type 247:
+index 247:
        numerator/denominator = 0/0
        category = 0xD2
        reference count = 1
        code = D2
 
-type 248:
+index 248:
        numerator/denominator = 0/0
        category = 0xD3
        reference count = 1
        code = D3
 
-type 249:
+index 249:
        numerator/denominator = 0/0
        category = 0xD4
        reference count = 1
        code = D4
 
-type 250:
+index 250:
        numerator/denominator = 0/0
        category = 0xD5
        reference count = 1
        code = D5
 
-type 251:
+index 251:
        numerator/denominator = 0/0
        category = 0xD6
        reference count = 1
        code = D6
 
-type 252:
+index 252:
        numerator/denominator = 0/0
        category = 0xD8
        reference count = 1
        code = D8
 
-type 253:
+index 253:
        numerator/denominator = 0/0
        category = 0xD9
        reference count = 1
        code = D9
 
-type 254:
+index 254:
        numerator/denominator = 0/0
        category = 0xDA
        reference count = 1
        code = DA
 
-type 255:
+index 255:
        numerator/denominator = 0/0
        category = 0xDB
        reference count = 1
        code = DB
 
-type 256:
+index 256:
        numerator/denominator = 0/0
        category = 0xDC
        reference count = 1
        code = DC
 
-type 257:
+index 257:
        numerator/denominator = 0/0
        category = 0xDD
        reference count = 1
        code = DD
 
-type 258:
+index 258:
        numerator/denominator = 0/0
        category = 0xDE
        reference count = 1
        code = DE
 
-type 259:
+index 259:
        numerator/denominator = 0/0
        category = 0x4C = L
        reference count = 1807
@@ -3673,7 +3673,7 @@ type 259:
        codes = 1D7C4..1D7C9
        code = 1D7CB
 
-type 260:
+index 260:
        numerator/denominator = 0/0
        category = 0x7A = z
        reference count = 35
@@ -3688,205 +3688,205 @@ type 260:
        codes = 1BCA0..1BCA3
        codes = 1D173..1D17A
 
-type 261:
+index 261:
        numerator/denominator = 0/0
        category = 0xB5
        reference count = 1
        code = B5
 
-type 262:
+index 262:
        numerator/denominator = 0/0
        category = 0xDF
        reference count = 1
        code = DF
 
-type 263:
+index 263:
        numerator/denominator = 0/0
        category = 0xE0
        reference count = 1
        code = E0
 
-type 264:
+index 264:
        numerator/denominator = 0/0
        category = 0xE1
        reference count = 1
        code = E1
 
-type 265:
+index 265:
        numerator/denominator = 0/0
        category = 0xE2
        reference count = 1
        code = E2
 
-type 266:
+index 266:
        numerator/denominator = 0/0
        category = 0xE3
        reference count = 1
        code = E3
 
-type 267:
+index 267:
        numerator/denominator = 0/0
        category = 0xE4
        reference count = 1
        code = E4
 
-type 268:
+index 268:
        numerator/denominator = 0/0
        category = 0xE5
        reference count = 1
        code = E5
 
-type 269:
+index 269:
        numerator/denominator = 0/0
        category = 0xE6
        reference count = 1
        code = E6
 
-type 270:
+index 270:
        numerator/denominator = 0/0
        category = 0xE7
        reference count = 1
        code = E7
 
-type 271:
+index 271:
        numerator/denominator = 0/0
        category = 0xE8
        reference count = 1
        code = E8
 
-type 272:
+index 272:
        numerator/denominator = 0/0
        category = 0xE9
        reference count = 1
        code = E9
 
-type 273:
+index 273:
        numerator/denominator = 0/0
        category = 0xEA
        reference count = 1
        code = EA
 
-type 274:
+index 274:
        numerator/denominator = 0/0
        category = 0xEB
        reference count = 1
        code = EB
 
-type 275:
+index 275:
        numerator/denominator = 0/0
        category = 0xEC
        reference count = 1
        code = EC
 
-type 276:
+index 276:
        numerator/denominator = 0/0
        category = 0xED
        reference count = 1
        code = ED
 
-type 277:
+index 277:
        numerator/denominator = 0/0
        category = 0xEE
        reference count = 1
        code = EE
 
-type 278:
+index 278:
        numerator/denominator = 0/0
        category = 0xEF
        reference count = 1
        code = EF
 
-type 279:
+index 279:
        numerator/denominator = 0/0
        category = 0xF0
        reference count = 1
        code = F0
 
-type 280:
+index 280:
        numerator/denominator = 0/0
        category = 0xF1
        reference count = 1
        code = F1
 
-type 281:
+index 281:
        numerator/denominator = 0/0
        category = 0xF2
        reference count = 1
        code = F2
 
-type 282:
+index 282:
        numerator/denominator = 0/0
        category = 0xF3
        reference count = 1
        code = F3
 
-type 283:
+index 283:
        numerator/denominator = 0/0
        category = 0xF4
        reference count = 1
        code = F4
 
-type 284:
+index 284:
        numerator/denominator = 0/0
        category = 0xF5
        reference count = 1
        code = F5
 
-type 285:
+index 285:
        numerator/denominator = 0/0
        category = 0xF6
        reference count = 1
        code = F6
 
-type 286:
+index 286:
        numerator/denominator = 0/0
        category = 0xF8
        reference count = 1
        code = F8
 
-type 287:
+index 287:
        numerator/denominator = 0/0
        category = 0xF9
        reference count = 1
        code = F9
 
-type 288:
+index 288:
        numerator/denominator = 0/0
        category = 0xFA
        reference count = 1
        code = FA
 
-type 289:
+index 289:
        numerator/denominator = 0/0
        category = 0xFB
        reference count = 1
        code = FB
 
-type 290:
+index 290:
        numerator/denominator = 0/0
        category = 0xFC
        reference count = 1
        code = FC
 
-type 291:
+index 291:
        numerator/denominator = 0/0
        category = 0xFD
        reference count = 1
        code = FD
 
-type 292:
+index 292:
        numerator/denominator = 0/0
        category = 0xFE
        reference count = 1
        code = FE
 
-type 293:
+index 293:
        numerator/denominator = 0/0
        category = 0xFF
        reference count = 1
        code = FF
 
-type 294:
+index 294:
        numerator/denominator = 0/0
        category = 0x54 = T
        reference count = 31
@@ -3901,7 +3901,7 @@ type 294:
        code = 1FCC
        code = 1FFC
 
-type 295:
+index 295:
        numerator/denominator = 0/0
        category = 0x4D = M
        reference count = 248
@@ -3962,19 +3962,19 @@ type 295:
        codes = 16B40..16B43
        codes = 16F93..16F9F
 
-type 296:
+index 296:
        numerator/denominator = 0/0
        category = 0xAA
        reference count = 1
        code = AA
 
-type 297:
+index 297:
        numerator/denominator = 0/0
        category = 0xBA
        reference count = 1
        code = BA
 
-type 298:
+index 298:
        numerator/denominator = 0/0
        category = 0x4F = O
        reference count = 99032
@@ -4465,7 +4465,7 @@ type 298:
        codes = 2F800..2F88F
        codes = 2F891..2FA1D
 
-type 299:
+index 299:
        numerator/denominator = 0/0
        category = 0x4E = N
        reference count = 1158
@@ -4723,7 +4723,7 @@ type 299:
        codes = 1D242..1D244
        codes = 1E8D0..1E8D6
 
-type 300:
+index 300:
        numerator/denominator = 0/0
        category = 0x45 = E
        reference count = 13
@@ -4733,7 +4733,7 @@ type 300:
        codes = 20E2..20E4
        codes = A670..A672
 
-type 301:
+index 301:
        numerator/denominator = 0/0
        category = 0x53 = S
        reference count = 399
@@ -4885,67 +4885,67 @@ type 301:
        codes = 1D165..1D166
        codes = 1D16D..1D172
 
-type 302:
+index 302:
        numerator/denominator = 0/1
        category = 0x30 = 0
        reference count = 1
        code = 30
 
-type 303:
+index 303:
        numerator/denominator = 1/1
        category = 0x31 = 1
        reference count = 1
        code = 31
 
-type 304:
+index 304:
        numerator/denominator = 2/1
        category = 0x32 = 2
        reference count = 1
        code = 32
 
-type 305:
+index 305:
        numerator/denominator = 3/1
        category = 0x33 = 3
        reference count = 1
        code = 33
 
-type 306:
+index 306:
        numerator/denominator = 4/1
        category = 0x34 = 4
        reference count = 1
        code = 34
 
-type 307:
+index 307:
        numerator/denominator = 5/1
        category = 0x35 = 5
        reference count = 1
        code = 35
 
-type 308:
+index 308:
        numerator/denominator = 6/1
        category = 0x36 = 6
        reference count = 1
        code = 36
 
-type 309:
+index 309:
        numerator/denominator = 7/1
        category = 0x37 = 7
        reference count = 1
        code = 37
 
-type 310:
+index 310:
        numerator/denominator = 8/1
        category = 0x38 = 8
        reference count = 1
        code = 38
 
-type 311:
+index 311:
        numerator/denominator = 9/1
        category = 0x39 = 9
        reference count = 1
        code = 39
 
-type 312:
+index 312:
        numerator/denominator = 0/1
        category = 0x44 = D
        reference count = 53
@@ -5003,7 +5003,7 @@ type 312:
        code = 1D7EC
        code = 1D7F6
 
-type 313:
+index 313:
        numerator/denominator = 1/1
        category = 0x44 = D
        reference count = 53
@@ -5061,7 +5061,7 @@ type 313:
        code = 1D7ED
        code = 1D7F7
 
-type 314:
+index 314:
        numerator/denominator = 2/1
        category = 0x44 = D
        reference count = 53
@@ -5119,7 +5119,7 @@ type 314:
        code = 1D7EE
        code = 1D7F8
 
-type 315:
+index 315:
        numerator/denominator = 3/1
        category = 0x44 = D
        reference count = 53
@@ -5177,7 +5177,7 @@ type 315:
        code = 1D7EF
        code = 1D7F9
 
-type 316:
+index 316:
        numerator/denominator = 4/1
        category = 0x44 = D
        reference count = 53
@@ -5235,7 +5235,7 @@ type 316:
        code = 1D7F0
        code = 1D7FA
 
-type 317:
+index 317:
        numerator/denominator = 5/1
        category = 0x44 = D
        reference count = 53
@@ -5293,7 +5293,7 @@ type 317:
        code = 1D7F1
        code = 1D7FB
 
-type 318:
+index 318:
        numerator/denominator = 6/1
        category = 0x44 = D
        reference count = 53
@@ -5351,7 +5351,7 @@ type 318:
        code = 1D7F2
        code = 1D7FC
 
-type 319:
+index 319:
        numerator/denominator = 7/1
        category = 0x44 = D
        reference count = 53
@@ -5409,7 +5409,7 @@ type 319:
        code = 1D7F3
        code = 1D7FD
 
-type 320:
+index 320:
        numerator/denominator = 8/1
        category = 0x44 = D
        reference count = 53
@@ -5467,7 +5467,7 @@ type 320:
        code = 1D7F4
        code = 1D7FE
 
-type 321:
+index 321:
        numerator/denominator = 9/1
        category = 0x44 = D
        reference count = 53
@@ -5525,7 +5525,7 @@ type 321:
        code = 1D7F5
        code = 1D7FF
 
-type 322:
+index 322:
        numerator/denominator = 1/1
        category = 0x52 = R
        reference count = 15
@@ -5543,7 +5543,7 @@ type 322:
        code = 1244F
        code = 12458
 
-type 323:
+index 323:
        numerator/denominator = 2/1
        category = 0x52 = R
        reference count = 19
@@ -5564,7 +5564,7 @@ type 323:
        code = 12456
        code = 12459
 
-type 324:
+index 324:
        numerator/denominator = 3/1
        category = 0x52 = R
        reference count = 19
@@ -5584,7 +5584,7 @@ type 324:
        code = 12451
        code = 12457
 
-type 325:
+index 325:
        numerator/denominator = 4/1
        category = 0x52 = R
        reference count = 20
@@ -5605,7 +5605,7 @@ type 325:
        codes = 12452..12453
        code = 12469
 
-type 326:
+index 326:
        numerator/denominator = 5/1
        category = 0x52 = R
        reference count = 21
@@ -5630,7 +5630,7 @@ type 326:
        codes = 12454..12455
        code = 1246A
 
-type 327:
+index 327:
        numerator/denominator = 6/1
        category = 0x52 = R
        reference count = 13
@@ -5648,7 +5648,7 @@ type 327:
        code = 1244E
        code = 1246B
 
-type 328:
+index 328:
        numerator/denominator = 7/1
        category = 0x52 = R
        reference count = 13
@@ -5664,7 +5664,7 @@ type 328:
        codes = 12441..12443
        code = 1246C
 
-type 329:
+index 329:
        numerator/denominator = 8/1
        category = 0x52 = R
        reference count = 12
@@ -5680,7 +5680,7 @@ type 329:
        codes = 12444..12445
        code = 1246D
 
-type 330:
+index 330:
        numerator/denominator = 9/1
        category = 0x52 = R
        reference count = 14
@@ -5696,7 +5696,7 @@ type 330:
        codes = 12446..12449
        code = 1246E
 
-type 331:
+index 331:
        numerator/denominator = 10/1
        category = 0x52 = R
        reference count = 12
@@ -5709,7 +5709,7 @@ type 331:
        codes = 10160..10164
        code = 103D3
 
-type 332:
+index 332:
        numerator/denominator = 100/1
        category = 0x52 = R
        reference count = 6
@@ -5720,7 +5720,7 @@ type 332:
        code = 1016A
        code = 103D5
 
-type 333:
+index 333:
        numerator/denominator = 1000/1
        category = 0x52 = R
        reference count = 6
@@ -5730,71 +5730,71 @@ type 333:
        code = 10154
        code = 10171
 
-type 334:
+index 334:
        numerator/denominator = 10000/1
        category = 0x52 = R
        reference count = 2
        code = 2182
        code = 10155
 
-type 335:
+index 335:
        numerator/denominator = 0/1
        category = 0x52 = R
        reference count = 2
        code = 3007
        code = A6EF
 
-type 336:
+index 336:
        numerator/denominator = 20/1
        category = 0x52 = R
        reference count = 2
        code = 3039
        code = 103D4
 
-type 337:
+index 337:
        numerator/denominator = 30/1
        category = 0x52 = R
        reference count = 2
        code = 303A
        code = 10165
 
-type 338:
+index 338:
        numerator/denominator = 40/1
        category = 0x52 = R
        reference count = 1
        code = 12467
 
-type 339:
+index 339:
        numerator/denominator = 2/1
        category = 0xB2
        reference count = 1
        code = B2
 
-type 340:
+index 340:
        numerator/denominator = 3/1
        category = 0xB3
        reference count = 1
        code = B3
 
-type 341:
+index 341:
        numerator/denominator = 1/1
        category = 0xB9
        reference count = 1
        code = B9
 
-type 342:
+index 342:
        numerator/denominator = 1/4
        category = 0xBC
        reference count = 1
        code = BC
 
-type 343:
+index 343:
        numerator/denominator = 1/2
        category = 0xBD
        reference count = 1
        code = BD
 
-type 344:
+index 344:
        numerator/denominator = 1/8
        category = 0x48 = H
        reference count = 4
@@ -5803,7 +5803,7 @@ type 344:
        code = 215B
        code = A834
 
-type 345:
+index 345:
        numerator/denominator = 1/4
        category = 0x48 = H
        reference count = 6
@@ -5814,7 +5814,7 @@ type 345:
        code = 1018B
        code = 10E7C
 
-type 346:
+index 346:
        numerator/denominator = 3/4
        category = 0x48 = H
        reference count = 5
@@ -5824,7 +5824,7 @@ type 346:
        code = A832
        code = 10178
 
-type 347:
+index 347:
        numerator/denominator = 1/2
        category = 0x48 = H
        reference count = 8
@@ -5836,7 +5836,7 @@ type 347:
        codes = 10175..10176
        code = 10E7B
 
-type 348:
+index 348:
        numerator/denominator = 10/1
        category = 0x48 = H
        reference count = 32
@@ -5873,7 +5873,7 @@ type 348:
        code = 16B5B
        code = 1D369
 
-type 349:
+index 349:
        numerator/denominator = 100/1
        category = 0x48 = H
        reference count = 17
@@ -5895,7 +5895,7 @@ type 349:
        code = 111F3
        code = 16B5C
 
-type 350:
+index 350:
        numerator/denominator = 1000/1
        category = 0x48 = H
        reference count = 9
@@ -5909,7 +5909,7 @@ type 350:
        code = 11065
        code = 111F4
 
-type 351:
+index 351:
        numerator/denominator = 0/1
        category = 0x48 = H
        reference count = 12
@@ -5924,7 +5924,7 @@ type 351:
        codes = 1F100..1F101
        codes = 1F10B..1F10C
 
-type 352:
+index 352:
        numerator/denominator = 1/1
        category = 0x48 = H
        reference count = 37
@@ -5966,7 +5966,7 @@ type 352:
        code = 1E8C7
        code = 1F102
 
-type 353:
+index 353:
        numerator/denominator = 2/1
        category = 0x48 = H
        reference count = 31
@@ -6002,7 +6002,7 @@ type 353:
        code = 1E8C8
        code = 1F103
 
-type 354:
+index 354:
        numerator/denominator = 3/1
        category = 0x48 = H
        reference count = 31
@@ -6038,7 +6038,7 @@ type 354:
        code = 1E8C9
        code = 1F104
 
-type 355:
+index 355:
        numerator/denominator = 4/1
        category = 0x48 = H
        reference count = 29
@@ -6071,7 +6071,7 @@ type 355:
        code = 1E8CA
        code = 1F105
 
-type 356:
+index 356:
        numerator/denominator = 5/1
        category = 0x48 = H
        reference count = 25
@@ -6101,7 +6101,7 @@ type 356:
        code = 1E8CB
        code = 1F106
 
-type 357:
+index 357:
        numerator/denominator = 6/1
        category = 0x48 = H
        reference count = 21
@@ -6127,7 +6127,7 @@ type 357:
        code = 1E8CC
        code = 1F107
 
-type 358:
+index 358:
        numerator/denominator = 7/1
        category = 0x48 = H
        reference count = 21
@@ -6153,7 +6153,7 @@ type 358:
        code = 1E8CD
        code = 1F108
 
-type 359:
+index 359:
        numerator/denominator = 8/1
        category = 0x48 = H
        reference count = 21
@@ -6179,7 +6179,7 @@ type 359:
        code = 1E8CE
        code = 1F109
 
-type 360:
+index 360:
        numerator/denominator = 9/1
        category = 0x48 = H
        reference count = 21
@@ -6205,7 +6205,7 @@ type 360:
        code = 1E8CF
        code = 1F10A
 
-type 361:
+index 361:
        numerator/denominator = 20/1
        category = 0x48 = H
        reference count = 23
@@ -6233,7 +6233,7 @@ type 361:
        code = 118EB
        code = 1D36A
 
-type 362:
+index 362:
        numerator/denominator = 30/1
        category = 0x48 = H
        reference count = 10
@@ -6248,7 +6248,7 @@ type 362:
        code = 118EC
        code = 1D36B
 
-type 363:
+index 363:
        numerator/denominator = 40/1
        category = 0x48 = H
        reference count = 10
@@ -6263,7 +6263,7 @@ type 363:
        code = 118ED
        code = 1D36C
 
-type 364:
+index 364:
        numerator/denominator = 50/1
        category = 0x48 = H
        reference count = 12
@@ -6280,7 +6280,7 @@ type 364:
        code = 118EE
        code = 1D36D
 
-type 365:
+index 365:
        numerator/denominator = 90/1
        category = 0x48 = H
        reference count = 8
@@ -6293,7 +6293,7 @@ type 365:
        code = 118F2
        code = 1D371
 
-type 366:
+index 366:
        numerator/denominator = 10000/1
        category = 0x48 = H
        reference count = 4
@@ -6302,14 +6302,14 @@ type 366:
        code = 1085F
        code = 16B5D
 
-type 367:
+index 367:
        numerator/denominator = 1/3
        category = 0x48 = H
        reference count = 2
        code = 2153
        code = 10E7D
 
-type 368:
+index 368:
        numerator/denominator = 2/3
        category = 0x48 = H
        reference count = 3
@@ -6317,19 +6317,19 @@ type 368:
        code = 10177
        code = 10E7E
 
-type 369:
+index 369:
        numerator/denominator = 1/6
        category = 0x48 = H
        reference count = 1
        code = 2159
 
-type 370:
+index 370:
        numerator/denominator = 5/6
        category = 0x48 = H
        reference count = 1
        code = 215A
 
-type 371:
+index 371:
        numerator/denominator = 11/1
        category = 0x48 = H
        reference count = 4
@@ -6338,7 +6338,7 @@ type 371:
        code = 2492
        code = 24EB
 
-type 372:
+index 372:
        numerator/denominator = 12/1
        category = 0x48 = H
        reference count = 4
@@ -6347,7 +6347,7 @@ type 372:
        code = 2493
        code = 24EC
 
-type 373:
+index 373:
        numerator/denominator = 17/1
        category = 0x48 = H
        reference count = 4
@@ -6356,7 +6356,7 @@ type 373:
        code = 2498
        code = 24F1
 
-type 374:
+index 374:
        numerator/denominator = 18/1
        category = 0x48 = H
        reference count = 4
@@ -6365,7 +6365,7 @@ type 374:
        code = 2499
        code = 24F2
 
-type 375:
+index 375:
        numerator/denominator = 19/1
        category = 0x48 = H
        reference count = 4
@@ -6374,7 +6374,7 @@ type 375:
        code = 249A
        code = 24F3
 
-type 376:
+index 376:
        numerator/denominator = 300/1
        category = 0x48 = H
        reference count = 3
@@ -6382,7 +6382,7 @@ type 376:
        code = 102F5
        code = 10E74
 
-type 377:
+index 377:
        numerator/denominator = 500/1
        category = 0x48 = H
        reference count = 3
@@ -6390,7 +6390,7 @@ type 377:
        code = 102F7
        code = 10E76
 
-type 378:
+index 378:
        numerator/denominator = 900/1
        category = 0x48 = H
        reference count = 3
@@ -6398,31 +6398,31 @@ type 378:
        code = 102FB
        code = 10E7A
 
-type 379:
+index 379:
        numerator/denominator = 5000/1
        category = 0x48 = H
        reference count = 1
        code = 10126
 
-type 380:
+index 380:
        numerator/denominator = 50000/1
        category = 0x48 = H
        reference count = 1
        code = 1012F
 
-type 381:
+index 381:
        numerator/denominator = 100000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B5F
 
-type 382:
+index 382:
        numerator/denominator = 1000000000000/1
        category = 0x48 = H
        reference count = 1
        code = 16B61
 
-type 383:
+index 383:
        numerator/denominator = 0/0
        category = 0x73 = s
        reference count = 13
@@ -6430,37 +6430,37 @@ type 383:
        codes = 2000..200A
        code = 3000
 
-type 384:
+index 384:
        numerator/denominator = 0/0
        category = 0x6C = l
        reference count = 1
        code = 2028
 
-type 385:
+index 385:
        numerator/denominator = 0/0
        category = 0x70 = p
        reference count = 1
        code = 2029
 
-type 386:
+index 386:
        numerator/denominator = 0/0
        category = 0x76 = v
        reference count = 6400
        codes = E000..F8FF
 
-type 387:
+index 387:
        numerator/denominator = 0/0
        category = 0x67 = g
        reference count = 2048
        codes = D800..DFFF
 
-type 388:
+index 388:
        numerator/denominator = 0/0
        category = 0x2D = -
        reference count = 1
        code = 2D
 
-type 389:
+index 389:
        numerator/denominator = 0/0
        category = 0x64 = d
        reference count = 23
@@ -6481,25 +6481,25 @@ type 389:
        code = FE63
        code = FF0D
 
-type 390:
+index 390:
        numerator/denominator = 0/0
        category = 0x28 = (
        reference count = 1
        code = 28
 
-type 391:
+index 391:
        numerator/denominator = 0/0
        category = 0x5B = [
        reference count = 1
        code = 5B
 
-type 392:
+index 392:
        numerator/denominator = 0/0
        category = 0x7B = {
        reference count = 1
        code = 7B
 
-type 393:
+index 393:
        numerator/denominator = 0/0
        category = 0x6F = o
        reference count = 72
@@ -6576,25 +6576,25 @@ type 393:
        code = FF5F
        code = FF62
 
-type 394:
+index 394:
        numerator/denominator = 0/0
        category = 0x29 = )
        reference count = 1
        code = 29
 
-type 395:
+index 395:
        numerator/denominator = 0/0
        category = 0x5D = ]
        reference count = 1
        code = 5D
 
-type 396:
+index 396:
        numerator/denominator = 0/0
        category = 0x7D = }
        reference count = 1
        code = 7D
 
-type 397:
+index 397:
        numerator/denominator = 0/0
        category = 0x63 = c
        reference count = 70
@@ -6668,13 +6668,13 @@ type 397:
        code = FF60
        code = FF63
 
-type 398:
+index 398:
        numerator/denominator = 0/0
        category = 0x5F = _
        reference count = 1
        code = 5F
 
-type 399:
+index 399:
        numerator/denominator = 0/0
        category = 0x6E = n
        reference count = 9
@@ -6684,127 +6684,127 @@ type 399:
        codes = FE4D..FE4F
        code = FF3F
 
-type 400:
+index 400:
        numerator/denominator = 0/0
        category = 0x21 = !
        reference count = 1
        code = 21
 
-type 401:
+index 401:
        numerator/denominator = 0/0
        category = 0x22 = "
        reference count = 1
        code = 22
 
-type 402:
+index 402:
        numerator/denominator = 0/0
        category = 0x23 = #
        reference count = 1
        code = 23
 
-type 403:
+index 403:
        numerator/denominator = 0/0
        category = 0x25 = %
        reference count = 1
        code = 25
 
-type 404:
+index 404:
        numerator/denominator = 0/0
        category = 0x26 = &
        reference count = 1
        code = 26
 
-type 405:
+index 405:
        numerator/denominator = 0/0
        category = 0x27 = '
        reference count = 1
        code = 27
 
-type 406:
+index 406:
        numerator/denominator = 0/0
        category = 0x2A = *
        reference count = 1
        code = 2A
 
-type 407:
+index 407:
        numerator/denominator = 0/0
        category = 0x2C = ,
        reference count = 1
        code = 2C
 
-type 408:
+index 408:
        numerator/denominator = 0/0
        category = 0x2E = .
        reference count = 1
        code = 2E
 
-type 409:
+index 409:
        numerator/denominator = 0/0
        category = 0x2F = /
        reference count = 1
        code = 2F
 
-type 410:
+index 410:
        numerator/denominator = 0/0
        category = 0x3A = :
        reference count = 1
        code = 3A
 
-type 411:
+index 411:
        numerator/denominator = 0/0
        category = 0x3B = ;
        reference count = 1
        code = 3B
 
-type 412:
+index 412:
        numerator/denominator = 0/0
        category = 0x3F = ?
        reference count = 1
        code = 3F
 
-type 413:
+index 413:
        numerator/denominator = 0/0
        category = 0x40 = @
        reference count = 1
        code = 40
 
-type 414:
+index 414:
        numerator/denominator = 0/0
        category = 0x5C = \
        reference count = 1
        code = 5C
 
-type 415:
+index 415:
        numerator/denominator = 0/0
        category = 0xA1
        reference count = 1
        code = A1
 
-type 416:
+index 416:
        numerator/denominator = 0/0
        category = 0xA7
        reference count = 1
        code = A7
 
-type 417:
+index 417:
        numerator/denominator = 0/0
        category = 0xB6
        reference count = 1
        code = B6
 
-type 418:
+index 418:
        numerator/denominator = 0/0
        category = 0xB7
        reference count = 1
        code = B7
 
-type 419:
+index 419:
        numerator/denominator = 0/0
        category = 0xBF
        reference count = 1
        code = BF
 
-type 420:
+index 420:
        numerator/denominator = 0/0
        category = 0x68 = h
        reference count = 464
@@ -6948,67 +6948,67 @@ type 420:
        code = 16B44
        code = 1BC9F
 
-type 421:
+index 421:
        numerator/denominator = 0/0
        category = 0x2B = +
        reference count = 1
        code = 2B
 
-type 422:
+index 422:
        numerator/denominator = 0/0
        category = 0x3C = <
        reference count = 1
        code = 3C
 
-type 423:
+index 423:
        numerator/denominator = 0/0
        category = 0x3D = =
        reference count = 1
        code = 3D
 
-type 424:
+index 424:
        numerator/denominator = 0/0
        category = 0x3E = >
        reference count = 1
        code = 3E
 
-type 425:
+index 425:
        numerator/denominator = 0/0
        category = 0x7C = |
        reference count = 1
        code = 7C
 
-type 426:
+index 426:
        numerator/denominator = 0/0
        category = 0x7E = ~
        reference count = 1
        code = 7E
 
-type 427:
+index 427:
        numerator/denominator = 0/0
        category = 0xAC
        reference count = 1
        code = AC
 
-type 428:
+index 428:
        numerator/denominator = 0/0
        category = 0xB1
        reference count = 1
        code = B1
 
-type 429:
+index 429:
        numerator/denominator = 0/0
        category = 0xD7
        reference count = 1
        code = D7
 
-type 430:
+index 430:
        numerator/denominator = 0/0
        category = 0xF7
        reference count = 1
        code = F7
 
-type 431:
+index 431:
        numerator/denominator = 0/0
        category = 0x6D = m
        reference count = 938
@@ -7069,37 +7069,37 @@ type 431:
        code = 1D7C3
        codes = 1EEF0..1EEF1
 
-type 432:
+index 432:
        numerator/denominator = 0/0
        category = 0x24 = $
        reference count = 1
        code = 24
 
-type 433:
+index 433:
        numerator/denominator = 0/0
        category = 0xA2
        reference count = 1
        code = A2
 
-type 434:
+index 434:
        numerator/denominator = 0/0
        category = 0xA3
        reference count = 1
        code = A3
 
-type 435:
+index 435:
        numerator/denominator = 0/0
        category = 0xA4
        reference count = 1
        code = A4
 
-type 436:
+index 436:
        numerator/denominator = 0/0
        category = 0xA5
        reference count = 1
        code = A5
 
-type 437:
+index 437:
        numerator/denominator = 0/0
        category = 0x79 = y
        reference count = 47
@@ -7119,43 +7119,43 @@ type 437:
        codes = FFE0..FFE1
        codes = FFE5..FFE6
 
-type 438:
+index 438:
        numerator/denominator = 0/0
        category = 0x5E = ^
        reference count = 1
        code = 5E
 
-type 439:
+index 439:
        numerator/denominator = 0/0
        category = 0x60 = `
        reference count = 1
        code = 60
 
-type 440:
+index 440:
        numerator/denominator = 0/0
        category = 0xA8
        reference count = 1
        code = A8
 
-type 441:
+index 441:
        numerator/denominator = 0/0
        category = 0xAF
        reference count = 1
        code = AF
 
-type 442:
+index 442:
        numerator/denominator = 0/0
        category = 0xB4
        reference count = 1
        code = B4
 
-type 443:
+index 443:
        numerator/denominator = 0/0
        category = 0xB8
        reference count = 1
        code = B8
 
-type 444:
+index 444:
        numerator/denominator = 0/0
        category = 0x72 = r
        reference count = 110
@@ -7182,31 +7182,31 @@ type 444:
        code = FF40
        code = FFE3
 
-type 445:
+index 445:
        numerator/denominator = 0/0
        category = 0xA6
        reference count = 1
        code = A6
 
-type 446:
+index 446:
        numerator/denominator = 0/0
        category = 0xA9
        reference count = 1
        code = A9
 
-type 447:
+index 447:
        numerator/denominator = 0/0
        category = 0xAE
        reference count = 1
        code = AE
 
-type 448:
+index 448:
        numerator/denominator = 0/0
        category = 0xB0
        reference count = 1
        code = B0
 
-type 449:
+index 449:
        numerator/denominator = 0/0
        category = 0x74 = t
        reference count = 5078
@@ -7372,13 +7372,13 @@ type 449:
        codes = 1F860..1F887
        codes = 1F890..1F8AD
 
-type 450:
+index 450:
        numerator/denominator = 0/0
        category = 0xAB
        reference count = 1
        code = AB
 
-type 451:
+index 451:
        numerator/denominator = 0/0
        category = 0x69 = i
        reference count = 11
@@ -7393,13 +7393,13 @@ type 451:
        code = 2E1C
        code = 2E20
 
-type 452:
+index 452:
        numerator/denominator = 0/0
        category = 0xBB
        reference count = 1
        code = BB
 
-type 453:
+index 453:
        numerator/denominator = 0/0
        category = 0x66 = f
        reference count = 9

@@ -2,7 +2,7 @@
 //
 // File:	unicode_types.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  5 06:12:07 EDT 2014
+// Date:	Sat Jul  5 20:39:16 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,12 +31,16 @@ typedef Uchar Ustring;
     // are not in Ustrings for which the columns value
     // is used.
 
-inline min::uns32 Ustring_length
+// Return length and number of print columns from the
+// header of a Ustring, and return a pointer to the
+// Uchar vector of the Ustring.
+//
+inline unsigned Ustring_length
 	( const Ustring * p )
 {
     return * p & 0xFFFF;
 }
-inline min::uns32 Ustring_columns
+inline unsigned Ustring_columns
 	( const Ustring * p )
 {
     return * p >> 16;
@@ -119,7 +123,7 @@ inline Uchar utf8_to_unicode
 //
 // Return the number of bytes output.
 //
-inline unsptr unicode_to_utf8
+inline unsigned unicode_to_utf8
 	( char * & s, Uchar unicode )
 {
     if ( unicode == 0 )
@@ -135,8 +139,8 @@ inline unsptr unicode_to_utf8
     }
 
     char * initial_s = s;
-    uns32 shift = 0;
-    uns8 c = 0;
+    unsigned shift = 0;
+    unsigned char c = 0;
     if ( unicode < 0x7FF )
 	shift = 6, c = 0xC0;
     else if ( unicode < 0xFFFF )
@@ -162,12 +166,31 @@ inline unsptr unicode_to_utf8
 
 extern const unsigned unicode_index_size;
 extern const unsigned short unicode_index[];
+extern const unsigned unicode_index_limit;
     // Index table.
     //
     // unicode_index[c] is the index of c.  Indices are
     // very changeable, and may not be the same week
     // to week (unlike the category of c which should
     // never change).
+    //
+    // c < unicode_index_size is required.  Other
+    // characters are not covered, are not given a name
+    // or numeric value, and are given category 'w'.
+    //
+    // unicode_index[c] < unicode_index_limit for all c.
+    //
+    // There is a 1-1 correspondence
+    //
+    //    i <-> ( unicode_category[i],
+    //            unicode_name[i],
+    //            unicode_numerator[i],
+    //            unicode_denominator[i] )
+    //
+    // between index values i and values of the given
+    // 4-tuple.
+
+const unsigned char UNSPECIFIED_CATEGORY = 'w';
 
 extern const unsigned char unicode_category[];
     // unicode_category[unicode_index[c]] is the
@@ -181,7 +204,7 @@ extern const unsigned char unicode_category[];
     // is `+') if they are not a letter.  All other
     // categories are letters.
 
-extern const Ustring * unicode_Uname[];
+extern const Ustring * const unicode_Uname[];
     // unicode_Uname[unicode_index[c]] is the Ustring
     // name of c, or NULL if c has no name.  For
     // example, character code 0A has as Ustring name
@@ -190,60 +213,66 @@ extern const Ustring * unicode_Uname[];
     // Names are assigned by the UNICODE standard and
     // are NOT made up.
 
-extern const char * unicode_name[];
+extern const char * const unicode_name[];
     // unicode_name[unicode_index[c]] is the ASCII name
     // of c, or NULL if c has no name.  For example,
     // character code 0A has as ASCII name "LF".
 
 extern const double unicode_numerator[];
 extern const double unicode_denominator[];
-extern const double unicode_number_value[];
-    // For a character c with a number value,
+extern const double unicode_numeric_value[];
+    // For a character c with a numeric value,
     //    unicode_numerator[unicode_index[c]]
     //    unicode_denominator[unicode_index[c]]
-    //    unicode_number_value[unicode_index[c]]
+    //    unicode_numeric_value[unicode_index[c]]
     // give the numeric value of c.
     //
     // The numerator and denominator are integers, but
     // because the numerator may be as large as 10e12,
     // these are encoded as double's.
     //
-    // If a character has NO number value, the
-    // denominator is 0 and the number_value is NaN.
+    // If a character has NO numeric value, the
+    // denominator is 0 and the numeric_value is NaN.
     //
     // Otherwise the denominator is > 0, the numerator
-    // may be signed, and the number value is the ratio
+    // may be signed, and the numeric value is the ratio
     // of numerator/denominator (e.g., 1/3'rd is given
     // as the C++ constant expression `1.0/3.0' to
     // provide maximum accuracy).
 
-extern const unicode_reference_count[];
+extern const unsigned short unicode_reference_count[];
     // unicode_numerator[t] is the number of character
     // codes c with t == unicode_index[c].  This is
     // just for integrety checking purposes.
 
-extern const unsigned unicode_types_size;
-extern const unicode_type unicode_types[];
+extern const unsigned unicode_Ustrings_size;
+extern const Uchar unicode_Ustrings[];
+    // Ustrings used as unicode_Unames are allocated as
+    // subvectors of this vector, because g++ does not
+    // implement U"..." yet.  So, for example, 
+    // unicode_name[unicode_index[0x00]] may be
+    // & unicode_Ustrings[0] if that and succeeding
+    // elements are 0x10001, 'N', 'U', 'L'.
 
-extern const unsigned unicode_names_size;
-extern const Uchar unicode_names[];
+const unsigned unicode_category_limit = 256;
+extern const char * const
+	unicode_category_name[unicode_category_limit];
+    // unicode_category_name[cat] is the UNICODE stan-
+    // dard general category name associated with
+    // unicode_category[] value cat.  For example:
+    //   unicode_category_name['U'] == "Lu"
+    //   unicode_category_name['+'] == "Sm"
+    // NULL if cat is NOT a category value.  Also
+    // NULL for the `Unspecified' category 'w'.
 
-// Table that encodes UNICODE general category to our
-// MIN category map.  The UNICODE general category is
-// 2 letters, while the MIN category is 1 letter and is
-// better suited to making lookup-by-category tables.
-// We also add the special MIN category `w' for
-// characters with no UNICODE category.
-//
-struct unicode_category
-{
-    const char * unicode_name;
-    unsigned char category;  // MIN category.
-    const char * unicode_description;
-};
-extern const unsigned unicode_categories_size;
-extern const unicode_category unicode_categories[];
-const unsigned char UNSPECIFIED_CATEGORY = 'w';
-
-} }
-
+extern const char * const
+	unicode_category_description
+	    [unicode_category_limit];
+    // Ditto but instead of the 2-letter name a
+    // longish description is given.  For example:
+    //   unicode_category_description['U']
+    //       == "Upper Case Letter"
+    //   unicode_category_description['+']
+    //       == "Math Symbol"
+    //   unicode_category_description['w']
+    //       == "Unspecified"
