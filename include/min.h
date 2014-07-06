@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 16:41:28 EDT 2014
+// Date:	Sun Jul  6 13:49:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4010,134 +4010,32 @@ namespace min {
 
     // UTF-8 Conversion Functions
 
-    const Uchar ILLEGAL_UTF8 = 0xFFFD;
-	// == `unicode replacement character',
-
-    inline Uchar utf8_to_unicode
-    	( const char * & s, const char * ends )
-    {
-        if ( s >= ends ) return ILLEGAL_UTF8;
-
-        uns8 c = (uns8) * s ++;
-	if ( c < 0x80 ) return c;
-
-	uns32 bytes = 0;
-	uns32 unicode = c;
-	if ( c < 0xC0 )
-	    unicode = ILLEGAL_UTF8;
-	else if ( c < 0xE0 )
-	    unicode &= 0x1F, bytes = 1;
-	else if ( c < 0xF0 )
-	    unicode &= 0x0F, bytes = 2;
-	else if ( c < 0xF8 )
-	    unicode &= 0x07, bytes = 3;
-	else if ( c < 0xFC )
-	    unicode &= 0x03, bytes = 4;
-	else if ( c < 0xFE )
-	    unicode &= 0x01, bytes = 5;
-	else
-	    unicode &= 0x00, bytes = 6;
-
-	if ( s + bytes > ends )
-	{
-	    s = ends;
-	    return ILLEGAL_UTF8;
-	}
-
-	while ( bytes -- )
-	{
-	    c = (uns8) * s ++;
-	    if ( c < 0x80 || 0xC0 <= c )
-	    {
-		unicode = ILLEGAL_UTF8;
-		s = ends;
-		break;
-	    }
-	    unicode <<= 6;
-	    unicode += ( c & 0x3F );
-	}
-	return unicode;
-    }
-
     unsptr utf8_to_unicode
     	( min::Uchar * & u, const min::Uchar * endu,
 	  const char * & s, const char * ends );
-
-    inline unsptr unicode_to_utf8
-	    ( char * & s, Uchar unicode )
-    {
-	if ( unicode == 0 )
-	{
-	    * s ++ = 0xC0;
-	    * s ++ = 0x80;
-	    return 2;
-	}
-	else if ( unicode < 0x80 )
-	{
-	    * s ++ = (char) unicode;
-	    return 1;
-	}
-
-        char * initial_s = s;
-	uns32 shift = 0;
-	uns8 c = 0;
-	if ( unicode < 0x7FF )
-	    shift = 6, c = 0xC0;
-	else if ( unicode < 0xFFFF )
-	    shift = 12, c = 0xE0;
-	else if ( unicode < 0x1FFFFF )
-	    shift = 18, c = 0xF0;
-	else if ( unicode < 0x3FFFFFF )
-	    shift = 24, c = 0xF8;
-	else if ( unicode < 0x7FFFFFFF )
-	    shift = 30, c = 0xFC;
-	else
-	    shift = 36, c = 0xFE;
-	while ( true )
-	{
-	    * s ++ = (char)
-	        ( c + ( ( unicode >> shift ) & 0x3F ) );
-	    if ( shift == 0 ) break;
-	    shift -= 6;
-	    c = 0x80;
-	}
-	return s - initial_s;
-    }
 
     unsptr unicode_to_utf8
 	( char * & s, const char * ends,
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
 
-    // A Ustring is a sequence of Uchars the first of
-    // which encodes the length and number of columns
-    // of the remainder.
-    //
-    typedef Uchar Ustring;
-    inline min::uns32 Ustring_length
-            ( const Ustring * p )
-    {
-        return * p & 0xFFFF;
-    }
-    inline min::uns32 Ustring_columns
-            ( const Ustring * p )
-    {
-        return * p >> 16;
-    }
-    inline const Uchar * Ustring_chars
-            ( const Ustring * p )
-    {
-        return p + 1;
-    }
-
     inline min::uns8 unicode_category ( Uchar c )
     {
 	return
-	    c < unicode::unicode_index_size ?
-	        unicode::unicode_types
-		    [unicode::unicode_index[c]]
-		        .category :
+	    c < unicode::unicode_index_limit ?
+	        unicode::unicode_category
+		    [unicode::unicode_index[c]] :
 		'w';
+    }
+
+    inline const min::Ustring * unicode_Uname
+    	    ( Uchar c )
+    {
+	return
+	    c < unicode::unicode_index_limit ?
+	        unicode::unicode_Uname
+		    [unicode::unicode_index[c]] :
+		NULL;
     }
 }
 
