@@ -1,8 +1,8 @@
-// MIN Routines to Output UNICODE Type Tables
+// MIN Routines to Output UNICODE Data Tables
 //
 // File:	output_unicode_types.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  3 07:11:45 EDT 2014
+// Date:	Sun Jul  6 04:55:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,8 @@
 // in other files such as make_unicode_types.cc and
 // min_unicode_test.cc.
 
+# include <cmath>
+
 // Print unicode_categories.
 //
 void print_categories ( ostream & out = cout )
@@ -21,75 +23,59 @@ void print_categories ( ostream & out = cout )
         << "CATEGORIES:"
 	<< endl
 	<< endl;
-    for ( unsigned i = 0; i < unicode_categories_size;
-                          ++ i )
+    for ( unsigned cat = 0; cat < 127; ++ cat )
     {
-        const unicode_category & cat =
-	    unicode_categories[i];
-        out << ( cat.unicode_name == NULL ? "  " :
-	         cat.unicode_name )
-	    << "  " << cat.category
-	    << "  " << cat.unicode_description
+        if ( ! isalpha ( cat ) )
+	    continue;
+	if ( unicode_category_description[cat] == NULL )
+	    continue;
+
+        out << (char) cat << " "
+	    << ( unicode_category_name[cat] == NULL ?
+	         "  " : unicode_category_name[cat] )
+	    << "  " << unicode_category_description[cat]
 	    << endl;
     }
 }
 
-// Print unicode_types[i], list the unicode_index
-// entries pointing at it, and print its name (if any)
-// from unicode_names.
+// Print data for index i, and list character codes c
+// with i == unicode_index[c].
 //
-void print_unicode_type
-	( unsigned t, ostream & out = cout )
+void print_index ( unsigned i, ostream & out = cout )
 {
-    assert ( t < unicode_types_size );
-    const unicode_type & type = unicode_types[t];
+    assert ( i < unicode_index_limit );
 
-    out << "type " << t << ":" << endl;
-    if ( type.name != 0 )
+    out << "index " << i << ":" << endl;
+    if ( unicode_name[i] != 0 )
+        out << "       name = `" << unicode_name[i]
+	    << "'" << endl;
+
+    char catname[100];
+    unsigned char cat = unicode_category[i];
+    sprintf ( catname, "0x%02X", cat );
+    if ( cat < 127 && isgraph ( cat ) )
     {
-        out << "       name = `";
-	Uchar header = unicode_names[type.name];
-	unsigned name_length = header & 0xFFFF;
-	unsigned name_columns = header >> 16;
-	assert ( name_columns == name_length );
-	    // Non-spacing marks are not currently
-	    // supported.
-	for ( unsigned i = 0; i < name_length; ++ i )
-	{
-	    Uchar c = unicode_names[type.name+1+i];
-	    assert ( ' ' < c && c < 0xFF );
-	        // Currently only ASCII names are
-		// supported.
-	    out << (char) c;
-	}
-	out << "'" << endl;
-    }
-    char category[100];
-    sprintf ( category, "0x%02X", type.category );
-    if (    type.category < 127
-         && isgraph ( type.category ) )
-    {
-	char * p = category + strlen ( category );
-	sprintf ( p, " = %c", (char) type.category );
+	char * p = catname + strlen ( catname );
+	sprintf ( p, " = %c", (char) cat );
     }
 
     out << "       numerator/denominator = "
-	<< type.numerator << "/" << type.denominator
+	<< numerator[i] << "/" << denominator[i]
 	<< endl
 	<< "       category = "
-	<< category << endl
+	<< catname << endl
 	<< "       reference count = "
-	<< type.reference_count << endl;
+	<< reference_count[i] << endl;
 
     unsigned count = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-	if ( t != unicode_index[c] ) continue;
+	if ( i != unicode_index[c] ) continue;
 
 	Uchar c2 = c + 1;
 	while ( c2 < unicode_index_size
 		&&
-		t == unicode_index[c2] )
+		i == unicode_index[c2] )
 	    ++ c2;
 
 	count += (c2 - c );
@@ -105,7 +91,7 @@ void print_unicode_type
 
 	c = c2;
     }
-    if ( count != type.reference_count )
+    if ( count != reference_count[i] )
         out << "    ERROR: reference count should be"
 	       " = " << count << endl;
 }
@@ -119,19 +105,65 @@ void dump ( const char * filename )
 	     << " for output" << endl;
 	exit ( 1 );
     }
+
+    out << std::setprecision ( 100 );
+        // Output double integers of arbitrary
+	// length.
+
     out << "==================== UNICODE DATA DUMP:"
 	<< endl;
 
     out << endl;
     print_categories ( out );
 
-    for ( unsigned t = 0; t < unicode_types_size; ++ t )
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
     {
 	out << endl;
-        print_unicode_type ( t, out );
+        print_index ( i, out );
     }
 
     out.close();
+}
+
+// Output:    `    /* [0x...] = ['.'] */ '
+//
+// where 0x... is c in hex and '.' if c as an ASCII
+// graphic character, with the ` = ['.']' being replaced
+// by spaces if c is not an ASCII graphic character.
+// n is the number of hex digits to be output.  Return
+// `out'.
+//
+ostream & index_comment
+	( ostream & out, unsigned c, int n )
+{
+    char buffer[100];
+    sprintf ( buffer, "0x%0*X", n, c );
+    out << "    /* [" << buffer;
+
+    if ( c < 127 && isgraph ( c ) )
+	out << "] = ['" << (char) c << "'] */ ";
+    else
+	out << "]         */ ";
+    return out;
+}
+
+// Output:    '.' if c is an ASCII graphic
+//	      0x.. otherwise
+//
+// Return `out'.
+//
+ostream & output ( ostream & out, unsigned c )
+{
+    if ( c < 127 && isgraph ( c ) )
+	out << "'" << (char) c << "'";
+    else
+    {
+	char buffer[20];
+	sprintf ( buffer, "0x%02X", c );
+	out << buffer;
+    }
+    return out;
 }
 
 void output ( const char * filename )
@@ -144,8 +176,12 @@ void output ( const char * filename )
 	exit ( 1 );
     }
 
+    out << std::setprecision ( 100 );
+        // Output double integers of arbitrary
+	// length.
+
     out <<
-      "// UNICODE Character Type Data\n"
+      "// UNICODE Character Data\n"
       "//\n"
       "// File:	unicode_types.cc\n"
       "\n"
@@ -153,81 +189,54 @@ void output ( const char * filename )
 
     out <<
       "\n"
-      "// UNICODE_CATEGORIES is the list of element\n"
-      "// values of the unicode_categories vector\n"
-      "// and UNICODE_CATEGORIES_SIZE is the size of\n"
-      "// the vector.\n";
+      "// UNICODE_CATEGORY_NAME is the list of\n"
+      "// element values of the unicode_category_\n"
+      "// name vector;  UNICODE_CATEGORY_DESCRIPTION\n"
+      "// is a list of element values of the unicode_\n"
+      "// category_description vector; and UNICODE_\n"
+      "// CATEGORY_LIMIT is the size of either\n"
+      "// vector.\n";
 
     out << endl
-        << "# define UNICODE_CATEGORIES_SIZE "
-        << unicode_categories_size << endl;
+        << "# define UNICODE_CATEGORY_LIMIT "
+        << unicode_category_limit << endl;
 
-    out << endl << "# define UNICODE_CATEGORIES";
-    for ( unsigned j = 0; j < unicode_categories_size;
-                          ++ j )
+    out << endl
+        << "# define UNICODE_CATEGORY_NAME";
+    const char * finish = "";
+    for ( unsigned cat = 0;
+          cat < unicode_category_limit; ++ cat )
     {
-	const unicode_category & d =
-	    unicode_categories[j];
-	if ( j != 0 ) out << ",";
-	out << " \\\n    { ";
-	if ( d.unicode_name == NULL )
+        const char * name = unicode_category_name[cat];
+
+        out << finish << " \\" << endl;
+	finish = ",";
+
+        index_comment ( out, cat, 2 );
+	if ( name == NULL )
 	    out << "NULL";
-	else out << '"' << d.unicode_name << '"';
-	out << ", '" << d.category << "', "
-	    << '"' << d.unicode_description << '"'
-	    << " }";
-    }
-    out << endl;
-
-    out <<
-      "\n"
-      "// UNICODE_TYPES is the list of element values\n"
-      "// of the unicode_types vector and UNICODE_\n"
-      "// TYPES_SIZE is the size of the vector.\n";
-
-    out << endl << "# define UNICODE_TYPES_SIZE "
-        << unicode_types_size << endl;
-
-    out << endl << "# define UNICODE_TYPES";
-
-    for ( unsigned t = 0; t < unicode_types_size; ++ t )
-    {
-	const unicode_type & type = unicode_types[t];
-	char category[20];
-	sprintf ( category, "%02X",
-	          (short) type.category );
-	if ( t != 0 ) out << ",";
-        out << " \\\n    { 0x" << category
-	    << ", " << type.name
-	    << ", " << type.numerator
-	    << ", " << type.denominator
-	    << ", " << type.reference_count
-	    << " }";
-    }
-    out << endl;
-
-    out <<
-      "\n"
-      "// UNICODE_NAMES is the list of element values\n"
-      "// of the unicode_names vector and UNICODE_\n"
-      "// NAMES_SIZE is the size of the vector.\n";
-
-    out << endl << "# define UNICODE_NAMES_SIZE "
-        << unicode_names_size << endl;
-
-    out << endl << "# define UNICODE_NAMES ";
-    for ( unsigned i = 0; i < unicode_names_size; ++ i )
-    {
-	char buf[20];
-	Uchar c = unicode_names[i];
-	if ( ' ' <= c && c < 0xFF )
-	    sprintf ( buf, "'%c'", (char) c );
 	else
-	    sprintf ( buf, "0x%02X", c );
+	    out << "\"" << name << "\"";
+    }
+    out << endl;
 
-	if ( i != 0 ) out << ", ";
-        if ( i % 5 == 0 ) out << "\\\n    ";
-	out << setw ( 5 ) << buf;
+    out << endl
+        << "# define UNICODE_CATEGORY_DESCRIPTION";
+    finish = "";
+    for ( unsigned cat = 0;
+          cat < unicode_category_limit; ++ cat )
+    { 
+        const char * description =
+	    unicode_category_description[cat];
+
+        out << finish << " \\" << endl;
+	finish = ",";
+
+        index_comment ( out, cat, 2 );
+	if ( description == NULL )
+	    out << "NULL";
+	else
+	    out << "\"" << description << "\"";
     }
     out << endl;
 
@@ -241,12 +250,182 @@ void output ( const char * filename )
         << hex << unicode_index_size << dec
 	<< endl;
 
-    out << endl << "# define UNICODE_INDEX ";
+    out << endl << "# define UNICODE_INDEX";
+    finish = "";
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-	if ( c != 0 ) out << ", ";
-        if ( c % 8 == 0 ) out << "\\\n    ";
-	out << setw ( 3 ) << unicode_index[c];
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	index_comment ( out, c, 8 ) << unicode_index[c];
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_USTRINGS is the list of element\n"
+      "// values of the unicode_Ustrings vector and\n"
+      "// UNICODE_USTRINGS_SIZE is the size of the\n"
+      "// vector.\n";
+
+    out << endl << "# define UNICODE_USTRINGS_SIZE "
+        << unicode_Ustrings_size << endl;
+
+    out << endl << "# define UNICODE_USTRINGS";
+    finish = "";
+    for ( unsigned i = 0; i < unicode_Ustrings_size;
+                          ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+	output ( out, unicode_Ustrings[i] );
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_INDEX_LIMIT is size of various\n"
+      "// vectors below.\n";
+
+    out << endl << "# define UNICODE_INDEX_LIMIT "
+        << unicode_index_limit << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_CATEGORY is the list of element\n"
+      "// values of the unicode_category vector\n"
+      "// whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_CATEGORY";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	output ( out, unicode_category[i] );
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_NAME is the list of element\n"
+      "// values of the unicode_name vector\n"
+      "// whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_NAME";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	const char * n = unicode_name[i];
+	if ( n == NULL ) out << "NULL";
+	else out << "\"" << n << "\"";
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_UNAME is the list of element\n"
+      "// values of the unicode_Uname vector\n"
+      "// whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_UNAME";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	const Ustring * name = unicode_Uname[i];
+	if ( name == NULL ) out << "NULL";
+	else out << "& unicode_Ustrings["
+	         << ( name - unicode_Ustrings )
+		 << "]";
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_NUMERATOR is the list of element\n"
+      "// values of the unicode_numerator vector\n"
+      "// whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_NUMERATOR";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	out << unicode_numerator[i];
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_DENOMINATOR is the list of element\n"
+      "// values of the unicode_denominator vector\n"
+      "// whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_DENOMINATOR";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	out << unicode_denominator[i];
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_NUMERIC_VALUE is the list of\n"
+      "// element values of the unicode_numeric_\n"
+      "// value vector whose size is UNICODE_INDEX_\n"
+      "// LIMIT.\n";
+
+    out << endl << "# define UNICODE_NUMERIC_VALUE";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	if ( unicode_denominator[i] == 0 )
+	    out << "NaN";
+	else
+	    out << unicode_numerator[i] << ".0/"
+	        << unicode_denominator[i];
     }
     out << endl;
 
@@ -257,70 +436,112 @@ void output ( const char * filename )
 //
 void final_check ( void )
 {
-    unsigned count[unicode_types_size];
-    for ( unsigned i = 0; i < unicode_types_size; ++ i )
+    unsigned count[unicode_index_limit];
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
         count[i] = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
         unsigned i = unicode_index[c];
-	assert ( i < unicode_types_size );
+	assert ( i < unicode_index_limit );
         ++ count[i];
     }
-    for ( unsigned i = 0; i < unicode_types_size; ++ i )
-    {
-	const unicode_type & type = unicode_types[i];
-	unsigned name_length =
-	    type.name == 0 ? 0 :
-	        unicode_names[type.name] & 0xFFFF;
 
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
 	for ( unsigned i2 = 0; i2 < i; ++ i2 )
 	{
-	    const unicode_type & type2 =
-	        unicode_types[i2];
-	    if ( type.category != type2.category )
+	    if (    unicode_category[i]
+	         != unicode_category[i2] )
 	        continue;
-	    unsigned name_length2 =
-		type2.name == 0 ? 0 :
-		    unicode_names[type2.name] & 0xFFFF;
-	    if ( name_length != name_length2 )
+	    if ( unicode_name[i] == NULL ?
+	             unicode_name[i2] != NULL :
+	         unicode_name[i2] == NULL ? true :
+		 strcmp ( unicode_name[i],
+		          unicode_name[i2] ) != 0 )
 	        continue;
-	    if (    memcmp (   unicode_names
-	                     + type.name + 1,
-	                       unicode_names
-			     + type2.name + 1,
-			       name_length
-			     * sizeof ( Uchar ) )
-	         != 0 )
+	    if (    unicode_numerator[i]
+	         != unicode_numerator[i2] )
 	        continue;
-	    if ( type.denominator != type2.denominator )
+	    if (    unicode_denominator[i]
+	         != unicode_denominator[i2] )
 	        continue;
-	    if ( type.numerator != type2.numerator )
-	        continue;
-
-	    cout << "ERROR: in final check; two"
-	            "distinct types match:" << endl;
+	        
 	    cout << "  (1) ";
-	    print_unicode_type ( i );
+	    print_index ( i );
 	    cout << "  (2) ";
-	    print_unicode_type ( i2 );
+	    print_index ( i2 );
 	}
 
-	unsigned name_columns =
-	    type.name == 0 ? 0 :
-	        unicode_names[type.name] >> 16;
+	const char * error = NULL;
 
-        if ( count[i] == type.reference_count
+	// Check Uname[i].
+	//
+	if ( unicode_Uname[i] == NULL
 	     &&
-	     ( count[i] > 0 || i == 0 )
-	     &&
-	     ( type.denominator > 0
-	       ||
-	       type.numerator ==  0 )
-	     &&
-	     name_columns == name_length )
-           continue;
+	     unicode_name[i] != NULL )
+	    error = "Uname == NULL && name != NULL";
+	else if ( unicode_Uname[i] != NULL
+	          &&
+	          unicode_name[i] == NULL )
+	    error = "Uname != NULL && name == NULL";
+	else if ( unicode_name[i] == NULL )
+	    /* do nothing */;
+	else if ( Ustring_length ( unicode_Uname[i] )
+	          !=
+	          Ustring_columns ( unicode_Uname[i] ) )
+	    error = "Uname length != columns";
+	else if ( Ustring_length ( unicode_Uname[i] )
+	          !=
+		  strlen ( unicode_name[i] ) )
+	    error = "Uname length != name length";
+	else
+	{
+	    const Uchar * Ustr =
+	        Ustring_chars ( unicode_Uname[i] );
+	    const char * str = unicode_name[i];
+	    while ( * str && error == NULL )
+	    {
+	        if ( Uchar ( * str ++ ) == * Ustr ++ )
+	            continue;
+		error = "Uname chars != name chars";
+	    }
+	}
 
-	cout << "ERROR: in final check of ";
-	print_unicode_type ( i );
+	// Check numeric value.
+	//
+	if ( unicode_denominator[i] == 0
+	     &&
+	     unicode_numerator[i] != 0 )
+	    error = "denominator == 0 and numerator"
+	            " != 0";
+	else if ( unicode_denominator[i] == 0
+	          &&
+		  ! isnan ( unicode_numeric_value[i] ) )
+	    error = "denominator == 0 and numeric_value"
+	            " is not NaN";
+	else if ( unicode_denominator[i] != 0
+	          &&
+		  isnan ( unicode_numeric_value[i] ) )
+	    error = "denominator != 0 and numeric_value"
+	            " is NaN";
+	else if ( unicode_denominator[i] != 0
+	          &&
+		     unicode_numeric_value[i]
+		  !=   unicode_numerator[i]
+		     / unicode_denominator[i] )
+	    error = "numeric_value !="
+	            " numerator / denominator";
+
+	if ( count[i] != unicode_reference_count[i] )
+	    error = "wrong reference_count";
+
+	if ( error != NULL )
+	{
+	    cout << "FINAL CHECK ERROR: " << error
+	         << ":" << endl << "in ";
+	    print_index ( i );
+	}
     }
 }

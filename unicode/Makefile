@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul  1 05:35:55 EDT 2014
+# Date:		Sun Jul  6 05:14:51 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -42,12 +42,12 @@ ${NAMES}:
 make_unicode_types:	make_unicode_types.cc \
 			output_unicode_types.cc
 	rm -f make_unicode_types
-	g++ ${WFLAGS} -o make_unicode_types \
+	g++ -g ${WFLAGS} -o make_unicode_types \
 	    make_unicode_types.cc
 
 make_unicode_types.out:	make_unicode_types \
 	${DERIVED} ${NAMES}
-	rm -f unicode_types.h make_unicode_types.out
+	rm -f unicode_types.cc make_unicode_types.out
 	make_unicode_types > make_unicode_types.out
 	cat make_unicode_types.out
 
@@ -68,15 +68,16 @@ unicode_types.dump:	make_unicode_types
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode
-	g++ -o print_unicode print_unicode.cc -lfontconfig
+	g++ -g -o print_unicode print_unicode.cc \
+	    -lfontconfig
 
 utf8look:	utf8look.cc
 	rm -f utf8look
-	g++ -o utf8look utf8look.cc -lfontconfig
+	g++ -g -o utf8look utf8look.cc -lfontconfig
 
 latin1look:	latin1look.cc
 	rm -f latin1look
-	g++ -o latin1look latin1look.cc
+	g++ -g -o latin1look latin1look.cc
 
 latin1-utf8:	utf8look
 	@utf8look 00A0 00A1 00A2 00A3 00A4 00A5 00A6 00A7
