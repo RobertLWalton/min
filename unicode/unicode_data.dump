@@ -1,0 +1,7414 @@
+==================== UNICODE DATA DUMP:
+
+
+CATEGORIES:
+
+D Nd  Decimal Number
+E Me  Enclosing Mark
+H No  Other Number
+L Ll  Lower Case Letter
+M Lm  Modifier Letter
+N Mn  Nonspacing Mark
+O Lo  Other Letter
+R Nl  Letter Number
+S Mc  Spacing Mark
+T Lt  Title Case Letter
+U Lu  Upper Case Letter
+c Pe  Close Punctuation
+d Pd  Dash Punctuation
+f Pf  Final Punctuation
+g Cs  Surrogate
+h Po  Other Punctuation
+i Pi  Initial Punctuation
+l Zl  Line Separator
+m Sm  Math Symbol
+n Pc  Connector Punctuation
+o Ps  Open Punctuation
+p Zp  Paragraph Separator
+r Sk  Modifier Symbol
+s Zs  Space Separator
+t So  Other Symbol
+u Cn  Unassigned
+v Co  Private Use
+w     Unspecified
+x Cc  Control
+y Sc  Currency Symbol
+z Cf  Format
+
+index 0:
+       numerator/denominator = 0/0
+       category = 0x77 = w
+       reference count = 0
+
+index 1:
+       name = `NUL'
+       numerator/denominator = 0/0
+       category = 0x00
+       reference count = 1
+       code = 00
+
+index 2:
+       name = `SOH'
+       numerator/denominator = 0/0
+       category = 0x01
+       reference count = 1
+       code = 01
+
+index 3:
+       name = `STX'
+       numerator/denominator = 0/0
+       category = 0x02
+       reference count = 1
+       code = 02
+
+index 4:
+       name = `ETX'
+       numerator/denominator = 0/0
+       category = 0x03
+       reference count = 1
+       code = 03
+
+index 5:
+       name = `EOT'
+       numerator/denominator = 0/0
+       category = 0x04
+       reference count = 1
+       code = 04
+
+index 6:
+       name = `ENQ'
+       numerator/denominator = 0/0
+       category = 0x05
+       reference count = 1
+       code = 05
+
+index 7:
+       name = `ACK'
+       numerator/denominator = 0/0
+       category = 0x06
+       reference count = 1
+       code = 06
+
+index 8:
+       name = `BEL'
+       numerator/denominator = 0/0
+       category = 0x07
+       reference count = 1
+       code = 07
+
+index 9:
+       name = `BS'
+       numerator/denominator = 0/0
+       category = 0x08
+       reference count = 1
+       code = 08
+
+index 10:
+       name = `HT'
+       numerator/denominator = 0/0
+       category = 0x09
+       reference count = 1
+       code = 09
+
+index 11:
+       name = `LF'
+       numerator/denominator = 0/0
+       category = 0x0A
+       reference count = 1
+       code = 0A
+
+index 12:
+       name = `VT'
+       numerator/denominator = 0/0
+       category = 0x0B
+       reference count = 1
+       code = 0B
+
+index 13:
+       name = `FF'
+       numerator/denominator = 0/0
+       category = 0x0C
+       reference count = 1
+       code = 0C
+
+index 14:
+       name = `CR'
+       numerator/denominator = 0/0
+       category = 0x0D
+       reference count = 1
+       code = 0D
+
+index 15:
+       name = `SO'
+       numerator/denominator = 0/0
+       category = 0x0E
+       reference count = 1
+       code = 0E
+
+index 16:
+       name = `SI'
+       numerator/denominator = 0/0
+       category = 0x0F
+       reference count = 1
+       code = 0F
+
+index 17:
+       name = `DLE'
+       numerator/denominator = 0/0
+       category = 0x10
+       reference count = 1
+       code = 10
+
+index 18:
+       name = `DC1'
+       numerator/denominator = 0/0
+       category = 0x11
+       reference count = 1
+       code = 11
+
+index 19:
+       name = `DC2'
+       numerator/denominator = 0/0
+       category = 0x12
+       reference count = 1
+       code = 12
+
+index 20:
+       name = `DC3'
+       numerator/denominator = 0/0
+       category = 0x13
+       reference count = 1
+       code = 13
+
+index 21:
+       name = `DC4'
+       numerator/denominator = 0/0
+       category = 0x14
+       reference count = 1
+       code = 14
+
+index 22:
+       name = `NAK'
+       numerator/denominator = 0/0
+       category = 0x15
+       reference count = 1
+       code = 15
+
+index 23:
+       name = `SYN'
+       numerator/denominator = 0/0
+       category = 0x16
+       reference count = 1
+       code = 16
+
+index 24:
+       name = `ETB'
+       numerator/denominator = 0/0
+       category = 0x17
+       reference count = 1
+       code = 17
+
+index 25:
+       name = `CAN'
+       numerator/denominator = 0/0
+       category = 0x18
+       reference count = 1
+       code = 18
+
+index 26:
+       name = `EOM'
+       numerator/denominator = 0/0
+       category = 0x19
+       reference count = 1
+       code = 19
+
+index 27:
+       name = `SUB'
+       numerator/denominator = 0/0
+       category = 0x1A
+       reference count = 1
+       code = 1A
+
+index 28:
+       name = `ESC'
+       numerator/denominator = 0/0
+       category = 0x1B
+       reference count = 1
+       code = 1B
+
+index 29:
+       name = `FS'
+       numerator/denominator = 0/0
+       category = 0x1C
+       reference count = 1
+       code = 1C
+
+index 30:
+       name = `GS'
+       numerator/denominator = 0/0
+       category = 0x1D
+       reference count = 1
+       code = 1D
+
+index 31:
+       name = `RS'
+       numerator/denominator = 0/0
+       category = 0x1E
+       reference count = 1
+       code = 1E
+
+index 32:
+       name = `US'
+       numerator/denominator = 0/0
+       category = 0x1F
+       reference count = 1
+       code = 1F
+
+index 33:
+       name = `SP'
+       numerator/denominator = 0/0
+       category = 0x20
+       reference count = 1
+       code = 20
+
+index 34:
+       name = `DEL'
+       numerator/denominator = 0/0
+       category = 0x7F
+       reference count = 1
+       code = 7F
+
+index 35:
+       name = `PAD'
+       numerator/denominator = 0/0
+       category = 0x80
+       reference count = 1
+       code = 80
+
+index 36:
+       name = `HOP'
+       numerator/denominator = 0/0
+       category = 0x81
+       reference count = 1
+       code = 81
+
+index 37:
+       name = `BPH'
+       numerator/denominator = 0/0
+       category = 0x82
+       reference count = 1
+       code = 82
+
+index 38:
+       name = `NBH'
+       numerator/denominator = 0/0
+       category = 0x83
+       reference count = 1
+       code = 83
+
+index 39:
+       name = `IND'
+       numerator/denominator = 0/0
+       category = 0x84
+       reference count = 1
+       code = 84
+
+index 40:
+       name = `NEL'
+       numerator/denominator = 0/0
+       category = 0x85
+       reference count = 1
+       code = 85
+
+index 41:
+       name = `SSA'
+       numerator/denominator = 0/0
+       category = 0x86
+       reference count = 1
+       code = 86
+
+index 42:
+       name = `ESA'
+       numerator/denominator = 0/0
+       category = 0x87
+       reference count = 1
+       code = 87
+
+index 43:
+       name = `HTS'
+       numerator/denominator = 0/0
+       category = 0x88
+       reference count = 1
+       code = 88
+
+index 44:
+       name = `HTJ'
+       numerator/denominator = 0/0
+       category = 0x89
+       reference count = 1
+       code = 89
+
+index 45:
+       name = `VTS'
+       numerator/denominator = 0/0
+       category = 0x8A
+       reference count = 1
+       code = 8A
+
+index 46:
+       name = `PLD'
+       numerator/denominator = 0/0
+       category = 0x8B
+       reference count = 1
+       code = 8B
+
+index 47:
+       name = `PLU'
+       numerator/denominator = 0/0
+       category = 0x8C
+       reference count = 1
+       code = 8C
+
+index 48:
+       name = `RI'
+       numerator/denominator = 0/0
+       category = 0x8D
+       reference count = 1
+       code = 8D
+
+index 49:
+       name = `SS2'
+       numerator/denominator = 0/0
+       category = 0x8E
+       reference count = 1
+       code = 8E
+
+index 50:
+       name = `SS3'
+       numerator/denominator = 0/0
+       category = 0x8F
+       reference count = 1
+       code = 8F
+
+index 51:
+       name = `DCS'
+       numerator/denominator = 0/0
+       category = 0x90
+       reference count = 1
+       code = 90
+
+index 52:
+       name = `PU1'
+       numerator/denominator = 0/0
+       category = 0x91
+       reference count = 1
+       code = 91
+
+index 53:
+       name = `PU2'
+       numerator/denominator = 0/0
+       category = 0x92
+       reference count = 1
+       code = 92
+
+index 54:
+       name = `STS'
+       numerator/denominator = 0/0
+       category = 0x93
+       reference count = 1
+       code = 93
+
+index 55:
+       name = `CCH'
+       numerator/denominator = 0/0
+       category = 0x94
+       reference count = 1
+       code = 94
+
+index 56:
+       name = `MW'
+       numerator/denominator = 0/0
+       category = 0x95
+       reference count = 1
+       code = 95
+
+index 57:
+       name = `SPA'
+       numerator/denominator = 0/0
+       category = 0x96
+       reference count = 1
+       code = 96
+
+index 58:
+       name = `EPA'
+       numerator/denominator = 0/0
+       category = 0x97
+       reference count = 1
+       code = 97
+
+index 59:
+       name = `SOS'
+       numerator/denominator = 0/0
+       category = 0x98
+       reference count = 1
+       code = 98
+
+index 60:
+       name = `SGC'
+       numerator/denominator = 0/0
+       category = 0x99
+       reference count = 1
+       code = 99
+
+index 61:
+       name = `SCI'
+       numerator/denominator = 0/0
+       category = 0x9A
+       reference count = 1
+       code = 9A
+
+index 62:
+       name = `CSI'
+       numerator/denominator = 0/0
+       category = 0x9B
+       reference count = 1
+       code = 9B
+
+index 63:
+       name = `ST'
+       numerator/denominator = 0/0
+       category = 0x9C
+       reference count = 1
+       code = 9C
+
+index 64:
+       name = `OSC'
+       numerator/denominator = 0/0
+       category = 0x9D
+       reference count = 1
+       code = 9D
+
+index 65:
+       name = `PM'
+       numerator/denominator = 0/0
+       category = 0x9E
+       reference count = 1
+       code = 9E
+
+index 66:
+       name = `APC'
+       numerator/denominator = 0/0
+       category = 0x9F
+       reference count = 1
+       code = 9F
+
+index 67:
+       name = `NBSP'
+       numerator/denominator = 0/0
+       category = 0xA0
+       reference count = 1
+       code = A0
+
+index 68:
+       name = `SHY'
+       numerator/denominator = 0/0
+       category = 0xAD
+       reference count = 1
+       code = AD
+
+index 69:
+       name = `CGJ'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = 34F
+
+index 70:
+       name = `ALM'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 61C
+
+index 71:
+       name = `FVS1'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = 180B
+
+index 72:
+       name = `FVS2'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = 180C
+
+index 73:
+       name = `FVS3'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = 180D
+
+index 74:
+       name = `MVS'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 180E
+
+index 75:
+       name = `ZWSP'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 200B
+
+index 76:
+       name = `ZWNJ'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 200C
+
+index 77:
+       name = `ZWJ'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 200D
+
+index 78:
+       name = `LRM'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 200E
+
+index 79:
+       name = `RLM'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 200F
+
+index 80:
+       name = `LRE'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 202A
+
+index 81:
+       name = `RLE'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 202B
+
+index 82:
+       name = `PDF'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 202C
+
+index 83:
+       name = `LRO'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 202D
+
+index 84:
+       name = `RLO'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 202E
+
+index 85:
+       name = `NNBSP'
+       numerator/denominator = 0/0
+       category = 0x73 = s
+       reference count = 1
+       code = 202F
+
+index 86:
+       name = `MMSP'
+       numerator/denominator = 0/0
+       category = 0x73 = s
+       reference count = 1
+       code = 205F
+
+index 87:
+       name = `WJ'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 2060
+
+index 88:
+       name = `LRI'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 2066
+
+index 89:
+       name = `RLI'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 2067
+
+index 90:
+       name = `FSI'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 2068
+
+index 91:
+       name = `PDI'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = 2069
+
+index 92:
+       name = `VS1'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE00
+
+index 93:
+       name = `VS2'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE01
+
+index 94:
+       name = `VS3'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE02
+
+index 95:
+       name = `VS4'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE03
+
+index 96:
+       name = `VS5'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE04
+
+index 97:
+       name = `VS6'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE05
+
+index 98:
+       name = `VS7'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE06
+
+index 99:
+       name = `VS8'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE07
+
+index 100:
+       name = `VS9'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE08
+
+index 101:
+       name = `VS10'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE09
+
+index 102:
+       name = `VS11'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0A
+
+index 103:
+       name = `VS12'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0B
+
+index 104:
+       name = `VS13'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0C
+
+index 105:
+       name = `VS14'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0D
+
+index 106:
+       name = `VS15'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0E
+
+index 107:
+       name = `VS16'
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1
+       code = FE0F
+
+index 108:
+       name = `BOM'
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 1
+       code = FEFF
+
+index 109:
+       numerator/denominator = -1/2
+       category = 0x48 = H
+       reference count = 1
+       code = F33
+
+index 110:
+       numerator/denominator = 0/1
+       category = 0x4F = O
+       reference count = 2
+       code = 96F6
+       code = F9B2
+
+index 111:
+       numerator/denominator = 1/16
+       category = 0x48 = H
+       reference count = 3
+       code = 9F4
+       code = B75
+       code = A833
+
+index 112:
+       numerator/denominator = 1/10
+       category = 0x48 = H
+       reference count = 1
+       code = 2152
+
+index 113:
+       numerator/denominator = 1/9
+       category = 0x48 = H
+       reference count = 1
+       code = 2151
+
+index 114:
+       numerator/denominator = 1/8
+       category = 0x52 = R
+       reference count = 1
+       code = 1245F
+
+index 115:
+       numerator/denominator = 1/7
+       category = 0x48 = H
+       reference count = 1
+       code = 2150
+
+index 116:
+       numerator/denominator = 1/6
+       category = 0x52 = R
+       reference count = 1
+       code = 12461
+
+index 117:
+       numerator/denominator = 3/16
+       category = 0x48 = H
+       reference count = 3
+       code = 9F6
+       code = B77
+       code = A835
+
+index 118:
+       numerator/denominator = 1/5
+       category = 0x48 = H
+       reference count = 1
+       code = 2155
+
+index 119:
+       numerator/denominator = 1/4
+       category = 0x52 = R
+       reference count = 4
+       code = 10140
+       code = 12460
+       codes = 12462..12463
+
+index 120:
+       numerator/denominator = 1/3
+       category = 0x52 = R
+       reference count = 3
+       code = 1245A
+       code = 1245D
+       code = 12465
+
+index 121:
+       numerator/denominator = 3/8
+       category = 0x48 = H
+       reference count = 1
+       code = 215C
+
+index 122:
+       numerator/denominator = 2/5
+       category = 0x48 = H
+       reference count = 1
+       code = 2156
+
+index 123:
+       numerator/denominator = 1/2
+       category = 0x52 = R
+       reference count = 2
+       code = 10141
+       code = 12464
+
+index 124:
+       numerator/denominator = 3/5
+       category = 0x48 = H
+       reference count = 1
+       code = 2157
+
+index 125:
+       numerator/denominator = 5/8
+       category = 0x48 = H
+       reference count = 1
+       code = 215D
+
+index 126:
+       numerator/denominator = 2/3
+       category = 0x52 = R
+       reference count = 3
+       code = 1245B
+       code = 1245E
+       code = 12466
+
+index 127:
+       numerator/denominator = 3/4
+       category = 0xBE
+       reference count = 1
+       code = BE
+
+index 128:
+       numerator/denominator = 4/5
+       category = 0x48 = H
+       reference count = 1
+       code = 2158
+
+index 129:
+       numerator/denominator = 5/6
+       category = 0x52 = R
+       reference count = 1
+       code = 1245C
+
+index 130:
+       numerator/denominator = 7/8
+       category = 0x48 = H
+       reference count = 1
+       code = 215E
+
+index 131:
+       numerator/denominator = 1/1
+       category = 0x4F = O
+       reference count = 6
+       code = 4E00
+       code = 58F1
+       code = 58F9
+       code = 5E7A
+       code = 5F0C
+       code = 2092A
+
+index 132:
+       numerator/denominator = 3/2
+       category = 0x48 = H
+       reference count = 1
+       code = F2B
+
+index 133:
+       numerator/denominator = 2/1
+       category = 0x4F = O
+       reference count = 10
+       code = 3483
+       code = 4E8C
+       code = 5169
+       code = 5F0D
+       code = 5F10
+       code = 8CAE
+       code = 8CB3
+       code = 8D30
+       code = F978
+       code = 22390
+
+index 134:
+       numerator/denominator = 5/2
+       category = 0x48 = H
+       reference count = 1
+       code = F2C
+
+index 135:
+       numerator/denominator = 3/1
+       category = 0x4F = O
+       reference count = 12
+       code = 4E09
+       code = 4EE8
+       codes = 53C1..53C4
+       code = 5F0E
+       code = F96B
+       code = 20AFD
+       code = 20B19
+       code = 22998
+       code = 23B1B
+
+index 136:
+       numerator/denominator = 7/2
+       category = 0x48 = H
+       reference count = 1
+       code = F2D
+
+index 137:
+       numerator/denominator = 4/1
+       category = 0x4F = O
+       reference count = 6
+       code = 4E96
+       code = 56DB
+       code = 8086
+       code = 20064
+       code = 200E2
+       code = 2626D
+
+index 138:
+       numerator/denominator = 9/2
+       category = 0x48 = H
+       reference count = 1
+       code = F2E
+
+index 139:
+       numerator/denominator = 5/1
+       category = 0x4F = O
+       reference count = 5
+       code = 3405
+       code = 382A
+       code = 4E94
+       code = 4F0D
+       code = 20121
+
+index 140:
+       numerator/denominator = 11/2
+       category = 0x48 = H
+       reference count = 1
+       code = F2F
+
+index 141:
+       numerator/denominator = 6/1
+       category = 0x4F = O
+       reference count = 6
+       code = 516D
+       code = 9646
+       code = 9678
+       code = F9D1
+       code = F9D3
+       code = 20AEA
+
+index 142:
+       numerator/denominator = 13/2
+       category = 0x48 = H
+       reference count = 1
+       code = F30
+
+index 143:
+       numerator/denominator = 7/1
+       category = 0x4F = O
+       reference count = 5
+       code = 3B4D
+       code = 4E03
+       code = 67D2
+       code = 6F06
+       code = 20001
+
+index 144:
+       numerator/denominator = 15/2
+       category = 0x48 = H
+       reference count = 1
+       code = F31
+
+index 145:
+       numerator/denominator = 8/1
+       category = 0x4F = O
+       reference count = 2
+       code = 516B
+       code = 634C
+
+index 146:
+       numerator/denominator = 17/2
+       category = 0x48 = H
+       reference count = 1
+       code = F32
+
+index 147:
+       numerator/denominator = 9/1
+       category = 0x4F = O
+       reference count = 4
+       code = 4E5D
+       code = 5EFE
+       code = 7396
+       code = 2F890
+
+index 148:
+       numerator/denominator = 10/1
+       category = 0x4F = O
+       reference count = 5
+       code = 4EC0
+       code = 5341
+       code = 62FE
+       code = F973
+       code = F9FD
+
+index 149:
+       numerator/denominator = 11/1
+       category = 0x52 = R
+       reference count = 2
+       code = 216A
+       code = 217A
+
+index 150:
+       numerator/denominator = 12/1
+       category = 0x52 = R
+       reference count = 2
+       code = 216B
+       code = 217B
+
+index 151:
+       numerator/denominator = 13/1
+       category = 0x48 = H
+       reference count = 4
+       code = 246C
+       code = 2480
+       code = 2494
+       code = 24ED
+
+index 152:
+       numerator/denominator = 14/1
+       category = 0x48 = H
+       reference count = 4
+       code = 246D
+       code = 2481
+       code = 2495
+       code = 24EE
+
+index 153:
+       numerator/denominator = 15/1
+       category = 0x48 = H
+       reference count = 4
+       code = 246E
+       code = 2482
+       code = 2496
+       code = 24EF
+
+index 154:
+       numerator/denominator = 16/1
+       category = 0x48 = H
+       reference count = 5
+       code = 9F9
+       code = 246F
+       code = 2483
+       code = 2497
+       code = 24F0
+
+index 155:
+       numerator/denominator = 17/1
+       category = 0x52 = R
+       reference count = 1
+       code = 16EE
+
+index 156:
+       numerator/denominator = 18/1
+       category = 0x52 = R
+       reference count = 1
+       code = 16EF
+
+index 157:
+       numerator/denominator = 19/1
+       category = 0x52 = R
+       reference count = 1
+       code = 16F0
+
+index 158:
+       numerator/denominator = 20/1
+       category = 0x4F = O
+       reference count = 2
+       code = 5344
+       code = 5EFF
+
+index 159:
+       numerator/denominator = 21/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3251
+
+index 160:
+       numerator/denominator = 22/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3252
+
+index 161:
+       numerator/denominator = 23/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3253
+
+index 162:
+       numerator/denominator = 24/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3254
+
+index 163:
+       numerator/denominator = 25/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3255
+
+index 164:
+       numerator/denominator = 26/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3256
+
+index 165:
+       numerator/denominator = 27/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3257
+
+index 166:
+       numerator/denominator = 28/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3258
+
+index 167:
+       numerator/denominator = 29/1
+       category = 0x48 = H
+       reference count = 1
+       code = 3259
+
+index 168:
+       numerator/denominator = 30/1
+       category = 0x4F = O
+       reference count = 2
+       code = 5345
+       code = 20983
+
+index 169:
+       numerator/denominator = 31/1
+       category = 0x48 = H
+       reference count = 1
+       code = 325B
+
+index 170:
+       numerator/denominator = 32/1
+       category = 0x48 = H
+       reference count = 1
+       code = 325C
+
+index 171:
+       numerator/denominator = 33/1
+       category = 0x48 = H
+       reference count = 1
+       code = 325D
+
+index 172:
+       numerator/denominator = 34/1
+       category = 0x48 = H
+       reference count = 1
+       code = 325E
+
+index 173:
+       numerator/denominator = 35/1
+       category = 0x48 = H
+       reference count = 1
+       code = 325F
+
+index 174:
+       numerator/denominator = 36/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B1
+
+index 175:
+       numerator/denominator = 37/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B2
+
+index 176:
+       numerator/denominator = 38/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B3
+
+index 177:
+       numerator/denominator = 39/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B4
+
+index 178:
+       numerator/denominator = 40/1
+       category = 0x4F = O
+       reference count = 3
+       code = 534C
+       code = 2098C
+       code = 2099C
+
+index 179:
+       numerator/denominator = 41/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B6
+
+index 180:
+       numerator/denominator = 42/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B7
+
+index 181:
+       numerator/denominator = 43/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B8
+
+index 182:
+       numerator/denominator = 44/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32B9
+
+index 183:
+       numerator/denominator = 45/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32BA
+
+index 184:
+       numerator/denominator = 46/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32BB
+
+index 185:
+       numerator/denominator = 47/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32BC
+
+index 186:
+       numerator/denominator = 48/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32BD
+
+index 187:
+       numerator/denominator = 49/1
+       category = 0x48 = H
+       reference count = 1
+       code = 32BE
+
+index 188:
+       numerator/denominator = 50/1
+       category = 0x52 = R
+       reference count = 12
+       code = 216C
+       code = 217C
+       code = 2186
+       code = 10144
+       code = 1014A
+       code = 10151
+       codes = 10166..10169
+       code = 10174
+       code = 12468
+
+index 189:
+       numerator/denominator = 60/1
+       category = 0x48 = H
+       reference count = 9
+       code = 1377
+       code = 324D
+       code = 10115
+       code = 102EF
+       code = 10E6E
+       code = 11060
+       code = 111EF
+       code = 118EF
+       code = 1D36E
+
+index 190:
+       numerator/denominator = 70/1
+       category = 0x48 = H
+       reference count = 9
+       code = 1378
+       code = 324E
+       code = 10116
+       code = 102F0
+       code = 10E6F
+       code = 11061
+       code = 111F0
+       code = 118F0
+       code = 1D36F
+
+index 191:
+       numerator/denominator = 80/1
+       category = 0x48 = H
+       reference count = 9
+       code = 1379
+       code = 324F
+       code = 10117
+       code = 102F1
+       code = 10E70
+       code = 11062
+       code = 111F1
+       code = 118F1
+       code = 1D370
+
+index 192:
+       numerator/denominator = 90/1
+       category = 0x52 = R
+       reference count = 1
+       code = 10341
+
+index 193:
+       numerator/denominator = 100/1
+       category = 0x4F = O
+       reference count = 3
+       code = 4F70
+       code = 767E
+       code = 964C
+
+index 194:
+       numerator/denominator = 200/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011A
+       code = 102F4
+       code = 10E73
+
+index 195:
+       numerator/denominator = 300/1
+       category = 0x52 = R
+       reference count = 1
+       code = 1016B
+
+index 196:
+       numerator/denominator = 400/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011C
+       code = 102F6
+       code = 10E75
+
+index 197:
+       numerator/denominator = 500/1
+       category = 0x52 = R
+       reference count = 10
+       code = 216E
+       code = 217E
+       code = 10145
+       code = 1014C
+       code = 10153
+       codes = 1016C..10170
+
+index 198:
+       numerator/denominator = 600/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011E
+       code = 102F8
+       code = 10E77
+
+index 199:
+       numerator/denominator = 700/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011F
+       code = 102F9
+       code = 10E78
+
+index 200:
+       numerator/denominator = 800/1
+       category = 0x48 = H
+       reference count = 3
+       code = 10120
+       code = 102FA
+       code = 10E79
+
+index 201:
+       numerator/denominator = 900/1
+       category = 0x52 = R
+       reference count = 1
+       code = 1034A
+
+index 202:
+       numerator/denominator = 1000/1
+       category = 0x4F = O
+       reference count = 3
+       code = 4EDF
+       code = 5343
+       code = 9621
+
+index 203:
+       numerator/denominator = 2000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10123
+
+index 204:
+       numerator/denominator = 3000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10124
+
+index 205:
+       numerator/denominator = 4000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10125
+
+index 206:
+       numerator/denominator = 5000/1
+       category = 0x52 = R
+       reference count = 4
+       code = 2181
+       code = 10146
+       code = 1014E
+       code = 10172
+
+index 207:
+       numerator/denominator = 6000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10127
+
+index 208:
+       numerator/denominator = 7000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10128
+
+index 209:
+       numerator/denominator = 8000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10129
+
+index 210:
+       numerator/denominator = 9000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 1012A
+
+index 211:
+       numerator/denominator = 10000/1
+       category = 0x4F = O
+       reference count = 2
+       code = 4E07
+       code = 842C
+
+index 212:
+       numerator/denominator = 20000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 1012C
+
+index 213:
+       numerator/denominator = 30000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 1012D
+
+index 214:
+       numerator/denominator = 40000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 1012E
+
+index 215:
+       numerator/denominator = 50000/1
+       category = 0x52 = R
+       reference count = 3
+       code = 2187
+       code = 10147
+       code = 10156
+
+index 216:
+       numerator/denominator = 60000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10130
+
+index 217:
+       numerator/denominator = 70000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10131
+
+index 218:
+       numerator/denominator = 80000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10132
+
+index 219:
+       numerator/denominator = 90000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10133
+
+index 220:
+       numerator/denominator = 100000/1
+       category = 0x52 = R
+       reference count = 1
+       code = 2188
+
+index 221:
+       numerator/denominator = 216000/1
+       category = 0x52 = R
+       reference count = 1
+       code = 12432
+
+index 222:
+       numerator/denominator = 432000/1
+       category = 0x52 = R
+       reference count = 1
+       code = 12433
+
+index 223:
+       numerator/denominator = 1000000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 16B5E
+
+index 224:
+       numerator/denominator = 100000000/1
+       category = 0x4F = O
+       reference count = 2
+       code = 4EBF
+       code = 5104
+
+index 225:
+       numerator/denominator = 10000000000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 16B60
+
+index 226:
+       numerator/denominator = 1000000000000/1
+       category = 0x4F = O
+       reference count = 1
+       code = 5146
+
+index 227:
+       numerator/denominator = 0/0
+       category = 0x75 = u
+       reference count = 75476
+       codes = 378..379
+       codes = 380..383
+       code = 38B
+       code = 38D
+       code = 3A2
+       code = 530
+       codes = 557..558
+       code = 560
+       code = 588
+       codes = 58B..58C
+       code = 590
+       codes = 5C8..5CF
+       codes = 5EB..5EF
+       codes = 5F5..5FF
+       code = 61D
+       code = 70E
+       codes = 74B..74C
+       codes = 7B2..7BF
+       codes = 7FB..7FF
+       codes = 82E..82F
+       code = 83F
+       codes = 85C..85D
+       codes = 85F..89F
+       codes = 8B3..8E3
+       code = 984
+       codes = 98D..98E
+       codes = 991..992
+       code = 9A9
+       code = 9B1
+       codes = 9B3..9B5
+       codes = 9BA..9BB
+       codes = 9C5..9C6
+       codes = 9C9..9CA
+       codes = 9CF..9D6
+       codes = 9D8..9DB
+       code = 9DE
+       codes = 9E4..9E5
+       codes = 9FC..A00
+       code = A04
+       codes = A0B..A0E
+       codes = A11..A12
+       code = A29
+       code = A31
+       code = A34
+       code = A37
+       codes = A3A..A3B
+       code = A3D
+       codes = A43..A46
+       codes = A49..A4A
+       codes = A4E..A50
+       codes = A52..A58
+       code = A5D
+       codes = A5F..A65
+       codes = A76..A80
+       code = A84
+       code = A8E
+       code = A92
+       code = AA9
+       code = AB1
+       code = AB4
+       codes = ABA..ABB
+       code = AC6
+       code = ACA
+       codes = ACE..ACF
+       codes = AD1..ADF
+       codes = AE4..AE5
+       codes = AF2..B00
+       code = B04
+       codes = B0D..B0E
+       codes = B11..B12
+       code = B29
+       code = B31
+       code = B34
+       codes = B3A..B3B
+       codes = B45..B46
+       codes = B49..B4A
+       codes = B4E..B55
+       codes = B58..B5B
+       code = B5E
+       codes = B64..B65
+       codes = B78..B81
+       code = B84
+       codes = B8B..B8D
+       code = B91
+       codes = B96..B98
+       code = B9B
+       code = B9D
+       codes = BA0..BA2
+       codes = BA5..BA7
+       codes = BAB..BAD
+       codes = BBA..BBD
+       codes = BC3..BC5
+       code = BC9
+       codes = BCE..BCF
+       codes = BD1..BD6
+       codes = BD8..BE5
+       codes = BFB..BFF
+       code = C04
+       code = C0D
+       code = C11
+       code = C29
+       codes = C3A..C3C
+       code = C45
+       code = C49
+       codes = C4E..C54
+       code = C57
+       codes = C5A..C5F
+       codes = C64..C65
+       codes = C70..C77
+       code = C80
+       code = C84
+       code = C8D
+       code = C91
+       code = CA9
+       code = CB4
+       codes = CBA..CBB
+       code = CC5
+       code = CC9
+       codes = CCE..CD4
+       codes = CD7..CDD
+       code = CDF
+       codes = CE4..CE5
+       code = CF0
+       codes = CF3..D00
+       code = D04
+       code = D0D
+       code = D11
+       codes = D3B..D3C
+       code = D45
+       code = D49
+       codes = D4F..D56
+       codes = D58..D5F
+       codes = D64..D65
+       codes = D76..D78
+       codes = D80..D81
+       code = D84
+       codes = D97..D99
+       code = DB2
+       code = DBC
+       codes = DBE..DBF
+       codes = DC7..DC9
+       codes = DCB..DCE
+       code = DD5
+       code = DD7
+       codes = DE0..DE5
+       codes = DF0..DF1
+       codes = DF5..E00
+       codes = E3B..E3E
+       codes = E5C..E80
+       code = E83
+       codes = E85..E86
+       code = E89
+       codes = E8B..E8C
+       codes = E8E..E93
+       code = E98
+       code = EA0
+       code = EA4
+       code = EA6
+       codes = EA8..EA9
+       code = EAC
+       code = EBA
+       codes = EBE..EBF
+       code = EC5
+       code = EC7
+       codes = ECE..ECF
+       codes = EDA..EDB
+       codes = EE0..EFF
+       code = F48
+       codes = F6D..F70
+       code = F98
+       code = FBD
+       code = FCD
+       codes = FDB..FFF
+       code = 10C6
+       codes = 10C8..10CC
+       codes = 10CE..10CF
+       code = 1249
+       codes = 124E..124F
+       code = 1257
+       code = 1259
+       codes = 125E..125F
+       code = 1289
+       codes = 128E..128F
+       code = 12B1
+       codes = 12B6..12B7
+       code = 12BF
+       code = 12C1
+       codes = 12C6..12C7
+       code = 12D7
+       code = 1311
+       codes = 1316..1317
+       codes = 135B..135C
+       codes = 137D..137F
+       codes = 139A..139F
+       codes = 13F5..13FF
+       codes = 169D..169F
+       codes = 16F9..16FF
+       code = 170D
+       codes = 1715..171F
+       codes = 1737..173F
+       codes = 1754..175F
+       code = 176D
+       code = 1771
+       codes = 1774..177F
+       codes = 17DE..17DF
+       codes = 17EA..17EF
+       codes = 17FA..17FF
+       code = 180F
+       codes = 181A..181F
+       codes = 1878..187F
+       codes = 18AB..18AF
+       codes = 18F6..18FF
+       code = 191F
+       codes = 192C..192F
+       codes = 193C..193F
+       codes = 1941..1943
+       codes = 196E..196F
+       codes = 1975..197F
+       codes = 19AC..19AF
+       codes = 19CA..19CF
+       codes = 19DB..19DD
+       codes = 1A1C..1A1D
+       code = 1A5F
+       codes = 1A7D..1A7E
+       codes = 1A8A..1A8F
+       codes = 1A9A..1A9F
+       codes = 1AAE..1AAF
+       codes = 1ABF..1AFF
+       codes = 1B4C..1B4F
+       codes = 1B7D..1B7F
+       codes = 1BF4..1BFB
+       codes = 1C38..1C3A
+       codes = 1C4A..1C4C
+       codes = 1C80..1CBF
+       codes = 1CC8..1CCF
+       code = 1CF7
+       codes = 1CFA..1CFF
+       codes = 1DF6..1DFB
+       codes = 1F16..1F17
+       codes = 1F1E..1F1F
+       codes = 1F46..1F47
+       codes = 1F4E..1F4F
+       code = 1F58
+       code = 1F5A
+       code = 1F5C
+       code = 1F5E
+       codes = 1F7E..1F7F
+       code = 1FB5
+       code = 1FC5
+       codes = 1FD4..1FD5
+       code = 1FDC
+       codes = 1FF0..1FF1
+       code = 1FF5
+       code = 1FFF
+       code = 2065
+       codes = 2072..2073
+       code = 208F
+       codes = 209D..209F
+       codes = 20BE..20CF
+       codes = 20F1..20FF
+       codes = 218A..218F
+       codes = 23FB..23FF
+       codes = 2427..243F
+       codes = 244B..245F
+       codes = 2B74..2B75
+       codes = 2B96..2B97
+       codes = 2BBA..2BBC
+       code = 2BC9
+       codes = 2BD2..2BFF
+       code = 2C2F
+       code = 2C5F
+       codes = 2CF4..2CF8
+       code = 2D26
+       codes = 2D28..2D2C
+       codes = 2D2E..2D2F
+       codes = 2D68..2D6E
+       codes = 2D71..2D7E
+       codes = 2D97..2D9F
+       code = 2DA7
+       code = 2DAF
+       code = 2DB7
+       code = 2DBF
+       code = 2DC7
+       code = 2DCF
+       code = 2DD7
+       code = 2DDF
+       codes = 2E43..2E7F
+       code = 2E9A
+       codes = 2EF4..2EFF
+       codes = 2FD6..2FEF
+       codes = 2FFC..2FFF
+       code = 3040
+       codes = 3097..3098
+       codes = 3100..3104
+       codes = 312E..3130
+       code = 318F
+       codes = 31BB..31BF
+       codes = 31E4..31EF
+       code = 321F
+       code = 32FF
+       codes = 4DB6..4DBF
+       codes = 9FCD..9FFF
+       codes = A48D..A48F
+       codes = A4C7..A4CF
+       codes = A62C..A63F
+       code = A69E
+       codes = A6F8..A6FF
+       code = A78F
+       codes = A7AE..A7AF
+       codes = A7B2..A7F6
+       codes = A82C..A82F
+       codes = A83A..A83F
+       codes = A878..A87F
+       codes = A8C5..A8CD
+       codes = A8DA..A8DF
+       codes = A8FC..A8FF
+       codes = A954..A95E
+       codes = A97D..A97F
+       code = A9CE
+       codes = A9DA..A9DD
+       code = A9FF
+       codes = AA37..AA3F
+       codes = AA4E..AA4F
+       codes = AA5A..AA5B
+       codes = AAC3..AADA
+       codes = AAF7..AB00
+       codes = AB07..AB08
+       codes = AB0F..AB10
+       codes = AB17..AB1F
+       code = AB27
+       code = AB2F
+       codes = AB60..AB63
+       codes = AB66..ABBF
+       codes = ABEE..ABEF
+       codes = ABFA..ABFF
+       codes = D7A4..D7AF
+       codes = D7C7..D7CA
+       codes = D7FC..D7FF
+       codes = FA6E..FA6F
+       codes = FADA..FAFF
+       codes = FB07..FB12
+       codes = FB18..FB1C
+       code = FB37
+       code = FB3D
+       code = FB3F
+       code = FB42
+       code = FB45
+       codes = FBC2..FBD2
+       codes = FD40..FD4F
+       codes = FD90..FD91
+       codes = FDC8..FDEF
+       codes = FDFE..FDFF
+       codes = FE1A..FE1F
+       codes = FE2E..FE2F
+       code = FE53
+       code = FE67
+       codes = FE6C..FE6F
+       code = FE75
+       codes = FEFD..FEFE
+       code = FF00
+       codes = FFBF..FFC1
+       codes = FFC8..FFC9
+       codes = FFD0..FFD1
+       codes = FFD8..FFD9
+       codes = FFDD..FFDF
+       code = FFE7
+       codes = FFEF..FFF8
+       codes = FFFE..FFFF
+       code = 1000C
+       code = 10027
+       code = 1003B
+       code = 1003E
+       codes = 1004E..1004F
+       codes = 1005E..1007F
+       codes = 100FB..100FF
+       codes = 10103..10106
+       codes = 10134..10136
+       codes = 1018D..1018F
+       codes = 1019C..1019F
+       codes = 101A1..101CF
+       codes = 101FE..1027F
+       codes = 1029D..1029F
+       codes = 102D1..102DF
+       codes = 102FC..102FF
+       codes = 10324..1032F
+       codes = 1034B..1034F
+       codes = 1037B..1037F
+       code = 1039E
+       codes = 103C4..103C7
+       codes = 103D6..103FF
+       codes = 1049E..1049F
+       codes = 104AA..104FF
+       codes = 10528..1052F
+       codes = 10564..1056E
+       codes = 10570..105FF
+       codes = 10737..1073F
+       codes = 10756..1075F
+       codes = 10768..107FF
+       codes = 10806..10807
+       code = 10809
+       code = 10836
+       codes = 10839..1083B
+       codes = 1083D..1083E
+       code = 10856
+       codes = 1089F..108A6
+       codes = 108B0..108FF
+       codes = 1091C..1091E
+       codes = 1093A..1093E
+       codes = 10940..1097F
+       codes = 109B8..109BD
+       codes = 109C0..109FF
+       code = 10A04
+       codes = 10A07..10A0B
+       code = 10A14
+       code = 10A18
+       codes = 10A34..10A37
+       codes = 10A3B..10A3E
+       codes = 10A48..10A4F
+       codes = 10A59..10A5F
+       codes = 10AA0..10ABF
+       codes = 10AE7..10AEA
+       codes = 10AF7..10AFF
+       codes = 10B36..10B38
+       codes = 10B56..10B57
+       codes = 10B73..10B77
+       codes = 10B92..10B98
+       codes = 10B9D..10BA8
+       codes = 10BB0..10BFF
+       codes = 10C49..10E5F
+       codes = 10E7F..10FFF
+       codes = 1104E..11051
+       codes = 11070..1107E
+       codes = 110C2..110CF
+       codes = 110E9..110EF
+       codes = 110FA..110FF
+       code = 11135
+       codes = 11144..1114F
+       codes = 11177..1117F
+       codes = 111C9..111CC
+       codes = 111CE..111CF
+       codes = 111DB..111E0
+       codes = 111F5..111FF
+       code = 11212
+       codes = 1123E..112AF
+       codes = 112EB..112EF
+       codes = 112FA..11300
+       code = 11304
+       codes = 1130D..1130E
+       codes = 11311..11312
+       code = 11329
+       code = 11331
+       code = 11334
+       codes = 1133A..1133B
+       codes = 11345..11346
+       codes = 11349..1134A
+       codes = 1134E..11356
+       codes = 11358..1135C
+       codes = 11364..11365
+       codes = 1136D..1136F
+       codes = 11375..1147F
+       codes = 114C8..114CF
+       codes = 114DA..1157F
+       codes = 115B6..115B7
+       codes = 115CA..115FF
+       codes = 11645..1164F
+       codes = 1165A..1167F
+       codes = 116B8..116BF
+       codes = 116CA..1189F
+       codes = 118F3..118FE
+       codes = 11900..11ABF
+       codes = 11AF9..11FFF
+       codes = 12399..123FF
+       code = 1246F
+       codes = 12475..12FFF
+       codes = 1342F..167FF
+       codes = 16A39..16A3F
+       code = 16A5F
+       codes = 16A6A..16A6D
+       codes = 16A70..16ACF
+       codes = 16AEE..16AEF
+       codes = 16AF6..16AFF
+       codes = 16B46..16B4F
+       code = 16B5A
+       code = 16B62
+       codes = 16B78..16B7C
+       codes = 16B90..16EFF
+       codes = 16F45..16F4F
+       codes = 16F7F..16F8E
+       codes = 16FA0..1AFFF
+       codes = 1B002..1BBFF
+       codes = 1BC6B..1BC6F
+       codes = 1BC7D..1BC7F
+       codes = 1BC89..1BC8F
+       codes = 1BC9A..1BC9B
+       codes = 1BCA4..1CFFF
+       codes = 1D0F6..1D0FF
+       codes = 1D127..1D128
+       codes = 1D1DE..1D1FF
+       codes = 1D246..1D2FF
+       codes = 1D357..1D35F
+       codes = 1D372..1D3FF
+       code = 1D455
+       code = 1D49D
+       codes = 1D4A0..1D4A1
+       codes = 1D4A3..1D4A4
+       codes = 1D4A7..1D4A8
+       code = 1D4AD
+       code = 1D4BA
+       code = 1D4BC
+       code = 1D4C4
+       code = 1D506
+       codes = 1D50B..1D50C
+       code = 1D515
+       code = 1D51D
+       code = 1D53A
+       code = 1D53F
+       code = 1D545
+       codes = 1D547..1D549
+       code = 1D551
+       codes = 1D6A6..1D6A7
+       codes = 1D7CC..1D7CD
+       codes = 1D800..1E7FF
+       codes = 1E8C5..1E8C6
+       codes = 1E8D7..1EDFF
+       code = 1EE04
+       code = 1EE20
+       code = 1EE23
+       codes = 1EE25..1EE26
+       code = 1EE28
+       code = 1EE33
+       code = 1EE38
+       code = 1EE3A
+       codes = 1EE3C..1EE41
+       codes = 1EE43..1EE46
+       code = 1EE48
+       code = 1EE4A
+       code = 1EE4C
+       code = 1EE50
+       code = 1EE53
+       codes = 1EE55..1EE56
+       code = 1EE58
+       code = 1EE5A
+       code = 1EE5C
+       code = 1EE5E
+       code = 1EE60
+       code = 1EE63
+       codes = 1EE65..1EE66
+       code = 1EE6B
+       code = 1EE73
+       code = 1EE78
+       code = 1EE7D
+       code = 1EE7F
+       code = 1EE8A
+       codes = 1EE9C..1EEA0
+       code = 1EEA4
+       code = 1EEAA
+       codes = 1EEBC..1EEEF
+       codes = 1EEF2..1EFFF
+       codes = 1F02C..1F02F
+       codes = 1F094..1F09F
+       codes = 1F0AF..1F0B0
+       code = 1F0C0
+       code = 1F0D0
+       codes = 1F0F6..1F0FF
+       codes = 1F10D..1F10F
+       code = 1F12F
+       codes = 1F16C..1F16F
+       codes = 1F19B..1F1E5
+       codes = 1F203..1F20F
+       codes = 1F23B..1F23F
+       codes = 1F249..1F24F
+       codes = 1F252..1F2FF
+       codes = 1F32D..1F32F
+       codes = 1F37E..1F37F
+       codes = 1F3CF..1F3D3
+       codes = 1F3F8..1F3FF
+       code = 1F4FF
+       codes = 1F54B..1F54F
+       code = 1F57A
+       code = 1F5A4
+       codes = 1F643..1F644
+       codes = 1F6D0..1F6DF
+       codes = 1F6ED..1F6EF
+       codes = 1F6F4..1F6FF
+       codes = 1F774..1F77F
+       codes = 1F7D5..1F7FF
+       codes = 1F80C..1F80F
+       codes = 1F848..1F84F
+       codes = 1F85A..1F85F
+       codes = 1F888..1F88F
+       codes = 1F8AE..1FFFF
+       codes = 2A6D7..2A6FF
+       codes = 2B735..2B73F
+       codes = 2B81E..2F7FF
+       codes = 2FA1E..2FFFF
+
+index 228:
+       numerator/denominator = 0/0
+       category = 0x55 = U
+       reference count = 1460
+       codes = 41..5A
+       code = 100
+       code = 102
+       code = 104
+       code = 106
+       code = 108
+       code = 10A
+       code = 10C
+       code = 10E
+       code = 110
+       code = 112
+       code = 114
+       code = 116
+       code = 118
+       code = 11A
+       code = 11C
+       code = 11E
+       code = 120
+       code = 122
+       code = 124
+       code = 126
+       code = 128
+       code = 12A
+       code = 12C
+       code = 12E
+       code = 130
+       code = 132
+       code = 134
+       code = 136
+       code = 139
+       code = 13B
+       code = 13D
+       code = 13F
+       code = 141
+       code = 143
+       code = 145
+       code = 147
+       code = 14A
+       code = 14C
+       code = 14E
+       code = 150
+       code = 152
+       code = 154
+       code = 156
+       code = 158
+       code = 15A
+       code = 15C
+       code = 15E
+       code = 160
+       code = 162
+       code = 164
+       code = 166
+       code = 168
+       code = 16A
+       code = 16C
+       code = 16E
+       code = 170
+       code = 172
+       code = 174
+       code = 176
+       codes = 178..179
+       code = 17B
+       code = 17D
+       codes = 181..182
+       code = 184
+       codes = 186..187
+       codes = 189..18B
+       codes = 18E..191
+       codes = 193..194
+       codes = 196..198
+       codes = 19C..19D
+       codes = 19F..1A0
+       code = 1A2
+       code = 1A4
+       codes = 1A6..1A7
+       code = 1A9
+       code = 1AC
+       codes = 1AE..1AF
+       codes = 1B1..1B3
+       code = 1B5
+       codes = 1B7..1B8
+       code = 1BC
+       code = 1C4
+       code = 1C7
+       code = 1CA
+       code = 1CD
+       code = 1CF
+       code = 1D1
+       code = 1D3
+       code = 1D5
+       code = 1D7
+       code = 1D9
+       code = 1DB
+       code = 1DE
+       code = 1E0
+       code = 1E2
+       code = 1E4
+       code = 1E6
+       code = 1E8
+       code = 1EA
+       code = 1EC
+       code = 1EE
+       code = 1F1
+       code = 1F4
+       codes = 1F6..1F8
+       code = 1FA
+       code = 1FC
+       code = 1FE
+       code = 200
+       code = 202
+       code = 204
+       code = 206
+       code = 208
+       code = 20A
+       code = 20C
+       code = 20E
+       code = 210
+       code = 212
+       code = 214
+       code = 216
+       code = 218
+       code = 21A
+       code = 21C
+       code = 21E
+       code = 220
+       code = 222
+       code = 224
+       code = 226
+       code = 228
+       code = 22A
+       code = 22C
+       code = 22E
+       code = 230
+       code = 232
+       codes = 23A..23B
+       codes = 23D..23E
+       code = 241
+       codes = 243..246
+       code = 248
+       code = 24A
+       code = 24C
+       code = 24E
+       code = 370
+       code = 372
+       code = 376
+       code = 37F
+       code = 386
+       codes = 388..38A
+       code = 38C
+       codes = 38E..38F
+       codes = 391..3A1
+       codes = 3A3..3AB
+       code = 3CF
+       codes = 3D2..3D4
+       code = 3D8
+       code = 3DA
+       code = 3DC
+       code = 3DE
+       code = 3E0
+       code = 3E2
+       code = 3E4
+       code = 3E6
+       code = 3E8
+       code = 3EA
+       code = 3EC
+       code = 3EE
+       code = 3F4
+       code = 3F7
+       codes = 3F9..3FA
+       codes = 3FD..42F
+       code = 460
+       code = 462
+       code = 464
+       code = 466
+       code = 468
+       code = 46A
+       code = 46C
+       code = 46E
+       code = 470
+       code = 472
+       code = 474
+       code = 476
+       code = 478
+       code = 47A
+       code = 47C
+       code = 47E
+       code = 480
+       code = 48A
+       code = 48C
+       code = 48E
+       code = 490
+       code = 492
+       code = 494
+       code = 496
+       code = 498
+       code = 49A
+       code = 49C
+       code = 49E
+       code = 4A0
+       code = 4A2
+       code = 4A4
+       code = 4A6
+       code = 4A8
+       code = 4AA
+       code = 4AC
+       code = 4AE
+       code = 4B0
+       code = 4B2
+       code = 4B4
+       code = 4B6
+       code = 4B8
+       code = 4BA
+       code = 4BC
+       code = 4BE
+       codes = 4C0..4C1
+       code = 4C3
+       code = 4C5
+       code = 4C7
+       code = 4C9
+       code = 4CB
+       code = 4CD
+       code = 4D0
+       code = 4D2
+       code = 4D4
+       code = 4D6
+       code = 4D8
+       code = 4DA
+       code = 4DC
+       code = 4DE
+       code = 4E0
+       code = 4E2
+       code = 4E4
+       code = 4E6
+       code = 4E8
+       code = 4EA
+       code = 4EC
+       code = 4EE
+       code = 4F0
+       code = 4F2
+       code = 4F4
+       code = 4F6
+       code = 4F8
+       code = 4FA
+       code = 4FC
+       code = 4FE
+       code = 500
+       code = 502
+       code = 504
+       code = 506
+       code = 508
+       code = 50A
+       code = 50C
+       code = 50E
+       code = 510
+       code = 512
+       code = 514
+       code = 516
+       code = 518
+       code = 51A
+       code = 51C
+       code = 51E
+       code = 520
+       code = 522
+       code = 524
+       code = 526
+       code = 528
+       code = 52A
+       code = 52C
+       code = 52E
+       codes = 531..556
+       codes = 10A0..10C5
+       code = 10C7
+       code = 10CD
+       code = 1E00
+       code = 1E02
+       code = 1E04
+       code = 1E06
+       code = 1E08
+       code = 1E0A
+       code = 1E0C
+       code = 1E0E
+       code = 1E10
+       code = 1E12
+       code = 1E14
+       code = 1E16
+       code = 1E18
+       code = 1E1A
+       code = 1E1C
+       code = 1E1E
+       code = 1E20
+       code = 1E22
+       code = 1E24
+       code = 1E26
+       code = 1E28
+       code = 1E2A
+       code = 1E2C
+       code = 1E2E
+       code = 1E30
+       code = 1E32
+       code = 1E34
+       code = 1E36
+       code = 1E38
+       code = 1E3A
+       code = 1E3C
+       code = 1E3E
+       code = 1E40
+       code = 1E42
+       code = 1E44
+       code = 1E46
+       code = 1E48
+       code = 1E4A
+       code = 1E4C
+       code = 1E4E
+       code = 1E50
+       code = 1E52
+       code = 1E54
+       code = 1E56
+       code = 1E58
+       code = 1E5A
+       code = 1E5C
+       code = 1E5E
+       code = 1E60
+       code = 1E62
+       code = 1E64
+       code = 1E66
+       code = 1E68
+       code = 1E6A
+       code = 1E6C
+       code = 1E6E
+       code = 1E70
+       code = 1E72
+       code = 1E74
+       code = 1E76
+       code = 1E78
+       code = 1E7A
+       code = 1E7C
+       code = 1E7E
+       code = 1E80
+       code = 1E82
+       code = 1E84
+       code = 1E86
+       code = 1E88
+       code = 1E8A
+       code = 1E8C
+       code = 1E8E
+       code = 1E90
+       code = 1E92
+       code = 1E94
+       code = 1E9E
+       code = 1EA0
+       code = 1EA2
+       code = 1EA4
+       code = 1EA6
+       code = 1EA8
+       code = 1EAA
+       code = 1EAC
+       code = 1EAE
+       code = 1EB0
+       code = 1EB2
+       code = 1EB4
+       code = 1EB6
+       code = 1EB8
+       code = 1EBA
+       code = 1EBC
+       code = 1EBE
+       code = 1EC0
+       code = 1EC2
+       code = 1EC4
+       code = 1EC6
+       code = 1EC8
+       code = 1ECA
+       code = 1ECC
+       code = 1ECE
+       code = 1ED0
+       code = 1ED2
+       code = 1ED4
+       code = 1ED6
+       code = 1ED8
+       code = 1EDA
+       code = 1EDC
+       code = 1EDE
+       code = 1EE0
+       code = 1EE2
+       code = 1EE4
+       code = 1EE6
+       code = 1EE8
+       code = 1EEA
+       code = 1EEC
+       code = 1EEE
+       code = 1EF0
+       code = 1EF2
+       code = 1EF4
+       code = 1EF6
+       code = 1EF8
+       code = 1EFA
+       code = 1EFC
+       code = 1EFE
+       codes = 1F08..1F0F
+       codes = 1F18..1F1D
+       codes = 1F28..1F2F
+       codes = 1F38..1F3F
+       codes = 1F48..1F4D
+       code = 1F59
+       code = 1F5B
+       code = 1F5D
+       code = 1F5F
+       codes = 1F68..1F6F
+       codes = 1FB8..1FBB
+       codes = 1FC8..1FCB
+       codes = 1FD8..1FDB
+       codes = 1FE8..1FEC
+       codes = 1FF8..1FFB
+       code = 2102
+       code = 2107
+       codes = 210B..210D
+       codes = 2110..2112
+       code = 2115
+       codes = 2119..211D
+       code = 2124
+       code = 2126
+       code = 2128
+       codes = 212A..212D
+       codes = 2130..2133
+       codes = 213E..213F
+       code = 2145
+       code = 2183
+       codes = 2C00..2C2E
+       code = 2C60
+       codes = 2C62..2C64
+       code = 2C67
+       code = 2C69
+       code = 2C6B
+       codes = 2C6D..2C70
+       code = 2C72
+       code = 2C75
+       codes = 2C7E..2C80
+       code = 2C82
+       code = 2C84
+       code = 2C86
+       code = 2C88
+       code = 2C8A
+       code = 2C8C
+       code = 2C8E
+       code = 2C90
+       code = 2C92
+       code = 2C94
+       code = 2C96
+       code = 2C98
+       code = 2C9A
+       code = 2C9C
+       code = 2C9E
+       code = 2CA0
+       code = 2CA2
+       code = 2CA4
+       code = 2CA6
+       code = 2CA8
+       code = 2CAA
+       code = 2CAC
+       code = 2CAE
+       code = 2CB0
+       code = 2CB2
+       code = 2CB4
+       code = 2CB6
+       code = 2CB8
+       code = 2CBA
+       code = 2CBC
+       code = 2CBE
+       code = 2CC0
+       code = 2CC2
+       code = 2CC4
+       code = 2CC6
+       code = 2CC8
+       code = 2CCA
+       code = 2CCC
+       code = 2CCE
+       code = 2CD0
+       code = 2CD2
+       code = 2CD4
+       code = 2CD6
+       code = 2CD8
+       code = 2CDA
+       code = 2CDC
+       code = 2CDE
+       code = 2CE0
+       code = 2CE2
+       code = 2CEB
+       code = 2CED
+       code = 2CF2
+       code = A640
+       code = A642
+       code = A644
+       code = A646
+       code = A648
+       code = A64A
+       code = A64C
+       code = A64E
+       code = A650
+       code = A652
+       code = A654
+       code = A656
+       code = A658
+       code = A65A
+       code = A65C
+       code = A65E
+       code = A660
+       code = A662
+       code = A664
+       code = A666
+       code = A668
+       code = A66A
+       code = A66C
+       code = A680
+       code = A682
+       code = A684
+       code = A686
+       code = A688
+       code = A68A
+       code = A68C
+       code = A68E
+       code = A690
+       code = A692
+       code = A694
+       code = A696
+       code = A698
+       code = A69A
+       code = A722
+       code = A724
+       code = A726
+       code = A728
+       code = A72A
+       code = A72C
+       code = A72E
+       code = A732
+       code = A734
+       code = A736
+       code = A738
+       code = A73A
+       code = A73C
+       code = A73E
+       code = A740
+       code = A742
+       code = A744
+       code = A746
+       code = A748
+       code = A74A
+       code = A74C
+       code = A74E
+       code = A750
+       code = A752
+       code = A754
+       code = A756
+       code = A758
+       code = A75A
+       code = A75C
+       code = A75E
+       code = A760
+       code = A762
+       code = A764
+       code = A766
+       code = A768
+       code = A76A
+       code = A76C
+       code = A76E
+       code = A779
+       code = A77B
+       codes = A77D..A77E
+       code = A780
+       code = A782
+       code = A784
+       code = A786
+       code = A78B
+       code = A78D
+       code = A790
+       code = A792
+       code = A796
+       code = A798
+       code = A79A
+       code = A79C
+       code = A79E
+       code = A7A0
+       code = A7A2
+       code = A7A4
+       code = A7A6
+       code = A7A8
+       codes = A7AA..A7AD
+       codes = A7B0..A7B1
+       codes = FF21..FF3A
+       codes = 10400..10427
+       codes = 118A0..118BF
+       codes = 1D400..1D419
+       codes = 1D434..1D44D
+       codes = 1D468..1D481
+       code = 1D49C
+       codes = 1D49E..1D49F
+       code = 1D4A2
+       codes = 1D4A5..1D4A6
+       codes = 1D4A9..1D4AC
+       codes = 1D4AE..1D4B5
+       codes = 1D4D0..1D4E9
+       codes = 1D504..1D505
+       codes = 1D507..1D50A
+       codes = 1D50D..1D514
+       codes = 1D516..1D51C
+       codes = 1D538..1D539
+       codes = 1D53B..1D53E
+       codes = 1D540..1D544
+       code = 1D546
+       codes = 1D54A..1D550
+       codes = 1D56C..1D585
+       codes = 1D5A0..1D5B9
+       codes = 1D5D4..1D5ED
+       codes = 1D608..1D621
+       codes = 1D63C..1D655
+       codes = 1D670..1D689
+       codes = 1D6A8..1D6C0
+       codes = 1D6E2..1D6FA
+       codes = 1D71C..1D734
+       codes = 1D756..1D76E
+       codes = 1D790..1D7A8
+       code = 1D7CA
+
+index 229:
+       numerator/denominator = 0/0
+       category = 0xC0
+       reference count = 1
+       code = C0
+
+index 230:
+       numerator/denominator = 0/0
+       category = 0xC1
+       reference count = 1
+       code = C1
+
+index 231:
+       numerator/denominator = 0/0
+       category = 0xC2
+       reference count = 1
+       code = C2
+
+index 232:
+       numerator/denominator = 0/0
+       category = 0xC3
+       reference count = 1
+       code = C3
+
+index 233:
+       numerator/denominator = 0/0
+       category = 0xC4
+       reference count = 1
+       code = C4
+
+index 234:
+       numerator/denominator = 0/0
+       category = 0xC5
+       reference count = 1
+       code = C5
+
+index 235:
+       numerator/denominator = 0/0
+       category = 0xC6
+       reference count = 1
+       code = C6
+
+index 236:
+       numerator/denominator = 0/0
+       category = 0xC7
+       reference count = 1
+       code = C7
+
+index 237:
+       numerator/denominator = 0/0
+       category = 0xC8
+       reference count = 1
+       code = C8
+
+index 238:
+       numerator/denominator = 0/0
+       category = 0xC9
+       reference count = 1
+       code = C9
+
+index 239:
+       numerator/denominator = 0/0
+       category = 0xCA
+       reference count = 1
+       code = CA
+
+index 240:
+       numerator/denominator = 0/0
+       category = 0xCB
+       reference count = 1
+       code = CB
+
+index 241:
+       numerator/denominator = 0/0
+       category = 0xCC
+       reference count = 1
+       code = CC
+
+index 242:
+       numerator/denominator = 0/0
+       category = 0xCD
+       reference count = 1
+       code = CD
+
+index 243:
+       numerator/denominator = 0/0
+       category = 0xCE
+       reference count = 1
+       code = CE
+
+index 244:
+       numerator/denominator = 0/0
+       category = 0xCF
+       reference count = 1
+       code = CF
+
+index 245:
+       numerator/denominator = 0/0
+       category = 0xD0
+       reference count = 1
+       code = D0
+
+index 246:
+       numerator/denominator = 0/0
+       category = 0xD1
+       reference count = 1
+       code = D1
+
+index 247:
+       numerator/denominator = 0/0
+       category = 0xD2
+       reference count = 1
+       code = D2
+
+index 248:
+       numerator/denominator = 0/0
+       category = 0xD3
+       reference count = 1
+       code = D3
+
+index 249:
+       numerator/denominator = 0/0
+       category = 0xD4
+       reference count = 1
+       code = D4
+
+index 250:
+       numerator/denominator = 0/0
+       category = 0xD5
+       reference count = 1
+       code = D5
+
+index 251:
+       numerator/denominator = 0/0
+       category = 0xD6
+       reference count = 1
+       code = D6
+
+index 252:
+       numerator/denominator = 0/0
+       category = 0xD8
+       reference count = 1
+       code = D8
+
+index 253:
+       numerator/denominator = 0/0
+       category = 0xD9
+       reference count = 1
+       code = D9
+
+index 254:
+       numerator/denominator = 0/0
+       category = 0xDA
+       reference count = 1
+       code = DA
+
+index 255:
+       numerator/denominator = 0/0
+       category = 0xDB
+       reference count = 1
+       code = DB
+
+index 256:
+       numerator/denominator = 0/0
+       category = 0xDC
+       reference count = 1
+       code = DC
+
+index 257:
+       numerator/denominator = 0/0
+       category = 0xDD
+       reference count = 1
+       code = DD
+
+index 258:
+       numerator/denominator = 0/0
+       category = 0xDE
+       reference count = 1
+       code = DE
+
+index 259:
+       numerator/denominator = 0/0
+       category = 0x4C = L
+       reference count = 1807
+       codes = 61..79
+       code = 101
+       code = 103
+       code = 105
+       code = 107
+       code = 109
+       code = 10B
+       code = 10D
+       code = 10F
+       code = 111
+       code = 113
+       code = 115
+       code = 117
+       code = 119
+       code = 11B
+       code = 11D
+       code = 11F
+       code = 121
+       code = 123
+       code = 125
+       code = 127
+       code = 129
+       code = 12B
+       code = 12D
+       code = 12F
+       code = 131
+       code = 133
+       code = 135
+       codes = 137..138
+       code = 13A
+       code = 13C
+       code = 13E
+       code = 140
+       code = 142
+       code = 144
+       code = 146
+       codes = 148..149
+       code = 14B
+       code = 14D
+       code = 14F
+       code = 151
+       code = 153
+       code = 155
+       code = 157
+       code = 159
+       code = 15B
+       code = 15D
+       code = 15F
+       code = 161
+       code = 163
+       code = 165
+       code = 167
+       code = 169
+       code = 16B
+       code = 16D
+       code = 16F
+       code = 171
+       code = 173
+       code = 175
+       code = 177
+       code = 17A
+       code = 17C
+       codes = 17E..180
+       code = 183
+       code = 185
+       code = 188
+       codes = 18C..18D
+       code = 192
+       code = 195
+       codes = 199..19B
+       code = 19E
+       code = 1A1
+       code = 1A3
+       code = 1A5
+       code = 1A8
+       codes = 1AA..1AB
+       code = 1AD
+       code = 1B0
+       code = 1B4
+       code = 1B6
+       codes = 1B9..1BA
+       codes = 1BD..1BF
+       code = 1C6
+       code = 1C9
+       code = 1CC
+       code = 1CE
+       code = 1D0
+       code = 1D2
+       code = 1D4
+       code = 1D6
+       code = 1D8
+       code = 1DA
+       codes = 1DC..1DD
+       code = 1DF
+       code = 1E1
+       code = 1E3
+       code = 1E5
+       code = 1E7
+       code = 1E9
+       code = 1EB
+       code = 1ED
+       codes = 1EF..1F0
+       code = 1F3
+       code = 1F5
+       code = 1F9
+       code = 1FB
+       code = 1FD
+       code = 1FF
+       code = 201
+       code = 203
+       code = 205
+       code = 207
+       code = 209
+       code = 20B
+       code = 20D
+       code = 20F
+       code = 211
+       code = 213
+       code = 215
+       code = 217
+       code = 219
+       code = 21B
+       code = 21D
+       code = 21F
+       code = 221
+       code = 223
+       code = 225
+       code = 227
+       code = 229
+       code = 22B
+       code = 22D
+       code = 22F
+       code = 231
+       codes = 233..239
+       code = 23C
+       codes = 23F..240
+       code = 242
+       code = 247
+       code = 249
+       code = 24B
+       code = 24D
+       codes = 24F..293
+       codes = 295..2AF
+       code = 371
+       code = 373
+       code = 377
+       codes = 37B..37D
+       code = 390
+       codes = 3AC..3CE
+       codes = 3D0..3D1
+       codes = 3D5..3D7
+       code = 3D9
+       code = 3DB
+       code = 3DD
+       code = 3DF
+       code = 3E1
+       code = 3E3
+       code = 3E5
+       code = 3E7
+       code = 3E9
+       code = 3EB
+       code = 3ED
+       codes = 3EF..3F3
+       code = 3F5
+       code = 3F8
+       codes = 3FB..3FC
+       codes = 430..45F
+       code = 461
+       code = 463
+       code = 465
+       code = 467
+       code = 469
+       code = 46B
+       code = 46D
+       code = 46F
+       code = 471
+       code = 473
+       code = 475
+       code = 477
+       code = 479
+       code = 47B
+       code = 47D
+       code = 47F
+       code = 481
+       code = 48B
+       code = 48D
+       code = 48F
+       code = 491
+       code = 493
+       code = 495
+       code = 497
+       code = 499
+       code = 49B
+       code = 49D
+       code = 49F
+       code = 4A1
+       code = 4A3
+       code = 4A5
+       code = 4A7
+       code = 4A9
+       code = 4AB
+       code = 4AD
+       code = 4AF
+       code = 4B1
+       code = 4B3
+       code = 4B5
+       code = 4B7
+       code = 4B9
+       code = 4BB
+       code = 4BD
+       code = 4BF
+       code = 4C2
+       code = 4C4
+       code = 4C6
+       code = 4C8
+       code = 4CA
+       code = 4CC
+       codes = 4CE..4CF
+       code = 4D1
+       code = 4D3
+       code = 4D5
+       code = 4D7
+       code = 4D9
+       code = 4DB
+       code = 4DD
+       code = 4DF
+       code = 4E1
+       code = 4E3
+       code = 4E5
+       code = 4E7
+       code = 4E9
+       code = 4EB
+       code = 4ED
+       code = 4EF
+       code = 4F1
+       code = 4F3
+       code = 4F5
+       code = 4F7
+       code = 4F9
+       code = 4FB
+       code = 4FD
+       code = 4FF
+       code = 501
+       code = 503
+       code = 505
+       code = 507
+       code = 509
+       code = 50B
+       code = 50D
+       code = 50F
+       code = 511
+       code = 513
+       code = 515
+       code = 517
+       code = 519
+       code = 51B
+       code = 51D
+       code = 51F
+       code = 521
+       code = 523
+       code = 525
+       code = 527
+       code = 529
+       code = 52B
+       code = 52D
+       code = 52F
+       codes = 561..587
+       codes = 1D00..1D2B
+       codes = 1D6B..1D77
+       codes = 1D79..1D9A
+       code = 1E01
+       code = 1E03
+       code = 1E05
+       code = 1E07
+       code = 1E09
+       code = 1E0B
+       code = 1E0D
+       code = 1E0F
+       code = 1E11
+       code = 1E13
+       code = 1E15
+       code = 1E17
+       code = 1E19
+       code = 1E1B
+       code = 1E1D
+       code = 1E1F
+       code = 1E21
+       code = 1E23
+       code = 1E25
+       code = 1E27
+       code = 1E29
+       code = 1E2B
+       code = 1E2D
+       code = 1E2F
+       code = 1E31
+       code = 1E33
+       code = 1E35
+       code = 1E37
+       code = 1E39
+       code = 1E3B
+       code = 1E3D
+       code = 1E3F
+       code = 1E41
+       code = 1E43
+       code = 1E45
+       code = 1E47
+       code = 1E49
+       code = 1E4B
+       code = 1E4D
+       code = 1E4F
+       code = 1E51
+       code = 1E53
+       code = 1E55
+       code = 1E57
+       code = 1E59
+       code = 1E5B
+       code = 1E5D
+       code = 1E5F
+       code = 1E61
+       code = 1E63
+       code = 1E65
+       code = 1E67
+       code = 1E69
+       code = 1E6B
+       code = 1E6D
+       code = 1E6F
+       code = 1E71
+       code = 1E73
+       code = 1E75
+       code = 1E77
+       code = 1E79
+       code = 1E7B
+       code = 1E7D
+       code = 1E7F
+       code = 1E81
+       code = 1E83
+       code = 1E85
+       code = 1E87
+       code = 1E89
+       code = 1E8B
+       code = 1E8D
+       code = 1E8F
+       code = 1E91
+       code = 1E93
+       codes = 1E95..1E9D
+       code = 1E9F
+       code = 1EA1
+       code = 1EA3
+       code = 1EA5
+       code = 1EA7
+       code = 1EA9
+       code = 1EAB
+       code = 1EAD
+       code = 1EAF
+       code = 1EB1
+       code = 1EB3
+       code = 1EB5
+       code = 1EB7
+       code = 1EB9
+       code = 1EBB
+       code = 1EBD
+       code = 1EBF
+       code = 1EC1
+       code = 1EC3
+       code = 1EC5
+       code = 1EC7
+       code = 1EC9
+       code = 1ECB
+       code = 1ECD
+       code = 1ECF
+       code = 1ED1
+       code = 1ED3
+       code = 1ED5
+       code = 1ED7
+       code = 1ED9
+       code = 1EDB
+       code = 1EDD
+       code = 1EDF
+       code = 1EE1
+       code = 1EE3
+       code = 1EE5
+       code = 1EE7
+       code = 1EE9
+       code = 1EEB
+       code = 1EED
+       code = 1EEF
+       code = 1EF1
+       code = 1EF3
+       code = 1EF5
+       code = 1EF7
+       code = 1EF9
+       code = 1EFB
+       code = 1EFD
+       codes = 1EFF..1F07
+       codes = 1F10..1F15
+       codes = 1F20..1F27
+       codes = 1F30..1F37
+       codes = 1F40..1F45
+       codes = 1F50..1F57
+       codes = 1F60..1F67
+       codes = 1F70..1F7D
+       codes = 1F80..1F87
+       codes = 1F90..1F97
+       codes = 1FA0..1FA7
+       codes = 1FB0..1FB4
+       codes = 1FB6..1FB7
+       code = 1FBE
+       codes = 1FC2..1FC4
+       codes = 1FC6..1FC7
+       codes = 1FD0..1FD3
+       codes = 1FD6..1FD7
+       codes = 1FE0..1FE7
+       codes = 1FF2..1FF4
+       codes = 1FF6..1FF7
+       code = 210A
+       codes = 210E..210F
+       code = 2113
+       code = 212F
+       code = 2134
+       code = 2139
+       codes = 213C..213D
+       codes = 2146..2149
+       code = 214E
+       code = 2184
+       codes = 2C30..2C5E
+       code = 2C61
+       codes = 2C65..2C66
+       code = 2C68
+       code = 2C6A
+       code = 2C6C
+       code = 2C71
+       codes = 2C73..2C74
+       codes = 2C76..2C7B
+       code = 2C81
+       code = 2C83
+       code = 2C85
+       code = 2C87
+       code = 2C89
+       code = 2C8B
+       code = 2C8D
+       code = 2C8F
+       code = 2C91
+       code = 2C93
+       code = 2C95
+       code = 2C97
+       code = 2C99
+       code = 2C9B
+       code = 2C9D
+       code = 2C9F
+       code = 2CA1
+       code = 2CA3
+       code = 2CA5
+       code = 2CA7
+       code = 2CA9
+       code = 2CAB
+       code = 2CAD
+       code = 2CAF
+       code = 2CB1
+       code = 2CB3
+       code = 2CB5
+       code = 2CB7
+       code = 2CB9
+       code = 2CBB
+       code = 2CBD
+       code = 2CBF
+       code = 2CC1
+       code = 2CC3
+       code = 2CC5
+       code = 2CC7
+       code = 2CC9
+       code = 2CCB
+       code = 2CCD
+       code = 2CCF
+       code = 2CD1
+       code = 2CD3
+       code = 2CD5
+       code = 2CD7
+       code = 2CD9
+       code = 2CDB
+       code = 2CDD
+       code = 2CDF
+       code = 2CE1
+       codes = 2CE3..2CE4
+       code = 2CEC
+       code = 2CEE
+       code = 2CF3
+       codes = 2D00..2D25
+       code = 2D27
+       code = 2D2D
+       code = A641
+       code = A643
+       code = A645
+       code = A647
+       code = A649
+       code = A64B
+       code = A64D
+       code = A64F
+       code = A651
+       code = A653
+       code = A655
+       code = A657
+       code = A659
+       code = A65B
+       code = A65D
+       code = A65F
+       code = A661
+       code = A663
+       code = A665
+       code = A667
+       code = A669
+       code = A66B
+       code = A66D
+       code = A681
+       code = A683
+       code = A685
+       code = A687
+       code = A689
+       code = A68B
+       code = A68D
+       code = A68F
+       code = A691
+       code = A693
+       code = A695
+       code = A697
+       code = A699
+       code = A69B
+       code = A723
+       code = A725
+       code = A727
+       code = A729
+       code = A72B
+       code = A72D
+       codes = A72F..A731
+       code = A733
+       code = A735
+       code = A737
+       code = A739
+       code = A73B
+       code = A73D
+       code = A73F
+       code = A741
+       code = A743
+       code = A745
+       code = A747
+       code = A749
+       code = A74B
+       code = A74D
+       code = A74F
+       code = A751
+       code = A753
+       code = A755
+       code = A757
+       code = A759
+       code = A75B
+       code = A75D
+       code = A75F
+       code = A761
+       code = A763
+       code = A765
+       code = A767
+       code = A769
+       code = A76B
+       code = A76D
+       code = A76F
+       codes = A771..A778
+       code = A77A
+       code = A77C
+       code = A77F
+       code = A781
+       code = A783
+       code = A785
+       code = A787
+       code = A78C
+       code = A78E
+       code = A791
+       codes = A793..A795
+       code = A797
+       code = A799
+       code = A79B
+       code = A79D
+       code = A79F
+       code = A7A1
+       code = A7A3
+       code = A7A5
+       code = A7A7
+       code = A7A9
+       code = A7FA
+       codes = AB30..AB5A
+       codes = AB64..AB65
+       codes = FB00..FB06
+       codes = FB13..FB17
+       codes = FF41..FF5A
+       codes = 10428..1044F
+       codes = 118C0..118DF
+       codes = 1D41A..1D433
+       codes = 1D44E..1D454
+       codes = 1D456..1D467
+       codes = 1D482..1D49B
+       codes = 1D4B6..1D4B9
+       code = 1D4BB
+       codes = 1D4BD..1D4C3
+       codes = 1D4C5..1D4CF
+       codes = 1D4EA..1D503
+       codes = 1D51E..1D537
+       codes = 1D552..1D56B
+       codes = 1D586..1D59F
+       codes = 1D5BA..1D5D3
+       codes = 1D5EE..1D607
+       codes = 1D622..1D63B
+       codes = 1D656..1D66F
+       codes = 1D68A..1D6A5
+       codes = 1D6C2..1D6DA
+       codes = 1D6DC..1D6E1
+       codes = 1D6FC..1D714
+       codes = 1D716..1D71B
+       codes = 1D736..1D74E
+       codes = 1D750..1D755
+       codes = 1D770..1D788
+       codes = 1D78A..1D78F
+       codes = 1D7AA..1D7C2
+       codes = 1D7C4..1D7C9
+       code = 1D7CB
+
+index 260:
+       numerator/denominator = 0/0
+       category = 0x7A = z
+       reference count = 35
+       code = 7A
+       codes = 600..605
+       code = 6DD
+       code = 70F
+       codes = 2061..2064
+       codes = 206A..206F
+       codes = FFF9..FFFB
+       code = 110BD
+       codes = 1BCA0..1BCA3
+       codes = 1D173..1D17A
+
+index 261:
+       numerator/denominator = 0/0
+       category = 0xB5
+       reference count = 1
+       code = B5
+
+index 262:
+       numerator/denominator = 0/0
+       category = 0xDF
+       reference count = 1
+       code = DF
+
+index 263:
+       numerator/denominator = 0/0
+       category = 0xE0
+       reference count = 1
+       code = E0
+
+index 264:
+       numerator/denominator = 0/0
+       category = 0xE1
+       reference count = 1
+       code = E1
+
+index 265:
+       numerator/denominator = 0/0
+       category = 0xE2
+       reference count = 1
+       code = E2
+
+index 266:
+       numerator/denominator = 0/0
+       category = 0xE3
+       reference count = 1
+       code = E3
+
+index 267:
+       numerator/denominator = 0/0
+       category = 0xE4
+       reference count = 1
+       code = E4
+
+index 268:
+       numerator/denominator = 0/0
+       category = 0xE5
+       reference count = 1
+       code = E5
+
+index 269:
+       numerator/denominator = 0/0
+       category = 0xE6
+       reference count = 1
+       code = E6
+
+index 270:
+       numerator/denominator = 0/0
+       category = 0xE7
+       reference count = 1
+       code = E7
+
+index 271:
+       numerator/denominator = 0/0
+       category = 0xE8
+       reference count = 1
+       code = E8
+
+index 272:
+       numerator/denominator = 0/0
+       category = 0xE9
+       reference count = 1
+       code = E9
+
+index 273:
+       numerator/denominator = 0/0
+       category = 0xEA
+       reference count = 1
+       code = EA
+
+index 274:
+       numerator/denominator = 0/0
+       category = 0xEB
+       reference count = 1
+       code = EB
+
+index 275:
+       numerator/denominator = 0/0
+       category = 0xEC
+       reference count = 1
+       code = EC
+
+index 276:
+       numerator/denominator = 0/0
+       category = 0xED
+       reference count = 1
+       code = ED
+
+index 277:
+       numerator/denominator = 0/0
+       category = 0xEE
+       reference count = 1
+       code = EE
+
+index 278:
+       numerator/denominator = 0/0
+       category = 0xEF
+       reference count = 1
+       code = EF
+
+index 279:
+       numerator/denominator = 0/0
+       category = 0xF0
+       reference count = 1
+       code = F0
+
+index 280:
+       numerator/denominator = 0/0
+       category = 0xF1
+       reference count = 1
+       code = F1
+
+index 281:
+       numerator/denominator = 0/0
+       category = 0xF2
+       reference count = 1
+       code = F2
+
+index 282:
+       numerator/denominator = 0/0
+       category = 0xF3
+       reference count = 1
+       code = F3
+
+index 283:
+       numerator/denominator = 0/0
+       category = 0xF4
+       reference count = 1
+       code = F4
+
+index 284:
+       numerator/denominator = 0/0
+       category = 0xF5
+       reference count = 1
+       code = F5
+
+index 285:
+       numerator/denominator = 0/0
+       category = 0xF6
+       reference count = 1
+       code = F6
+
+index 286:
+       numerator/denominator = 0/0
+       category = 0xF8
+       reference count = 1
+       code = F8
+
+index 287:
+       numerator/denominator = 0/0
+       category = 0xF9
+       reference count = 1
+       code = F9
+
+index 288:
+       numerator/denominator = 0/0
+       category = 0xFA
+       reference count = 1
+       code = FA
+
+index 289:
+       numerator/denominator = 0/0
+       category = 0xFB
+       reference count = 1
+       code = FB
+
+index 290:
+       numerator/denominator = 0/0
+       category = 0xFC
+       reference count = 1
+       code = FC
+
+index 291:
+       numerator/denominator = 0/0
+       category = 0xFD
+       reference count = 1
+       code = FD
+
+index 292:
+       numerator/denominator = 0/0
+       category = 0xFE
+       reference count = 1
+       code = FE
+
+index 293:
+       numerator/denominator = 0/0
+       category = 0xFF
+       reference count = 1
+       code = FF
+
+index 294:
+       numerator/denominator = 0/0
+       category = 0x54 = T
+       reference count = 31
+       code = 1C5
+       code = 1C8
+       code = 1CB
+       code = 1F2
+       codes = 1F88..1F8F
+       codes = 1F98..1F9F
+       codes = 1FA8..1FAF
+       code = 1FBC
+       code = 1FCC
+       code = 1FFC
+
+index 295:
+       numerator/denominator = 0/0
+       category = 0x4D = M
+       reference count = 248
+       codes = 2B0..2C1
+       codes = 2C6..2D1
+       codes = 2E0..2E4
+       code = 2EC
+       code = 2EE
+       code = 374
+       code = 37A
+       code = 559
+       code = 640
+       codes = 6E5..6E6
+       codes = 7F4..7F5
+       code = 7FA
+       code = 81A
+       code = 824
+       code = 828
+       code = 971
+       code = E46
+       code = EC6
+       code = 10FC
+       code = 17D7
+       code = 1843
+       code = 1AA7
+       codes = 1C78..1C7D
+       codes = 1D2C..1D6A
+       code = 1D78
+       codes = 1D9B..1DBF
+       code = 2071
+       code = 207F
+       codes = 2090..209C
+       codes = 2C7C..2C7D
+       code = 2D6F
+       code = 2E2F
+       code = 3005
+       codes = 3031..3035
+       code = 303B
+       codes = 309D..309E
+       codes = 30FC..30FE
+       code = A015
+       codes = A4F8..A4FD
+       code = A60C
+       code = A67F
+       codes = A69C..A69D
+       codes = A717..A71F
+       code = A770
+       code = A788
+       codes = A7F8..A7F9
+       code = A9CF
+       code = A9E6
+       code = AA70
+       code = AADD
+       codes = AAF3..AAF4
+       codes = AB5C..AB5F
+       code = FF70
+       codes = FF9E..FF9F
+       codes = 16B40..16B43
+       codes = 16F93..16F9F
+
+index 296:
+       numerator/denominator = 0/0
+       category = 0xAA
+       reference count = 1
+       code = AA
+
+index 297:
+       numerator/denominator = 0/0
+       category = 0xBA
+       reference count = 1
+       code = BA
+
+index 298:
+       numerator/denominator = 0/0
+       category = 0x4F = O
+       reference count = 99032
+       code = 1BB
+       codes = 1C0..1C3
+       code = 294
+       codes = 5D0..5EA
+       codes = 5F0..5F2
+       codes = 620..63F
+       codes = 641..64A
+       codes = 66E..66F
+       codes = 671..6D3
+       code = 6D5
+       codes = 6EE..6EF
+       codes = 6FA..6FC
+       code = 6FF
+       code = 710
+       codes = 712..72F
+       codes = 74D..7A5
+       code = 7B1
+       codes = 7CA..7EA
+       codes = 800..815
+       codes = 840..858
+       codes = 8A0..8B2
+       codes = 904..939
+       code = 93D
+       code = 950
+       codes = 958..961
+       codes = 972..980
+       codes = 985..98C
+       codes = 98F..990
+       codes = 993..9A8
+       codes = 9AA..9B0
+       code = 9B2
+       codes = 9B6..9B9
+       code = 9BD
+       code = 9CE
+       codes = 9DC..9DD
+       codes = 9DF..9E1
+       codes = 9F0..9F1
+       codes = A05..A0A
+       codes = A0F..A10
+       codes = A13..A28
+       codes = A2A..A30
+       codes = A32..A33
+       codes = A35..A36
+       codes = A38..A39
+       codes = A59..A5C
+       code = A5E
+       codes = A72..A74
+       codes = A85..A8D
+       codes = A8F..A91
+       codes = A93..AA8
+       codes = AAA..AB0
+       codes = AB2..AB3
+       codes = AB5..AB9
+       code = ABD
+       code = AD0
+       codes = AE0..AE1
+       codes = B05..B0C
+       codes = B0F..B10
+       codes = B13..B28
+       codes = B2A..B30
+       codes = B32..B33
+       codes = B35..B39
+       code = B3D
+       codes = B5C..B5D
+       codes = B5F..B61
+       code = B71
+       code = B83
+       codes = B85..B8A
+       codes = B8E..B90
+       codes = B92..B95
+       codes = B99..B9A
+       code = B9C
+       codes = B9E..B9F
+       codes = BA3..BA4
+       codes = BA8..BAA
+       codes = BAE..BB9
+       code = BD0
+       codes = C05..C0C
+       codes = C0E..C10
+       codes = C12..C28
+       codes = C2A..C39
+       code = C3D
+       codes = C58..C59
+       codes = C60..C61
+       codes = C85..C8C
+       codes = C8E..C90
+       codes = C92..CA8
+       codes = CAA..CB3
+       codes = CB5..CB9
+       code = CBD
+       code = CDE
+       codes = CE0..CE1
+       codes = CF1..CF2
+       codes = D05..D0C
+       codes = D0E..D10
+       codes = D12..D3A
+       code = D3D
+       code = D4E
+       codes = D60..D61
+       codes = D7A..D7F
+       codes = D85..D96
+       codes = D9A..DB1
+       codes = DB3..DBB
+       code = DBD
+       codes = DC0..DC6
+       codes = E01..E30
+       codes = E32..E33
+       codes = E40..E45
+       codes = E81..E82
+       code = E84
+       codes = E87..E88
+       code = E8A
+       code = E8D
+       codes = E94..E97
+       codes = E99..E9F
+       codes = EA1..EA3
+       code = EA5
+       code = EA7
+       codes = EAA..EAB
+       codes = EAD..EB0
+       codes = EB2..EB3
+       code = EBD
+       codes = EC0..EC4
+       codes = EDC..EDF
+       code = F00
+       codes = F40..F47
+       codes = F49..F6C
+       codes = F88..F8C
+       codes = 1000..102A
+       code = 103F
+       codes = 1050..1055
+       codes = 105A..105D
+       code = 1061
+       codes = 1065..1066
+       codes = 106E..1070
+       codes = 1075..1081
+       code = 108E
+       codes = 10D0..10FA
+       codes = 10FD..1248
+       codes = 124A..124D
+       codes = 1250..1256
+       code = 1258
+       codes = 125A..125D
+       codes = 1260..1288
+       codes = 128A..128D
+       codes = 1290..12B0
+       codes = 12B2..12B5
+       codes = 12B8..12BE
+       code = 12C0
+       codes = 12C2..12C5
+       codes = 12C8..12D6
+       codes = 12D8..1310
+       codes = 1312..1315
+       codes = 1318..135A
+       codes = 1380..138F
+       codes = 13A0..13F4
+       codes = 1401..166C
+       codes = 166F..167F
+       codes = 1681..169A
+       codes = 16A0..16EA
+       codes = 16F1..16F8
+       codes = 1700..170C
+       codes = 170E..1711
+       codes = 1720..1731
+       codes = 1740..1751
+       codes = 1760..176C
+       codes = 176E..1770
+       codes = 1780..17B3
+       code = 17DC
+       codes = 1820..1842
+       codes = 1844..1877
+       codes = 1880..18A8
+       code = 18AA
+       codes = 18B0..18F5
+       codes = 1900..191E
+       codes = 1950..196D
+       codes = 1970..1974
+       codes = 1980..19AB
+       codes = 19C1..19C7
+       codes = 1A00..1A16
+       codes = 1A20..1A54
+       codes = 1B05..1B33
+       codes = 1B45..1B4B
+       codes = 1B83..1BA0
+       codes = 1BAE..1BAF
+       codes = 1BBA..1BE5
+       codes = 1C00..1C23
+       codes = 1C4D..1C4F
+       codes = 1C5A..1C77
+       codes = 1CE9..1CEC
+       codes = 1CEE..1CF1
+       codes = 1CF5..1CF6
+       codes = 2135..2138
+       codes = 2D30..2D67
+       codes = 2D80..2D96
+       codes = 2DA0..2DA6
+       codes = 2DA8..2DAE
+       codes = 2DB0..2DB6
+       codes = 2DB8..2DBE
+       codes = 2DC0..2DC6
+       codes = 2DC8..2DCE
+       codes = 2DD0..2DD6
+       codes = 2DD8..2DDE
+       code = 3006
+       code = 303C
+       codes = 3041..3096
+       code = 309F
+       codes = 30A1..30FA
+       code = 30FF
+       codes = 3105..312D
+       codes = 3131..318E
+       codes = 31A0..31BA
+       codes = 31F0..31FF
+       codes = 3400..3404
+       codes = 3406..3482
+       codes = 3484..3829
+       codes = 382B..3B4C
+       codes = 3B4E..4DB5
+       codes = 4E01..4E02
+       codes = 4E04..4E06
+       code = 4E08
+       codes = 4E0A..4E5C
+       codes = 4E5E..4E8B
+       codes = 4E8D..4E93
+       code = 4E95
+       codes = 4E97..4EBE
+       codes = 4EC1..4EDE
+       codes = 4EE0..4EE7
+       codes = 4EE9..4F0C
+       codes = 4F0E..4F6F
+       codes = 4F71..5103
+       codes = 5105..5145
+       codes = 5147..5168
+       code = 516A
+       code = 516C
+       codes = 516E..5340
+       code = 5342
+       codes = 5346..534B
+       codes = 534D..53C0
+       codes = 53C5..56DA
+       codes = 56DC..58F0
+       codes = 58F2..58F8
+       codes = 58FA..5E79
+       codes = 5E7B..5EFD
+       codes = 5F00..5F0B
+       code = 5F0F
+       codes = 5F11..62FD
+       codes = 62FF..634B
+       codes = 634D..67D1
+       codes = 67D3..6F05
+       codes = 6F07..7395
+       codes = 7397..767D
+       codes = 767F..8085
+       codes = 8087..842B
+       codes = 842D..8CAD
+       codes = 8CAF..8CB2
+       codes = 8CB4..8D2F
+       codes = 8D31..9620
+       codes = 9622..9645
+       codes = 9647..964B
+       codes = 964D..9677
+       codes = 9679..96F5
+       codes = 96F7..9FCC
+       codes = A000..A014
+       codes = A016..A48C
+       codes = A4D0..A4F7
+       codes = A500..A60B
+       codes = A610..A61F
+       codes = A62A..A62B
+       code = A66E
+       codes = A6A0..A6E5
+       code = A7F7
+       codes = A7FB..A801
+       codes = A803..A805
+       codes = A807..A80A
+       codes = A80C..A822
+       codes = A840..A873
+       codes = A882..A8B3
+       codes = A8F2..A8F7
+       code = A8FB
+       codes = A90A..A925
+       codes = A930..A946
+       codes = A960..A97C
+       codes = A984..A9B2
+       codes = A9E0..A9E4
+       codes = A9E7..A9EF
+       codes = A9FA..A9FE
+       codes = AA00..AA28
+       codes = AA40..AA42
+       codes = AA44..AA4B
+       codes = AA60..AA6F
+       codes = AA71..AA76
+       code = AA7A
+       codes = AA7E..AAAF
+       code = AAB1
+       codes = AAB5..AAB6
+       codes = AAB9..AABD
+       code = AAC0
+       code = AAC2
+       codes = AADB..AADC
+       codes = AAE0..AAEA
+       code = AAF2
+       codes = AB01..AB06
+       codes = AB09..AB0E
+       codes = AB11..AB16
+       codes = AB20..AB26
+       codes = AB28..AB2E
+       codes = ABC0..ABE2
+       codes = AC00..D7A3
+       codes = D7B0..D7C6
+       codes = D7CB..D7FB
+       codes = F900..F96A
+       codes = F96C..F972
+       codes = F974..F977
+       codes = F979..F9B1
+       codes = F9B3..F9D0
+       code = F9D2
+       codes = F9D4..F9FC
+       codes = F9FE..FA6D
+       codes = FA70..FAD9
+       code = FB1D
+       codes = FB1F..FB28
+       codes = FB2A..FB36
+       codes = FB38..FB3C
+       code = FB3E
+       codes = FB40..FB41
+       codes = FB43..FB44
+       codes = FB46..FBB1
+       codes = FBD3..FD3D
+       codes = FD50..FD8F
+       codes = FD92..FDC7
+       codes = FDF0..FDFB
+       codes = FE70..FE74
+       codes = FE76..FEFC
+       codes = FF66..FF6F
+       codes = FF71..FF9D
+       codes = FFA0..FFBE
+       codes = FFC2..FFC7
+       codes = FFCA..FFCF
+       codes = FFD2..FFD7
+       codes = FFDA..FFDC
+       codes = 10000..1000B
+       codes = 1000D..10026
+       codes = 10028..1003A
+       codes = 1003C..1003D
+       codes = 1003F..1004D
+       codes = 10050..1005D
+       codes = 10080..100FA
+       codes = 10280..1029C
+       codes = 102A0..102D0
+       codes = 10300..1031F
+       codes = 10330..10340
+       codes = 10342..10349
+       codes = 10350..10375
+       codes = 10380..1039D
+       codes = 103A0..103C3
+       codes = 103C8..103CF
+       codes = 10450..1049D
+       codes = 10500..10527
+       codes = 10530..10563
+       codes = 10600..10736
+       codes = 10740..10755
+       codes = 10760..10767
+       codes = 10800..10805
+       code = 10808
+       codes = 1080A..10835
+       codes = 10837..10838
+       code = 1083C
+       codes = 1083F..10855
+       codes = 10860..10876
+       codes = 10880..1089E
+       codes = 10900..10915
+       codes = 10920..10939
+       codes = 10980..109B7
+       codes = 109BE..109BF
+       code = 10A00
+       codes = 10A10..10A13
+       codes = 10A15..10A17
+       codes = 10A19..10A33
+       codes = 10A60..10A7C
+       codes = 10A80..10A9C
+       codes = 10AC0..10AC7
+       codes = 10AC9..10AE4
+       codes = 10B00..10B35
+       codes = 10B40..10B55
+       codes = 10B60..10B72
+       codes = 10B80..10B91
+       codes = 10C00..10C48
+       codes = 11003..11037
+       codes = 11083..110AF
+       codes = 110D0..110E8
+       codes = 11103..11126
+       codes = 11150..11172
+       code = 11176
+       codes = 11183..111B2
+       codes = 111C1..111C4
+       code = 111DA
+       codes = 11200..11211
+       codes = 11213..1122B
+       codes = 112B0..112DE
+       codes = 11305..1130C
+       codes = 1130F..11310
+       codes = 11313..11328
+       codes = 1132A..11330
+       codes = 11332..11333
+       codes = 11335..11339
+       code = 1133D
+       codes = 1135D..11361
+       codes = 11480..114AF
+       codes = 114C4..114C5
+       code = 114C7
+       codes = 11580..115AE
+       codes = 11600..1162F
+       code = 11644
+       codes = 11680..116AA
+       code = 118FF
+       codes = 11AC0..11AF8
+       codes = 12000..12398
+       codes = 13000..1342E
+       codes = 16800..16A38
+       codes = 16A40..16A5E
+       codes = 16AD0..16AED
+       codes = 16B00..16B2F
+       codes = 16B63..16B77
+       codes = 16B7D..16B8F
+       codes = 16F00..16F44
+       code = 16F50
+       codes = 1B000..1B001
+       codes = 1BC00..1BC6A
+       codes = 1BC70..1BC7C
+       codes = 1BC80..1BC88
+       codes = 1BC90..1BC99
+       codes = 1E800..1E8C4
+       codes = 1EE00..1EE03
+       codes = 1EE05..1EE1F
+       codes = 1EE21..1EE22
+       code = 1EE24
+       code = 1EE27
+       codes = 1EE29..1EE32
+       codes = 1EE34..1EE37
+       code = 1EE39
+       code = 1EE3B
+       code = 1EE42
+       code = 1EE47
+       code = 1EE49
+       code = 1EE4B
+       codes = 1EE4D..1EE4F
+       codes = 1EE51..1EE52
+       code = 1EE54
+       code = 1EE57
+       code = 1EE59
+       code = 1EE5B
+       code = 1EE5D
+       code = 1EE5F
+       codes = 1EE61..1EE62
+       code = 1EE64
+       codes = 1EE67..1EE6A
+       codes = 1EE6C..1EE72
+       codes = 1EE74..1EE77
+       codes = 1EE79..1EE7C
+       code = 1EE7E
+       codes = 1EE80..1EE89
+       codes = 1EE8B..1EE9B
+       codes = 1EEA1..1EEA3
+       codes = 1EEA5..1EEA9
+       codes = 1EEAB..1EEBB
+       code = 20000
+       codes = 20002..20063
+       codes = 20065..200E1
+       codes = 200E3..20120
+       codes = 20122..20929
+       codes = 2092B..20982
+       codes = 20984..2098B
+       codes = 2098D..2099B
+       codes = 2099D..20AE9
+       codes = 20AEB..20AFC
+       codes = 20AFE..20B18
+       codes = 20B1A..2238F
+       codes = 22391..22997
+       codes = 22999..23B1A
+       codes = 23B1C..2626C
+       codes = 2626E..2A6D6
+       codes = 2A700..2B734
+       codes = 2B740..2B81D
+       codes = 2F800..2F88F
+       codes = 2F891..2FA1D
+
+index 299:
+       numerator/denominator = 0/0
+       category = 0x4E = N
+       reference count = 1158
+       codes = 300..34E
+       codes = 350..36F
+       codes = 483..487
+       codes = 591..5BD
+       code = 5BF
+       codes = 5C1..5C2
+       codes = 5C4..5C5
+       code = 5C7
+       codes = 610..61A
+       codes = 64B..65F
+       code = 670
+       codes = 6D6..6DC
+       codes = 6DF..6E4
+       codes = 6E7..6E8
+       codes = 6EA..6ED
+       code = 711
+       codes = 730..74A
+       codes = 7A6..7B0
+       codes = 7EB..7F3
+       codes = 816..819
+       codes = 81B..823
+       codes = 825..827
+       codes = 829..82D
+       codes = 859..85B
+       codes = 8E4..902
+       code = 93A
+       code = 93C
+       codes = 941..948
+       code = 94D
+       codes = 951..957
+       codes = 962..963
+       code = 981
+       code = 9BC
+       codes = 9C1..9C4
+       code = 9CD
+       codes = 9E2..9E3
+       codes = A01..A02
+       code = A3C
+       codes = A41..A42
+       codes = A47..A48
+       codes = A4B..A4D
+       code = A51
+       codes = A70..A71
+       code = A75
+       codes = A81..A82
+       code = ABC
+       codes = AC1..AC5
+       codes = AC7..AC8
+       code = ACD
+       codes = AE2..AE3
+       code = B01
+       code = B3C
+       code = B3F
+       codes = B41..B44
+       code = B4D
+       code = B56
+       codes = B62..B63
+       code = B82
+       code = BC0
+       code = BCD
+       code = C00
+       codes = C3E..C40
+       codes = C46..C48
+       codes = C4A..C4D
+       codes = C55..C56
+       codes = C62..C63
+       code = C81
+       code = CBC
+       code = CBF
+       code = CC6
+       codes = CCC..CCD
+       codes = CE2..CE3
+       code = D01
+       codes = D41..D44
+       code = D4D
+       codes = D62..D63
+       code = DCA
+       codes = DD2..DD4
+       code = DD6
+       code = E31
+       codes = E34..E3A
+       codes = E47..E4E
+       code = EB1
+       codes = EB4..EB9
+       codes = EBB..EBC
+       codes = EC8..ECD
+       codes = F18..F19
+       code = F35
+       code = F37
+       code = F39
+       codes = F71..F7E
+       codes = F80..F84
+       codes = F86..F87
+       codes = F8D..F97
+       codes = F99..FBC
+       code = FC6
+       codes = 102D..1030
+       codes = 1032..1037
+       codes = 1039..103A
+       codes = 103D..103E
+       codes = 1058..1059
+       codes = 105E..1060
+       codes = 1071..1074
+       code = 1082
+       codes = 1085..1086
+       code = 108D
+       code = 109D
+       codes = 135D..135F
+       codes = 1712..1714
+       codes = 1732..1734
+       codes = 1752..1753
+       codes = 1772..1773
+       codes = 17B4..17B5
+       codes = 17B7..17BD
+       code = 17C6
+       codes = 17C9..17D3
+       code = 17DD
+       code = 18A9
+       codes = 1920..1922
+       codes = 1927..1928
+       code = 1932
+       codes = 1939..193B
+       codes = 1A17..1A18
+       code = 1A1B
+       code = 1A56
+       codes = 1A58..1A5E
+       code = 1A60
+       code = 1A62
+       codes = 1A65..1A6C
+       codes = 1A73..1A7C
+       code = 1A7F
+       codes = 1AB0..1ABD
+       codes = 1B00..1B03
+       code = 1B34
+       codes = 1B36..1B3A
+       code = 1B3C
+       code = 1B42
+       codes = 1B6B..1B73
+       codes = 1B80..1B81
+       codes = 1BA2..1BA5
+       codes = 1BA8..1BA9
+       codes = 1BAB..1BAD
+       code = 1BE6
+       codes = 1BE8..1BE9
+       code = 1BED
+       codes = 1BEF..1BF1
+       codes = 1C2C..1C33
+       codes = 1C36..1C37
+       codes = 1CD0..1CD2
+       codes = 1CD4..1CE0
+       codes = 1CE2..1CE8
+       code = 1CED
+       code = 1CF4
+       codes = 1CF8..1CF9
+       codes = 1DC0..1DF5
+       codes = 1DFC..1DFF
+       codes = 20D0..20DC
+       code = 20E1
+       codes = 20E5..20F0
+       codes = 2CEF..2CF1
+       code = 2D7F
+       codes = 2DE0..2DFF
+       codes = 302A..302D
+       codes = 3099..309A
+       code = A66F
+       codes = A674..A67D
+       code = A69F
+       codes = A6F0..A6F1
+       code = A802
+       code = A806
+       code = A80B
+       codes = A825..A826
+       code = A8C4
+       codes = A8E0..A8F1
+       codes = A926..A92D
+       codes = A947..A951
+       codes = A980..A982
+       code = A9B3
+       codes = A9B6..A9B9
+       code = A9BC
+       code = A9E5
+       codes = AA29..AA2E
+       codes = AA31..AA32
+       codes = AA35..AA36
+       code = AA43
+       code = AA4C
+       code = AA7C
+       code = AAB0
+       codes = AAB2..AAB4
+       codes = AAB7..AAB8
+       codes = AABE..AABF
+       code = AAC1
+       codes = AAEC..AAED
+       code = AAF6
+       code = ABE5
+       code = ABE8
+       code = ABED
+       code = FB1E
+       codes = FE20..FE2D
+       code = 101FD
+       code = 102E0
+       codes = 10376..1037A
+       codes = 10A01..10A03
+       codes = 10A05..10A06
+       codes = 10A0C..10A0F
+       codes = 10A38..10A3A
+       code = 10A3F
+       codes = 10AE5..10AE6
+       code = 11001
+       codes = 11038..11046
+       codes = 1107F..11081
+       codes = 110B3..110B6
+       codes = 110B9..110BA
+       codes = 11100..11102
+       codes = 11127..1112B
+       codes = 1112D..11134
+       code = 11173
+       codes = 11180..11181
+       codes = 111B6..111BE
+       codes = 1122F..11231
+       code = 11234
+       codes = 11236..11237
+       code = 112DF
+       codes = 112E3..112EA
+       code = 11301
+       code = 1133C
+       code = 11340
+       codes = 11366..1136C
+       codes = 11370..11374
+       codes = 114B3..114B8
+       code = 114BA
+       codes = 114BF..114C0
+       codes = 114C2..114C3
+       codes = 115B2..115B5
+       codes = 115BC..115BD
+       codes = 115BF..115C0
+       codes = 11633..1163A
+       code = 1163D
+       codes = 1163F..11640
+       code = 116AB
+       code = 116AD
+       codes = 116B0..116B5
+       code = 116B7
+       codes = 16AF0..16AF4
+       codes = 16B30..16B36
+       codes = 16F8F..16F92
+       codes = 1BC9D..1BC9E
+       codes = 1D167..1D169
+       codes = 1D17B..1D182
+       codes = 1D185..1D18B
+       codes = 1D1AA..1D1AD
+       codes = 1D242..1D244
+       codes = 1E8D0..1E8D6
+
+index 300:
+       numerator/denominator = 0/0
+       category = 0x45 = E
+       reference count = 13
+       codes = 488..489
+       code = 1ABE
+       codes = 20DD..20E0
+       codes = 20E2..20E4
+       codes = A670..A672
+
+index 301:
+       numerator/denominator = 0/0
+       category = 0x53 = S
+       reference count = 399
+       code = 903
+       code = 93B
+       codes = 93E..940
+       codes = 949..94C
+       codes = 94E..94F
+       codes = 982..983
+       codes = 9BE..9C0
+       codes = 9C7..9C8
+       codes = 9CB..9CC
+       code = 9D7
+       code = A03
+       codes = A3E..A40
+       code = A83
+       codes = ABE..AC0
+       code = AC9
+       codes = ACB..ACC
+       codes = B02..B03
+       code = B3E
+       code = B40
+       codes = B47..B48
+       codes = B4B..B4C
+       code = B57
+       codes = BBE..BBF
+       codes = BC1..BC2
+       codes = BC6..BC8
+       codes = BCA..BCC
+       code = BD7
+       codes = C01..C03
+       codes = C41..C44
+       codes = C82..C83
+       code = CBE
+       codes = CC0..CC4
+       codes = CC7..CC8
+       codes = CCA..CCB
+       codes = CD5..CD6
+       codes = D02..D03
+       codes = D3E..D40
+       codes = D46..D48
+       codes = D4A..D4C
+       code = D57
+       codes = D82..D83
+       codes = DCF..DD1
+       codes = DD8..DDF
+       codes = DF2..DF3
+       codes = F3E..F3F
+       code = F7F
+       codes = 102B..102C
+       code = 1031
+       code = 1038
+       codes = 103B..103C
+       codes = 1056..1057
+       codes = 1062..1064
+       codes = 1067..106D
+       codes = 1083..1084
+       codes = 1087..108C
+       code = 108F
+       codes = 109A..109C
+       code = 17B6
+       codes = 17BE..17C5
+       codes = 17C7..17C8
+       codes = 1923..1926
+       codes = 1929..192B
+       codes = 1930..1931
+       codes = 1933..1938
+       codes = 19B0..19C0
+       codes = 19C8..19C9
+       codes = 1A19..1A1A
+       code = 1A55
+       code = 1A57
+       code = 1A61
+       codes = 1A63..1A64
+       codes = 1A6D..1A72
+       code = 1B04
+       code = 1B35
+       code = 1B3B
+       codes = 1B3D..1B41
+       codes = 1B43..1B44
+       code = 1B82
+       code = 1BA1
+       codes = 1BA6..1BA7
+       code = 1BAA
+       code = 1BE7
+       codes = 1BEA..1BEC
+       code = 1BEE
+       codes = 1BF2..1BF3
+       codes = 1C24..1C2B
+       codes = 1C34..1C35
+       code = 1CE1
+       codes = 1CF2..1CF3
+       codes = 302E..302F
+       codes = A823..A824
+       code = A827
+       codes = A880..A881
+       codes = A8B4..A8C3
+       codes = A952..A953
+       code = A983
+       codes = A9B4..A9B5
+       codes = A9BA..A9BB
+       codes = A9BD..A9C0
+       codes = AA2F..AA30
+       codes = AA33..AA34
+       code = AA4D
+       code = AA7B
+       code = AA7D
+       code = AAEB
+       codes = AAEE..AAEF
+       code = AAF5
+       codes = ABE3..ABE4
+       codes = ABE6..ABE7
+       codes = ABE9..ABEA
+       code = ABEC
+       code = 11000
+       code = 11002
+       code = 11082
+       codes = 110B0..110B2
+       codes = 110B7..110B8
+       code = 1112C
+       code = 11182
+       codes = 111B3..111B5
+       codes = 111BF..111C0
+       codes = 1122C..1122E
+       codes = 11232..11233
+       code = 11235
+       codes = 112E0..112E2
+       codes = 11302..11303
+       codes = 1133E..1133F
+       codes = 11341..11344
+       codes = 11347..11348
+       codes = 1134B..1134D
+       code = 11357
+       codes = 11362..11363
+       codes = 114B0..114B2
+       code = 114B9
+       codes = 114BB..114BE
+       code = 114C1
+       codes = 115AF..115B1
+       codes = 115B8..115BB
+       code = 115BE
+       codes = 11630..11632
+       codes = 1163B..1163C
+       code = 1163E
+       code = 116AC
+       codes = 116AE..116AF
+       code = 116B6
+       codes = 16F51..16F7E
+       codes = 1D165..1D166
+       codes = 1D16D..1D172
+
+index 302:
+       numerator/denominator = 0/1
+       category = 0x30 = 0
+       reference count = 1
+       code = 30
+
+index 303:
+       numerator/denominator = 1/1
+       category = 0x31 = 1
+       reference count = 1
+       code = 31
+
+index 304:
+       numerator/denominator = 2/1
+       category = 0x32 = 2
+       reference count = 1
+       code = 32
+
+index 305:
+       numerator/denominator = 3/1
+       category = 0x33 = 3
+       reference count = 1
+       code = 33
+
+index 306:
+       numerator/denominator = 4/1
+       category = 0x34 = 4
+       reference count = 1
+       code = 34
+
+index 307:
+       numerator/denominator = 5/1
+       category = 0x35 = 5
+       reference count = 1
+       code = 35
+
+index 308:
+       numerator/denominator = 6/1
+       category = 0x36 = 6
+       reference count = 1
+       code = 36
+
+index 309:
+       numerator/denominator = 7/1
+       category = 0x37 = 7
+       reference count = 1
+       code = 37
+
+index 310:
+       numerator/denominator = 8/1
+       category = 0x38 = 8
+       reference count = 1
+       code = 38
+
+index 311:
+       numerator/denominator = 9/1
+       category = 0x39 = 9
+       reference count = 1
+       code = 39
+
+index 312:
+       numerator/denominator = 0/1
+       category = 0x44 = D
+       reference count = 53
+       code = 660
+       code = 6F0
+       code = 7C0
+       code = 966
+       code = 9E6
+       code = A66
+       code = AE6
+       code = B66
+       code = BE6
+       code = C66
+       code = CE6
+       code = D66
+       code = DE6
+       code = E50
+       code = ED0
+       code = F20
+       code = 1040
+       code = 1090
+       code = 17E0
+       code = 1810
+       code = 1946
+       code = 19D0
+       code = 1A80
+       code = 1A90
+       code = 1B50
+       code = 1BB0
+       code = 1C40
+       code = 1C50
+       code = A620
+       code = A8D0
+       code = A900
+       code = A9D0
+       code = A9F0
+       code = AA50
+       code = ABF0
+       code = FF10
+       code = 104A0
+       code = 11066
+       code = 110F0
+       code = 11136
+       code = 111D0
+       code = 112F0
+       code = 114D0
+       code = 11650
+       code = 116C0
+       code = 118E0
+       code = 16A60
+       code = 16B50
+       code = 1D7CE
+       code = 1D7D8
+       code = 1D7E2
+       code = 1D7EC
+       code = 1D7F6
+
+index 313:
+       numerator/denominator = 1/1
+       category = 0x44 = D
+       reference count = 53
+       code = 661
+       code = 6F1
+       code = 7C1
+       code = 967
+       code = 9E7
+       code = A67
+       code = AE7
+       code = B67
+       code = BE7
+       code = C67
+       code = CE7
+       code = D67
+       code = DE7
+       code = E51
+       code = ED1
+       code = F21
+       code = 1041
+       code = 1091
+       code = 17E1
+       code = 1811
+       code = 1947
+       code = 19D1
+       code = 1A81
+       code = 1A91
+       code = 1B51
+       code = 1BB1
+       code = 1C41
+       code = 1C51
+       code = A621
+       code = A8D1
+       code = A901
+       code = A9D1
+       code = A9F1
+       code = AA51
+       code = ABF1
+       code = FF11
+       code = 104A1
+       code = 11067
+       code = 110F1
+       code = 11137
+       code = 111D1
+       code = 112F1
+       code = 114D1
+       code = 11651
+       code = 116C1
+       code = 118E1
+       code = 16A61
+       code = 16B51
+       code = 1D7CF
+       code = 1D7D9
+       code = 1D7E3
+       code = 1D7ED
+       code = 1D7F7
+
+index 314:
+       numerator/denominator = 2/1
+       category = 0x44 = D
+       reference count = 53
+       code = 662
+       code = 6F2
+       code = 7C2
+       code = 968
+       code = 9E8
+       code = A68
+       code = AE8
+       code = B68
+       code = BE8
+       code = C68
+       code = CE8
+       code = D68
+       code = DE8
+       code = E52
+       code = ED2
+       code = F22
+       code = 1042
+       code = 1092
+       code = 17E2
+       code = 1812
+       code = 1948
+       code = 19D2
+       code = 1A82
+       code = 1A92
+       code = 1B52
+       code = 1BB2
+       code = 1C42
+       code = 1C52
+       code = A622
+       code = A8D2
+       code = A902
+       code = A9D2
+       code = A9F2
+       code = AA52
+       code = ABF2
+       code = FF12
+       code = 104A2
+       code = 11068
+       code = 110F2
+       code = 11138
+       code = 111D2
+       code = 112F2
+       code = 114D2
+       code = 11652
+       code = 116C2
+       code = 118E2
+       code = 16A62
+       code = 16B52
+       code = 1D7D0
+       code = 1D7DA
+       code = 1D7E4
+       code = 1D7EE
+       code = 1D7F8
+
+index 315:
+       numerator/denominator = 3/1
+       category = 0x44 = D
+       reference count = 53
+       code = 663
+       code = 6F3
+       code = 7C3
+       code = 969
+       code = 9E9
+       code = A69
+       code = AE9
+       code = B69
+       code = BE9
+       code = C69
+       code = CE9
+       code = D69
+       code = DE9
+       code = E53
+       code = ED3
+       code = F23
+       code = 1043
+       code = 1093
+       code = 17E3
+       code = 1813
+       code = 1949
+       code = 19D3
+       code = 1A83
+       code = 1A93
+       code = 1B53
+       code = 1BB3
+       code = 1C43
+       code = 1C53
+       code = A623
+       code = A8D3
+       code = A903
+       code = A9D3
+       code = A9F3
+       code = AA53
+       code = ABF3
+       code = FF13
+       code = 104A3
+       code = 11069
+       code = 110F3
+       code = 11139
+       code = 111D3
+       code = 112F3
+       code = 114D3
+       code = 11653
+       code = 116C3
+       code = 118E3
+       code = 16A63
+       code = 16B53
+       code = 1D7D1
+       code = 1D7DB
+       code = 1D7E5
+       code = 1D7EF
+       code = 1D7F9
+
+index 316:
+       numerator/denominator = 4/1
+       category = 0x44 = D
+       reference count = 53
+       code = 664
+       code = 6F4
+       code = 7C4
+       code = 96A
+       code = 9EA
+       code = A6A
+       code = AEA
+       code = B6A
+       code = BEA
+       code = C6A
+       code = CEA
+       code = D6A
+       code = DEA
+       code = E54
+       code = ED4
+       code = F24
+       code = 1044
+       code = 1094
+       code = 17E4
+       code = 1814
+       code = 194A
+       code = 19D4
+       code = 1A84
+       code = 1A94
+       code = 1B54
+       code = 1BB4
+       code = 1C44
+       code = 1C54
+       code = A624
+       code = A8D4
+       code = A904
+       code = A9D4
+       code = A9F4
+       code = AA54
+       code = ABF4
+       code = FF14
+       code = 104A4
+       code = 1106A
+       code = 110F4
+       code = 1113A
+       code = 111D4
+       code = 112F4
+       code = 114D4
+       code = 11654
+       code = 116C4
+       code = 118E4
+       code = 16A64
+       code = 16B54
+       code = 1D7D2
+       code = 1D7DC
+       code = 1D7E6
+       code = 1D7F0
+       code = 1D7FA
+
+index 317:
+       numerator/denominator = 5/1
+       category = 0x44 = D
+       reference count = 53
+       code = 665
+       code = 6F5
+       code = 7C5
+       code = 96B
+       code = 9EB
+       code = A6B
+       code = AEB
+       code = B6B
+       code = BEB
+       code = C6B
+       code = CEB
+       code = D6B
+       code = DEB
+       code = E55
+       code = ED5
+       code = F25
+       code = 1045
+       code = 1095
+       code = 17E5
+       code = 1815
+       code = 194B
+       code = 19D5
+       code = 1A85
+       code = 1A95
+       code = 1B55
+       code = 1BB5
+       code = 1C45
+       code = 1C55
+       code = A625
+       code = A8D5
+       code = A905
+       code = A9D5
+       code = A9F5
+       code = AA55
+       code = ABF5
+       code = FF15
+       code = 104A5
+       code = 1106B
+       code = 110F5
+       code = 1113B
+       code = 111D5
+       code = 112F5
+       code = 114D5
+       code = 11655
+       code = 116C5
+       code = 118E5
+       code = 16A65
+       code = 16B55
+       code = 1D7D3
+       code = 1D7DD
+       code = 1D7E7
+       code = 1D7F1
+       code = 1D7FB
+
+index 318:
+       numerator/denominator = 6/1
+       category = 0x44 = D
+       reference count = 53
+       code = 666
+       code = 6F6
+       code = 7C6
+       code = 96C
+       code = 9EC
+       code = A6C
+       code = AEC
+       code = B6C
+       code = BEC
+       code = C6C
+       code = CEC
+       code = D6C
+       code = DEC
+       code = E56
+       code = ED6
+       code = F26
+       code = 1046
+       code = 1096
+       code = 17E6
+       code = 1816
+       code = 194C
+       code = 19D6
+       code = 1A86
+       code = 1A96
+       code = 1B56
+       code = 1BB6
+       code = 1C46
+       code = 1C56
+       code = A626
+       code = A8D6
+       code = A906
+       code = A9D6
+       code = A9F6
+       code = AA56
+       code = ABF6
+       code = FF16
+       code = 104A6
+       code = 1106C
+       code = 110F6
+       code = 1113C
+       code = 111D6
+       code = 112F6
+       code = 114D6
+       code = 11656
+       code = 116C6
+       code = 118E6
+       code = 16A66
+       code = 16B56
+       code = 1D7D4
+       code = 1D7DE
+       code = 1D7E8
+       code = 1D7F2
+       code = 1D7FC
+
+index 319:
+       numerator/denominator = 7/1
+       category = 0x44 = D
+       reference count = 53
+       code = 667
+       code = 6F7
+       code = 7C7
+       code = 96D
+       code = 9ED
+       code = A6D
+       code = AED
+       code = B6D
+       code = BED
+       code = C6D
+       code = CED
+       code = D6D
+       code = DED
+       code = E57
+       code = ED7
+       code = F27
+       code = 1047
+       code = 1097
+       code = 17E7
+       code = 1817
+       code = 194D
+       code = 19D7
+       code = 1A87
+       code = 1A97
+       code = 1B57
+       code = 1BB7
+       code = 1C47
+       code = 1C57
+       code = A627
+       code = A8D7
+       code = A907
+       code = A9D7
+       code = A9F7
+       code = AA57
+       code = ABF7
+       code = FF17
+       code = 104A7
+       code = 1106D
+       code = 110F7
+       code = 1113D
+       code = 111D7
+       code = 112F7
+       code = 114D7
+       code = 11657
+       code = 116C7
+       code = 118E7
+       code = 16A67
+       code = 16B57
+       code = 1D7D5
+       code = 1D7DF
+       code = 1D7E9
+       code = 1D7F3
+       code = 1D7FD
+
+index 320:
+       numerator/denominator = 8/1
+       category = 0x44 = D
+       reference count = 53
+       code = 668
+       code = 6F8
+       code = 7C8
+       code = 96E
+       code = 9EE
+       code = A6E
+       code = AEE
+       code = B6E
+       code = BEE
+       code = C6E
+       code = CEE
+       code = D6E
+       code = DEE
+       code = E58
+       code = ED8
+       code = F28
+       code = 1048
+       code = 1098
+       code = 17E8
+       code = 1818
+       code = 194E
+       code = 19D8
+       code = 1A88
+       code = 1A98
+       code = 1B58
+       code = 1BB8
+       code = 1C48
+       code = 1C58
+       code = A628
+       code = A8D8
+       code = A908
+       code = A9D8
+       code = A9F8
+       code = AA58
+       code = ABF8
+       code = FF18
+       code = 104A8
+       code = 1106E
+       code = 110F8
+       code = 1113E
+       code = 111D8
+       code = 112F8
+       code = 114D8
+       code = 11658
+       code = 116C8
+       code = 118E8
+       code = 16A68
+       code = 16B58
+       code = 1D7D6
+       code = 1D7E0
+       code = 1D7EA
+       code = 1D7F4
+       code = 1D7FE
+
+index 321:
+       numerator/denominator = 9/1
+       category = 0x44 = D
+       reference count = 53
+       code = 669
+       code = 6F9
+       code = 7C9
+       code = 96F
+       code = 9EF
+       code = A6F
+       code = AEF
+       code = B6F
+       code = BEF
+       code = C6F
+       code = CEF
+       code = D6F
+       code = DEF
+       code = E59
+       code = ED9
+       code = F29
+       code = 1049
+       code = 1099
+       code = 17E9
+       code = 1819
+       code = 194F
+       code = 19D9
+       code = 1A89
+       code = 1A99
+       code = 1B59
+       code = 1BB9
+       code = 1C49
+       code = 1C59
+       code = A629
+       code = A8D9
+       code = A909
+       code = A9D9
+       code = A9F9
+       code = AA59
+       code = ABF9
+       code = FF19
+       code = 104A9
+       code = 1106F
+       code = 110F9
+       code = 1113F
+       code = 111D9
+       code = 112F9
+       code = 114D9
+       code = 11659
+       code = 116C9
+       code = 118E9
+       code = 16A69
+       code = 16B59
+       code = 1D7D7
+       code = 1D7E1
+       code = 1D7EB
+       code = 1D7F5
+       code = 1D7FF
+
+index 322:
+       numerator/denominator = 1/1
+       category = 0x52 = R
+       reference count = 15
+       code = 2160
+       code = 2170
+       code = 3021
+       code = A6E6
+       code = 10142
+       codes = 10158..1015A
+       code = 103D1
+       code = 12415
+       code = 1241E
+       code = 1242C
+       code = 12434
+       code = 1244F
+       code = 12458
+
+index 323:
+       numerator/denominator = 2/1
+       category = 0x52 = R
+       reference count = 19
+       code = 2161
+       code = 2171
+       code = 3022
+       code = A6E7
+       codes = 1015B..1015E
+       code = 103D2
+       code = 12400
+       code = 12416
+       code = 1241F
+       code = 12423
+       code = 1242D
+       code = 12435
+       code = 1244A
+       code = 12450
+       code = 12456
+       code = 12459
+
+index 324:
+       numerator/denominator = 3/1
+       category = 0x52 = R
+       reference count = 19
+       code = 2162
+       code = 2172
+       code = 3023
+       code = A6E8
+       code = 12401
+       code = 12408
+       code = 12417
+       code = 12420
+       codes = 12424..12425
+       codes = 1242E..1242F
+       codes = 12436..12437
+       codes = 1243A..1243B
+       code = 1244B
+       code = 12451
+       code = 12457
+
+index 325:
+       numerator/denominator = 4/1
+       category = 0x52 = R
+       reference count = 20
+       code = 2163
+       code = 2173
+       code = 3024
+       code = A6E9
+       code = 12402
+       code = 12409
+       code = 1240F
+       code = 12418
+       code = 12421
+       code = 12426
+       code = 12430
+       code = 12438
+       codes = 1243C..1243F
+       code = 1244C
+       codes = 12452..12453
+       code = 12469
+
+index 326:
+       numerator/denominator = 5/1
+       category = 0x52 = R
+       reference count = 21
+       code = 2164
+       code = 2174
+       code = 3025
+       code = A6EA
+       code = 10143
+       code = 10148
+       code = 1014F
+       code = 1015F
+       code = 10173
+       code = 12403
+       code = 1240A
+       code = 12410
+       code = 12419
+       code = 12422
+       code = 12427
+       code = 12431
+       code = 12439
+       code = 1244D
+       codes = 12454..12455
+       code = 1246A
+
+index 327:
+       numerator/denominator = 6/1
+       category = 0x52 = R
+       reference count = 13
+       code = 2165
+       code = 2175
+       code = 2185
+       code = 3026
+       code = A6EB
+       code = 12404
+       code = 1240B
+       code = 12411
+       code = 1241A
+       code = 12428
+       code = 12440
+       code = 1244E
+       code = 1246B
+
+index 328:
+       numerator/denominator = 7/1
+       category = 0x52 = R
+       reference count = 13
+       code = 2166
+       code = 2176
+       code = 3027
+       code = A6EC
+       code = 12405
+       code = 1240C
+       code = 12412
+       code = 1241B
+       code = 12429
+       codes = 12441..12443
+       code = 1246C
+
+index 329:
+       numerator/denominator = 8/1
+       category = 0x52 = R
+       reference count = 12
+       code = 2167
+       code = 2177
+       code = 3028
+       code = A6ED
+       code = 12406
+       code = 1240D
+       code = 12413
+       code = 1241C
+       code = 1242A
+       codes = 12444..12445
+       code = 1246D
+
+index 330:
+       numerator/denominator = 9/1
+       category = 0x52 = R
+       reference count = 14
+       code = 2168
+       code = 2178
+       code = 3029
+       code = A6EE
+       code = 12407
+       code = 1240E
+       code = 12414
+       code = 1241D
+       code = 1242B
+       codes = 12446..12449
+       code = 1246E
+
+index 331:
+       numerator/denominator = 10/1
+       category = 0x52 = R
+       reference count = 12
+       code = 2169
+       code = 2179
+       code = 3038
+       code = 10149
+       code = 10150
+       code = 10157
+       codes = 10160..10164
+       code = 103D3
+
+index 332:
+       numerator/denominator = 100/1
+       category = 0x52 = R
+       reference count = 6
+       code = 216D
+       code = 217D
+       code = 1014B
+       code = 10152
+       code = 1016A
+       code = 103D5
+
+index 333:
+       numerator/denominator = 1000/1
+       category = 0x52 = R
+       reference count = 6
+       code = 216F
+       codes = 217F..2180
+       code = 1014D
+       code = 10154
+       code = 10171
+
+index 334:
+       numerator/denominator = 10000/1
+       category = 0x52 = R
+       reference count = 2
+       code = 2182
+       code = 10155
+
+index 335:
+       numerator/denominator = 0/1
+       category = 0x52 = R
+       reference count = 2
+       code = 3007
+       code = A6EF
+
+index 336:
+       numerator/denominator = 20/1
+       category = 0x52 = R
+       reference count = 2
+       code = 3039
+       code = 103D4
+
+index 337:
+       numerator/denominator = 30/1
+       category = 0x52 = R
+       reference count = 2
+       code = 303A
+       code = 10165
+
+index 338:
+       numerator/denominator = 40/1
+       category = 0x52 = R
+       reference count = 1
+       code = 12467
+
+index 339:
+       numerator/denominator = 2/1
+       category = 0xB2
+       reference count = 1
+       code = B2
+
+index 340:
+       numerator/denominator = 3/1
+       category = 0xB3
+       reference count = 1
+       code = B3
+
+index 341:
+       numerator/denominator = 1/1
+       category = 0xB9
+       reference count = 1
+       code = B9
+
+index 342:
+       numerator/denominator = 1/4
+       category = 0xBC
+       reference count = 1
+       code = BC
+
+index 343:
+       numerator/denominator = 1/2
+       category = 0xBD
+       reference count = 1
+       code = BD
+
+index 344:
+       numerator/denominator = 1/8
+       category = 0x48 = H
+       reference count = 4
+       code = 9F5
+       code = B76
+       code = 215B
+       code = A834
+
+index 345:
+       numerator/denominator = 1/4
+       category = 0x48 = H
+       reference count = 6
+       code = 9F7
+       code = B72
+       code = D73
+       code = A830
+       code = 1018B
+       code = 10E7C
+
+index 346:
+       numerator/denominator = 3/4
+       category = 0x48 = H
+       reference count = 5
+       code = 9F8
+       code = B74
+       code = D75
+       code = A832
+       code = 10178
+
+index 347:
+       numerator/denominator = 1/2
+       category = 0x48 = H
+       reference count = 8
+       code = B73
+       code = D74
+       code = F2A
+       code = 2CFD
+       code = A831
+       codes = 10175..10176
+       code = 10E7B
+
+index 348:
+       numerator/denominator = 10/1
+       category = 0x48 = H
+       reference count = 32
+       code = BF0
+       code = D70
+       code = 1372
+       code = 2469
+       code = 247D
+       code = 2491
+       code = 24FE
+       code = 277F
+       code = 2789
+       code = 2793
+       code = 3229
+       code = 3248
+       code = 3289
+       code = 10110
+       code = 102EA
+       code = 10322
+       code = 1085B
+       code = 1087E
+       code = 108AD
+       code = 10917
+       code = 10A44
+       code = 10A9E
+       code = 10AED
+       code = 10B5C
+       code = 10B7C
+       code = 10BAD
+       code = 10E69
+       code = 1105B
+       code = 111EA
+       code = 118EA
+       code = 16B5B
+       code = 1D369
+
+index 349:
+       numerator/denominator = 100/1
+       category = 0x48 = H
+       reference count = 17
+       code = BF1
+       code = D71
+       code = 137B
+       code = 10119
+       code = 102F3
+       code = 1085D
+       code = 108AF
+       code = 10919
+       code = 10A46
+       code = 10AEF
+       code = 10B5E
+       code = 10B7E
+       code = 10BAF
+       code = 10E72
+       code = 11064
+       code = 111F3
+       code = 16B5C
+
+index 350:
+       numerator/denominator = 1000/1
+       category = 0x48 = H
+       reference count = 9
+       code = BF2
+       code = D72
+       code = 10122
+       code = 1085E
+       code = 10A47
+       code = 10B5F
+       code = 10B7F
+       code = 11065
+       code = 111F4
+
+index 351:
+       numerator/denominator = 0/1
+       category = 0x48 = H
+       reference count = 12
+       code = C78
+       code = 17F0
+       code = 2070
+       code = 2080
+       code = 2189
+       code = 24EA
+       code = 24FF
+       code = 1018A
+       codes = 1F100..1F101
+       codes = 1F10B..1F10C
+
+index 352:
+       numerator/denominator = 1/1
+       category = 0x48 = H
+       reference count = 37
+       code = C79
+       code = C7C
+       code = 1369
+       code = 17F1
+       code = 19DA
+       code = 2081
+       code = 215F
+       code = 2460
+       code = 2474
+       code = 2488
+       code = 24F5
+       code = 2776
+       code = 2780
+       code = 278A
+       code = 3192
+       code = 3220
+       code = 3280
+       code = 10107
+       code = 102E1
+       code = 10320
+       code = 10858
+       code = 10879
+       code = 108A7
+       code = 10916
+       code = 10A40
+       code = 10A7D
+       code = 10A9D
+       code = 10AEB
+       code = 10B58
+       code = 10B78
+       code = 10BA9
+       code = 10E60
+       code = 11052
+       code = 111E1
+       code = 1D360
+       code = 1E8C7
+       code = 1F102
+
+index 353:
+       numerator/denominator = 2/1
+       category = 0x48 = H
+       reference count = 31
+       code = C7A
+       code = C7D
+       code = 136A
+       code = 17F2
+       code = 2082
+       code = 2461
+       code = 2475
+       code = 2489
+       code = 24F6
+       code = 2777
+       code = 2781
+       code = 278B
+       code = 3193
+       code = 3221
+       code = 3281
+       code = 10108
+       code = 102E2
+       code = 10859
+       code = 1087A
+       code = 108A8
+       code = 1091A
+       code = 10A41
+       code = 10B59
+       code = 10B79
+       code = 10BAA
+       code = 10E61
+       code = 11053
+       code = 111E2
+       code = 1D361
+       code = 1E8C8
+       code = 1F103
+
+index 354:
+       numerator/denominator = 3/1
+       category = 0x48 = H
+       reference count = 31
+       code = C7B
+       code = C7E
+       code = 136B
+       code = 17F3
+       code = 2083
+       code = 2462
+       code = 2476
+       code = 248A
+       code = 24F7
+       code = 2778
+       code = 2782
+       code = 278C
+       code = 3194
+       code = 3222
+       code = 3282
+       code = 10109
+       code = 102E3
+       code = 1085A
+       code = 1087B
+       code = 108A9
+       code = 1091B
+       code = 10A42
+       code = 10B5A
+       code = 10B7A
+       code = 10BAB
+       code = 10E62
+       code = 11054
+       code = 111E3
+       code = 1D362
+       code = 1E8C9
+       code = 1F104
+
+index 355:
+       numerator/denominator = 4/1
+       category = 0x48 = H
+       reference count = 29
+       code = 136C
+       code = 17F4
+       code = 2074
+       code = 2084
+       code = 2463
+       code = 2477
+       code = 248B
+       code = 24F8
+       code = 2779
+       code = 2783
+       code = 278D
+       code = 3195
+       code = 3223
+       code = 3283
+       code = 1010A
+       code = 102E4
+       code = 1087C
+       codes = 108AA..108AB
+       code = 10A43
+       code = 10B5B
+       code = 10B7B
+       code = 10BAC
+       code = 10E63
+       code = 11055
+       code = 111E4
+       code = 1D363
+       code = 1E8CA
+       code = 1F105
+
+index 356:
+       numerator/denominator = 5/1
+       category = 0x48 = H
+       reference count = 25
+       code = 136D
+       code = 17F5
+       code = 2075
+       code = 2085
+       code = 2464
+       code = 2478
+       code = 248C
+       code = 24F9
+       code = 277A
+       code = 2784
+       code = 278E
+       code = 3224
+       code = 3284
+       code = 1010B
+       code = 102E5
+       code = 10321
+       code = 1087D
+       code = 108AC
+       code = 10AEC
+       code = 10E64
+       code = 11056
+       code = 111E5
+       code = 1D364
+       code = 1E8CB
+       code = 1F106
+
+index 357:
+       numerator/denominator = 6/1
+       category = 0x48 = H
+       reference count = 21
+       code = 136E
+       code = 17F6
+       code = 2076
+       code = 2086
+       code = 2465
+       code = 2479
+       code = 248D
+       code = 24FA
+       code = 277B
+       code = 2785
+       code = 278F
+       code = 3225
+       code = 3285
+       code = 1010C
+       code = 102E6
+       code = 10E65
+       code = 11057
+       code = 111E6
+       code = 1D365
+       code = 1E8CC
+       code = 1F107
+
+index 358:
+       numerator/denominator = 7/1
+       category = 0x48 = H
+       reference count = 21
+       code = 136F
+       code = 17F7
+       code = 2077
+       code = 2087
+       code = 2466
+       code = 247A
+       code = 248E
+       code = 24FB
+       code = 277C
+       code = 2786
+       code = 2790
+       code = 3226
+       code = 3286
+       code = 1010D
+       code = 102E7
+       code = 10E66
+       code = 11058
+       code = 111E7
+       code = 1D366
+       code = 1E8CD
+       code = 1F108
+
+index 359:
+       numerator/denominator = 8/1
+       category = 0x48 = H
+       reference count = 21
+       code = 1370
+       code = 17F8
+       code = 2078
+       code = 2088
+       code = 2467
+       code = 247B
+       code = 248F
+       code = 24FC
+       code = 277D
+       code = 2787
+       code = 2791
+       code = 3227
+       code = 3287
+       code = 1010E
+       code = 102E8
+       code = 10E67
+       code = 11059
+       code = 111E8
+       code = 1D367
+       code = 1E8CE
+       code = 1F109
+
+index 360:
+       numerator/denominator = 9/1
+       category = 0x48 = H
+       reference count = 21
+       code = 1371
+       code = 17F9
+       code = 2079
+       code = 2089
+       code = 2468
+       code = 247C
+       code = 2490
+       code = 24FD
+       code = 277E
+       code = 2788
+       code = 2792
+       code = 3228
+       code = 3288
+       code = 1010F
+       code = 102E9
+       code = 10E68
+       code = 1105A
+       code = 111E9
+       code = 1D368
+       code = 1E8CF
+       code = 1F10A
+
+index 361:
+       numerator/denominator = 20/1
+       category = 0x48 = H
+       reference count = 23
+       code = 1373
+       code = 2473
+       code = 2487
+       code = 249B
+       code = 24F4
+       code = 3249
+       code = 10111
+       code = 102EB
+       code = 1085C
+       code = 1087F
+       code = 108AE
+       code = 10918
+       code = 10A45
+       code = 10A9F
+       code = 10AEE
+       code = 10B5D
+       code = 10B7D
+       code = 10BAE
+       code = 10E6A
+       code = 1105C
+       code = 111EB
+       code = 118EB
+       code = 1D36A
+
+index 362:
+       numerator/denominator = 30/1
+       category = 0x48 = H
+       reference count = 10
+       code = 1374
+       code = 324A
+       code = 325A
+       code = 10112
+       code = 102EC
+       code = 10E6B
+       code = 1105D
+       code = 111EC
+       code = 118EC
+       code = 1D36B
+
+index 363:
+       numerator/denominator = 40/1
+       category = 0x48 = H
+       reference count = 10
+       code = 1375
+       code = 324B
+       code = 32B5
+       code = 10113
+       code = 102ED
+       code = 10E6C
+       code = 1105E
+       code = 111ED
+       code = 118ED
+       code = 1D36C
+
+index 364:
+       numerator/denominator = 50/1
+       category = 0x48 = H
+       reference count = 12
+       code = 1376
+       code = 324C
+       code = 32BF
+       code = 10114
+       code = 102EE
+       code = 10323
+       code = 10A7E
+       code = 10E6D
+       code = 1105F
+       code = 111EE
+       code = 118EE
+       code = 1D36D
+
+index 365:
+       numerator/denominator = 90/1
+       category = 0x48 = H
+       reference count = 8
+       code = 137A
+       code = 10118
+       code = 102F2
+       code = 10E71
+       code = 11063
+       code = 111F2
+       code = 118F2
+       code = 1D371
+
+index 366:
+       numerator/denominator = 10000/1
+       category = 0x48 = H
+       reference count = 4
+       code = 137C
+       code = 1012B
+       code = 1085F
+       code = 16B5D
+
+index 367:
+       numerator/denominator = 1/3
+       category = 0x48 = H
+       reference count = 2
+       code = 2153
+       code = 10E7D
+
+index 368:
+       numerator/denominator = 2/3
+       category = 0x48 = H
+       reference count = 3
+       code = 2154
+       code = 10177
+       code = 10E7E
+
+index 369:
+       numerator/denominator = 1/6
+       category = 0x48 = H
+       reference count = 1
+       code = 2159
+
+index 370:
+       numerator/denominator = 5/6
+       category = 0x48 = H
+       reference count = 1
+       code = 215A
+
+index 371:
+       numerator/denominator = 11/1
+       category = 0x48 = H
+       reference count = 4
+       code = 246A
+       code = 247E
+       code = 2492
+       code = 24EB
+
+index 372:
+       numerator/denominator = 12/1
+       category = 0x48 = H
+       reference count = 4
+       code = 246B
+       code = 247F
+       code = 2493
+       code = 24EC
+
+index 373:
+       numerator/denominator = 17/1
+       category = 0x48 = H
+       reference count = 4
+       code = 2470
+       code = 2484
+       code = 2498
+       code = 24F1
+
+index 374:
+       numerator/denominator = 18/1
+       category = 0x48 = H
+       reference count = 4
+       code = 2471
+       code = 2485
+       code = 2499
+       code = 24F2
+
+index 375:
+       numerator/denominator = 19/1
+       category = 0x48 = H
+       reference count = 4
+       code = 2472
+       code = 2486
+       code = 249A
+       code = 24F3
+
+index 376:
+       numerator/denominator = 300/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011B
+       code = 102F5
+       code = 10E74
+
+index 377:
+       numerator/denominator = 500/1
+       category = 0x48 = H
+       reference count = 3
+       code = 1011D
+       code = 102F7
+       code = 10E76
+
+index 378:
+       numerator/denominator = 900/1
+       category = 0x48 = H
+       reference count = 3
+       code = 10121
+       code = 102FB
+       code = 10E7A
+
+index 379:
+       numerator/denominator = 5000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 10126
+
+index 380:
+       numerator/denominator = 50000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 1012F
+
+index 381:
+       numerator/denominator = 100000000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 16B5F
+
+index 382:
+       numerator/denominator = 1000000000000/1
+       category = 0x48 = H
+       reference count = 1
+       code = 16B61
+
+index 383:
+       numerator/denominator = 0/0
+       category = 0x73 = s
+       reference count = 13
+       code = 1680
+       codes = 2000..200A
+       code = 3000
+
+index 384:
+       numerator/denominator = 0/0
+       category = 0x6C = l
+       reference count = 1
+       code = 2028
+
+index 385:
+       numerator/denominator = 0/0
+       category = 0x70 = p
+       reference count = 1
+       code = 2029
+
+index 386:
+       numerator/denominator = 0/0
+       category = 0x76 = v
+       reference count = 6400
+       codes = E000..F8FF
+
+index 387:
+       numerator/denominator = 0/0
+       category = 0x67 = g
+       reference count = 2048
+       codes = D800..DFFF
+
+index 388:
+       numerator/denominator = 0/0
+       category = 0x2D = -
+       reference count = 1
+       code = 2D
+
+index 389:
+       numerator/denominator = 0/0
+       category = 0x64 = d
+       reference count = 23
+       code = 58A
+       code = 5BE
+       code = 1400
+       code = 1806
+       codes = 2010..2015
+       code = 2E17
+       code = 2E1A
+       codes = 2E3A..2E3B
+       code = 2E40
+       code = 301C
+       code = 3030
+       code = 30A0
+       codes = FE31..FE32
+       code = FE58
+       code = FE63
+       code = FF0D
+
+index 390:
+       numerator/denominator = 0/0
+       category = 0x28 = (
+       reference count = 1
+       code = 28
+
+index 391:
+       numerator/denominator = 0/0
+       category = 0x5B = [
+       reference count = 1
+       code = 5B
+
+index 392:
+       numerator/denominator = 0/0
+       category = 0x7B = {
+       reference count = 1
+       code = 7B
+
+index 393:
+       numerator/denominator = 0/0
+       category = 0x6F = o
+       reference count = 72
+       code = F3A
+       code = F3C
+       code = 169B
+       code = 201A
+       code = 201E
+       code = 2045
+       code = 207D
+       code = 208D
+       code = 2308
+       code = 230A
+       code = 2329
+       code = 2768
+       code = 276A
+       code = 276C
+       code = 276E
+       code = 2770
+       code = 2772
+       code = 2774
+       code = 27C5
+       code = 27E6
+       code = 27E8
+       code = 27EA
+       code = 27EC
+       code = 27EE
+       code = 2983
+       code = 2985
+       code = 2987
+       code = 2989
+       code = 298B
+       code = 298D
+       code = 298F
+       code = 2991
+       code = 2993
+       code = 2995
+       code = 2997
+       code = 29D8
+       code = 29DA
+       code = 29FC
+       code = 2E22
+       code = 2E24
+       code = 2E26
+       code = 2E28
+       code = 2E42
+       code = 3008
+       code = 300A
+       code = 300C
+       code = 300E
+       code = 3010
+       code = 3014
+       code = 3016
+       code = 3018
+       code = 301A
+       code = 301D
+       code = FD3F
+       code = FE17
+       code = FE35
+       code = FE37
+       code = FE39
+       code = FE3B
+       code = FE3D
+       code = FE3F
+       code = FE41
+       code = FE43
+       code = FE47
+       code = FE59
+       code = FE5B
+       code = FE5D
+       code = FF08
+       code = FF3B
+       code = FF5B
+       code = FF5F
+       code = FF62
+
+index 394:
+       numerator/denominator = 0/0
+       category = 0x29 = )
+       reference count = 1
+       code = 29
+
+index 395:
+       numerator/denominator = 0/0
+       category = 0x5D = ]
+       reference count = 1
+       code = 5D
+
+index 396:
+       numerator/denominator = 0/0
+       category = 0x7D = }
+       reference count = 1
+       code = 7D
+
+index 397:
+       numerator/denominator = 0/0
+       category = 0x63 = c
+       reference count = 70
+       code = F3B
+       code = F3D
+       code = 169C
+       code = 2046
+       code = 207E
+       code = 208E
+       code = 2309
+       code = 230B
+       code = 232A
+       code = 2769
+       code = 276B
+       code = 276D
+       code = 276F
+       code = 2771
+       code = 2773
+       code = 2775
+       code = 27C6
+       code = 27E7
+       code = 27E9
+       code = 27EB
+       code = 27ED
+       code = 27EF
+       code = 2984
+       code = 2986
+       code = 2988
+       code = 298A
+       code = 298C
+       code = 298E
+       code = 2990
+       code = 2992
+       code = 2994
+       code = 2996
+       code = 2998
+       code = 29D9
+       code = 29DB
+       code = 29FD
+       code = 2E23
+       code = 2E25
+       code = 2E27
+       code = 2E29
+       code = 3009
+       code = 300B
+       code = 300D
+       code = 300F
+       code = 3011
+       code = 3015
+       code = 3017
+       code = 3019
+       code = 301B
+       codes = 301E..301F
+       code = FD3E
+       code = FE18
+       code = FE36
+       code = FE38
+       code = FE3A
+       code = FE3C
+       code = FE3E
+       code = FE40
+       code = FE42
+       code = FE44
+       code = FE48
+       code = FE5A
+       code = FE5C
+       code = FE5E
+       code = FF09
+       code = FF3D
+       code = FF5D
+       code = FF60
+       code = FF63
+
+index 398:
+       numerator/denominator = 0/0
+       category = 0x5F = _
+       reference count = 1
+       code = 5F
+
+index 399:
+       numerator/denominator = 0/0
+       category = 0x6E = n
+       reference count = 9
+       codes = 203F..2040
+       code = 2054
+       codes = FE33..FE34
+       codes = FE4D..FE4F
+       code = FF3F
+
+index 400:
+       numerator/denominator = 0/0
+       category = 0x21 = !
+       reference count = 1
+       code = 21
+
+index 401:
+       numerator/denominator = 0/0
+       category = 0x22 = "
+       reference count = 1
+       code = 22
+
+index 402:
+       numerator/denominator = 0/0
+       category = 0x23 = #
+       reference count = 1
+       code = 23
+
+index 403:
+       numerator/denominator = 0/0
+       category = 0x25 = %
+       reference count = 1
+       code = 25
+
+index 404:
+       numerator/denominator = 0/0
+       category = 0x26 = &
+       reference count = 1
+       code = 26
+
+index 405:
+       numerator/denominator = 0/0
+       category = 0x27 = '
+       reference count = 1
+       code = 27
+
+index 406:
+       numerator/denominator = 0/0
+       category = 0x2A = *
+       reference count = 1
+       code = 2A
+
+index 407:
+       numerator/denominator = 0/0
+       category = 0x2C = ,
+       reference count = 1
+       code = 2C
+
+index 408:
+       numerator/denominator = 0/0
+       category = 0x2E = .
+       reference count = 1
+       code = 2E
+
+index 409:
+       numerator/denominator = 0/0
+       category = 0x2F = /
+       reference count = 1
+       code = 2F
+
+index 410:
+       numerator/denominator = 0/0
+       category = 0x3A = :
+       reference count = 1
+       code = 3A
+
+index 411:
+       numerator/denominator = 0/0
+       category = 0x3B = ;
+       reference count = 1
+       code = 3B
+
+index 412:
+       numerator/denominator = 0/0
+       category = 0x3F = ?
+       reference count = 1
+       code = 3F
+
+index 413:
+       numerator/denominator = 0/0
+       category = 0x40 = @
+       reference count = 1
+       code = 40
+
+index 414:
+       numerator/denominator = 0/0
+       category = 0x5C = \
+       reference count = 1
+       code = 5C
+
+index 415:
+       numerator/denominator = 0/0
+       category = 0xA1
+       reference count = 1
+       code = A1
+
+index 416:
+       numerator/denominator = 0/0
+       category = 0xA7
+       reference count = 1
+       code = A7
+
+index 417:
+       numerator/denominator = 0/0
+       category = 0xB6
+       reference count = 1
+       code = B6
+
+index 418:
+       numerator/denominator = 0/0
+       category = 0xB7
+       reference count = 1
+       code = B7
+
+index 419:
+       numerator/denominator = 0/0
+       category = 0xBF
+       reference count = 1
+       code = BF
+
+index 420:
+       numerator/denominator = 0/0
+       category = 0x68 = h
+       reference count = 464
+       code = 37E
+       code = 387
+       codes = 55A..55F
+       code = 589
+       code = 5C0
+       code = 5C3
+       code = 5C6
+       codes = 5F3..5F4
+       codes = 609..60A
+       codes = 60C..60D
+       code = 61B
+       codes = 61E..61F
+       codes = 66A..66D
+       code = 6D4
+       codes = 700..70D
+       codes = 7F7..7F9
+       codes = 830..83E
+       code = 85E
+       codes = 964..965
+       code = 970
+       code = AF0
+       code = DF4
+       code = E4F
+       codes = E5A..E5B
+       codes = F04..F12
+       code = F14
+       code = F85
+       codes = FD0..FD4
+       codes = FD9..FDA
+       codes = 104A..104F
+       code = 10FB
+       codes = 1360..1368
+       codes = 166D..166E
+       codes = 16EB..16ED
+       codes = 1735..1736
+       codes = 17D4..17D6
+       codes = 17D8..17DA
+       codes = 1800..1805
+       codes = 1807..180A
+       codes = 1944..1945
+       codes = 1A1E..1A1F
+       codes = 1AA0..1AA6
+       codes = 1AA8..1AAD
+       codes = 1B5A..1B60
+       codes = 1BFC..1BFF
+       codes = 1C3B..1C3F
+       codes = 1C7E..1C7F
+       codes = 1CC0..1CC7
+       code = 1CD3
+       codes = 2016..2017
+       codes = 2020..2027
+       codes = 2030..2038
+       codes = 203B..203E
+       codes = 2041..2043
+       codes = 2047..2051
+       code = 2053
+       codes = 2055..205E
+       codes = 2CF9..2CFC
+       codes = 2CFE..2CFF
+       code = 2D70
+       codes = 2E00..2E01
+       codes = 2E06..2E08
+       code = 2E0B
+       codes = 2E0E..2E16
+       codes = 2E18..2E19
+       code = 2E1B
+       codes = 2E1E..2E1F
+       codes = 2E2A..2E2E
+       codes = 2E30..2E39
+       codes = 2E3C..2E3F
+       code = 2E41
+       codes = 3001..3003
+       code = 303D
+       code = 30FB
+       codes = A4FE..A4FF
+       codes = A60D..A60F
+       code = A673
+       code = A67E
+       codes = A6F2..A6F7
+       codes = A874..A877
+       codes = A8CE..A8CF
+       codes = A8F8..A8FA
+       codes = A92E..A92F
+       code = A95F
+       codes = A9C1..A9CD
+       codes = A9DE..A9DF
+       codes = AA5C..AA5F
+       codes = AADE..AADF
+       codes = AAF0..AAF1
+       code = ABEB
+       codes = FE10..FE16
+       code = FE19
+       code = FE30
+       codes = FE45..FE46
+       codes = FE49..FE4C
+       codes = FE50..FE52
+       codes = FE54..FE57
+       codes = FE5F..FE61
+       code = FE68
+       codes = FE6A..FE6B
+       codes = FF01..FF03
+       codes = FF05..FF07
+       code = FF0A
+       code = FF0C
+       codes = FF0E..FF0F
+       codes = FF1A..FF1B
+       codes = FF1F..FF20
+       code = FF3C
+       code = FF61
+       codes = FF64..FF65
+       codes = 10100..10102
+       code = 1039F
+       code = 103D0
+       code = 1056F
+       code = 10857
+       code = 1091F
+       code = 1093F
+       codes = 10A50..10A58
+       code = 10A7F
+       codes = 10AF0..10AF6
+       codes = 10B39..10B3F
+       codes = 10B99..10B9C
+       codes = 11047..1104D
+       codes = 110BB..110BC
+       codes = 110BE..110C1
+       codes = 11140..11143
+       codes = 11174..11175
+       codes = 111C5..111C8
+       code = 111CD
+       codes = 11238..1123D
+       code = 114C6
+       codes = 115C1..115C9
+       codes = 11641..11643
+       codes = 12470..12474
+       codes = 16A6E..16A6F
+       code = 16AF5
+       codes = 16B37..16B3B
+       code = 16B44
+       code = 1BC9F
+
+index 421:
+       numerator/denominator = 0/0
+       category = 0x2B = +
+       reference count = 1
+       code = 2B
+
+index 422:
+       numerator/denominator = 0/0
+       category = 0x3C = <
+       reference count = 1
+       code = 3C
+
+index 423:
+       numerator/denominator = 0/0
+       category = 0x3D = =
+       reference count = 1
+       code = 3D
+
+index 424:
+       numerator/denominator = 0/0
+       category = 0x3E = >
+       reference count = 1
+       code = 3E
+
+index 425:
+       numerator/denominator = 0/0
+       category = 0x7C = |
+       reference count = 1
+       code = 7C
+
+index 426:
+       numerator/denominator = 0/0
+       category = 0x7E = ~
+       reference count = 1
+       code = 7E
+
+index 427:
+       numerator/denominator = 0/0
+       category = 0xAC
+       reference count = 1
+       code = AC
+
+index 428:
+       numerator/denominator = 0/0
+       category = 0xB1
+       reference count = 1
+       code = B1
+
+index 429:
+       numerator/denominator = 0/0
+       category = 0xD7
+       reference count = 1
+       code = D7
+
+index 430:
+       numerator/denominator = 0/0
+       category = 0xF7
+       reference count = 1
+       code = F7
+
+index 431:
+       numerator/denominator = 0/0
+       category = 0x6D = m
+       reference count = 938
+       code = 3F6
+       codes = 606..608
+       code = 2044
+       code = 2052
+       codes = 207A..207C
+       codes = 208A..208C
+       code = 2118
+       codes = 2140..2144
+       code = 214B
+       codes = 2190..2194
+       codes = 219A..219B
+       code = 21A0
+       code = 21A3
+       code = 21A6
+       code = 21AE
+       codes = 21CE..21CF
+       code = 21D2
+       code = 21D4
+       codes = 21F4..22FF
+       codes = 2320..2321
+       code = 237C
+       codes = 239B..23B3
+       codes = 23DC..23E1
+       code = 25B7
+       code = 25C1
+       codes = 25F8..25FF
+       code = 266F
+       codes = 27C0..27C4
+       codes = 27C7..27E5
+       codes = 27F0..27FF
+       codes = 2900..2982
+       codes = 2999..29D7
+       codes = 29DC..29FB
+       codes = 29FE..2AFF
+       codes = 2B30..2B44
+       codes = 2B47..2B4C
+       code = FB29
+       code = FE62
+       codes = FE64..FE66
+       code = FF0B
+       codes = FF1C..FF1E
+       code = FF5C
+       code = FF5E
+       code = FFE2
+       codes = FFE9..FFEC
+       code = 1D6C1
+       code = 1D6DB
+       code = 1D6FB
+       code = 1D715
+       code = 1D735
+       code = 1D74F
+       code = 1D76F
+       code = 1D789
+       code = 1D7A9
+       code = 1D7C3
+       codes = 1EEF0..1EEF1
+
+index 432:
+       numerator/denominator = 0/0
+       category = 0x24 = $
+       reference count = 1
+       code = 24
+
+index 433:
+       numerator/denominator = 0/0
+       category = 0xA2
+       reference count = 1
+       code = A2
+
+index 434:
+       numerator/denominator = 0/0
+       category = 0xA3
+       reference count = 1
+       code = A3
+
+index 435:
+       numerator/denominator = 0/0
+       category = 0xA4
+       reference count = 1
+       code = A4
+
+index 436:
+       numerator/denominator = 0/0
+       category = 0xA5
+       reference count = 1
+       code = A5
+
+index 437:
+       numerator/denominator = 0/0
+       category = 0x79 = y
+       reference count = 47
+       code = 58F
+       code = 60B
+       codes = 9F2..9F3
+       code = 9FB
+       code = AF1
+       code = BF9
+       code = E3F
+       code = 17DB
+       codes = 20A0..20BD
+       code = A838
+       code = FDFC
+       code = FE69
+       code = FF04
+       codes = FFE0..FFE1
+       codes = FFE5..FFE6
+
+index 438:
+       numerator/denominator = 0/0
+       category = 0x5E = ^
+       reference count = 1
+       code = 5E
+
+index 439:
+       numerator/denominator = 0/0
+       category = 0x60 = `
+       reference count = 1
+       code = 60
+
+index 440:
+       numerator/denominator = 0/0
+       category = 0xA8
+       reference count = 1
+       code = A8
+
+index 441:
+       numerator/denominator = 0/0
+       category = 0xAF
+       reference count = 1
+       code = AF
+
+index 442:
+       numerator/denominator = 0/0
+       category = 0xB4
+       reference count = 1
+       code = B4
+
+index 443:
+       numerator/denominator = 0/0
+       category = 0xB8
+       reference count = 1
+       code = B8
+
+index 444:
+       numerator/denominator = 0/0
+       category = 0x72 = r
+       reference count = 110
+       codes = 2C2..2C5
+       codes = 2D2..2DF
+       codes = 2E5..2EB
+       code = 2ED
+       codes = 2EF..2FF
+       code = 375
+       codes = 384..385
+       code = 1FBD
+       codes = 1FBF..1FC1
+       codes = 1FCD..1FCF
+       codes = 1FDD..1FDF
+       codes = 1FED..1FEF
+       codes = 1FFD..1FFE
+       codes = 309B..309C
+       codes = A700..A716
+       codes = A720..A721
+       codes = A789..A78A
+       code = AB5B
+       codes = FBB2..FBC1
+       code = FF3E
+       code = FF40
+       code = FFE3
+
+index 445:
+       numerator/denominator = 0/0
+       category = 0xA6
+       reference count = 1
+       code = A6
+
+index 446:
+       numerator/denominator = 0/0
+       category = 0xA9
+       reference count = 1
+       code = A9
+
+index 447:
+       numerator/denominator = 0/0
+       category = 0xAE
+       reference count = 1
+       code = AE
+
+index 448:
+       numerator/denominator = 0/0
+       category = 0xB0
+       reference count = 1
+       code = B0
+
+index 449:
+       numerator/denominator = 0/0
+       category = 0x74 = t
+       reference count = 5078
+       code = 482
+       codes = 58D..58E
+       codes = 60E..60F
+       code = 6DE
+       code = 6E9
+       codes = 6FD..6FE
+       code = 7F6
+       code = 9FA
+       code = B70
+       codes = BF3..BF8
+       code = BFA
+       code = C7F
+       code = D79
+       codes = F01..F03
+       code = F13
+       codes = F15..F17
+       codes = F1A..F1F
+       code = F34
+       code = F36
+       code = F38
+       codes = FBE..FC5
+       codes = FC7..FCC
+       codes = FCE..FCF
+       codes = FD5..FD8
+       codes = 109E..109F
+       codes = 1390..1399
+       code = 1940
+       codes = 19DE..19FF
+       codes = 1B61..1B6A
+       codes = 1B74..1B7C
+       codes = 2100..2101
+       codes = 2103..2106
+       codes = 2108..2109
+       code = 2114
+       codes = 2116..2117
+       codes = 211E..2123
+       code = 2125
+       code = 2127
+       code = 2129
+       code = 212E
+       codes = 213A..213B
+       code = 214A
+       codes = 214C..214D
+       code = 214F
+       codes = 2195..2199
+       codes = 219C..219F
+       codes = 21A1..21A2
+       codes = 21A4..21A5
+       codes = 21A7..21AD
+       codes = 21AF..21CD
+       codes = 21D0..21D1
+       code = 21D3
+       codes = 21D5..21F3
+       codes = 2300..2307
+       codes = 230C..231F
+       codes = 2322..2328
+       codes = 232B..237B
+       codes = 237D..239A
+       codes = 23B4..23DB
+       codes = 23E2..23FA
+       codes = 2400..2426
+       codes = 2440..244A
+       codes = 249C..24E9
+       codes = 2500..25B6
+       codes = 25B8..25C0
+       codes = 25C2..25F7
+       codes = 2600..266E
+       codes = 2670..2767
+       codes = 2794..27BF
+       codes = 2800..28FF
+       codes = 2B00..2B2F
+       codes = 2B45..2B46
+       codes = 2B4D..2B73
+       codes = 2B76..2B95
+       codes = 2B98..2BB9
+       codes = 2BBD..2BC8
+       codes = 2BCA..2BD1
+       codes = 2CE5..2CEA
+       codes = 2E80..2E99
+       codes = 2E9B..2EF3
+       codes = 2F00..2FD5
+       codes = 2FF0..2FFB
+       code = 3004
+       codes = 3012..3013
+       code = 3020
+       codes = 3036..3037
+       codes = 303E..303F
+       codes = 3190..3191
+       codes = 3196..319F
+       codes = 31C0..31E3
+       codes = 3200..321E
+       codes = 322A..3247
+       code = 3250
+       codes = 3260..327F
+       codes = 328A..32B0
+       codes = 32C0..32FE
+       codes = 3300..33FF
+       codes = 4DC0..4DFF
+       codes = A490..A4C6
+       codes = A828..A82B
+       codes = A836..A837
+       code = A839
+       codes = AA77..AA79
+       code = FDFD
+       code = FFE4
+       code = FFE8
+       codes = FFED..FFEE
+       codes = FFFC..FFFD
+       codes = 10137..1013F
+       codes = 10179..10189
+       code = 1018C
+       codes = 10190..1019B
+       code = 101A0
+       codes = 101D0..101FC
+       codes = 10877..10878
+       code = 10AC8
+       codes = 16B3C..16B3F
+       code = 16B45
+       code = 1BC9C
+       codes = 1D000..1D0F5
+       codes = 1D100..1D126
+       codes = 1D129..1D164
+       codes = 1D16A..1D16C
+       codes = 1D183..1D184
+       codes = 1D18C..1D1A9
+       codes = 1D1AE..1D1DD
+       codes = 1D200..1D241
+       code = 1D245
+       codes = 1D300..1D356
+       codes = 1F000..1F02B
+       codes = 1F030..1F093
+       codes = 1F0A0..1F0AE
+       codes = 1F0B1..1F0BF
+       codes = 1F0C1..1F0CF
+       codes = 1F0D1..1F0F5
+       codes = 1F110..1F12E
+       codes = 1F130..1F16B
+       codes = 1F170..1F19A
+       codes = 1F1E6..1F202
+       codes = 1F210..1F23A
+       codes = 1F240..1F248
+       codes = 1F250..1F251
+       codes = 1F300..1F32C
+       codes = 1F330..1F37D
+       codes = 1F380..1F3CE
+       codes = 1F3D4..1F3F7
+       codes = 1F400..1F4FE
+       codes = 1F500..1F54A
+       codes = 1F550..1F579
+       codes = 1F57B..1F5A3
+       codes = 1F5A5..1F642
+       codes = 1F645..1F6CF
+       codes = 1F6E0..1F6EC
+       codes = 1F6F0..1F6F3
+       codes = 1F700..1F773
+       codes = 1F780..1F7D4
+       codes = 1F800..1F80B
+       codes = 1F810..1F847
+       codes = 1F850..1F859
+       codes = 1F860..1F887
+       codes = 1F890..1F8AD
+
+index 450:
+       numerator/denominator = 0/0
+       category = 0xAB
+       reference count = 1
+       code = AB
+
+index 451:
+       numerator/denominator = 0/0
+       category = 0x69 = i
+       reference count = 11
+       code = 2018
+       codes = 201B..201C
+       code = 201F
+       code = 2039
+       code = 2E02
+       code = 2E04
+       code = 2E09
+       code = 2E0C
+       code = 2E1C
+       code = 2E20
+
+index 452:
+       numerator/denominator = 0/0
+       category = 0xBB
+       reference count = 1
+       code = BB
+
+index 453:
+       numerator/denominator = 0/0
+       category = 0x66 = f
+       reference count = 9
+       code = 2019
+       code = 201D
+       code = 203A
+       code = 2E03
+       code = 2E05
+       code = 2E0A
+       code = 2E0D
+       code = 2E1D
+       code = 2E21
