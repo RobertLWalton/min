@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 16:42:28 EDT 2014
+// Date:	Sun Jul  6 13:55:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1882,7 +1882,7 @@ void test_strings ( void )
 	len = min::utf8_to_unicode
 	    ( u2, u2 + 8, s2, s2 + 2 * 7 - 1 );
 	MIN_ASSERT ( len == 7 );
-	MIN_ASSERT ( Ubuffer2[6] == min::ILLEGAL_UTF8 );
+	MIN_ASSERT ( Ubuffer2[6] == min::UNKNOWN_UCHAR );
 
 	char sbuffer3[20];
 	char * s3 = sbuffer3;
@@ -2658,7 +2658,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-    	    << min::punicode ( min::ILLEGAL_UTF8 )
+    	    << min::punicode ( min::UNKNOWN_UCHAR )
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -2810,7 +2810,7 @@ void test_printer ( void )
     WTEST ( '\t' );
     WTEST ( 0x7F );
     WTEST ( 0x2400 );
-    WTEST ( min::ILLEGAL_UTF8 );
+    WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
     printer << min::ascii;
@@ -2823,7 +2823,7 @@ void test_printer ( void )
     WTEST ( '\t' );
     WTEST ( 0x7F );
     WTEST ( 0x2400 );
-    WTEST ( min::ILLEGAL_UTF8 );
+    WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
     printer << min::gbreak << min::graphic;
@@ -2835,7 +2835,7 @@ void test_printer ( void )
     WTEST ( '\t' );
     WTEST ( 0x7F );
     WTEST ( 0x2400 );
-    WTEST ( min::ILLEGAL_UTF8 );
+    WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
     printer << min::noascii;
@@ -2847,7 +2847,7 @@ void test_printer ( void )
     WTEST ( '\t' );
     WTEST ( 0x7F );
     WTEST ( 0x2400 );
-    WTEST ( min::ILLEGAL_UTF8 );
+    WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
     printer << min::restore_print_format;

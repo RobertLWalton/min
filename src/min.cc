@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  4 15:49:44 EDT 2014
+// Date:	Sun Jul  6 13:58:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7491,7 +7491,7 @@ static const char * asciigraphic[0x23] = {
 //
 // UTF8 codes are those of the UNICODE Control Pictures
 // script, range 0x2400-0x243F, except for ILL_REP,
-// which is min::ILLEGAL_UTF8.
+// which is min::UNKNOWN_UCHAR.
 //
 static char utf8graphic[0x23][8];
 
@@ -7515,7 +7515,7 @@ static void init_utf8graphic ( void )
 	    ( s = utf8graphic[DEL_REP], 0x2421 );
     min::unicode_to_utf8
 	    ( s = utf8graphic[ILL_REP],
-	      min::ILLEGAL_UTF8 );
+	      min::UNKNOWN_UCHAR );
 }
 
 static char NUL_UTF8_ENCODING[3] =
@@ -8609,7 +8609,7 @@ min::printer MINT::print_unicode
 	        ::is_non_spacing ( c );
 	    if( ascii )
 	    {
-		if ( c == min::ILLEGAL_UTF8 )
+		if ( c == min::UNKNOWN_UCHAR )
 		{
 		    rep = asciigraphic[ILL_REP];
 		    len = ::strlen ( rep );
@@ -8633,7 +8633,7 @@ min::printer MINT::print_unicode
 	    else /* not ascii mode */
 	    {
 		columns = ! is_non_spacing;
-		if ( c == min::ILLEGAL_UTF8 )
+		if ( c == min::UNKNOWN_UCHAR )
 		{
 		    rep = utf8graphic[ILL_REP];
 		    len = ::strlen ( rep );
@@ -8805,7 +8805,7 @@ static std::ostream & ostream_unicode
 	    const char * rep;
 	    if( ascii )
 	    {
-		if ( c == min::ILLEGAL_UTF8 )
+		if ( c == min::UNKNOWN_UCHAR )
 		    rep = asciigraphic[ILL_REP];
 		else
 		{
@@ -8821,7 +8821,7 @@ static std::ostream & ostream_unicode
 	    }
 	    else /* not ascii mode */
 	    {
-		if ( c == min::ILLEGAL_UTF8 )
+		if ( c == min::UNKNOWN_UCHAR )
 		    rep = utf8graphic[ILL_REP];
 		else
 		{
@@ -8911,7 +8911,7 @@ void MINT::pwidth
     {
 	if ( print_flags & min::ASCII_FLAG )
 	{
-	    if ( c == min::ILLEGAL_UTF8 ) \
+	    if ( c == min::UNKNOWN_UCHAR ) \
 	        column += 
 		    ::strlen ( asciigraphic[ILL_REP] );
 	    else
@@ -9309,17 +9309,17 @@ static T pgen_bracketed_str
 	    }
 	}
 
-	const UNI::unicode_type & Utype =
-	    UNI::unicode_types[UNI::unicode_index[c]];
+	const min::Ustring * name =
+	    min::unicode_Uname ( c );
+	min::uns8 category =
+	    min::unicode_category ( c );
 
-	if ( Utype.name != 0 )
+	if ( name != NULL )
 	{
 	    // Character has a name.  Output name
 	    // surrounded by str_char_name_...fix's
 	    // in place of character.
 	    //
-	    const min::Ustring * name =
-	        UNI::unicode_names + Utype.name;
 	    min::uns32 columns =
 	        min::Ustring_columns ( name )
 		+
@@ -9341,7 +9341,7 @@ static T pgen_bracketed_str
 	    }
 	    else remaining_width = 0;
 	}
-	else if ( Utype.category == 'N' )
+	else if ( category == 'N' )
 	    ++ i;
 	else
 	{
