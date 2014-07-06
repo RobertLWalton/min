@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jul  6 05:14:51 EDT 2014
+# Date:		Sun Jul  6 11:08:28 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,8 +23,8 @@ DERIVED = DerivedCombiningClass.txt \
 NAMES = NameAliases.txt
 
 
-all:	make_unicode_types.diff \
-	unicode_types.dump \
+all:	make_unicode_data.diff \
+	unicode_data.dump \
 	utf8look
 
 curl:
@@ -39,32 +39,32 @@ ${NAMES}:
 	rm -f $@
 	curl ${FROM}/$@ >$@
 
-make_unicode_types:	make_unicode_types.cc \
-			output_unicode_types.cc
-	rm -f make_unicode_types
-	g++ -g ${WFLAGS} -o make_unicode_types \
-	    make_unicode_types.cc
+make_unicode_data:	make_unicode_data.cc \
+			output_unicode_data.cc
+	rm -f make_unicode_data
+	g++ -g ${WFLAGS} -o make_unicode_data \
+	    make_unicode_data.cc
 
-make_unicode_types.out:	make_unicode_types \
+make_unicode_data.out:	make_unicode_data \
 	${DERIVED} ${NAMES}
-	rm -f unicode_types.cc make_unicode_types.out
-	make_unicode_types > make_unicode_types.out
-	cat make_unicode_types.out
+	rm -f unicode_data.cc make_unicode_data.out
+	make_unicode_data > make_unicode_data.out
+	cat make_unicode_data.out
 
-make_unicode_types.test:	make_unicode_types.out
-	rm -f make_unicode_types.test
-	cp -p make_unicode_types.out \
-	      make_unicode_types.test
+make_unicode_data.test:	make_unicode_data.out
+	rm -f make_unicode_data.test
+	cp -p make_unicode_data.out \
+	      make_unicode_data.test
 
-make_unicode_types.diff:	make_unicode_types.out
-	echo DIFFING make_unicode_types.test \
-	             make_unicode_types.out
-	@diff make_unicode_types.test \
-	      make_unicode_types.out
+make_unicode_data.diff:	make_unicode_data.out
+	echo DIFFING make_unicode_data.test \
+	             make_unicode_data.out
+	@diff make_unicode_data.test \
+	      make_unicode_data.out
 
-unicode_types.dump:	make_unicode_types
-	rm -f unicode_types.dump
-	make_unicode_types unicode_types.dump
+unicode_data.dump:	make_unicode_data
+	rm -f unicode_data.dump
+	make_unicode_data unicode_data.dump
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode
@@ -108,11 +108,8 @@ latin1-latin1:	latin1look
 	@latin1look 00F8 00F9 00FA 00FB 00FC 00FD 00FE 00FF
 
 clean:
-	rm -f make_unicode_types.out \
-	      make_unicode_types \
+	rm -f make_unicode_data.out \
+	      make_unicode_data \
 	      utf8look \
 	      latin1look \
-	      print_unicode \
-	      unicode_types.cc \
-	      unicode_types.dump
-
+	      print_unicode
