@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 11:12:29 EDT 2014
+// Date:	Sun Jul  6 12:20:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -240,7 +240,7 @@ extern const double unicode_numeric_value[];
     // as the C++ constant expression `1.0/3.0' to
     // provide maximum accuracy).
 
-extern const unsigned short unicode_reference_count[];
+extern const unsigned unicode_reference_count[];
     // unicode_numerator[t] is the number of character
     // codes c with t == unicode_index[c].  This is
     // just for integrety checking purposes.
