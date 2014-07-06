@@ -33,22 +33,34 @@ using std::dec;
 using std::ostream;
 using std::ofstream;
 using UNI::Uchar;
-using UNI::unicode_category;
-using UNI::unicode_categories;
-using UNI::unicode_categories_size;
-using UNI::unicode_names;
-using UNI::unicode_names_size;
-using UNI::unicode_type;
-using UNI::unicode_types;
-using UNI::unicode_types_size;
+using UNI::Ustring;
+using UNI::Ustring_length;
+using UNI::Ustring_columns;
+using UNI::Ustring_chars;
 using UNI::unicode_index;
 using UNI::unicode_index_size;
+using UNI::unicode_index_limit;
 
-# include "../unicode/output_unicode_types.cc"
+using UNI::unicode_category;
+using UNI::unicode_Uname;
+using UNI::unicode_name;
+using UNI::unicode_numerator;
+using UNI::unicode_denominator;
+using UNI::unicode_numeric_value;
+using UNI::unicode_reference_count;
+
+using UNI::unicode_Ustrings_size;
+using UNI::unicode_Ustrings;
+
+using UNI::unicode_category_limit;
+using UNI::unicode_category_name;
+using UNI::unicode_category_description;
+
+# include "../unicode/output_unicode_data.cc"
 
 int main ( int argc, const char ** argv )
 {
-    assert ( sizeof ( Uchar ) == 4 );
+    assert ( sizeof ( UNI::Uchar ) == 4 );
 
     output ( "min_unicode_test.code" );
     dump ( "min_unicode_test.dump" );

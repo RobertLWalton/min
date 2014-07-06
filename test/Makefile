@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Jul  1 12:40:36 EDT 2014
+# Date:		Sun Jul  6 11:46:45 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -178,7 +178,8 @@ min_acc_test.out:	\
 
 min_unicode.o:	../src/min_unicode.cc \
 		../include/min_unicode.h \
-		../unicode/unicode_types.cc
+		../unicode/unicode_data.h \
+		../unicode/unicode_data.cc
 	rm -f min_unicode.o
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
@@ -198,19 +199,19 @@ min_unicode_test.dump:	min_unicode_test
 	       min_unicode_test.dump
 	min_unicode_test
 
-min_unicode_test.diff:	../unicode/unicode_types.cc \
-			../unicode/unicode_types.dump \
+min_unicode_test.diff:	../unicode/unicode_data.cc \
+			../unicode/unicode_data.dump \
 			min_unicode_test.code \
 			min_unicode_test.dump
-	@echo DIFFING ../unicode/unicode_types.cc \
+	@echo DIFFING ../unicode/unicode_data.cc \
 	              min_unicode_test.code
 	-@diff --minimal \
-	              ../unicode/unicode_types.cc \
+	              ../unicode/unicode_data.cc \
 	              min_unicode_test.code
-	@echo DIFFING ../unicode/unicode_types.dump \
+	@echo DIFFING ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
 	-@diff --minimal \
-	              ../unicode/unicode_types.dump \
+	              ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
 
 ${INTERFACE_PROGRAMS}:		\

@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 11:13:08 EDT 2014
+// Date:	Sun Jul  6 11:56:12 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,12 +60,13 @@ void print_index ( unsigned i, ostream & out = cout )
     }
 
     out << "       numerator/denominator = "
-	<< numerator[i] << "/" << denominator[i]
+	<< unicode_numerator[i]
+	<< "/" << unicode_denominator[i]
 	<< endl
 	<< "       category = "
 	<< catname << endl
 	<< "       reference count = "
-	<< reference_count[i] << endl;
+	<< unicode_reference_count[i] << endl;
 
     unsigned count = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
@@ -91,7 +92,7 @@ void print_index ( unsigned i, ostream & out = cout )
 
 	c = c2;
     }
-    if ( count != reference_count[i] )
+    if ( count != unicode_reference_count[i] )
         out << "    ERROR: reference count should be"
 	       " = " << count << endl;
 }
@@ -155,7 +156,11 @@ ostream & index_comment
 //
 ostream & output ( ostream & out, unsigned c )
 {
-    if ( c < 127 && isgraph ( c ) )
+    if ( c == '\\' )
+        out << "'\\\\'";
+    else if ( c == '\'' )
+        out << "'\\''";
+    else if ( c < 127 && isgraph ( c ) )
 	out << "'" << (char) c << "'";
     else
     {
@@ -422,10 +427,32 @@ void output ( const char * filename )
 	out << "    /* [" << setw ( 3 ) << i << "] */ ";
 
 	if ( unicode_denominator[i] == 0 )
-	    out << "NaN";
+	    out << "NAN";
 	else
 	    out << unicode_numerator[i] << ".0/"
 	        << unicode_denominator[i];
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_REFERENCE_COUNT is the list of\n"
+      "// element values of the unicode_reference_\n"
+      "// count vector whose size is UNICODE_INDEX_\n"
+      "// LIMIT.\n";
+
+    out << endl << "# define UNICODE_REFERENCE_COUNT";
+
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	out << unicode_reference_count[i];
     }
     out << endl;
 
