@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 12:20:01 EDT 2014
+// Date:	Sun Jul  6 20:30:19 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -207,16 +207,29 @@ extern const unsigned char unicode_category[];
 extern const Ustring * const unicode_Uname[];
     // unicode_Uname[unicode_index[c]] is the Ustring
     // name of c, or NULL if c has no name.  For
-    // example, character code 0A has as Ustring name
+    // example, character code 0A has as Ustring Uname
     // { 0x2002, 'L', 'F' }.
     //
     // Names are assigned by the UNICODE standard and
     // are NOT made up.
 
 extern const char * const unicode_name[];
-    // unicode_name[unicode_index[c]] is the ASCII name
-    // of c, or NULL if c has no name.  For example,
-    // character code 0A has as ASCII name "LF".
+    // unicode_name[i] is the extended UTF8 NUL-termin-
+    // ated version of unicode_Uname[i].  For example,
+    // character code 0A has as unicode_name "LF".
+    // For the time being it is an ASCII string.
+
+extern const Ustring * const unicode_Upicture[];
+    // unicode_Upicture[unicode_index[c]] is the Ustring
+    // picture name of c, or NULL if c has no picture
+    // name.  For example, character code 0A has as
+    // unicode_Upicture the Ustring { 0x1001, 0x240A },
+    // where 0x240A is the LF `control picture' UNICODE
+    // character.
+
+extern const char * const unicode_picture[];
+    // unicode_picture[i] is the extended UTF8 NUL-ter-
+    // minated version of unicode_Upicture[i].
 
 extern const double unicode_numerator[];
 extern const double unicode_denominator[];
