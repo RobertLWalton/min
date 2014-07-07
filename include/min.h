@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 02:24:28 EDT 2014
+// Date:	Mon Jul  7 15:39:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10703,9 +10703,11 @@ namespace min {
         line_break_stack;
 
     struct gen_format;
+    struct char_format;
     struct print_format
     {
 	uns32 flags;
+	const min::char_format * char_format;
 	const min::context_gen_flags *
 	    context_gen_flags;
         const min::gen_format * gen_format;

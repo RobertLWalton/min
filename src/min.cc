@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 02:59:52 EDT 2014
+// Date:	Mon Jul  7 15:41:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7417,6 +7417,7 @@ const min::line_break min::default_line_break =
 const min::print_format min::default_print_format =
 {
     min::DEFAULT_PRINT_FLAGS,
+    NULL,
     & min::default_context_gen_flags,
     & min::default_gen_format
 };
@@ -7424,6 +7425,7 @@ const min::print_format min::default_print_format =
 min::print_format min::ostream_print_format =
 {
     min::DEFAULT_PRINT_FLAGS,
+    NULL,
     & min::default_context_gen_flags,
     & min::default_gen_format
 };
