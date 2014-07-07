@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 15:39:56 EDT 2014
+// Date:	Mon Jul  7 16:11:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10678,12 +10678,9 @@ namespace min {
 namespace min {
 
     typedef min::uns32 context_gen_flags[6];
-    typedef const char * char_names[256];
-    typedef min::uns32 char_flags[256];
+    typedef min::uns8 char_flags[256];
     typedef bool suppress_matrix[256][256];
 
-    extern const min::char_names
-        & default_char_names;
     extern const min::char_flags
         & default_char_flags;
     extern const min::suppress_matrix
@@ -10764,6 +10761,35 @@ namespace min {
     MIN_REF ( min::print_format_stack,
               print_format_stack, min::printer )
     MIN_REF ( min::id_map, id_map, min::printer )
+
+    enum {
+	PRINT_CHAR		= ( 0 << 0 ),
+	PRINT_NAME		= ( 1 << 0 ),
+        PRINT_PICTURE		= ( 2 << 0 ),
+	PRINT_ASCII		= ( 3 << 0 ),
+	PRINT_SUPPRESS		= ( 4 << 0 ),
+
+	BREAK_AFTER		= ( 1 << 3 ),
+	DUP_ON_BREAK_AFTER	= ( 1 << 4 ),
+	BREAK_BEFORE		= ( 1 << 5 ),
+    };
+
+    struct char_format
+    {
+	const Ustring *		str_prefix;
+	const Ustring *		str_postfix;
+	const Ustring *		str_postfix_name;
+	const Ustring *		str_char_name_prefix;
+	const Ustring *		str_char_name_postfix;
+	const Ustring *		str_concatenator;
+
+	const Ustring *		end_of_line;
+
+	const min::suppress_matrix * suppress_matrix;
+
+	const min::char_flags * char_flags;
+			    
+    };
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
