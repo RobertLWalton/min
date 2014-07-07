@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 13:55:21 EDT 2014
+// Date:	Mon Jul  7 02:43:22 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2703,6 +2703,21 @@ void test_printer ( void )
                    ( min::new_str_gen
 			 ( "this is a string with a"
 			   " quote (\")" ) )
+            << min::eol;
+
+    printer << min::pgen
+                   ( min::new_str_gen
+			 ( "this is a string with a"
+			   " quote (\")" ),
+		    min::BRACKET_STR_FLAG +
+		    min::PICTURE_STR_FLAG )
+            << min::eol;
+
+    printer << min::pgen
+                   ( min::new_str_gen
+			 ( "this is a string with a"
+			   " quote (\")" ),
+		    0 )  // No BRACKET_STR_FLAG
             << min::eol;
 
     min::gen lab1[2] =

@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 01:41:04 EDT 2014
+// Date:	Mon Jul  7 03:01:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,7 +57,8 @@ const UNI::Uchar
     UNI::unicode_Ustrings[UNI::unicode_Ustrings_size] =
         { UNICODE_USTRINGS };
 const char * const
-    UNI::unicode_category_name[UNI::unicode_category_limit] =
+    UNI::unicode_category_name
+        [UNI::unicode_category_limit] =
         { UNICODE_CATEGORY_NAME };;
 const char * const
     UNI::unicode_category_description
