@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 15:41:13 EDT 2014
+// Date:	Mon Jul  7 16:12:03 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -185,14 +185,11 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-static void init_default_char_names ( void );
-static void init_default_char_flags ( void );
 static void init_default_suppress_matrix ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
-    init_default_char_names();
     init_default_suppress_matrix();
 
     PTR_CHECK ( min::packed_struct_ptr<int> );
@@ -8954,106 +8951,11 @@ void min::pwidth ( min::uns32 & column,
 // Printing General values
 // -------- ------- ------
 
-static const char * default_char_names[256];
-
-const min::char_names
-    & min::default_char_names =
-        ::default_char_names;
-
-static min::uns32 default_char_flags[256];
-
-const min::char_flags
-    & min::default_char_flags =
-        ::default_char_flags;
-
 static bool default_suppress_matrix[256][256];
 
 const min::suppress_matrix
     & min::default_suppress_matrix =
         ::default_suppress_matrix;
-
-static void init_default_char_names ( void )
-{
-    ::default_char_names[0x00] = "NUL";
-    ::default_char_names[0x01] = "SOH";
-    ::default_char_names[0x02] = "STX";
-    ::default_char_names[0x03] = "ETX";
-    ::default_char_names[0x04] = "EOT";
-    ::default_char_names[0x05] = "ENQ";
-    ::default_char_names[0x06] = "ACK";
-    ::default_char_names[0x07] = "BEL";
-
-    ::default_char_names[0x08] = "BS";
-    ::default_char_names[0x09] = "HT";
-    ::default_char_names[0x0A] = "LF";
-    ::default_char_names[0x0B] = "VT";
-    ::default_char_names[0x0C] = "FF";
-    ::default_char_names[0x0D] = "CR";
-    ::default_char_names[0x0E] = "SO";
-    ::default_char_names[0x0F] = "SI";
-
-    ::default_char_names[0x10] = "DLE";
-    ::default_char_names[0x11] = "DC1";
-    ::default_char_names[0x12] = "DC2";
-    ::default_char_names[0x13] = "DC3";
-    ::default_char_names[0x14] = "DC4";
-    ::default_char_names[0x15] = "NAK";
-    ::default_char_names[0x16] = "SYN";
-    ::default_char_names[0x17] = "ETB";
-
-    ::default_char_names[0x18] = "CAN";
-    ::default_char_names[0x19] = "EM";
-    ::default_char_names[0x1A] = "SUB";
-    ::default_char_names[0x1B] = "ESC";
-    ::default_char_names[0x1C] = "FS";
-    ::default_char_names[0x1D] = "GS";
-    ::default_char_names[0x1E] = "FS";
-    ::default_char_names[0x1F] = "US";
-
-    ::default_char_names[0x20] = "SP";
-
-    ::default_char_names[0x22] = "Q";	// Quote "
-
-    ::default_char_names[0x7F] = "DEL";
-
-    ::default_char_names[0x82] = "BPH";
-    ::default_char_names[0x83] = "NBH";
-    ::default_char_names[0x84] = "IND";
-    ::default_char_names[0x85] = "NEL";
-    ::default_char_names[0x86] = "SSA";
-    ::default_char_names[0x87] = "ESA";
-
-    ::default_char_names[0x88] = "HTS";
-    ::default_char_names[0x89] = "HTJ";
-    ::default_char_names[0x8A] = "VTS";
-    ::default_char_names[0x8B] = "PLD";
-    ::default_char_names[0x8C] = "PLU";
-    ::default_char_names[0x8D] = "RI";
-    ::default_char_names[0x8E] = "SS2";
-    ::default_char_names[0x8F] = "SS3";
-
-    ::default_char_names[0x90] = "DCS";
-    ::default_char_names[0x91] = "PU1";
-    ::default_char_names[0x92] = "PU2";
-    ::default_char_names[0x93] = "STS";
-    ::default_char_names[0x94] = "CCH";
-    ::default_char_names[0x95] = "MW";
-    ::default_char_names[0x96] = "SPA";
-    ::default_char_names[0x97] = "EPA";
-
-    ::default_char_names[0x98] = "SOS";
-    ::default_char_names[0x99] = NULL;
-    ::default_char_names[0x9A] = "SCI";
-    ::default_char_names[0x9B] = "CSI";
-    ::default_char_names[0x9C] = "ST";
-    ::default_char_names[0x9D] = "OSC";
-    ::default_char_names[0x9E] = "PM";
-    ::default_char_names[0x9F] = "APC";
-
-    ::default_char_names[0xA0] = "NBSP";
-
-    ::default_char_names[0xAD] = "SHY";
-}
 
 static void init_default_suppress_matrix ( void )
 {
