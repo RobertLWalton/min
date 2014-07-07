@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 11:10:48 EDT 2014
+// Date:	Sun Jul  6 20:52:18 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,13 +52,56 @@ unsigned short index[index_size];
 unsigned char category[index_limit_max];
 const Ustring * Uname[index_limit_max];
 const char * name[index_limit_max];
+const Ustring * Upicture[index_limit_max];
+const char * picture[index_limit_max];
 double numerator[index_limit_max];
 double denominator[index_limit_max];
 double numeric_value[index_limit_max];
 unsigned reference_count[index_limit_max];
 
-unsigned Ustrings_size = 0;
-Uchar Ustrings[Ustrings_size_limit];
+unsigned Ustrings_size = 2 * 34;
+Uchar Ustrings[Ustrings_size_limit] = {
+    // The following are the unicode_Upicture Ustrings
+    // for the first 33 ASCII characters followed by
+    // the DEL character ( a total of 34 Ustrings).
+    // Each Ustring is that of a 1-column wide UNICODE
+    // `control picture'.
+    //
+    0x10001, 0x2400, // NUL
+    0x10001, 0x2401, // SOH
+    0x10001, 0x2402, // STX
+    0x10001, 0x2403, // ETX
+    0x10001, 0x2404, // EOT
+    0x10001, 0x2405, // ENQ
+    0x10001, 0x2406, // ACK
+    0x10001, 0x2407, // BEL
+    0x10001, 0x2408, // BS
+    0x10001, 0x2409, // HT
+    0x10001, 0x240A, // LF
+    0x10001, 0x240B, // VT
+    0x10001, 0x240C, // FF
+    0x10001, 0x240D, // CR
+    0x10001, 0x240E, // SS
+    0x10001, 0x240F, // SI
+    0x10001, 0x2410, // DLE
+    0x10001, 0x2411, // DC1
+    0x10001, 0x2412, // DC2
+    0x10001, 0x2413, // DC3
+    0x10001, 0x2414, // DC4
+    0x10001, 0x2415, // NAK
+    0x10001, 0x2416, // SYN
+    0x10001, 0x2417, // ETB
+    0x10001, 0x2418, // CAN
+    0x10001, 0x2419, // EM
+    0x10001, 0x241A, // SUB
+    0x10001, 0x241B, // ESC
+    0x10001, 0x241C, // FS
+    0x10001, 0x241D, // GS
+    0x10001, 0x241E, // RS
+    0x10001, 0x241F, // US
+    0x10001, 0x2423, // SP
+    0x10001, 0x2421, // DEL
+    0x0 };
 const unsigned category_limit = 256;
 const char * category_name[category_limit];
 const char * category_description[category_limit];
@@ -78,6 +121,8 @@ const char * category_description[category_limit];
 # define unicode_category category
 # define unicode_name name
 # define unicode_Uname Uname
+# define unicode_picture picture
+# define unicode_Upicture Upicture
 # define unicode_numerator numerator
 # define unicode_denominator denominator
 # define unicode_numeric_value numeric_value
@@ -197,6 +242,31 @@ void initialize ( void )
 	    d.category_description;
     }
 }
+
+// Finalize tables.  Upicture[index[c]] and
+// picture[index[c]] are set for 0 <= c <= 0x20 and
+// c == 0x7F.  See load time value of Ustrings above.
+//
+void finalize ( void )
+{
+    unsigned i = 0; 
+    for ( Uchar c = 0; c <= 0x7F; ++ c )
+    {
+        Upicture[index[c]] = & Ustrings[i];
+
+	char buffer[8];
+	char * s = buffer;
+	unicode_to_utf8 ( s, Ustrings[i+1] );
+	* s = 0;
+	picture[index[c]] = strdup ( buffer );
+
+	i += 2;
+	if ( c == 0x20 ) c = 0x7E;
+    }
+}
+
+
+
 
 // Store UNICODE name for a character.  Complain if
 // character has previously been given a name.  Complain
@@ -854,9 +924,8 @@ int main ( int argc, const char ** argv )
     read_numeric_values();
     read_general_category();
     read_combining_class();
+    finalize();
     final_check();
-    if ( argc > 1 )
-        dump ( argv[1] );
-    else
-	output ( "unicode_data.cc" );
+    if ( argc > 1 ) output ( argv[1] );
+    if ( argc > 2 ) dump ( argv[2] );
 }

@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jul  6 11:08:28 EDT 2014
+# Date:		Sun Jul  6 22:08:09 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -24,7 +24,6 @@ NAMES = NameAliases.txt
 
 
 all:	make_unicode_data.diff \
-	unicode_data.dump \
 	utf8look
 
 curl:
@@ -40,15 +39,22 @@ ${NAMES}:
 	curl ${FROM}/$@ >$@
 
 make_unicode_data:	make_unicode_data.cc \
-			output_unicode_data.cc
+			output_unicode_data.cc \
+			unicode_data.h \
+			Makefile
 	rm -f make_unicode_data
 	g++ -g ${WFLAGS} -o make_unicode_data \
 	    make_unicode_data.cc
 
-make_unicode_data.out:	make_unicode_data \
+make_unicode_data.out \
+unicode_data.cc \
+unicode_data.dump:	make_unicode_data \
 	${DERIVED} ${NAMES}
-	rm -f unicode_data.cc make_unicode_data.out
-	make_unicode_data > make_unicode_data.out
+	rm -f unicode_data.cc unicode_data.dump \
+	      make_unicode_data.out
+	make_unicode_data unicode_data.cc \
+	                  unicode_data.dump \
+			  > make_unicode_data.out
 	cat make_unicode_data.out
 
 make_unicode_data.test:	make_unicode_data.out
@@ -61,10 +67,6 @@ make_unicode_data.diff:	make_unicode_data.out
 	             make_unicode_data.out
 	@diff make_unicode_data.test \
 	      make_unicode_data.out
-
-unicode_data.dump:	make_unicode_data
-	rm -f unicode_data.dump
-	make_unicode_data unicode_data.dump
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode
