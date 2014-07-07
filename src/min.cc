@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 13:58:07 EDT 2014
+// Date:	Mon Jul  7 02:59:52 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9111,15 +9111,13 @@ static void init_default_suppress_matrix ( void )
 }
 
 const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
-	min::GRAPHIC_STR_FLAG
-      + min::BRACKET_STR_FLAG
+        min::BRACKET_STR_FLAG
       + min::BRACKET_LAB_FLAG
       + min::BRACKET_IMPLICIT_FLAG
       + min::OBJ_EXP_FLAG;
 
 const min::uns32 DEFAULT_NAME_GEN_FLAGS =
-	min::GRAPHIC_STR_FLAG
-      + min::SUPPRESS_LAB_SPACE_FLAG
+        min::SUPPRESS_LAB_SPACE_FLAG
       + min::BRACKET_IMPLICIT_FLAG
       + min::OBJ_EXP_FLAG
       + min::OBJ_ID_FLAG;
@@ -9201,21 +9199,35 @@ const min::op min::flush_id_map
 // space.
 //
 template < typename T >
+static min::uns32 bracketed_str_width ( T out );
+//
+template <>
+min::uns32 bracketed_str_width<min::printer>
+	( min::printer out )
+{
+    return out->line_break.line_length
+         - out->line_break.indent;
+}
+//
+template <>
+min::uns32 bracketed_str_width<std::ostream &>
+	( std::ostream & out )
+{
+    return 0xFFFFFFFF;
+}
+template < typename T >
 static T pgen_bracketed_str
 	( T out,
 	  min::uns32 gen_flags,
 	  const min::Uchar * string,
 	  min::uns32 length,
-	  const min::gen_format * f,
-	  min::uns32 width )
+	  const min::gen_format * f )
 {
-
-    min::uns32 reduced_width = width
-               - min::Ustring_columns
-	             ( f->str_prefix )
-               - min::Ustring_columns
-	             ( f->str_postfix );
-    assert ( reduced_width >= 10 );
+    min::uns32 reduced_width =
+    	  ::bracketed_str_width<T> ( out )
+	- min::Ustring_columns ( f->str_prefix )
+        - min::Ustring_columns ( f->str_postfix );
+    if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 char_name_fix_width =
                  min::Ustring_columns
@@ -9309,10 +9321,36 @@ static T pgen_bracketed_str
 	    }
 	}
 
-	const min::Ustring * name =
-	    min::unicode_Uname ( c );
 	min::uns8 category =
 	    min::unicode_category ( c );
+
+	if ( gen_flags & min::PICTURE_STR_FLAG )
+	{
+	    const min::Ustring * picture =
+		min::unicode_Upicture ( c );
+	    if ( picture != NULL )
+	    {
+		min::uns32 columns =
+		    min::Ustring_columns ( picture );
+		if ( columns <= remaining_width )
+		{
+		    out << min::punicode ( i, string )
+			<< min::pUstring ( picture );
+
+		    ++ i;
+		    length -= i;
+		    string += i;
+		    i = 0;
+		    remaining_width -= columns;
+		}
+		else remaining_width = 0;
+
+		continue;
+	    }
+	}
+	
+	const min::Ustring * name =
+	    min::unicode_Uname ( c );
 
 	if ( name != NULL )
 	{
@@ -10061,9 +10099,6 @@ static T pgen
     }
     else if ( min::is_str ( v ) )
     {
-        min::uns32 graphic_flags =
-	    ( gen_flags & min::GRAPHIC_STR_FLAG ?
-	      min::GRAPHIC_FLAGS : 0 );
         min::str_ptr sp ( v );
 	if ( ( gen_flags & min::BRACKET_STR_FLAG )
 	     &&
@@ -10084,15 +10119,10 @@ static T pgen
 	        min::utf8_to_unicode
 		    ( u, endu, s, ends );
 	    return ::pgen_bracketed_str<T>
-	        ( out, gen_flags, buffer, blength,
-		  f, 20 );
+	        ( out, gen_flags, buffer, blength, f );
 	}
 	else
-	    return out << min::save_print_format
-		       << min::set_print_flags
-		              ( graphic_flags )
-		       << min::begin_ptr_of ( sp )
-		       << min::restore_print_format;
+	    return out << min::begin_ptr_of ( sp );
     }
     else if ( min::is_lab ( v ) )
     {

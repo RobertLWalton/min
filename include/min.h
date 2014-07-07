@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 13:49:35 EDT 2014
+// Date:	Mon Jul  7 02:24:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4034,6 +4034,16 @@ namespace min {
 	return
 	    c < unicode::unicode_index_limit ?
 	        unicode::unicode_Uname
+		    [unicode::unicode_index[c]] :
+		NULL;
+    }
+
+    inline const min::Ustring * unicode_Upicture
+    	    ( Uchar c )
+    {
+	return
+	    c < unicode::unicode_index_limit ?
+	        unicode::unicode_Upicture
 		    [unicode::unicode_index[c]] :
 		NULL;
     }
@@ -11305,7 +11315,7 @@ namespace min {
     };
 
     enum {
-        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+        PICTURE_STR_FLAG		= ( 1 << 0 ),
         BRACKET_STR_FLAG		= ( 1 << 1 ),
         BRACKET_LAB_FLAG		= ( 1 << 2 ),
         BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
