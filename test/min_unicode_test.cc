@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  1 06:31:23 EDT 2014
+// Date:	Mon Jul  7 01:45:16 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -33,6 +33,8 @@ using std::dec;
 using std::ostream;
 using std::ofstream;
 using UNI::Uchar;
+using UNI::utf8_to_unicode;
+using UNI::unicode_to_utf8;
 using UNI::Ustring;
 using UNI::Ustring_length;
 using UNI::Ustring_columns;
@@ -44,6 +46,8 @@ using UNI::unicode_index_limit;
 using UNI::unicode_category;
 using UNI::unicode_Uname;
 using UNI::unicode_name;
+using UNI::unicode_Upicture;
+using UNI::unicode_picture;
 using UNI::unicode_numerator;
 using UNI::unicode_denominator;
 using UNI::unicode_numeric_value;
