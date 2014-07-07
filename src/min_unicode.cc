@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 13:48:40 EDT 2014
+// Date:	Mon Jul  7 01:41:04 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,12 @@ const UNI::Ustring * const
 const char * const
     UNI::unicode_name[UNI::unicode_index_limit] =
         { UNICODE_NAME };
+const UNI::Ustring * const
+    UNI::unicode_Upicture[UNI::unicode_index_limit] =
+        { UNICODE_UPICTURE };
+const char * const
+    UNI::unicode_picture[UNI::unicode_index_limit] =
+        { UNICODE_PICTURE };
 const double
     UNI::unicode_numerator[UNI::unicode_index_limit] =
         { UNICODE_NUMERATOR };
