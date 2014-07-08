@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 16:12:03 EDT 2014
+// Date:	Tue Jul  8 13:28:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7405,6 +7405,46 @@ bool MINT::flip_flag
 // --------
 
 min::locatable_var<min::printer> min::error_message;
+
+static min::char_flags ascii_char_flags;
+const min::char_flags & min::ascii_char_flags =
+    ::ascii_char_flags;
+
+static min::char_flags latin1_char_flags;
+const min::char_flags & min::latin1_char_flags =
+    ::latin1_char_flags;
+
+static void initialize_printer_formats ( void )
+{
+    for ( unsigned cat = 0; cat < 256; ++ cat )
+    { 
+        bool has_name =
+	    (  min::unicode_Uname ( cat ) != NULL );
+        bool has_picture =
+	    (  min::unicode_Upicture ( cat ) != NULL );
+	min::uns8 print_ascii =
+	    cat == ' ' ?	min::PRINT_CHAR :
+	    has_name ?		min::PRINT_NAME :
+	    cat < 'A' ?		min::PRINT_CHAR :
+	    cat <= 'Z' ?	min::PRINT_ASCII :
+	    cat < 'a' ?		min::PRINT_CHAR :
+	    cat <= 'z' ?	min::PRINT_ASCII :
+	    cat < 128 ?		min::PRINT_CHAR :
+				min::PRINT_ASCII;
+	min::uns8 print_latin1 =
+	    cat == ' ' ?	min::PRINT_CHAR :
+	    has_name ?		min::PRINT_NAME :
+	    cat < 'A' ?		min::PRINT_CHAR :
+	    cat <= 'Z' ?	min::PRINT_LATIN1 :
+	    cat < 'a' ?		min::PRINT_CHAR :
+	    cat <= 'z' ?	min::PRINT_LATIN1 :
+	    cat < 256 ?		min::PRINT_CHAR :
+	        		min::PRINT_ASCII;
+
+        ::ascii_char_flags[cat] = print_ascii;
+        ::latin1_char_flags[cat] = print_latin1;
+    }
+}
 
 const min::line_break min::default_line_break =
 {
