@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 16:11:33 EDT 2014
+// Date:	Tue Jul  8 07:15:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10767,11 +10767,16 @@ namespace min {
 	PRINT_NAME		= ( 1 << 0 ),
         PRINT_PICTURE		= ( 2 << 0 ),
 	PRINT_ASCII		= ( 3 << 0 ),
-	PRINT_SUPPRESS		= ( 4 << 0 ),
+	PRINT_LATIN1		= ( 4 << 0 ),
+	PRINT_SUPPRESS		= ( 5 << 0 ),
+	PRINT_MASK		= ( 7 << 0 ),
 
-	BREAK_AFTER		= ( 1 << 3 ),
-	DUP_ON_BREAK_AFTER	= ( 1 << 4 ),
-	BREAK_BEFORE		= ( 1 << 5 ),
+	BREAK_BEFORE		= ( 1 << 3 ),
+	BREAK_AFTER		= ( 2 << 3 ),
+	BREAK_AFTER_AND_DUP	= ( 3 << 3 ),
+	BREAK_MASK		= ( 3 << 3 ),
+
+	BRACKET_ENABLE		= ( 1 << 5 )
     };
 
     struct char_format
@@ -10785,11 +10790,74 @@ namespace min {
 
 	const Ustring *		end_of_line;
 
-	const min::suppress_matrix * suppress_matrix;
+	const min::suppress_matrix *
+				suppress_matrix;
 
 	const min::char_flags * char_flags;
 			    
     };
+
+    struct str_format
+    {
+        const min::char_format *    char_format[4];
+    };
+
+    struct num_format
+    {
+        const char * 		    printf_format;
+    };
+
+    struct lab_format
+    {
+        const min::char_format *    char_format;
+
+	const Ustring *		    lab_prefix;
+	const Ustring *		    lab_postfix;
+	const Ustring *		    lab_separator;
+
+	const min::suppress_matrix *
+				    suppress_matrix;
+    };
+
+    struct specials_format
+    {
+        const min::char_format *    char_format;
+
+	const Ustring *		    special_prefix;
+	const Ustring *		    special_postfix;
+	packed_vec_ptr<const char *>
+				    special_names;
+    };
+
+
+    struct obj_format
+    {
+	const min::char_format *    punctuation_format;
+        const min::lab_format *	    name_format;
+	const min::obj_format *	    element_format;
+	const min::obj_format *	    value_format;
+
+	const Ustring *    	    implicit_prefix;
+	const Ustring *    	    implicit_postfix;
+
+	packed_vec_ptr<min::gen>    exp_ok_attrs;
+
+	packed_vec_ptr<const char *>
+	                   	    flag_names;
+    };
+
+    struct new_gen_format
+    {
+        const min::num_format *	    num_format;
+        const min::str_format *	    str_format;
+        const min::lab_format *	    lab_format;
+        const min::specials_format *
+				    specials_format;
+        const min::obj_format *	    obj_format;
+
+        const min::gen_format *	    id_format;
+    };
+
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
