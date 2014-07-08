@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  8 07:15:59 EDT 2014
+// Date:	Tue Jul  8 11:35:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10778,6 +10778,9 @@ namespace min {
 
 	BRACKET_ENABLE		= ( 1 << 5 )
     };
+
+    extern const min::char_flags & ascii_char_flags;
+    extern const min::char_flags & latin1_char_flags;
 
     struct char_format
     {
