@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  8 20:54:14 EDT 2014
+// Date:	Wed Jul  9 14:26:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10788,41 +10788,69 @@ namespace min {
     extern const min::char_flags *
         latin1_picture_char_flags;
 
-    struct char_format
+    struct str_format;
+    struct bracket_format;
+    struct num_format;
+    struct lab_format;
+    struct specials_format;
+    struct obj_format;
+    struct gen_format;
+
+    struct new_print_format
     {
-	const Ustring *		str_prefix;
-	const Ustring *		str_postfix;
-	const Ustring *		str_postfix_name;
-	const Ustring *		str_char_name_prefix;
-	const Ustring *		str_char_name_postfix;
-	const Ustring *		str_concatenator;
-
-	const Ustring *		end_of_line;
-
-	const min::suppress_matrix *
-				suppress_matrix;
-
-	const min::char_flags * char_flags;
+	const min::char_flags * 	char_flags;
 			    
+	const min::Ustring *		end_of_line;
+
+	const min::bracket_format *	bracket_format;
+
+	const min::gen_format *		gen_format;
+
     };
 
     struct str_format
     {
-        const min::char_format *    char_format[4];
+
+        const min::char_flags *		char_flags;
+	const min::bracket_format *	bracket_format;
     };
+
+    extern const min::str_format *
+        ascii_quoted_str_format;
+
+    struct bracket_format
+    {
+	const min::Ustring *	str_prefix;
+	const min::Ustring *	str_postfix;
+	const min::Ustring *	str_postfix_name;
+	const min::Ustring *	str_char_name_prefix;
+	const min::Ustring *	str_char_name_postfix;
+	const min::Ustring *	str_concatenator;
+    };
+
+    extern const min::bracket_format *
+        quoted_format;
 
     struct num_format
     {
-        const char * 		    printf_format;
+        const char * 		int_printf_format;
+        const char * 		float_printf_format;
+	const min::uns32 *	fraction_divisors;
     };
+
+    extern const min::num_format *
+        short_num_format;
+
+    extern const min::num_format *
+        long_num_format;
 
     struct lab_format
     {
-        const min::char_format *    char_format;
+        const min::str_format *	    str_format;
 
-	const Ustring *		    lab_prefix;
-	const Ustring *		    lab_postfix;
-	const Ustring *		    lab_separator;
+	const min::Ustring *	    lab_prefix;
+	const min::Ustring *	    lab_postfix;
+	const min::Ustring *	    lab_separator;
 
 	const min::suppress_matrix *
 				    suppress_matrix;
@@ -10830,10 +10858,10 @@ namespace min {
 
     struct specials_format
     {
-        const min::char_format *    char_format;
+        const min::str_format *     str_format;
 
-	const Ustring *		    special_prefix;
-	const Ustring *		    special_postfix;
+	const min::Ustring *	    special_prefix;
+	const min::Ustring *	    special_postfix;
 	packed_vec_ptr<const char *>
 				    special_names;
     };
@@ -10841,13 +10869,13 @@ namespace min {
 
     struct obj_format
     {
-	const min::char_format *    punctuation_format;
+	const min::str_format *     punctuation_format;
         const min::lab_format *	    name_format;
-	const min::obj_format *	    element_format;
-	const min::obj_format *	    value_format;
+	const min::gen_format *     element_format;
+	const min::gen_format *     value_format;
 
-	const Ustring *    	    implicit_prefix;
-	const Ustring *    	    implicit_postfix;
+	const min::Ustring *   	    implicit_prefix;
+	const min::Ustring *   	    implicit_postfix;
 
 	packed_vec_ptr<min::gen>    exp_ok_attrs;
 
@@ -10864,7 +10892,7 @@ namespace min {
 				    specials_format;
         const min::obj_format *	    obj_format;
 
-        const min::gen_format *	    id_format;
+        const min::gen_format *	    id_map_format;
     };
 
 

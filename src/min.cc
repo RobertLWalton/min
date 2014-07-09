@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  8 20:54:27 EDT 2014
+// Date:	Wed Jul  9 04:29:17 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -187,12 +187,14 @@ static void obj_scavenger_routine
 
 static void init_default_suppress_matrix ( void );
 static void init_printer_formats ( void );
+static void init_pgen_formats ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
     init_default_suppress_matrix();
     init_printer_formats();
+    init_pgen_formats();
 
     PTR_CHECK ( min::packed_struct_ptr<int> );
     PTR_CHECK ( min::packed_struct_updptr<int> );
@@ -7428,17 +7430,6 @@ static min::char_flags latin1_picture_char_flags;
 const min::char_flags * min::latin1_picture_char_flags =
     & ::latin1_picture_char_flags;
 
-static const min::Ustring QUOTE_USTRING[] =
-    { 0x10001, '"' };
-static const min::Ustring LT_Q_GT_USTRING[] =
-    { 0x30003, '<','Q','>' };
-static const min::Ustring LT_USTRING[] =
-    { 0x10001, '<' };
-static const min::Ustring GT_USTRING[] =
-    { 0x10001, '>' };
-static const min::Ustring POUND_USTRING[] =
-    { 0x10001, '#' };
-
 static void init_printer_formats ( void )
 {
     for ( unsigned cat = 0; cat < 256; ++ cat )
@@ -9036,6 +9027,33 @@ void min::pwidth ( min::uns32 & column,
 
 // Printing General values
 // -------- ------- ------
+
+static const min::Ustring QUOTE_USTRING[] =
+    { 0x10001, '"' };
+static const min::Ustring LT_Q_GT_USTRING[] =
+    { 0x30003, '<','Q','>' };
+static const min::Ustring LT_USTRING[] =
+    { 0x10001, '<' };
+static const min::Ustring GT_USTRING[] =
+    { 0x10001, '>' };
+static const min::Ustring POUND_USTRING[] =
+    { 0x10001, '#' };
+static const min::Ustring SBRA_COLON[] =
+    { 0x20002, '[', ':' };
+static const min::Ustring COLON_SKET[] =
+    { 0x20002, ':', ']' };
+static const min::Ustring SBRA_DOLLAR[] =
+    { 0x20002, '[', '$' };
+static const min::Ustring DOLLAR_SKET[] =
+    { 0x20002, '$', ']' };
+static const min::Ustring SBRA_POINT[] =
+    { 0x20002, '[', '.' };
+static const min::Ustring POINT_SKET[] =
+    { 0x20002, '.', ']' };
+
+static void init_pgen_formats ( void )
+{
+}
 
 static bool default_suppress_matrix[256][256];
 
