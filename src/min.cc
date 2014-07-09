@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  8 13:28:01 EDT 2014
+// Date:	Tue Jul  8 20:54:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -186,11 +186,13 @@ static void obj_scavenger_routine
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
 static void init_default_suppress_matrix ( void );
+static void init_printer_formats ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
     init_default_suppress_matrix();
+    init_printer_formats();
 
     PTR_CHECK ( min::packed_struct_ptr<int> );
     PTR_CHECK ( min::packed_struct_updptr<int> );
@@ -7407,21 +7409,46 @@ bool MINT::flip_flag
 min::locatable_var<min::printer> min::error_message;
 
 static min::char_flags ascii_char_flags;
-const min::char_flags & min::ascii_char_flags =
-    ::ascii_char_flags;
+const min::char_flags * min::ascii_char_flags =
+    & ::ascii_char_flags;
+
+static min::char_flags ascii_bracket_char_flags;
+const min::char_flags * min::ascii_bracket_char_flags =
+    & ::ascii_bracket_char_flags;
+
+static min::char_flags ascii_name_char_flags;
+const min::char_flags * min::ascii_name_char_flags =
+    & ::ascii_name_char_flags;
 
 static min::char_flags latin1_char_flags;
-const min::char_flags & min::latin1_char_flags =
-    ::latin1_char_flags;
+const min::char_flags * min::latin1_char_flags =
+    & ::latin1_char_flags;
 
-static void initialize_printer_formats ( void )
+static min::char_flags latin1_picture_char_flags;
+const min::char_flags * min::latin1_picture_char_flags =
+    & ::latin1_picture_char_flags;
+
+static const min::Ustring QUOTE_USTRING[] =
+    { 0x10001, '"' };
+static const min::Ustring LT_Q_GT_USTRING[] =
+    { 0x30003, '<','Q','>' };
+static const min::Ustring LT_USTRING[] =
+    { 0x10001, '<' };
+static const min::Ustring GT_USTRING[] =
+    { 0x10001, '>' };
+static const min::Ustring POUND_USTRING[] =
+    { 0x10001, '#' };
+
+static void init_printer_formats ( void )
 {
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
         bool has_name =
 	    (  min::unicode_Uname ( cat ) != NULL );
         bool has_picture =
+
 	    (  min::unicode_Upicture ( cat ) != NULL );
+
 	min::uns8 print_ascii =
 	    cat == ' ' ?	min::PRINT_CHAR :
 	    has_name ?		min::PRINT_NAME :
@@ -7431,6 +7458,7 @@ static void initialize_printer_formats ( void )
 	    cat <= 'z' ?	min::PRINT_ASCII :
 	    cat < 128 ?		min::PRINT_CHAR :
 				min::PRINT_ASCII;
+
 	min::uns8 print_latin1 =
 	    cat == ' ' ?	min::PRINT_CHAR :
 	    has_name ?		min::PRINT_NAME :
@@ -7441,8 +7469,26 @@ static void initialize_printer_formats ( void )
 	    cat < 256 ?		min::PRINT_CHAR :
 	        		min::PRINT_ASCII;
 
+	min::uns8 print_latin1_picture =
+	    has_picture ?	(min::uns8)
+	                            min::PRINT_PICTURE :
+	    			print_latin1;
+
+	min::uns8 name_bracket_enable =
+	    cat == 'L' ?	0 :
+	    cat == 'U' ?	0 :
+	    cat == '"' ?	0 :
+	    			min::BRACKET_ENABLE;
+
         ::ascii_char_flags[cat] = print_ascii;
+        ::ascii_bracket_char_flags[cat] =
+	    print_ascii | min::BRACKET_ENABLE;
+        ::ascii_name_char_flags[cat] =
+	    print_ascii | name_bracket_enable;
+        ::ascii_name_char_flags[cat] =
         ::latin1_char_flags[cat] = print_latin1;
+        ::latin1_picture_char_flags[cat] =
+	    print_latin1_picture;
     }
 }
 
@@ -8994,8 +9040,8 @@ void min::pwidth ( min::uns32 & column,
 static bool default_suppress_matrix[256][256];
 
 const min::suppress_matrix
-    & min::default_suppress_matrix =
-        ::default_suppress_matrix;
+    * min::default_suppress_matrix =
+        & ::default_suppress_matrix;
 
 static void init_default_suppress_matrix ( void )
 {
@@ -9093,27 +9139,15 @@ const min::context_gen_flags
     ::NO_EXP_NAME_GEN_FLAGS
 };
 
-static const min::Ustring str_prefix[] =
-    { 0x10001, '"' };
-static const min::Ustring str_postfix[] =
-    { 0x10001, '"' };
-static const min::Ustring str_postfix_name[] =
-    { 0x30003, '<','Q','>' };
-static const min::Ustring str_char_name_prefix[] =
-    { 0x10001, '<' };
-static const min::Ustring str_char_name_postfix[] =
-    { 0x10001, '>' };
-static const min::Ustring str_concatenator[] =
-    { 0x10001, '#' };
 const min::gen_format min::default_gen_format =
 {
     min::default_pgen,
 
     "%.15g",
     
-    ::str_prefix, ::str_postfix, ::str_postfix_name,
-    ::str_char_name_prefix, ::str_char_name_postfix,
-    ::str_concatenator, 8,
+    ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
+    ::LT_USTRING, ::GT_USTRING,
+    ::POUND_USTRING, 8,
 
     "[: ", " ", " :]",
 
@@ -9122,7 +9156,7 @@ const min::gen_format min::default_gen_format =
 
     "[. ", " .]",
 
-    & min::default_suppress_matrix,
+    min::default_suppress_matrix,
     min::NULL_STUB, // Reset by initialization.
     min::NULL_STUB  // Reset by initialization.
 };
