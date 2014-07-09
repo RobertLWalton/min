@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 20:52:18 EDT 2014
+// Date:	Wed Jul  9 06:15:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -237,6 +237,8 @@ void initialize ( void )
     {
 	category_datum & d = category_data[i];
 	unsigned char cat = d.category;
+        assert ( category_description[cat] == NULL );
+
         category_name[cat] = d.category_name;
         category_description[cat] =
 	    d.category_description;
