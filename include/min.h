@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  8 11:35:35 EDT 2014
+// Date:	Tue Jul  8 20:54:14 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10681,10 +10681,8 @@ namespace min {
     typedef min::uns8 char_flags[256];
     typedef bool suppress_matrix[256][256];
 
-    extern const min::char_flags
-        & default_char_flags;
-    extern const min::suppress_matrix
-        & default_suppress_matrix;
+    extern const min::suppress_matrix *
+        default_suppress_matrix;
 
     struct line_break
     {
@@ -10779,8 +10777,16 @@ namespace min {
 	BRACKET_ENABLE		= ( 1 << 5 )
     };
 
-    extern const min::char_flags & ascii_char_flags;
-    extern const min::char_flags & latin1_char_flags;
+    extern const min::char_flags *
+        ascii_char_flags;
+    extern const min::char_flags *
+        ascii_bracket_char_flags;
+    extern const min::char_flags *
+        ascii_name_char_flags;
+    extern const min::char_flags *
+        latin1_char_flags;
+    extern const min::char_flags *
+        latin1_picture_char_flags;
 
     struct char_format
     {
