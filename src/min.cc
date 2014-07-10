@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 04:28:27 EDT 2014
+// Date:	Thu Jul 10 13:11:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9120,6 +9120,84 @@ static const min::Ustring SBRA_POINT[] =
     { 0x20002, '[', '.' };
 static const min::Ustring POINT_SKET[] =
     { 0x20002, '.', ']' };
+
+static min::bracket_format quote_bracket_format =
+{
+    ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
+    ::LT_USTRING, ::GT_USTRING, ::POUND_USTRING
+};
+const min::bracket_format * min::quote_bracket_format =
+    & ::quote_bracket_format;
+
+static min::str_format ascii_quote_str_format =
+{
+    & ::ascii_char_flags,
+    & ::quote_bracket_format
+};
+const min::str_format * min::ascii_quote_str_format =
+    & ::ascii_quote_str_format;
+
+static min::str_format ascii_name_quote_str_format =
+{
+    & ::ascii_name_char_flags,
+    & ::quote_bracket_format
+};
+const min::str_format *
+	min::ascii_name_quote_str_format =
+    & ::ascii_name_quote_str_format;
+
+static min::str_format latin1_quote_str_format =
+{
+    & ::latin1_char_flags,
+    & ::quote_bracket_format
+};
+const min::str_format * min::latin1_quote_str_format =
+    & ::latin1_quote_str_format;
+
+static min::str_format latin1_name_quote_str_format =
+{
+    & ::latin1_name_char_flags,
+    & ::quote_bracket_format
+};
+const min::str_format *
+	min::latin1_name_quote_str_format =
+    & ::latin1_name_quote_str_format;
+
+static min::str_format latin1_picture_quote_str_format =
+{
+    & ::latin1_picture_char_flags,
+    & ::quote_bracket_format
+};
+const min::str_format *
+	min::latin1_picture_quote_str_format =
+    & ::latin1_picture_quote_str_format;
+
+static min::uns32 first_100_divisors[] =
+{
+    64*81*25*49*11*13,
+    16*9*5*7*11*13*17*19,
+    4*3*23*29*31*37*41,
+    2*43*47*51*53*57,
+    59*61*67*71*73,
+    79*83*89*97,
+    0
+};
+const min::uns32 * min::first_100_divisors =
+    ::first_100_divisors;
+
+static min::num_format short_num_format =
+{
+    "%.0f", "%.6g", ::first_100_divisors
+};
+const min::num_format * min::short_num_format =
+    & ::short_num_format;
+
+static min::num_format long_num_format =
+{
+    "%.0f", "%.15g", ::first_100_divisors
+};
+const min::num_format * min::long_num_format =
+    & ::long_num_format;
 
 static void init_pgen_formats ( void )
 {

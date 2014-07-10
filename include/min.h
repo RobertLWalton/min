@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 04:28:07 EDT 2014
+// Date:	Thu Jul 10 11:17:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10828,7 +10828,15 @@ namespace min {
     };
 
     extern const min::str_format *
-        ascii_quoted_str_format;
+        ascii_quote_str_format;
+    extern const min::str_format *
+        ascii_name_quote_str_format;
+    extern const min::str_format *
+        latin1_quote_str_format;
+    extern const min::str_format *
+        latin1_name_quote_str_format;
+    extern const min::str_format *
+        latin1_picture_quote_str_format;
 
     struct bracket_format
     {
@@ -10841,7 +10849,7 @@ namespace min {
     };
 
     extern const min::bracket_format *
-        quoted_format;
+        quote_bracket_format;
 
     struct num_format
     {
@@ -10850,9 +10858,11 @@ namespace min {
 	const min::uns32 *	fraction_divisors;
     };
 
+    extern const min::uns32 *
+        first_100_divisors;
+
     extern const min::num_format *
         short_num_format;
-
     extern const min::num_format *
         long_num_format;
 
