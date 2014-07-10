@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  9 04:29:17 EDT 2014
+// Date:	Thu Jul 10 04:28:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7410,13 +7410,21 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
+static min::char_flags verbatim_char_flags;
+const min::char_flags * min::verbatim_char_flags =
+    & ::verbatim_char_flags;
+
 static min::char_flags ascii_char_flags;
 const min::char_flags * min::ascii_char_flags =
     & ::ascii_char_flags;
 
-static min::char_flags ascii_bracket_char_flags;
-const min::char_flags * min::ascii_bracket_char_flags =
-    & ::ascii_bracket_char_flags;
+static min::char_flags ascii_nobreak_char_flags;
+const min::char_flags * min::ascii_nobreak_char_flags =
+    & ::ascii_nobreak_char_flags;
+
+static min::char_flags ascii_eol_char_flags;
+const min::char_flags * min::ascii_eol_char_flags =
+    & ::ascii_eol_char_flags;
 
 static min::char_flags ascii_name_char_flags;
 const min::char_flags * min::ascii_name_char_flags =
@@ -7426,9 +7434,33 @@ static min::char_flags latin1_char_flags;
 const min::char_flags * min::latin1_char_flags =
     & ::latin1_char_flags;
 
+static min::char_flags latin1_nobreak_char_flags;
+const min::char_flags * min::latin1_nobreak_char_flags =
+    & ::latin1_nobreak_char_flags;
+
+static min::char_flags latin1_eol_char_flags;
+const min::char_flags * min::latin1_eol_char_flags =
+    & ::latin1_eol_char_flags;
+
+static min::char_flags latin1_name_char_flags;
+const min::char_flags * min::latin1_name_char_flags =
+    & ::latin1_name_char_flags;
+
 static min::char_flags latin1_picture_char_flags;
 const min::char_flags * min::latin1_picture_char_flags =
     & ::latin1_picture_char_flags;
+
+static min::char_flags
+    latin1_picture_nobreak_char_flags;
+const min::char_flags *
+	min::latin1_picture_nobreak_char_flags =
+    & ::latin1_picture_nobreak_char_flags;
+
+static min::char_flags
+    latin1_picture_eol_char_flags;
+const min::char_flags *
+	min::latin1_picture_eol_char_flags =
+    & ::latin1_picture_eol_char_flags;
 
 static void init_printer_formats ( void )
 {
@@ -7442,6 +7474,8 @@ static void init_printer_formats ( void )
 
 	min::uns8 print_ascii =
 	    cat == ' ' ?	min::PRINT_CHAR :
+	    cat == '\t' ?	min::PRINT_ASCII :
+	    cat == 'e' ?	min::PRINT_SUPPRESS :
 	    has_name ?		min::PRINT_NAME :
 	    cat < 'A' ?		min::PRINT_CHAR :
 	    cat <= 'Z' ?	min::PRINT_ASCII :
@@ -7450,8 +7484,15 @@ static void init_printer_formats ( void )
 	    cat < 128 ?		min::PRINT_CHAR :
 				min::PRINT_ASCII;
 
+	min::uns8 print_ascii_eol =
+	    cat == 'e' ?	(min::uns8)
+	                            min::PRINT_NAME :
+	    			print_ascii;
+
 	min::uns8 print_latin1 =
 	    cat == ' ' ?	min::PRINT_CHAR :
+	    cat == '\t' ?	min::PRINT_ASCII :
+	    cat == 'e' ?	min::PRINT_SUPPRESS :
 	    has_name ?		min::PRINT_NAME :
 	    cat < 'A' ?		min::PRINT_CHAR :
 	    cat <= 'Z' ?	min::PRINT_LATIN1 :
@@ -7460,26 +7501,55 @@ static void init_printer_formats ( void )
 	    cat < 256 ?		min::PRINT_CHAR :
 	        		min::PRINT_ASCII;
 
+	min::uns8 print_latin1_eol =
+	    cat == 'e' ?	(min::uns8)
+	                            min::PRINT_NAME :
+	    			print_latin1;
+
 	min::uns8 print_latin1_picture =
 	    has_picture ?	(min::uns8)
 	                            min::PRINT_PICTURE :
 	    			print_latin1;
 
+	min::uns8 print_latin1_picture_eol =
+	    cat == 'e' ?	(min::uns8)
+	                            min::PRINT_NAME :
+	    			print_latin1_picture;
+
+	min::uns8 space_break =
+	    cat == ' ' ?	min::BREAK_AFTER :
+	    cat == '\t' ?	min::BREAK_AFTER :
+	    			0;
+
 	min::uns8 name_bracket_enable =
 	    cat == 'L' ?	0 :
 	    cat == 'U' ?	0 :
-	    cat == '"' ?	0 :
 	    			min::BRACKET_ENABLE;
 
-        ::ascii_char_flags[cat] = print_ascii;
-        ::ascii_bracket_char_flags[cat] =
-	    print_ascii | min::BRACKET_ENABLE;
+        ::verbatim_char_flags[cat] =
+	    min::PRINT_CHAR;
+        ::ascii_char_flags[cat] =
+	    print_ascii | space_break ;
+        ::ascii_nobreak_char_flags[cat] =
+	    print_ascii;
+        ::ascii_eol_char_flags[cat] =
+	    print_ascii_eol;
         ::ascii_name_char_flags[cat] =
 	    print_ascii | name_bracket_enable;
-        ::ascii_name_char_flags[cat] =
-        ::latin1_char_flags[cat] = print_latin1;
+        ::latin1_char_flags[cat] =
+	    print_latin1 | space_break ;
+        ::latin1_nobreak_char_flags[cat] =
+	    print_latin1;
+        ::latin1_eol_char_flags[cat] =
+	    print_latin1_eol;
+        ::latin1_name_char_flags[cat] =
+	    print_latin1 | name_bracket_enable;
         ::latin1_picture_char_flags[cat] =
+	    print_latin1_picture | space_break ;
+        ::latin1_picture_nobreak_char_flags[cat] =
 	    print_latin1_picture;
+        ::latin1_picture_eol_char_flags[cat] =
+	    print_latin1_picture_eol;
     }
 }
 
