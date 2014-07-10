@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  9 06:15:56 EDT 2014
+// Date:	Thu Jul 10 05:44:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,13 +59,13 @@ double denominator[index_limit_max];
 double numeric_value[index_limit_max];
 unsigned reference_count[index_limit_max];
 
-unsigned Ustrings_size = 2 * 34;
+unsigned Ustrings_size = 2 * 35;
 Uchar Ustrings[Ustrings_size_limit] = {
     // The following are the unicode_Upicture Ustrings
     // for the first 33 ASCII characters followed by
-    // the DEL character ( a total of 34 Ustrings).
-    // Each Ustring is that of a 1-column wide UNICODE
-    // `control picture'.
+    // the DEL and NL characters ( a total of 35
+    // Ustrings).  Each Ustring is that of a 1-column
+    // wide UNICODE `control picture'.
     //
     0x10001, 0x2400, // NUL
     0x10001, 0x2401, // SOH
@@ -101,6 +101,7 @@ Uchar Ustrings[Ustrings_size_limit] = {
     0x10001, 0x241F, // US
     0x10001, 0x2423, // SP
     0x10001, 0x2421, // DEL
+    0x10001, 0x2424, // NL -- for SOFTWARE_NL
     0x0 };
 const unsigned category_limit = 256;
 const char * category_name[category_limit];
@@ -191,7 +192,8 @@ struct category_datum
     { "Co", 'v', "Private Use" },
 
     { "Cn", 'u', "Unassigned" },
-    { NULL, 'w', "Unspecified" }
+    { NULL, 'w', "Unspecified" },
+    { NULL, 'e', "Software New Line" }
 };
 unsigned category_data_size =
       sizeof ( category_data )
@@ -246,13 +248,14 @@ void initialize ( void )
 }
 
 // Finalize tables.  Upicture[index[c]] and
-// picture[index[c]] are set for 0 <= c <= 0x20 and
-// c == 0x7F.  See load time value of Ustrings above.
+// picture[index[c]] are set for 0 <= c <= 0x20,
+// c == 0x7F, and c == SOFTWARE_NL.  See load time
+// value of Ustrings above.
 //
 void finalize ( void )
 {
     unsigned i = 0; 
-    for ( Uchar c = 0; c <= 0x7F; ++ c )
+    for ( Uchar c = 0; c <= SOFTWARE_NL; )
     {
         Upicture[index[c]] = & Ustrings[i];
 
@@ -263,7 +266,9 @@ void finalize ( void )
 	picture[index[c]] = strdup ( buffer );
 
 	i += 2;
-	if ( c == 0x20 ) c = 0x7E;
+	if ( c == 0x20 ) c = 0x7F;
+	else if ( c == 0x7F) c = SOFTWARE_NL;
+	else ++ c;
     }
 }
 
@@ -923,8 +928,16 @@ int main ( int argc, const char ** argv )
 
     initialize();
     read_names();
+    store_name ( SOFTWARE_NL, "NL" );
     read_numeric_values();
     read_general_category();
+
+    assert ( category[index[SOFTWARE_NL]] == 'v' );
+    assert ( denominator[index[SOFTWARE_NL]] == 0 );
+    assert ( strcmp ( name[index[SOFTWARE_NL]], "NL" )
+             == 0 );
+    category[index[SOFTWARE_NL]] = SOFTWARE_NL_CATEGORY;
+
     read_combining_class();
     finalize();
     final_check();

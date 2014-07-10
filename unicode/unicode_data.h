@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 20:30:19 EDT 2014
+// Date:	Thu Jul 10 05:49:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -163,6 +163,15 @@ inline unsigned unicode_to_utf8
     }
     return s - initial_s;
 }
+
+const Uchar SOFTWARE_NL = 0xF0FF;
+const unsigned char SOFTWARE_NL_CATEGORY = 'e';
+    // This is the private use UNICODE character that
+    // is assigned to represent a `softare new-line',
+    // such as the end of a MIN file line.  It is
+    // given the name "NL" and corresponding control
+    // picture character (as opposed to line-feed
+    // which has the name "LF").
 
 extern const unsigned unicode_index_size;
 extern const unsigned short unicode_index[];

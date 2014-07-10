@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  9 14:26:33 EDT 2014
+// Date:	Thu Jul 10 04:28:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10778,15 +10778,29 @@ namespace min {
     };
 
     extern const min::char_flags *
+        verbatim_char_flags;
+    extern const min::char_flags *
         ascii_char_flags;
     extern const min::char_flags *
-        ascii_bracket_char_flags;
+        ascii_nobreak_char_flags;
+    extern const min::char_flags *
+        ascii_eol_char_flags;
     extern const min::char_flags *
         ascii_name_char_flags;
     extern const min::char_flags *
         latin1_char_flags;
     extern const min::char_flags *
+        latin1_nobreak_char_flags;
+    extern const min::char_flags *
+        latin1_eol_char_flags;
+    extern const min::char_flags *
+        latin1_name_char_flags;
+    extern const min::char_flags *
         latin1_picture_char_flags;
+    extern const min::char_flags *
+        latin1_picture_nobreak_char_flags;
+    extern const min::char_flags *
+        latin1_picture_eol_char_flags;
 
     struct str_format;
     struct bracket_format;
@@ -10800,8 +10814,6 @@ namespace min {
     {
 	const min::char_flags * 	char_flags;
 			    
-	const min::Ustring *		end_of_line;
-
 	const min::bracket_format *	bracket_format;
 
 	const min::gen_format *		gen_format;
