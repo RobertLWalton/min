@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 11 07:27:23 EDT 2014
+// Date:	Fri Jul 11 11:00:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10787,15 +10787,11 @@ namespace min {
     extern const min::char_flags *
         ascii_eol_char_flags;
     extern const min::char_flags *
-        ascii_name_char_flags;
-    extern const min::char_flags *
         latin1_char_flags;
     extern const min::char_flags *
         latin1_nobreak_char_flags;
     extern const min::char_flags *
         latin1_eol_char_flags;
-    extern const min::char_flags *
-        latin1_name_char_flags;
     extern const min::char_flags *
         latin1_picture_char_flags;
     extern const min::char_flags *
@@ -10898,10 +10894,15 @@ namespace min {
 
     struct obj_format
     {
-	const min::str_format *     punctuation_format;
+	const min::char_flags * punctuation_char_flags;
         const min::lab_format *	    name_format;
 	const min::gen_format *     element_format;
 	const min::gen_format *     value_format;
+
+	const min::Ustring *   	    obj_prefix;
+	const min::Ustring *   	    obj_separator;
+	const min::Ustring *   	    obj_midfix;
+	const min::Ustring *   	    obj_postfix;
 
 	const min::Ustring *   	    implicit_prefix;
 	const min::Ustring *   	    implicit_postfix;
@@ -10911,6 +10912,11 @@ namespace min {
 	packed_vec_ptr<const char *>
 	                   	    flag_names;
     };
+
+    extern const min::obj_format *
+        exp_obj_format;
+    extern const min::obj_format *
+        raw_obj_format;
 
     struct new_gen_format
     {
@@ -10924,6 +10930,14 @@ namespace min {
         const min::gen_format *	    id_map_format;
     };
 
+    extern const min::new_gen_format *
+        top_new_gen_format;
+    extern const min::new_gen_format *
+        id_map_new_gen_format;
+    extern const min::new_gen_format *
+        value_new_gen_format;
+    extern const min::new_gen_format *
+        element_new_gen_format;
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
