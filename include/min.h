@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 11:17:38 EDT 2014
+// Date:	Fri Jul 11 07:27:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10774,7 +10774,8 @@ namespace min {
 	BREAK_AFTER_AND_DUP	= ( 3 << 3 ),
 	BREAK_MASK		= ( 3 << 3 ),
 
-	BRACKET_ENABLE		= ( 1 << 5 )
+	CHAR_FLAG_1		= ( 1 << 5 ),
+	CHAR_FLAG_2		= ( 1 << 6 )
     };
 
     extern const min::char_flags *
@@ -10830,11 +10831,7 @@ namespace min {
     extern const min::str_format *
         ascii_quote_str_format;
     extern const min::str_format *
-        ascii_name_quote_str_format;
-    extern const min::str_format *
         latin1_quote_str_format;
-    extern const min::str_format *
-        latin1_name_quote_str_format;
     extern const min::str_format *
         latin1_picture_quote_str_format;
 
@@ -10878,6 +10875,12 @@ namespace min {
 				    suppress_matrix;
     };
 
+    extern const min::lab_format *
+        name_lab_format;
+    extern const min::lab_format *
+        bracket_lab_format;
+
+
     struct specials_format
     {
         const min::str_format *     str_format;
@@ -10888,6 +10891,10 @@ namespace min {
 				    special_names;
     };
 
+    extern const min::specials_format *
+        name_specials_format;
+    extern const min::specials_format *
+        bracket_specials_format;
 
     struct obj_format
     {
