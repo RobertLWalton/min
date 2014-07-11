@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 13:11:45 EDT 2014
+// Date:	Fri Jul 11 07:27:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7521,35 +7521,94 @@ static void init_printer_formats ( void )
 	    cat == '\t' ?	min::BREAK_AFTER :
 	    			0;
 
-	min::uns8 name_bracket_enable =
+	min::uns8 bracket_enable =
 	    cat == 'L' ?	0 :
 	    cat == 'U' ?	0 :
-	    			min::BRACKET_ENABLE;
+	    			min::CHAR_FLAG_1;
 
         ::verbatim_char_flags[cat] =
 	    min::PRINT_CHAR;
         ::ascii_char_flags[cat] =
 	    print_ascii | space_break ;
         ::ascii_nobreak_char_flags[cat] =
-	    print_ascii;
+	    print_ascii | bracket_enable ;
         ::ascii_eol_char_flags[cat] =
 	    print_ascii_eol;
-        ::ascii_name_char_flags[cat] =
-	    print_ascii | name_bracket_enable;
         ::latin1_char_flags[cat] =
 	    print_latin1 | space_break ;
         ::latin1_nobreak_char_flags[cat] =
-	    print_latin1;
+	    print_latin1 | bracket_enable ;
         ::latin1_eol_char_flags[cat] =
 	    print_latin1_eol;
-        ::latin1_name_char_flags[cat] =
-	    print_latin1 | name_bracket_enable;
         ::latin1_picture_char_flags[cat] =
 	    print_latin1_picture | space_break ;
         ::latin1_picture_nobreak_char_flags[cat] =
-	    print_latin1_picture;
+	    print_latin1_picture | bracket_enable ;
         ::latin1_picture_eol_char_flags[cat] =
 	    print_latin1_picture_eol;
+    }
+}
+
+static bool default_suppress_matrix[256][256];
+
+const min::suppress_matrix
+    * min::default_suppress_matrix =
+        & ::default_suppress_matrix;
+
+static void init_default_suppress_matrix ( void )
+{
+    for ( unsigned i = 0; i < 256; ++ i )
+    {
+        ::default_suppress_matrix['('][i] = true;
+        ::default_suppress_matrix['['][i] = true;
+        ::default_suppress_matrix['{'][i] = true;
+        ::default_suppress_matrix[0xAB][i] = true;
+		// << double angle quote
+        ::default_suppress_matrix['`'][i] = true;
+		// grave accent
+
+        ::default_suppress_matrix[i][')'] = true;
+        ::default_suppress_matrix[i][']'] = true;
+        ::default_suppress_matrix[i]['}'] = true;
+        ::default_suppress_matrix[i][0xB8] = true;
+		// >> double angle quote
+        ::default_suppress_matrix[i][0xB4] = true;
+		// acute accent
+        ::default_suppress_matrix[i][','] = true;
+        ::default_suppress_matrix[i][';'] = true;
+
+	min::uns8 b = min::unicode_category ( i );
+
+	if ( b == 'U' || b == 'L' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c =
+		    min::unicode_category ( j );
+		if ( c == 'U' || c == 'L' ) continue;
+		if ( c == '\'' ) continue;
+		::default_suppress_matrix[b][c] = true;
+		::default_suppress_matrix[c][b] = true;
+	    }
+	}
+	else
+	    ::default_suppress_matrix[i]['\''] = true;
+
+	if ( '0' <= b && b <= '9' )
+	{
+	    for ( unsigned j = 0; j < 256; ++ j )
+	    {
+		min::uns8 c =
+		    min::unicode_category ( j );
+		if ( '0' <= c && c <= '9' ) continue;
+		if ( c == ',' ) continue;
+		if ( c == '.' ) continue;
+		if ( c == ':' ) continue;
+		if ( c == '/' ) continue;
+		::default_suppress_matrix[b][c] = true;
+		::default_suppress_matrix[c][b] = true;
+	    }
+	}
     }
 }
 
@@ -9104,21 +9163,23 @@ static const min::Ustring LT_Q_GT_USTRING[] =
     { 0x30003, '<','Q','>' };
 static const min::Ustring LT_USTRING[] =
     { 0x10001, '<' };
+static const min::Ustring COMMA_SP_USTRING[] =
+    { 0x20002, ',', ' ' };
 static const min::Ustring GT_USTRING[] =
     { 0x10001, '>' };
 static const min::Ustring POUND_USTRING[] =
     { 0x10001, '#' };
-static const min::Ustring SBRA_COLON[] =
+static const min::Ustring SBRA_COLON_USTRING[] =
     { 0x20002, '[', ':' };
-static const min::Ustring COLON_SKET[] =
+static const min::Ustring COLON_SKET_USTRING[] =
     { 0x20002, ':', ']' };
-static const min::Ustring SBRA_DOLLAR[] =
+static const min::Ustring SBRA_DOLLAR_USTRING[] =
     { 0x20002, '[', '$' };
-static const min::Ustring DOLLAR_SKET[] =
+static const min::Ustring DOLLAR_SKET_USTRING[] =
     { 0x20002, '$', ']' };
-static const min::Ustring SBRA_POINT[] =
+static const min::Ustring SBRA_POINT_USTRING[] =
     { 0x20002, '[', '.' };
-static const min::Ustring POINT_SKET[] =
+static const min::Ustring POINT_SKET_USTRING[] =
     { 0x20002, '.', ']' };
 
 static min::bracket_format quote_bracket_format =
@@ -9131,41 +9192,23 @@ const min::bracket_format * min::quote_bracket_format =
 
 static min::str_format ascii_quote_str_format =
 {
-    & ::ascii_char_flags,
+    & ::ascii_nobreak_char_flags,
     & ::quote_bracket_format
 };
 const min::str_format * min::ascii_quote_str_format =
     & ::ascii_quote_str_format;
 
-static min::str_format ascii_name_quote_str_format =
-{
-    & ::ascii_name_char_flags,
-    & ::quote_bracket_format
-};
-const min::str_format *
-	min::ascii_name_quote_str_format =
-    & ::ascii_name_quote_str_format;
-
 static min::str_format latin1_quote_str_format =
 {
-    & ::latin1_char_flags,
+    & ::latin1_nobreak_char_flags,
     & ::quote_bracket_format
 };
 const min::str_format * min::latin1_quote_str_format =
     & ::latin1_quote_str_format;
 
-static min::str_format latin1_name_quote_str_format =
-{
-    & ::latin1_name_char_flags,
-    & ::quote_bracket_format
-};
-const min::str_format *
-	min::latin1_name_quote_str_format =
-    & ::latin1_name_quote_str_format;
-
 static min::str_format latin1_picture_quote_str_format =
 {
-    & ::latin1_picture_char_flags,
+    & ::latin1_picture_nobreak_char_flags,
     & ::quote_bracket_format
 };
 const min::str_format *
@@ -9199,71 +9242,45 @@ static min::num_format long_num_format =
 const min::num_format * min::long_num_format =
     & ::long_num_format;
 
+static min::lab_format name_lab_format =
+{
+    NULL, NULL, NULL, NULL,
+    & ::default_suppress_matrix
+
+};
+const min::lab_format * min::name_lab_format =
+    & ::name_lab_format;
+
+static min::lab_format bracket_lab_format =
+{
+    NULL,
+    ::LT_USTRING, ::COMMA_SP_USTRING, ::GT_USTRING,
+    NULL
+
+};
+const min::lab_format * min::bracket_lab_format =
+    & ::bracket_lab_format;
+
+static min::specials_format name_specials_format;
+const min::specials_format * min::name_specials_format =
+    & ::name_specials_format;
+
+static min::specials_format bracket_specials_format =
+{
+    NULL,
+    ::SBRA_DOLLAR_USTRING,
+    ::DOLLAR_SKET_USTRING,
+    min::NULL_STUB
+};
+const min::specials_format * min::bracket_specials_format =
+    & ::bracket_specials_format;
+
 static void init_pgen_formats ( void )
 {
-}
-
-static bool default_suppress_matrix[256][256];
-
-const min::suppress_matrix
-    * min::default_suppress_matrix =
-        & ::default_suppress_matrix;
-
-static void init_default_suppress_matrix ( void )
-{
-    for ( unsigned i = 0; i < 256; ++ i )
-    {
-        ::default_suppress_matrix['('][i] = true;
-        ::default_suppress_matrix['['][i] = true;
-        ::default_suppress_matrix['{'][i] = true;
-        ::default_suppress_matrix[0xAB][i] = true;
-		// << double angle quote
-        ::default_suppress_matrix['`'][i] = true;
-		// grave accent
-
-        ::default_suppress_matrix[i][')'] = true;
-        ::default_suppress_matrix[i][']'] = true;
-        ::default_suppress_matrix[i]['}'] = true;
-        ::default_suppress_matrix[i][0xB8] = true;
-		// >> double angle quote
-        ::default_suppress_matrix[i][0xB4] = true;
-		// acute accent
-        ::default_suppress_matrix[i][','] = true;
-        ::default_suppress_matrix[i][';'] = true;
-
-	min::uns8 b = min::unicode_category ( i );
-
-	if ( b == 'U' || b == 'L' )
-	{
-	    for ( unsigned j = 0; j < 256; ++ j )
-	    {
-		min::uns8 c =
-		    min::unicode_category ( j );
-		if ( c == 'U' || c == 'L' ) continue;
-		if ( c == '\'' ) continue;
-		::default_suppress_matrix[b][c] = true;
-		::default_suppress_matrix[c][b] = true;
-	    }
-	}
-	else
-	    ::default_suppress_matrix[i]['\''] = true;
-
-	if ( '0' <= b && b <= '9' )
-	{
-	    for ( unsigned j = 0; j < 256; ++ j )
-	    {
-		min::uns8 c =
-		    min::unicode_category ( j );
-		if ( '0' <= c && c <= '9' ) continue;
-		if ( c == ',' ) continue;
-		if ( c == '.' ) continue;
-		if ( c == ':' ) continue;
-		if ( c == '/' ) continue;
-		::default_suppress_matrix[b][c] = true;
-		::default_suppress_matrix[c][b] = true;
-	    }
-	}
-    }
+    ::name_specials_format.special_names =
+        min::standard_special_names;
+    ::bracket_specials_format.special_names =
+        min::standard_special_names;
 }
 
 const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
