@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 11 07:27:45 EDT 2014
+// Date:	Fri Jul 11 11:21:30 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7426,10 +7426,6 @@ static min::char_flags ascii_eol_char_flags;
 const min::char_flags * min::ascii_eol_char_flags =
     & ::ascii_eol_char_flags;
 
-static min::char_flags ascii_name_char_flags;
-const min::char_flags * min::ascii_name_char_flags =
-    & ::ascii_name_char_flags;
-
 static min::char_flags latin1_char_flags;
 const min::char_flags * min::latin1_char_flags =
     & ::latin1_char_flags;
@@ -7441,10 +7437,6 @@ const min::char_flags * min::latin1_nobreak_char_flags =
 static min::char_flags latin1_eol_char_flags;
 const min::char_flags * min::latin1_eol_char_flags =
     & ::latin1_eol_char_flags;
-
-static min::char_flags latin1_name_char_flags;
-const min::char_flags * min::latin1_name_char_flags =
-    & ::latin1_name_char_flags;
 
 static min::char_flags latin1_picture_char_flags;
 const min::char_flags * min::latin1_picture_char_flags =
@@ -9181,6 +9173,16 @@ static const min::Ustring SBRA_POINT_USTRING[] =
     { 0x20002, '[', '.' };
 static const min::Ustring POINT_SKET_USTRING[] =
     { 0x20002, '.', ']' };
+static const min::Ustring CBRA_USTRING[] =
+    { 0x10001, '{' };
+static const min::Ustring VBAR_USTRING[] =
+    { 0x10001, '|' };
+static const min::Ustring CKET_USTRING[] =
+    { 0x10001, '}' };
+static const min::Ustring CBRA_VBAR_USTRING[] =
+    { 0x20002, '{', '|' };
+static const min::Ustring VBAR_CKET_USTRING[] =
+    { 0x20002, '|', '}' };
 
 static min::bracket_format quote_bracket_format =
 {
@@ -9270,10 +9272,64 @@ static min::specials_format bracket_specials_format =
     NULL,
     ::SBRA_DOLLAR_USTRING,
     ::DOLLAR_SKET_USTRING,
-    min::NULL_STUB
+    min::NULL_STUB	    // special_names*
 };
 const min::specials_format * min::bracket_specials_format =
     & ::bracket_specials_format;
+
+static min::obj_format exp_obj_format =
+{
+    & ::ascii_char_flags,    // punctuation_char_flags
+    & ::name_lab_format,    // name_format
+    NULL,		    // element_format*
+    NULL,		    // value_format*
+
+    ::CBRA_USTRING,	    // obj_prefix
+    ::COMMA_SP_USTRING,	    // obj_separator
+    ::VBAR_USTRING,	    // obj_minfix
+    ::CKET_USTRING,	    // obj_postfix
+
+    ::CBRA_VBAR_USTRING,    // implicit_prefix
+    ::VBAR_CKET_USTRING,    // implicit_postfix
+
+    min::NULL_STUB,	    // exp_ok_attrs*
+    min::NULL_STUB	    // flag_names*
+};
+const min::obj_format * min::exp_obj_format =
+    & ::exp_obj_format;
+
+static min::obj_format raw_obj_format =
+{
+    & ::ascii_char_flags,   // punctuation_char_flags
+    & ::name_lab_format,    // name_format
+    NULL,		    // element_format*
+    NULL,		    // value_format*
+
+    NULL,		    // obj_prefix
+    NULL,		    // obj_separator
+    NULL,		    // obj_minfix
+    NULL,		    // obj_postfix
+
+    NULL,		    // implicit_prefix
+    NULL,		    // implicit_postfix
+
+    min::NULL_STUB,	    // exp_ok_attrs
+    min::NULL_STUB	    // flag_names*
+};
+const min::obj_format * min::raw_obj_format =
+    & ::raw_obj_format;
+
+static min::new_gen_format top_new_gen_format =
+{
+    & ::long_num_format,	    // num_format
+    & ::ascii_quote_str_format,	    // str_format
+    & ::name_lab_format,	    // lab_format
+    & ::name_specials_format,	    // specials_format
+    & ::exp_obj_format,		    // obj_format
+    NULL,			    // id_map_format
+};
+const min::new_gen_format * min::top_new_gen_format =
+    & ::top_new_gen_format;
 
 static void init_pgen_formats ( void )
 {
@@ -9281,6 +9337,12 @@ static void init_pgen_formats ( void )
         min::standard_special_names;
     ::bracket_specials_format.special_names =
         min::standard_special_names;
+    ::exp_obj_format.exp_ok_attrs =
+        min::default_exp_ok_attrs;
+    ::exp_obj_format.flag_names =
+        min::default_flag_names;
+    ::raw_obj_format.flag_names =
+        min::default_flag_names;
 }
 
 const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
