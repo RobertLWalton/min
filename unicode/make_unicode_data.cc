@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 05:44:43 EDT 2014
+// Date:	Sun Jul 13 20:18:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,13 @@ double numerator[index_limit_max];
 double denominator[index_limit_max];
 double numeric_value[index_limit_max];
 unsigned reference_count[index_limit_max];
+
+const unsigned supported_set_limit = 16;
+const unsigned supported_set_shift = 12;
+const char * supported_set[supported_set_limit] = {
+    /*  0 */ "ascii",
+    /*  1 */ "latin1"
+};
 
 unsigned Ustrings_size = 2 * 35;
 Uchar Ustrings[Ustrings_size_limit] = {
@@ -131,6 +138,9 @@ const char * category_description[category_limit];
 # define unicode_category_name category_name
 # define unicode_category_description \
 		category_description
+# define unicode_supported_set_limit supported_set_limit
+# define unicode_supported_set_shift supported_set_shift
+# define unicode_supported_set supported_set
 
 # include "output_unicode_data.cc"
 
@@ -918,6 +928,69 @@ void read_combining_class ( void )
     }
 
     ::close();
+}
+//
+// Read CompositeCharacters.txt
+//
+void read_composite_characters ( void )
+{
+    ::open ( "CompositeCharacters.txt" );
+
+    Uchar low, high;
+    while ( read_range ( low, high ) )
+    {
+        if ( ! check_range ( low, high ) )
+	    continue;
+
+        const char * p = line;
+	p = skip_to_next ( p );
+	if ( ! read_field ( p ) )
+	    line_error ( "first field not found" );
+
+	unsigned i;
+	for ( i = 0; i < supported_set_limit; ++ i )
+	{
+	    if ( supported_set[i] == NULL ) continue;
+	    if (    strcmp ( supported_set[i], field )
+	         == 0 )
+		break;
+	}
+	if ( i == supported_set_limit )
+	{
+	    line_error ( "unrecognized supported character"
+	                 " set name (%s); line ignored",
+			 field );
+	    continue;
+	}
+
+	for ( Uchar c = low; c <= high; ++ c )
+	{
+	    unsigned j =
+	        index[c] >> supported_set_shift;
+	    if ( j == i ) continue;
+	    if ( supported_set[j] != NULL )
+	    {
+	        line_error ( "for character code %02X"
+		             " new supported set name"
+			     " conflicts with previous"
+			     " name (%s); new name "
+			     " ignored",
+			     c, supported_set[j] );
+		continue;
+	    }
+	    index[c] |= i << supported_set_shift;
+	}
+    }
+
+    ::close();
+
+    for ( Uchar c = 128; c < index_size; ++ c )
+    {
+        unsigned i = index[c] >> supported_set_shift;
+	if ( i != 0 ) continue;
+	index[c] |=    ( supported_set_limit - 1 )
+	            << supported_set_shift;
+    }
 }
 
 int main ( int argc, const char ** argv )

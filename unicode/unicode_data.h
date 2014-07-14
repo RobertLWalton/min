@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 10 05:49:33 EDT 2014
+// Date:	Sun Jul 13 05:45:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -298,3 +298,13 @@ extern const char * const
     //       == "Math Symbol"
     //   unicode_category_description['w']
     //       == "Unspecified"
+
+const unsigned unicode_supported_set_limit = 16;
+const unsigned unicode_supported_set_shift = 12;
+extern const char * const
+	unicode_supported_set
+	    [unicode_supported_set_limit];
+    // unicode_supported_set[i] is the set name associ-
+    // ated with the set index i.  E.g., 0 <--> "ascii"
+    // and 1 <--> "latin1".  limit - 1 <--> NULL and
+    // is not used.
