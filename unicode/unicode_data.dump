@@ -3,38 +3,44 @@
 
 CATEGORIES:
 
-D Nd  Decimal Number
-E Me  Enclosing Mark
-H No  Other Number
-L Ll  Lower Case Letter
-M Lm  Modifier Letter
-N Mn  Nonspacing Mark
-O Lo  Other Letter
-R Nl  Letter Number
-S Mc  Spacing Mark
-T Lt  Title Case Letter
-U Lu  Upper Case Letter
-c Pe  Close Punctuation
-d Pd  Dash Punctuation
-e     Software New Line
-f Pf  Final Punctuation
-g Cs  Surrogate
-h Po  Other Punctuation
-i Pi  Initial Punctuation
-l Zl  Line Separator
-m Sm  Math Symbol
-n Pc  Connector Punctuation
-o Ps  Open Punctuation
-p Zp  Paragraph Separator
-r Sk  Modifier Symbol
-s Zs  Space Separator
-t So  Other Symbol
-u Cn  Unassigned
-v Co  Private Use
-w     Unspecified
-x Cc  Control
-y Sc  Currency Symbol
-z Cf  Format
+    D Nd  Decimal Number
+    E Me  Enclosing Mark
+    H No  Other Number
+    L Ll  Lower Case Letter
+    M Lm  Modifier Letter
+    N Mn  Nonspacing Mark
+    O Lo  Other Letter
+    R Nl  Letter Number
+    S Mc  Spacing Mark
+    T Lt  Title Case Letter
+    U Lu  Upper Case Letter
+    c Pe  Close Punctuation
+    d Pd  Dash Punctuation
+    e     Software New Line
+    f Pf  Final Punctuation
+    g Cs  Surrogate
+    h Po  Other Punctuation
+    i Pi  Initial Punctuation
+    l Zl  Line Separator
+    m Sm  Math Symbol
+    n Pc  Connector Punctuation
+    o Ps  Open Punctuation
+    p Zp  Paragraph Separator
+    r Sk  Modifier Symbol
+    s Zs  Space Separator
+    t So  Other Symbol
+    u Cn  Unassigned
+    v Co  Private Use
+    w     Unspecified
+    x Cc  Control
+    y Sc  Currency Symbol
+    z Cf  Format
+
+
+SUPPORTED CHARACTER SETS:
+
+    0x0 =  0:  ascii
+    0x1 =  1:  latin1
 
 index 0:
        numerator/denominator = 0/0

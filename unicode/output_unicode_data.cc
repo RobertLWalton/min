@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  6 22:19:26 EDT 2014
+// Date:	Mon Jul 14 01:25:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,10 +30,33 @@ void print_categories ( ostream & out = cout )
 	if ( unicode_category_description[cat] == NULL )
 	    continue;
 
-        out << (char) cat << " "
+        out << "    " << (char) cat << " "
 	    << ( unicode_category_name[cat] == NULL ?
 	         "  " : unicode_category_name[cat] )
 	    << "  " << unicode_category_description[cat]
+	    << endl;
+    }
+}
+
+// Print unicode_supported_sets.
+//
+void print_supported_sets ( ostream & out = cout )
+{
+    out << endl
+        << "SUPPORTED CHARACTER SETS:"
+	<< endl
+	<< endl;
+    for ( unsigned i = 0;
+          i < unicode_supported_set_limit; ++ i )
+    {
+	if ( unicode_supported_set[i] == NULL )
+	    continue;
+
+	char buffer[20];
+	sprintf ( buffer, "0x%X = %2d", i, i );
+
+        out << "    " << buffer << ":  "
+	    << unicode_supported_set[i]
 	    << endl;
     }
 }
@@ -120,6 +143,8 @@ void dump ( const char * filename )
 
     out << endl;
     print_categories ( out );
+    out << endl;
+    print_supported_sets ( out );
 
     for ( unsigned i = 0;
           i < unicode_index_limit; ++ i )
@@ -246,6 +271,43 @@ void output ( const char * filename )
 	    out << "NULL";
 	else
 	    out << "\"" << description << "\"";
+    }
+    out << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_SUPPORTED_SET is the vector of\n"
+      "// element values of the unicode_supported_set\n"
+      "// vector;  UNICODE_SUPPORTED_SET_LIMIT is the\n"
+      "// size of the vector; UNICODE_SUPPORTED_SET_\n"
+      "// shift is the number of bits to the right\n"
+      "// of the supported set vector index in a\n"
+      "// unicode_index element: see below.\n";
+
+    out << endl
+        << "# define UNICODE_SUPPORTED_SET_LIMIT "
+        << unicode_supported_set_limit << endl
+        << "# define UNICODE_SUPPORTED_SET_SHIFT "
+        << unicode_supported_set_shift << endl;
+
+    out << endl
+        << "# define UNICODE_SUPPORTED_SET";
+    finish = "";
+    for ( unsigned i = 0;
+          i < unicode_supported_set_limit; ++ i )
+    {
+        const char * name = unicode_supported_set[i];
+
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	char buffer[20];
+	sprintf ( buffer, "0x%02X = %2d", i, i );
+	out << "    /* [" << buffer << "] */ ";
+	if ( name == NULL )
+	    out << "NULL";
+	else
+	    out << "\"" << name << "\"";
     }
     out << endl;
 

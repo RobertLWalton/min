@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 11 11:00:26 EDT 2014
+// Date:	Mon Jul 14 10:09:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10677,8 +10677,101 @@ namespace min {
 
 namespace min {
 
-    typedef min::uns32 context_gen_flags[6];
-    typedef min::uns8 char_flags[256];
+    typedef min::uns16 char_flags[256];
+
+    enum {
+	HAS_PICTURE		= ( 1 << 0 ),
+	HAS_NAME		= ( 1 << 1 ),
+        IS_HT			= ( 1 << 2 ),
+        IS_SP			= ( 1 << 3 ),
+        IS_NBSP			= ( 1 << 4 ),
+	IS_OTHER_SP		= ( 1 << 5 ),
+	IS_GRAPHIC		= ( 1 << 6 ),
+	IS_EOL			= ( 1 << 7 ),
+
+	IS_NON_SPACE		= ( 1 << 8 ),
+
+	CONDITIONAL_BREAK	= ( 1 << 12 ),
+
+	QUOTE_SUPPRESS		= ( 1 << 13 ),
+    };
+
+    extern const min::char_flags *
+        standard_char_flags;
+
+    struct support_control
+    {
+        min::uns16 support_mask;
+        min::uns16 unsupported_char_flag_mask;
+    };
+
+    extern const min::support_control
+        ascii_support_control;
+    extern const min::support_control
+        latin1_support_control;
+    extern const min::support_control
+        inclusive_support_control;
+
+    struct allow_control
+    {
+        min::uns16 print_char;
+	min::uns16 expand_char;
+    };
+
+    extern const min::allow_control
+        inclusive_allow_control;
+    extern const min::allow_control
+        sp_allow_control;
+    extern const min::allow_control
+        graphic_allow_control;
+    extern const min::allow_control
+        eol_allow_control;
+
+    struct display_control
+    {
+	min::uns16 display_picture;
+	min::uns16 display_name;
+    };
+
+    extern const min::display_control
+        name_display_control;
+    extern const min::display_control
+        picture_display_control;
+
+    struct break_control
+    {
+        min::uns16 break_after;
+	min::uns16 break_before;
+	min::uns16 conditional_break;
+	min::uns16 conditional_columns;
+    };
+
+    extern const min::break_control
+        never_break;
+    extern const min::break_control
+        break_after_space;
+    extern const min::break_control
+        break_before_nonspace;
+    extern const min::break_control
+        break_after_space_and_hypenators;
+
+    struct gen_format;
+    struct bracket_format;
+    struct new_print_format
+    {
+	const min::char_flags *		char_flags;
+
+	min::support_control 		support_control;
+	min::allow_control 		allow_control;
+	min::display_control 		display_control;
+	min::break_control 		break_control;
+
+	const min::bracket_format *	bracket_format;
+
+	const min::gen_format *		gen_format;
+
+    };
+
     typedef bool suppress_matrix[256][256];
 
     extern const min::suppress_matrix *
@@ -10697,6 +10790,7 @@ namespace min {
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;
 
+    typedef min::uns32 context_gen_flags[6];
     struct gen_format;
     struct char_format;
     struct print_format
@@ -10760,45 +10854,6 @@ namespace min {
               print_format_stack, min::printer )
     MIN_REF ( min::id_map, id_map, min::printer )
 
-    enum {
-	PRINT_CHAR		= ( 0 << 0 ),
-	PRINT_NAME		= ( 1 << 0 ),
-        PRINT_PICTURE		= ( 2 << 0 ),
-	PRINT_ASCII		= ( 3 << 0 ),
-	PRINT_LATIN1		= ( 4 << 0 ),
-	PRINT_SUPPRESS		= ( 5 << 0 ),
-	PRINT_MASK		= ( 7 << 0 ),
-
-	BREAK_BEFORE		= ( 1 << 3 ),
-	BREAK_AFTER		= ( 2 << 3 ),
-	BREAK_AFTER_AND_DUP	= ( 3 << 3 ),
-	BREAK_MASK		= ( 3 << 3 ),
-
-	CHAR_FLAG_1		= ( 1 << 5 ),
-	CHAR_FLAG_2		= ( 1 << 6 )
-    };
-
-    extern const min::char_flags *
-        verbatim_char_flags;
-    extern const min::char_flags *
-        ascii_char_flags;
-    extern const min::char_flags *
-        ascii_nobreak_char_flags;
-    extern const min::char_flags *
-        ascii_eol_char_flags;
-    extern const min::char_flags *
-        latin1_char_flags;
-    extern const min::char_flags *
-        latin1_nobreak_char_flags;
-    extern const min::char_flags *
-        latin1_eol_char_flags;
-    extern const min::char_flags *
-        latin1_picture_char_flags;
-    extern const min::char_flags *
-        latin1_picture_nobreak_char_flags;
-    extern const min::char_flags *
-        latin1_picture_eol_char_flags;
-
     struct str_format;
     struct bracket_format;
     struct num_format;
@@ -10806,30 +10861,6 @@ namespace min {
     struct specials_format;
     struct obj_format;
     struct gen_format;
-
-    struct new_print_format
-    {
-	const min::char_flags * 	char_flags;
-			    
-	const min::bracket_format *	bracket_format;
-
-	const min::gen_format *		gen_format;
-
-    };
-
-    struct str_format
-    {
-
-        const min::char_flags *		char_flags;
-	const min::bracket_format *	bracket_format;
-    };
-
-    extern const min::str_format *
-        ascii_quote_str_format;
-    extern const min::str_format *
-        latin1_quote_str_format;
-    extern const min::str_format *
-        latin1_picture_quote_str_format;
 
     struct bracket_format
     {
@@ -10843,6 +10874,33 @@ namespace min {
 
     extern const min::bracket_format *
         quote_bracket_format;
+
+    struct quote_control
+    {
+        min::uns16 unquote_if_first;
+	min::uns16 unquote_if_only;
+    };
+
+    extern const min::quote_control
+        quote_all_control;
+    extern const min::quote_control
+        quote_first_not_letter_control;
+    extern const min::quote_control
+        quote_non_graphics_control;
+
+    struct str_format
+    {
+
+        const min::quote_control *	quote_control;
+	const min::bracket_format *	bracket_format;
+    };
+
+    extern const min::str_format *
+        quote_all_str_format;
+    extern const min::str_format *
+        quote_first_not_letter_str_format;
+    extern const min::str_format *
+        quote_non_graphics_str_format;
 
     struct num_format
     {
@@ -10861,8 +10919,6 @@ namespace min {
 
     struct lab_format
     {
-        const min::str_format *	    str_format;
-
 	const min::Ustring *	    lab_prefix;
 	const min::Ustring *	    lab_postfix;
 	const min::Ustring *	    lab_separator;
@@ -10879,8 +10935,6 @@ namespace min {
 
     struct specials_format
     {
-        const min::str_format *     str_format;
-
 	const min::Ustring *	    special_prefix;
 	const min::Ustring *	    special_postfix;
 	packed_vec_ptr<const char *>
@@ -10894,7 +10948,6 @@ namespace min {
 
     struct obj_format
     {
-	const min::char_flags * punctuation_char_flags;
         const min::lab_format *	    name_format;
 	const min::gen_format *     element_format;
 	const min::gen_format *     value_format;

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 11 11:21:30 EDT 2014
+// Date:	Mon Jul 14 13:00:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7410,134 +7410,135 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
-static min::char_flags verbatim_char_flags;
-const min::char_flags * min::verbatim_char_flags =
-    & ::verbatim_char_flags;
+static min::char_flags standard_char_flags;
+const min::char_flags * min::standard_char_flags =
+    & ::standard_char_flags;
 
-static min::char_flags ascii_char_flags;
-const min::char_flags * min::ascii_char_flags =
-    & ::ascii_char_flags;
+static const min::uns16 ASCII = 0x1;
+static const min::uns16 LATIN1 = 0x3;
 
-static min::char_flags ascii_nobreak_char_flags;
-const min::char_flags * min::ascii_nobreak_char_flags =
-    & ::ascii_nobreak_char_flags;
+static const min::uns16 UNSUPPORTED_MASK =
+    min::HAS_PICTURE + min::HAS_NAME + min::IS_EOL;
 
-static min::char_flags ascii_eol_char_flags;
-const min::char_flags * min::ascii_eol_char_flags =
-    & ::ascii_eol_char_flags;
+const min::support_control
+        min::ascii_support_control =
+{
+    ASCII, UNSUPPORTED_MASK
+};
 
-static min::char_flags latin1_char_flags;
-const min::char_flags * min::latin1_char_flags =
-    & ::latin1_char_flags;
+const min::support_control
+        min::latin1_support_control =
+{
+    LATIN1, UNSUPPORTED_MASK
+};
 
-static min::char_flags latin1_nobreak_char_flags;
-const min::char_flags * min::latin1_nobreak_char_flags =
-    & ::latin1_nobreak_char_flags;
+const min::support_control
+        inclusive_support_control =
+{
+    0xFFFF, 0
+};
 
-static min::char_flags latin1_eol_char_flags;
-const min::char_flags * min::latin1_eol_char_flags =
-    & ::latin1_eol_char_flags;
+const min::allow_control
+        inclusive_allow_control =
+{
+    0xFFFF, min::IS_EOL
+};
 
-static min::char_flags latin1_picture_char_flags;
-const min::char_flags * min::latin1_picture_char_flags =
-    & ::latin1_picture_char_flags;
+const min::allow_control
+        sp_allow_control =
+{
+    min::IS_GRAPHIC + min::IS_SP,
+    min::IS_HT + min::IS_EOL
+};
 
-static min::char_flags
-    latin1_picture_nobreak_char_flags;
-const min::char_flags *
-	min::latin1_picture_nobreak_char_flags =
-    & ::latin1_picture_nobreak_char_flags;
+const min::allow_control
+        graphic_allow_control =
+{
+    min::IS_GRAPHIC, min::IS_EOL
+};
 
-static min::char_flags
-    latin1_picture_eol_char_flags;
-const min::char_flags *
-	min::latin1_picture_eol_char_flags =
-    & ::latin1_picture_eol_char_flags;
+const min::allow_control
+        eol_allow_control =
+{
+    min::IS_GRAPHIC + min::IS_SP,
+    min::IS_HT
+};
+
+extern const min::display_control
+        name_display_control =
+{
+    0, 0xFFFF
+};
+
+extern const min::display_control
+        picture_display_control =
+{
+    min::HAS_PICTURE, 0xFFFF
+};
+
+const min::break_control
+	never_break =
+{
+    0, 0, 0, 0
+};
+
+const min::break_control
+	break_after_space =
+{
+    min::IS_SP + min::IS_HT + min::IS_OTHER_SP, 0, 0, 0
+};
+
+const min::break_control
+	break_before_nonspace =
+{
+    0, min::IS_NON_SPACE, 0, 0
+};
+
+const min::break_control
+	break_after_space_and_hypenators =
+{
+    min::IS_SP + min::IS_HT + min::IS_OTHER_SP, 0,
+    min::CONDITIONAL_BREAK, 4
+};
+
 
 static void init_printer_formats ( void )
 {
+    min::uns16 IS_SPACE = min::IS_SP
+                        | min::IS_HT
+			| min::IS_OTHER_SP;
+
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
-        bool has_name =
-	    (  min::unicode_Uname ( cat ) != NULL );
-        bool has_picture =
+	min::uns32 flags = 0;
+	if (    min::unicode::unicode_Upicture[cat]
+	     != NULL )
+	    flags |= min::HAS_PICTURE;
+	if ( min::unicode::unicode_Uname[cat] != NULL )
+	    flags |= min::HAS_NAME;
 
-	    (  min::unicode_Upicture ( cat ) != NULL );
+	if ( cat == ' ' )
+	    flags |= min::IS_SP;
+	else if ( cat == '\t' )
+	    flags |= min::IS_HT;
+	else if ( cat == 's' )
+	    flags |= min::IS_OTHER_SP;
+	else if ( cat == 'e' )
+	    flags |= min::IS_EOL;
+	else if ( index ( "lpuvwxz", cat ) == NULL )
+	    flags |= min::IS_GRAPHIC;
 
-	min::uns8 print_ascii =
-	    cat == ' ' ?	min::PRINT_CHAR :
-	    cat == '\t' ?	min::PRINT_ASCII :
-	    cat == 'e' ?	min::PRINT_SUPPRESS :
-	    has_name ?		min::PRINT_NAME :
-	    cat < 'A' ?		min::PRINT_CHAR :
-	    cat <= 'Z' ?	min::PRINT_ASCII :
-	    cat < 'a' ?		min::PRINT_CHAR :
-	    cat <= 'z' ?	min::PRINT_ASCII :
-	    cat < 128 ?		min::PRINT_CHAR :
-				min::PRINT_ASCII;
+	if ( ( flags & (   IS_SPACE
+	                 | min::IS_EOL ) ) == 0 )
+	    flags |= min::IS_NON_SPACE;
 
-	min::uns8 print_ascii_eol =
-	    cat == 'e' ?	(min::uns8)
-	                            min::PRINT_NAME :
-	    			print_ascii;
+	if ( index ( "-%_", cat ) != NULL )
+	    flags |= min::CONDITIONAL_BREAK;
 
-	min::uns8 print_latin1 =
-	    cat == ' ' ?	min::PRINT_CHAR :
-	    cat == '\t' ?	min::PRINT_ASCII :
-	    cat == 'e' ?	min::PRINT_SUPPRESS :
-	    has_name ?		min::PRINT_NAME :
-	    cat < 'A' ?		min::PRINT_CHAR :
-	    cat <= 'Z' ?	min::PRINT_LATIN1 :
-	    cat < 'a' ?		min::PRINT_CHAR :
-	    cat <= 'z' ?	min::PRINT_LATIN1 :
-	    cat < 256 ?		min::PRINT_CHAR :
-	        		min::PRINT_ASCII;
+	if ( index ( "LU", cat ) != NULL )
+	    flags |= min::QUOTE_SUPPRESS;
 
-	min::uns8 print_latin1_eol =
-	    cat == 'e' ?	(min::uns8)
-	                            min::PRINT_NAME :
-	    			print_latin1;
-
-	min::uns8 print_latin1_picture =
-	    has_picture ?	(min::uns8)
-	                            min::PRINT_PICTURE :
-	    			print_latin1;
-
-	min::uns8 print_latin1_picture_eol =
-	    cat == 'e' ?	(min::uns8)
-	                            min::PRINT_NAME :
-	    			print_latin1_picture;
-
-	min::uns8 space_break =
-	    cat == ' ' ?	min::BREAK_AFTER :
-	    cat == '\t' ?	min::BREAK_AFTER :
-	    			0;
-
-	min::uns8 bracket_enable =
-	    cat == 'L' ?	0 :
-	    cat == 'U' ?	0 :
-	    			min::CHAR_FLAG_1;
-
-        ::verbatim_char_flags[cat] =
-	    min::PRINT_CHAR;
-        ::ascii_char_flags[cat] =
-	    print_ascii | space_break ;
-        ::ascii_nobreak_char_flags[cat] =
-	    print_ascii | bracket_enable ;
-        ::ascii_eol_char_flags[cat] =
-	    print_ascii_eol;
-        ::latin1_char_flags[cat] =
-	    print_latin1 | space_break ;
-        ::latin1_nobreak_char_flags[cat] =
-	    print_latin1 | bracket_enable ;
-        ::latin1_eol_char_flags[cat] =
-	    print_latin1_eol;
-        ::latin1_picture_char_flags[cat] =
-	    print_latin1_picture | space_break ;
-        ::latin1_picture_nobreak_char_flags[cat] =
-	    print_latin1_picture | bracket_enable ;
-        ::latin1_picture_eol_char_flags[cat] =
-	    print_latin1_picture_eol;
+	::standard_char_flags[cat] = flags;
     }
 }
 
@@ -9184,6 +9185,25 @@ static const min::Ustring CBRA_VBAR_USTRING[] =
 static const min::Ustring VBAR_CKET_USTRING[] =
     { 0x20002, '|', '}' };
 
+const min::quote_control
+	min::quote_all_control =
+{
+    0, 0
+};
+
+const min::quote_control
+	min::quote_first_not_letter_control =
+{
+    min::QUOTE_SUPPRESS, 0
+};
+
+
+const min::quote_control
+	min::quote_non_graphics_control =
+{
+    0, min::IS_SP + min::IS_GRAPHIC
+};
+
 static min::bracket_format quote_bracket_format =
 {
     ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
@@ -9192,30 +9212,34 @@ static min::bracket_format quote_bracket_format =
 const min::bracket_format * min::quote_bracket_format =
     & ::quote_bracket_format;
 
-static min::str_format ascii_quote_str_format =
+static min::str_format quote_all_str_format =
 {
-    & ::ascii_nobreak_char_flags,
+    & min::quote_all_control,
     & ::quote_bracket_format
 };
-const min::str_format * min::ascii_quote_str_format =
-    & ::ascii_quote_str_format;
+const min::str_format * min::quote_all_str_format =
+    & ::quote_all_str_format;
 
-static min::str_format latin1_quote_str_format =
+static min::str_format
+	quote_first_not_letter_str_format =
 {
-    & ::latin1_nobreak_char_flags,
-    & ::quote_bracket_format
-};
-const min::str_format * min::latin1_quote_str_format =
-    & ::latin1_quote_str_format;
-
-static min::str_format latin1_picture_quote_str_format =
-{
-    & ::latin1_picture_nobreak_char_flags,
+    & min::quote_first_not_letter_control,
     & ::quote_bracket_format
 };
 const min::str_format *
-	min::latin1_picture_quote_str_format =
-    & ::latin1_picture_quote_str_format;
+	min::quote_first_not_letter_str_format =
+    & ::quote_first_not_letter_str_format;
+
+static min::str_format
+	quote_non_graphics_str_format =
+{
+    & min::quote_non_graphics_control,
+    & ::quote_bracket_format
+};
+const min::str_format *
+	min::quote_non_graphics_str_format =
+    & ::quote_non_graphics_str_format;
+
 
 static min::uns32 first_100_divisors[] =
 {
@@ -9246,7 +9270,7 @@ const min::num_format * min::long_num_format =
 
 static min::lab_format name_lab_format =
 {
-    NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL,
     & ::default_suppress_matrix
 
 };
@@ -9255,31 +9279,32 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    NULL,
     ::LT_USTRING, ::COMMA_SP_USTRING, ::GT_USTRING,
     NULL
-
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
 
-static min::specials_format name_specials_format;
+static min::specials_format name_specials_format =
+{
+    NULL, NULL,
+    min::NULL_STUB	    // special_names*
+};
 const min::specials_format * min::name_specials_format =
     & ::name_specials_format;
 
 static min::specials_format bracket_specials_format =
 {
-    NULL,
     ::SBRA_DOLLAR_USTRING,
     ::DOLLAR_SKET_USTRING,
     min::NULL_STUB	    // special_names*
 };
-const min::specials_format * min::bracket_specials_format =
+const min::specials_format *
+	min::bracket_specials_format =
     & ::bracket_specials_format;
 
 static min::obj_format exp_obj_format =
 {
-    & ::ascii_char_flags,    // punctuation_char_flags
     & ::name_lab_format,    // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
@@ -9300,7 +9325,6 @@ const min::obj_format * min::exp_obj_format =
 
 static min::obj_format raw_obj_format =
 {
-    & ::ascii_char_flags,   // punctuation_char_flags
     & ::name_lab_format,    // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
@@ -9321,11 +9345,11 @@ const min::obj_format * min::raw_obj_format =
 
 static min::new_gen_format top_new_gen_format =
 {
-    & ::long_num_format,	    // num_format
-    & ::ascii_quote_str_format,	    // str_format
-    & ::name_lab_format,	    // lab_format
-    & ::name_specials_format,	    // specials_format
-    & ::exp_obj_format,		    // obj_format
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::name_lab_format,
+    & ::name_specials_format,
+    & ::exp_obj_format,
     NULL,			    // id_map_format
 };
 const min::new_gen_format * min::top_new_gen_format =
