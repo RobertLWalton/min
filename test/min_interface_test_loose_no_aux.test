@@ -1004,7 +1004,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     len == 7 true.
 min_interface_test.cc:XXXX assert:
-    Ubuffer2[6] == min::ILLEGAL_UTF8 true.
+    Ubuffer2[6] == min::UNKNOWN_UCHAR true.
 ÀÁÂÃÄÅ�
 
 Finish Strings Test!
@@ -1777,8 +1777,10 @@ pint ( -3, "%05d" ) = -0003
 1
 1.23456789
 1.23456789012345
+"this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
-[: 5.6 [: 1.234 "str␣1" :] "str␣2" :]
+this is a string with a quote (")
+[: 5.6 [: 1.234 "str<SP>1" :] "str<SP>2" :]
 A,B / A , B
 MISSING
 NONE

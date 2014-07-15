@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 14 21:32:45 EDT 2014
+// Date:	Tue Jul 15 01:47:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8196,6 +8196,8 @@ min::printer operator <<
     }
 }
 
+# ifdef NONE_SUCH
+
 static std::ostream & ostream_unicode
 	( std::ostream & out, min::uns32 flags,
 	  min::unsptr n, const min::uns32 * str );
@@ -8329,6 +8331,8 @@ std::ostream & operator <<
         return out;
     }
 }
+
+# endif
 
 const min::op min::save_line_break
     ( min::op::SAVE_LINE_BREAK );
@@ -8897,6 +8901,8 @@ min::printer MINT::print_unicode
     return printer;
 }
 
+# ifdef NONE_SUCH
+
 static std::ostream & ostream_unicode
 	( std::ostream & out, min::uns32 flags,
 	  min::unsptr n, const min::uns32 * str )
@@ -9036,6 +9042,8 @@ static std::ostream & ostream_unicode
     return out;
 }
 
+# endif
+
 min::printer operator <<
 	( min::printer printer, min::int64 i )
 {
@@ -9128,6 +9136,89 @@ void min::pwidth ( min::uns32 & column,
 
 // Printing General values
 // -------- ------- ------
+
+std::ostream & operator <<
+	( std::ostream & out, min::gen g )
+{
+    if ( min::is_stub ( g )
+         &&
+	 MUP::stub_of ( g ) == MINT::null_stub )
+    {
+        // Must do this BEFORE executing is_num,
+	// is_str, etc.  Must use MINT::null_stub
+	// instead of min::NULL_STUB.
+	//
+	return out << "new_stub_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( g ) )
+    {
+        char buffer[100];
+	sprintf ( buffer, "%.15g",
+	          min::unprotected::float_of ( g ) );
+	return out << buffer;
+    }
+    else if ( min::is_str ( g ) )
+    {
+        min::str_ptr sp ( g );
+	return out << '"'
+	           << min::unprotected::str_of ( sp )
+		   << '"';
+    }
+    else if ( min::is_lab ( g ) )
+    {
+        min::unprotected::lab_ptr lp ( g );
+	min::uns32 n = min::lablen ( lp );
+	out << "[:";
+	for ( unsigned i = 0; i < n; ++ i )
+	    out << " " << lp[i];
+	return out << " :]";
+    }
+    else if ( min::is_stub ( g ) )
+    {
+	min::stub * s = MUP::stub_of ( g );
+	if ( s == min::NULL_STUB )
+	    return out << "new_stub_gen"
+	                      " ( min::NULL_STUB )";
+	else
+	    return out << "new_stub_gen (0x"
+	               << std::hex << (min::unsptr) s
+		       << std::dec << ")";
+    }
+    else if ( min::is_list_aux ( g ) )
+	return out << "LIST_AUX("
+		   << min::unprotected
+		         ::list_aux_of ( g )
+		   << ")";
+    else if ( min::is_sublist_aux ( g ) )
+	return out << "SUBLIST_AUX("
+		   << min::unprotected
+		         ::sublist_aux_of ( g )
+		   << ")";
+    else if ( min::is_indirect_aux ( g ) )
+	return out << "INDIRECT_AUX("
+		   << min::unprotected
+		         ::indirect_aux_of ( g )
+		   << ")";
+    else if ( min::is_index ( g ) )
+	return out << "INDEX("
+		   << min::unprotected
+		         ::index_of ( g )
+		   << ")";
+    else if ( min::is_control_code ( g ) )
+	return out << "CONTROL_CODE(0x" << std::hex
+		   << min::unprotected
+		         ::control_code_of ( g )
+		   << std::dec << ")";
+    else if ( min::is_special ( g ) )
+	return out << "SPECIAL(0x" << std::hex
+		   << min::unprotected
+		         ::special_index_of ( g )
+		   << std::dec << ")";
+    else
+	return out << "UNDEFINED_GEN(0x" << std::hex
+		   << min::unprotected::value_of ( g )
+		   << std::dec << ")";
+}
 
 static const min::Ustring QUOTE_USTRING[] =
     { 0x10001, '"' };
@@ -9639,6 +9730,8 @@ min::printer pgen_id<min::printer>
 	    ( printer->id_map, min::stub_of ( v ) );
     return printer << "@" << id;
 }
+
+# ifdef NONE_SUCH
 template <>
 std::ostream & pgen_id<std::ostream &>
 	( std::ostream & out,
@@ -9652,6 +9745,8 @@ std::ostream & pgen_id<std::ostream &>
 	    ( ::ostream_id_map, min::stub_of ( v ) );
     return out << "@" << id;
 }
+
+# endif
 
 // Execute pgen (below) in the case an object is to be
 // printed without an effective OBJ_EXP_FLAG or
@@ -10573,6 +10668,8 @@ min::printer min::default_pgen
 	      context_gen_flags, f, f->pgen );
 }
 
+# ifdef NONE_SUCH
+
 static std::ostream & ostream_pgen
 	( std::ostream & out,
 	  min::uns32 gen_flags,
@@ -10585,6 +10682,8 @@ static std::ostream & ostream_pgen
 	    ( out, gen_flags, v,
 	      context_gen_flags, f, ::ostream_pgen );
 }
+
+# endif
 
 static min::printer flush_one_id
 	( min::printer printer )
@@ -10602,6 +10701,8 @@ static min::printer flush_one_id
           f, f->pgen, id_map );
 }
 
+# ifdef NONE_SUCH
+
 static std::ostream & flush_one_id
 	( std::ostream & out )
 {
@@ -10616,3 +10717,5 @@ static std::ostream & flush_one_id
 	          .context_gen_flags,
 	      f, ::ostream_pgen, ::ostream_id_map );
 }
+
+# endif
