@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 14 10:09:33 EDT 2014
+// Date:	Tue Jul 15 00:26:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10677,6 +10677,15 @@ namespace min {
 
 namespace min {
 
+    enum {
+        DISPLAY_EOL		= ( 1 << 0 ),
+	FLUSH_ON_EOL		= ( 1 << 1 ),
+        FLUSH_ID_MAP_ON_EOM	= ( 1 << 2 ),
+	EXPAND_HT		= ( 1 << 3 )
+    };
+
+    extern const min::uns16 standard_op_flags;
+
     typedef min::uns16 char_flags[256];
 
     enum {
@@ -10684,12 +10693,12 @@ namespace min {
 	HAS_NAME		= ( 1 << 1 ),
         IS_HT			= ( 1 << 2 ),
         IS_SP			= ( 1 << 3 ),
-        IS_NBSP			= ( 1 << 4 ),
-	IS_OTHER_SP		= ( 1 << 5 ),
-	IS_GRAPHIC		= ( 1 << 6 ),
+	IS_HSPACE		= ( 1 << 4 ),
+	IS_GRAPHIC		= ( 1 << 5 ),
+
 	IS_EOL			= ( 1 << 7 ),
 
-	IS_NON_SPACE		= ( 1 << 8 ),
+	IS_NON_HSPACE		= ( 1 << 8 ),
 
 	CONDITIONAL_BREAK	= ( 1 << 12 ),
 
@@ -10712,27 +10721,15 @@ namespace min {
     extern const min::support_control
         inclusive_support_control;
 
-    struct allow_control
-    {
-        min::uns16 print_char;
-	min::uns16 expand_char;
-    };
-
-    extern const min::allow_control
-        inclusive_allow_control;
-    extern const min::allow_control
-        sp_allow_control;
-    extern const min::allow_control
-        graphic_allow_control;
-    extern const min::allow_control
-        eol_allow_control;
-
     struct display_control
     {
+        min::uns16 display_char;
 	min::uns16 display_picture;
 	min::uns16 display_name;
     };
 
+    extern const min::display_control
+        verbatim_display_control;
     extern const min::display_control
         name_display_control;
     extern const min::display_control
@@ -10759,10 +10756,10 @@ namespace min {
     struct bracket_format;
     struct new_print_format
     {
+	min::uns16			op_flags;
 	const min::char_flags *		char_flags;
 
 	min::support_control 		support_control;
-	min::allow_control 		allow_control;
 	min::display_control 		display_control;
 	min::break_control 		break_control;
 
