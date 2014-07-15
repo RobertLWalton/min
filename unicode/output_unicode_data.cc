@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 14 01:25:08 EDT 2014
+// Date:	Tue Jul 15 07:32:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,11 +70,12 @@ void print_index ( unsigned i, ostream & out = cout )
 
     out << "index " << i << ":" << endl;
     if ( unicode_name[i] != NULL )
-        out << "       name = `" << unicode_name[i]
+        out << "       name = `"
+	    << ustring_chars ( unicode_name[i] )
 	    << "'" << endl;
     if ( unicode_picture[i] != NULL )
         out << "       picture = `"
-	    << unicode_picture[i]
+	    << ustring_chars ( unicode_picture[i] )
 	    << "'" << endl;
 
     char catname[100];
@@ -334,29 +335,6 @@ void output ( const char * filename )
 
     out <<
       "\n"
-      "// UNICODE_USTRINGS is the list of element\n"
-      "// values of the unicode_Ustrings vector and\n"
-      "// UNICODE_USTRINGS_SIZE is the size of the\n"
-      "// vector.\n";
-
-    out << endl << "# define UNICODE_USTRINGS_SIZE "
-        << unicode_Ustrings_size << endl;
-
-    out << endl << "# define UNICODE_USTRINGS";
-    finish = "";
-    for ( unsigned i = 0; i < unicode_Ustrings_size;
-                          ++ i )
-    {
-        out << finish << " \\" << endl;
-	finish = ",";
-
-	out << "    /* [" << setw ( 3 ) << i << "] */ ";
-	output ( out, unicode_Ustrings[i] );
-    }
-    out << endl;
-
-    out <<
-      "\n"
       "// UNICODE_INDEX_LIMIT is size of various\n"
       "// vectors below.\n";
 
@@ -401,34 +379,17 @@ void output ( const char * filename )
 
 	out << "    /* [" << setw ( 3 ) << i << "] */ ";
 
-	const char * n = unicode_name[i];
+	const ustring * n = unicode_name[i];
 	if ( n == NULL ) out << "NULL";
-	else out << "\"" << n << "\"";
-    }
-    out << endl;
-
-    out <<
-      "\n"
-      "// UNICODE_UNAME is the list of element\n"
-      "// values of the unicode_Uname vector\n"
-      "// whose size is UNICODE_INDEX_LIMIT.\n";
-
-    out << endl << "# define UNICODE_UNAME";
-
-    finish = "";
-    for ( unsigned i = 0;
-          i < unicode_index_limit; ++ i )
-    {
-        out << finish << " \\" << endl;
-	finish = ",";
-
-	out << "    /* [" << setw ( 3 ) << i << "] */ ";
-
-	const Ustring * name = unicode_Uname[i];
-	if ( name == NULL ) out << "NULL";
-	else out << "& unicode_Ustrings["
-	         << ( name - unicode_Ustrings )
-		 << "]";
+	else
+	{
+	    char buffer[20];
+	    unsigned length = ustring_length ( n );
+	    sprintf ( buffer, "\\x%02X\\x%02X",
+	              length, length );
+	    out << "\"" << buffer << "\" \""
+	        << ustring_chars ( n ) << "\"";
+	}
     }
     out << endl;
 
@@ -449,10 +410,12 @@ void output ( const char * filename )
 
 	out << "    /* [" << setw ( 3 ) << i << "] */ ";
 
-	const char * n = unicode_picture[i];
+	const ustring * n = unicode_picture[i];
 	if ( n == NULL ) out << "NULL";
 	else
 	{
+	    assert ( ustring_columns ( n ) > 0 );
+
 	    out << "\"";
 	    char buffer[10];
 	    while ( * n )
@@ -464,31 +427,6 @@ void output ( const char * filename )
 	    }
 	    out << "\"";
 	}
-    }
-    out << endl;
-
-    out <<
-      "\n"
-      "// UNICODE_UPICTURE is the list of element\n"
-      "// values of the unicode_Upicture vector\n"
-      "// whose size is UNICODE_INDEX_LIMIT.\n";
-
-    out << endl << "# define UNICODE_UPICTURE";
-
-    finish = "";
-    for ( unsigned i = 0;
-          i < unicode_index_limit; ++ i )
-    {
-        out << finish << " \\" << endl;
-	finish = ",";
-
-	out << "    /* [" << setw ( 3 ) << i << "] */ ";
-
-	const Ustring * picture = unicode_Upicture[i];
-	if ( picture == NULL ) out << "NULL";
-	else out << "& unicode_Ustrings["
-	         << ( picture - unicode_Ustrings )
-		 << "]";
     }
     out << endl;
 
@@ -611,8 +549,11 @@ void final_check ( void )
 	    if ( unicode_name[i] == NULL ?
 	             unicode_name[i2] != NULL :
 	         unicode_name[i2] == NULL ? true :
-		 strcmp ( unicode_name[i],
-		          unicode_name[i2] ) != 0 )
+		    strcmp ( ustring_chars
+		                 ( unicode_name[i] ),
+		             ustring_chars
+			         ( unicode_name[i2] ) )
+		 != 0 )
 	        continue;
 	    if (    unicode_numerator[i]
 	         != unicode_numerator[i2] )
@@ -628,77 +569,6 @@ void final_check ( void )
 	}
 
 	const char * error = NULL;
-
-	// Check Uname[i].
-	//
-	if ( unicode_Uname[i] == NULL
-	     &&
-	     unicode_name[i] != NULL )
-	    error = "Uname == NULL && name != NULL";
-	else if ( unicode_Uname[i] != NULL
-	          &&
-	          unicode_name[i] == NULL )
-	    error = "Uname != NULL && name == NULL";
-	else if ( unicode_name[i] == NULL )
-	    /* do nothing */;
-	else if ( Ustring_length ( unicode_Uname[i] )
-	          !=
-	          Ustring_columns ( unicode_Uname[i] ) )
-	    error = "Uname length != columns";
-	else if ( Ustring_length ( unicode_Uname[i] )
-	          !=
-		  strlen ( unicode_name[i] ) )
-	    error = "Uname length != name length";
-	else
-	{
-	    const Uchar * Ustr =
-	        Ustring_chars ( unicode_Uname[i] );
-	    const char * str = unicode_name[i];
-	    while ( * str && error == NULL )
-	    {
-	        if ( Uchar ( * str ++ ) == * Ustr ++ )
-	            continue;
-		error = "Uname chars != name chars";
-	    }
-	}
-
-	// Check Upicture[i].
-	//
-	if ( unicode_Upicture[i] == NULL
-	     &&
-	     unicode_picture[i] != NULL )
-	    error =
-	        "Upicture == NULL && picture != NULL";
-	else if ( unicode_Upicture[i] != NULL
-	          &&
-	          unicode_picture[i] == NULL )
-	    error =
-	        "Upicture != NULL && picture == NULL";
-	else if ( unicode_picture[i] == NULL )
-	    /* do nothing */;
-	else
-	{
-	    const Uchar * Ustr =
-	        Ustring_chars ( unicode_Upicture[i] );
-	    unsigned length =
-	        Ustring_length ( unicode_Upicture[i] );
-	    const char * str = unicode_picture[i];
-	    const char * endstr = str + strlen ( str );
-	    while ( * str && error == NULL )
-	    {
-	        if ( length -- > 0
-		     &&
-		     * Ustr ++
-		     ==
-		     utf8_to_unicode ( str, endstr ) )
-	            continue;
-		error =
-		    "Upicture chars != picture chars";
-	    }
-	    if ( length > 0 )
-		error =
-		    "Upicture chars != picture chars";
-	}
 
 	// Check numeric value.
 	//
