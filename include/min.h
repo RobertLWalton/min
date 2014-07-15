@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 03:32:17 EDT 2014
+// Date:	Tue Jul 15 06:55:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11032,8 +11032,9 @@ namespace min {
 
 	    SET_CONTEXT_GEN_FLAGS,
 	    SET_GEN_FORMAT,
-	    SET_PRINT_FLAGS,
-	    CLEAR_PRINT_FLAGS,
+
+	    SET_PRINT_OP_FLAGS,
+	    CLEAR_PRINT_OP_FLAGS,
 
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
@@ -11257,15 +11258,18 @@ namespace min {
         return op ( op::ADJUST_INDENT, offset );
     }
 
-    inline op set_print_flags ( uns32 print_flags )
+    inline op set_print_op_flags
+	    ( uns32 print_op_flags )
     {
-        return op ( op::SET_PRINT_FLAGS, print_flags );
+        return op ( op::SET_PRINT_OP_FLAGS,
+	            print_op_flags );
     }
 
-    inline op clear_print_flags ( uns32 print_flags )
+    inline op clear_print_op_flags
+	    ( uns32 print_op_flags )
     {
-        return op ( op::CLEAR_PRINT_FLAGS,
-	            print_flags );
+        return op ( op::CLEAR_PRINT_OP_FLAGS,
+	            print_op_flags );
     }
 
     inline op left ( uns32 width )

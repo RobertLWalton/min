@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 02:06:36 EDT 2014
+// Date:	Tue Jul 15 05:13:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2544,7 +2544,6 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->line_break.line_length == 72 );
 
-#define NONE_SUCH
 #ifdef NONE_SUCH
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -4587,11 +4586,15 @@ int main ( int argc, const char * argv[] )
 	test_file();
 	test_identifier_map();
 	test_printer();
+
+#ifdef NONE_SUCH
+
 	test_objects();
 	test_object_vector_level();
 	test_object_list_level();
 	test_object_attribute_level();
 	test_object_printing();
+#endif
 
 	// Check that deallocated_body_region is still
 	// zero.
