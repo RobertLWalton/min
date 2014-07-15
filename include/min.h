@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 06:55:27 EDT 2014
+// Date:	Tue Jul 15 12:43:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4028,25 +4028,26 @@ namespace min {
 		'w';
     }
 
-    inline const min::Ustring * unicode_Uname
+    inline const min::ustring * unicode_name
     	    ( Uchar c )
     {
 	return
 	    c < unicode::unicode_index_limit ?
-	        unicode::unicode_Uname
+	        unicode::unicode_name
 		    [unicode::unicode_index[c]] :
 		NULL;
     }
 
-    inline const min::Ustring * unicode_Upicture
+    inline const min::ustring * unicode_picture
     	    ( Uchar c )
     {
 	return
 	    c < unicode::unicode_index_limit ?
-	        unicode::unicode_Upicture
+	        unicode::unicode_picture
 		    [unicode::unicode_index[c]] :
 		NULL;
     }
+
 }
 
 namespace min {
@@ -10778,16 +10779,19 @@ namespace min {
 	uns32 flags;
 	const min::context_gen_flags *
 	    context_gen_flags;
-	const min::gen_format *		gen_format;
+	const min::gen_format *	      gen_format;
 
-	min::uns16			op_flags;
-	const min::char_flags *		char_flags;
+	min::uns16		      op_flags;
+	const min::char_flags *	      char_flags;
 
-	min::support_control 		support_control;
-	min::display_control 		display_control;
-	min::break_control 		break_control;
+	const min::ustring *	      char_name_prefix;
+	const min::ustring *	      char_name_postfix;
 
-	const min::bracket_format *	bracket_format;
+	min::support_control 	      support_control;
+	min::display_control 	      display_control;
+	min::break_control 	      break_control;
+
+	const min::bracket_format *   bracket_format;
 
 
     };
@@ -10853,12 +10857,10 @@ namespace min {
 
     struct bracket_format
     {
-	const min::Ustring *	str_prefix;
-	const min::Ustring *	str_postfix;
-	const min::Ustring *	str_postfix_name;
-	const min::Ustring *	str_char_name_prefix;
-	const min::Ustring *	str_char_name_postfix;
-	const min::Ustring *	str_concatenator;
+	const min::ustring *	str_prefix;
+	const min::ustring *	str_postfix;
+	const min::ustring *	str_postfix_name;
+	const min::ustring *	str_concatenator;
     };
 
     extern const min::bracket_format *
@@ -10908,9 +10910,9 @@ namespace min {
 
     struct lab_format
     {
-	const min::Ustring *	    lab_prefix;
-	const min::Ustring *	    lab_postfix;
-	const min::Ustring *	    lab_separator;
+	const min::ustring *	    lab_prefix;
+	const min::ustring *	    lab_postfix;
+	const min::ustring *	    lab_separator;
 
 	const min::suppress_matrix *
 				    suppress_matrix;
@@ -10924,8 +10926,8 @@ namespace min {
 
     struct specials_format
     {
-	const min::Ustring *	    special_prefix;
-	const min::Ustring *	    special_postfix;
+	const min::ustring *	    special_prefix;
+	const min::ustring *	    special_postfix;
 	packed_vec_ptr<const char *>
 				    special_names;
     };
@@ -10941,13 +10943,13 @@ namespace min {
 	const min::gen_format *     element_format;
 	const min::gen_format *     value_format;
 
-	const min::Ustring *   	    obj_prefix;
-	const min::Ustring *   	    obj_separator;
-	const min::Ustring *   	    obj_midfix;
-	const min::Ustring *   	    obj_postfix;
+	const min::ustring *   	    obj_prefix;
+	const min::ustring *   	    obj_separator;
+	const min::ustring *   	    obj_midfix;
+	const min::ustring *   	    obj_postfix;
 
-	const min::Ustring *   	    implicit_prefix;
-	const min::Ustring *   	    implicit_postfix;
+	const min::ustring *   	    implicit_prefix;
+	const min::ustring *   	    implicit_postfix;
 
 	packed_vec_ptr<min::gen>    exp_ok_attrs;
 
@@ -11018,6 +11020,7 @@ namespace min {
 	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
+	    PUSTRING,
 	    PINT,
 	    PUNS,
 	    PFLOAT,
@@ -11128,6 +11131,12 @@ namespace min {
 	    v3.uptr = buffer.offset;
 	}
 	op ( op::OPCODE opcode,
+	     const min::ustring * str )
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) str;
+	}
+	op ( op::OPCODE opcode,
 	     min::int64 i,
 	     const char * printf_format )
 	    : opcode ( opcode )
@@ -11208,13 +11217,10 @@ namespace min {
 	            min::new_ptr ( str ) );
     }
 
-    inline op pUstring
-	    ( const min::Ustring * str )
+    inline op pustring
+	    ( const min::ustring * str )
     {
-        return op ( op::PUNICODE2,
-	            min::Ustring_length ( str ),
-	            min::new_ptr
-		      ( min::Ustring_chars ( str ) ) );
+        return op ( op::PUSTRING, str );
     }
 
     inline op pint
@@ -11507,12 +11513,12 @@ namespace min {
 
         const char *         number_format;
 
-	const Ustring *      str_prefix;
-	const Ustring *      str_postfix;
-	const Ustring *      str_postfix_name;
-	const Ustring *      str_char_name_prefix;
-	const Ustring *      str_char_name_postfix;
-	const Ustring *      str_concatenator;
+	const ustring *      str_prefix;
+	const ustring *      str_postfix;
+	const ustring *      str_postfix_name;
+	const ustring *      str_char_name_prefix;
+	const ustring *      str_char_name_postfix;
+	const ustring *      str_concatenator;
 	uns32	     	     str_max_length;
 
 	const char *         lab_prefix;

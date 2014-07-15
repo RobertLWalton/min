@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 06:54:55 EDT 2014
+// Date:	Tue Jul 15 13:01:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7470,10 +7470,10 @@ static void init_printer_formats ( void )
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
 	min::uns32 flags = 0;
-	if (    min::unicode::unicode_Upicture[cat]
+	if (    min::unicode::unicode_picture[cat]
 	     != NULL )
 	    flags |= min::HAS_PICTURE;
-	if ( min::unicode::unicode_Uname[cat] != NULL )
+	if ( min::unicode::unicode_name[cat] != NULL )
 	    flags |= min::HAS_NAME;
 
 	if ( cat == ' ' )
@@ -7576,6 +7576,8 @@ const min::print_format min::default_print_format =
     & min::default_gen_format,
     min::EXPAND_HT,
     & ::standard_char_flags,
+    (const min::ustring *) "\x01\x01<",
+    (const min::ustring *) "\x01\x01>",
     min::ascii_support_control,
     min::name_display_control,
     min::break_after_space,
@@ -7749,18 +7751,11 @@ min::printer min::init_ostream
 
 inline void push
 	( min::packed_vec_insptr<char> buffer,
-	  const min::Ustring * str )
+	  const min::ustring * str )
 {
-    min::uns32 length = min::Ustring_length ( str );
-    const min::Uchar * sp = min::Ustring_chars ( str );
-    char output[7*length];
-    char * op = output;
-    while ( length -- )
-    {
-        min::Uchar c = * sp ++;
-	min::unicode_to_utf8 ( op, c );
-    }
-    min::push ( buffer, op - output, output );
+    min::uns32 length = min::ustring_length ( str );
+    const char * p = min::ustring_chars ( str );
+    min::push ( buffer, length, p );
 }
 
 static void end_line ( min::printer printer )
@@ -7793,15 +7788,19 @@ static void end_line ( min::printer printer )
 	     &
 	     char_flags )
 	    ::push ( buffer,
-	             min::unicode::unicode_Upicture
+	             min::unicode::unicode_picture
 		         [min::SOFTWARE_NL_CATEGORY] );
 	else
 	{
-	    min::push ( buffer, 1, "<" );
 	    ::push ( buffer,
-	             min::unicode::unicode_Uname
+	             printer->print_format
+		                  .char_name_prefix );
+	    ::push ( buffer,
+	             min::unicode::unicode_name
 		         [min::SOFTWARE_NL_CATEGORY] );
-	    min::push ( buffer, 1, ">" );
+	    ::push ( buffer,
+	             printer->print_format
+		                  .char_name_postfix );
 	}
     }
 
@@ -7904,6 +7903,10 @@ min::printer operator <<
 		MUP::new_ptr<const min::uns32>
 		    ( (const min::stub *) op.v2.p,
 		      op.v3.uptr ) );
+    case min::op::PUSTRING:
+// TBD: Optimize this later.
+        return printer << min::ustring_chars
+	         ( (const min::ustring *) op.v1.p );
     case min::op::PINT:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
@@ -8930,40 +8933,40 @@ std::ostream & operator <<
 		   << std::dec << ")";
 }
 
-static const min::Ustring QUOTE_USTRING[] =
-    { 0x10001, '"' };
-static const min::Ustring LT_Q_GT_USTRING[] =
-    { 0x30003, '<','Q','>' };
-static const min::Ustring LT_USTRING[] =
-    { 0x10001, '<' };
-static const min::Ustring COMMA_SP_USTRING[] =
-    { 0x20002, ',', ' ' };
-static const min::Ustring GT_USTRING[] =
-    { 0x10001, '>' };
-static const min::Ustring POUND_USTRING[] =
-    { 0x10001, '#' };
-static const min::Ustring SBRA_COLON_USTRING[] =
-    { 0x20002, '[', ':' };
-static const min::Ustring COLON_SKET_USTRING[] =
-    { 0x20002, ':', ']' };
-static const min::Ustring SBRA_DOLLAR_USTRING[] =
-    { 0x20002, '[', '$' };
-static const min::Ustring DOLLAR_SKET_USTRING[] =
-    { 0x20002, '$', ']' };
-static const min::Ustring SBRA_POINT_USTRING[] =
-    { 0x20002, '[', '.' };
-static const min::Ustring POINT_SKET_USTRING[] =
-    { 0x20002, '.', ']' };
-static const min::Ustring CBRA_USTRING[] =
-    { 0x10001, '{' };
-static const min::Ustring VBAR_USTRING[] =
-    { 0x10001, '|' };
-static const min::Ustring CKET_USTRING[] =
-    { 0x10001, '}' };
-static const min::Ustring CBRA_VBAR_USTRING[] =
-    { 0x20002, '{', '|' };
-static const min::Ustring VBAR_CKET_USTRING[] =
-    { 0x20002, '|', '}' };
+static const min::ustring * QUOTE_USTRING =
+    (const min::ustring *) "\x01\x01" "\"";
+static const min::ustring * LT_Q_GT_USTRING =
+    (const min::ustring *) "\x03\x03" "<Q>";
+static const min::ustring * LT_USTRING =
+    (const min::ustring *) "\x01\x01" "<";
+static const min::ustring * COMMA_SP_USTRING =
+    (const min::ustring *) "\x02\x02" ", ";
+static const min::ustring * GT_USTRING =
+    (const min::ustring *) "\x01\x01" ">";
+static const min::ustring * POUND_USTRING =
+    (const min::ustring *) "\x01\x01" "#";
+static const min::ustring * SBRA_COLON_USTRING =
+    (const min::ustring *) "\x02\x02" "[:";
+static const min::ustring * COLON_SKET_USTRING =
+    (const min::ustring *) "\x02\x02" ":]";
+static const min::ustring * SBRA_DOLLAR_USTRING =
+    (const min::ustring *) "\x02\x02" "[$";
+static const min::ustring * DOLLAR_SKET_USTRING =
+    (const min::ustring *) "\x02\x02" "$]";
+static const min::ustring * SBRA_POINT_USTRING =
+    (const min::ustring *) "\x02\x02" "[.";
+static const min::ustring * POINT_SKET_USTRING =
+    (const min::ustring *) "\x02\x02" ".]";
+static const min::ustring * CBRA_USTRING =
+    (const min::ustring *) "\x01\x01" "{";
+static const min::ustring * VBAR_USTRING =
+    (const min::ustring *) "\x01\x01" "|";
+static const min::ustring * CKET_USTRING =
+    (const min::ustring *) "\x01\x01" "}";
+static const min::ustring * CBRA_VBAR_USTRING =
+    (const min::ustring *) "\x02\x02" "{|";
+static const min::ustring * VBAR_CKET_USTRING =
+    (const min::ustring *) "\x02\x02" "|}";
 
 const min::quote_control
 	min::quote_all_control =
@@ -8987,7 +8990,7 @@ const min::quote_control
 static min::bracket_format quote_bracket_format =
 {
     ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
-    ::LT_USTRING, ::GT_USTRING, ::POUND_USTRING
+    ::POUND_USTRING
 };
 const min::bracket_format * min::quote_bracket_format =
     & ::quote_bracket_format;
@@ -9252,22 +9255,28 @@ static T pgen_bracketed_str
 {
     min::uns32 reduced_width =
     	  ::bracketed_str_width<T> ( out )
-	- min::Ustring_columns ( f->str_prefix )
-        - min::Ustring_columns ( f->str_postfix );
+	- min::ustring_columns ( f->str_prefix )
+        - min::ustring_columns ( f->str_postfix );
     if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 char_name_fix_width =
-                 min::Ustring_columns
+                 min::ustring_columns
 	             ( f->str_char_name_prefix )
-               + min::Ustring_columns
+               + min::ustring_columns
 	             ( f->str_char_name_postfix );
 
     min::uns32 postfix_length =
-        min::Ustring_length ( f->str_postfix );
-    const min::Uchar * postfix_string =
-        min::Ustring_chars ( f->str_postfix );
+        min::ustring_length ( f->str_postfix );
+    min::Uchar postfix_string[postfix_length+1];
+    const char * p =
+        min::ustring_chars ( f->str_postfix );
+    const char * endp = p + postfix_length;
+    min::Uchar * q = postfix_string;
+    while ( p != endp )
+        * q ++ = min::utf8_to_unicode ( p, endp );
+    postfix_length = q - postfix_string;
 
-    out << min::pUstring ( f->str_prefix );
+    out << min::pustring ( f->str_prefix );
 
     min::uns32 remaining_width = reduced_width;
 
@@ -9285,20 +9294,20 @@ static T pgen_bracketed_str
 	if ( remaining_width == 0 )
 	{
 	    out << min::punicode ( i, string )
-		<< min::pUstring
+		<< min::pustring
 		      ( f->str_postfix )
 		<< " "
 		<< min::set_break
-		<< min::pUstring
+		<< min::pustring
 		      ( f->str_concatenator )
 		<< " "
-		<< min::pUstring
+		<< min::pustring
 		      ( f->str_postfix );
 	    length -= i;
 	    string += i;
 	    i = 0;
 	    remaining_width = reduced_width
-	                    - min::Ustring_columns
+	                    - min::ustring_columns
 			        ( f->str_concatenator )
 			    - 1;
 	}
@@ -9322,7 +9331,7 @@ static T pgen_bracketed_str
 	    if ( length - i >= postfix_length
 	         &&
 		    memcmp ( string + i, postfix_string,
-		             postfix_length )
+		             4 * postfix_length )
 		 == 0 )
 	    {
 	        // Found substring of `string' equal to
@@ -9330,12 +9339,12 @@ static T pgen_bracketed_str
 		// in place of substring found.
 		//
 		min::uns32 columns =
-		     min::Ustring_columns
+		     min::ustring_columns
 		         ( f->str_postfix_name );
 	        if ( remaining_width >= columns )
 	        {
 		    out << min::punicode ( i, string )
-		        << min::pUstring
+		        << min::pustring
 			      ( f->str_postfix_name );
 		    ++ i;
 		    length -= i;
@@ -9353,16 +9362,16 @@ static T pgen_bracketed_str
 
 	if ( gen_flags & min::PICTURE_STR_FLAG )
 	{
-	    const min::Ustring * picture =
-		min::unicode_Upicture ( c );
+	    const min::ustring * picture =
+		min::unicode_picture ( c );
 	    if ( picture != NULL )
 	    {
 		min::uns32 columns =
-		    min::Ustring_columns ( picture );
+		    min::ustring_columns ( picture );
 		if ( columns <= remaining_width )
 		{
 		    out << min::punicode ( i, string )
-			<< min::pUstring ( picture );
+			<< min::pustring ( picture );
 
 		    ++ i;
 		    length -= i;
@@ -9376,8 +9385,8 @@ static T pgen_bracketed_str
 	    }
 	}
 	
-	const min::Ustring * name =
-	    min::unicode_Uname ( c );
+	const min::ustring * name =
+	    min::unicode_name ( c );
 
 	if ( name != NULL )
 	{
@@ -9386,16 +9395,16 @@ static T pgen_bracketed_str
 	    // in place of character.
 	    //
 	    min::uns32 columns =
-	        min::Ustring_columns ( name )
+	        min::ustring_columns ( name )
 		+
 		char_name_fix_width;
 	    if ( columns <= remaining_width )
 	    {
 	        out << min::punicode ( i, string )
-		    << min::pUstring
+		    << min::pustring
 		           ( f->str_char_name_prefix )
-		    << min::pUstring ( name )
-		    << min::pUstring
+		    << min::pustring ( name )
+		    << min::pustring
 		           ( f->str_char_name_postfix );
 
 		++ i;
@@ -9416,7 +9425,7 @@ static T pgen_bracketed_str
     }
 
     return out << min::punicode ( i, string )
-	       << min::pUstring
+	       << min::pustring
 	              ( f->str_postfix );
 }
 
