@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 01:48:33 EDT 2014
+// Date:	Tue Jul 15 03:32:17 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10752,23 +10752,6 @@ namespace min {
     extern const min::break_control
         break_after_space_and_hypenators;
 
-    struct gen_format;
-    struct bracket_format;
-    struct new_print_format
-    {
-	min::uns16			op_flags;
-	const min::char_flags *		char_flags;
-
-	min::support_control 		support_control;
-	min::display_control 		display_control;
-	min::break_control 		break_control;
-
-	const min::bracket_format *	bracket_format;
-
-	const min::gen_format *		gen_format;
-
-    };
-
     typedef bool suppress_matrix[256][256];
 
     extern const min::suppress_matrix *
@@ -10789,18 +10772,27 @@ namespace min {
 
     typedef min::uns32 context_gen_flags[6];
     struct gen_format;
-    struct char_format;
+    struct bracket_format;
     struct print_format
     {
 	uns32 flags;
-	const min::char_format * char_format;
 	const min::context_gen_flags *
 	    context_gen_flags;
-        const min::gen_format * gen_format;
+	const min::gen_format *		gen_format;
+
+	min::uns16			op_flags;
+	const min::char_flags *		char_flags;
+
+	min::support_control 		support_control;
+	min::display_control 		display_control;
+	min::break_control 		break_control;
+
+	const min::bracket_format *	bracket_format;
+
+
     };
 
     extern const print_format default_print_format;
-    extern print_format ostream_print_format;
 
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;
