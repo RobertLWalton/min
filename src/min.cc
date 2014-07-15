@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 14 13:00:26 EDT 2014
+// Date:	Mon Jul 14 21:32:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7410,6 +7410,9 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
+
+const min::uns16 min::standard_op_flags =
+    min::EXPAND_HT;
 static min::char_flags standard_char_flags;
 const min::char_flags * min::standard_char_flags =
     & ::standard_char_flags;
@@ -7438,42 +7441,22 @@ const min::support_control
     0xFFFF, 0
 };
 
-const min::allow_control
-        inclusive_allow_control =
+extern const min::display_control
+        verbatim_display_control =
 {
-    0xFFFF, min::IS_EOL
-};
-
-const min::allow_control
-        sp_allow_control =
-{
-    min::IS_GRAPHIC + min::IS_SP,
-    min::IS_HT + min::IS_EOL
-};
-
-const min::allow_control
-        graphic_allow_control =
-{
-    min::IS_GRAPHIC, min::IS_EOL
-};
-
-const min::allow_control
-        eol_allow_control =
-{
-    min::IS_GRAPHIC + min::IS_SP,
-    min::IS_HT
+    0xFFFF, 0, 0
 };
 
 extern const min::display_control
         name_display_control =
 {
-    0, 0xFFFF
+    min::IS_GRAPHIC + min::IS_SP, 0, 0xFFFF
 };
 
 extern const min::display_control
         picture_display_control =
 {
-    min::HAS_PICTURE, 0xFFFF
+    min::IS_GRAPHIC, min::HAS_PICTURE, 0xFFFF
 };
 
 const min::break_control
@@ -7485,29 +7468,25 @@ const min::break_control
 const min::break_control
 	break_after_space =
 {
-    min::IS_SP + min::IS_HT + min::IS_OTHER_SP, 0, 0, 0
+    min::IS_HSPACE, 0, 0, 0
 };
 
 const min::break_control
 	break_before_nonspace =
 {
-    0, min::IS_NON_SPACE, 0, 0
+    0, min::IS_NON_HSPACE, 0, 0
 };
 
 const min::break_control
 	break_after_space_and_hypenators =
 {
-    min::IS_SP + min::IS_HT + min::IS_OTHER_SP, 0,
+    min::IS_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
 };
 
 
 static void init_printer_formats ( void )
 {
-    min::uns16 IS_SPACE = min::IS_SP
-                        | min::IS_HT
-			| min::IS_OTHER_SP;
-
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
 	min::uns32 flags = 0;
@@ -7518,19 +7497,19 @@ static void init_printer_formats ( void )
 	    flags |= min::HAS_NAME;
 
 	if ( cat == ' ' )
-	    flags |= min::IS_SP;
+	    flags |= min::IS_SP | min::IS_HSPACE;
 	else if ( cat == '\t' )
-	    flags |= min::IS_HT;
-	else if ( cat == 's' )
-	    flags |= min::IS_OTHER_SP;
+	    flags |= min::IS_HT | min::IS_HSPACE;
+	else if (    cat == 's'
+	          || cat == 0xA0  /* NBSP */ )
+	    flags |= min::IS_HSPACE;
 	else if ( cat == 'e' )
 	    flags |= min::IS_EOL;
 	else if ( index ( "lpuvwxz", cat ) == NULL )
 	    flags |= min::IS_GRAPHIC;
 
-	if ( ( flags & (   IS_SPACE
-	                 | min::IS_EOL ) ) == 0 )
-	    flags |= min::IS_NON_SPACE;
+	if ( ( flags & min::IS_HSPACE ) == 0 )
+	    flags |= min::IS_NON_HSPACE;
 
 	if ( index ( "-%_", cat ) != NULL )
 	    flags |= min::CONDITIONAL_BREAK;

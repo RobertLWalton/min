@@ -2554,6 +2554,8 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->line_break.line_length == 72 );
 
+#ifdef NONE_SUCH
+
     printer << min::bom << min::set_indent ( 4 ) 
             << min::gbreak
             << min::graphic << min::ascii
@@ -3042,6 +3044,8 @@ void test_printer ( void )
 	  min::new_str_gen
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
+
+# endif
 
     min_assert_print = true;
     cout << endl;
@@ -4592,11 +4596,11 @@ int main ( int argc, const char * argv[] )
 	test_file();
 	test_identifier_map();
 	test_printer();
-	test_objects();
-	test_object_vector_level();
-	test_object_list_level();
-	test_object_attribute_level();
-	test_object_printing();
+	// test_objects();
+	// test_object_vector_level();
+	// test_object_list_level();
+	// test_object_attribute_level();
+	// test_object_printing();
 
 	// Check that deallocated_body_region is still
 	// zero.
