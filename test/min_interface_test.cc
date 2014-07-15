@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  7 02:43:22 EDT 2014
+// Date:	Tue Jul 15 00:33:52 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
