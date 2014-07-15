@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 00:33:52 EDT 2014
+// Date:	Tue Jul 15 02:06:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -639,8 +639,7 @@ void test_general_value_functions ( void )
 	 << min::unsptr ( stub )
 	 << dec << endl;
     min::gen stubgen = MUP::new_stub_gen ( stub );
-    cout << "stubgen: " << min::pgen ( stubgen )
-	 << min::eol;
+    cout << "stubgen: " << stubgen << endl;
     MIN_ASSERT ( min::is_stub ( stubgen ) );
     MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
     MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
@@ -658,8 +657,7 @@ void test_general_value_functions ( void )
 	int i = -8434;
 	min::gen igen =
 	    MUP::new_direct_int_gen ( i );
-	cout << "igen: " << min::pgen ( igen )
-	     << min::eol;
+	cout << "igen: " << igen << endl;
 	MIN_ASSERT ( min::is_direct_int ( igen ) );
 	MIN_ASSERT
 	    ( count_gen_tests ( igen ) == 1 );
@@ -702,8 +700,7 @@ void test_general_value_functions ( void )
 	min::float64 f = -8.245324897;
 	min::gen fgen =
 	    MUP::new_direct_float_gen ( f );
-	cout << "fgen: " << min::pgen ( fgen )
-	     << min::eol;
+	cout << "fgen: " << fgen << endl;
 	MIN_ASSERT
 	    ( min::is_direct_float ( fgen ) );
 	MIN_ASSERT
@@ -743,8 +740,7 @@ void test_general_value_functions ( void )
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
-    cout << "strgen: " << min::pgen ( strgen )
-	 << min::eol;
+    cout << "strgen: " << strgen << endl;
     MIN_ASSERT ( min::is_direct_str ( strgen ) );
     MIN_ASSERT ( count_gen_tests ( strgen ) == 1 );
     MIN_ASSERT (    min::gen_subtype_of ( strgen )
@@ -761,8 +757,7 @@ void test_general_value_functions ( void )
 
     min::gen strngen =
 	MUP::new_direct_str_gen ( str, 2 );
-    cout << "strngen: " << min::pgen ( strngen )
-	 << min::eol;
+    cout << "strngen: " << strngen << endl;
     MIN_ASSERT ( min::is_direct_str ( strngen ) );
     MIN_ASSERT ( count_gen_tests ( strngen ) == 1 );
     MIN_ASSERT (    min::gen_subtype_of ( strngen )
@@ -787,8 +782,7 @@ void test_general_value_functions ( void )
     unsigned aux = 734523;
     min::gen listauxgen =
 	MUP::new_list_aux_gen ( aux );
-    cout << "listauxgen: "
-	 << min::pgen ( listauxgen ) << min::eol;
+    cout << "listauxgen: " << listauxgen << endl;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -807,8 +801,7 @@ void test_general_value_functions ( void )
     unsigned reaux = 963921;
     listauxgen =
 	MUP::renew_gen ( listauxgen, reaux );
-    cout << "re-listauxgen: "
-	 << min::pgen ( listauxgen ) << min::eol;
+    cout << "re-listauxgen: " << listauxgen << endl;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -821,8 +814,7 @@ void test_general_value_functions ( void )
 	 << endl;
     min::gen sublistauxgen =
 	MUP::new_sublist_aux_gen ( aux );
-    cout << "sublistauxgen: "
-	 << min::pgen ( sublistauxgen ) << min::eol;
+    cout << "sublistauxgen: " << sublistauxgen << endl;
     MIN_ASSERT
 	( min::is_sublist_aux ( sublistauxgen ) );
     MIN_ASSERT
@@ -848,7 +840,7 @@ void test_general_value_functions ( void )
     min::gen indirectauxgen =
 	MUP::new_indirect_aux_gen ( aux );
     cout << "indirectauxgen: "
-	 << min::pgen ( indirectauxgen ) << min::eol;
+	 << indirectauxgen << endl;
     MIN_ASSERT
 	( min::is_indirect_aux
 		    ( indirectauxgen ) );
@@ -875,8 +867,7 @@ void test_general_value_functions ( void )
     unsigned index = 734523;
     min::gen indexgen =
 	MUP::new_index_gen ( index );
-    cout << "indexgen: "
-	 << min::pgen ( indexgen ) << min::eol;
+    cout << "indexgen: " << indexgen << endl;
     MIN_ASSERT ( min::is_index ( indexgen ) );
     MIN_ASSERT
 	( count_gen_tests ( indexgen ) == 1 );
@@ -899,8 +890,7 @@ void test_general_value_functions ( void )
     unsigned code = 0x7e005f;
     min::gen codegen =
 	MUP::new_control_code_gen ( code );
-    cout << "codegen: "
-	 << min::pgen ( codegen ) << min::eol;
+    cout << "codegen: " << codegen << endl;
     MIN_ASSERT ( min::is_control_code ( codegen ) );
     MIN_ASSERT ( count_gen_tests ( codegen ) == 1 );
     MIN_ASSERT
@@ -951,8 +941,7 @@ void test_general_value_functions ( void )
     unsigned special = 0x7e005f;
     min::gen specialgen =
 	MUP::new_special_gen ( special );
-    cout << "specialgen: "
-	 << min::pgen ( specialgen ) << min::eol;
+    cout << "specialgen: " << specialgen << endl;
     MIN_ASSERT ( min::is_special ( specialgen ) );
     MIN_ASSERT
 	( count_gen_tests ( specialgen ) == 1 );
@@ -1418,7 +1407,7 @@ void test_numbers ( void )
 	    " functions:" << endl;
 
     min::gen n1 = min::new_num_gen ( 12345 );
-    cout << "n1: " << min::pgen ( n1 ) << min::eol;
+    cout << "n1: " << n1 << endl;
     MIN_ASSERT ( min::is_num ( n1 ) );
     MIN_ASSERT ( min::is_name ( n1 ) );
     MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
@@ -1435,7 +1424,7 @@ void test_numbers ( void )
 
     min::gen n2 = min::new_num_gen ( 1.2345 );
 #   if MIN_IS_LOOSE
-	cout << "n2: " << min::pgen ( n2 ) << min::eol;
+	cout << "n2: " << n2 << endl;
 #   endif
     MIN_ASSERT ( min::is_num ( n2 ) );
     MIN_ASSERT ( min::is_name ( n2 ) );
@@ -1453,7 +1442,7 @@ void test_numbers ( void )
 
     min::gen n3 = min::new_num_gen ( 1 << 30 );
 #   if MIN_IS_LOOSE
-	cout << "n3: " << min::pgen ( n3 ) << min::eol;
+	cout << "n3: " << n3 << endl;
 #   endif
     MIN_ASSERT ( min::is_num ( n3 ) );
     MIN_ASSERT ( min::is_name ( n3 ) );
@@ -1882,7 +1871,8 @@ void test_strings ( void )
 	len = min::utf8_to_unicode
 	    ( u2, u2 + 8, s2, s2 + 2 * 7 - 1 );
 	MIN_ASSERT ( len == 7 );
-	MIN_ASSERT ( Ubuffer2[6] == min::UNKNOWN_UCHAR );
+	MIN_ASSERT
+	    ( Ubuffer2[6] == min::UNKNOWN_UCHAR );
 
 	char sbuffer3[20];
 	char * s3 = sbuffer3;
@@ -1959,7 +1949,7 @@ void test_labels ( void )
     min::lab_ptr labp2 ( labv1[0] );
     MIN_ASSERT ( labp2 == min::NULL_STUB );
 
-    cout << "LABEL " << min::pgen ( lab ) << endl;
+    cout << "LABEL " << lab << endl;
 
     MIN_ASSERT
         ( -1 == min::is_subsequence ( lab, labv1[0] ) );
@@ -2554,6 +2544,7 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->line_break.line_length == 72 );
 
+#define NONE_SUCH
 #ifdef NONE_SUCH
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -3797,9 +3788,9 @@ static bool check_attr_info
         if ( aiv[i].name != aip[i].name )
 	{
 	    cout << i << ": BAD NAME: "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 		 << " != "
-		 << min::pgen ( aip[i].name )
+		 << aip[i].name
 		 << endl;
 	    ok = false;
 	    continue;
@@ -3807,7 +3798,7 @@ static bool check_attr_info
         if ( aiv[i].value_count != aip[i].value_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 	         << ": BAD VALUE COUNT: "
 	         << aiv[i].value_count << " != "
 		 << aip[i].value_count << endl;
@@ -3816,7 +3807,7 @@ static bool check_attr_info
         if ( aiv[i].flag_count != aip[i].flag_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 	         << ": BAD FLAG COUNT: "
 	         << aiv[i].flag_count << " != "
 		 << aip[i].flag_count << endl;
@@ -3826,7 +3817,7 @@ static bool check_attr_info
 	     != aip[i].reverse_attr_count )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 	         << ": BAD REVERSE ATTR COUNT: "
 	         << aiv[i].reverse_attr_count << " != "
 		 << aip[i].reverse_attr_count << endl;
@@ -3835,7 +3826,7 @@ static bool check_attr_info
         if ( aiv[i].value != aip[i].value )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 	         << ": BAD VALUE: "
 	         << aiv[i].value << " != "
 		 << aip[i].value << endl;
@@ -3844,7 +3835,7 @@ static bool check_attr_info
         if ( aiv[i].flags != aip[i].flags )
 	{
 	    cout << i << ": "
-	         << min::pgen ( aiv[i].name )
+	         << aiv[i].name
 	         << ": BAD FLAGS: " << hex
 	         << aiv[i].flags << " != "
 		 << aip[i].flags
@@ -3854,10 +3845,10 @@ static bool check_attr_info
     }
     if ( m > n )
         cout << "AN EXTRA ATTRIBUTE MAY BE "
-	     << min::pgen ( aiv[n].name ) << endl;
+	     << aiv[n].name << endl;
     else if ( m < n )
         cout << "A MISSING ATTRIBUTE MAY BE "
-	     << min::pgen ( aip[m].name ) << endl;
+	     << aip[m].name << endl;
 
     min_assert_print = save_min_assert_print;
     return ok;
@@ -3906,9 +3897,9 @@ static bool check_values
 	    if ( values[i] != sortedp[i] )
 	    {
 	        cout << i << ": BAD VALUE: "
-		    << min::pgen ( values[i] )
+		    << values[i]
 		    << " != "
-		    << min::pgen ( sortedp[i] )
+		    << sortedp[i]
 		    << endl;
 		ok = false;
 		break;
@@ -3933,8 +3924,8 @@ void test_attribute_values
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE VALUES ( "
-         << min::pgen ( label1 ) << ", "
-         << min::pgen ( label2 ) << ")" << endl;
+         << label1 << ", "
+         << label2 << ")" << endl;
 
     min::gen val1 = min::new_num_gen ( 1 );
     min::gen val2 = min::new_num_gen ( 2 );
@@ -4070,9 +4061,9 @@ void test_attribute_flags
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE FLAGS ( "
-         << min::pgen ( label1 ) << ", "
-         << min::pgen ( label2 ) << ", "
-         << min::pgen ( label3 ) << ")" << endl;
+         << label1 << ", "
+         << label2 << ", "
+         << label3 << ")" << endl;
 
     min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
     min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
@@ -4190,9 +4181,9 @@ void test_reverse_attribute_values
     min_assert_print = false;
 
     cout << "TEST REVERSE ATTRIBUTE VALUES ( "
-         << min::pgen ( label1 ) << ", "
-         << min::pgen ( rlabel1 ) << ", "
-         << min::pgen ( label2 ) << ")" << endl;
+         << label1 << ", "
+         << rlabel1 << ", "
+         << label2 << ")" << endl;
 
     min::gen values1[8] =
         { obj1, obj2, obj3,
@@ -4596,11 +4587,11 @@ int main ( int argc, const char * argv[] )
 	test_file();
 	test_identifier_map();
 	test_printer();
-	// test_objects();
-	// test_object_vector_level();
-	// test_object_list_level();
-	// test_object_attribute_level();
-	// test_object_printing();
+	test_objects();
+	test_object_vector_level();
+	test_object_list_level();
+	test_object_attribute_level();
+	test_object_printing();
 
 	// Check that deallocated_body_region is still
 	// zero.

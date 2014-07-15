@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 00:26:01 EDT 2014
+// Date:	Tue Jul 15 01:48:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11486,13 +11486,13 @@ inline min::printer operator <<
     return oprinter << iprinter->file;
 }
 
-std::ostream & operator <<
-	( std::ostream & out,
-	  const min::op & op );
 
 
 // Printing General Values
 // -------- ------- ------
+
+std::ostream & operator <<
+	( std::ostream & out, min::gen g );
 
 namespace min {
 
@@ -11671,12 +11671,6 @@ inline min::printer operator <<
     return printer << min::pgen ( g );
 }
 
-inline std::ostream & operator <<
-	( std::ostream & out,
-	  min::gen g )
-{
-    return out << min::pgen ( g );
-}
 
 // More Allocator/Collector/Compactor Interface
 // ---- ----------------------------- ---------
