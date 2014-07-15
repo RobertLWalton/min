@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 02:08:00 EDT 2014
+// Date:	Tue Jul 15 03:34:35 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7436,49 +7436,49 @@ const min::support_control
 };
 
 const min::support_control
-        inclusive_support_control =
+        min::inclusive_support_control =
 {
     0xFFFF, 0
 };
 
-extern const min::display_control
-        verbatim_display_control =
+const min::display_control
+        min::verbatim_display_control =
 {
     0xFFFF, 0, 0
 };
 
-extern const min::display_control
-        name_display_control =
+const min::display_control
+        min::name_display_control =
 {
     min::IS_GRAPHIC + min::IS_SP, 0, 0xFFFF
 };
 
-extern const min::display_control
-        picture_display_control =
+const min::display_control
+        min::picture_display_control =
 {
     min::IS_GRAPHIC, min::HAS_PICTURE, 0xFFFF
 };
 
 const min::break_control
-	never_break =
+	min::never_break =
 {
     0, 0, 0, 0
 };
 
 const min::break_control
-	break_after_space =
+	min::break_after_space =
 {
     min::IS_HSPACE, 0, 0, 0
 };
 
 const min::break_control
-	break_before_nonspace =
+	min::break_before_nonspace =
 {
     0, min::IS_NON_HSPACE, 0, 0
 };
 
 const min::break_control
-	break_after_space_and_hypenators =
+	min::break_after_space_and_hypenators =
 {
     min::IS_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
@@ -7592,17 +7592,14 @@ const min::line_break min::default_line_break =
 const min::print_format min::default_print_format =
 {
     min::DEFAULT_PRINT_FLAGS,
-    NULL,
     & min::default_context_gen_flags,
-    & min::default_gen_format
-};
-
-min::print_format min::ostream_print_format =
-{
-    min::DEFAULT_PRINT_FLAGS,
-    NULL,
-    & min::default_context_gen_flags,
-    & min::default_gen_format
+    & min::default_gen_format,
+    min::EXPAND_HT,
+    & ::standard_char_flags,
+    min::ascii_support_control,
+    min::name_display_control,
+    min::break_after_space,
+    NULL
 };
 
 static min::uns32 space[1] = { ' ' };
