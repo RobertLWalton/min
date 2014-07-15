@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 13 20:18:21 EDT 2014
+// Date:	Tue Jul 15 07:10:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,8 +37,6 @@ const unsigned index_limit_max = 512;
     // Upper bound on unicode_index_limit; used to allo-
     // cate vectors before the value of unicode_max_
     // index is computed.
-const unsigned Ustrings_size_limit = 16000;
-    // Similar upper bound on unicode_Ustrings_size.
 
 // For each of the extern'ed data in unicode_data.h we
 // have a corresponding datum here with no `const' and
@@ -50,10 +48,8 @@ unsigned index_limit = 0;
 unsigned short index[index_size];
 
 unsigned char category[index_limit_max];
-const Ustring * Uname[index_limit_max];
-const char * name[index_limit_max];
-const Ustring * Upicture[index_limit_max];
-const char * picture[index_limit_max];
+const ustring * name[index_limit_max];
+const ustring * picture[index_limit_max];
 double numerator[index_limit_max];
 double denominator[index_limit_max];
 double numeric_value[index_limit_max];
@@ -66,50 +62,6 @@ const char * supported_set[supported_set_limit] = {
     /*  1 */ "latin1"
 };
 
-unsigned Ustrings_size = 2 * 35;
-Uchar Ustrings[Ustrings_size_limit] = {
-    // The following are the unicode_Upicture Ustrings
-    // for the first 33 ASCII characters followed by
-    // the DEL and NL characters ( a total of 35
-    // Ustrings).  Each Ustring is that of a 1-column
-    // wide UNICODE `control picture'.
-    //
-    0x10001, 0x2400, // NUL
-    0x10001, 0x2401, // SOH
-    0x10001, 0x2402, // STX
-    0x10001, 0x2403, // ETX
-    0x10001, 0x2404, // EOT
-    0x10001, 0x2405, // ENQ
-    0x10001, 0x2406, // ACK
-    0x10001, 0x2407, // BEL
-    0x10001, 0x2408, // BS
-    0x10001, 0x2409, // HT
-    0x10001, 0x240A, // LF
-    0x10001, 0x240B, // VT
-    0x10001, 0x240C, // FF
-    0x10001, 0x240D, // CR
-    0x10001, 0x240E, // SS
-    0x10001, 0x240F, // SI
-    0x10001, 0x2410, // DLE
-    0x10001, 0x2411, // DC1
-    0x10001, 0x2412, // DC2
-    0x10001, 0x2413, // DC3
-    0x10001, 0x2414, // DC4
-    0x10001, 0x2415, // NAK
-    0x10001, 0x2416, // SYN
-    0x10001, 0x2417, // ETB
-    0x10001, 0x2418, // CAN
-    0x10001, 0x2419, // EM
-    0x10001, 0x241A, // SUB
-    0x10001, 0x241B, // ESC
-    0x10001, 0x241C, // FS
-    0x10001, 0x241D, // GS
-    0x10001, 0x241E, // RS
-    0x10001, 0x241F, // US
-    0x10001, 0x2423, // SP
-    0x10001, 0x2421, // DEL
-    0x10001, 0x2424, // NL -- for SOFTWARE_NL
-    0x0 };
 const unsigned category_limit = 256;
 const char * category_name[category_limit];
 const char * category_description[category_limit];
@@ -124,13 +76,9 @@ const char * category_description[category_limit];
 # define unicode_index_limit index_limit
 # define unicode_index index
 # define unicode_index_size index_size
-# define unicode_Ustrings Ustrings
-# define unicode_Ustrings_size Ustrings_size
 # define unicode_category category
 # define unicode_name name
-# define unicode_Uname Uname
 # define unicode_picture picture
-# define unicode_Upicture Upicture
 # define unicode_numerator numerator
 # define unicode_denominator denominator
 # define unicode_numeric_value numeric_value
@@ -228,8 +176,8 @@ unsigned new_index ( Uchar c )
     index[c] = i;
 
     category[i] = UNSPECIFIED_CATEGORY;
-    Uname[i] = NULL;
     name[i] = NULL;
+    picture[i] = NULL;
     numerator[i] = denominator[i] = 0;
     numeric_value[i] = NAN;
     reference_count[i] = 1;
@@ -257,23 +205,31 @@ void initialize ( void )
     }
 }
 
-// Finalize tables.  Upicture[index[c]] and
-// picture[index[c]] are set for 0 <= c <= 0x20,
-// c == 0x7F, and c == SOFTWARE_NL.  See load time
-// value of Ustrings above.
+// Finalize tables.  picture[index[c]] is set for
+// 0 <= c <= 0x20, c == 0x7F, and c == SOFTWARE_NL.
 //
 void finalize ( void )
 {
     unsigned i = 0; 
     for ( Uchar c = 0; c <= SOFTWARE_NL; )
     {
-        Upicture[index[c]] = & Ustrings[i];
+        Uchar pic =
+	    c  < 0x20 ? c + 0x2400 :  // NUL ... US
+	    c == 0x20 ? 0x2423 :     // SP
+	    c == 0x7F ? 0x2421 :     // DEL
+	    c == SOFTWARE_NL ? 0x2424 :
+		 UNKNOWN_UCHAR;
 
-	char buffer[8];
-	char * s = buffer;
-	unicode_to_utf8 ( s, Ustrings[i+1] );
-	* s = 0;
-	picture[index[c]] = strdup ( buffer );
+
+	char buffer[11];
+	char * s = buffer + 2;
+	unsigned length =
+	    unicode_to_utf8 ( s, pic );
+	buffer[0] = length;
+	buffer[1] = 1;
+	buffer[length+2] = 0;
+	picture[index[c]] =
+	    (ustring *) strdup ( (char *) buffer );
 
 	i += 2;
 	if ( c == 0x20 ) c = 0x7F;
@@ -283,18 +239,15 @@ void finalize ( void )
 }
 
 
-
-
 // Store UNICODE name for a character.  Complain if
 // character has previously been given a name.  Complain
 // if name already used by another character.
 //
 // The name n must be a string of ASCII graphic charac-
 // ters presented as a const char * string.  This is
-// converted to a Ustring.  The `name' (UTF8) and
-// `Uname' values allow more complex names with combin-
-// ing diacritics, but currently these are not used by
-// the UNICODE standard.
+// converted to a ustring.  This allows more complex
+// names with combining diacritics, but currently these
+// are not used by the UNICODE standard.
 //
 void store_name ( Uchar c, const char * n )
 {
@@ -305,12 +258,12 @@ void store_name ( Uchar c, const char * n )
     if ( i != 0 )
     {
 	assert ( name[i] != NULL );
-	assert ( Uname[i] != NULL );
 	    // Names should be set before number values
 	    // and categories.
 	line_error ( "character %02X previously"
 	             " assigned the name `%s'; line"
-	             " ignored", c, name[i] );
+	             " ignored", c,
+		     ustring_chars ( name[i] ) );
 	return;
     }
 
@@ -321,25 +274,27 @@ void store_name ( Uchar c, const char * n )
     //
     i = new_index ( c );
 
-    // Set name[i] and Uname[i].
+    // Set name[i].
     //
-    name[i] = strdup ( n );
+    assert ( name_length < 256 );
+    ustring buffer[name_length+3];
+    buffer[0] = buffer[1] = name_length;
+    memcpy ( buffer + 2, n, name_length );
+    buffer[name_length+2] = 0;
 
-    Uname[i] = & Ustrings[Ustrings_size];
-    assert (    Ustrings_size + 1 + name_length
-             <= Ustrings_size_limit );
-    Ustrings[Ustrings_size++] =
-        ( name_length << 16 ) + name_length;
-    for ( unsigned j = 0; j < name_length; ++ j )
-        Ustrings[Ustrings_size++] = (Uchar) n[j];
+    name[i] = (ustring *) strdup ( (char *) buffer );
 
     // Check for name being used more than once.
     //
     for ( unsigned i2 = 0; i2 < index_limit - 1; ++ i2 )
     {
-	if ( name[i2] == NULL )
+	const ustring * name2 = name[i2];
+	if ( name2 == NULL )
 	    continue;
-	if ( strcmp ( name[i2], n ) != 0 )
+	if ( ustring_length ( name2 ) != name_length )
+	    continue;
+	if ( strcmp (    ustring_chars ( name2 ), n )
+	              != 0 )
 	    continue;
 
 	line_error ( "character name `%s' used more"
@@ -957,8 +912,9 @@ void read_composite_characters ( void )
 	}
 	if ( i == supported_set_limit )
 	{
-	    line_error ( "unrecognized supported character"
-	                 " set name (%s); line ignored",
+	    line_error ( "unrecognized supported"
+	                 " character set name (%s);"
+			 " line ignored",
 			 field );
 	    continue;
 	}
@@ -1007,7 +963,9 @@ int main ( int argc, const char ** argv )
 
     assert ( category[index[SOFTWARE_NL]] == 'v' );
     assert ( denominator[index[SOFTWARE_NL]] == 0 );
-    assert ( strcmp ( name[index[SOFTWARE_NL]], "NL" )
+    assert ( strcmp ( ustring_chars
+		        ( name[index[SOFTWARE_NL]] ),
+		      "NL" )
              == 0 );
     category[index[SOFTWARE_NL]] = SOFTWARE_NL_CATEGORY;
 

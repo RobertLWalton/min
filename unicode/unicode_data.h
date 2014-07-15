@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 13 05:45:34 EDT 2014
+// Date:	Tue Jul 15 06:57:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,44 +13,45 @@
 typedef unsigned int Uchar;
     // Unicode character.  Must be 32 bit integer.
 
-typedef Uchar Ustring;
-    // A `Ustring *' value is a sequence of 32 bit
-    // integers the first of which is the `header'
-    // and the remainder of which is a vector of Uchars.
+typedef unsigned char ustring;
+    // A `ustring *' value is a sequence of 8 bit bytes
+    // the first two of which are the `header' and the
+    // remainder of which is a NUL terminated `const
+    // char *' UTF8 encoded string (the ending NUL is
+    // NOT part of the encoded string).
     // 
-    // The header encodes the length of the Uchar
-    // vector, excluding the header, in its low order
-    // 16 bits, and the number of print columns taken
-    // by Uchars in the vector, in its high order 16
-    // bits.
+    // The header encodes the length of the UTF8 string
+    // in bytes, excluding the header and terminating
+    // NUL, in its first byte, and the number of print
+    // columns taken the Uchars encoded by UTF8 string,
+    // in its second byte.
     //
     // To compute the number of columns, it is assumed
     // all UNICODE characters take one column, except
     // non-spacing marks, with category 'N', take zero
     // columns.  This further assumes control characters
-    // are not in Ustrings for which the columns value
+    // are not in ustrings for which the columns value
     // is used.
 
 // Return length and number of print columns from the
-// header of a Ustring, and return a pointer to the
-// Uchar vector of the Ustring.
+// header of a ustring, and return a pointer to the
+// `const char *' string in the ustring.
 //
-inline unsigned Ustring_length
-	( const Ustring * p )
+inline unsigned ustring_length
+	( const ustring * p )
 {
-    return * p & 0xFFFF;
+    return p[0];
 }
-inline unsigned Ustring_columns
-	( const Ustring * p )
+inline unsigned ustring_columns
+	( const ustring * p )
 {
-    return * p >> 16;
+    return p[1];
 }
-inline const Uchar * Ustring_chars
-	( const Ustring * p )
+inline const char * ustring_chars
+	( const ustring * p )
 {
-    return p + 1;
+    return (const char *) ( p + 2 );
 }
-
 
 const Uchar UNKNOWN_UCHAR = 0xFFFD;
     // == `unicode replacement character',
@@ -213,32 +214,25 @@ extern const unsigned char unicode_category[];
     // is `+') if they are not a letter.  All other
     // categories are letters.
 
-extern const Ustring * const unicode_Uname[];
-    // unicode_Uname[unicode_index[c]] is the Ustring
+extern const ustring * const unicode_name[];
+    // unicode_name[unicode_index[c]] is the ustring
     // name of c, or NULL if c has no name.  For
-    // example, character code 0A has as Ustring Uname
-    // { 0x2002, 'L', 'F' }.
+    // example, character code 0A has as ustring name
+    // "\x02\x02" "LF" (where the two strings are
+    // concatenated, which is done to prevent the
+    // first character of the second from being
+    // interpreted as a hexadecimal digit).
     //
     // Names are assigned by the UNICODE standard and
     // are NOT made up.
 
-extern const char * const unicode_name[];
-    // unicode_name[i] is the extended UTF8 NUL-termin-
-    // ated version of unicode_Uname[i].  For example,
-    // character code 0A has as unicode_name "LF".
-    // For the time being it is an ASCII string.
-
-extern const Ustring * const unicode_Upicture[];
-    // unicode_Upicture[unicode_index[c]] is the Ustring
+extern const ustring * const unicode_picture[];
+    // unicode_picture[unicode_index[c]] is the ustring
     // picture name of c, or NULL if c has no picture
-    // name.  For example, character code 0A has as
-    // unicode_Upicture the Ustring { 0x1001, 0x240A },
-    // where 0x240A is the LF `control picture' UNICODE
+    // name.  E.g., character code 0A has as unicode_
+    // picture the ustring "\x03\x01\xE2\x90\x8A", which
+    // encodes 240A, the LF `control picture' UNICODE
     // character.
-
-extern const char * const unicode_picture[];
-    // unicode_picture[i] is the extended UTF8 NUL-ter-
-    // minated version of unicode_Upicture[i].
 
 extern const double unicode_numerator[];
 extern const double unicode_denominator[];
@@ -266,15 +260,6 @@ extern const unsigned unicode_reference_count[];
     // unicode_numerator[t] is the number of character
     // codes c with t == unicode_index[c].  This is
     // just for integrety checking purposes.
-
-extern const unsigned unicode_Ustrings_size;
-extern const Uchar unicode_Ustrings[];
-    // Ustrings used as unicode_Unames are allocated as
-    // subvectors of this vector, because g++ does not
-    // implement U"..." yet.  So, for example, 
-    // unicode_name[unicode_index[0x00]] may be
-    // & unicode_Ustrings[0] if that and succeeding
-    // elements are 0x10001, 'N', 'U', 'L'.
 
 const unsigned unicode_category_limit = 256;
 extern const char * const
