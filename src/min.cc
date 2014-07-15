@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 01:47:36 EDT 2014
+// Date:	Tue Jul 15 02:08:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8196,144 +8196,6 @@ min::printer operator <<
     }
 }
 
-# ifdef NONE_SUCH
-
-static std::ostream & ostream_unicode
-	( std::ostream & out, min::uns32 flags,
-	  min::unsptr n, const min::uns32 * str );
-
-static std::ostream & ostream_pgen
-	( std::ostream & out,
-	  min::uns32 gen_flags,
-	  min::gen v,
-	  const min::context_gen_flags *
-	      context_gen_flags,
-	  const min::gen_format * f );
-
-static std::ostream & flush_one_id
-	( std::ostream & out );
-
-static min::locatable_var<min::id_map> ostream_id_map;
-
-std::ostream & operator <<
-	( std::ostream & out,
-	  const min::op & op )
-{
-    char buffer[256];
-    switch ( op.opcode )
-    {
-    case min::op::SET_CONTEXT_GEN_FLAGS:
-	min::ostream_print_format.context_gen_flags =
-	    (const min::context_gen_flags *) op.v1.p;
-	return out;
-    case min::op::SET_GEN_FORMAT:
-	min::ostream_print_format.gen_format =
-	    (const min::gen_format *) op.v1.p;
-	return out;
-    case min::op::SET_PRINT_FLAGS:
-	min::ostream_print_format.flags |= op.v1.u32;
-	return out;
-    case min::op::CLEAR_PRINT_FLAGS:
-	min::ostream_print_format.flags &= ~ op.v1.u32;
-	return out;
-    case min::op::PGEN_CONTEXT:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-
-	return ::ostream_pgen
-	    ( out,
-	      ( * min::ostream_print_format
-	               .context_gen_flags )[op.v2.u32],
-	      MUP::new_gen ( op.v1.g ),
-	      min::ostream_print_format
-	               .context_gen_flags,
-	      f );
-    }
-    case min::op::PGEN_GEN_FLAGS:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-
-	return ::ostream_pgen
-	    ( out, op.v2.u32,
-	      MUP::new_gen ( op.v1.g ),
-	      min::ostream_print_format
-	               .context_gen_flags,
-	      f );
-    }
-    case min::op::PGEN_CONTEXT_GEN_FLAGS:
-    {
-	const min::gen_format * f =
-	    min::ostream_print_format.gen_format;
-
-	return ::ostream_pgen
-	    ( out, op.v2.u32,
-	      MUP::new_gen ( op.v1.g ),
-	      (const min::context_gen_flags *) op.v3.p,
-	      f );
-    }
-    case min::op::FLUSH_ONE_ID:
-        return ::flush_one_id ( out );
-    case min::op::FLUSH_ID_MAP:
-    {
-        min::id_map id_map = ::ostream_id_map;
-	if ( id_map != min::NULL_STUB )
-	while ( id_map->next < id_map->length )
-	    ::flush_one_id ( out );
-	return out;
-    }
-    case min::op::PUNICODE1:
-	return ::ostream_unicode
-	    ( out, min::ostream_print_format.flags,
-	      1, & op.v1.u32 );
-    case min::op::PUNICODE2:
-	return ::ostream_unicode
-	    ( out, min::ostream_print_format.flags,
-	      op.v1.uptr,
-   	      ! MUP::new_ptr<const min::uns32>
-		    ( (const min::stub *) op.v2.p,
-		      op.v3.uptr ) );
-    case min::op::PINT:
-	sprintf ( buffer, (const char *) op.v2.p,
-			  op.v1.i64 );
-	return out << buffer;
-    case min::op::PUNS:
-	sprintf ( buffer, (const char *) op.v2.p,
-			  op.v1.u64 );
-	return out << buffer;
-    case min::op::PFLOAT:
-	sprintf ( buffer, (const char *) op.v2.p,
-			  op.v1.f64 );
-	return out << buffer;
-    case min::op::SUPPRESSIBLE_SPACE:
-    case min::op::SPACE:
-    case min::op::SPACE_IF_AFTER_INDENT:
-	return out << " ";
-    case min::op::EOM:
-	out << std::endl;
-	if (   min::ostream_print_format.flags
-	     & min::FLUSH_ID_MAP_FLAG )
-	{
-	    min::id_map id_map = ::ostream_id_map;
-	    if ( id_map != min::NULL_STUB )
-	    while ( id_map->next < id_map->length )
-		::flush_one_id ( out );
-	}
-	return out;
-    case min::op::BOL:
-    case min::op::EOL_IF_AFTER_INDENT:
-    case min::op::EOL:
-	return out << std::endl;
-    case min::op::FLUSH:
-	return out << std::flush;
-    default:
-        return out;
-    }
-}
-
-# endif
-
 const min::op min::save_line_break
     ( min::op::SAVE_LINE_BREAK );
 const min::op min::restore_line_break
@@ -8900,149 +8762,6 @@ min::printer MINT::print_unicode
 
     return printer;
 }
-
-# ifdef NONE_SUCH
-
-static std::ostream & ostream_unicode
-	( std::ostream & out, min::uns32 flags,
-	  min::unsptr n, const min::uns32 * str )
-{
-    bool ascii = 
-	( ( flags & min::ASCII_FLAG ) != 0 );
-
-    char temp[32];
-
-    while ( n -- )
-    {
-        min::uns32 c = * str ++;
-
-	// Divide into cases.  For each, either process
-	// and continue, or fall through to output
-	// utf8graphic[c] or asciigraphic[c].
-	//
-	if ( 0x20 < c && c < 0x7F )
-	{
-	    /* Common case: ASCII graphic character. */
-
-	    out << (char) c;
-
-	    continue;
-	}
-	else if ( c == ' ' )
-	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-		out << ' ';
-		
-		continue;
-	    }
-	}
-	else if ( c == '\t' )
-	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-	        out << '\t';
-
-		continue;
-	    }
-	}
-	else if ( c == '\f' || c == '\v' )
-	{
-	    if ( flags & min::GRAPHIC_VSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-	        if ( flags & min::ALLOW_VSPACE_FLAG )
-		    out << (char) c;
-
-		continue;
-	    }
-	}
-	else if ( c < 0x20 || c == 0x7F )
-	{
-	    /* Non-Space Control Character */
-	   
-	    if ( flags & min::GRAPHIC_NSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-		if ( flags & min::ALLOW_NSPACE_FLAG )
-		{
-		    if ( c == 0 )
-			out << NUL_UTF8_ENCODING;
-		    else
-			out << (char) c;
-		}
-
-		continue;
-	    }
-	}
-	else
-	{
-	    /* Non-ASCII UNICODE Character. */
-	   
-	    const char * rep;
-	    if( ascii )
-	    {
-		if ( c == min::UNKNOWN_UCHAR )
-		    rep = asciigraphic[ILL_REP];
-		else
-		{
-		    sprintf ( temp+1, "<%X>", c );
-		    char * p = temp + 1;
-		    if ( p[1] < '0' || '9' < p[1] )
-		    {
-			* p -- = '0';
-			* p = '<';
-		    }
-		    rep = p;
-		}
-	    }
-	    else /* not ascii mode */
-	    {
-		if ( c == min::UNKNOWN_UCHAR )
-		    rep = utf8graphic[ILL_REP];
-		else
-		{
-		    char * p = temp;
-		    min::unsptr len =
-		        min::unicode_to_utf8 ( p, c );
-		    temp[len] = 0;
-		    rep = temp;
-		}
-	    }
-
-	   
-	    out << rep;
-
-	    continue;
-	}
-
-	// Output c as utf8graphic[c] or
-	// asciigraphic[c].
-
-	// Recode DEL as DEL_REP.
-	//
-	if ( c == 0x7F ) c = DEL_REP;
-       
-	const char * rep;
-	if ( ascii )
-	    rep = asciigraphic[c];
-	else
-	    rep = utf8graphic[c];
-
-       
-        out << rep;
-    }
-
-    return out;
-}
-
-# endif
 
 min::printer operator <<
 	( min::printer printer, min::int64 i )
@@ -9730,23 +9449,6 @@ min::printer pgen_id<min::printer>
 	    ( printer->id_map, min::stub_of ( v ) );
     return printer << "@" << id;
 }
-
-# ifdef NONE_SUCH
-template <>
-std::ostream & pgen_id<std::ostream &>
-	( std::ostream & out,
-	  min::gen v )
-{
-    if ( ::ostream_id_map == min::NULL_STUB )
-    	init ( ::ostream_id_map );
-
-    min::uns32 id =
-        min::find_or_add
-	    ( ::ostream_id_map, min::stub_of ( v ) );
-    return out << "@" << id;
-}
-
-# endif
 
 // Execute pgen (below) in the case an object is to be
 // printed without an effective OBJ_EXP_FLAG or
@@ -10668,23 +10370,6 @@ min::printer min::default_pgen
 	      context_gen_flags, f, f->pgen );
 }
 
-# ifdef NONE_SUCH
-
-static std::ostream & ostream_pgen
-	( std::ostream & out,
-	  min::uns32 gen_flags,
-	  min::gen v,
-	  const min::context_gen_flags *
-	      context_gen_flags,
-	  const min::gen_format * f )
-{
-    return ::pgen<std::ostream &>
-	    ( out, gen_flags, v,
-	      context_gen_flags, f, ::ostream_pgen );
-}
-
-# endif
-
 static min::printer flush_one_id
 	( min::printer printer )
 {
@@ -10700,22 +10385,3 @@ static min::printer flush_one_id
 	  printer->print_format.context_gen_flags,
           f, f->pgen, id_map );
 }
-
-# ifdef NONE_SUCH
-
-static std::ostream & flush_one_id
-	( std::ostream & out )
-{
-    const min::gen_format * f =
-	min::ostream_print_format.gen_format;
-    if  ( f == NULL )
-	f = & min::default_gen_format;
-
-    return ::flush_one_id<std::ostream &>
-	    ( out,
-	      min::ostream_print_format
-	          .context_gen_flags,
-	      f, ::ostream_pgen, ::ostream_id_map );
-}
-
-# endif
