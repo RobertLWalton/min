@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 07:32:24 EDT 2014
+// Date:	Tue Jul 15 12:53:47 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -387,7 +387,8 @@ void output ( const char * filename )
 	    unsigned length = ustring_length ( n );
 	    sprintf ( buffer, "\\x%02X\\x%02X",
 	              length, length );
-	    out << "\"" << buffer << "\" \""
+	    out << "(const ustring *) "
+	        << "\"" << buffer << "\" \""
 	        << ustring_chars ( n ) << "\"";
 	}
     }
@@ -416,7 +417,7 @@ void output ( const char * filename )
 	{
 	    assert ( ustring_columns ( n ) > 0 );
 
-	    out << "\"";
+	    out << "(const ustring *) " << "\"";
 	    char buffer[10];
 	    while ( * n )
 	    {

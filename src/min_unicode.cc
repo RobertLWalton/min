@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 14 13:07:34 EDT 2014
+// Date:	Tue Jul 15 12:45:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,16 +25,10 @@ const unsigned
 const unsigned char
     UNI::unicode_category[UNI::unicode_index_limit] =
         { UNICODE_CATEGORY };
-const UNI::Ustring * const
-    UNI::unicode_Uname[UNI::unicode_index_limit] =
-        { UNICODE_UNAME };
-const char * const
+const UNI::ustring * const
     UNI::unicode_name[UNI::unicode_index_limit] =
         { UNICODE_NAME };
-const UNI::Ustring * const
-    UNI::unicode_Upicture[UNI::unicode_index_limit] =
-        { UNICODE_UPICTURE };
-const char * const
+const UNI::ustring * const
     UNI::unicode_picture[UNI::unicode_index_limit] =
         { UNICODE_PICTURE };
 const double
@@ -51,11 +45,6 @@ const unsigned
     UNI::unicode_reference_count
             [UNI::unicode_index_limit] =
         { UNICODE_REFERENCE_COUNT };
-const unsigned
-    UNI::unicode_Ustrings_size = UNICODE_USTRINGS_SIZE;
-const UNI::Uchar
-    UNI::unicode_Ustrings[UNI::unicode_Ustrings_size] =
-        { UNICODE_USTRINGS };
 const char * const
     UNI::unicode_category_name
         [UNI::unicode_category_limit] =
