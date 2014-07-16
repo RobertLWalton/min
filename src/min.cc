@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 13:01:27 EDT 2014
+// Date:	Tue Jul 15 20:26:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7397,47 +7397,38 @@ static min::char_flags standard_char_flags;
 const min::char_flags * min::standard_char_flags =
     & ::standard_char_flags;
 
-static const min::uns16 ASCII = 0x1;
-static const min::uns16 LATIN1 = 0x3;
-
-static const min::uns16 UNSUPPORTED_MASK =
-    min::HAS_PICTURE + min::HAS_NAME + min::IS_EOL;
-
 const min::support_control
         min::ascii_support_control =
 {
-    ASCII, UNSUPPORTED_MASK
+    0x1, min::IS_UNSUPPORTED
 };
 
 const min::support_control
         min::latin1_support_control =
 {
-    LATIN1, UNSUPPORTED_MASK
+    0x3, min::IS_UNSUPPORTED
 };
 
 const min::support_control
         min::inclusive_support_control =
 {
-    0xFFFF, 0
+    0xFFFF, min::IS_UNSUPPORTED
 };
 
 const min::display_control
         min::verbatim_display_control =
 {
-    0xFFFF, 0, 0
+    0xFFFF, 0
 };
 
 const min::display_control
-        min::name_display_control =
+        min::standard_display_control =
 {
-    min::IS_GRAPHIC + min::IS_SP, 0, 0xFFFF
+    min::IS_SP + min::IS_HT + min::IS_GRAPHIC
+                            + min::IS_COMBINING,
+    0
 };
 
-const min::display_control
-        min::picture_display_control =
-{
-    min::IS_GRAPHIC, min::HAS_PICTURE, 0xFFFF
-};
 
 const min::break_control
 	min::never_break =
@@ -7470,22 +7461,25 @@ static void init_printer_formats ( void )
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
 	min::uns32 flags = 0;
-	if (    min::unicode::unicode_picture[cat]
-	     != NULL )
-	    flags |= min::HAS_PICTURE;
-	if ( min::unicode::unicode_name[cat] != NULL )
-	    flags |= min::HAS_NAME;
 
 	if ( cat == ' ' )
 	    flags |= min::IS_SP | min::IS_HSPACE;
 	else if ( cat == '\t' )
 	    flags |= min::IS_HT | min::IS_HSPACE;
+	else if ( cat < 0x20 )
+	    flags |= min::IS_CONTROL;
+	else if ( cat == 0x7F )
+	    flags |= min::IS_CONTROL;
 	else if (    cat == 's'
 	          || cat == 0xA0  /* NBSP */ )
 	    flags |= min::IS_HSPACE;
 	else if ( cat == 'e' )
 	    flags |= min::IS_EOL;
-	else if ( index ( "lpuvwxz", cat ) == NULL )
+	else if ( cat == 'N' )
+	    flags |= min::IS_COMBINING;
+	else if ( ::index ( "lpuvwxz", cat ) != NULL )
+	    flags |= min::IS_CONTROL;
+	else
 	    flags |= min::IS_GRAPHIC;
 
 	if ( ( flags & min::IS_HSPACE ) == 0 )
@@ -7579,7 +7573,7 @@ const min::print_format min::default_print_format =
     (const min::ustring *) "\x01\x01<",
     (const min::ustring *) "\x01\x01>",
     min::ascii_support_control,
-    min::name_display_control,
+    min::standard_display_control,
     min::break_after_space,
     NULL
 };
@@ -7780,16 +7774,16 @@ static void end_line ( min::printer printer )
     if (   printer->print_format.op_flags
          & min::DISPLAY_EOL )
     {
-        min::uns16 char_flags =
-	    (* printer->print_format.char_flags )
-	        [min::SOFTWARE_NL_CATEGORY];
-	if ( printer->print_format.display_control
-	                          .display_picture
+        min::Uchar c = min::unicode::SOFTWARE_NL;
+        min::uns16 cindex =
+	    min::unicode::unicode_index[c];
+	cindex &= min::unicode_index_mask;
+	if ( printer->print_format.op_flags
 	     &
-	     char_flags )
+	     min::DISPLAY_PICTURE )
 	    ::push ( buffer,
 	             min::unicode::unicode_picture
-		         [min::SOFTWARE_NL_CATEGORY] );
+		         [cindex] );
 	else
 	{
 	    ::push ( buffer,
@@ -7797,7 +7791,7 @@ static void end_line ( min::printer printer )
 		                  .char_name_prefix );
 	    ::push ( buffer,
 	             min::unicode::unicode_name
-		         [min::SOFTWARE_NL_CATEGORY] );
+		         [cindex] );
 	    ::push ( buffer,
 	             printer->print_format
 		                  .char_name_postfix );
@@ -8469,6 +8463,203 @@ min::printer operator <<
     return printer << buffer;
 }
 
+min::printer min::print_unicode
+	( min::printer printer,
+	  min::unsptr & n,
+	  min::ptr<const min::uns32> & p,
+	  min::uns32 width )
+{
+    char temp[32];
+
+    min::support_control sc =
+        printer->print_format.support_control;
+    min::display_control dc =
+        printer->print_format.display_control;
+    min::break_control bc =
+        printer->print_format.break_control;
+
+    uns32 line_length = printer->line_break.line_length;
+
+    min::packed_vec_insptr<char> buffer =
+        printer->file->buffer;
+    uns16 expand_ht =
+        printer->print_format.op_flags & min::EXPAND_HT;
+
+    if ( printer->suppress_matrix != NULL )
+    {
+        if ( n == 0 ) return printer;
+
+	uns8 B = printer->previous_unicode_category;
+	uns8 C = min::unicode_category ( p[0] );
+	bool suppress =
+	    ( * printer->suppress_matrix )[B][C];
+
+        printer->suppress_matrix = NULL;
+	if ( ! suppress )
+	{
+	    uns32 length =
+	        min::ustring_length
+		    ( printer->suppressed_space );
+	    uns32 columns =
+	        min::ustring_columns
+		    ( printer->suppressed_space );
+	    ::strcpy
+	        ( temp,
+		  min::ustring_chars
+		      ( printer->suppressed_space ) );
+	    min::push ( buffer, length, temp );
+	    printer->column += columns;
+	    printer->break_after =
+	        printer->suppressed_break_after;
+	}
+    }
+
+    bool no_line_break_enabled = false;
+        // This prevents repeated checks for an enabled
+	// line break that does not exist.
+
+    while ( n )
+    {
+        Uchar c = * p;
+	uns16 cflags = 0;
+
+	uns8 cindex;
+	    // Only used to access name or picture.
+
+	if ( c < unicode::unicode_index_limit )
+	{
+	    cindex = unicode::unicode_index[c];
+	    uns16 csupport =
+		   cindex
+		>> unicode::unicode_supported_set_shift;
+	    cindex &= unicode_index_mask;
+	    uns8 ccategory =
+	        unicode::unicode_category[cindex];
+	    cflags = ( * printer->
+	                     print_format.char_flags )
+	    		[ccategory];
+	    if ( ( ( 1 << csupport ) & sc.support_mask )
+	         == 0 )
+	        cflags = sc.unsupported_char_flags;
+	}
+
+        // Compute the character representative.
+	//
+	uns32 columns = 1;
+	uns32 length = 1;
+	const char * rep = temp;
+	const ustring * prefix = NULL;
+	const ustring * postfix = NULL;
+
+	if ( cflags & dc.display_char )
+	{
+	    if ( c == '\t' && expand_ht )
+	    {
+	        uns32 spaces = 8 - printer->column % 8;
+		::strcpy ( temp, "        " );
+		temp[spaces] = 0;
+		length = columns = spaces;
+	    }
+	    else if ( 0 < c && c < 128 )
+	    {
+	        temp[0] = (char) c;
+		temp[1] = 0;
+	    }
+	    else
+	    {
+	        char * q = temp;
+		length = min::unicode_to_utf8 ( q, c );
+		if ( cflags & min::IS_COMBINING )
+		    columns = 0;
+	    }
+	}
+	else if ( cflags & dc.display_suppress )
+	{
+	    n --;
+	    p ++;
+	    continue;
+	}
+	else if ( (   printer->print_format.op_flags
+	            & min::DISPLAY_PICTURE )
+	          &&
+		     unicode::unicode_picture[cindex]
+	          != NULL )
+	{
+	    const ustring * picture =
+	        unicode::unicode_picture[cindex];
+	    length = ustring_length ( picture );
+	    columns = ustring_columns ( picture );
+	    rep = ustring_chars ( picture );
+	}
+	else
+	{
+	    if (    unicode::unicode_name[cindex]
+		 != NULL )
+	    {
+		const ustring * name =
+		    unicode::unicode_name[cindex];
+		length = ustring_length ( name );
+		columns = ustring_columns ( name );
+		rep = ustring_chars ( name );
+	    }
+	    else
+	    {
+		sprintf ( temp + 1, "%02X", c );
+		if ( isdigit ( temp[1] ) ) ++ rep;
+		else temp[0] = '0';
+		length = columns = ::strlen ( rep );
+	    }
+
+	    prefix = printer->print_format
+	                     .char_name_prefix;
+	    postfix = printer->print_format
+	                     .char_name_prefix;
+	    columns += ustring_columns ( prefix );
+	    columns += ustring_columns ( postfix );
+	}
+
+	if ( columns < width ) return printer;
+	n ++;
+	p ++;
+
+	if ( columns > 0 )
+	{
+	    if ( ( cflags & bc.break_before )
+	         ||
+	         ( ( cflags & bc.break_after ) == 0
+	           &&
+		   printer->break_after ) )
+	    {
+		printer->line_break.offset =
+		    buffer->length;
+		printer->line_break.column =
+		    printer->column;
+		no_line_break_enabled = false;
+	    }
+
+	    if ( printer->column >= line_length
+	         &&
+		 ! no_line_break_enabled )
+	        no_line_break_enabled =
+		    ::insert_line_break ( printer );
+	}
+	printer->break_after =
+	    ( cflags & bc.break_after )
+	    ||
+	    ( ( cflags & bc.conditional_break )
+	      &&
+	           printer->column
+		 - printer->line_break.column
+	      >= bc.conditional_columns );
+	   
+	min::push ( buffer, length, rep );
+	printer->column += columns;
+
+    }
+
+    return printer;
+}
+
 min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr n,
@@ -8861,7 +9052,8 @@ std::ostream & operator <<
 	// is_str, etc.  Must use MINT::null_stub
 	// instead of min::NULL_STUB.
 	//
-	return out << "new_stub_gen ( MINT::null_stub )";
+	return
+	    out << "new_stub_gen ( MINT::null_stub )";
     }
     else if ( min::is_num ( g ) )
     {

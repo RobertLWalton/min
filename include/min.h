@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 12:43:34 EDT 2014
+// Date:	Tue Jul 15 20:27:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4019,12 +4019,18 @@ namespace min {
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
 
+    const min::uns16 unicode_index_mask =
+        ( 1 << unicode::unicode_supported_set_shift )
+	- 1;
+
     inline min::uns8 unicode_category ( Uchar c )
     {
 	return
 	    c < unicode::unicode_index_limit ?
 	        unicode::unicode_category
-		    [unicode::unicode_index[c]] :
+		    [unicode::unicode_index[c]
+		     &
+		     unicode_index_mask] :
 		'w';
     }
 
@@ -4034,7 +4040,9 @@ namespace min {
 	return
 	    c < unicode::unicode_index_limit ?
 	        unicode::unicode_name
-		    [unicode::unicode_index[c]] :
+		    [unicode::unicode_index[c]
+		     &
+		     unicode_index_mask] :
 		NULL;
     }
 
@@ -4044,7 +4052,9 @@ namespace min {
 	return
 	    c < unicode::unicode_index_limit ?
 	        unicode::unicode_picture
-		    [unicode::unicode_index[c]] :
+		    [unicode::unicode_index[c]
+		     &
+		     unicode_index_mask] :
 		NULL;
     }
 
@@ -10682,7 +10692,8 @@ namespace min {
         DISPLAY_EOL		= ( 1 << 0 ),
 	FLUSH_ON_EOL		= ( 1 << 1 ),
         FLUSH_ID_MAP_ON_EOM	= ( 1 << 2 ),
-	EXPAND_HT		= ( 1 << 3 )
+	EXPAND_HT		= ( 1 << 3 ),
+	DISPLAY_PICTURE		= ( 1 << 4 )
     };
 
     extern const min::uns16 standard_op_flags;
@@ -10690,16 +10701,18 @@ namespace min {
     typedef min::uns16 char_flags[256];
 
     enum {
-	HAS_PICTURE		= ( 1 << 0 ),
-	HAS_NAME		= ( 1 << 1 ),
-        IS_HT			= ( 1 << 2 ),
-        IS_SP			= ( 1 << 3 ),
-	IS_HSPACE		= ( 1 << 4 ),
-	IS_GRAPHIC		= ( 1 << 5 ),
 
-	IS_EOL			= ( 1 << 7 ),
+        IS_SP			= ( 1 << 0 ),
+        IS_HT			= ( 1 << 1 ),
+	IS_HSPACE		= ( 1 << 2 ),
+	IS_GRAPHIC		= ( 1 << 3 ),
+	IS_COMBINING		= ( 1 << 4 ),
+	IS_CONTROL		= ( 1 << 5 ),
+	IS_UNSUPPORTED		= ( 1 << 6 ),
 
-	IS_NON_HSPACE		= ( 1 << 8 ),
+	IS_EOL			= ( 1 << 8 ),
+
+	IS_NON_HSPACE		= ( 1 << 9 ),
 
 	CONDITIONAL_BREAK	= ( 1 << 12 ),
 
@@ -10712,7 +10725,7 @@ namespace min {
     struct support_control
     {
         min::uns16 support_mask;
-        min::uns16 unsupported_char_flag_mask;
+        min::uns16 unsupported_char_flags;
     };
 
     extern const min::support_control
@@ -10725,16 +10738,13 @@ namespace min {
     struct display_control
     {
         min::uns16 display_char;
-	min::uns16 display_picture;
-	min::uns16 display_name;
+	min::uns16 display_suppress;
     };
 
     extern const min::display_control
         verbatim_display_control;
     extern const min::display_control
-        name_display_control;
-    extern const min::display_control
-        picture_display_control;
+        standard_display_control;
 
     struct break_control
     {
@@ -10821,8 +10831,13 @@ namespace min {
 	// The following are not printer parameters but
 	// are set during printer operation.
 
+	bool break_after;
+	    // Last character enabled break_after.
+
 	const min::suppress_matrix * suppress_matrix;
 	min::uns8 previous_unicode_category;
+	min::ustring suppressed_space[10];
+	bool suppressed_break_after;
 	min::uns32 previous_print_flags;
 	    // Let the next character to be printed be
 	    // c, C = min::unicode_category ( c ), and
@@ -11365,6 +11380,12 @@ namespace min {
 	        ( printer, n, min::new_ptr ( p ) );
 	}
     }
+
+    min::printer print_unicode
+	    ( min::printer printer,
+	      min::unsptr & n,
+	      min::ptr<const min::Uchar> & p,
+	      min::uns32 width = 0xFFFFFFFF );
 
     inline void pwidth
 	( min::uns32 & column,
