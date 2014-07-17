@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 02:05:57 EDT 2014
+// Date:	Thu Jul 17 03:09:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7790,7 +7790,7 @@ static void end_line ( min::printer printer )
         min::Uchar c = min::unicode::SOFTWARE_NL;
         min::uns16 cindex =
 	    min::unicode::unicode_index[c];
-	cindex &= min::unicode_index_mask;
+	cindex &= min::unicode::unicode_index_mask;
 	if ( printer->print_format.op_flags
 	     &
 	     min::DISPLAY_PICTURE )
@@ -8525,13 +8525,13 @@ min::printer min::print_unicode
 	uns16 cindex;
 	    // Only used to access name or picture.
 
-	if ( c < unicode::unicode_index_limit )
+	if ( c < unicode::unicode_index_size )
 	{
 	    cindex = unicode::unicode_index[c];
 	    uns16 csupport =
 		   cindex
 		>> unicode::unicode_supported_set_shift;
-	    cindex &= unicode_index_mask;
+	    cindex &= unicode::unicode_index_mask;
 	    uns8 ccategory =
 	        unicode::unicode_category[cindex];
 	    if ( ( 1 << csupport ) & sc.support_mask )

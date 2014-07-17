@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 12:48:55 EDT 2014
+// Date:	Thu Jul 17 03:05:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,7 @@ using UNI::unicode_category_description;
 
 using UNI::unicode_supported_set_limit;
 using UNI::unicode_supported_set_shift;
+using UNI::unicode_index_mask;
 using UNI::unicode_supported_set;
 
 # include "../unicode/output_unicode_data.cc"

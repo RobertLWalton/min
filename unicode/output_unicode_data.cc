@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 12:53:47 EDT 2014
+// Date:	Thu Jul 17 02:28:09 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,7 @@ void print_supported_sets ( ostream & out = cout )
 }
 
 // Print data for index i, and list character codes c
-// with i == unicode_index[c].
+// with i == ( unicode_index_mask & unicode_index[c] ).
 //
 void print_index ( unsigned i, ostream & out = cout )
 {
@@ -99,12 +99,16 @@ void print_index ( unsigned i, ostream & out = cout )
     unsigned count = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-	if ( i != unicode_index[c] ) continue;
+	if ( i != (   unicode_index_mask
+	            & unicode_index[c] ) )
+	    continue;
 
 	Uchar c2 = c + 1;
 	while ( c2 < unicode_index_size
 		&&
-		i == unicode_index[c2] )
+		   i
+		== (   unicode_index_mask
+		     & unicode_index[c2] ) )
 	    ++ c2;
 
 	count += (c2 - c );
@@ -329,7 +333,15 @@ void output ( const char * filename )
         out << finish << " \\" << endl;
 	finish = ",";
 
-	index_comment ( out, c, 8 ) << unicode_index[c];
+	index_comment ( out, c, 8 )
+	    << "( "
+	    << (    unicode_index[c]
+		 >> unicode_supported_set_shift )
+	    << " << "
+	    << unicode_supported_set_shift
+	    << " ) + "
+	    << (   unicode_index[c]
+	         & unicode_index_mask );
     }
     out << endl;
 
@@ -534,7 +546,8 @@ void final_check ( void )
         count[i] = 0;
     for ( Uchar c = 0; c < unicode_index_size; ++ c )
     {
-        unsigned i = unicode_index[c];
+        unsigned i = (   unicode_index_mask
+	               & unicode_index[c] );
 	assert ( i < unicode_index_limit );
         ++ count[i];
     }

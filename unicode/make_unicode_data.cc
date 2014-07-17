@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 07:10:49 EDT 2014
+// Date:	Thu Jul 17 02:28:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,6 +57,7 @@ unsigned reference_count[index_limit_max];
 
 const unsigned supported_set_limit = 16;
 const unsigned supported_set_shift = 12;
+const unsigned short index_mask = unicode_index_mask;
 const char * supported_set[supported_set_limit] = {
     /*  0 */ "ascii",
     /*  1 */ "latin1"
@@ -228,8 +229,8 @@ void finalize ( void )
 	buffer[0] = length;
 	buffer[1] = 1;
 	buffer[length+2] = 0;
-	picture[index[c]] =
-	    (ustring *) strdup ( (char *) buffer );
+	picture[index[c] & index_mask] =
+	    (ustring *) strdup ( buffer );
 
 	i += 2;
 	if ( c == 0x20 ) c = 0x7F;
@@ -924,7 +925,7 @@ void read_composite_characters ( void )
 	    unsigned j =
 	        index[c] >> supported_set_shift;
 	    if ( j == i ) continue;
-	    if ( supported_set[j] != NULL )
+	    if ( j != 0 && supported_set[j] != NULL )
 	    {
 	        line_error ( "for character code %02X"
 		             " new supported set name"
@@ -960,16 +961,24 @@ int main ( int argc, const char ** argv )
     store_name ( SOFTWARE_NL, "NL" );
     read_numeric_values();
     read_general_category();
+    read_combining_class();
+    read_composite_characters();
 
-    assert ( category[index[SOFTWARE_NL]] == 'v' );
-    assert ( denominator[index[SOFTWARE_NL]] == 0 );
-    assert ( strcmp ( ustring_chars
-		        ( name[index[SOFTWARE_NL]] ),
+    unsigned short nlindex = index[SOFTWARE_NL];
+    assert ( ( nlindex >> supported_set_shift )
+             ==
+	     supported_set_limit - 1 );
+    nlindex &= index_mask;
+    assert ( category[nlindex] == 'v' );
+    assert ( denominator[nlindex] == 0 );
+    assert ( strcmp ( ustring_chars ( name[nlindex] ),
 		      "NL" )
              == 0 );
-    category[index[SOFTWARE_NL]] = SOFTWARE_NL_CATEGORY;
 
-    read_combining_class();
+    // Change category fo SOFTWARE_NL.
+    //
+    category[nlindex] = SOFTWARE_NL_CATEGORY;
+
     finalize();
     final_check();
     if ( argc > 1 ) output ( argv[1] );
