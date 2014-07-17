@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 06:57:36 EDT 2014
+// Date:	Thu Jul 17 02:53:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -286,6 +286,8 @@ extern const char * const
 
 const unsigned unicode_supported_set_limit = 16;
 const unsigned unicode_supported_set_shift = 12;
+const unsigned short unicode_index_mask =
+    ( 1 << unicode_supported_set_shift ) - 1;
 extern const char * const
 	unicode_supported_set
 	    [unicode_supported_set_limit];

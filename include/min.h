@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 01:02:00 EDT 2014
+// Date:	Thu Jul 17 03:06:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4019,10 +4019,6 @@ namespace min {
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
 
-    const min::uns16 unicode_index_mask =
-        ( 1 << unicode::unicode_supported_set_shift )
-	- 1;
-
     inline min::uns8 unicode_category ( Uchar c )
     {
 	return
@@ -4030,7 +4026,7 @@ namespace min {
 	        unicode::unicode_category
 		    [unicode::unicode_index[c]
 		     &
-		     unicode_index_mask] :
+		     unicode::unicode_index_mask] :
 		'w';
     }
 
@@ -4042,7 +4038,7 @@ namespace min {
 	        unicode::unicode_name
 		    [unicode::unicode_index[c]
 		     &
-		     unicode_index_mask] :
+		     unicode::unicode_index_mask] :
 		NULL;
     }
 
@@ -4054,7 +4050,7 @@ namespace min {
 	        unicode::unicode_picture
 		    [unicode::unicode_index[c]
 		     &
-		     unicode_index_mask] :
+		     unicode::unicode_index_mask] :
 		NULL;
     }
 
