@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 10:36:24 EDT 2014
+// Date:	Thu Jul 17 16:46:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2293,14 +2293,19 @@ min::uns32 min::print_line
     }
 
     printer << min::save_print_format
-            << min::verbatim
+            << min::set_print_op_flags
+	           ( print_op_flags )
+            << min::set_display_control
+	           ( min::standard_display_control )
+            << min::set_break_control
+	           ( min::never_break )
 	    << buffer;
     uns32 width = printer->column;
     if ( eof )
     {
+	printer << min::restore_print_format;
         if ( end_of_file ) printer << end_of_file;
-	printer << min::restore_print_format
-	        << min::eol;
+	printer << min::eol;
     }
     else
     {
@@ -8522,7 +8527,7 @@ min::printer min::print_unicode
         Uchar c = * p;
 	uns16 cflags = sc.unsupported_char_flags;
 
-	uns16 cindex;
+	uns16 cindex = 0xFFFF;
 	    // Only used to access name or picture.
 
 	if ( c < unicode::unicode_index_size )
@@ -8582,6 +8587,8 @@ min::printer min::print_unicode
 	else if ( (   printer->print_format.op_flags
 	            & min::DISPLAY_PICTURE )
 	          &&
+		  cindex != 0xFFFF
+		  &&
 		     unicode::unicode_picture[cindex]
 	          != NULL )
 	{
@@ -8593,8 +8600,9 @@ min::printer min::print_unicode
 	}
 	else
 	{
-	    if (    unicode::unicode_name[cindex]
-		 != NULL )
+	    if ( cindex != 0xFFFF
+	         &&
+		 unicode::unicode_name[cindex] != NULL )
 	    {
 		const ustring * name =
 		    unicode::unicode_name[cindex];
@@ -8721,7 +8729,7 @@ void min::pwidth ( min::uns32 & column,
 
 	uns16 cflags = sc.unsupported_char_flags;
 
-	uns16 cindex;
+	uns16 cindex = 0xFFFF;
 	    // Only used to access name or picture.
 
 	if ( c < unicode::unicode_index_size )
@@ -8751,6 +8759,8 @@ void min::pwidth ( min::uns32 & column,
 	    continue;
 	else if ( (   print_format.op_flags
 	            & min::DISPLAY_PICTURE )
+		  &&
+		  cindex != 0xFFFF
 	          &&
 		     unicode::unicode_picture[cindex]
 	          != NULL )
@@ -8761,8 +8771,9 @@ void min::pwidth ( min::uns32 & column,
 	}
 	else
 	{
-	    if (    unicode::unicode_name[cindex]
-		 != NULL )
+	    if ( cindex != 0xFFFF
+	         &&
+		 unicode::unicode_name[cindex] != NULL )
 	    {
 		const ustring * name =
 		    unicode::unicode_name[cindex];

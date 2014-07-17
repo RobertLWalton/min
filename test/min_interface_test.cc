@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 06:07:47 EDT 2014
+// Date:	Thu Jul 17 16:59:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2596,14 +2596,16 @@ void test_printer ( void )
             << min::set_line_length ( 40 )
 	    << min::set_support_control
 	    		( min::latin1_support_control )
+            << min::set_display_control
+	           ( min::graphic_only_display_control )
+            << min::set_print_op_flags
+	    	   ( min::DISPLAY_PICTURE )
             << buffer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
             << min::set_break_control
 	           ( min::break_before_nonspace )
-            << min::set_display_control
-	           ( min::graphic_only_display_control )
             << min::set_print_op_flags
 	    	   ( min::DISPLAY_PICTURE )
 	    << buffer
