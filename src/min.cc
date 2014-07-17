@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 16 20:47:12 EDT 2014
+// Date:	Thu Jul 17 00:42:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8428,6 +8428,10 @@ static bool insert_line_break ( min::printer printer )
     return false;
 }
 
+// NOTE: Importantly this function copies s to the
+// stack BEFORE calling anything that might relocate
+// memory.
+//
 min::printer operator <<
 	( min::printer printer, const char * s )
 {
@@ -8439,12 +8443,12 @@ min::printer operator <<
     int length = ::strlen ( s );
     const char * ends = s + length;
 
-    min::uns32 buffer[length];
-    min::uns32 i = 0;
+    min::Uchar buffer[length];
+    min::unsptr i = 0;
 
     while ( s < ends )
     {
-	min::uns32 c = (min::uns8) * s ++;
+	min::Uchar c = (min::uns8) * s ++;
         if ( c >= 0x80 )
 	{
 	    // UTF-8 encoded character.  Might be
@@ -8457,15 +8461,15 @@ min::printer operator <<
 	buffer[i++] = c;
     }
 
-    return MINT::print_unicode ( printer, i, buffer );
+    min::ptr<const min::Uchar> p = min::new_ptr ( buffer );
+
+    return min::print_unicode ( printer, i, p );
 }
 
 min::printer operator <<
 	( min::printer printer, min::ptr<const char> s )
 {
-    min::unsptr length = strlen ( ! s ) + 1;
-    MIN_STACK_COPY ( char, buffer, length, s );
-    return printer << buffer;
+    return printer << ! s;
 }
 
 min::printer min::print_unicode
@@ -8528,7 +8532,7 @@ min::printer min::print_unicode
         Uchar c = * p;
 	uns16 cflags = sc.unsupported_char_flags;
 
-	uns8 cindex;
+	uns16 cindex;
 	    // Only used to access name or picture.
 
 	if ( c < unicode::unicode_index_limit )
@@ -8553,6 +8557,7 @@ min::printer min::print_unicode
 	const char * rep = temp;
 	const ustring * prefix = NULL;
 	const ustring * postfix = NULL;
+	bool rep_is_space = false;
 
 	if ( cflags & dc.display_char )
 	{
@@ -8562,11 +8567,13 @@ min::printer min::print_unicode
 		::strcpy ( temp, "        " );
 		temp[spaces] = 0;
 		length = columns = spaces;
+		rep_is_space = true;
 	    }
 	    else if ( 0 < c && c < 128 )
 	    {
 	        temp[0] = (char) c;
 		temp[1] = 0;
+		rep_is_space = ( c == ' ' );
 	    }
 	    else
 	    {
@@ -8621,7 +8628,10 @@ min::printer min::print_unicode
 	    columns += ustring_columns ( postfix );
 	}
 
-	if ( columns < width ) return printer;
+
+	if ( printer->column + columns > width )
+	    return printer;
+
 	n --;
 	p ++;
 
@@ -8642,10 +8652,13 @@ min::printer min::print_unicode
 
 	    if ( printer->column >= line_length
 	         &&
+		 ! rep_is_space
+		 &&
 		 ! no_line_break_enabled )
 	        no_line_break_enabled =
 		    ::insert_line_break ( printer );
 	}
+
 	printer->break_after =
 	    ( cflags & bc.break_after )
 	    ||
@@ -8665,6 +8678,7 @@ min::printer min::print_unicode
 	                ustring_length ( postfix ),
 			ustring_chars  ( postfix ) );
 	printer->column += columns;
+	width -= columns;
 
     }
 
