@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 02:04:28 EDT 2014
+// Date:	Thu Jul 17 06:07:47 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2556,10 +2556,13 @@ void test_printer ( void )
 		   "\040\177\200\300"
             << min::eom;
 
-#ifdef NONE_SUCH
-
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::gbreak << min::graphic
+            << min::set_break_control
+	           ( min::break_before_nonspace )
+            << min::set_display_control
+	           ( min::graphic_only_display_control )
+            << min::set_print_op_flags
+	    	   ( min::DISPLAY_PICTURE )
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
@@ -2579,45 +2582,58 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
+	    << min::set_support_control
+	    		( min::latin1_support_control )
             << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-            << min::ascii << buffer
+            << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-            << min::gbreak << min::graphic << buffer
-            << min::eom;
+	    << min::set_support_control
+	    		( min::latin1_support_control )
+            << buffer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-            << min::ascii << min::gbreak << min::graphic
+            << min::set_break_control
+	           ( min::break_before_nonspace )
+            << min::set_display_control
+	           ( min::graphic_only_display_control )
+            << min::set_print_op_flags
+	    	   ( min::DISPLAY_PICTURE )
 	    << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::display_eol << "hello"
-            << min::eom;
+            << min::display_eol
+            << min::set_print_op_flags
+	    	   ( min::DISPLAY_PICTURE )
+	    << "hello" << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::ascii
-            << min::display_eol << "hello"
-            << min::eom;
+            << min::display_eol
+	    << "hello" << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::nohbreak;
+            << min::set_break_control
+	           ( min::never_break );
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::right ( 4 );
     printer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::nohbreak;
+            << min::set_break_control
+	           ( min::never_break );
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::left ( 4 );
     printer << min::eom;
+
+#ifdef NONE_SUCH
 
     printer << min::save_indent
             << min::set_indent ( 4 );
