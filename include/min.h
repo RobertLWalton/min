@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 16 21:35:36 EDT 2014
+// Date:	Thu Jul 17 00:49:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11461,9 +11461,8 @@ inline min::printer operator <<
 	( min::printer printer,
 	  char c )
 {
-    min::Uchar unicode = c;
-    return min::internal::print_unicode
-	    ( printer, 1, & unicode );
+    char temp[2] = { c, 0 };
+    return printer << temp;
 }
 
 min::printer operator <<
