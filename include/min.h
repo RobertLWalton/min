@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 00:49:23 EDT 2014
+// Date:	Thu Jul 17 01:02:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11364,27 +11364,23 @@ namespace min {
 	void pwidth
 	    ( uns32 & column, Uchar c,
 	      uns32 print_flags );
-
-        min::printer print_unicode
-		( min::printer printer,
-		  min::unsptr n,
-		  min::ptr<const min::Uchar> p );
-
-        inline min::printer print_unicode
-		( min::printer printer,
-		  min::unsptr n,
-		  const min::Uchar * p )
-	{
-	    return print_unicode
-	        ( printer, n, min::new_ptr ( p ) );
-	}
     }
 
     min::printer print_unicode
 	    ( min::printer printer,
 	      min::unsptr & n,
 	      min::ptr<const min::Uchar> & p,
-	      min::uns32 width = 0xFFFFFFFF );
+	      min::uns32 & width );
+
+    inline min::printer print_unicode
+	    ( min::printer printer,
+	      min::unsptr & n,
+	      min::ptr<const min::Uchar> & p )
+    {
+	min::uns32 width = 0xFFFFFFFF;
+	return min::print_unicode
+		    ( printer, n, p, width );
+    }
 
     inline void pwidth
 	( min::uns32 & column,
