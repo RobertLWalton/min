@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 03:06:27 EDT 2014
+// Date:	Thu Jul 17 10:36:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6073,7 +6073,7 @@ namespace min {
 
     min::uns32 print_line
     	    ( min::printer,
-	      min::uns32 print_flags,
+	      min::uns16 print_op_flags,
 	      min::file file,
 	      min::uns32 line_number,
 	      const char * blank_line =
@@ -6100,18 +6100,12 @@ namespace min {
 	      unavailable_line );
     }
 
+    struct print_format;
     min::uns32 print_line_column
-	    ( min::uns32 print_flags,
-	      min::file file,
-	      const min::position & position );
-
-    inline min::uns32 print_line_column
 	    ( min::file file,
-	      const min::position & position )
-    {
-        return print_line_column
-	    ( file->print_flags, file, position );
-    }
+	      const min::position & position,
+	      min::uns16 print_op_flags,
+	      const min::print_format & print_format );
 
     void print_phrase_lines
 	    ( min::printer printer,
@@ -10783,7 +10777,6 @@ namespace min {
     struct bracket_format;
     struct print_format
     {
-	uns32 flags;
 	const min::context_gen_flags *
 	    context_gen_flags;
 	const min::gen_format *	      gen_format;
@@ -10994,33 +10987,6 @@ namespace min {
         value_new_gen_format;
     extern const min::new_gen_format *
         element_new_gen_format;
-
-    enum {
-        GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
-        GRAPHIC_VSPACE_FLAG	= ( 1 << 1 ),
-        GRAPHIC_NSPACE_FLAG	= ( 1 << 2 ),
-
-        ALLOW_HSPACE_FLAG	= ( 1 << 3 ),
-        ALLOW_VSPACE_FLAG	= ( 1 << 4 ),
-        ALLOW_NSPACE_FLAG	= ( 1 << 5 ),
-        ALLOW_FLAGS		= ( 7 << 3 ),
-
-        ASCII_FLAG		= ( 1 << 6 ),
-        DISPLAY_EOL_FLAG	= ( 1 << 7 ),
-
-        HBREAK_FLAG		= ( 1 << 8 ),
-        GBREAK_FLAG		= ( 1 << 9 ),
-
-        EOL_FLUSH_FLAG		= ( 1 << 10 ),
-        FLUSH_ID_MAP_FLAG	= ( 1 << 11 ),
-
-        GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
-	                        + GRAPHIC_VSPACE_FLAG
-	                        + GRAPHIC_NSPACE_FLAG
-    };
-
-    const uns32 DEFAULT_PRINT_FLAGS =
-        HBREAK_FLAG + ALLOW_VSPACE_FLAG;
 
     struct op
     {
@@ -11375,13 +11341,6 @@ namespace min {
 
     extern const op print_assert; // For debugging only.
 
-    namespace internal
-    {
-	void pwidth
-	    ( uns32 & column, Uchar c,
-	      uns32 print_flags );
-    }
-
     min::printer print_unicode
 	    ( min::printer printer,
 	      min::unsptr & n,
@@ -11398,49 +11357,11 @@ namespace min {
 		    ( printer, n, p, width );
     }
 
-    inline void pwidth
-	( min::uns32 & column,
-	  min::Uchar c, min::uns32 print_flags )
-    {
-	// Handle common cases and call out-of-line for
-	// less common cases.
-	//
-	if ( 0x20 < c && c < 0x7F )
-	{
-	    ++ column;
-	    return;
-	}
-	else if ( c == ' ' )
-	{
-	    if (   print_flags
-	         & min::GRAPHIC_HSPACE_FLAG )
-		; // Fall through
-	    else
-	    {
-		++ column;
-		return;
-	    }
-	}
-	else if ( c == '\t' )
-	{
-	    if (   print_flags
-	         & min::GRAPHIC_HSPACE_FLAG )
-		; // Fall through
-	    else
-	    {
-		column += 8 - column % 8;
-		return;
-	    }
-	}
-
-	return internal::pwidth
-	    ( column, c, print_flags );
-    }
-
     void pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
-	  min::uns32 print_flags );
+	  min::uns16 printer_op_flags,
+	  const min::print_format & print_format );
 }
 
 min::printer operator <<

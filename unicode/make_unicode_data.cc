@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 02:28:32 EDT 2014
+// Date:	Thu Jul 17 06:01:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -958,7 +958,10 @@ int main ( int argc, const char ** argv )
 
     initialize();
     read_names();
+
     store_name ( SOFTWARE_NL, "NL" );
+    store_name ( UNKNOWN_UCHAR, "UUC" );
+
     read_numeric_values();
     read_general_category();
     read_combining_class();

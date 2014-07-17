@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 03:09:38 EDT 2014
+// Date:	Thu Jul 17 10:36:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2203,7 +2203,7 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
-	  min::uns32 print_flags,
+	  min::uns16 print_op_flags,
 	  min::file file,
 	  min::uns32 line_number,
 	  const char * blank_line,
@@ -2256,19 +2256,35 @@ min::uns32 min::print_line
     //
     if ( blank_line == NULL )
         ; // do nothing
-    else if ( ( print_flags & min::GRAPHIC_FLAGS )
-              &&
-	      buffer[0] != 0 )
-        ; // do nothing
     else if ( eof ? end_of_file != NULL :
-                  (   print_flags
-                    & min::DISPLAY_EOL_FLAG ) )
+                  (   print_op_flags
+                    & min::DISPLAY_EOL ) )
         ; // do nothing
+    else if ( buffer[0] == 0 )
+    {
+	printer << blank_line << min::eol;
+	return 0;
+    }
     else
     {
 	const char * p = & buffer[0];
+	min::uns16 name_or_picture_flags =
+	   ( ! printer->print_format.display_control
+				    .display_char
+	     &
+	     ! printer->print_format.display_control
+				    .display_suppress );
+
 	while ( * p && ( * p <= ' ' || * p == 0x7F ) )
+	{
+	    if ( name_or_picture_flags
+	         &
+		 ( * printer->print_format.char_flags )
+		      [*p] )
+	        break;
 	    ++ p;
+	}
+
 	if ( * p == 0 )
 	{
 	    printer << blank_line << min::eol;
@@ -2290,18 +2306,28 @@ min::uns32 min::print_line
     {
 	printer << min::eol
 	        << min::restore_print_format;
-	if ( print_flags & min::DISPLAY_EOL_FLAG )
+	if ( print_op_flags & min::DISPLAY_EOL )
 	    width +=
-	        ( print_flags & min::ASCII_FLAG ?
-		  4 : 1 );
+	        (   print_op_flags
+		  & min::DISPLAY_PICTURE ?  1 :
+		  ustring_columns
+		      ( printer->print_format
+		                .char_name_prefix )
+		  +
+		  2 // width of `NL'
+		  +
+		  ustring_columns
+		      ( printer->print_format
+		                .char_name_prefix ) );
     }
     return width;
 }
 
 min::uns32 min::print_line_column
-	( min::uns32 print_flags,
-	  min::file file,
-	  const min::position & position )
+	( min::file file,
+	  const min::position & position,
+	  min::uns16 print_op_flags,
+	  const min::print_format & print_format )
 {
     min::uns32 column = 0;
     min::uns32 offset =
@@ -2326,13 +2352,13 @@ min::uns32 min::print_line_column
     min::pwidth ( column, ! ( file->buffer + offset ),
     		  position.offset <= length ?
 		      position.offset : length,
-                  print_flags );
+                  print_op_flags, print_format );
     return column;
 }
 
 void min::print_phrase_lines
 	( min::printer printer,
-	  min::uns32 print_flags,
+	  min::uns32 print_op_flags,
 	  min::file file,
 	  const min::phrase_position & position,
 	  char mark,
@@ -2342,21 +2368,22 @@ void min::print_phrase_lines
 {
     assert ( position.end.line >= position.begin.line );
 
-    // Temporary recomputation of columns to see if
-    // pwidth works.
-    //
     min::position begin = position.begin;
     min::position end   = position.end;
     uns32 begin_column =
-        print_line_column ( print_flags, file, begin );
+        print_line_column
+	    ( file, begin, print_op_flags,
+	                   printer->print_format );
     uns32 end_column =
-        print_line_column ( print_flags, file, end );
+        print_line_column
+	    ( file, end, print_op_flags,
+	                 printer->print_format );
 
     uns32 line = begin.line;
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, print_flags, file, line,
+	( printer, print_op_flags, file, line,
 	  blank_line, end_of_file, unavailable_line );
 
     while ( true )
@@ -2386,7 +2413,7 @@ void min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, print_flags, file, line,
+	    ( printer, print_op_flags, file, line,
 	      blank_line, end_of_file,
 	      unavailable_line );
     }
@@ -7578,7 +7605,6 @@ const min::line_break min::default_line_break =
 
 const min::print_format min::default_print_format =
 {
-    min::DEFAULT_PRINT_FLAGS,
     & min::default_context_gen_flags,
     & min::default_gen_format,
     min::EXPAND_HT,
@@ -7598,87 +7624,6 @@ static min::uns32 space[1] = { ' ' };
 inline bool is_non_spacing ( min::Uchar c )
 {
     return min::unicode_category ( c ) == 'N';
-}
-
-// Representations for printing control characters in
-// ASCII GRAPHIC mode.  utf8graphic[c] is the repre-
-// sentation for character c if c <= 0x20, for DEL
-// if c == DEL_REP, and for the illegal unicode
-// character representative if c == ILL_REP.
-//
-static const min::uns32 DEL_REP = 0x21;
-static const min::uns32 ILL_REP = 0x22;
-static const char * asciigraphic[0x23] = {
-    "<NUL>",
-    "<SOH>",
-    "<STX>",
-    "<ETX>",
-    "<EOT>",
-    "<ENQ>",
-    "<ACK>",
-    "<BEL>",
-    "<BS>",
-    "<HT>",
-    "<LF>",
-    "<VT>",
-    "<FF>",
-    "<CR>",
-    "<SO>",
-    "<SI>",
-    "<DLE>",
-    "<DC1>",
-    "<DC2>",
-    "<DC3>",
-    "<DC4>",
-    "<NAK>",
-    "<SYN>",
-    "<ETB>",
-    "<CAN>",
-    "<EM>",
-    "<SUB>",
-    "<ESC>",
-    "<FS>",
-    "<GS>",
-    "<RS>",
-    "<US>",
-    "<SP>",
-    "<DEL>",
-    "<ILL>",
-};
-
-// UTF8 Codes for printing control characters in UTF8
-// GRAPHIC mode.  utf8graphic[c] is the representation
-// for character c if c <= 0x20, for DEL if c == DEL_
-// REP, and for the illegal unicode character represen-
-// tative if c == ILL_REP.
-//
-// UTF8 codes are those of the UNICODE Control Pictures
-// script, range 0x2400-0x243F, except for ILL_REP,
-// which is min::UNKNOWN_UCHAR.
-//
-static char utf8graphic[0x23][8];
-
-// Initialize utf8control.  Called when first
-// min::printer created.
-//
-static void init_utf8graphic ( void )
-{
-    // utf8graphic is initially all 0's, so we do not
-    // have to insert string ending NUL's.
-    //
-    char * s;
-    for ( min::uns32 c = 0; c < 0x20; ++ c )
-        min::unicode_to_utf8
-	    ( s = utf8graphic[c], 0x2400 + c );
-    min::unicode_to_utf8
-	    ( s = utf8graphic['\n'], 0x2424 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[' '], 0x2423 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[DEL_REP], 0x2421 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[ILL_REP],
-	      min::UNKNOWN_UCHAR );
 }
 
 static char NUL_UTF8_ENCODING[3] =
@@ -7706,20 +7651,12 @@ static min::packed_struct<min::printer_struct>
     printer_type ( "min::printer_type",
                    NULL, ::printer_stub_disp );
 
-static void init_utf8graphic ( void );
 min::printer min::init
 	( min::ref<min::printer> printer,
 	  min::file file )
 {
     if ( printer == NULL_STUB )
     {
-        static bool first = true;
-	if ( first )
-	{
-	    first = false;
-	    ::init_utf8graphic();
-	}
-
         printer = ::printer_type.new_stub();
 	line_break_stack_ref ( printer ) =
 	    ::line_break_stack_type.new_stub();
@@ -7988,17 +7925,10 @@ min::printer operator <<
 	    * (const min::break_control *) op.v1.p;
 	return printer;
     case min::op::VERBATIM:
-	printer->print_format.flags |=
-	      min::ALLOW_HSPACE_FLAG
-	    + min::ALLOW_VSPACE_FLAG
-	    + min::ALLOW_NSPACE_FLAG;
-	printer->print_format.flags &=
-	    ~ (   min::GRAPHIC_HSPACE_FLAG
-	        + min::GRAPHIC_VSPACE_FLAG
-	        + min::GRAPHIC_NSPACE_FLAG
-	        + min::HBREAK_FLAG
-	        + min::GBREAK_FLAG
-	        + min::ASCII_FLAG );
+	printer->print_format.display_control =
+	    min::verbatim_display_control;
+	printer->print_format.break_control =
+	    min::never_break;
 	return printer;
     case min::op::SUPPRESSIBLE_SPACE:
 	{
@@ -8016,7 +7946,7 @@ min::printer operator <<
 	    min::packed_vec_insptr<char> buffer =
 	        printer->file->buffer;
 	    min::unsptr length = buffer->length;
-	    min::uns32 b = '\n';
+	    min::Uchar b = '\n';
 	    if ( length > 0 )
 	    {
 	        // Code to set b to the last UNICODE
@@ -8045,8 +7975,78 @@ min::printer operator <<
 
 	    printer->previous_unicode_category =
 		min::unicode_category ( b );
-	    printer->previous_print_flags =
-	        printer->print_format.flags;
+	    min::uns16 spflags =
+	        ( * printer->print_format.char_flags )
+		    [' '];
+
+	    printer->suppressed_break_after =
+	        (   spflags
+		  & printer->print_format.break_control
+		  			 .break_after );
+
+	    // Set printer->suppressed_space.
+	    //
+	    if (   spflags
+	         & printer->print_format
+		       .display_control.display_char )
+	        memcpy ( printer->suppressed_space,
+		         "\x01\x01 ", 4 );
+	    else if (   spflags
+	              & printer->print_format
+		                .display_control
+				.display_suppress )
+	        printer->suppress_matrix = NULL;
+	    else
+	    {
+	        min::uns16 cindex =
+		    min::unicode::unicode_index[' '];
+		cindex &= min::unicode
+		             ::unicode_index_mask;
+		const min::ustring * s =
+		    min::unicode::unicode_picture
+				[cindex];
+		if ( s != NULL
+		     &&
+		     (   printer->print_format
+	                         .op_flags
+		       & min::DISPLAY_PICTURE ) )
+		    memcpy ( printer->suppressed_space,
+		             s,
+			     min::ustring_length ( s )
+			     + 3 );
+		else
+		{
+		    min::uns8 length = 0;
+		    min::uns8 columns = 0;
+		    const min::ustring * p[3] =
+		        { printer->print_format
+			          .char_name_prefix,
+			  min::unicode::unicode_name
+			  		[cindex],
+			  printer->print_format
+			          .char_name_postfix };
+		    for ( int i = 0; i < 3; ++ i )
+		    {
+		        if ( p[i] == NULL ) continue;
+		        memcpy
+			  ( printer->suppressed_space
+			    + 2 + length,
+			    min::ustring_chars ( p[i] ),
+			    min::ustring_length ( p[i] )
+			    + 1 );
+			length +=
+			    min::ustring_length
+			        ( p[i] );
+			columns +=
+			    min::ustring_columns
+			        ( p[i] );
+		    }
+		    printer->suppressed_space[0] =
+		        length;
+		    printer->suppressed_space[1] =
+		        columns;
+		}
+	    }
 		    
 	    return printer;
 	}
@@ -8115,8 +8115,8 @@ min::printer operator <<
     eol:
     case min::op::EOL:
 	::end_line ( printer );
-	if (   printer->print_format.flags
-	     & min::EOL_FLUSH_FLAG )
+	if (   printer->print_format.op_flags
+	     & min::FLUSH_ON_EOL )
 	    min::flush_file ( printer->file );
 	return printer;
     case min::op::FLUSH:
@@ -8699,69 +8699,87 @@ min::printer operator <<
     return printer << buffer;
 }
 
-void MINT::pwidth
-    ( min::uns32 & column,
-      min::uns32 c, min::uns32 print_flags )
-{
-    // Continuation of inline min::pwidth.
-
-    // Divide into cases.  Update column and return, or
-    // fall through to use asciigraphic[c] if ASCII or
-    // just add 1 to column if not ASCII.
-    //
-    if ( c == '\f' || c == '\v' )
-    {
-        if ( print_flags & min::GRAPHIC_VSPACE_FLAG )
-	    ; // Fall through
-	else
-	    return;
-    }
-    else if ( c < 0x20 || c == 0x7F )
-    {
-        if ( print_flags & min::GRAPHIC_NSPACE_FLAG )
-	    ; // Fall through
-	else
-	    return;
-    }
-    else // c > 0x7F
-    {
-	if ( print_flags & min::ASCII_FLAG )
-	{
-	    if ( c == min::UNKNOWN_UCHAR ) \
-	        column += 
-		    ::strlen ( asciigraphic[ILL_REP] );
-	    else
-	    {
-	        while ( c > 0xF )
-		    c >>= 4, ++ column;
-		if ( c > 9 ) ++ column;
-		column += 3;
-	    }
-	}
-	else if ( ! ::is_non_spacing ( c ) )
-	    ++ column;
-
-	return;
-    }
-
-    // We have fallen through.
-    //
-    if ( print_flags & min::ASCII_FLAG )
-    {
-	if ( c == 0x7F ) c = DEL_REP;
-	column += ::strlen ( asciigraphic[c] );
-    }
-    else ++ column;
-}
-
 void min::pwidth ( min::uns32 & column,
                    const char * s, min::unsptr n,
-		   min::uns32 print_flags )
+		   min::uns16 print_op_flags,
+		   const min::print_format &
+		       print_format )
 {
+    min::support_control sc =
+        print_format.support_control;
+    min::display_control dc =
+        print_format.display_control;
+    uns16 expand_ht =
+        ( print_op_flags & min::EXPAND_HT );
+
     const char * ends = s + n;
+    char temp[32];
+
     while ( s < ends )
-        pwidth ( column, utf8_to_unicode ( s, ends ),
-	         print_flags );
+    {
+        Uchar c = utf8_to_unicode ( s, ends );
+
+	uns16 cflags = sc.unsupported_char_flags;
+
+	uns16 cindex;
+	    // Only used to access name or picture.
+
+	if ( c < unicode::unicode_index_size )
+	{
+	    cindex = unicode::unicode_index[c];
+	    uns16 csupport =
+		   cindex
+		>> unicode::unicode_supported_set_shift;
+	    cindex &= unicode::unicode_index_mask;
+	    uns8 ccategory =
+	        unicode::unicode_category[cindex];
+	    if ( ( 1 << csupport ) & sc.support_mask )
+		cflags = ( * print_format.char_flags )
+				[ccategory];
+	}
+
+        // Compute column increment.
+	//
+	if ( cflags & dc.display_char )
+	{
+	    if ( c == '\t' && expand_ht )
+	        column += 8 - column % 8;
+	    else if ( ! ( cflags & min::IS_COMBINING ) )
+	        column += 1;
+	}
+	else if ( cflags & dc.display_suppress )
+	    continue;
+	else if ( (   print_format.op_flags
+	            & min::DISPLAY_PICTURE )
+	          &&
+		     unicode::unicode_picture[cindex]
+	          != NULL )
+	{
+	    const ustring * picture =
+	        unicode::unicode_picture[cindex];
+	    column += ustring_columns ( picture );
+	}
+	else
+	{
+	    if (    unicode::unicode_name[cindex]
+		 != NULL )
+	    {
+		const ustring * name =
+		    unicode::unicode_name[cindex];
+		column += ustring_columns ( name );
+	    }
+	    else
+	    {
+		column += sprintf ( temp, "%02X", c );
+		if ( ! isdigit ( temp[0] ) ) ++ column;
+	    }
+
+	    column += ustring_columns 
+		( print_format.char_name_prefix );
+	    column += ustring_columns 
+		( print_format.char_name_postfix );
+	}
+    }
 }
 
 
