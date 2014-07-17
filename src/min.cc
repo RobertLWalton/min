@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 00:42:11 EDT 2014
+// Date:	Thu Jul 17 01:02:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7894,14 +7894,24 @@ min::printer operator <<
 	return printer;
     }
     case min::op::PUNICODE1:
-	return MINT::print_unicode
-	    ( printer, 1, & op.v1.u32 );
+    {
+        min::unsptr length = 1;
+	min::ptr<const min::Uchar> p =
+	    min::new_ptr<const min::Uchar>
+	        ( & op.v1.u32 );
+	return min::print_unicode
+	    ( printer, length, p );
+    }
     case min::op::PUNICODE2:
-	return MINT::print_unicode
-	    ( printer, op.v1.uptr,
-		MUP::new_ptr<const min::uns32>
-		    ( (const min::stub *) op.v2.p,
-		      op.v3.uptr ) );
+    {
+	min::unsptr length = op.v1.uptr;
+	min::ptr<const min::Uchar> p =
+	    MUP::new_ptr<const min::Uchar>
+		( (const min::stub *) op.v2.p,
+		  op.v3.uptr );
+	return min::print_unicode
+	    ( printer, length, p );
+    }
     case min::op::PUSTRING:
 // TBD: Optimize this later.
         return printer << min::ustring_chars
@@ -7977,9 +7987,11 @@ min::printer operator <<
 		       ->suppress_matrix;
 	    if ( printer->suppress_matrix == NULL )
 	    {
-		MINT::print_unicode
-		    ( printer, 1, ::space );
-		return printer;
+		min::unsptr length = 1;
+		min::ptr<const min::Uchar> p =
+		    min::new_ptr ( ::space );
+		return min::print_unicode
+		    ( printer, length, p );
 	    }
 	    min::packed_vec_insptr<char> buffer =
 	        printer->file->buffer;
@@ -8019,8 +8031,13 @@ min::printer operator <<
 	    return printer;
 	}
     case min::op::SPACE:
-	MINT::print_unicode ( printer, 1, ::space );
-	return printer;
+    {
+	min::unsptr length = 1;
+	min::ptr<const min::Uchar> p =
+	    min::new_ptr ( ::space );
+	return min::print_unicode
+	    ( printer, length, p );
+    }
     case min::op::SAVE_LINE_BREAK:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
@@ -8476,7 +8493,7 @@ min::printer min::print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
 	  min::ptr<const min::uns32> & p,
-	  min::uns32 width )
+	  min::uns32 & width )
 {
     char temp[32];
 
@@ -8680,294 +8697,6 @@ min::printer min::print_unicode
 	printer->column += columns;
 	width -= columns;
 
-    }
-
-    return printer;
-}
-
-min::printer MINT::print_unicode
-	( min::printer printer,
-	  min::unsptr n,
-	  min::ptr<const min::uns32> str )
-{
-    uns32 flags = printer->print_format.flags;
-    uns32 line_length = printer->line_break.line_length;
-
-    min::packed_vec_insptr<char> buffer =
-        printer->file->buffer;
-
-    if ( printer->suppress_matrix != NULL )
-    {
-        if ( n == 0 ) return printer;
-
-	uns8 B = printer->previous_unicode_category;
-	uns8 C = min::unicode_category ( str[0] );
-	bool suppress =
-	    ( * printer->suppress_matrix )[B][C];
-
-        printer->suppress_matrix = NULL;
-	if ( ! suppress )
-	{
-	    printer->print_format.flags =
-	        printer->previous_print_flags;
-	    MINT::print_unicode ( printer, 1, ::space );
-	    printer->print_format.flags = flags;
-	}
-    }
-
-    bool ascii = 
-	( ( flags & min::ASCII_FLAG ) != 0 );
-    bool gbreak =
-	( ( flags & min::GBREAK_FLAG ) != 0 );
-    bool hbreak =
-	( ( flags & min::HBREAK_FLAG ) != 0 );
-
-    char temp[32];
-
-    char lastc = ( buffer->length == 0 ? 0 :
-                   buffer[buffer->length - 1] );
-    bool hspace_precedes =
-	( lastc == ' ' || lastc == '\t' );
-    bool no_line_break_enabled = false;
-    while ( n -- )
-    {
-        uns32 c = * str ++;
-
-	// Divide into cases.  For each, either process
-	// and continue, or fall through to output
-	// utf8graphic[c] or asciigraphic[c].
-	//
-	if ( 0x20 < c && c < 0x7F )
-	{
-	    /* Common case: ASCII graphic character. */
-
-	    if ( gbreak
-	         ||
-		 ( hbreak && hspace_precedes ) )
-	    {
-		printer->line_break.offset =
-		    buffer->length;
-		printer->line_break.column =
-		    printer->column;
-		no_line_break_enabled = false;
-	    }
-
-	    if ( printer->column >= line_length
-	         &&
-		 ! no_line_break_enabled )
-	        no_line_break_enabled =
-		    ::insert_line_break ( printer );
-	   
-	    min::push(buffer) = (char) c;
-	    ++ printer->column;
-	    hspace_precedes = false;
-
-	    continue;
-	}
-	else if ( c == ' ' )
-	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-		if ( gbreak && ! hspace_precedes )
-		{
-		    printer->line_break.offset =
-		        buffer->length;
-		    printer->line_break.column =
-		        printer->column;
-		    no_line_break_enabled = false;
-		}
-
-		++ printer->column;
-		min::push(buffer) = ' ';
-		hspace_precedes = true;
-		
-		continue;
-	    }
-	}
-	else if ( c == '\t' )
-	{
-	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-		if ( gbreak && ! hspace_precedes )
-		{
-		    printer->line_break.offset =
-		        buffer->length;
-		    printer->line_break.column =
-		        printer->column;
-		    no_line_break_enabled = false;
-		}
-
-	        uns32 spaces = 8 - printer->column % 8;
-		printer->column += spaces;
-
-	        if ( flags & min::ALLOW_HSPACE_FLAG )
-		    min::push(buffer) = '\t';
-		else
-		    min::push
-			( buffer, spaces, "        " );
-		hspace_precedes = true;
-
-		continue;
-	    }
-	}
-	else if ( c == '\f' || c == '\v' )
-	{
-	    if ( flags & min::GRAPHIC_VSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-	        if ( flags & min::ALLOW_VSPACE_FLAG )
-		{
-		    min::push(buffer) = (char) c;
-		    hspace_precedes = false;
-		}
-
-		continue;
-	    }
-	}
-	else if ( c < 0x20 || c == 0x7F )
-	{
-	    /* Non-Space Control Character */
-	   
-	    if ( flags & min::GRAPHIC_NSPACE_FLAG )
-	        ; // Drop through
-	    else
-	    {
-		if ( flags & min::ALLOW_NSPACE_FLAG )
-		{
-		    if ( c == 0 )
-			min::push
-			  ( buffer,
-			    2, NUL_UTF8_ENCODING );
-		    else
-			min::push(buffer) = (char) c;
-		    hspace_precedes = false;
-		}
-
-		continue;
-	    }
-	}
-	else
-	{
-	    /* Non-ASCII UNICODE Character. */
-	   
-	    const char * rep;
-	    int len;
-	    int columns;
-	    bool is_non_spacing =
-	        ::is_non_spacing ( c );
-	    if( ascii )
-	    {
-		if ( c == min::UNKNOWN_UCHAR )
-		{
-		    rep = asciigraphic[ILL_REP];
-		    len = ::strlen ( rep );
-		    columns = len;
-		}
-		else
-		{
-		    len = sprintf
-			( temp+1, "<%X>", c );
-		    char * p = temp + 1;
-		    if ( p[1] < '0' || '9' < p[1] )
-		    {
-			* p -- = '0';
-			* p = '<';
-			++ len;
-		    }
-		    rep = p;
-		    columns = len;
-		}
-	    }
-	    else /* not ascii mode */
-	    {
-		columns = ! is_non_spacing;
-		if ( c == min::UNKNOWN_UCHAR )
-		{
-		    rep = utf8graphic[ILL_REP];
-		    len = ::strlen ( rep );
-		}
-		else
-		{
-		    rep = temp;
-		    char * p = temp;
-		    len = min::unicode_to_utf8
-		               ( p, c );
-		}
-	    }
-
-	    if ( columns > 0  // ASCII or non-diacritic
-	         &&
-		 ( gbreak
-		   ||
-		   ( hbreak && hspace_precedes ) ) )
-	    {
-		printer->line_break.offset =
-		    buffer->length;
-		printer->line_break.column =
-		    printer->column;
-		no_line_break_enabled = false;
-	    }
-	   
-	    if ( printer->column + columns > line_length
-	         &&
-		 ! no_line_break_enabled )
-	        no_line_break_enabled =
-		    ::insert_line_break ( printer );
-	   
-	    min::push ( buffer, len, rep );
-	    printer->column += columns;
-
-	    hspace_precedes = false;
-
-	    continue;
-	}
-
-	// Output c as utf8graphic[c] or
-	// asciigraphic[c].
-
-	// Recode DEL as DEL_REP.
-	//
-	if ( c == 0x7F ) c = DEL_REP;
-       
-	const char * rep;
-	int len;
-	int columns;
-	if ( ascii )
-	{
-	    rep = asciigraphic[c];
-	    len = ::strlen ( rep );
-	    columns = len;
-	}
-	else
-	{
-	    rep = utf8graphic[c];
-	    len = ::strlen ( rep );
-	    columns = 1;
-	}
-
-	if ( gbreak || ( hbreak && hspace_precedes ) )
-	{
-	    printer->line_break.offset =
-	        buffer->length;
-	    printer->line_break.column =
-	        printer->column;
-	    no_line_break_enabled = false;
-	}
-
-	if ( printer->column + columns > line_length
-	     &&
-	     ! no_line_break_enabled )
-	    no_line_break_enabled =
-		::insert_line_break ( printer );
-       
-	min::push ( buffer, len, rep );
-	printer->column += columns;
-	hspace_precedes = false;
     }
 
     return printer;
