@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 20:27:33 EDT 2014
+// Date:	Wed Jul 16 21:35:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10704,18 +10704,17 @@ namespace min {
 
         IS_SP			= ( 1 << 0 ),
         IS_HT			= ( 1 << 1 ),
-	IS_HSPACE		= ( 1 << 2 ),
-	IS_GRAPHIC		= ( 1 << 3 ),
-	IS_COMBINING		= ( 1 << 4 ),
-	IS_CONTROL		= ( 1 << 5 ),
-	IS_UNSUPPORTED		= ( 1 << 6 ),
+	IS_GRAPHIC		= ( 1 << 2 ),
+	IS_COMBINING		= ( 1 << 3 ),
+	IS_CONTROL		= ( 1 << 4 ),
+	IS_UNSUPPORTED		= ( 1 << 5 ),
 
 	IS_EOL			= ( 1 << 8 ),
 
-	IS_NON_HSPACE		= ( 1 << 9 ),
+	IS_HSPACE		= ( 1 << 9 ),
+	IS_NON_HSPACE		= ( 1 << 10 ),
 
 	CONDITIONAL_BREAK	= ( 1 << 12 ),
-
 	QUOTE_SUPPRESS		= ( 1 << 13 ),
     };
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 20:26:29 EDT 2014
+// Date:	Wed Jul 16 20:47:12 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7400,19 +7400,19 @@ const min::char_flags * min::standard_char_flags =
 const min::support_control
         min::ascii_support_control =
 {
-    0x1, min::IS_UNSUPPORTED
+    0x1, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
 };
 
 const min::support_control
         min::latin1_support_control =
 {
-    0x3, min::IS_UNSUPPORTED
+    0x3, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
 };
 
 const min::support_control
         min::inclusive_support_control =
 {
-    0xFFFF, min::IS_UNSUPPORTED
+    0xFFFF, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
 };
 
 const min::display_control
@@ -7460,27 +7460,32 @@ static void init_printer_formats ( void )
 {
     for ( unsigned cat = 0; cat < 256; ++ cat )
     { 
-	min::uns32 flags = 0;
+	min::uns32 flags;
 
 	if ( cat == ' ' )
-	    flags |= min::IS_SP | min::IS_HSPACE;
+	    flags = min::IS_SP | min::IS_HSPACE;
 	else if ( cat == '\t' )
-	    flags |= min::IS_HT | min::IS_HSPACE;
+	    flags = min::IS_HT | min::IS_HSPACE;
 	else if ( cat < 0x20 )
-	    flags |= min::IS_CONTROL;
+	    flags = min::IS_CONTROL;
 	else if ( cat == 0x7F )
-	    flags |= min::IS_CONTROL;
-	else if (    cat == 's'
-	          || cat == 0xA0  /* NBSP */ )
-	    flags |= min::IS_HSPACE;
+	    flags = min::IS_CONTROL;
+	else if ( 0x80 <= cat && cat < 0xA0 )
+	    flags = min::IS_CONTROL;
+	else if ( cat == 0xA0 ) /* NBSP */
+	    flags = min::IS_HSPACE;
+	else if ( cat == 0xAD ) /* SHY */
+	    flags = min::IS_CONTROL;
+	else if ( cat == 's' )
+	    flags = min::IS_HSPACE;
 	else if ( cat == 'e' )
-	    flags |= min::IS_EOL;
+	    flags = min::IS_EOL;
 	else if ( cat == 'N' )
-	    flags |= min::IS_COMBINING;
+	    flags = min::IS_COMBINING;
 	else if ( ::index ( "lpuvwxz", cat ) != NULL )
-	    flags |= min::IS_CONTROL;
+	    flags = min::IS_CONTROL;
 	else
-	    flags |= min::IS_GRAPHIC;
+	    flags = min::IS_GRAPHIC;
 
 	if ( ( flags & min::IS_HSPACE ) == 0 )
 	    flags |= min::IS_NON_HSPACE;
@@ -8521,7 +8526,7 @@ min::printer min::print_unicode
     while ( n )
     {
         Uchar c = * p;
-	uns16 cflags = 0;
+	uns16 cflags = sc.unsupported_char_flags;
 
 	uns8 cindex;
 	    // Only used to access name or picture.
@@ -8535,12 +8540,10 @@ min::printer min::print_unicode
 	    cindex &= unicode_index_mask;
 	    uns8 ccategory =
 	        unicode::unicode_category[cindex];
-	    cflags = ( * printer->
-	                     print_format.char_flags )
-	    		[ccategory];
-	    if ( ( ( 1 << csupport ) & sc.support_mask )
-	         == 0 )
-	        cflags = sc.unsupported_char_flags;
+	    if ( ( 1 << csupport ) & sc.support_mask )
+		cflags = ( * printer->
+			       print_format.char_flags )
+				    [ccategory];
 	}
 
         // Compute the character representative.
@@ -8613,13 +8616,13 @@ min::printer min::print_unicode
 	    prefix = printer->print_format
 	                     .char_name_prefix;
 	    postfix = printer->print_format
-	                     .char_name_prefix;
+	                     .char_name_postfix;
 	    columns += ustring_columns ( prefix );
 	    columns += ustring_columns ( postfix );
 	}
 
 	if ( columns < width ) return printer;
-	n ++;
+	n --;
 	p ++;
 
 	if ( columns > 0 )
@@ -8652,7 +8655,15 @@ min::printer min::print_unicode
 		 - printer->line_break.column
 	      >= bc.conditional_columns );
 	   
+	if ( prefix != NULL )
+	    min::push ( buffer,
+	                ustring_length ( prefix ),
+			ustring_chars  ( prefix ) );
 	min::push ( buffer, length, rep );
+	if ( postfix != NULL )
+	    min::push ( buffer,
+	                ustring_length ( postfix ),
+			ustring_chars  ( postfix ) );
 	printer->column += columns;
 
     }
