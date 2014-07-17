@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 05:13:38 EDT 2014
+// Date:	Thu Jul 17 02:04:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2544,17 +2544,19 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->line_break.line_length == 72 );
 
-#ifdef NONE_SUCH
-
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::gbreak
-            << min::graphic << min::ascii
+            << min::set_break_control
+	           ( min::break_before_nonspace )
+            << min::set_display_control
+	           ( min::graphic_only_display_control )
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
 		   "\040\177\200\300"
             << min::eom;
+
+#ifdef NONE_SUCH
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::gbreak << min::graphic
