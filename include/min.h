@@ -10744,6 +10744,8 @@ namespace min {
         verbatim_display_control;
     extern const min::display_control
         standard_display_control;
+    extern const min::display_control
+        graphic_only_display_control;
 
     struct break_control
     {
@@ -11071,6 +11073,10 @@ namespace min {
 	    SPACES_IF_BEFORE_INDENT,
 	    SPACE_IF_AFTER_INDENT,
 
+	    SET_SUPPORT_CONTROL,
+	    SET_DISPLAY_CONTROL,
+	    SET_BREAK_CONTROL,
+
 	    VERBATIM,
 
 	    SUPPRESSIBLE_SPACE,
@@ -11179,6 +11185,24 @@ namespace min {
 	    : opcode ( opcode )
 	{
 	    v1.p = (void *) out;
+	}
+	op ( op::OPCODE opcode,
+	     const min::support_control * sc )
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) sc;
+	}
+	op ( op::OPCODE opcode,
+	     const min::display_control * dc )
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) dc;
+	}
+	op ( op::OPCODE opcode,
+	     const min::break_control * bc )
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) bc;
 	}
 	op ( op::OPCODE opcode,
 	     const min::context_gen_flags *
@@ -11292,6 +11316,24 @@ namespace min {
 	            print_op_flags );
     }
 
+    inline op set_support_control
+    	( const min::support_control & sc )
+    {
+        return op ( op::SET_SUPPORT_CONTROL, & sc );
+    }
+
+    inline op set_display_control
+    	( const min::display_control & dc )
+    {
+        return op ( op::SET_DISPLAY_CONTROL, & dc );
+    }
+
+    inline op set_break_control
+    	( const min::break_control & bc )
+    {
+        return op ( op::SET_BREAK_CONTROL, & bc );
+    }
+
     inline op left ( uns32 width )
     {
         return op ( op::LEFT, width );
@@ -11325,33 +11367,11 @@ namespace min {
     extern const op spaces_if_before_indent;
     extern const op space_if_after_indent;
 
-    extern const op ascii;
-    extern const op noascii;
-    extern const op graphic_hspace;
-    extern const op nographic_hspace;
-    extern const op graphic_vspace;
-    extern const op nographic_vspace;
-    extern const op graphic_nspace;
-    extern const op nographic_nspace;
-    extern const op allow;
-    extern const op noallow;
-    extern const op allow_hspace;
-    extern const op noallow_hspace;
-    extern const op allow_vspace;
-    extern const op noallow_vspace;
-    extern const op allow_nspace;
-    extern const op noallow_nspace;
     extern const op display_eol;
     extern const op nodisplay_eol;
-    extern const op hbreak;
-    extern const op nohbreak;
-    extern const op gbreak;
-    extern const op nogbreak;
     extern const op eol_flush;
     extern const op noeol_flush;
 
-    extern const op graphic;
-    extern const op nographic;
     extern const op verbatim;
 
     extern const op suppressible_space;

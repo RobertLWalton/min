@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 01:02:11 EDT 2014
+// Date:	Thu Jul 17 02:05:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2403,7 +2403,8 @@ min::printer operator <<
 	printer << sp << ": ";
     }
     printer << min::save_print_format
-            << min::nohbreak;
+            << min::set_break_control
+	          ( min::never_break );
 
     if ( pline_numbers.first == pline_numbers.last )
         printer << "line " << pline_numbers.first + 1;
@@ -7429,6 +7430,13 @@ const min::display_control
     0
 };
 
+const min::display_control
+        min::graphic_only_display_control =
+{
+    min::IS_GRAPHIC + min::IS_COMBINING,
+    0
+};
+
 
 const min::break_control
 	min::never_break =
@@ -7967,6 +7975,18 @@ min::printer operator <<
     case min::op::CLEAR_PRINT_OP_FLAGS:
 	printer->print_format.op_flags &= ~ op.v1.u32;
 	return printer;
+    case min::op::SET_SUPPORT_CONTROL:
+        printer->print_format.support_control =
+	    * (const min::support_control *) op.v1.p;
+	return printer;
+    case min::op::SET_DISPLAY_CONTROL:
+        printer->print_format.display_control =
+	    * (const min::display_control *) op.v1.p;
+	return printer;
+    case min::op::SET_BREAK_CONTROL:
+        printer->print_format.break_control =
+	    * (const min::break_control *) op.v1.p;
+	return printer;
     case min::op::VERBATIM:
 	printer->print_format.flags |=
 	      min::ALLOW_HSPACE_FLAG
@@ -8246,56 +8266,12 @@ const min::op min::spaces_if_before_indent
 const min::op min::space_if_after_indent
     ( min::op::SPACE_IF_AFTER_INDENT );
 
-const min::op min::ascii
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::noascii
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-
-const min::op min::graphic_hspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nographic_hspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::graphic_vspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nographic_vspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::graphic_nspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nographic_nspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-
-const min::op min::allow
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::noallow
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::allow_hspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::noallow_hspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::allow_vspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::noallow_vspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::allow_nspace
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::noallow_nspace
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-
 const min::op min::display_eol
     ( min::op::SET_PRINT_OP_FLAGS,
       min::DISPLAY_EOL );
 const min::op min::nodisplay_eol
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_EOL );
-
-const min::op min::hbreak
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nohbreak
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
-const min::op min::gbreak
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nogbreak
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
 
 const min::op min::eol_flush
     ( min::op::SET_PRINT_OP_FLAGS,
@@ -8304,10 +8280,6 @@ const min::op min::noeol_flush
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FLUSH_ON_EOL );
 
-const min::op min::graphic
-    ( min::op::SET_PRINT_OP_FLAGS, 0 );
-const min::op min::nographic
-    ( min::op::CLEAR_PRINT_OP_FLAGS, 0 );
 const min::op min::verbatim
     ( min::op::VERBATIM );
 const min::op min::suppressible_space
@@ -8478,7 +8450,8 @@ min::printer operator <<
 	buffer[i++] = c;
     }
 
-    min::ptr<const min::Uchar> p = min::new_ptr ( buffer );
+    min::ptr<const min::Uchar> p =
+        min::new_ptr ( buffer );
 
     return min::print_unicode ( printer, i, p );
 }
@@ -9441,11 +9414,10 @@ static T pgen_obj
     }
 
     if ( ! indent )
-	out << "{| " << min::save_indent
-	    << min::nohbreak;
+	out << "{| " << min::save_indent;
     else
-        out << min::save_line_break
-	    << min::nohbreak;
+        out << min::save_line_break;
+    out << min::set_break_control ( min::never_break );
 
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
@@ -9696,7 +9668,9 @@ static T pgen_exp
 	    postfix = f->implicit_postfix;
 	}
 	out << prefix
-	    << min::save_indent << min::nohbreak;
+	    << min::save_indent
+            << min::set_break_control
+	          ( min::never_break );
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9841,7 +9815,8 @@ static T pgen_exp
 	       context_gen_flags, f );
 	out << min::suppressible_space
 	    << min::save_indent
-	    << min::nohbreak;
+            << min::set_break_control
+	          ( min::never_break );
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9891,7 +9866,8 @@ static T pgen_exp
 		      info, info_length );
 
 	out << min::save_print_format
-	    << min::nohbreak;
+            << min::set_break_control
+	          ( min::never_break );
 	pgen ( out,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
