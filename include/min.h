@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 04:46:58 EDT 2014
+// Date:	Fri Jul 18 05:06:48 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5838,7 +5838,7 @@ namespace min {
 	    line_index;
 
 	min::uns32 spool_lines;
-	min::uns32 print_flags;
+	min::uns32 line_display;
 
 	std::istream *		istream;
 	const min::file		ifile;
@@ -5905,9 +5905,9 @@ namespace min {
 
     void init ( min::ref<min::file> file );
 
-    void init_print_flags
+    void init_line_display
 	    ( min::ref<min::file> file,
-	      min::uns32 print_flags );
+	      min::uns32 line_display );
 
     void init_file_name
 	    ( min::ref<min::file> file,
@@ -5927,53 +5927,53 @@ namespace min {
 
     void init_input
             ( min::ref<min::file> file,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
 	    ( min::ref<min::file> file,
 	      std::istream & istream,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
 	    ( min::ref<min::file> file,
 	      min::file ifile,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
 	    ( min::ref<min::file> file,
 	      min::gen file_name,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( min::ref<min::file> file,
 	      min::ptr<const char> string,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     inline void init_input_string
 	    ( min::ref<min::file> file,
 	      min::ptr<char> string,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES )
     {
         init_input_string
 	    ( file, (min::ptr<const char>) string,
-	       print_flags, spool_lines );
+	       line_display, spool_lines );
     }
 
     inline void init_input_string
 	    ( min::ref<min::file> file,
 	      const char * string,
-	      min::uns32 print_flags = 0,
+	      min::uns32 line_display = 0,
 	      min::uns32 spool_lines = min::ALL_LINES )
     {
         init_input_string
 	    ( file, min::new_ptr ( string ),
-	       print_flags, spool_lines );
+	       line_display, spool_lines );
     }
 
     inline void end_line ( min::file file )
@@ -6095,7 +6095,7 @@ namespace min {
 	          "<UNAVALABLE-LINE>" )
     {
         return print_line
-	    ( printer, file->print_flags, file,
+	    ( printer, file->line_display, file,
 	      line_number, blank_line, end_of_file,
 	      unavailable_line );
     }
@@ -6109,7 +6109,7 @@ namespace min {
 
     void print_phrase_lines
 	    ( min::printer printer,
-	      min::uns32 print_flags,
+	      min::uns32 line_display,
 	      min::file file,
 	      const min::phrase_position & position,
 	      char mark = '^',
@@ -6133,7 +6133,7 @@ namespace min {
 	          "<UNAVALABLE-LINE>" )
     {
         return print_phrase_lines
-	    ( printer, file->print_flags, file,
+	    ( printer, file->line_display, file,
 	      position, mark, blank_line, end_of_file,
 	      unavailable_line );
     }
@@ -10733,7 +10733,7 @@ namespace min {
     extern const min::display_control
         verbatim_display_control;
     extern const min::display_control
-        standard_display_control;
+        graphic_and_space_display_control;
     extern const min::display_control
         graphic_only_display_control;
 
@@ -10746,20 +10746,20 @@ namespace min {
     };
 
     extern const min::break_control
-        never_break;
+        never_break_break_control;
     extern const min::break_control
-        break_after_space;
+        break_after_space_break_control;
     extern const min::break_control
-        break_before_nonspace;
+        break_before_nonspace_break_control;
     extern const min::break_control
-        break_before_all;
+        break_before_all_break_control;
     extern const min::break_control
-        break_after_space_and_hypenators;
+        break_after_space_and_hypenators_break_control;
 
     typedef bool suppress_matrix[256][256];
 
     extern const min::suppress_matrix *
-        default_suppress_matrix;
+        standard_suppress_matrix;
 
     struct line_break
     {
@@ -10769,7 +10769,7 @@ namespace min {
 	uns32 indent;
     };
 
-    extern const line_break default_line_break;
+    extern const line_break standard_line_break;
 
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;
@@ -10792,13 +10792,9 @@ namespace min {
 	min::support_control 	      support_control;
 	min::display_control 	      display_control;
 	min::break_control 	      break_control;
-
-	const min::bracket_format *   bracket_format;
-
-
     };
 
-    extern const print_format default_print_format;
+    extern const print_format standard_print_format;
 
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;
@@ -10830,7 +10826,6 @@ namespace min {
 	min::uns8 previous_unicode_category;
 	min::ustring suppressed_space[10];
 	bool suppressed_break_after;
-	min::uns32 previous_print_flags;
 	    // Let the next character to be printed be
 	    // c, C = min::unicode_category ( c ), and
 	    // B = previous_unicode_category (if
@@ -10839,11 +10834,11 @@ namespace min {
 	    // unicode_category ( b ) ).
 	    //
 	    // Then just before the next character to be
-	    // printed is output, a single space char-
-	    // acter is printed with print_format.flags
-	    // temporarily set to previous_print_flags
-	    // if suppress_matrix == NULL or suppress_
-	    // matrix[B][C] == false.  In any case,
+	    // printed is output, if suppress_matrix !=
+	    // NULL and suppress_matrix[B][C] == false,
+	    // the contents of suppressed_space is
+	    // printed and break_after is set to
+	    // suppressed_break_after.  In any case,
 	    // suppress_matrix is reset to NULL.
     };
 
@@ -10853,142 +10848,6 @@ namespace min {
     MIN_REF ( min::print_format_stack,
               print_format_stack, min::printer )
     MIN_REF ( min::id_map, id_map, min::printer )
-
-    struct str_format;
-    struct bracket_format;
-    struct num_format;
-    struct lab_format;
-    struct specials_format;
-    struct obj_format;
-    struct gen_format;
-
-    struct bracket_format
-    {
-	const min::ustring *	str_prefix;
-	const min::ustring *	str_postfix;
-	const min::ustring *	str_postfix_name;
-	const min::ustring *	str_concatenator;
-    };
-
-    extern const min::bracket_format *
-        quote_bracket_format;
-
-    struct quote_control
-    {
-        min::uns16 unquote_if_first;
-	min::uns16 unquote_if_only;
-    };
-
-    extern const min::quote_control
-        quote_all_control;
-    extern const min::quote_control
-        quote_first_not_letter_control;
-    extern const min::quote_control
-        quote_non_graphics_control;
-
-    struct str_format
-    {
-
-        const min::quote_control *	quote_control;
-	const min::bracket_format *	bracket_format;
-    };
-
-    extern const min::str_format *
-        quote_all_str_format;
-    extern const min::str_format *
-        quote_first_not_letter_str_format;
-    extern const min::str_format *
-        quote_non_graphics_str_format;
-
-    struct num_format
-    {
-        const char * 		int_printf_format;
-        const char * 		float_printf_format;
-	const min::uns32 *	fraction_divisors;
-    };
-
-    extern const min::uns32 *
-        first_100_divisors;
-
-    extern const min::num_format *
-        short_num_format;
-    extern const min::num_format *
-        long_num_format;
-
-    struct lab_format
-    {
-	const min::ustring *	    lab_prefix;
-	const min::ustring *	    lab_postfix;
-	const min::ustring *	    lab_separator;
-
-	const min::suppress_matrix *
-				    suppress_matrix;
-    };
-
-    extern const min::lab_format *
-        name_lab_format;
-    extern const min::lab_format *
-        bracket_lab_format;
-
-
-    struct specials_format
-    {
-	const min::ustring *	    special_prefix;
-	const min::ustring *	    special_postfix;
-	packed_vec_ptr<const char *>
-				    special_names;
-    };
-
-    extern const min::specials_format *
-        name_specials_format;
-    extern const min::specials_format *
-        bracket_specials_format;
-
-    struct obj_format
-    {
-        const min::lab_format *	    name_format;
-	const min::gen_format *     element_format;
-	const min::gen_format *     value_format;
-
-	const min::ustring *   	    obj_prefix;
-	const min::ustring *   	    obj_separator;
-	const min::ustring *   	    obj_midfix;
-	const min::ustring *   	    obj_postfix;
-
-	const min::ustring *   	    implicit_prefix;
-	const min::ustring *   	    implicit_postfix;
-
-	packed_vec_ptr<min::gen>    exp_ok_attrs;
-
-	packed_vec_ptr<const char *>
-	                   	    flag_names;
-    };
-
-    extern const min::obj_format *
-        exp_obj_format;
-    extern const min::obj_format *
-        raw_obj_format;
-
-    struct new_gen_format
-    {
-        const min::num_format *	    num_format;
-        const min::str_format *	    str_format;
-        const min::lab_format *	    lab_format;
-        const min::specials_format *
-				    specials_format;
-        const min::obj_format *	    obj_format;
-
-        const min::gen_format *	    id_map_format;
-    };
-
-    extern const min::new_gen_format *
-        top_new_gen_format;
-    extern const min::new_gen_format *
-        id_map_new_gen_format;
-    extern const min::new_gen_format *
-        value_new_gen_format;
-    extern const min::new_gen_format *
-        element_new_gen_format;
 
     struct op
     {
@@ -11018,6 +10877,8 @@ namespace min {
 
 	    SET_PRINT_OP_FLAGS,
 	    CLEAR_PRINT_OP_FLAGS,
+
+	    SET_LINE_DISPLAY,
 
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
@@ -11280,6 +11141,13 @@ namespace min {
 	            print_op_flags );
     }
 
+    inline op set_line_display
+	    ( uns32 line_display )
+    {
+        return op ( op::SET_LINE_DISPLAY,
+	            line_display );
+    }
+
     inline op set_support_control
     	( const min::support_control & sc )
     {
@@ -11333,13 +11201,31 @@ namespace min {
 
     extern const op display_eol;
     extern const op nodisplay_eol;
-    extern const op eol_flush;
-    extern const op noeol_flush;
+    extern const op flush_on_eol;
+    extern const op noflush_on_eol;
+    extern const op flush_id_map_on_eom;
+    extern const op noflush_id_map_on_eom;
+    extern const op expand_ht;
+    extern const op noexpand_ht;
+    extern const op display_picture;
+    extern const op nodisplay_picture;
 
     extern const op verbatim;
 
     extern const op suppressible_space;
     extern const op space;
+
+    extern const op ascii;
+    extern const op latin1;
+
+    extern const op graphic_and_space;
+    extern const op graphic_only;
+
+    extern const op never_break;
+    extern const op break_after_space;
+    extern const op break_before_nonspace;
+    extern const op break_before_all;
+    extern const op break_after_space_and_hypenators;
 
     extern const op print_assert; // For debugging only.
 
@@ -11452,6 +11338,142 @@ std::ostream & operator <<
 
 namespace min {
 
+    struct str_format;
+    struct bracket_format;
+    struct num_format;
+    struct lab_format;
+    struct specials_format;
+    struct obj_format;
+    struct gen_format;
+
+    struct bracket_format
+    {
+	const min::ustring *	str_prefix;
+	const min::ustring *	str_postfix;
+	const min::ustring *	str_postfix_name;
+	const min::ustring *	str_concatenator;
+    };
+
+    extern const min::bracket_format *
+        quote_bracket_format;
+
+    struct quote_control
+    {
+        min::uns16 unquote_if_first;
+	min::uns16 unquote_if_only;
+    };
+
+    extern const min::quote_control
+        quote_all_control;
+    extern const min::quote_control
+        quote_first_not_letter_control;
+    extern const min::quote_control
+        quote_non_graphics_control;
+
+    struct str_format
+    {
+
+        const min::quote_control *	quote_control;
+	const min::bracket_format *	bracket_format;
+    };
+
+    extern const min::str_format *
+        quote_all_str_format;
+    extern const min::str_format *
+        quote_first_not_letter_str_format;
+    extern const min::str_format *
+        quote_non_graphics_str_format;
+
+    struct num_format
+    {
+        const char * 		int_printf_format;
+        const char * 		float_printf_format;
+	const min::uns32 *	fraction_divisors;
+    };
+
+    extern const min::uns32 *
+        first_100_divisors;
+
+    extern const min::num_format *
+        short_num_format;
+    extern const min::num_format *
+        long_num_format;
+
+    struct lab_format
+    {
+	const min::ustring *	    lab_prefix;
+	const min::ustring *	    lab_postfix;
+	const min::ustring *	    lab_separator;
+
+	const min::suppress_matrix *
+				    suppress_matrix;
+    };
+
+    extern const min::lab_format *
+        name_lab_format;
+    extern const min::lab_format *
+        bracket_lab_format;
+
+
+    struct specials_format
+    {
+	const min::ustring *	    special_prefix;
+	const min::ustring *	    special_postfix;
+	packed_vec_ptr<const char *>
+				    special_names;
+    };
+
+    extern const min::specials_format *
+        name_specials_format;
+    extern const min::specials_format *
+        bracket_specials_format;
+
+    struct obj_format
+    {
+        const min::lab_format *	    name_format;
+	const min::gen_format *     element_format;
+	const min::gen_format *     value_format;
+
+	const min::ustring *   	    obj_prefix;
+	const min::ustring *   	    obj_separator;
+	const min::ustring *   	    obj_midfix;
+	const min::ustring *   	    obj_postfix;
+
+	const min::ustring *   	    implicit_prefix;
+	const min::ustring *   	    implicit_postfix;
+
+	packed_vec_ptr<min::gen>    exp_ok_attrs;
+
+	packed_vec_ptr<const char *>
+	                   	    flag_names;
+    };
+
+    extern const min::obj_format *
+        exp_obj_format;
+    extern const min::obj_format *
+        raw_obj_format;
+
+    struct new_gen_format
+    {
+        const min::num_format *	    num_format;
+        const min::str_format *	    str_format;
+        const min::lab_format *	    lab_format;
+        const min::specials_format *
+				    specials_format;
+        const min::obj_format *	    obj_format;
+
+        const min::gen_format *	    id_map_format;
+    };
+
+    extern const min::new_gen_format *
+        top_new_gen_format;
+    extern const min::new_gen_format *
+        id_map_new_gen_format;
+    extern const min::new_gen_format *
+        value_new_gen_format;
+    extern const min::new_gen_format *
+        element_new_gen_format;
+
     struct gen_format
     {
 	min::printer     ( * pgen )
@@ -11521,7 +11543,7 @@ namespace min {
     };
 
     extern const min::context_gen_flags
-	default_context_gen_flags;
+	standard_context_gen_flags;
 
     extern const min::context_gen_flags
 	no_exp_context_gen_flags;
@@ -11530,14 +11552,14 @@ namespace min {
            standard_special_names;
 
     extern packed_vec_ptr<min::gen>
-           default_exp_ok_attrs;
+           standard_exp_ok_attrs;
 
     extern packed_vec_ptr<const char *>
-           default_flag_names;
+           standard_flag_names;
 
-    extern const gen_format default_gen_format;
+    extern const gen_format standard_gen_format;
 
-    min::printer default_pgen
+    min::printer standard_pgen
 	    ( min::printer printer,
 	      min::uns32 gen_flags,
 	      min::gen v,

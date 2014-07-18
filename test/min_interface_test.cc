@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 04:48:39 EDT 2014
+// Date:	Fri Jul 18 07:07:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2545,8 +2545,7 @@ void test_printer ( void )
         ( printer->line_break.line_length == 72 );
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::set_break_control
-	           ( min::break_before_nonspace )
+            << min::break_before_nonspace
             << min::set_display_control
 	           ( min::graphic_only_display_control )
             << "\300\200\001\002\003\004\005\006\007"
@@ -2557,12 +2556,10 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::set_break_control
-	           ( min::break_before_nonspace )
+            << min::break_before_nonspace
             << min::set_display_control
 	           ( min::graphic_only_display_control )
-            << min::set_print_op_flags
-	    	   ( min::DISPLAY_PICTURE )
+            << min::display_picture
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
@@ -2587,34 +2584,27 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-	    << min::set_support_control
-	    		( min::ascii_support_control )
+	    << min::ascii
             << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-            << min::set_display_control
-	           ( min::graphic_only_display_control )
-            << min::set_print_op_flags
-	    	   ( min::DISPLAY_PICTURE )
+            << min::graphic_only
+            << min::display_picture
             << buffer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-	    << min::set_support_control
-	    		( min::ascii_support_control )
-            << min::set_break_control
-	           ( min::break_before_all )
-            << min::set_display_control
-	           ( min::graphic_only_display_control )
+	    << min::ascii
+            << min::break_before_all
+            << min::graphic_only
 	    << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::display_eol
-            << min::set_print_op_flags
-	    	   ( min::DISPLAY_PICTURE )
+            << min::display_picture
 	    << "hello" << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -2622,15 +2612,13 @@ void test_printer ( void )
 	    << "hello" << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::set_break_control
-	           ( min::never_break );
+            << min::never_break;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::right ( 4 );
     printer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::set_break_control
-	           ( min::never_break );
+            << min::never_break;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::left ( 4 );
     printer << min::eom;
@@ -2813,7 +2801,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::save_print_format
-            << min::noeol_flush
+            << min::noflush_on_eol
 	    << "The line being flushed" << min::eol;
     std::cout << "A flush is next:" << std::endl;
     printer << min::flush;
@@ -2840,7 +2828,7 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::ascii;
+    printer << min::TBD_ascii;
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
     WTEST ( '\f' );
@@ -2865,7 +2853,7 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::noascii;
+    printer << min::TBD_noascii;
     column = 0;
     MIN_ASSERT ( printer->column == 0 );
     WTEST ( 'a' );

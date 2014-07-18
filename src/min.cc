@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 04:47:25 EDT 2014
+// Date:	Fri Jul 18 05:06:39 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -105,14 +105,14 @@ static min::locatable_var
     standard_special_names;
 
 min::packed_vec_ptr<min::gen>
-    min::default_exp_ok_attrs;
+    min::standard_exp_ok_attrs;
 static min::locatable_var
 	< min::packed_vec_ptr<min::gen> >
-    default_exp_ok_attrs;
+    standard_exp_ok_attrs;
 
-static const unsigned default_flag_names_length = 256;
-static char const * default_flag_names_value
-		  [::default_flag_names_length] =
+static const unsigned standard_flag_names_length = 256;
+static char const * standard_flag_names_value
+		  [::standard_flag_names_length] =
     { "!", "#", "$", "%", "&", "*",
       "+", "-", "/", "=", "?", "@",
 
@@ -166,10 +166,10 @@ static char const * default_flag_names_value
       "\\U", "\\V", "\\W", "\\X", "\\Y", "\\Z"
     };
 min::packed_vec_ptr<const char *>
-    min::default_flag_names;
+    min::standard_flag_names;
 static min::locatable_var
 	< min::packed_vec_ptr<const char *> >
-    default_flag_names;
+    standard_flag_names;
 
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
@@ -185,14 +185,14 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-static void init_default_suppress_matrix ( void );
+static void init_standard_suppress_matrix ( void );
 static void init_printer_formats ( void );
 static void init_pgen_formats ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
-    init_default_suppress_matrix();
+    init_standard_suppress_matrix();
     init_printer_formats();
     init_pgen_formats();
 
@@ -358,10 +358,10 @@ void MINT::initialize ( void )
     {
 	min::packed_vec_insptr<min::gen> p =
 	    min::gen_packed_vec_type.new_stub ( 9 );
-	::default_exp_ok_attrs = p;
-	min::default_exp_ok_attrs = p;
+	::standard_exp_ok_attrs = p;
+	min::standard_exp_ok_attrs = p;
 	* (const min::stub **)
-	& min::default_gen_format.exp_ok_attrs = p;
+	& min::standard_gen_format.exp_ok_attrs = p;
 
 	min::push ( p ) = min::dot_initiator;
 	min::push ( p ) = min::dot_separator;
@@ -377,14 +377,14 @@ void MINT::initialize ( void )
     {
 	min::packed_vec_insptr<const char *> p =
 	    min::const_char_ptr_packed_vec_type.new_stub
-		( ::default_flag_names_length );
-	::default_flag_names = p;
-	min::default_flag_names = p;
+		( ::standard_flag_names_length );
+	::standard_flag_names = p;
+	min::standard_flag_names = p;
 	* (const min::stub **)
-	& min::default_gen_format.flag_names = p;
+	& min::standard_gen_format.flag_names = p;
 
-	min::push ( p, ::default_flag_names_length,
-		       ::default_flag_names_value );
+	min::push ( p, ::standard_flag_names_length,
+		       ::standard_flag_names_value );
     }
 
     for ( min::initializer * i = MINT::last_initializer;
@@ -1855,12 +1855,12 @@ void min::init ( min::ref<min::file> file )
     }
 }
 
-void min::init_print_flags
+void min::init_line_display
 	( min::ref<min::file> file,
-	  min::uns32 print_flags )
+	  min::uns32 line_display )
 {
     init ( file );
-    file->print_flags = print_flags;
+    file->line_display = line_display;
 }
 
 void min::init_file_name
@@ -1897,7 +1897,7 @@ void min::init_printer
 
 void min::init_input
 	( min::ref<min::file> file,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 {
     init ( file );
@@ -1911,7 +1911,7 @@ void min::init_input
     file->next_line_number = 0;
     file->next_offset = 0;
 
-    file->print_flags = print_flags;
+    file->line_display = line_display;
     file->spool_lines = spool_lines;
     if ( spool_lines != 0 )
     {
@@ -1942,30 +1942,30 @@ void min::init_input
 void min::init_input_stream
 	( min::ref<min::file> file,
 	  std::istream & istream,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, print_flags, spool_lines );
+    init_input ( file, line_display, spool_lines );
     file->istream = & istream;
 }
 
 void min::init_input_file
 	( min::ref<min::file> file,
 	  min::file ifile,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, print_flags, spool_lines );
+    init_input ( file, line_display, spool_lines );
     ifile_ref(file) = ifile;
 }
 
 void min::init_input_string
 	( min::ref<min::file> file,
 	  min::ptr<const char> string,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, print_flags, spool_lines );
+    init_input ( file, line_display, spool_lines );
     load_string ( file, string );
     complete_file ( file );
 }
@@ -1992,10 +1992,10 @@ void min::load_string
 bool min::init_input_named_file
 	( min::ref<min::file> file,
 	  min::gen file_name,
-	  min::uns32 print_flags,
+	  min::uns32 line_display,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, print_flags, spool_lines );
+    init_input ( file, line_display, spool_lines );
     file_name_ref(file) = file_name;
     if ( ! load_named_file ( file, file_name ) )
         return false;
@@ -2203,7 +2203,7 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
-	  min::uns16 print_op_flags,
+	  min::uns16 line_display,
 	  min::file file,
 	  min::uns32 line_number,
 	  const char * blank_line,
@@ -2257,7 +2257,7 @@ min::uns32 min::print_line
     if ( blank_line == NULL )
         ; // do nothing
     else if ( eof ? end_of_file != NULL :
-                  (   print_op_flags
+                  (   line_display
                     & min::DISPLAY_EOL ) )
         ; // do nothing
     else if ( buffer[0] == 0 )
@@ -2292,14 +2292,10 @@ min::uns32 min::print_line
 	}
     }
 
-    printer << min::save_print_format
-            << min::set_print_op_flags
-	           ( print_op_flags )
-            << min::set_display_control
-	           ( min::standard_display_control )
-            << min::set_break_control
-	           ( min::never_break )
-	    << buffer;
+    printer
+        << min::save_print_format
+	<< min::set_line_display ( line_display )
+	<< buffer;
     uns32 width = printer->column;
     if ( eof )
     {
@@ -2311,9 +2307,9 @@ min::uns32 min::print_line
     {
 	printer << min::eol
 	        << min::restore_print_format;
-	if ( print_op_flags & min::DISPLAY_EOL )
+	if ( line_display & min::DISPLAY_EOL )
 	    width +=
-	        (   print_op_flags
+	        (   line_display
 		  & min::DISPLAY_PICTURE ?  1 :
 		  ustring_columns
 		      ( printer->print_format
@@ -2331,7 +2327,7 @@ min::uns32 min::print_line
 min::uns32 min::print_line_column
 	( min::file file,
 	  const min::position & position,
-	  min::uns16 print_op_flags,
+	  min::uns16 line_display,
 	  const min::print_format & print_format )
 {
     min::uns32 column = 0;
@@ -2357,13 +2353,13 @@ min::uns32 min::print_line_column
     min::pwidth ( column, ! ( file->buffer + offset ),
     		  position.offset <= length ?
 		      position.offset : length,
-                  print_op_flags, print_format );
+                  line_display, print_format );
     return column;
 }
 
 void min::print_phrase_lines
 	( min::printer printer,
-	  min::uns32 print_op_flags,
+	  min::uns32 line_display,
 	  min::file file,
 	  const min::phrase_position & position,
 	  char mark,
@@ -2377,18 +2373,18 @@ void min::print_phrase_lines
     min::position end   = position.end;
     uns32 begin_column =
         print_line_column
-	    ( file, begin, print_op_flags,
+	    ( file, begin, line_display,
 	                   printer->print_format );
     uns32 end_column =
         print_line_column
-	    ( file, end, print_op_flags,
+	    ( file, end, line_display,
 	                 printer->print_format );
 
     uns32 line = begin.line;
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, print_op_flags, file, line,
+	( printer, line_display, file, line,
 	  blank_line, end_of_file, unavailable_line );
 
     while ( true )
@@ -2418,7 +2414,7 @@ void min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, print_op_flags, file, line,
+	    ( printer, line_display, file, line,
 	      blank_line, end_of_file,
 	      unavailable_line );
     }
@@ -2435,8 +2431,7 @@ min::printer operator <<
 	printer << sp << ": ";
     }
     printer << min::save_print_format
-            << min::set_break_control
-	          ( min::never_break );
+            << min::never_break;
 
     if ( pline_numbers.first == pline_numbers.last )
         printer << "line " << pline_numbers.first + 1;
@@ -7455,7 +7450,7 @@ const min::display_control
 };
 
 const min::display_control
-        min::standard_display_control =
+        min::graphic_and_space_display_control =
 {
     min::IS_SP + min::IS_HT + min::IS_GRAPHIC
                             + min::IS_COMBINING,
@@ -7471,31 +7466,31 @@ const min::display_control
 
 
 const min::break_control
-	min::never_break =
+	min::never_break_break_control =
 {
     0, 0, 0, 0
 };
 
 const min::break_control
-	min::break_after_space =
+	min::break_after_space_break_control =
 {
     min::IS_HSPACE, 0, 0, 0
 };
 
 const min::break_control
-	min::break_before_nonspace =
+	min::break_before_nonspace_break_control =
 {
     0, min::IS_NON_HSPACE, 0, 0
 };
 
 const min::break_control
-	min::break_before_all =
+	min::break_before_all_break_control =
 {
     0, 0xFFFF, 0, 0
 };
 
 const min::break_control
-	min::break_after_space_and_hypenators =
+   min::break_after_space_and_hypenators_break_control =
 {
     min::IS_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
@@ -7546,33 +7541,33 @@ static void init_printer_formats ( void )
     }
 }
 
-static bool default_suppress_matrix[256][256];
+static bool standard_suppress_matrix[256][256];
 
 const min::suppress_matrix
-    * min::default_suppress_matrix =
-        & ::default_suppress_matrix;
+    * min::standard_suppress_matrix =
+        & ::standard_suppress_matrix;
 
-static void init_default_suppress_matrix ( void )
+static void init_standard_suppress_matrix ( void )
 {
     for ( unsigned i = 0; i < 256; ++ i )
     {
-        ::default_suppress_matrix['('][i] = true;
-        ::default_suppress_matrix['['][i] = true;
-        ::default_suppress_matrix['{'][i] = true;
-        ::default_suppress_matrix[0xAB][i] = true;
+        ::standard_suppress_matrix['('][i] = true;
+        ::standard_suppress_matrix['['][i] = true;
+        ::standard_suppress_matrix['{'][i] = true;
+        ::standard_suppress_matrix[0xAB][i] = true;
 		// << double angle quote
-        ::default_suppress_matrix['`'][i] = true;
+        ::standard_suppress_matrix['`'][i] = true;
 		// grave accent
 
-        ::default_suppress_matrix[i][')'] = true;
-        ::default_suppress_matrix[i][']'] = true;
-        ::default_suppress_matrix[i]['}'] = true;
-        ::default_suppress_matrix[i][0xB8] = true;
+        ::standard_suppress_matrix[i][')'] = true;
+        ::standard_suppress_matrix[i][']'] = true;
+        ::standard_suppress_matrix[i]['}'] = true;
+        ::standard_suppress_matrix[i][0xB8] = true;
 		// >> double angle quote
-        ::default_suppress_matrix[i][0xB4] = true;
+        ::standard_suppress_matrix[i][0xB4] = true;
 		// acute accent
-        ::default_suppress_matrix[i][','] = true;
-        ::default_suppress_matrix[i][';'] = true;
+        ::standard_suppress_matrix[i][','] = true;
+        ::standard_suppress_matrix[i][';'] = true;
 
 	min::uns8 b = min::unicode_category ( i );
 
@@ -7584,12 +7579,12 @@ static void init_default_suppress_matrix ( void )
 		    min::unicode_category ( j );
 		if ( c == 'U' || c == 'L' ) continue;
 		if ( c == '\'' ) continue;
-		::default_suppress_matrix[b][c] = true;
-		::default_suppress_matrix[c][b] = true;
+		::standard_suppress_matrix[b][c] = true;
+		::standard_suppress_matrix[c][b] = true;
 	    }
 	}
 	else
-	    ::default_suppress_matrix[i]['\''] = true;
+	    ::standard_suppress_matrix[i]['\''] = true;
 
 	if ( '0' <= b && b <= '9' )
 	{
@@ -7602,30 +7597,29 @@ static void init_default_suppress_matrix ( void )
 		if ( c == '.' ) continue;
 		if ( c == ':' ) continue;
 		if ( c == '/' ) continue;
-		::default_suppress_matrix[b][c] = true;
-		::default_suppress_matrix[c][b] = true;
+		::standard_suppress_matrix[b][c] = true;
+		::standard_suppress_matrix[c][b] = true;
 	    }
 	}
     }
 }
 
-const min::line_break min::default_line_break =
+const min::line_break min::standard_line_break =
 {
     0, 0, 72, 4
 };
 
-const min::print_format min::default_print_format =
+const min::print_format min::standard_print_format =
 {
-    & min::default_context_gen_flags,
-    & min::default_gen_format,
+    & min::standard_context_gen_flags,
+    & min::standard_gen_format,
     min::EXPAND_HT,
     & ::standard_char_flags,
     (const min::ustring *) "\x01\x01<",
     (const min::ustring *) "\x01\x01>",
     min::latin1_support_control,
-    min::standard_display_control,
-    min::break_after_space,
-    NULL
+    min::graphic_and_space_display_control,
+    min::break_after_space_break_control
 };
 
 static min::uns32 space[1] = { ' ' };
@@ -7689,8 +7683,8 @@ min::printer min::init
 	init_input ( file_ref(printer) );
 
     printer->column = 0;
-    printer->line_break = min::default_line_break;
-    printer->print_format = min::default_print_format;
+    printer->line_break = min::standard_line_break;
+    printer->print_format = min::standard_print_format;
 
     return printer;
 }
@@ -7701,7 +7695,7 @@ min::printer min::init_ostream
 {
     init ( printer );
     init_ostream ( file_ref(printer), ostream );
-    return printer << min::eol_flush;
+    return printer << min::flush_on_eol;
 }
 
 inline void push
@@ -7923,6 +7917,25 @@ min::printer operator <<
     case min::op::CLEAR_PRINT_OP_FLAGS:
 	printer->print_format.op_flags &= ~ op.v1.u32;
 	return printer;
+    case min::op::SET_LINE_DISPLAY:
+    {
+        min::uns32 flags = op.v1.u32;
+	flags &= min::DISPLAY_EOL
+	       + min::DISPLAY_PICTURE;
+	printer->print_format.op_flags &=
+	    ~ (   min::DISPLAY_EOL
+	        + min::DISPLAY_PICTURE );
+	printer->print_format.op_flags |= flags;
+	printer->print_format.op_flags |=
+	    min::EXPAND_HT;
+	printer->print_format.display_control =
+	    flags & min::DISPLAY_PICTURE ?
+	    min::graphic_only_display_control :
+	    min::graphic_and_space_display_control;
+	printer->print_format.break_control =
+	    min::never_break_break_control;
+	return printer;
+    }
     case min::op::SET_SUPPORT_CONTROL:
         printer->print_format.support_control =
 	    * (const min::support_control *) op.v1.p;
@@ -7939,7 +7952,7 @@ min::printer operator <<
 	printer->print_format.display_control =
 	    min::verbatim_display_control;
 	printer->print_format.break_control =
-	    min::never_break;
+	    min::never_break_break_control;
 	return printer;
     case min::op::SUPPRESSIBLE_SPACE:
 	{
@@ -8284,12 +8297,33 @@ const min::op min::nodisplay_eol
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_EOL );
 
-const min::op min::eol_flush
+const min::op min::flush_on_eol
     ( min::op::SET_PRINT_OP_FLAGS,
       min::FLUSH_ON_EOL );
-const min::op min::noeol_flush
+const min::op min::noflush_on_eol
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FLUSH_ON_EOL );
+
+const min::op min::flush_id_map_on_eom
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::FLUSH_ID_MAP_ON_EOM );
+const min::op min::noflush_id_map_on_eom
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::FLUSH_ID_MAP_ON_EOM );
+
+const min::op min::expand_ht
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::EXPAND_HT );
+const min::op min::noexpand_ht
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::EXPAND_HT );
+
+const min::op min::display_picture
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::DISPLAY_PICTURE );
+const min::op min::nodisplay_picture
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::DISPLAY_PICTURE );
 
 const min::op min::verbatim
     ( min::op::VERBATIM );
@@ -8297,6 +8331,37 @@ const min::op min::suppressible_space
     ( min::op::SUPPRESSIBLE_SPACE );
 const min::op min::space
     ( min::op::SPACE );
+
+const min::op min::ascii
+    ( min::op::SET_SUPPORT_CONTROL,
+      & min::ascii_support_control );
+const min::op min::latin1
+    ( min::op::SET_SUPPORT_CONTROL,
+      & min::latin1_support_control );
+
+const min::op min::graphic_and_space
+    ( min::op::SET_DISPLAY_CONTROL,
+      & min::graphic_and_space_display_control );
+const min::op min::graphic_only
+    ( min::op::SET_DISPLAY_CONTROL,
+      & min::graphic_only_display_control );
+
+const min::op min::never_break
+    ( min::op::SET_BREAK_CONTROL,
+      & min::never_break_break_control );
+const min::op min::break_after_space
+    ( min::op::SET_BREAK_CONTROL,
+      & min::break_after_space_break_control );
+const min::op min::break_before_nonspace
+    ( min::op::SET_BREAK_CONTROL,
+      & min::break_before_nonspace_break_control );
+const min::op min::break_before_all
+    ( min::op::SET_BREAK_CONTROL,
+      & min::break_before_all_break_control );
+const min::op min::break_after_space_and_hypenators
+    ( min::op::SET_BREAK_CONTROL,
+      & min::
+      break_after_space_and_hypenators_break_control );
 
 const min::op min::print_assert
     ( min::op::PRINT_ASSERT );
@@ -9010,7 +9075,7 @@ const min::num_format * min::long_num_format =
 static min::lab_format name_lab_format =
 {
     NULL, NULL, NULL,
-    & ::default_suppress_matrix
+    & ::standard_suppress_matrix
 
 };
 const min::lab_format * min::name_lab_format =
@@ -9101,11 +9166,11 @@ static void init_pgen_formats ( void )
     ::bracket_specials_format.special_names =
         min::standard_special_names;
     ::exp_obj_format.exp_ok_attrs =
-        min::default_exp_ok_attrs;
+        min::standard_exp_ok_attrs;
     ::exp_obj_format.flag_names =
-        min::default_flag_names;
+        min::standard_flag_names;
     ::raw_obj_format.flag_names =
-        min::default_flag_names;
+        min::standard_flag_names;
 }
 
 const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
@@ -9121,7 +9186,7 @@ const min::uns32 DEFAULT_NAME_GEN_FLAGS =
       + min::OBJ_ID_FLAG;
 
 const min::context_gen_flags
-    min::default_context_gen_flags =
+    min::standard_context_gen_flags =
 {
     ::DEFAULT_VALUE_GEN_FLAGS,
     ::DEFAULT_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
@@ -9147,9 +9212,9 @@ const min::context_gen_flags
     ::NO_EXP_NAME_GEN_FLAGS
 };
 
-const min::gen_format min::default_gen_format =
+const min::gen_format min::standard_gen_format =
 {
-    min::default_pgen,
+    min::standard_pgen,
 
     "%.15g",
     
@@ -9164,7 +9229,7 @@ const min::gen_format min::default_gen_format =
 
     "[. ", " .]",
 
-    min::default_suppress_matrix,
+    min::standard_suppress_matrix,
     min::NULL_STUB, // Reset by initialization.
     min::NULL_STUB  // Reset by initialization.
 };
@@ -9454,7 +9519,7 @@ static T pgen_obj
 	out << "{| " << min::save_indent;
     else
         out << min::save_line_break;
-    out << min::set_break_control ( min::never_break );
+    out << min::never_break;
 
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
@@ -9706,8 +9771,7 @@ static T pgen_exp
 	}
 	out << prefix
 	    << min::save_indent
-            << min::set_break_control
-	          ( min::never_break );
+            << min::never_break;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9852,8 +9916,7 @@ static T pgen_exp
 	       context_gen_flags, f );
 	out << min::suppressible_space
 	    << min::save_indent
-            << min::set_break_control
-	          ( min::never_break );
+            << min::never_break;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9903,8 +9966,7 @@ static T pgen_exp
 		      info, info_length );
 
 	out << min::save_print_format
-            << min::set_break_control
-	          ( min::never_break );
+            << min::never_break;
 	pgen ( out,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
@@ -10316,7 +10378,7 @@ static T flush_one_id
     return out << min::eol;
 }
 
-min::printer min::default_pgen
+min::printer min::standard_pgen
 	( min::printer printer,
 	  min::uns32 gen_flags,
 	  min::gen v,
@@ -10335,7 +10397,7 @@ static min::printer flush_one_id
     const min::gen_format * f =
 	printer->print_format.gen_format;
     if  ( f == NULL )
-	f = & min::default_gen_format;
+	f = & min::standard_gen_format;
 
     min::id_map id_map = printer->id_map;
 
