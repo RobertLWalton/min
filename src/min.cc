@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 16:46:02 EDT 2014
+// Date:	Fri Jul 18 04:47:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7489,6 +7489,12 @@ const min::break_control
 };
 
 const min::break_control
+	min::break_before_all =
+{
+    0, 0xFFFF, 0, 0
+};
+
+const min::break_control
 	min::break_after_space_and_hypenators =
 {
     min::IS_HSPACE, 0,
@@ -7616,7 +7622,7 @@ const min::print_format min::default_print_format =
     & ::standard_char_flags,
     (const min::ustring *) "\x01\x01<",
     (const min::ustring *) "\x01\x01>",
-    min::ascii_support_control,
+    min::latin1_support_control,
     min::standard_display_control,
     min::break_after_space,
     NULL
@@ -8648,13 +8654,15 @@ min::printer min::print_unicode
 		no_line_break_enabled = false;
 	    }
 
-	    if ( printer->column >= line_length
+	    if ( printer->column + columns > line_length
 	         &&
 		 ! rep_is_space
 		 &&
 		 ! no_line_break_enabled )
+	    {
 	        no_line_break_enabled =
 		    ::insert_line_break ( printer );
+	    }
 	}
 
 	printer->break_after =

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 16:59:53 EDT 2014
+// Date:	Fri Jul 18 04:48:39 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2582,20 +2582,18 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
-	    << min::set_support_control
-	    		( min::latin1_support_control )
-            << buffer
-            << min::eom;
-
-    printer << min::bom << min::set_indent ( 4 ) 
-            << min::set_line_length ( 40 )
             << buffer
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
 	    << min::set_support_control
-	    		( min::latin1_support_control )
+	    		( min::ascii_support_control )
+            << buffer
+            << min::eom;
+
+    printer << min::bom << min::set_indent ( 4 ) 
+            << min::set_line_length ( 40 )
             << min::set_display_control
 	           ( min::graphic_only_display_control )
             << min::set_print_op_flags
@@ -2604,10 +2602,12 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
+	    << min::set_support_control
+	    		( min::ascii_support_control )
             << min::set_break_control
-	           ( min::break_before_nonspace )
-            << min::set_print_op_flags
-	    	   ( min::DISPLAY_PICTURE )
+	           ( min::break_before_all )
+            << min::set_display_control
+	           ( min::graphic_only_display_control )
 	    << buffer
             << min::eom;
 

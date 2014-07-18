@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 10:36:08 EDT 2014
+// Date:	Fri Jul 18 04:46:58 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10751,6 +10751,8 @@ namespace min {
         break_after_space;
     extern const min::break_control
         break_before_nonspace;
+    extern const min::break_control
+        break_before_all;
     extern const min::break_control
         break_after_space_and_hypenators;
 
