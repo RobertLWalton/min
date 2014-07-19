@@ -1,21 +1,12 @@
-ERROR: character 09 previously assigned the name `HT'; line ignored
+ERROR: character 09 was previously assigned name HT; line ignored
        in line 95 of NameAliases.txt:
 0009;TAB;abbreviation
-ERROR: character 0A previously assigned the name `LF'; line ignored
+ERROR: character 0A was previously assigned name LF; line ignored
        in line 100 of NameAliases.txt:
 000A;NL;abbreviation
-ERROR: character 0A previously assigned the name `LF'; line ignored
+ERROR: character 0A was previously assigned name LF; line ignored
        in line 101 of NameAliases.txt:
 000A;EOL;abbreviation
-ERROR: character FEFF previously assigned the name `BOM'; line ignored
+ERROR: character FEFF was previously assigned name BOM; line ignored
        in line 306 of NameAliases.txt:
 FEFF;ZWNBSP;abbreviation
-ERROR: code above 2FFFF used; line ignored
-       in line 2643 of DerivedGeneralCategory.txt:
-E0100..E01EF  ; Mn # [240] VARIATION SELECTOR-17..VARIATION SELECTOR-256
-ERROR: code above 2FFFF used; line ignored
-       in line 3006 of DerivedGeneralCategory.txt:
-E0001         ; Cf #       LANGUAGE TAG
-ERROR: code above 2FFFF used; line ignored
-       in line 3007 of DerivedGeneralCategory.txt:
-E0020..E007F  ; Cf #  [96] TAG SPACE..CANCEL TAG

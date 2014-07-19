@@ -2,23 +2,36 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 02:53:27 EDT 2014
+// Date:	Sat Jul 19 16:06:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
 
-// This can be include in a namespace.
+// This file should be included inside a namespace.
 
 typedef unsigned int Uchar;
     // Unicode character.  Must be 32 bit integer.
+
+const Uchar UNKNOWN_UCHAR = 0xFFFD;
+    // == `unicode replacement character',
+    //
+    // Returned when UTF8 decoder finds an illegal
+    // encoding.
+
+const Uchar SOFTWARE_NL = 0xF0FF;
+    // This is the private use UNICODE character that
+    // is assigned to represent a `software new-line',
+    // such as the end of a MIN file line.  It is
+    // given the name "NL" and corresponding control
+    // picture character (as opposed to line-feed
+    // which has the name "LF").
 
 typedef unsigned char ustring;
     // A `ustring *' value is a sequence of 8 bit bytes
     // the first two of which are the `header' and the
     // remainder of which is a NUL terminated `const
-    // char *' UTF8 encoded string (the ending NUL is
-    // NOT part of the encoded string).
+    // char *' UTF8 encoded string.
     // 
     // The header encodes the length of the UTF8 string
     // in bytes, excluding the header and terminating
@@ -28,14 +41,14 @@ typedef unsigned char ustring;
     //
     // To compute the number of columns, it is assumed
     // all UNICODE characters take one column, except
-    // non-spacing marks, with category 'N', take zero
+    // non-spacing marks, with category 'Mn', take zero
     // columns.  This further assumes control characters
     // are not in ustrings for which the columns value
     // is used.
 
 // Return length and number of print columns from the
 // header of a ustring, and return a pointer to the
-// `const char *' string in the ustring.
+// `const char *' UTF8 string in the ustring.
 //
 inline unsigned ustring_length
 	( const ustring * p )
@@ -52,9 +65,6 @@ inline const char * ustring_chars
 {
     return (const char *) ( p + 2 );
 }
-
-const Uchar UNKNOWN_UCHAR = 0xFFFD;
-    // == `unicode replacement character',
 
 // Return the UTF8 encoded unicode character at the
 // beginning of the string s and move s to just after
@@ -165,86 +175,74 @@ inline unsigned unicode_to_utf8
     return s - initial_s;
 }
 
-const Uchar SOFTWARE_NL = 0xF0FF;
-const unsigned char SOFTWARE_NL_CATEGORY = 'e';
-    // This is the private use UNICODE character that
-    // is assigned to represent a `softare new-line',
-    // such as the end of a MIN file line.  It is
-    // given the name "NL" and corresponding control
-    // picture character (as opposed to line-feed
-    // which has the name "LF").
-
-extern const unsigned unicode_index_size;
-extern const unsigned short unicode_index[];
-extern const unsigned unicode_index_limit;
+extern unsigned const index_size;
+extern unsigned short const index[];
+extern unsigned const index_limit;
     // Index table.
     //
-    // unicode_index[c] is the index of c.  Indices are
-    // very changeable, and may not be the same week
-    // to week (unlike the category of c which should
-    // never change).
+    // index[c] is the index of c.  For c <= 0xFF,
+    // index[c] == c.  For other c, indices may change
+    // at any time.
     //
-    // c < unicode_index_size is required.  Other
-    // characters are not covered, are not given a name
-    // or numeric value, and are given category 'w'.
+    // index[c] is only defined for c < index_size.  For
+    // c >= index_size, the index of c is defined to be
+    // index[index_size-1], which is given category
+    // NULL.
     //
-    // unicode_index[c] < unicode_index_limit for all c.
+    // index[c] < index_limit for all c.
     //
-    // There is a 1-1 correspondence
+    // index_limit is made to be as small as possible
+    // subject to the constraints that index[c] == c 
+    // for c <= 0xFF and no two characters with the same
+    // index have the same:
     //
-    //    i <-> ( unicode_category[i],
-    //            unicode_name[i],
-    //            unicode_numerator[i],
-    //            unicode_denominator[i] )
+    //    From UnicodeData.txt:
+    // 		general category
+    // 		canonical combining class
+    // 		bidi class
+    // 		numeric value
+    // 		bidi mirrored indicator
     //
-    // between index values i and values of the given
-    // 4-tuple.
+    // 	  From PropList.txt:
+    // 		properties (see table below)
+    //
+    // 	  From NameAliases.txt:
+    // 		name (aka UNICODE `alias')
+    //
+    // 	  As indicated below:
+    // 		picture
+    //
+    // 	  From CompositeCharacters.txt:
+    // 	        Supported Set
 
-const unsigned char UNSPECIFIED_CATEGORY = 'w';
 
-extern const unsigned char unicode_category[];
-    // unicode_category[unicode_index[c]] is the
-    // character category of c.
+extern const char * const category[];
+    // category[index[c]] is the UNICODE General
+    // Category of c; e.g., the category of `A' is "Lu".
     //
-    // See the unicode_categories table for general
-    // categories.
-    //
-    // However, as an exception, characters c < 256 are
-    // their own categories (i.e., the category of `+'
-    // is `+') if they are not a letter.  All other
-    // categories are letters.
+    // category[index_size-1] == NULL.
 
-extern const ustring * const unicode_name[];
-    // unicode_name[unicode_index[c]] is the ustring
-    // name of c, or NULL if c has no name.  For
-    // example, character code 0A has as ustring name
-    // "\x02\x02" "LF" (where the two strings are
-    // concatenated, which is done to prevent the
-    // first character of the second from being
-    // interpreted as a hexadecimal digit).
-    //
-    // Names are assigned by the UNICODE standard and
-    // are NOT made up.
+extern short const combining_class[];
+    // combining_class[index[c]] is the UNICODE
+    // Combining Class of c, expressed as a small
+    // non-negative integer.  -1 if missing.
 
-extern const ustring * const unicode_picture[];
-    // unicode_picture[unicode_index[c]] is the ustring
-    // picture name of c, or NULL if c has no picture
-    // name.  E.g., character code 0A has as unicode_
-    // picture the ustring "\x03\x01\xE2\x90\x8A", which
-    // encodes 240A, the LF `control picture' UNICODE
-    // character.
+extern const char * const bidi_class[];
+    // bidi_class[index[c]] is the UNICODE Bidi Class of
+    // c, expressed as its abbreviation; e.g., "L" for
+    // Latin letters.  NULL if missing.
 
-extern const double unicode_numerator[];
-extern const double unicode_denominator[];
-extern const double unicode_numeric_value[];
+extern double const numerator[];
+extern double const denominator[];
+extern double const numeric_value[];
     // For a character c with a numeric value,
-    //    unicode_numerator[unicode_index[c]]
-    //    unicode_denominator[unicode_index[c]]
-    //    unicode_numeric_value[unicode_index[c]]
+    //    numerator[index[c]]
+    //    denominator[index[c]]
+    //    numeric_value[index[c]]
     // give the numeric value of c.
     //
     // The numerator and denominator are integers, but
-    // because the numerator may be as large as 10e12,
+    // because the numerator may be as large as 1e12,
     // these are encoded as double's.
     //
     // If a character has NO numeric value, the
@@ -253,45 +251,92 @@ extern const double unicode_numeric_value[];
     // Otherwise the denominator is > 0, the numerator
     // may be signed, and the numeric value is the ratio
     // of numerator/denominator (e.g., 1/3'rd is given
-    // as the C++ constant expression `1.0/3.0' to
+    // as the C++ constant expression `1.0/3' to
     // provide maximum accuracy).
 
-extern const unsigned unicode_reference_count[];
-    // unicode_numerator[t] is the number of character
-    // codes c with t == unicode_index[c].  This is
-    // just for integrety checking purposes.
+extern char const bidi_mirrored[];
+    // bidi_mirrored[index[c]] is the UNICODE Bidi
+    // Mirrored Indicator of c, 'Y' or 'N' or 0 if
+    // missing.
 
-const unsigned unicode_category_limit = 256;
-extern const char * const
-	unicode_category_name[unicode_category_limit];
-    // unicode_category_name[cat] is the UNICODE stan-
-    // dard general category name associated with
-    // unicode_category[] value cat.  For example:
-    //   unicode_category_name['U'] == "Lu"
-    //   unicode_category_name['+'] == "Sm"
-    // NULL if cat is NOT a category value.  Also
-    // NULL for the `Unspecified' category 'w'.
+extern unsigned long long const properties[];
+    // properties[index[c]] & ( 1 << P ) is true if
+    // c has property P, where P is one of the
+    // following (the items in this table and their
+    // order may change in the future):
+enum {
+    ASCII_Hex_Digit,
+    Bidi_Control,
+    Dash,
+    Deprecated,
+    Diacritic,
+    Extender,
+    Hex_Digit,
+    Hyphen,
+    Ideographic,
+    IDS_Binary_Operator,
+    IDS_Trinary_Operator,
+    Join_Control,
+    Logical_Order_Exception,
+    Noncharacter_Code_Point,
+    Other_Alphabetic,
+    Other_Default_Ignorable_Code_Point,
+    Other_Grapheme_Extend,
+    Other_ID_Continue,
+    Other_ID_Start,
+    Other_Lowercase,
+    Other_Math,
+    Other_Uppercase,
+    Pattern_Syntax,
+    Pattern_White_Space,
+    Quotation_Mark,
+    Radical,
+    Soft_Dotted,
+    STerm,
+    Terminal_Punctuation,
+    Unified_Ideograph,
+    Variation_Selector,
+    White_Space
+};
 
-extern const char * const
-	unicode_category_description
-	    [unicode_category_limit];
-    // Ditto but instead of the 2-letter name a
-    // longish description is given.  For example:
-    //   unicode_category_description['U']
-    //       == "Upper Case Letter"
-    //   unicode_category_description['+']
-    //       == "Math Symbol"
-    //   unicode_category_description['w']
-    //       == "Unspecified"
+extern const ustring * const name[];
+    // name[index[c]] is the ustring name of c, or NULL
+    // if c has no name.  For example, character code
+    // 0A has as ustring name "\x02\x02" "LF" (where
+    // the two strings are concatenated, which is done
+    // to prevent the first character of the second
+    // from being interpreted as a hexadecimal digit).
+    //
+    // Names are `alias'es read from NameAliases.txt.
+    // NULL if missing.
 
-const unsigned unicode_supported_set_limit = 16;
-const unsigned unicode_supported_set_shift = 12;
-const unsigned short unicode_index_mask =
-    ( 1 << unicode_supported_set_shift ) - 1;
-extern const char * const
-	unicode_supported_set
-	    [unicode_supported_set_limit];
-    // unicode_supported_set[i] is the set name associ-
-    // ated with the set index i.  E.g., 0 <--> "ascii"
-    // and 1 <--> "latin1".  limit - 1 <--> NULL and
-    // is not used.
+extern const ustring * const picture[];
+    // picture[index[c]] is the ustring picture name of
+    // c, or NULL if c has no picture name.  E.g.,
+    // character code 0A has as picture the ustring
+    // "\x03\x01\xE2\x90\x8A", which encodes 240A,
+    // the LF `control picture' UNICODE character.
+    // NULL if missing.
+    //
+    // Currently all pictures are UNICODE control
+    // pictures and are assigned as follows:
+    //
+    //     c < 0x20         ---> 0x2400 + c
+    //     0x20	            ---> 0x2423
+    //     0x7F	    	    ---> 0x2421
+    //     SOFTWARE_NL	    ---> 0x2424
+
+extern const char * const support_set[];
+    // support_set[index[c]] is the support set name.
+    // For 0 <= c <= 0x7F this is "ascii".  For other
+    // characters it is taken from CombiningCharac-
+    // ters.txt, e.g., "latin1".  Characters with NULL
+    // support_set[c] cannot be input and/or printed
+    // and in this sense are unsupported.
+    //
+    // NULL if missing.
+
+extern unsigned const reference_count[];
+    // reference_count[i] is the number of character
+    // codes c with i == index[c].  This is just for
+    // integrity checking purposes.
