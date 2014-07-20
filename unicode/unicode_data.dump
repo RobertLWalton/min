@@ -18791,17 +18791,17 @@
                                     9BE, 9D7, B3E, B57, BBE, BD7, CC2, CD5, CD6,
                                     D3E, D57, DCF, DDF, 1133E, 11357, 114B0,
                                     114BD, 115AF
- 402                 No    0 L    N 1/2e+01, 9F4, B75, A833
+ 402                 No    0 L    N 1/16, 9F4, B75, A833
  403                 No    0 L    N 1/8, 9F5, B76, A834
- 404                 No    0 L    N 3/2e+01, 9F6, B77, A835
+ 404                 No    0 L    N 3/16, 9F6, B77, A835
  405                 No    0 L    N 1/4, 9F7, B72, D73, A830
  406                 No    0 L    N 3/4, 9F8, B74, D75, A832
- 407                 No    0 L    N 2e+01, 9F9
+ 407                 No    0 L    N 16, 9F9
  408                 No    0 L    N 1/2, B73, D74, F2A, A831
- 409                 No    0 L    N 1e+01, BF0, D70, 1372, 3229, 3248, 3289,
-                                    10110, 10322, 111EA, 118EA, 16B5B, 1D369
- 410                 No    0 L    N 1e+02, BF1, D71, 137B, 10119, 111F3, 16B5C
- 411                 No    0 L    N 1e+03, BF2, D72, 10122, 111F4
+ 409                 No    0 L    N 10, BF0, D70, 1372, 3229, 3248, 3289, 10110,
+                                    10322, 111EA, 118EA, 16B5B, 1D369
+ 410                 No    0 L    N 100, BF1, D71, 137B, 10119, 111F3, 16B5C
+ 411                 No    0 L    N 1000, BF2, D72, 10122, 111F4
  412                 Mn   84 NSM  N Other_Alphabetic, C55
  413                 Mn   91 NSM  N Other_Alphabetic, C56
  414                 No    0 ON   N 0, C78, 17F0, 2189, 24EA, 24FF, 1018A,
@@ -18841,10 +18841,10 @@
  429                 No    0 L    N 5/2, F2C
  430                 No    0 L    N 7/2, F2D
  431                 No    0 L    N 9/2, F2E
- 432                 No    0 L    N 1e+01/2, F2F
- 433                 No    0 L    N 1e+01/2, F30
- 434                 No    0 L    N 2e+01/2, F31
- 435                 No    0 L    N 2e+01/2, F32
+ 432                 No    0 L    N 11/2, F2F
+ 433                 No    0 L    N 13/2, F30
+ 434                 No    0 L    N 15/2, F31
+ 435                 No    0 L    N 17/2, F32
  436                 No    0 L    N -1/2, F33
  437                 Ps    0 ON   Y F3A, F3C, 169B, FE59, FE5B, FE5D, FF08,
                                     FF3B, FF5B, FF5F
@@ -18872,29 +18872,23 @@
  453                 No    0 L    N 7, Other_ID_Continue, 136F
  454                 No    0 L    N 8, Other_ID_Continue, 1370
  455                 No    0 L    N 9, Other_ID_Continue, 1371
- 456                 No    0 L    N 2e+01, 1373, 3249, 10111, 111EB, 118EB,
-                                    1D36A
- 457                 No    0 L    N 3e+01, 1374, 324A, 10112, 111EC, 118EC,
-                                    1D36B
- 458                 No    0 L    N 4e+01, 1375, 324B, 10113, 111ED, 118ED,
-                                    1D36C
- 459                 No    0 L    N 5e+01, 1376, 324C, 10114, 10323, 111EE,
-                                    118EE, 1D36D
- 460                 No    0 L    N 6e+01, 1377, 324D, 10115, 111EF, 118EF,
-                                    1D36E
- 461                 No    0 L    N 7e+01, 1378, 324E, 10116, 111F0, 118F0,
-                                    1D36F
- 462                 No    0 L    N 8e+01, 1379, 324F, 10117, 111F1, 118F1,
-                                    1D370
- 463                 No    0 L    N 9e+01, 137A, 10118, 111F2, 118F2, 1D371
- 464                 No    0 L    N 1e+04, 137C, 1012B, 16B5D
+ 456                 No    0 L    N 20, 1373, 3249, 10111, 111EB, 118EB, 1D36A
+ 457                 No    0 L    N 30, 1374, 324A, 10112, 111EC, 118EC, 1D36B
+ 458                 No    0 L    N 40, 1375, 324B, 10113, 111ED, 118ED, 1D36C
+ 459                 No    0 L    N 50, 1376, 324C, 10114, 10323, 111EE, 118EE,
+                                    1D36D
+ 460                 No    0 L    N 60, 1377, 324D, 10115, 111EF, 118EF, 1D36E
+ 461                 No    0 L    N 70, 1378, 324E, 10116, 111F0, 118F0, 1D36F
+ 462                 No    0 L    N 80, 1379, 324F, 10117, 111F1, 118F1, 1D370
+ 463                 No    0 L    N 90, 137A, 10118, 111F2, 118F2, 1D371
+ 464                 No    0 L    N 10000, 137C, 1012B, 16B5D
  465                 Pd    0 ON   N Dash, 1400, 30A0, FE31, FE32, FE58
  466                 Zs    0 WS   N White_Space, 1680, 2000, 2001, 2002, 2003,
                                     2004, 2005, 2006, 2007, 2008, 2009, 200A,
                                     3000
- 467                 Nl    0 L    N 2e+01, 16EE
- 468                 Nl    0 L    N 2e+01, 16EF
- 469                 Nl    0 L    N 2e+01, 16F0
+ 467                 Nl    0 L    N 17, 16EE
+ 468                 Nl    0 L    N 18, 16EF
+ 469                 Nl    0 L    N 19, 16F0
  470                 Mn    9 NSM  N 1714, 1734, 1A60, 2D7F, A806, 10A3F, 11046,
                                     1107F
  471                 Lo    0 L    N Deprecated, 17A3, 17A4
@@ -19109,7 +19103,7 @@
                                     1D693
  559                 No    0 ON   N 1/7, 2150
  560                 No    0 ON   N 1/9, 2151
- 561                 No    0 ON   N 1/1e+01, 2152
+ 561                 No    0 ON   N 1/10, 2152
  562                 No    0 ON   N 1/3, 2153
  563                 No    0 ON   N 2/3, 2154, 10177
  564                 No    0 ON   N 1/5, 2155
@@ -19131,13 +19125,13 @@
  580                 Nl    0 L    N 7, Other_Uppercase, 2166
  581                 Nl    0 L    N 8, Other_Uppercase, 2167
  582                 Nl    0 L    N 9, Other_Uppercase, 2168
- 583                 Nl    0 L    N 1e+01, Other_Uppercase, 2169
- 584                 Nl    0 L    N 1e+01, Other_Uppercase, 216A
- 585                 Nl    0 L    N 1e+01, Other_Uppercase, 216B
- 586                 Nl    0 L    N 5e+01, Other_Uppercase, 216C
- 587                 Nl    0 L    N 1e+02, Other_Uppercase, 216D
- 588                 Nl    0 L    N 5e+02, Other_Uppercase, 216E
- 589                 Nl    0 L    N 1e+03, Other_Uppercase, 216F
+ 583                 Nl    0 L    N 10, Other_Uppercase, 2169
+ 584                 Nl    0 L    N 11, Other_Uppercase, 216A
+ 585                 Nl    0 L    N 12, Other_Uppercase, 216B
+ 586                 Nl    0 L    N 50, Other_Uppercase, 216C
+ 587                 Nl    0 L    N 100, Other_Uppercase, 216D
+ 588                 Nl    0 L    N 500, Other_Uppercase, 216E
+ 589                 Nl    0 L    N 1000, Other_Uppercase, 216F
  590                 Nl    0 L    N 1, Other_Lowercase, 2170
  591                 Nl    0 L    N 2, Other_Lowercase, 2171
  592                 Nl    0 L    N 3, Other_Lowercase, 2172
@@ -19147,21 +19141,21 @@
  596                 Nl    0 L    N 7, Other_Lowercase, 2176
  597                 Nl    0 L    N 8, Other_Lowercase, 2177
  598                 Nl    0 L    N 9, Other_Lowercase, 2178
- 599                 Nl    0 L    N 1e+01, Other_Lowercase, 2179
- 600                 Nl    0 L    N 1e+01, Other_Lowercase, 217A
- 601                 Nl    0 L    N 1e+01, Other_Lowercase, 217B
- 602                 Nl    0 L    N 5e+01, Other_Lowercase, 217C
- 603                 Nl    0 L    N 1e+02, Other_Lowercase, 217D
- 604                 Nl    0 L    N 5e+02, Other_Lowercase, 217E
- 605                 Nl    0 L    N 1e+03, Other_Lowercase, 217F
- 606                 Nl    0 L    N 1e+03, 2180
- 607                 Nl    0 L    N 5e+03, 2181
- 608                 Nl    0 L    N 1e+04, 2182
+ 599                 Nl    0 L    N 10, Other_Lowercase, 2179
+ 600                 Nl    0 L    N 11, Other_Lowercase, 217A
+ 601                 Nl    0 L    N 12, Other_Lowercase, 217B
+ 602                 Nl    0 L    N 50, Other_Lowercase, 217C
+ 603                 Nl    0 L    N 100, Other_Lowercase, 217D
+ 604                 Nl    0 L    N 500, Other_Lowercase, 217E
+ 605                 Nl    0 L    N 1000, Other_Lowercase, 217F
+ 606                 Nl    0 L    N 1000, 2180
+ 607                 Nl    0 L    N 5000, 2181
+ 608                 Nl    0 L    N 10000, 2182
  609                 Nl    0 L    N 6, 2185, A6EB, 12404, 1240B, 12411, 1241A,
                                     12428, 12440, 1244E, 1246B
- 610                 Nl    0 L    N 5e+01, 2186, 12468
- 611                 Nl    0 L    N 5e+04, 2187
- 612                 Nl    0 L    N 1e+05, 2188
+ 610                 Nl    0 L    N 50, 2186, 12468
+ 611                 Nl    0 L    N 50000, 2187
+ 612                 Nl    0 L    N 100000, 2188
  613                 So    0 ON   N Other_Math, Pattern_Syntax, 2195, 2196,
                                     2197, 2198, 2199, 219C, 219D, 219E, 219F,
                                     21A1, 21A2, 21A4, 21A5, 21A7, 21A9, 21AA,
@@ -19465,29 +19459,29 @@
                                     2E71, 2E72, 2E73, 2E74, 2E75, 2E76, 2E77,
                                     2E78, 2E79, 2E7A, 2E7B, 2E7C, 2E7D, 2E7E,
                                     2E7F
- 624                 No    0 ON   N 1e+01, 2469, 247D, 24FE, 277F, 2789, 2793,
+ 624                 No    0 ON   N 10, 2469, 247D, 24FE, 277F, 2789, 2793,
                                     1105B
- 625                 No    0 ON   N 1e+01, 246A, 247E, 24EB
- 626                 No    0 ON   N 1e+01, 246B, 247F, 24EC
- 627                 No    0 ON   N 1e+01, 246C, 2480, 24ED
- 628                 No    0 ON   N 1e+01, 246D, 2481, 24EE
- 629                 No    0 ON   N 2e+01, 246E, 2482, 24EF
- 630                 No    0 ON   N 2e+01, 246F, 2483, 24F0
- 631                 No    0 ON   N 2e+01, 2470, 2484, 24F1
- 632                 No    0 ON   N 2e+01, 2471, 2485, 24F2
- 633                 No    0 ON   N 2e+01, 2472, 2486, 24F3
- 634                 No    0 ON   N 2e+01, 2473, 2487, 24F4, 1105C
- 635                 No    0 EN   N 1e+01, 2491, 102EA
- 636                 No    0 EN   N 1e+01, 2492
- 637                 No    0 EN   N 1e+01, 2493
- 638                 No    0 EN   N 1e+01, 2494
- 639                 No    0 EN   N 1e+01, 2495
- 640                 No    0 EN   N 2e+01, 2496
- 641                 No    0 EN   N 2e+01, 2497
- 642                 No    0 EN   N 2e+01, 2498
- 643                 No    0 EN   N 2e+01, 2499
- 644                 No    0 EN   N 2e+01, 249A
- 645                 No    0 EN   N 2e+01, 249B, 102EB
+ 625                 No    0 ON   N 11, 246A, 247E, 24EB
+ 626                 No    0 ON   N 12, 246B, 247F, 24EC
+ 627                 No    0 ON   N 13, 246C, 2480, 24ED
+ 628                 No    0 ON   N 14, 246D, 2481, 24EE
+ 629                 No    0 ON   N 15, 246E, 2482, 24EF
+ 630                 No    0 ON   N 16, 246F, 2483, 24F0
+ 631                 No    0 ON   N 17, 2470, 2484, 24F1
+ 632                 No    0 ON   N 18, 2471, 2485, 24F2
+ 633                 No    0 ON   N 19, 2472, 2486, 24F3
+ 634                 No    0 ON   N 20, 2473, 2487, 24F4, 1105C
+ 635                 No    0 EN   N 10, 2491, 102EA
+ 636                 No    0 EN   N 11, 2492
+ 637                 No    0 EN   N 12, 2493
+ 638                 No    0 EN   N 13, 2494
+ 639                 No    0 EN   N 14, 2495
+ 640                 No    0 EN   N 15, 2496
+ 641                 No    0 EN   N 16, 2497
+ 642                 No    0 EN   N 17, 2498
+ 643                 No    0 EN   N 18, 2499
+ 644                 No    0 EN   N 19, 249A
+ 645                 No    0 EN   N 20, 249B, 102EB
  646                 So    0 L    N Other_Alphabetic, Other_Uppercase, 24B6,
                                     24B7, 24B8, 24B9, 24BA, 24BB, 24BC, 24BD,
                                     24BE, 24BF, 24C0, 24C1, 24C2, 24C3, 24C4,
@@ -19742,9 +19736,9 @@
  670                 Mn  218 NSM  N Diacritic, 302A
  671                 Mc  224 L    N Diacritic, Other_Grapheme_Extend, 302E,
                                     302F
- 672                 Nl    0 L    N 1e+01, Ideographic, 3038
- 673                 Nl    0 L    N 2e+01, Ideographic, 3039
- 674                 Nl    0 L    N 3e+01, Ideographic, 303A
+ 672                 Nl    0 L    N 10, Ideographic, 3038
+ 673                 Nl    0 L    N 20, Ideographic, 3039
+ 674                 Nl    0 L    N 30, Ideographic, 303A
  675                 Mn    8 NSM  N Diacritic, 3099, 309A
  676                 Sk    0 ON   N Diacritic, Other_ID_Start, 309B, 309C
  677                 Po    0 ON   N Hyphen, 30FB, FF65
@@ -19758,36 +19752,36 @@
  684                 No    0 L    N 7, 3226, 3286, 1010D, 111E7, 1D366
  685                 No    0 L    N 8, 3227, 3287, 1010E, 111E8, 1D367
  686                 No    0 L    N 9, 3228, 3288, 1010F, 111E9, 1D368
- 687                 No    0 ON   N 2e+01, 3251
- 688                 No    0 ON   N 2e+01, 3252
- 689                 No    0 ON   N 2e+01, 3253
- 690                 No    0 ON   N 2e+01, 3254
- 691                 No    0 ON   N 2e+01, 3255
- 692                 No    0 ON   N 3e+01, 3256
- 693                 No    0 ON   N 3e+01, 3257
- 694                 No    0 ON   N 3e+01, 3258
- 695                 No    0 ON   N 3e+01, 3259
- 696                 No    0 ON   N 3e+01, 325A, 1105D
- 697                 No    0 ON   N 3e+01, 325B
- 698                 No    0 ON   N 3e+01, 325C
- 699                 No    0 ON   N 3e+01, 325D
- 700                 No    0 ON   N 3e+01, 325E
- 701                 No    0 ON   N 4e+01, 325F
- 702                 No    0 ON   N 4e+01, 32B1
- 703                 No    0 ON   N 4e+01, 32B2
- 704                 No    0 ON   N 4e+01, 32B3
- 705                 No    0 ON   N 4e+01, 32B4
- 706                 No    0 ON   N 4e+01, 32B5, 1105E
- 707                 No    0 ON   N 4e+01, 32B6
- 708                 No    0 ON   N 4e+01, 32B7
- 709                 No    0 ON   N 4e+01, 32B8
- 710                 No    0 ON   N 4e+01, 32B9
- 711                 No    0 ON   N 4e+01, 32BA
- 712                 No    0 ON   N 5e+01, 32BB
- 713                 No    0 ON   N 5e+01, 32BC
- 714                 No    0 ON   N 5e+01, 32BD
- 715                 No    0 ON   N 5e+01, 32BE
- 716                 No    0 ON   N 5e+01, 32BF, 1105F
+ 687                 No    0 ON   N 21, 3251
+ 688                 No    0 ON   N 22, 3252
+ 689                 No    0 ON   N 23, 3253
+ 690                 No    0 ON   N 24, 3254
+ 691                 No    0 ON   N 25, 3255
+ 692                 No    0 ON   N 26, 3256
+ 693                 No    0 ON   N 27, 3257
+ 694                 No    0 ON   N 28, 3258
+ 695                 No    0 ON   N 29, 3259
+ 696                 No    0 ON   N 30, 325A, 1105D
+ 697                 No    0 ON   N 31, 325B
+ 698                 No    0 ON   N 32, 325C
+ 699                 No    0 ON   N 33, 325D
+ 700                 No    0 ON   N 34, 325E
+ 701                 No    0 ON   N 35, 325F
+ 702                 No    0 ON   N 36, 32B1
+ 703                 No    0 ON   N 37, 32B2
+ 704                 No    0 ON   N 38, 32B3
+ 705                 No    0 ON   N 39, 32B4
+ 706                 No    0 ON   N 40, 32B5, 1105E
+ 707                 No    0 ON   N 41, 32B6
+ 708                 No    0 ON   N 42, 32B7
+ 709                 No    0 ON   N 43, 32B8
+ 710                 No    0 ON   N 44, 32B9
+ 711                 No    0 ON   N 45, 32BA
+ 712                 No    0 ON   N 46, 32BB
+ 713                 No    0 ON   N 47, 32BC
+ 714                 No    0 ON   N 48, 32BD
+ 715                 No    0 ON   N 49, 32BE
+ 716                 No    0 ON   N 50, 32BF, 1105F
  717                 Lo    0 L    N Ideographic, Unified_Ideograph, 3400, 4DB5,
                                     4E00, 9FCC, FA0E, FA0F, FA11, FA13, FA14,
                                     FA1F, FA21, FA23, FA24, FA27, FA28, FA29,
@@ -31603,7 +31597,7 @@
  735                 Co    0 L    N E000, F8FF
  736 NL   ␤                         F0FF
  737                 Lo    0 L    N 3, Ideographic, F96B
- 738                 Lo    0 L    N 1e+01, Ideographic, F973, F9FD
+ 738                 Lo    0 L    N 10, Ideographic, F973, F9FD
  739                 Lo    0 L    N 2, Ideographic, F978
  740                 Lo    0 L    N 0, Ideographic, F9B2
  741                 Lo    0 L    N 6, Ideographic, F9D1, F9D3
@@ -31670,91 +31664,91 @@
                                     FF9F
  790                 Cf    0 ON   N FFF9, FFFA, FFFB
  791 UUC             So    0 ON   N FFFD
- 792                 No    0 L    N 2e+02, 1011A
- 793                 No    0 L    N 3e+02, 1011B
- 794                 No    0 L    N 4e+02, 1011C
- 795                 No    0 L    N 5e+02, 1011D
- 796                 No    0 L    N 6e+02, 1011E
- 797                 No    0 L    N 7e+02, 1011F
- 798                 No    0 L    N 8e+02, 10120
- 799                 No    0 L    N 9e+02, 10121
- 800                 No    0 L    N 2e+03, 10123
- 801                 No    0 L    N 3e+03, 10124
- 802                 No    0 L    N 4e+03, 10125
- 803                 No    0 L    N 5e+03, 10126
- 804                 No    0 L    N 6e+03, 10127
- 805                 No    0 L    N 7e+03, 10128
- 806                 No    0 L    N 8e+03, 10129
- 807                 No    0 L    N 9e+03, 1012A
- 808                 No    0 L    N 2e+04, 1012C
- 809                 No    0 L    N 3e+04, 1012D
- 810                 No    0 L    N 4e+04, 1012E
- 811                 No    0 L    N 5e+04, 1012F
- 812                 No    0 L    N 6e+04, 10130
- 813                 No    0 L    N 7e+04, 10131
- 814                 No    0 L    N 8e+04, 10132
- 815                 No    0 L    N 9e+04, 10133
+ 792                 No    0 L    N 200, 1011A
+ 793                 No    0 L    N 300, 1011B
+ 794                 No    0 L    N 400, 1011C
+ 795                 No    0 L    N 500, 1011D
+ 796                 No    0 L    N 600, 1011E
+ 797                 No    0 L    N 700, 1011F
+ 798                 No    0 L    N 800, 10120
+ 799                 No    0 L    N 900, 10121
+ 800                 No    0 L    N 2000, 10123
+ 801                 No    0 L    N 3000, 10124
+ 802                 No    0 L    N 4000, 10125
+ 803                 No    0 L    N 5000, 10126
+ 804                 No    0 L    N 6000, 10127
+ 805                 No    0 L    N 7000, 10128
+ 806                 No    0 L    N 8000, 10129
+ 807                 No    0 L    N 9000, 1012A
+ 808                 No    0 L    N 20000, 1012C
+ 809                 No    0 L    N 30000, 1012D
+ 810                 No    0 L    N 40000, 1012E
+ 811                 No    0 L    N 50000, 1012F
+ 812                 No    0 L    N 60000, 10130
+ 813                 No    0 L    N 70000, 10131
+ 814                 No    0 L    N 80000, 10132
+ 815                 No    0 L    N 90000, 10133
  816                 Nl    0 ON   N 1/4, 10140
  817                 Nl    0 ON   N 1/2, 10141
  818                 Nl    0 ON   N 1, 10142, 10158, 10159, 1015A
  819                 Nl    0 ON   N 5, 10143, 10148, 1014F, 1015F, 10173
- 820                 Nl    0 ON   N 5e+01, 10144, 1014A, 10151, 10166, 10167,
+ 820                 Nl    0 ON   N 50, 10144, 1014A, 10151, 10166, 10167,
                                     10168, 10169, 10174
- 821                 Nl    0 ON   N 5e+02, 10145, 1014C, 10153, 1016C, 1016D,
+ 821                 Nl    0 ON   N 500, 10145, 1014C, 10153, 1016C, 1016D,
                                     1016E, 1016F, 10170
- 822                 Nl    0 ON   N 5e+03, 10146, 1014E, 10172
- 823                 Nl    0 ON   N 5e+04, 10147, 10156
- 824                 Nl    0 ON   N 1e+01, 10149, 10150, 10157, 10160, 10161,
+ 822                 Nl    0 ON   N 5000, 10146, 1014E, 10172
+ 823                 Nl    0 ON   N 50000, 10147, 10156
+ 824                 Nl    0 ON   N 10, 10149, 10150, 10157, 10160, 10161,
                                     10162, 10163, 10164
- 825                 Nl    0 ON   N 1e+02, 1014B, 10152, 1016A
- 826                 Nl    0 ON   N 1e+03, 1014D, 10154, 10171
- 827                 Nl    0 ON   N 1e+04, 10155
+ 825                 Nl    0 ON   N 100, 1014B, 10152, 1016A
+ 826                 Nl    0 ON   N 1000, 1014D, 10154, 10171
+ 827                 Nl    0 ON   N 10000, 10155
  828                 Nl    0 ON   N 2, 1015B, 1015C, 1015D, 1015E
- 829                 Nl    0 ON   N 3e+01, 10165
- 830                 Nl    0 ON   N 3e+02, 1016B
+ 829                 Nl    0 ON   N 30, 10165
+ 830                 Nl    0 ON   N 300, 1016B
  831                 No    0 ON   N 3/4, 10178
  832                 No    0 ON   N 1/4, 1018B
- 833                 No    0 EN   N 3e+01, 102EC
- 834                 No    0 EN   N 4e+01, 102ED
- 835                 No    0 EN   N 5e+01, 102EE
- 836                 No    0 EN   N 6e+01, 102EF
- 837                 No    0 EN   N 7e+01, 102F0
- 838                 No    0 EN   N 8e+01, 102F1
- 839                 No    0 EN   N 9e+01, 102F2
- 840                 No    0 EN   N 1e+02, 102F3
- 841                 No    0 EN   N 2e+02, 102F4
- 842                 No    0 EN   N 3e+02, 102F5
- 843                 No    0 EN   N 4e+02, 102F6
- 844                 No    0 EN   N 5e+02, 102F7
- 845                 No    0 EN   N 6e+02, 102F8
- 846                 No    0 EN   N 7e+02, 102F9
- 847                 No    0 EN   N 8e+02, 102FA
- 848                 No    0 EN   N 9e+02, 102FB
- 849                 Nl    0 L    N 9e+01, 10341
- 850                 Nl    0 L    N 9e+02, 1034A
- 851                 Nl    0 L    N 1e+01, 103D3
- 852                 Nl    0 L    N 2e+01, 103D4
- 853                 Nl    0 L    N 1e+02, 103D5
+ 833                 No    0 EN   N 30, 102EC
+ 834                 No    0 EN   N 40, 102ED
+ 835                 No    0 EN   N 50, 102EE
+ 836                 No    0 EN   N 60, 102EF
+ 837                 No    0 EN   N 70, 102F0
+ 838                 No    0 EN   N 80, 102F1
+ 839                 No    0 EN   N 90, 102F2
+ 840                 No    0 EN   N 100, 102F3
+ 841                 No    0 EN   N 200, 102F4
+ 842                 No    0 EN   N 300, 102F5
+ 843                 No    0 EN   N 400, 102F6
+ 844                 No    0 EN   N 500, 102F7
+ 845                 No    0 EN   N 600, 102F8
+ 846                 No    0 EN   N 700, 102F9
+ 847                 No    0 EN   N 800, 102FA
+ 848                 No    0 EN   N 900, 102FB
+ 849                 Nl    0 L    N 90, 10341
+ 850                 Nl    0 L    N 900, 1034A
+ 851                 Nl    0 L    N 10, 103D3
+ 852                 Nl    0 L    N 20, 103D4
+ 853                 Nl    0 L    N 100, 103D5
  854                 No    0 R    N 1, 10858, 10879, 108A7, 10916, 10A40, 10A7D,
                                     10A9D, 10AEB, 10B58, 10B78, 10BA9, 1E8C7
  855                 No    0 R    N 2, 10859, 1087A, 108A8, 1091A, 10A41, 10B59,
                                     10B79, 10BAA, 1E8C8
  856                 No    0 R    N 3, 1085A, 1087B, 108A9, 1091B, 10A42, 10B5A,
                                     10B7A, 10BAB, 1E8C9
- 857                 No    0 R    N 1e+01, 1085B, 1087E, 108AD, 10917, 10A44,
+ 857                 No    0 R    N 10, 1085B, 1087E, 108AD, 10917, 10A44,
                                     10A9E, 10AED, 10B5C, 10B7C, 10BAD
- 858                 No    0 R    N 2e+01, 1085C, 1087F, 108AE, 10918, 10A45,
+ 858                 No    0 R    N 20, 1085C, 1087F, 108AE, 10918, 10A45,
                                     10A9F, 10AEE, 10B5D, 10B7D, 10BAE
- 859                 No    0 R    N 1e+02, 1085D, 108AF, 10919, 10A46, 10AEF,
+ 859                 No    0 R    N 100, 1085D, 108AF, 10919, 10A46, 10AEF,
                                     10B5E, 10B7E, 10BAF
- 860                 No    0 R    N 1e+03, 1085E, 10A47, 10B5F, 10B7F
- 861                 No    0 R    N 1e+04, 1085F
+ 860                 No    0 R    N 1000, 1085E, 10A47, 10B5F, 10B7F
+ 861                 No    0 R    N 10000, 1085F
  862                 So    0 R    N 10877, 10878, 10AC8
  863                 No    0 R    N 4, 1087C, 108AA, 108AB, 10A43, 10B5B, 10B7B,
                                     10BAC, 1E8CA
  864                 No    0 R    N 5, 1087D, 108AC, 10AEC, 1E8CB
  865                 Po    0 R    N STerm, Terminal_Punctuation, 10A56, 10A57
- 866                 No    0 R    N 5e+01, 10A7E
+ 866                 No    0 R    N 50, 10A7E
  867                 No    0 AN   N 1, 10E60
  868                 No    0 AN   N 2, 10E61
  869                 No    0 AN   N 3, 10E62
@@ -31764,39 +31758,39 @@
  873                 No    0 AN   N 7, 10E66
  874                 No    0 AN   N 8, 10E67
  875                 No    0 AN   N 9, 10E68
- 876                 No    0 AN   N 1e+01, 10E69
- 877                 No    0 AN   N 2e+01, 10E6A
- 878                 No    0 AN   N 3e+01, 10E6B
- 879                 No    0 AN   N 4e+01, 10E6C
- 880                 No    0 AN   N 5e+01, 10E6D
- 881                 No    0 AN   N 6e+01, 10E6E
- 882                 No    0 AN   N 7e+01, 10E6F
- 883                 No    0 AN   N 8e+01, 10E70
- 884                 No    0 AN   N 9e+01, 10E71
- 885                 No    0 AN   N 1e+02, 10E72
- 886                 No    0 AN   N 2e+02, 10E73
- 887                 No    0 AN   N 3e+02, 10E74
- 888                 No    0 AN   N 4e+02, 10E75
- 889                 No    0 AN   N 5e+02, 10E76
- 890                 No    0 AN   N 6e+02, 10E77
- 891                 No    0 AN   N 7e+02, 10E78
- 892                 No    0 AN   N 8e+02, 10E79
- 893                 No    0 AN   N 9e+02, 10E7A
+ 876                 No    0 AN   N 10, 10E69
+ 877                 No    0 AN   N 20, 10E6A
+ 878                 No    0 AN   N 30, 10E6B
+ 879                 No    0 AN   N 40, 10E6C
+ 880                 No    0 AN   N 50, 10E6D
+ 881                 No    0 AN   N 60, 10E6E
+ 882                 No    0 AN   N 70, 10E6F
+ 883                 No    0 AN   N 80, 10E70
+ 884                 No    0 AN   N 90, 10E71
+ 885                 No    0 AN   N 100, 10E72
+ 886                 No    0 AN   N 200, 10E73
+ 887                 No    0 AN   N 300, 10E74
+ 888                 No    0 AN   N 400, 10E75
+ 889                 No    0 AN   N 500, 10E76
+ 890                 No    0 AN   N 600, 10E77
+ 891                 No    0 AN   N 700, 10E78
+ 892                 No    0 AN   N 800, 10E79
+ 893                 No    0 AN   N 900, 10E7A
  894                 No    0 AN   N 1/2, 10E7B
  895                 No    0 AN   N 1/4, 10E7C
  896                 No    0 AN   N 1/3, 10E7D
  897                 No    0 AN   N 2/3, 10E7E
- 898                 No    0 ON   N 6e+01, 11060
- 899                 No    0 ON   N 7e+01, 11061
- 900                 No    0 ON   N 8e+01, 11062
- 901                 No    0 ON   N 9e+01, 11063
- 902                 No    0 ON   N 1e+02, 11064
- 903                 No    0 ON   N 1e+03, 11065
+ 898                 No    0 ON   N 60, 11060
+ 899                 No    0 ON   N 70, 11061
+ 900                 No    0 ON   N 80, 11062
+ 901                 No    0 ON   N 90, 11063
+ 902                 No    0 ON   N 100, 11064
+ 903                 No    0 ON   N 1000, 11065
  904                 Cf    0 L    N 110BD
  905                 Lo    0 L    N Extender, 1135D
  906                 Po    0 L    N Extender, 115C6, 115C7, 115C8
- 907                 Nl    0 L    N 2e+05, 12432
- 908                 Nl    0 L    N 4e+05, 12433
+ 907                 Nl    0 L    N 216000, 12432
+ 908                 Nl    0 L    N 432000, 12433
  909                 Nl    0 L    N 1/3, 1245A, 1245D, 12465
  910                 Nl    0 L    N 2/3, 1245B, 1245E, 12466
  911                 Nl    0 L    N 5/6, 1245C
@@ -31804,11 +31798,11 @@
  913                 Nl    0 L    N 1/4, 12460, 12462, 12463
  914                 Nl    0 L    N 1/6, 12461
  915                 Nl    0 L    N 1/2, 12464
- 916                 Nl    0 L    N 4e+01, 12467
- 917                 No    0 L    N 1e+06, 16B5E
- 918                 No    0 L    N 1e+08, 16B5F
- 919                 No    0 L    N 1e+10, 16B60
- 920                 No    0 L    N 1e+12, 16B61
+ 916                 Nl    0 L    N 40, 12467
+ 917                 No    0 L    N 1000000, 16B5E
+ 918                 No    0 L    N 100000000, 16B5F
+ 919                 No    0 L    N 10000000000, 16B60
+ 920                 No    0 L    N 1000000000000, 16B61
  921                 Mn    1 NSM  N Other_Alphabetic, 1BC9E
  922                 Cf    0 BN   N 1BCA0, 1BCA1, 1BCA2, 1BCA3, 1D173, 1D174,
                                     1D175, 1D176, 1D177, 1D178, 1D179, 1D17A

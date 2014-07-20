@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 16:25:25 EDT 2014
+// Date:	Sat Jul 19 21:52:09 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -164,9 +164,9 @@ void print_index ( unsigned i, ostream & out = cout )
     {
 	char buffer[100];
 	if ( denominator[i] == 1 )
-	    sprintf ( buffer, "%.0g", numerator[i] );
+	    sprintf ( buffer, "%.15g", numerator[i] );
 	else
-	    sprintf ( buffer, "%.0g/%.0g",
+	    sprintf ( buffer, "%.15g/%.15g",
 	              numerator[i], denominator[i] );
 	putprop ( out, buffer );
     }
@@ -236,7 +236,8 @@ ostream & index_comment
 // Output values for a vector of const char *'s that are
 // presumed to contain only graphic ASCII characters.
 //
-void output ( ostream & out, const char ** vector )
+void output ( ostream & out,
+              const char * const * vector )
 {
     const char * finish = "";
     for ( unsigned i = 0; i < index_limit; ++ i )
@@ -255,7 +256,8 @@ void output ( ostream & out, const char ** vector )
 // Output values for a vector of ustrings.
 //
 void ustring_output
-	( ostream & out, const ustring ** vector )
+	( ostream & out,
+	  const ustring * const * vector )
 {
     const char * finish = "";
     for ( unsigned i = 0; i < index_limit; ++ i )
@@ -272,7 +274,8 @@ void ustring_output
 	    sprintf ( buffer, "\"\\x%02X\\x%02X\"",
 	              ustring_length ( vector[i] ),
 	              ustring_columns ( vector[i] ) );
-	    out << buffer << " \"";
+	    out << "(const ustring *) " << buffer
+	        << " \"";
 	    const char * p =
 	        ustring_chars ( vector[i] );
 	    const char * q = p;
@@ -284,7 +287,8 @@ void ustring_output
 	        while ( * p )
 		{ 
 		    sprintf ( buffer, "\\x%02X",
-		              (unsigned) * p ++ );
+		              (unsigned)
+			      (unsigned char) * p ++ );
 		    out << buffer;
 		}
 	    }
@@ -385,7 +389,7 @@ void output ( ostream & out, const double * vector )
 	out << "    /* [" << setw ( 3 ) << i << "] */ ";
 
 	char buffer[100];
-	sprintf ( buffer, "%.0g", vector[i] );
+	sprintf ( buffer, "%.15g", vector[i] );
 	out << buffer;
     }
     out << endl;
@@ -411,11 +415,11 @@ void output ( ostream & out,
 	if ( denominator[i] == 0 ) out << "NAN";
 	else
 	{
-	    sprintf ( buffer, "%.0g", numerator[i] );
+	    sprintf ( buffer, "%.15g", numerator[i] );
 	    out << buffer;
 	    if ( denominator[i] != 1 )
 	    {
-		sprintf ( buffer, ".0/%.0g",
+		sprintf ( buffer, ".0/%.15g",
 		          denominator[i] );
 	        out << buffer;
 	    }

@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 17 03:05:38 EDT 2014
+// Date:	Sat Jul 19 21:25:46 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,8 +14,8 @@
 // Setup
 // -----
 
-# include <min_unicode.h>
-# define UNI min::unicode
+# define index INDEX
+    // Avoid use of `index' in <cstring>
 
 # include <iostream>
 # include <iomanip>
@@ -32,6 +32,12 @@ using std::hex;
 using std::dec;
 using std::ostream;
 using std::ofstream;
+
+# undef index
+
+# include <min_unicode.h>
+# define UNI min::unicode
+
 using UNI::Uchar;
 using UNI::utf8_to_unicode;
 using UNI::unicode_to_utf8;
@@ -41,26 +47,22 @@ using UNI::ustring_length;
 using UNI::ustring_columns;
 using UNI::ustring_chars;
 
-using UNI::unicode_index;
-using UNI::unicode_index_size;
-using UNI::unicode_index_limit;
+using UNI::index_size;
+using UNI::index;
+using UNI::index_limit;
 
-using UNI::unicode_category;
-using UNI::unicode_name;
-using UNI::unicode_picture;
-using UNI::unicode_numerator;
-using UNI::unicode_denominator;
-using UNI::unicode_numeric_value;
-using UNI::unicode_reference_count;
-
-using UNI::unicode_category_limit;
-using UNI::unicode_category_name;
-using UNI::unicode_category_description;
-
-using UNI::unicode_supported_set_limit;
-using UNI::unicode_supported_set_shift;
-using UNI::unicode_index_mask;
-using UNI::unicode_supported_set;
+using UNI::category;
+using UNI::combining_class;
+using UNI::bidi_class;
+using UNI::numerator;
+using UNI::denominator;
+using UNI::numeric_value;
+using UNI::bidi_mirrored;
+using UNI::properties;
+using UNI::name;
+using UNI::picture;
+using UNI::support_set;
+using UNI::reference_count;
 
 # include "../unicode/output_unicode_data.cc"
 
