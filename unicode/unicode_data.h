@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 16:06:38 EDT 2014
+// Date:	Mon Jul 21 04:18:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -175,6 +175,59 @@ inline unsigned unicode_to_utf8
     return s - initial_s;
 }
 
+// Support sets are sets of characters, and a character
+// is only supported if it belongs to some support set.
+//
+// There are two kinds of support sets.
+//
+// cc support sets are those listed in the file
+// CombiningCharacter.txt, plus in addition the sets
+//
+//   ascii	for character c, 0 <= c <= 0x7F
+//   special	for UNKNOWN_UCHAR and SOFTWARE_NL
+//
+// ss support sets are those listed in the file unicode_
+// data_support_sets.h which contains just the code:
+//
+// 	enum {
+// 	   . . . . .
+// 	   s = ( 1 << k ),
+// 	   . . . . .
+// 	};
+//
+// for every ss support set s with shift k.  Each ss
+// support set has a shift k with 0 <= k < 32.
+//
+// Each cc support set c has a 32 bit unsigned integer
+// mask m such that c is contained in an ss support set
+// s with shift k if and only if m & ( 1 << k ) != 0.
+//
+// Each character c has a 32 bit unsigned integer mask m
+// such that c is in an ss support set s with shift k if
+// and only if m & ( 1 << k ) != 0.  Here
+//
+// 	m == support_sets[index[c]]
+//
+// where support_sets and index are described below.
+
+extern unsigned const ss_support_sets_size;
+extern const char * const ss_support_sets_name[];
+extern unsigned char const ss_support_sets_shift[];
+    // An ss support set s has shift k if and only if
+    // for some i, 0 <= i < ss_support_sets_size,
+    //
+    //     "s" == ss_support_sets_name[i]
+    //      k  == ss_support_sets_shift[i]
+
+extern unsigned const cc_support_sets_size;
+extern const char * const cc_support_sets_name[];
+extern unsigned long const cc_support_sets_mask[];
+    // A cc support set c has mask m if and only if
+    // for some j, 0 <= j < cc_support_sets_size,
+    //
+    //     "c" == cc_support_sets_name[j]
+    //      m  == cc_support_sets_mask[j]
+
 extern unsigned const index_size;
 extern unsigned short const index[];
 extern unsigned const index_limit;
@@ -326,15 +379,14 @@ extern const ustring * const picture[];
     //     0x7F	    	    ---> 0x2421
     //     SOFTWARE_NL	    ---> 0x2424
 
-extern const char * const support_set[];
-    // support_set[index[c]] is the support set name.
-    // For 0 <= c <= 0x7F this is "ascii".  For other
-    // characters it is taken from CombiningCharac-
-    // ters.txt, e.g., "latin1".  Characters with NULL
-    // support_set[c] cannot be input and/or printed
-    // and in this sense are unsupported.
+extern unsigned long const support_sets[];
+    // support_sets[index[c]] & ( 1 << k ) != 0 if
+    // and only if c is in support set s where
     //
-    // NULL if missing.
+    //     "s" == ss_support_sets_name[i]
+    //      k  == ss_support_sets_shift[i]
+    //
+    // See discussion of support sets above.
 
 extern unsigned const reference_count[];
     // reference_count[i] is the number of character

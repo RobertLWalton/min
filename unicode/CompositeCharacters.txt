@@ -1,0 +1,119 @@
+# This file specifies the support sets of each non-ASCII,
+# non-special character, and gives the multi-key sequence
+# for entering the character on the keyboard.
+#
+# File:		CompositeCharacters.txt
+# Date:		Sun Jul 20 16:09:43 EDT 2014
+# Author:	walton@acm.org
+
+# Format:
+#
+# Char Code; Multi-Key Sequence; Char name; Support Sets
+#
+# Generally a character with no multi-key sequence is
+# not supportable.  A character which cannot be printed
+# is also not supportable, but this is dealt with in
+# SupportSets.txt.
+
+# C1 Controls
+
+00A0;<space><space> ; No Break Space; latin1
+
+
+# Latin1 Supplement
+
+00A1;!!	; Inverted Exclamation; latin1
+00A2;c|	; Cent Sign; latin1
+00A3;L-	; Pound Sign; latin1
+00A4;ox	; Currency Sign; latin1
+00A5;Y=	; Yen Sign; latin1
+00A6;!^	; Broken Bar; latin1
+00A7;S!	; Section Sign; latin1
+00A8;""	; Diaeresis; latin1
+00A9;oc	; Copyright Sign; latin1
+00AA;^_a; Feminine Ordinal Indicator; latin1
+00AB;<<	; Left-Pointing Double Angle Quotation Mark; latin1
+00AC;-,	; Not Sign; latin1
+00AD;--<space>; Soft Hypen; latin1
+00AE;or	; Registered Sign; latin1
+00AF;^-	; Macron; latin1
+00B0;oo	; Degree Sign; latin1
+00B1;+-	; Plus-Minus Sign; latin1
+00B2;^2	; Superscript 2; latin1
+00B3;^3	; Superscript 3; latin1
+00B4;''	; Acute Accent; latin1
+00B5;mu	; Micro Sign; latin1
+00B6;p!	; Pilcrow Sign; latin1
+00B7;^.	; Middle Dot; latin1
+00B8;,,	; Cedilla; latin1
+00B9;^1	; Superscript 1; latin1
+00BA;^_o; Masculine Ordinal Indicator; latin1
+00BB;>>	; Right-Pointing Double Angle Quotation Mark; latin1
+00BC;14	; Vulgar Fraction One Quarter; latin1
+00BD;12	; Vulgar Fraction One Half; latin1
+00BE;34	; Vulgar Fraction Three Quarters; latin1
+00BF;??	; Invered Question Mark; latin1
+00C0;A`	; Latin Capital Letter A With Grave; latin1
+00C1;A'	; Latin Capital Letter A With Acute; latin1
+00C2;A^	; Latin Capital Letter A With Circumflex; latin1
+00C3;A~	; Latin Capital Letter A With Tilde; latin1
+00C4;A"	; Latin Capital Letter A With Diaeresis; latin1
+00C5;AA	; Latin Capital Letter A With Ring Above; latin1
+00C6;AE	; Latin Capital Letter AE; latin1
+00C7;C,	; Latin Capital Letter C With Cedilla; latin1
+00C8;E`	; Latin Capital Letter E With Grave; latin1
+00C9;E'	; Latin Capital Letter E With Acute; latin1
+00CA;E^	; Latin Capital Letter E With Circumflex; latin1
+00CB;E"	; Latin Capital Letter E With Diaeresis; latin1
+00CC;I`	; Latin Capital Letter I With Grave; latin1
+00CD;I'	; Latin Capital Letter I With Acute; latin1
+00CE;I^	; Latin Capital Letter I With Circumflex; latin1
+00CF;I"	; Latin Capital Letter I With Diaeresis; latin1
+00D0;DH	; Latin Capital Letter ETH; latin1
+00D1;N~	; Latin Capital Letter N With Tilde; latin1
+00D2;O`	; Latin Capital Letter O With Grave; latin1
+00D3;O'	; Latin Capital Letter O With Acute; latin1
+00D4;O^	; Latin Capital Letter O With Circumflex; latin1
+00D5;O~	; Latin Capital Letter O With Tilde; latin1
+00D6;O"	; Latin Capital Letter O With Diaeresis; latin1
+00D7;xx	; Multiplication Sign; latin1
+00D8;O/	; Latin Capital Letter O With Stroke; latin1
+00D9;U`	; Latin Capital Letter U With Grave; latin1
+00DA;U'	; Latin Capital Letter U With Acute; latin1
+00DB;U^	; Latin Capital Letter U With Circumflex; latin1
+00DC;U"	; Latin Capital Letter U With Diaeresis; latin1
+00DD;Y'	; Latin Capital Letter Y With Acute; latin1
+00DE;TH	; Latin Capital Letter Thorn; latin1
+00DF;SS	; Latin Capital Letter Sharp S; latin1
+00E0;a`	; Latin Small Letter A With Grave; latin1
+00E1;a'	; Latin Small Letter A With Acute; latin1
+00E2;a^	; Latin Small Letter A With Circumflex; latin1
+00E3;a~	; Latin Small Letter A With Tilde; latin1
+00E4;a"	; Latin Small Letter A With Diaeresis; latin1
+00E5;aa	; Latin Small Letter A With Ring Above; latin1
+00E6;ae	; Latin Small Letter AE; latin1
+00E7;c,	; Latin Small Letter C With Cedilla; latin1
+00E8;e`	; Latin Small Letter E With Grave; latin1
+00E9;e'	; Latin Small Letter E With Acute; latin1
+00EA;e^	; Latin Small Letter E With Circumflex; latin1
+00EB;e"	; Latin Small Letter E With Diaeresis; latin1
+00EC;i`	; Latin Small Letter I With Grave; latin1
+00ED;i'	; Latin Small Letter I With Acute; latin1
+00EE;i^	; Latin Small Letter I With Circumflex; latin1
+00EF;i"	; Latin Small Letter I With Diaeresis; latin1
+00F0;dh	; Latin Small Letter ETH; latin1
+00F1;n~	; Latin Small Letter N With Tilde; latin1
+00F2;o`	; Latin Small Letter O With Grave; latin1
+00F3;o'	; Latin Small Letter O With Acute; latin1
+00F4;o^	; Latin Small Letter O With Circumflex; latin1
+00F5;o~	; Latin Small Letter O With Tilde; latin1
+00F6;o"	; Latin Small Letter O With Diaeresis; latin1
+00F7;-:	; Division Sign; latin1
+00F8;o/	; Latin Small Letter O With Stroke; latin1
+00F9;u`	; Latin Small Letter U With Grave; latin1
+00FA;u'	; Latin Small Letter U With Acute; latin1
+00FB;u^	; Latin Small Letter U With Circumflex; latin1
+00FC;u"	; Latin Small Letter U With Diaeresis; latin1
+00FD;y'	; Latin Small Letter Y With Acute; latin1
+00FE;th	; Latin Small Letter Thorn; latin1
+00FF;y"	; Latin Small Letter Y With Diaeresis; latin1

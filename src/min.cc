@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 05:06:39 EDT 2014
+// Date:	Mon Jul 21 13:50:46 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -185,14 +185,12 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-static void init_standard_suppress_matrix ( void );
 static void init_printer_formats ( void );
 static void init_pgen_formats ( void );
 void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
-    init_standard_suppress_matrix();
     init_printer_formats();
     init_pgen_formats();
 
@@ -2203,7 +2201,7 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
-	  min::uns16 line_display,
+	  min::uns32 line_display,
 	  min::file file,
 	  min::uns32 line_number,
 	  const char * blank_line,
@@ -2279,8 +2277,8 @@ min::uns32 min::print_line
 	{
 	    if ( name_or_picture_flags
 	         &
-		 ( * printer->print_format.char_flags )
-		      [*p] )
+		 printer->print_format.char_flags
+		      [(unsigned char) *p] )
 	        break;
 	    ++ p;
 	}
@@ -2327,7 +2325,7 @@ min::uns32 min::print_line
 min::uns32 min::print_line_column
 	( min::file file,
 	  const min::position & position,
-	  min::uns16 line_display,
+	  min::uns32 line_display,
 	  const min::print_format & print_format )
 {
     min::uns32 column = 0;
@@ -7419,28 +7417,30 @@ bool MINT::flip_flag
 min::locatable_var<min::printer> min::error_message;
 
 
-const min::uns16 min::standard_op_flags =
+const min::uns32 min::standard_op_flags =
     min::EXPAND_HT;
-static min::char_flags standard_char_flags;
-const min::char_flags * min::standard_char_flags =
-    & ::standard_char_flags;
+static min::uns32 * standard_char_flags =
+    new min::uns32[min::unicode::index_limit];
+const min::uns32 * min::standard_char_flags =
+    ::standard_char_flags;
 
 const min::support_control
         min::ascii_support_control =
 {
-    0x1, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
+    min::unicode::ascii, min::IS_UNSUPPORTED
 };
 
 const min::support_control
         min::latin1_support_control =
 {
-    0x3, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
+    min::unicode::latin1 + min::unicode::ascii,
+    min::IS_UNSUPPORTED
 };
 
 const min::support_control
         min::inclusive_support_control =
 {
-    0xFFFF, min::IS_UNSUPPORTED + min::IS_NON_HSPACE
+    0xFFFF, min::IS_UNSUPPORTED
 };
 
 const min::display_control
@@ -7452,15 +7452,14 @@ const min::display_control
 const min::display_control
         min::graphic_and_space_display_control =
 {
-    min::IS_SP + min::IS_HT + min::IS_GRAPHIC
-                            + min::IS_COMBINING,
+    min::IS_SP + min::IS_HT + min::IS_GRAPHIC,
     0
 };
 
 const min::display_control
         min::graphic_only_display_control =
 {
-    min::IS_GRAPHIC + min::IS_COMBINING,
+    min::IS_GRAPHIC,
     0
 };
 
@@ -7499,108 +7498,85 @@ const min::break_control
 
 static void init_printer_formats ( void )
 {
-    for ( unsigned cat = 0; cat < 256; ++ cat )
+    for ( unsigned i = 0;
+          i < min::unicode::index_limit; ++ i )
     { 
 	min::uns32 flags;
 
-	if ( cat == ' ' )
-	    flags = min::IS_SP | min::IS_HSPACE;
-	else if ( cat == '\t' )
-	    flags = min::IS_HT | min::IS_HSPACE;
-	else if ( cat < 0x20 )
-	    flags = min::IS_CONTROL;
-	else if ( cat == 0x7F )
-	    flags = min::IS_CONTROL;
-	else if ( 0x80 <= cat && cat < 0xA0 )
-	    flags = min::IS_CONTROL;
-	else if ( cat == 0xA0 ) /* NBSP */
-	    flags = min::IS_HSPACE;
-	else if ( cat == 0xAD ) /* SHY */
-	    flags = min::IS_CONTROL;
-	else if ( cat == 's' )
-	    flags = min::IS_HSPACE;
-	else if ( cat == 'e' )
-	    flags = min::IS_EOL;
-	else if ( cat == 'N' )
-	    flags = min::IS_COMBINING;
-	else if ( ::index ( "lpuvwxz", cat ) != NULL )
-	    flags = min::IS_CONTROL;
-	else
-	    flags = min::IS_GRAPHIC;
-
-	if ( ( flags & min::IS_HSPACE ) == 0 )
-	    flags |= min::IS_NON_HSPACE;
-
-	if ( index ( "-%_", cat ) != NULL )
-	    flags |= min::CONDITIONAL_BREAK;
-
-	if ( index ( "LU", cat ) != NULL )
-	    flags |= min::QUOTE_SUPPRESS;
-
-	::standard_char_flags[cat] = flags;
-    }
-}
-
-static bool standard_suppress_matrix[256][256];
-
-const min::suppress_matrix
-    * min::standard_suppress_matrix =
-        & ::standard_suppress_matrix;
-
-static void init_standard_suppress_matrix ( void )
-{
-    for ( unsigned i = 0; i < 256; ++ i )
-    {
-        ::standard_suppress_matrix['('][i] = true;
-        ::standard_suppress_matrix['['][i] = true;
-        ::standard_suppress_matrix['{'][i] = true;
-        ::standard_suppress_matrix[0xAB][i] = true;
-		// << double angle quote
-        ::standard_suppress_matrix['`'][i] = true;
-		// grave accent
-
-        ::standard_suppress_matrix[i][')'] = true;
-        ::standard_suppress_matrix[i][']'] = true;
-        ::standard_suppress_matrix[i]['}'] = true;
-        ::standard_suppress_matrix[i][0xB8] = true;
-		// >> double angle quote
-        ::standard_suppress_matrix[i][0xB4] = true;
-		// acute accent
-        ::standard_suppress_matrix[i][','] = true;
-        ::standard_suppress_matrix[i][';'] = true;
-
-	min::uns8 b = min::unicode_category ( i );
-
-	if ( b == 'U' || b == 'L' )
+	if ( i <= 0xFF )
 	{
-	    for ( unsigned j = 0; j < 256; ++ j )
+	    unsigned char c = (unsigned char) i;
+
+	    switch ( c )
 	    {
-		min::uns8 c =
-		    min::unicode_category ( j );
-		if ( c == 'U' || c == 'L' ) continue;
-		if ( c == '\'' ) continue;
-		::standard_suppress_matrix[b][c] = true;
-		::standard_suppress_matrix[c][b] = true;
+	    case ' ':	flags = min::IS_SP; break;	
+	    case '\t':	flags = min::IS_HT; break;
+	    case 0xA0:	flags = min::IS_OTHER_HSPACE;
+	                break;  // NBSP
+	    case '(':
+	    case '[':
+	    case '{':
+	    case '`':
+	    case 0xA8:	flags = min::IS_LEADING;
+	    		break;
+	    
+	    case ')':
+	    case ']':
+	    case '}':
+	    case '\'':
+	    case ',':
+	    case ';':
+	    case 0xB8:
+	    case 0xB4:	flags = min::IS_TRAILING;
+	    		break;
+
+	    case '-':
+	    case '_':
+	    case '%':	flags = min::IS_MIDDLING
+	    		      + min::CONDITIONAL_BREAK;
+	    		break;
+
+	    case 0xA1:
+	    case 0xBF:	flags = min::IS_LEADING;
+	    		break;  // Inverted ! and ?
+
+	    case 0xAD:	flags = min::IS_CONTROL;
+	    		break;  // SHY
+
+	    default:
+	        if ( c <= 0x1F )
+		    flags = min::IS_CONTROL;
+	        else if ( 0x7F <= c && c <= 0x9F  )
+		    flags = min::IS_CONTROL;
+		else if ( isalpha ( c ) )
+		    flags = min::IS_MIDDLING
+		          + min::QUOTE_SUPPRESS;
+		else
+		    flags = min::IS_MIDDLING;
 	    }
 	}
 	else
-	    ::standard_suppress_matrix[i]['\''] = true;
-
-	if ( '0' <= b && b <= '9' )
 	{
-	    for ( unsigned j = 0; j < 256; ++ j )
-	    {
-		min::uns8 c =
-		    min::unicode_category ( j );
-		if ( '0' <= c && c <= '9' ) continue;
-		if ( c == ',' ) continue;
-		if ( c == '.' ) continue;
-		if ( c == ':' ) continue;
-		if ( c == '/' ) continue;
-		::standard_suppress_matrix[b][c] = true;
-		::standard_suppress_matrix[c][b] = true;
-	    }
+	    const char * cat =
+	        min::unicode::category[i];
+	    if ( cat == NULL )
+	        flags = min::IS_UNSUPPORTED;
+	    else if ( cat[0] == 'L' )
+		flags = min::IS_MIDDLING
+		      + min::QUOTE_SUPPRESS;
+	    else if ( strcmp ( cat, "Mn" ) == 0 )
+		flags = min::IS_NON_SPACING
+		      + min::QUOTE_SUPPRESS;
+	    else if ( strcmp ( cat, "Zs" ) == 0 )
+		flags = min::IS_OTHER_HSPACE;
+	    else if ( cat[0] == 'Z' )
+		flags = min::IS_CONTROL;
+	    else if ( cat[0] == 'C' )
+		flags = min::IS_CONTROL;
 	}
+
+	::standard_char_flags[i] =
+	    flags + min::unicode::support_sets[i];
     }
 }
 
@@ -7614,7 +7590,7 @@ const min::print_format min::standard_print_format =
     & min::standard_context_gen_flags,
     & min::standard_gen_format,
     min::EXPAND_HT,
-    & ::standard_char_flags,
+    ::standard_char_flags,
     (const min::ustring *) "\x01\x01<",
     (const min::ustring *) "\x01\x01>",
     min::latin1_support_control,
@@ -7623,13 +7599,6 @@ const min::print_format min::standard_print_format =
 };
 
 static min::uns32 space[1] = { ' ' };
-
-// Return true iff c is non-spacing combining mark.
-//
-inline bool is_non_spacing ( min::Uchar c )
-{
-    return min::unicode_category ( c ) == 'N';
-}
 
 static char NUL_UTF8_ENCODING[3] =
     { (char) 0xC0, (char) 0x80, 0 };
@@ -7709,7 +7678,7 @@ inline void push
 
 static void end_line ( min::printer printer )
 {
-    printer->suppress_matrix = NULL;
+    printer->suppress_flags = 0;
 
     // Remove line ending horizontal spaces.
     //
@@ -7731,13 +7700,12 @@ static void end_line ( min::printer printer )
     {
         min::Uchar c = min::unicode::SOFTWARE_NL;
         min::uns16 cindex =
-	    min::unicode::unicode_index[c];
-	cindex &= min::unicode::unicode_index_mask;
+	    min::unicode::index[c];
 	if ( printer->print_format.op_flags
 	     &
 	     min::DISPLAY_PICTURE )
 	    ::push ( buffer,
-	             min::unicode::unicode_picture
+	             min::unicode::picture
 		         [cindex] );
 	else
 	{
@@ -7745,7 +7713,7 @@ static void end_line ( min::printer printer )
 	             printer->print_format
 		                  .char_name_prefix );
 	    ::push ( buffer,
-	             min::unicode::unicode_name
+	             min::unicode::name
 		         [cindex] );
 	    ::push ( buffer,
 	             printer->print_format
@@ -7956,121 +7924,7 @@ min::printer operator <<
 	return printer;
     case min::op::SUPPRESSIBLE_SPACE:
 	{
-	    printer->suppress_matrix =
-	        printer->print_format.gen_format
-		       ->suppress_matrix;
-	    if ( printer->suppress_matrix == NULL )
-	    {
-		min::unsptr length = 1;
-		min::ptr<const min::Uchar> p =
-		    min::new_ptr ( ::space );
-		return min::print_unicode
-		    ( printer, length, p );
-	    }
-	    min::packed_vec_insptr<char> buffer =
-	        printer->file->buffer;
-	    min::unsptr length = buffer->length;
-	    min::Uchar b = '\n';
-	    if ( length > 0 )
-	    {
-	        // Code to set b to the last UNICODE
-		// character in buffer.  This block of
-		// code contains relocatable pointers.
-
-	        const char * p =
-		    ! min::end_ptr_of ( buffer );
-		const char * q = p;
-		if ( p[-1] != 0 ) while ( true )
-		{
-		    assert ( length > 0 );
-
-		    -- q;
-		    -- length;
-
-		    if ( ( * q & 0xC0 ) != 0x80 )
-		    {
-			b = min::utf8_to_unicode
-			        ( q, p );
-			assert ( q == p );
-		        break;
-		    }
-		}
-	    }
-
-	    printer->previous_unicode_category =
-		min::unicode_category ( b );
-	    min::uns16 spflags =
-	        ( * printer->print_format.char_flags )
-		    [' '];
-
-	    printer->suppressed_break_after =
-	        (   spflags
-		  & printer->print_format.break_control
-		  			 .break_after );
-
-	    // Set printer->suppressed_space.
-	    //
-	    if (   spflags
-	         & printer->print_format
-		       .display_control.display_char )
-	        memcpy ( printer->suppressed_space,
-		         "\x01\x01 ", 4 );
-	    else if (   spflags
-	              & printer->print_format
-		                .display_control
-				.display_suppress )
-	        printer->suppress_matrix = NULL;
-	    else
-	    {
-	        min::uns16 cindex =
-		    min::unicode::unicode_index[' '];
-		cindex &= min::unicode
-		             ::unicode_index_mask;
-		const min::ustring * s =
-		    min::unicode::unicode_picture
-				[cindex];
-		if ( s != NULL
-		     &&
-		     (   printer->print_format
-	                         .op_flags
-		       & min::DISPLAY_PICTURE ) )
-		    memcpy ( printer->suppressed_space,
-		             s,
-			     min::ustring_length ( s )
-			     + 3 );
-		else
-		{
-		    min::uns8 length = 0;
-		    min::uns8 columns = 0;
-		    const min::ustring * p[3] =
-		        { printer->print_format
-			          .char_name_prefix,
-			  min::unicode::unicode_name
-			  		[cindex],
-			  printer->print_format
-			          .char_name_postfix };
-		    for ( int i = 0; i < 3; ++ i )
-		    {
-		        if ( p[i] == NULL ) continue;
-		        memcpy
-			  ( printer->suppressed_space
-			    + 2 + length,
-			    min::ustring_chars ( p[i] ),
-			    min::ustring_length ( p[i] )
-			    + 1 );
-			length +=
-			    min::ustring_length
-			        ( p[i] );
-			columns +=
-			    min::ustring_columns
-			        ( p[i] );
-		    }
-		    printer->suppressed_space[0] =
-		        length;
-		    printer->suppressed_space[1] =
-		        columns;
-		}
-	    }
+	    // TBD
 		    
 	    return printer;
 	}
@@ -8557,36 +8411,14 @@ min::printer min::print_unicode
 
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
-    uns16 expand_ht =
+    uns32 expand_ht =
         printer->print_format.op_flags & min::EXPAND_HT;
 
-    if ( printer->suppress_matrix != NULL )
+    if ( printer->suppress_flags != 0 )
     {
         if ( n == 0 ) return printer;
 
-	uns8 B = printer->previous_unicode_category;
-	uns8 C = min::unicode_category ( p[0] );
-	bool suppress =
-	    ( * printer->suppress_matrix )[B][C];
-
-        printer->suppress_matrix = NULL;
-	if ( ! suppress )
-	{
-	    uns32 length =
-	        min::ustring_length
-		    ( printer->suppressed_space );
-	    uns32 columns =
-	        min::ustring_columns
-		    ( printer->suppressed_space );
-	    ::strcpy
-	        ( temp,
-		  min::ustring_chars
-		      ( printer->suppressed_space ) );
-	    min::push ( buffer, length, temp );
-	    printer->column += columns;
-	    printer->break_after =
-	        printer->suppressed_break_after;
-	}
+	// TBD
     }
 
     bool no_line_break_enabled = false;
@@ -8596,24 +8428,18 @@ min::printer min::print_unicode
     while ( n )
     {
         Uchar c = * p;
-	uns16 cflags = sc.unsupported_char_flags;
+	uns32 cflags = sc.unsupported_char_flags;
 
 	uns16 cindex = 0xFFFF;
 	    // Only used to access name or picture.
 
-	if ( c < unicode::unicode_index_size )
+	if ( c < unicode::index_size )
 	{
-	    cindex = unicode::unicode_index[c];
-	    uns16 csupport =
-		   cindex
-		>> unicode::unicode_supported_set_shift;
-	    cindex &= unicode::unicode_index_mask;
-	    uns8 ccategory =
-	        unicode::unicode_category[cindex];
-	    if ( ( 1 << csupport ) & sc.support_mask )
-		cflags = ( * printer->
-			       print_format.char_flags )
-				    [ccategory];
+	    cindex = unicode::index[c];
+	    cflags = printer->print_format.char_flags
+	    		[cindex];
+	    if ( ( cflags & sc.support_mask ) == 0 )
+	        cflags = sc.unsupported_char_flags;
 	}
 
         // Compute the character representative.
@@ -8645,7 +8471,7 @@ min::printer min::print_unicode
 	    {
 	        char * q = temp;
 		length = min::unicode_to_utf8 ( q, c );
-		if ( cflags & min::IS_COMBINING )
+		if ( cflags & min::IS_NON_SPACING )
 		    columns = 0;
 	    }
 	}
@@ -8660,11 +8486,11 @@ min::printer min::print_unicode
 	          &&
 		  cindex != 0xFFFF
 		  &&
-		     unicode::unicode_picture[cindex]
+		     unicode::picture[cindex]
 	          != NULL )
 	{
 	    const ustring * picture =
-	        unicode::unicode_picture[cindex];
+	        unicode::picture[cindex];
 	    length = ustring_length ( picture );
 	    columns = ustring_columns ( picture );
 	    rep = ustring_chars ( picture );
@@ -8673,10 +8499,10 @@ min::printer min::print_unicode
 	{
 	    if ( cindex != 0xFFFF
 	         &&
-		 unicode::unicode_name[cindex] != NULL )
+		 unicode::name[cindex] != NULL )
 	    {
 		const ustring * name =
-		    unicode::unicode_name[cindex];
+		    unicode::name[cindex];
 		length = ustring_length ( name );
 		columns = ustring_columns ( name );
 		rep = ustring_chars ( name );
@@ -8782,7 +8608,7 @@ min::printer operator <<
 
 void min::pwidth ( min::uns32 & column,
                    const char * s, min::unsptr n,
-		   min::uns16 print_op_flags,
+		   min::uns32 print_op_flags,
 		   const min::print_format &
 		       print_format )
 {
@@ -8790,7 +8616,7 @@ void min::pwidth ( min::uns32 & column,
         print_format.support_control;
     min::display_control dc =
         print_format.display_control;
-    uns16 expand_ht =
+    uns32 expand_ht =
         ( print_op_flags & min::EXPAND_HT );
 
     const char * ends = s + n;
@@ -8800,23 +8626,17 @@ void min::pwidth ( min::uns32 & column,
     {
         Uchar c = utf8_to_unicode ( s, ends );
 
-	uns16 cflags = sc.unsupported_char_flags;
+	uns32 cflags = sc.unsupported_char_flags;
 
 	uns16 cindex = 0xFFFF;
 	    // Only used to access name or picture.
 
-	if ( c < unicode::unicode_index_size )
+	if ( c < unicode::index_size )
 	{
-	    cindex = unicode::unicode_index[c];
-	    uns16 csupport =
-		   cindex
-		>> unicode::unicode_supported_set_shift;
-	    cindex &= unicode::unicode_index_mask;
-	    uns8 ccategory =
-	        unicode::unicode_category[cindex];
-	    if ( ( 1 << csupport ) & sc.support_mask )
-		cflags = ( * print_format.char_flags )
-				[ccategory];
+	    cindex = unicode::index[c];
+	    cflags = print_format.char_flags[cindex];
+	    if ( ( cflags & sc.support_mask ) == 0 )
+	        cflags = sc.unsupported_char_flags;
 	}
 
         // Compute column increment.
@@ -8825,7 +8645,8 @@ void min::pwidth ( min::uns32 & column,
 	{
 	    if ( c == '\t' && expand_ht )
 	        column += 8 - column % 8;
-	    else if ( ! ( cflags & min::IS_COMBINING ) )
+	    else if ( ! (   cflags
+	                  & min::IS_NON_SPACING ) )
 	        column += 1;
 	}
 	else if ( cflags & dc.display_suppress )
@@ -8835,21 +8656,21 @@ void min::pwidth ( min::uns32 & column,
 		  &&
 		  cindex != 0xFFFF
 	          &&
-		     unicode::unicode_picture[cindex]
+		     unicode::picture[cindex]
 	          != NULL )
 	{
 	    const ustring * picture =
-	        unicode::unicode_picture[cindex];
+	        unicode::picture[cindex];
 	    column += ustring_columns ( picture );
 	}
 	else
 	{
 	    if ( cindex != 0xFFFF
 	         &&
-		 unicode::unicode_name[cindex] != NULL )
+		 unicode::name[cindex] != NULL )
 	    {
 		const ustring * name =
-		    unicode::unicode_name[cindex];
+		    unicode::name[cindex];
 		column += ustring_columns ( name );
 	    }
 	    else
@@ -9074,17 +8895,14 @@ const min::num_format * min::long_num_format =
 
 static min::lab_format name_lab_format =
 {
-    NULL, NULL, NULL,
-    & ::standard_suppress_matrix
-
+    NULL, NULL, NULL
 };
 const min::lab_format * min::name_lab_format =
     & ::name_lab_format;
 
 static min::lab_format bracket_lab_format =
 {
-    ::LT_USTRING, ::COMMA_SP_USTRING, ::GT_USTRING,
-    NULL
+    ::LT_USTRING, ::COMMA_SP_USTRING, ::GT_USTRING
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
@@ -9229,7 +9047,6 @@ const min::gen_format min::standard_gen_format =
 
     "[. ", " .]",
 
-    min::standard_suppress_matrix,
     min::NULL_STUB, // Reset by initialization.
     min::NULL_STUB  // Reset by initialization.
 };
@@ -9249,33 +9066,16 @@ const min::op min::flush_id_map
 // number of columns taken by the concatenator plus one
 // space.
 //
-template < typename T >
-static min::uns32 bracketed_str_width ( T out );
-//
-template <>
-min::uns32 bracketed_str_width<min::printer>
-	( min::printer out )
-{
-    return out->line_break.line_length
-         - out->line_break.indent;
-}
-//
-template <>
-min::uns32 bracketed_str_width<std::ostream &>
-	( std::ostream & out )
-{
-    return 0xFFFFFFFF;
-}
-template < typename T >
-static T pgen_bracketed_str
-	( T out,
+static min::printer pgen_bracketed_str
+	( min::printer printer,
 	  min::uns32 gen_flags,
 	  const min::Uchar * string,
 	  min::uns32 length,
 	  const min::gen_format * f )
 {
     min::uns32 reduced_width =
-    	  ::bracketed_str_width<T> ( out )
+          printer->line_break.line_length
+        - printer->line_break.indent
 	- min::ustring_columns ( f->str_prefix )
         - min::ustring_columns ( f->str_postfix );
     if ( reduced_width < 10 ) reduced_width = 10;
@@ -9297,7 +9097,7 @@ static T pgen_bracketed_str
         * q ++ = min::utf8_to_unicode ( p, endp );
     postfix_length = q - postfix_string;
 
-    out << min::pustring ( f->str_prefix );
+    printer << min::pustring ( f->str_prefix );
 
     min::uns32 remaining_width = reduced_width;
 
@@ -9314,7 +9114,7 @@ static T pgen_bracketed_str
 	//
 	if ( remaining_width == 0 )
 	{
-	    out << min::punicode ( i, string )
+	    printer << min::punicode ( i, string )
 		<< min::pustring
 		      ( f->str_postfix )
 		<< " "
@@ -9337,7 +9137,7 @@ static T pgen_bracketed_str
 	//
         min::Uchar c = string[i];
 
-	if ( c >= UNI::unicode_index_size )
+	if ( c >= UNI::index_size )
 	{
 	    // Unusual very large character; treat as 1
 	    // print column.
@@ -9364,8 +9164,9 @@ static T pgen_bracketed_str
 		         ( f->str_postfix_name );
 	        if ( remaining_width >= columns )
 	        {
-		    out << min::punicode ( i, string )
-		        << min::pustring
+		    printer
+		        << min::punicode ( i, string )
+			<< min::pustring
 			      ( f->str_postfix_name );
 		    ++ i;
 		    length -= i;
@@ -9378,20 +9179,20 @@ static T pgen_bracketed_str
 	    }
 	}
 
-	min::uns8 category =
-	    min::unicode_category ( c );
+	min::uns16 cindex = min::unicode::index[c];
 
 	if ( gen_flags & min::PICTURE_STR_FLAG )
 	{
 	    const min::ustring * picture =
-		min::unicode_picture ( c );
+		min::unicode::picture[cindex];
 	    if ( picture != NULL )
 	    {
 		min::uns32 columns =
 		    min::ustring_columns ( picture );
 		if ( columns <= remaining_width )
 		{
-		    out << min::punicode ( i, string )
+		    printer
+		        << min::punicode ( i, string )
 			<< min::pustring ( picture );
 
 		    ++ i;
@@ -9407,7 +9208,7 @@ static T pgen_bracketed_str
 	}
 	
 	const min::ustring * name =
-	    min::unicode_name ( c );
+	    min::unicode::name[cindex];
 
 	if ( name != NULL )
 	{
@@ -9421,7 +9222,8 @@ static T pgen_bracketed_str
 		char_name_fix_width;
 	    if ( columns <= remaining_width )
 	    {
-	        out << min::punicode ( i, string )
+	        printer
+		    << min::punicode ( i, string )
 		    << min::pustring
 		           ( f->str_char_name_prefix )
 		    << min::pustring ( name )
@@ -9436,7 +9238,10 @@ static T pgen_bracketed_str
 	    }
 	    else remaining_width = 0;
 	}
-	else if ( category == 'N' )
+	else if ( printer->print_format
+	                  .char_flags[cindex]
+		  &
+		  min::IS_NON_SPACING )
 	    ++ i;
 	else
 	{
@@ -9445,20 +9250,15 @@ static T pgen_bracketed_str
 	}
     }
 
-    return out << min::punicode ( i, string )
-	       << min::pustring
-	              ( f->str_postfix );
+    return printer << min::punicode ( i, string )
+	           << min::pustring
+			  ( f->str_postfix );
 }
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
 // effective.
 //
-template < typename T >
-static T pgen_id
-	( T out,
-	  min::gen v );
-template <>
-min::printer pgen_id<min::printer>
+min::printer pgen_id
 	( min::printer printer,
 	  min::gen v )
 {
@@ -9647,7 +9447,7 @@ static T pgen_obj
 		if ( rvc == 1 )
 		{
 		    out << " = " << min::set_break;
-		    ::pgen_id<T>
+		    ::pgen_id
 		        ( out,
 		          rinfo[j-do_values].value );
 		}
@@ -9665,7 +9465,7 @@ static T pgen_obj
 			if ( k > 0 )
 			    out << "; "
 				<< min::set_break;
-			::pgen_id<T> ( out, v[k] );
+			::pgen_id ( out, v[k] );
 		    }
 		    out << " :}" << min::restore_indent;
 		}
@@ -10106,23 +9906,17 @@ static T pgen_exp
     }
 }
 
-// Execute min::pgen for output type T.
+// Execute min::pgen.
 //
-std::ostream & operator <<
-        ( std::ostream & s, min::ptr<const char> p )
-{
-    return s << ! p;
-}
-template < typename T >
-static T pgen
-	( T out,
+static min::printer pgen
+	( min::printer printer,
 	  min::uns32 gen_flags,
 	  min::gen v,
 	  const min::context_gen_flags *
 	      context_gen_flags,
 	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
+	  min::printer ( * pgen )
+	      ( min::printer printer,
 	        min::uns32 gen_flags,
 	        min::gen v,
 		const min::context_gen_flags *
@@ -10132,14 +9926,15 @@ static T pgen
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
         return
-	    out << "new_stub_gen ( MINT::null_stub )";
+	    printer
+	        << "new_stub_gen ( MINT::null_stub )";
     }
     else if ( min::is_num ( v ) )
     {
         min::float64 vf = MUP::float_of ( v );
 	char buffer[128];
 	sprintf ( buffer, f->number_format, vf );
-	return out << buffer;
+	return printer << buffer;
     }
     else if ( min::is_str ( v ) )
     {
@@ -10162,11 +9957,12 @@ static T pgen
 	    min::uns32 blength =
 	        min::utf8_to_unicode
 		    ( u, endu, s, ends );
-	    return ::pgen_bracketed_str<T>
-	        ( out, gen_flags, buffer, blength, f );
+	    return ::pgen_bracketed_str
+	        ( printer, gen_flags,
+		  buffer, blength, f );
 	}
 	else
-	    return out << min::begin_ptr_of ( sp );
+	    return printer << min::begin_ptr_of ( sp );
     }
     else if ( min::is_lab ( v ) )
     {
@@ -10195,21 +9991,21 @@ static T pgen
 
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
-	out << prefix;
+	printer << prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 )
 	    {
 		if ( separator == NULL)
-		    out << min::suppressible_space;
+		    printer << min::suppressible_space;
 		else
-		    out << separator;
+		    printer << separator;
 	    }
-	    pgen ( out, lab_gen_flags,
+	    pgen ( printer, lab_gen_flags,
 	           labp[i],
 	           context_gen_flags, f );
 	}
-	return out << postfix;
+	return printer << postfix;
     }
     else if ( min::is_special ( v ) )
     {
@@ -10239,7 +10035,7 @@ static T pgen
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
-	    return out << prefix
+	    return printer << prefix
 	        << min::standard_special_names
 		            [0xFFFFFF - index]
 		<< postfix;
@@ -10248,7 +10044,7 @@ static T pgen
 		  f->special_names != min::NULL_STUB
 	          &&
 		  index < f->special_names->length )
-	    return out << prefix
+	    return printer << prefix
 	        << f->special_names[index]
 		<< postfix;
 	else
@@ -10256,7 +10052,8 @@ static T pgen
 	    char buffer[64];
 	    sprintf ( buffer, "SPECIAL(0x%llx)",
 		              (min::uns64) index );
-	    return out << prefix << buffer << postfix;
+	    return printer << prefix << buffer
+	                   << postfix;
 	}
     }
     else if ( min::is_obj ( v ) )
@@ -10286,23 +10083,23 @@ static T pgen
 
 	    if ( ok )
 	    {
-		::pgen_exp<T>
-		    ( out, gen_flags, ap,
+		::pgen_exp<min::printer>
+		    ( printer, gen_flags, ap,
 		      context_gen_flags, f,
 		      pgen, &info[0], c );
-		return out;
+		return printer;
 	    }
 	}
 
         if ( gen_flags & min::OBJ_ID_FLAG )
-	    ::pgen_id<T> ( out, v );
+	    ::pgen_id ( printer, v );
 	else
-	    ::pgen_obj<T>
-	        ( out, gen_flags, v,
+	    ::pgen_obj<min::printer>
+	        ( printer, gen_flags, v,
 		  context_gen_flags, f,
 		  pgen );
 
-	return out;
+	return printer;
     }
     else if ( min::is_stub ( v ) )
     {
@@ -10310,50 +10107,50 @@ static T pgen
 	int type = min::type_of ( s );
 	const char * type_name = min::type_name[type];
 	if ( type_name != NULL )
-	    out << type_name;
+	    printer << type_name;
 	else
-	    out << "TYPE(" << type << ")";
-	return out;
+	    printer << "TYPE(" << type << ")";
+	return printer;
     }
     else if ( min::is_list_aux ( v ) )
-        return out << "LIST_AUX("
-	           << MUP::list_aux_of ( v ) << ")";
+        return printer << "LIST_AUX("
+	               << MUP::list_aux_of ( v ) << ")";
     else if ( min::is_sublist_aux ( v ) )
-        return out << "SUBLIST_AUX("
-	           << MUP::sublist_aux_of ( v ) << ")";
+        return printer << "SUBLIST_AUX("
+	               << MUP::sublist_aux_of ( v )
+		       << ")";
     else if ( min::is_indirect_aux ( v ) )
-        return out << "INDIRECT_AUX("
-	           << MUP::indirect_aux_of ( v )
-		   << ")";
+        return printer << "INDIRECT_AUX("
+	               << MUP::indirect_aux_of ( v )
+		       << ")";
     else if ( min::is_index ( v ) )
-        return out << "INDEX("
-	           << MUP::index_of ( v ) << ")";
+        return printer << "INDEX("
+	               << MUP::index_of ( v ) << ")";
     else if ( min::is_control_code ( v ) )
     {
 	char buffer[64];
 	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
 		          (min::uns64)
 		          MUP::control_code_of ( v ) );
-	return out << buffer;
+	return printer << buffer;
     }
     else
     {
 	char buffer[64];
 	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
 		  (min::uns64) MUP::value_of ( v ) );
-	return out << buffer;
+	return printer << buffer;
     }
 
 }
 
-template < typename T >
-static T flush_one_id
-	( T out,
+static min::printer flush_one_id
+	( min::printer printer,
 	  const min::context_gen_flags *
 	      context_gen_flags,
 	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
+	  min::printer ( * pgen )
+	      ( min::printer printer,
 	        min::uns32 gen_flags,
 	        min::gen v,
 		const min::context_gen_flags *
@@ -10364,18 +10161,18 @@ static T flush_one_id
     if ( id_map == min::NULL_STUB
          ||
 	 id_map->next >= id_map->length )
-        return out;
+        return printer;
 
     min::uns32 id = id_map->next;
     * ( min::uns32 * ) & id_map->next = id + 1;
     min::gen v = min::new_stub_gen ( id_map[id] );
 
-    out << "@" << id << " = ";
-    ::pgen<T> ( out,
-                (*context_gen_flags)[min::PGEN_INDENT],
-                v,
-		context_gen_flags, f, pgen );
-    return out << min::eol;
+    printer << "@" << id << " = ";
+    ::pgen ( printer,
+             (*context_gen_flags)[min::PGEN_INDENT],
+             v,
+	     context_gen_flags, f, pgen );
+    return printer << min::eol;
 }
 
 min::printer min::standard_pgen
@@ -10386,7 +10183,7 @@ min::printer min::standard_pgen
 	      context_gen_flags,
 	  const min::gen_format * f )
 {
-    return ::pgen<min::printer>
+    return ::pgen
 	    ( printer, gen_flags, v,
 	      context_gen_flags, f, f->pgen );
 }
@@ -10401,7 +10198,7 @@ static min::printer flush_one_id
 
     min::id_map id_map = printer->id_map;
 
-    return ::flush_one_id<min::printer>
+    return ::flush_one_id
 	( printer,
 	  printer->print_format.context_gen_flags,
           f, f->pgen, id_map );

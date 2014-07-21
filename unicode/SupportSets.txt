@@ -1,0 +1,20 @@
+# File defining the mapping of CompositeCharacters.txt
+# support sets to unicode_data.ss support sets.
+#
+# File:	SupportSets.txt
+# Date: Sun Jul 20 16:14:52 EDT 2014
+# Author: walton@acm.org
+
+
+# Format:
+#
+#    ss-name; shift; cc-name ...
+#
+# where ss-name is the *.ss file support set name, shift
+# is a non-negative integer < 32, and each cc-name is a
+# CompositeCharacters support set name.  Each line maps all
+# the cc-names to a single s-name which has the value
+# `( 1 << shift )'.
+#
+ascii;		16;	special ascii
+latin1;		17;	latin1

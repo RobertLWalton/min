@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 05:06:48 EDT 2014
+// Date:	Mon Jul 21 16:38:03 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4018,42 +4018,6 @@ namespace min {
 	( char * & s, const char * ends,
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
-
-    inline min::uns8 unicode_category ( Uchar c )
-    {
-	return
-	    c < unicode::unicode_index_limit ?
-	        unicode::unicode_category
-		    [unicode::unicode_index[c]
-		     &
-		     unicode::unicode_index_mask] :
-		'w';
-    }
-
-    inline const min::ustring * unicode_name
-    	    ( Uchar c )
-    {
-	return
-	    c < unicode::unicode_index_limit ?
-	        unicode::unicode_name
-		    [unicode::unicode_index[c]
-		     &
-		     unicode::unicode_index_mask] :
-		NULL;
-    }
-
-    inline const min::ustring * unicode_picture
-    	    ( Uchar c )
-    {
-	return
-	    c < unicode::unicode_index_limit ?
-	        unicode::unicode_picture
-		    [unicode::unicode_index[c]
-		     &
-		     unicode::unicode_index_mask] :
-		NULL;
-    }
-
 }
 
 namespace min {
@@ -6073,7 +6037,7 @@ namespace min {
 
     min::uns32 print_line
     	    ( min::printer,
-	      min::uns16 print_op_flags,
+	      min::uns32 print_op_flags,
 	      min::file file,
 	      min::uns32 line_number,
 	      const char * blank_line =
@@ -6104,7 +6068,7 @@ namespace min {
     min::uns32 print_line_column
 	    ( min::file file,
 	      const min::position & position,
-	      min::uns16 print_op_flags,
+	      min::uns32 print_op_flags,
 	      const min::print_format & print_format );
 
     void print_phrase_lines
@@ -10686,35 +10650,40 @@ namespace min {
 	DISPLAY_PICTURE		= ( 1 << 4 )
     };
 
-    extern const min::uns16 standard_op_flags;
-
-    typedef min::uns16 char_flags[256];
+    extern const min::uns32 standard_op_flags;
 
     enum {
 
-        IS_SP			= ( 1 << 0 ),
-        IS_HT			= ( 1 << 1 ),
-	IS_GRAPHIC		= ( 1 << 2 ),
-	IS_COMBINING		= ( 1 << 3 ),
-	IS_CONTROL		= ( 1 << 4 ),
-	IS_UNSUPPORTED		= ( 1 << 5 ),
+	IS_CONTROL		= ( 1 << 0 ),
+        IS_SP			= ( 1 << 1 ),
+        IS_HT			= ( 1 << 2 ),
+        IS_OTHER_HSPACE		= ( 1 << 3 ),
+	IS_LEADING		= ( 1 << 4 ),
+	IS_MIDDLING		= ( 1 << 5 ),
+	IS_TRAILING		= ( 1 << 6 ),
+	IS_UNSUPPORTED		= ( 1 << 7 ),
 
-	IS_EOL			= ( 1 << 8 ),
+	IS_NON_SPACING		= ( 1 << 8 ),
+	CONDITIONAL_BREAK	= ( 1 << 9 ),
+	QUOTE_SUPPRESS		= ( 1 << 10 ),
 
-	IS_HSPACE		= ( 1 << 9 ),
-	IS_NON_HSPACE		= ( 1 << 10 ),
+	IS_ASCII		= ( 1 << 16 ),
+	IS_LATIN1		= ( 1 << 17 ),
 
-	CONDITIONAL_BREAK	= ( 1 << 12 ),
-	QUOTE_SUPPRESS		= ( 1 << 13 ),
+	IS_HSPACE = IS_SP + IS_HT
+	          + IS_OTHER_HSPACE,
+	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
+		   + IS_TRAILING,
+	IS_NON_HSPACE = IS_GRAPHIC + IS_CONTROL
+	              + IS_UNSUPPORTED
     };
 
-    extern const min::char_flags *
-        standard_char_flags;
+    extern const min::uns32 * standard_char_flags;
 
     struct support_control
     {
-        min::uns16 support_mask;
-        min::uns16 unsupported_char_flags;
+        min::uns32 support_mask;
+        min::uns32 unsupported_char_flags;
     };
 
     extern const min::support_control
@@ -10756,11 +10725,6 @@ namespace min {
     extern const min::break_control
         break_after_space_and_hypenators_break_control;
 
-    typedef bool suppress_matrix[256][256];
-
-    extern const min::suppress_matrix *
-        standard_suppress_matrix;
-
     struct line_break
     {
 	uns32 offset;
@@ -10783,8 +10747,8 @@ namespace min {
 	    context_gen_flags;
 	const min::gen_format *	      gen_format;
 
-	min::uns16		      op_flags;
-	const min::char_flags *	      char_flags;
+	min::uns32		      op_flags;
+	const min::uns32 *	      char_flags;
 
 	const min::ustring *	      char_name_prefix;
 	const min::ustring *	      char_name_postfix;
@@ -10822,24 +10786,29 @@ namespace min {
 	bool break_after;
 	    // Last character enabled break_after.
 
-	const min::suppress_matrix * suppress_matrix;
-	min::uns8 previous_unicode_category;
-	min::ustring suppressed_space[10];
-	bool suppressed_break_after;
-	    // Let the next character to be printed be
-	    // c, C = min::unicode_category ( c ), and
-	    // B = previous_unicode_category (if
-	    // suppress_matrix != NULL and the previous
-	    // printed character is b then B = min::
-	    // unicode_category ( b ) ).
+	min::uns32 suppress_flags;
+	    // Flags indicating when to output a sup-
+	    // pressible space before the next min::gen
+	    // or other value.
 	    //
-	    // Then just before the next character to be
-	    // printed is output, if suppress_matrix !=
-	    // NULL and suppress_matrix[B][C] == false,
-	    // the contents of suppressed_space is
-	    // printed and break_after is set to
-	    // suppressed_break_after.  In any case,
-	    // suppress_matrix is reset to NULL.
+	    // If 0 no space is to be output.
+	    //
+	    // If min::IS_LEADING, a space is to be out-
+	    // put unless then next thing to be output
+	    // is one of-
+	    //
+	    //     An unquoted string all of whose char-
+	    //     acters are min::IS_LEADING charac-
+	    //     ters.
+	    //
+	    //     A min::IS_MIDDLING character.
+	    //
+	    // The min::IS_LEADING flag is set when a
+	    // string is printed after a space, the
+	    // string has only min::IS_LEADING char-
+	    // acters.
+	    //
+	    // TBD
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11248,7 +11217,7 @@ namespace min {
     void pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
-	  min::uns16 printer_op_flags,
+	  min::uns32 printer_op_flags,
 	  const min::print_format & print_format );
 }
 
@@ -11359,8 +11328,8 @@ namespace min {
 
     struct quote_control
     {
-        min::uns16 unquote_if_first;
-	min::uns16 unquote_if_only;
+        min::uns32 unquote_if_first;
+	min::uns32 unquote_if_only;
     };
 
     extern const min::quote_control
@@ -11404,9 +11373,6 @@ namespace min {
 	const min::ustring *	    lab_prefix;
 	const min::ustring *	    lab_postfix;
 	const min::ustring *	    lab_separator;
-
-	const min::suppress_matrix *
-				    suppress_matrix;
     };
 
     extern const min::lab_format *
@@ -11508,8 +11474,6 @@ namespace min {
 
 	const char *         implicit_prefix;
 	const char *         implicit_postfix;
-
-	const min::suppress_matrix * suppress_matrix;
 
 	packed_vec_ptr<min::gen>
 			     exp_ok_attrs;
