@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 21:25:46 EDT 2014
+// Date:	Mon Jul 21 14:36:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -47,6 +47,14 @@ using UNI::ustring_length;
 using UNI::ustring_columns;
 using UNI::ustring_chars;
 
+using UNI::ss_support_sets_size;
+using UNI::ss_support_sets_name;
+using UNI::ss_support_sets_shift;
+
+using UNI::cc_support_sets_size;
+using UNI::cc_support_sets_name;
+using UNI::cc_support_sets_mask;
+
 using UNI::index_size;
 using UNI::index;
 using UNI::index_limit;
@@ -61,7 +69,7 @@ using UNI::bidi_mirrored;
 using UNI::properties;
 using UNI::name;
 using UNI::picture;
-using UNI::support_set;
+using UNI::support_sets;
 using UNI::reference_count;
 
 # include "../unicode/output_unicode_data.cc"
@@ -70,7 +78,8 @@ int main ( int argc, const char ** argv )
 {
     assert ( sizeof ( UNI::Uchar ) == 4 );
 
-    output ( "min_unicode_test.code" );
+    output_data ( "unicode_data.cc" );
+    output_support_sets ( "unicode_data_support_sets.h" );
     dump ( "min_unicode_test.dump" );
 
     return 0;

@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 21:26:03 EDT 2014
+// Date:	Mon Jul 21 14:36:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -14,6 +14,30 @@
 # include "../unicode/unicode_data.cc"
 
 # define UNI min::unicode
+
+const unsigned
+    UNI::ss_support_sets_size =
+	UNICODE_SS_SUPPORT_SETS_SIZE;
+const char * const
+    UNI::ss_support_sets_name
+        [UNI::ss_support_sets_size] =
+	    { UNICODE_SS_SUPPORT_SETS_NAME };
+const unsigned char
+    UNI::ss_support_sets_shift
+        [UNI::ss_support_sets_size] =
+	    { UNICODE_SS_SUPPORT_SETS_SHIFT };
+
+const unsigned
+    UNI::cc_support_sets_size =
+	UNICODE_CC_SUPPORT_SETS_SIZE;
+const char * const
+    UNI::cc_support_sets_name
+        [UNI::cc_support_sets_size] =
+	    { UNICODE_CC_SUPPORT_SETS_NAME };
+const unsigned long
+    UNI::cc_support_sets_mask
+        [UNI::cc_support_sets_size] =
+	    { UNICODE_CC_SUPPORT_SETS_MASK };
 
 const unsigned
     UNI::index_size = UNICODE_INDEX_SIZE;
@@ -52,9 +76,9 @@ const UNI::ustring * const
 const UNI::ustring * const
     UNI::picture[UNI::index_limit] =
         { UNICODE_PICTURE };
-extern const char * const
-    UNI::support_set[UNI::index_limit] =
-        { UNICODE_SUPPORT_SET };
+extern const unsigned long
+    UNI::support_sets[UNI::index_limit] =
+        { UNICODE_SUPPORT_SETS };
 const unsigned
     UNI::reference_count[UNI::index_limit] =
         { UNICODE_REFERENCE_COUNT };

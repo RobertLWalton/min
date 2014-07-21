@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Jul 18 04:14:47 EDT 2014
+# Date:		Mon Jul 21 14:39:06 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -193,24 +193,44 @@ min_unicode_test:	min_unicode_test.cc \
 	    -o min_unicode_test \
 	    min_unicode_test.cc min_unicode.o
 
+# We need to make unicode_data.cc and unicode_data_
+# support_sets.h using their own names because their
+# names are embedded in the files themselves, and
+# them mv them to min_unicode_test.{code,header}.
+#
 min_unicode_test.code \
+min_unicode_test.header \
 min_unicode_test.dump:	min_unicode_test
 	rm -rf min_unicode_test.code \
-	       min_unicode_test.dump
+	       min_unicode_test.header \
+	       min_unicode_test.dump \
+	       unicode_data.cc \
+	       unicode_data_support_sets.h
 	min_unicode_test
+	mv unicode_data.cc min_unicode_test.code
+	mv unicode_data_support_sets.h \
+	   min_unicode_test.header
+
 
 min_unicode_test.diff:	../unicode/unicode_data.cc \
 			../unicode/unicode_data.dump \
 			min_unicode_test.code \
+			min_unicode_test.header \
 			min_unicode_test.dump
 	@echo DIFFING ../unicode/unicode_data.cc \
 	              min_unicode_test.code
-	-@diff --minimal \
+	-@diff -u3 \
 	              ../unicode/unicode_data.cc \
-	              min_unicode_test.code
+		      min_unicode_test.code
+	@echo DIFFING \
+		../unicode/unicode_data_support_sets.h \
+	        min_unicode_test.header
+	-@diff -u3 \
+	        ../unicode/unicode_data_support_sets.h \
+	        min_unicode_test.header
 	@echo DIFFING ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
-	-@diff --minimal \
+	-@diff -u3 \
 	              ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
 
@@ -277,4 +297,4 @@ min_relocation_optimization_test.out:	\
 
 clean:
 	rm -f ${PROGRAMS} ${TESTS:=.out} \
-	      *.dump *.code *.o
+	      *.dump *.code *.header *.o

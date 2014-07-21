@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Jul  6 22:08:09 EDT 2014
+# Date:		Mon Jul 21 13:13:26 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -54,6 +54,7 @@ unicode_data.dump:	make_unicode_data \
 	      make_unicode_data.out
 	make_unicode_data unicode_data.cc \
 	                  unicode_data.dump \
+	                  unicode_data_support_sets.h \
 			  > make_unicode_data.out
 	cat make_unicode_data.out
 

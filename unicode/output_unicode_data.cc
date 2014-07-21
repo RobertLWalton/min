@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 21:52:09 EDT 2014
+// Date:	Mon Jul 21 07:04:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -96,7 +96,7 @@ inline bool index_eq ( unsigned i1, unsigned i2 )
         && properties[i1] == properties[i2]
         && ustring_eq ( name[i1], name[i2] )
         && ustring_eq ( picture[i1], picture[i2] )
-        && eq ( support_set[i1], support_set[i2] );
+        && support_sets[i1] == support_sets[i2];
 }
 
 // Print data for index i, and list character codes c
@@ -125,6 +125,28 @@ void putprop ( ostream & out, const char * prop )
     linep += strlen ( linep );
 }
 
+void print_ss_support_set
+	( unsigned i, ostream & out = cout )
+{
+    assert ( i < ss_support_sets_size );
+
+    unsigned k = ss_support_sets_shift[i];
+    sprintf ( line, "%12s = ( 1 << %2d ):",
+                    ss_support_sets_name[i], k );
+    indent = strlen ( line );
+    linep = line + indent;
+
+    for ( unsigned j = 0; j < cc_support_sets_size;
+                          ++ j )
+    {
+        if ( cc_support_sets_mask[j] & ( 1 << k ) )
+	    putprop ( out, cc_support_sets_name[j] );
+    }
+ 
+    * linep = 0;
+    out << line << endl;
+}
+
 void print_index ( unsigned i, ostream & out = cout )
 {
     assert ( i < index_limit );
@@ -137,7 +159,6 @@ void print_index ( unsigned i, ostream & out = cout )
     	      "%4d"	// i
 	      " %-4s"	// name
 	      " %s"	// picture
-	      " %-8s"	// support_set
 	      " %-3s"	// category
 	      "%4s"	// combining
 	      " %-4s"	// bidi_class
@@ -147,8 +168,6 @@ void print_index ( unsigned i, ostream & out = cout )
 	          ustring_chars ( name[i] ),
 	      picture[i] == NULL ? " " :
 	          ustring_chars ( picture[i] ),
-	      support_set[i] == NULL ? "" :
-	          support_set[i],
 	      category[i] == NULL ? "" :
 	          category[i],
 	      combining,
@@ -170,9 +189,16 @@ void print_index ( unsigned i, ostream & out = cout )
 	              numerator[i], denominator[i] );
 	putprop ( out, buffer );
     }
+
+    for ( unsigned j = 0; j < ss_support_sets_size; ++ j )
+    {
+	unsigned k = ss_support_sets_shift[j];
+        if ( ( support_sets[i] & ( 1 << k ) ) != 0 )
+	    putprop ( out, ss_support_sets_name[j] );
+    }
     for ( unsigned j = 0; j < property_name_size; ++ j )
     {
-        if ( ( properties[i] & ( 1 << j ) ) != 0 )
+        if ( ( properties[i] & ( 1ull << j ) ) != 0 )
 	    putprop ( out, property_name[j] );
     }
     for ( Uchar c = 0; c < index_size; ++ c )
@@ -202,6 +228,19 @@ void dump ( const char * filename )
 	// length.
 
     out << "==================== UNICODE DATA DUMP:"
+	<< endl;
+
+    out << endl
+        << "===== SUPPORT SETS:"
+	<< endl;
+
+    out << endl;
+    for ( unsigned i = 0; i < ss_support_sets_size;
+                          ++ i )
+        print_ss_support_set ( i, out );
+
+    out << endl
+        << "===== INDEXED DATA:"
 	<< endl;
 
     out << endl;
@@ -237,10 +276,11 @@ ostream & index_comment
 // presumed to contain only graphic ASCII characters.
 //
 void output ( ostream & out,
-              const char * const * vector )
+              const char * const * vector,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -257,10 +297,11 @@ void output ( ostream & out,
 //
 void ustring_output
 	( ostream & out,
-	  const ustring * const * vector )
+	  const ustring * const * vector,
+	  unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -300,10 +341,11 @@ void ustring_output
 
 // Output values for a vector of char's.
 //
-void output ( ostream & out, const char * vector )
+void output ( ostream & out, const char * vector,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -316,12 +358,32 @@ void output ( ostream & out, const char * vector )
     out << endl;
 }
 
-// Output values for a vector of short's.
+// Output values for a vector of unsigned char's.
 //
-void output ( ostream & out, const short * vector )
+void output ( ostream & out,
+              const unsigned char * vector,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	out << (unsigned) vector[i];
+    }
+    out << endl;
+}
+
+// Output values for a vector of short's.
+//
+void output ( ostream & out, const short * vector,
+	      unsigned size )
+{
+    const char * finish = "";
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -335,10 +397,11 @@ void output ( ostream & out, const short * vector )
 
 // Output values for a vector of unsigned's.
 //
-void output ( ostream & out, const unsigned * vector )
+void output ( ostream & out, const unsigned * vector,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -355,13 +418,40 @@ void output ( ostream & out, const unsigned * vector )
 //
 void output ( ostream & out,
               const unsigned long long * vector,
-	      unsigned b )
+	      unsigned b,
+	      unsigned size )
 {
     char format[20];
     sprintf ( format, "0x%%0%dX", ( b + 3 ) / 4 );
 
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	char buffer[100];
+	sprintf ( buffer, format, vector[i] );
+	out << buffer;
+    }
+    out << endl;
+}
+
+// Output values for a vector of unsigned long's
+// each containing at most b bits.
+//
+void output ( ostream & out,
+              const unsigned long * vector,
+	      unsigned b,
+	      unsigned size )
+{
+    char format[20];
+    sprintf ( format, "0x%%0%dX", ( b + 3 ) / 4 );
+
+    const char * finish = "";
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -378,10 +468,11 @@ void output ( ostream & out,
 // Output values for a vector of double's that contain
 // integer values.
 //
-void output ( ostream & out, const double * vector )
+void output ( ostream & out, const double * vector,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -401,10 +492,11 @@ void output ( ostream & out, const double * vector )
 //
 void output ( ostream & out,
               const double * numerator,
-	      const double * denominator )
+	      const double * denominator,
+	      unsigned size )
 {
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -428,7 +520,53 @@ void output ( ostream & out,
     out << endl;
 }
 
-void output ( const char * filename )
+// Output unicode_data_support_sets.h style file.
+//
+void output_support_sets ( const char * filename )
+{
+    ofstream out ( filename );
+    if ( ! out )
+    {
+        cout << "ERROR: could not open " << filename
+	     << " for output" << endl;
+	exit ( 1 );
+    }
+
+    out <<
+      "// UNICODE Support Set Definitions\n"
+      "//\n"
+      "// File:	" << filename << "\n"
+      "\n"
+      "// Generated by make_unicode_data.cc\n"
+      "\n"
+      "// See unicode_data.h for documentation.\n"
+      "\n"
+      "\n"
+      "enum {\n";
+
+    const char * first = "";
+    for ( unsigned i = 0; i < ss_support_sets_size;
+                          ++ i )
+    {
+	out << first << endl;
+	first = ",";
+        char buffer[100];
+	sprintf ( buffer, "    %-16s = ( 1 << %2d )",
+		  ss_support_sets_name[i],
+		  ss_support_sets_shift[i] );
+	out << buffer;
+    }
+
+    out << endl <<
+      "\n"
+      "};\n";
+
+    out.close();
+}
+
+// Output unicode_data.cc style file.
+//
+void output_data ( const char * filename )
 {
     ofstream out ( filename );
     if ( ! out )
@@ -445,9 +583,54 @@ void output ( const char * filename )
     out <<
       "// UNICODE Character Data\n"
       "//\n"
-      "// File:	unicode_data.cc\n"
+      "// File:	" << filename << "\n"
       "\n"
       "// Generated by make_unicode_data.cc\n";
+
+    out <<
+      "\n"
+      "// UNICODE_SS_SUPPORT_SETS_NAME/SHIFT are\n"
+      "// lists of element values giving the names\n"
+      "// and shifts of ss support sets, and UNICODE_\n"
+      "// SS_SUPPORT_SETS_SIZE is the size of these\n"
+      "// vectors.\n";
+
+    out << endl
+        << "# define UNICODE_SS_SUPPORT_SETS_SIZE "
+        << ss_support_sets_size << endl;
+
+    out << endl
+        << "# define UNICODE_SS_SUPPORT_SETS_NAME";
+    output ( out, ss_support_sets_name,
+    		  ss_support_sets_size );
+
+    out << endl
+        << "# define UNICODE_SS_SUPPORT_SETS_SHIFT";
+    output ( out, ss_support_sets_shift,
+    		  ss_support_sets_size );
+
+    out <<
+      "\n"
+      "// UNICODE_CC_SUPPORT_SETS_NAME/MASK are\n"
+      "// lists of element values giving the names\n"
+      "// and masks of cc support sets, and UNICODE_\n"
+      "// CC_SUPPORT_SETS_SIZE is the size of these\n"
+      "// vectors.\n";
+
+    out << endl
+        << "# define UNICODE_CC_SUPPORT_SETS_SIZE "
+        << cc_support_sets_size << endl;
+
+    out << endl
+        << "# define UNICODE_CC_SUPPORT_SETS_NAME";
+    output ( out, cc_support_sets_name,
+    		  cc_support_sets_size );
+
+    out << endl
+        << "# define UNICODE_CC_SUPPORT_SETS_MASK";
+    output ( out, cc_support_sets_mask, 32,
+    		  cc_support_sets_size );
+
 
     out <<
       "\n"
@@ -486,7 +669,7 @@ void output ( const char * filename )
       "// is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_CATEGORY";
-    output ( out, category );
+    output ( out, category, index_limit );
 
     out <<
       "\n"
@@ -495,7 +678,7 @@ void output ( const char * filename )
       "// vector whose size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_COMBINING_CLASS";
-    output ( out, combining_class );
+    output ( out, combining_class, index_limit );
 
     out <<
       "\n"
@@ -504,7 +687,7 @@ void output ( const char * filename )
       "// size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_BIDI_CLASS";
-    output ( out, bidi_class );
+    output ( out, bidi_class, index_limit );
 
     out <<
       "\n"
@@ -513,7 +696,7 @@ void output ( const char * filename )
       "// is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_NUMERATOR";
-    output ( out, numerator );
+    output ( out, numerator, index_limit );
 
     out <<
       "\n"
@@ -522,7 +705,7 @@ void output ( const char * filename )
       "// size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_DENOMINATOR";
-    output ( out, denominator );
+    output ( out, denominator, index_limit );
 
     out <<
       "\n"
@@ -531,7 +714,7 @@ void output ( const char * filename )
       "// vector whose size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_NUMERIC_VALUE";
-    output ( out, numerator, denominator );
+    output ( out, numerator, denominator, index_limit );
 
     out <<
       "\n"
@@ -541,7 +724,7 @@ void output ( const char * filename )
       "// size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_BIDI_MIRRORED";
-    output ( out, bidi_mirrored );
+    output ( out, bidi_mirrored, index_limit );
 
     out <<
       "\n"
@@ -550,7 +733,8 @@ void output ( const char * filename )
       "// size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_PROPERTIES";
-    output ( out, properties, property_name_size );
+    output ( out, properties, property_name_size,
+                  index_limit );
 
     out <<
       "\n"
@@ -559,7 +743,7 @@ void output ( const char * filename )
       "// is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_NAME";
-    ustring_output ( out, name );
+    ustring_output ( out, name, index_limit );
 
     out <<
       "\n"
@@ -568,16 +752,16 @@ void output ( const char * filename )
       "// is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_PICTURE";
-    ustring_output ( out, picture );
+    ustring_output ( out, picture, index_limit );
 
     out <<
       "\n"
-      "// UNICODE_SUPPORT_SET is the list of element\n"
-      "// values of the `support_set' vector whose\n"
+      "// UNICODE_SUPPORT_SETS is the list of element\n"
+      "// values of the `support_sets' vector whose\n"
       "// size is UNICODE_INDEX_LIMIT.\n";
 
-    out << endl << "# define UNICODE_SUPPORT_SET";
-    output ( out, support_set );
+    out << endl << "# define UNICODE_SUPPORT_SETS";
+    output ( out, support_sets, 32, index_limit );
 
     out <<
       "\n"
@@ -586,7 +770,7 @@ void output ( const char * filename )
       "// vector whose size is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_REFERENCE_COUNT";
-    output ( out, reference_count );
+    output ( out, reference_count, index_limit );
 
     out.close();
 }

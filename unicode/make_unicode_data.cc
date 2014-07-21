@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 19 16:09:34 EDT 2014
+// Date:	Mon Jul 21 05:30:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,9 +48,20 @@ using unicode::unicode_to_utf8;
 
 // For each of the extern'ed data in unicode_data.h we
 // have a corresponding datum here with no `const' and
-// with all vectors of size index_size instead of most
-// being of size index_limit.
-//
+// with vectors of size index_size instead index_limit
+// and of max_support_sets instead of ss/cc_support_
+// sets_size.
+
+const unsigned max_support_sets = 4096;
+    // This is so large its ridiculous, and should
+    // never been exceeded.
+const char * ss_support_sets_name[max_support_sets];
+unsigned char ss_support_sets_shift[max_support_sets];
+unsigned ss_support_sets_size = 0;
+const char * cc_support_sets_name[max_support_sets];
+unsigned long cc_support_sets_mask[max_support_sets];
+unsigned cc_support_sets_size = 0;
+
 const unsigned index_size = 0x30001;
 unsigned short index[index_size];
 unsigned index_limit = 0;
@@ -65,7 +76,7 @@ char bidi_mirrored[index_size];
 unsigned long long properties[index_size];
 const ustring * name[index_size];
 const ustring * picture[index_size];
-const char * support_set[index_size];
+unsigned long support_sets[index_size];
 unsigned reference_count[index_size];
 
 # include "output_unicode_data.cc"
@@ -98,7 +109,7 @@ inline void index_copy ( unsigned i1, unsigned i2 )
     properties[i1] = properties[i2];
     name[i1] = name[i2];
     picture[i1] = picture[i2];
-    support_set[i1] = support_set[i2];
+    support_sets[i1] = support_sets[i2];
 }
 
 // Initialize tables.  category[0] is set to 'w'
@@ -152,44 +163,6 @@ void finalize ( void )
 	    assert ( reference_count[c] == 0 );
 	    index[c] = i;
 	}
-    }
-}
-
-// support_set[c] is set to "ascii" for c <= 0x7F.
-//
-void set_ascii ( void )
-{
-    for ( Uchar c = 0; c <= 0x7F; ++ c )
-        support_set[c] = "ascii";
-}
-
-// picture[c] is set for 0 <= c <= 0x20, c == 0x7F,
-// and c == SOFTWARE_NL.
-//
-void set_pictures ( void )
-{
-    for ( Uchar c = 0; c <= SOFTWARE_NL; )
-    {
-        Uchar pic =
-	    c  < 0x20 ? c + 0x2400 :  // NUL ... US
-	    c == 0x20 ? 0x2423 :     // SP
-	    c == 0x7F ? 0x2421 :     // DEL
-	    c == SOFTWARE_NL ? 0x2424 :
-		 UNKNOWN_UCHAR;
-
-
-	char buffer[11];
-	char * s = buffer + 2;
-	unsigned length =
-	    unicode_to_utf8 ( s, pic );
-	buffer[0] = length;
-	buffer[1] = 1;
-	buffer[length+2] = 0;
-	picture[c] = (ustring *) strdup ( buffer );
-
-	if ( c == 0x20 ) c = 0x7F;
-	else if ( c == 0x7F) c = SOFTWARE_NL;
-	else ++ c;
     }
 }
 
@@ -436,20 +409,42 @@ bool check_range ( Uchar low, Uchar & high,
 // Read current field into `field'.  Return true if
 // success, false if failure.  Note that skip_to_next
 // must be called after reading this field to get to the
-// next field. 
+// next field.
+//
+// Field may contain whitespace.  Whitespace at ends of
+// field is trimmed (so all whitespace field is == "").
 //
 char field[line_size+1];
+char * subfieldp;
 bool read_field ( const char * line )
 {
     line = skip_whitespace ( line );
     if ( * line == 0 ) return false;
     const char * p = line;
-    while ( * p && ! isspace ( * p )
-                && * p != ';' && * p != '#' )
+    while ( * p && * p != ';' && * p != '#' )
         ++ p;
+    while ( p > line && isspace ( p[-1] ) ) -- p;
     strncpy ( field, line, p - line );
     field[p - line] = 0;
+    subfieldp = field;
     return true;
+}
+
+// Get next subfield inside field.  Subfields are
+// separated by whitespace.  Upon return the
+// subfield ends in NUL and is trimmed of whitespace.
+//
+// Return NULL if there is no next subfield.
+//
+const char * get_next_subfield ( void )
+{
+    subfieldp = (char *) skip_whitespace ( subfieldp );
+    const char * returnp = subfieldp;
+    while ( * subfieldp && ! isspace ( * subfieldp ) )
+        ++ subfieldp;
+    if ( subfieldp == returnp ) return NULL;
+    if ( * subfieldp ) * subfieldp ++ = 0;
+    return returnp;
 }
 
 // Get next field.  Return true if found, false if not
@@ -467,6 +462,21 @@ bool get_next_field
 	return false;
     }
     return true;
+}
+
+// Find an cc_support set and return its mask.  Return
+// 0 if not found.
+//
+unsigned long find_cc_support_set ( const char * name )
+{
+    unsigned j;
+    for ( j = 0; j < cc_support_sets_size; ++ j )
+    {
+	if ( eq ( name, cc_support_sets_name[j] ) )
+	    break;
+    }
+    return j == cc_support_sets_size ? 0 :
+    	   cc_support_sets_mask[j];
 }
 
 // Read NameAliases.txt
@@ -517,6 +527,104 @@ void read_names ( void )
     ::close();
 }
 
+// Read SupportSets.txt
+//
+void read_support_sets ( void )
+{
+    ::open ( "SupportSets.txt" );
+
+    while ( read_line() )
+    {
+        const char * p = line;
+	p = skip_whitespace ( p );
+	if ( * p == 0 ) continue;
+
+	if ( ! read_field ( p ) )
+	{
+	    line_error ( "first field not found;"
+			 " line ignored" );
+	    continue;
+	}
+
+	unsigned i;
+	for ( i = 0; i < ss_support_sets_size; ++ i )
+	{
+	    if ( eq ( field, ss_support_sets_name[i] ) )
+	        break;
+	}
+	if ( i < ss_support_sets_size )
+	{
+	    line_error ( "ss support set (%s)"
+	                 " duplicated; line ignored",
+			 field );
+	    continue;
+	}
+	if ( ss_support_sets_size == max_support_sets )
+	{
+	    line_error ( "too many ss support sets;"
+	                 " line ignored" );
+	    continue;
+	}
+
+	i = ss_support_sets_size;
+	ss_support_sets_name[i] = strdup ( field );
+
+	if ( ! get_next_field ( p, "second" ) )
+	    continue;
+	char * q;
+	unsigned long shift =
+	    strtoul ( field, & q, 10 );
+	if (    ! isdigit ( field[0] ) || * q != 0
+	     || shift >= 32 )
+	{
+	    line_error ( "bad second field (shift);"
+	                 " line ignored" );
+	    continue;
+	}
+
+	if ( ! get_next_field ( p, "third" ) )
+	    continue;
+
+	// From this point on line will not be ignored.
+	//
+	ss_support_sets_shift[i] = shift;
+	++ ss_support_sets_size;
+
+	const char * subfield;
+	while ( ( subfield = get_next_subfield() ) )
+	{
+	    unsigned j;
+	    for ( j = 0; j < cc_support_sets_size; ++ j )
+	    {
+		if ( eq ( subfield,
+		          cc_support_sets_name[j] ) )
+		    break;
+	    }
+	    if ( j == cc_support_sets_size )
+	    {
+		if (    cc_support_sets_size
+		     == max_support_sets )
+		{
+		    line_error ( "too many cc support"
+		                 " sets; support set %s"
+				 " ignored in line",
+				 subfield );
+		    continue;
+		}
+		cc_support_sets_name[j] =
+		    strdup ( subfield );
+		cc_support_sets_mask[j] = 0;
+		++ cc_support_sets_size;
+	    }
+
+	    cc_support_sets_mask[j] |= 1 << shift;
+	}
+    }
+
+    ::close();
+}
+
+
 // Read CompositeCharacters.txt
 //
 void read_composite_characters ( void )
@@ -533,22 +641,19 @@ void read_composite_characters ( void )
 
 	if ( ! get_next_field ( p, "first" ) )
 	    continue;
+	if ( ! get_next_field ( p, "second" ) )
+	    continue;
+	if ( ! get_next_field ( p, "third" ) )
+	    continue;
+
+	unsigned long support_sets = 0;
+	const char * subfield;
+	while ( ( subfield = get_next_subfield() ) )
+	    support_sets |=
+	        find_cc_support_set ( subfield );
 
 	for ( Uchar c = low; c <= high; ++ c )
-	{
-	    if ( eq ( support_set[c], field ) )
-	        continue;
-	    if ( support_set[c] != NULL )
-	    {
-		line_error ( "character %02X is was"
-		             " previously assigned"
-			     " support set %s;"
-			     " support set ignored",
-			     c, support_set[c] );
-		continue;
-	    }
-	    support_set[c] = strdup ( field );
-	}
+	    ::support_sets[c] |= support_sets;
     }
 
     ::close();
@@ -747,10 +852,59 @@ void read_prop_list ( void )
 	}
 
 	for ( Uchar c = low; c <= high; ++ c )
-	    properties[c] |= ( 1 << i );
+	    properties[c] |= ( 1ull << i );
     }
 
     ::close();
+}
+
+// support_sets[c] is set to include "ascii" for
+// c <= 0x7F, and to include "special" for UNKNOWN_UCHAR
+// and SOFTWARE_NL.
+//
+void set_support_sets ( void )
+{
+    unsigned long special_ss =
+        find_cc_support_set ( "special" );
+
+    support_sets[UNKNOWN_UCHAR] |= special_ss;
+    support_sets[SOFTWARE_NL] |= special_ss;
+
+    unsigned long ascii_ss =
+        find_cc_support_set ( "ascii" );
+
+    for ( Uchar c = 0; c <= 0x7F; ++ c )
+        support_sets[c] |= ascii_ss;
+}
+
+// picture[c] is set for 0 <= c <= 0x20, c == 0x7F,
+// and c == SOFTWARE_NL.
+//
+void set_pictures ( void )
+{
+    for ( Uchar c = 0; c <= SOFTWARE_NL; )
+    {
+        Uchar pic =
+	    c  < 0x20 ? c + 0x2400 :  // NUL ... US
+	    c == 0x20 ? 0x2423 :     // SP
+	    c == 0x7F ? 0x2421 :     // DEL
+	    c == SOFTWARE_NL ? 0x2424 :
+		 UNKNOWN_UCHAR;
+
+
+	char buffer[11];
+	char * s = buffer + 2;
+	unsigned length =
+	    unicode_to_utf8 ( s, pic );
+	buffer[0] = length;
+	buffer[1] = 1;
+	buffer[length+2] = 0;
+	picture[c] = (ustring *) strdup ( buffer );
+
+	if ( c == 0x20 ) c = 0x7F;
+	else if ( c == 0x7F) c = SOFTWARE_NL;
+	else ++ c;
+    }
 }
 
 int main ( int argc, const char ** argv )
@@ -761,19 +915,26 @@ int main ( int argc, const char ** argv )
 
     initialize();
 
-    store_name ( SOFTWARE_NL, "NL" );
-    store_name ( UNKNOWN_UCHAR, "UUC" );
-
-    set_ascii();
-    set_pictures();
-
     read_names();
+    read_support_sets();
     read_composite_characters();
     read_unicode_data();
     read_prop_list();
 
+    
+    ::file = "Builtin Defaults";
+    ::line_count = 0;
+    strcpy ( ::line, "set builtin defaults" );
+
+    store_name ( SOFTWARE_NL, "NL" );
+    store_name ( UNKNOWN_UCHAR, "UUC" );
+
+    set_support_sets();
+    set_pictures();
+
     finalize();
     final_check();
-    if ( argc > 1 ) output ( argv[1] );
+    if ( argc > 1 ) output_data ( argv[1] );
     if ( argc > 2 ) dump ( argv[2] );
+    if ( argc > 3 ) output_support_sets ( argv[3] );
 }
