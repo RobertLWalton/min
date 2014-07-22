@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 18 07:07:01 EDT 2014
+// Date:	Mon Jul 21 21:43:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2612,18 +2612,16 @@ void test_printer ( void )
 	    << "hello" << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::never_break;
+            << min::no_auto_break;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::right ( 4 );
     printer << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::never_break;
+            << min::no_auto_break;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::left ( 4 );
     printer << min::eom;
-
-#ifdef NONE_SUCH
 
     printer << min::save_indent
             << min::set_indent ( 4 );
@@ -2663,7 +2661,7 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
     	    << min::set_line_length ( 20 )
-            << min::nohbreak
+            << min::no_auto_break
             <<  "int32 -1 = " << (min::int32) -1
 	    << " " << min::set_break
             << "int64 -2 = " << (min::int64) -2
@@ -2679,7 +2677,7 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 4 ) 
     	    << min::set_line_length ( 20 )
-            << min::nohbreak
+            << min::no_auto_break
             <<  "pint ( -3, \"%05d\" ) = "
 	    <<  min::pint ( -3, "%05d" )
 	    << " " << min::set_break
@@ -2690,6 +2688,7 @@ void test_printer ( void )
 	    <<  min::pfloat ( 1.2345, "%04.2f" )
             << min::eom;
 
+#ifdef NONE_SUCH
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;
