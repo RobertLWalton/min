@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 13:50:46 EDT 2014
+// Date:	Tue Jul 22 03:26:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2429,7 +2429,7 @@ min::printer operator <<
 	printer << sp << ": ";
     }
     printer << min::save_print_format
-            << min::never_break;
+            << min::no_auto_break;
 
     if ( pline_numbers.first == pline_numbers.last )
         printer << "line " << pline_numbers.first + 1;
@@ -7465,7 +7465,7 @@ const min::display_control
 
 
 const min::break_control
-	min::never_break_break_control =
+	min::no_auto_break_break_control =
 {
     0, 0, 0, 0
 };
@@ -7901,7 +7901,7 @@ min::printer operator <<
 	    min::graphic_only_display_control :
 	    min::graphic_and_space_display_control;
 	printer->print_format.break_control =
-	    min::never_break_break_control;
+	    min::no_auto_break_break_control;
 	return printer;
     }
     case min::op::SET_SUPPORT_CONTROL:
@@ -7920,7 +7920,7 @@ min::printer operator <<
 	printer->print_format.display_control =
 	    min::verbatim_display_control;
 	printer->print_format.break_control =
-	    min::never_break_break_control;
+	    min::no_auto_break_break_control;
 	return printer;
     case min::op::SUPPRESSIBLE_SPACE:
 	{
@@ -8200,9 +8200,9 @@ const min::op min::graphic_only
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_only_display_control );
 
-const min::op min::never_break
+const min::op min::no_auto_break
     ( min::op::SET_BREAK_CONTROL,
-      & min::never_break_break_control );
+      & min::no_auto_break_break_control );
 const min::op min::break_after_space
     ( min::op::SET_BREAK_CONTROL,
       & min::break_after_space_break_control );
@@ -9275,16 +9275,15 @@ min::printer pgen_id
 // printed without an effective OBJ_EXP_FLAG or
 // OBJ_ID_FLAG.
 //
-template < typename T >
-static T pgen_obj
-	( T out,
+static min::printer pgen_obj
+	( min::printer printer,
 	  min::uns32 gen_flags,
 	  min::gen v,
 	  const min::context_gen_flags *
 	      context_gen_flags,
 	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
+	  min::printer ( * pgen )
+	      ( min::printer printer,
 	        min::uns32 gen_flags,
 	        min::gen v,
 	        const min::context_gen_flags *
@@ -9310,37 +9309,37 @@ static T pgen_obj
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
         if ( indent )
-	    return out << "// <empty object>";
+	    return printer << "// <empty object>";
 	else
-	    return out << "{| |}";
+	    return printer << "{| |}";
     }
 
     if ( ! indent )
-	out << "{| " << min::save_indent;
+	printer << "{| " << min::save_indent;
     else
-        out << min::save_line_break;
-    out << min::never_break;
+        printer << min::save_line_break;
+    printer << min::no_auto_break;
 
     for ( min::unsptr i = 0;
 	  i < min::size_of ( vp ); ++ i )
     {
 	if ( i != 0 )
-	    out << " " << min::set_break;
+	    printer << " " << min::set_break;
 
         min::gen v = vp[i];
 	if ( min::is_sublist ( v ) )
 	{
-	    out << "**";
+	    printer << "**";
 	}
 	else
-	    pgen ( out,
+	    pgen ( printer,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 	           context_gen_flags, f );
     }
 
-    if ( indent && m > 0 ) out << " |:";
+    if ( indent && m > 0 ) printer << " |:";
 
     for ( min::unsptr i = 0; i < m; ++ i )
     {
@@ -9357,11 +9356,11 @@ static T pgen_obj
 	      j < do_values + rc; ++ j )
 	{
 	    if ( indent )
-		out << min::indent;
+		printer << min::indent;
 	    else
-		out << "; " << min::set_break;
+		printer << "; " << min::set_break;
 
-	    pgen ( out,
+	    pgen ( printer,
 	           (*context_gen_flags)[min::PGEN_NAME],
 	           info[i].name,
 	           context_gen_flags, f );
@@ -9371,13 +9370,14 @@ static T pgen_obj
 	    {
 		min::packed_vec_ptr<const char *>
 		    names = f->flag_names;
-		out << "[";
+		printer << "[";
 		if ( fc * min::VSIZE <= 64 )
 		{
 		    min::uns64 f = info[i].flags;
 		    for ( unsigned j = 0; j < 64; ++ j )
 		    {
-			if ( f & 1 ) out << names[j];
+			if ( f & 1 )
+			    printer << names[j];
 			f >>= 1;
 		    }
 		}
@@ -9399,23 +9399,23 @@ static T pgen_obj
 			    if ( flags2 & 1 )
 			    {
 				if ( n < names->length )
-				    out << names[n];
+				    printer << names[n];
 				else
-				    out << "," << n;
+				    printer << "," << n;
 			    }
 			    flags2 >>= 1;
 			    ++ n;
 			}
 		    }
 		}
-		out << "]";
+		printer << "]";
 	    }
 
 	    min::unsptr vc = info[i].value_count;
 	    if ( j == 0 && vc == 1 )
 	    {
-		out << " = ";
-		pgen ( out,
+		printer << " = ";
+		pgen ( printer,
 		       (*context_gen_flags)
 		           [min::PGEN_VALUE],
 		       info[i].value,
@@ -9423,7 +9423,7 @@ static T pgen_obj
 	    }
 	    else if ( j == 0 && vc > 1 )
 	    {
-		out << " = "
+		printer << " = "
 		    << "{: " << min::save_indent;
 		min::gen value[vc];
 		min::locate ( ap, info[i].name );
@@ -9431,14 +9431,15 @@ static T pgen_obj
 		for ( min::unsptr k = 0; k < vc; ++ k )
 		{
 		    if ( k > 0 )
-			out << "; " << min::set_break;
-		    pgen ( out,
+			printer << "; "
+			        << min::set_break;
+		    pgen ( printer,
 		           (*context_gen_flags)
 			       [min::PGEN_VALUE],
 		           value[k],
 		           context_gen_flags, f );
 		}
-		out << " :}" << min::restore_indent;
+		printer << " :}" << min::restore_indent;
 	    }
 	    else
 	    {
@@ -9446,14 +9447,14 @@ static T pgen_obj
 		    rinfo[j-do_values].value_count;
 		if ( rvc == 1 )
 		{
-		    out << " = " << min::set_break;
+		    printer << " = " << min::set_break;
 		    ::pgen_id
-		        ( out,
+		        ( printer,
 		          rinfo[j-do_values].value );
 		}
 		else if ( rvc > 1 )
 		{
-		    out << " = " << min::set_break
+		    printer << " = " << min::set_break
 			<< "{: " << min::save_indent;
 		    min::gen v[rvc];
 		    min::locate_reverse
@@ -9463,14 +9464,15 @@ static T pgen_obj
 			  k < rvc; ++ k )
 		    {
 			if ( k > 0 )
-			    out << "; "
+			    printer << "; "
 				<< min::set_break;
-			::pgen_id ( out, v[k] );
+			::pgen_id ( printer, v[k] );
 		    }
-		    out << " :}" << min::restore_indent;
+		    printer << " :}"
+		            << min::restore_indent;
 		}
-		out << min::set_break << " = ";
-		pgen ( out,
+		printer << min::set_break << " = ";
+		pgen ( printer,
 		       (*context_gen_flags)
 		           [min::PGEN_NAME],
 		       rinfo[j-do_values].name,
@@ -9479,9 +9481,9 @@ static T pgen_obj
 	}
     }
 
-    if ( ! indent ) out << " |}";
+    if ( ! indent ) printer << " |}";
     
-    return out << min::restore_indent;
+    return printer << min::restore_indent;
 }
 
 inline bool find
@@ -9516,16 +9518,15 @@ inline min::gen get
 // Execute pgen (below) in the case an object is to be
 // printed with the OBJ_EXP_FLAG.
 //
-template < typename T >
-static T pgen_exp
-	( T out,
+static min::printer pgen_exp
+	( min::printer printer,
 	  min::uns32 gen_flags,
 	  min::attr_ptr & ap,
 	  const min::context_gen_flags *
 	      context_gen_flags,
 	  const min::gen_format * f,
-	  T ( * pgen )
-	      ( T out,
+	  min::printer ( * pgen )
+	      ( min::printer printer,
 	        min::uns32 gen_flags,
 	        min::gen v,
 	        const min::context_gen_flags *
@@ -9569,9 +9570,9 @@ static T pgen_exp
 	    prefix = f->implicit_prefix;
 	    postfix = f->implicit_postfix;
 	}
-	out << prefix
-	    << min::save_indent
-            << min::never_break;
+	printer << prefix
+	        << min::save_indent
+                << min::no_auto_break;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9579,29 +9580,29 @@ static T pgen_exp
 	    {
 	        if ( separator != min::NONE() )
 		{
-		    pgen ( out,
+		    pgen ( printer,
 		           (*context_gen_flags)
 			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
-		    out << " ";
+		    printer << " ";
 		}
 		else if ( use_suppressible_space )
-		    out << min::suppressible_space;
+		    printer << min::suppressible_space;
 		else
-		    out << " ";
-		out << min::set_break;
+		    printer << " ";
+		printer << min::set_break;
 	    }
-	    pgen ( out,
+	    pgen ( printer,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 	           context_gen_flags, f );
 	}
 	if ( * postfix )
-	    out << min::spaces_if_before_indent
-	        << postfix;
-	return out << min::restore_indent;
+	    printer << min::spaces_if_before_indent
+	            << postfix;
+	return printer << min::restore_indent;
     }
     else if ( terminator == min::NONE() )
     {
@@ -9611,53 +9612,53 @@ static T pgen_exp
 	     &&
 	     min::size_of ( vp ) == 1 )
 	{
-	    pgen ( out,
+	    pgen ( printer,
 	           gen_flags | min::BRACKET_STR_FLAG,
 	           vp[0],
 	           context_gen_flags, f );
-	    return out;
+	    return printer;
 	}
         else if ( initiator == min::number_sign
 	          &&
 	          min::size_of ( vp ) == 1 )
 	{
-	    pgen ( out,
+	    pgen ( printer,
 	           gen_flags,
 	           vp[0],
 	           context_gen_flags, f );
-	    return out;
+	    return printer;
 	}
 
-	pgen ( out,
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
 
-	out << min::adjust_indent ( 4 )
-	    << min::eol;
+	printer << min::adjust_indent ( 4 )
+	        << min::eol;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
-	    out << min::spaces_if_before_indent;
+	    printer << min::spaces_if_before_indent;
 	    if ( i != 0 && separator != min::NONE() )
 	    {
-		pgen ( out,
+		pgen ( printer,
 		       (*context_gen_flags)
 			   [min::PGEN_PUNCTUATION],
 		       separator,
 		       context_gen_flags, f );
-		out << " ";
+		printer << " ";
 	    }
-	    out << min::set_break;
-	    pgen ( out,
+	    printer << min::set_break;
+	    pgen ( printer,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 	           context_gen_flags, f );
 	}
-	return out << min::adjust_indent ( -4 )
-	           << min::eol_if_after_indent;
+	return printer << min::adjust_indent ( -4 )
+	               << min::eol_if_after_indent;
     }
     else if ( initiator == min::NONE() )
     {
@@ -9667,56 +9668,56 @@ static T pgen_exp
 	      i < min::size_of ( vp ); ++ i )
 	{
 	    if ( i == 0 )
-		out << min::spaces_if_before_indent;
+		printer << min::spaces_if_before_indent;
 	    else
 	    {
 	        if ( separator != min::NONE() )
 		{
-		    pgen ( out,
+		    pgen ( printer,
 		           (*context_gen_flags)
 			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
-		    out << " ";
+		    printer << " ";
 		}
 		else if ( use_suppressible_space )
-		    out << min::suppressible_space;
+		    printer << min::suppressible_space;
 		else
-		    out << " ";
+		    printer << " ";
 	    }
-	    out << min::set_break;
-	    pgen ( out,
+	    printer << min::set_break;
+	    pgen ( printer,
 	           (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 	           context_gen_flags, f );
 	}
 	if ( terminator == min::new_line )
-		return out << min::eol;
+		return printer << min::eol;
 	else
 	{
-	    out << min::spaces_if_before_indent
-	        << min::suppressible_space;
-	    pgen ( out,
+	    printer << min::spaces_if_before_indent
+	            << min::suppressible_space;
+	    pgen ( printer,
 	           (*context_gen_flags)
 		       [min::PGEN_PUNCTUATION],
 	           terminator,
 	           context_gen_flags, f );
-	    return out << " ";
+	    return printer << " ";
 	}
     }
     else if ( name == min::NONE() )
     {
         // Bracketed Expression.
 
-	pgen ( out,
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
-	out << min::suppressible_space
-	    << min::save_indent
-            << min::never_break;
+	printer << min::suppressible_space
+	        << min::save_indent
+                << min::no_auto_break;
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
 	{
@@ -9724,34 +9725,34 @@ static T pgen_exp
 	    {
 	        if ( separator != min::NONE() )
 		{
-		    pgen ( out,
+		    pgen ( printer,
 		           (*context_gen_flags)
 			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
-		    out << " ";
+		    printer << " ";
 		}
 		else if ( use_suppressible_space )
-		    out << min::suppressible_space;
+		    printer << min::suppressible_space;
 		else
-		    out << " ";
-		out << min::set_break;
+		    printer << " ";
+		printer << min::set_break;
 	    }
-	    pgen ( out, 
+	    pgen ( printer, 
 		   (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 		   context_gen_flags, f );
 	}
 
-	out << min::spaces_if_before_indent
-	    << min::suppressible_space;
-	pgen ( out,
+	printer << min::spaces_if_before_indent
+	        << min::suppressible_space;
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
-	return out << min::restore_indent;
+	return printer << min::restore_indent;
     }
     else
     {
@@ -9765,16 +9766,16 @@ static T pgen_exp
 	     ::get ( min::dot_keys,
 		      info, info_length );
 
-	out << min::save_print_format
-            << min::never_break;
-	pgen ( out,
+	printer << min::save_print_format
+                << min::no_auto_break;
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       initiator,
 	       context_gen_flags, f );
-	out << min::suppressible_space
-	    << min::save_indent;
-	pgen ( out,
+	printer << min::suppressible_space
+	        << min::save_indent;
+	pgen ( printer,
 	       (*context_gen_flags)[min::PGEN_NAME],
 	       name,
 	       context_gen_flags, f );
@@ -9788,13 +9789,13 @@ static T pgen_exp
 		for ( min::unsptr i = 0;
 		      i < min::size_of ( argp ); ++ i )
 		{
-		    out << " " << min::set_break;
+		    printer << " " << min::set_break;
 		    min::uns32 gen_flags =
 			(*context_gen_flags)
 			    [min::PGEN_TOP];
 		    gen_flags &= ~ min::OBJ_ID_FLAG;
 		    gen_flags |= min::OBJ_EXP_FLAG;
-		    pgen ( out, gen_flags,
+		    pgen ( printer, gen_flags,
 			   argp[i],
 			   context_gen_flags, f );
 		}
@@ -9805,9 +9806,9 @@ static T pgen_exp
 		for ( min::unsptr i = 0;
 		      i < min::size_of ( keyp ); ++ i )
 		{
-		    out << " " << min::set_break
-		        << "# ";
-		    pgen ( out,
+		    printer << " " << min::set_break
+		            << "# ";
+		    pgen ( printer,
 			   (*context_gen_flags)
 			       [min::PGEN_NAME],
 			   keyp[i],
@@ -9817,50 +9818,51 @@ static T pgen_exp
 
 	    if ( middle == min::NONE() )
 	    {
-		out << min::suppressible_space;
-		pgen ( out,
+		printer << min::suppressible_space;
+		pgen ( printer,
 		       (*context_gen_flags)
 		           [min::PGEN_PUNCTUATION],
 		       terminator,
 		       context_gen_flags, f );
-		return out << min::restore_indent
+		return printer
+		           << min::restore_indent
 			   << min::restore_print_format;
 	    }
 	    else
 	    {
-		out << min::suppressible_space;
-		pgen ( out,
+		printer << min::suppressible_space;
+		pgen ( printer,
 		       (*context_gen_flags)
 		           [min::PGEN_PUNCTUATION],
 		       middle,
 		       context_gen_flags, f );
-		out << min::restore_indent;
+		printer << min::restore_indent;
 	    }
 	}
 	else if ( middle == min::NONE() )
 	{
-	    out << min::suppressible_space;
-	    pgen ( out,
+	    printer << min::suppressible_space;
+	    pgen ( printer,
 		   (*context_gen_flags)
 		       [min::PGEN_PUNCTUATION],
 		   terminator,
 		   context_gen_flags, f );
-	    return out << min::restore_indent
-		       << min::restore_print_format;
+	    return printer << min::restore_indent
+		           << min::restore_print_format;
 	}
 	else
 	{
-	    out << min::suppressible_space;
-	    pgen ( out,
+	    printer << min::suppressible_space;
+	    pgen ( printer,
 		   (*context_gen_flags)
 		       [min::PGEN_PUNCTUATION],
 		   middle,
 		   context_gen_flags, f );
-	    out << min::restore_indent;
+	    printer << min::restore_indent;
 	}
 
-	out << " " << min::save_indent
-	           << min::set_break;
+	printer << " " << min::save_indent
+	               << min::set_break;
 
 	for ( min::unsptr i = 0;
 	      i < min::size_of ( vp ); ++ i )
@@ -9869,39 +9871,39 @@ static T pgen_exp
 	    {
 	        if ( separator != min::NONE() )
 		{
-		    pgen ( out,
+		    pgen ( printer,
 		           (*context_gen_flags)
 			       [min::PGEN_PUNCTUATION],
 			   separator,
 			   context_gen_flags, f );
-		    out << " ";
+		    printer << " ";
 		}
 		else if ( use_suppressible_space )
-		    out << min::suppressible_space;
+		    printer << min::suppressible_space;
 		else
-		    out << " ";
-		out << min::set_break;
+		    printer << " ";
+		printer << min::set_break;
 	    }
 
-	    pgen ( out,
+	    pgen ( printer,
 		   (*context_gen_flags)
 		       [min::PGEN_ELEMENT],
 	           vp[i],
 		   context_gen_flags, f );
 	}
 
-	out << " ";
-	pgen ( out,
+	printer << " ";
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       middle,
 	       context_gen_flags, f );
-	pgen ( out,
+	pgen ( printer,
 	       (*context_gen_flags)
 	           [min::PGEN_PUNCTUATION],
 	       terminator,
 	       context_gen_flags, f );
-	return out << min::restore_indent
+	return printer << min::restore_indent
 		   << min::restore_print_format;
     }
 }
@@ -10083,7 +10085,7 @@ static min::printer pgen
 
 	    if ( ok )
 	    {
-		::pgen_exp<min::printer>
+		::pgen_exp
 		    ( printer, gen_flags, ap,
 		      context_gen_flags, f,
 		      pgen, &info[0], c );
@@ -10094,7 +10096,7 @@ static min::printer pgen
         if ( gen_flags & min::OBJ_ID_FLAG )
 	    ::pgen_id ( printer, v );
 	else
-	    ::pgen_obj<min::printer>
+	    ::pgen_obj
 	        ( printer, gen_flags, v,
 		  context_gen_flags, f,
 		  pgen );

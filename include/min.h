@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 16:38:03 EDT 2014
+// Date:	Tue Jul 22 03:43:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10715,7 +10715,7 @@ namespace min {
     };
 
     extern const min::break_control
-        never_break_break_control;
+        no_auto_break_break_control;
     extern const min::break_control
         break_after_space_break_control;
     extern const min::break_control
@@ -11190,7 +11190,7 @@ namespace min {
     extern const op graphic_and_space;
     extern const op graphic_only;
 
-    extern const op never_break;
+    extern const op no_auto_break;
     extern const op break_after_space;
     extern const op break_before_nonspace;
     extern const op break_before_all;
