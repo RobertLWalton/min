@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 04:18:08 EDT 2014
+// Date:	Thu Jul 24 07:00:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,7 +37,15 @@ typedef unsigned char ustring;
     // in bytes, excluding the header and terminating
     // NUL, in its first byte, and the number of print
     // columns taken the Uchars encoded by UTF8 string,
-    // in its second byte.
+    // in its second byte.  Also in the second byte are
+    // two flags, the USTRING_LEADING flag indicating
+    // the string is to be used as a leading separator
+    // (like '{' or '[' ro '(') and USTRING_TRAILING
+    // indicating that the string is to be used as a
+    // trailing separator (like ',' or ';' or '}' or
+    // ']' or ')').  Ustrings used as UNICODE character
+    // names or pictures have neither of these flags
+    // set.
     //
     // To compute the number of columns, it is assumed
     // all UNICODE characters take one column, except
@@ -58,13 +66,26 @@ inline unsigned ustring_length
 inline unsigned ustring_columns
 	( const ustring * p )
 {
-    return p[1];
+    return p[1] & 0x3F;
 }
 inline const char * ustring_chars
 	( const ustring * p )
 {
     return (const char *) ( p + 2 );
 }
+
+enum {
+    USTRING_LEADING		= ( 1 << 6 ),
+    USTRING_TRAILING		= ( 1 << 7 )
+};
+
+inline unsigned ustring_flags
+	( const ustring * p )
+{
+    return p[1];
+}
+
+
 
 // Return the UTF8 encoded unicode character at the
 // beginning of the string s and move s to just after

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 22 03:43:32 EDT 2014
+// Date:	Tue Jul 22 04:07:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10647,7 +10647,10 @@ namespace min {
 	FLUSH_ON_EOL		= ( 1 << 1 ),
         FLUSH_ID_MAP_ON_EOM	= ( 1 << 2 ),
 	EXPAND_HT		= ( 1 << 3 ),
-	DISPLAY_PICTURE		= ( 1 << 4 )
+	DISPLAY_PICTURE		= ( 1 << 4 ),
+	NEXT_IS_LEADING		= ( 1 << 5 ),
+	NEXT_IS_TRAILING	= ( 1 << 6 ),
+	AUTO_SUPPRESS		= ( 1 << 7 )
     };
 
     extern const min::uns32 standard_op_flags;
@@ -10675,7 +10678,10 @@ namespace min {
 	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
 		   + IS_TRAILING,
 	IS_NON_HSPACE = IS_GRAPHIC + IS_CONTROL
-	              + IS_UNSUPPORTED
+	              + IS_UNSUPPORTED,
+	IS_NON_GRAPHIC = IS_CONTROL + IS_HSPACE
+	               + IS_UNSUPPORTED
+	          
     };
 
     extern const min::uns32 * standard_char_flags;
@@ -10743,8 +10749,6 @@ namespace min {
     struct bracket_format;
     struct print_format
     {
-	const min::context_gen_flags *
-	    context_gen_flags;
 	const min::gen_format *	      gen_format;
 
 	min::uns32		      op_flags;
@@ -10786,29 +10790,48 @@ namespace min {
 	bool break_after;
 	    // Last character enabled break_after.
 
-	min::uns32 suppress_flags;
-	    // Flags indicating when to output a sup-
-	    // pressible space before the next min::gen
-	    // or other value.
+	min::uns32 last_char_flags;
+	min::uns32 ored_char_flags;
+	    // Flags indicating state of suppressible
+	    // space computation.
+	    // 
+	    // Last_char_flags are the char_flags of the
+	    // UNICODE character whose representation
+	    // is last in the printer->buffer.  Note
+	    // the representation may not have the
+	    // same kind of flags as the character
+	    // represented, and it is the latter whose
+	    // flags are here.  Furthermore, last_char_
+	    // flags is modified as indicated below.
 	    //
-	    // If 0 no space is to be output.
+	    // Ored_char_flags is the logical or of
+	    // char_flags of all the UNICODE characters
+	    // represented in the printer-buffer since
+	    // the last time this value was zeroed.
+	    // It is soley used for error checking, to
+	    // see if a trailing string contains only
+	    // trailing characters and a leading string
+	    // contains only leading characters.
 	    //
-	    // If min::IS_LEADING, a space is to be out-
-	    // put unless then next thing to be output
-	    // is one of-
+	    // At the end of a non-leading string the
+	    // IS_LEADING flag in last_char is cleared.
+	    // This means that if this flag is on when
+	    // a new string is to be output, we are
+	    // just after a leading string, and a space
+	    // should be output before the new string
+	    // unless the new string is leading or
+	    // begins with a MIDDLING character.
 	    //
-	    //     An unquoted string all of whose char-
-	    //     acters are min::IS_LEADING charac-
-	    //     ters.
-	    //
-	    //     A min::IS_MIDDLING character.
-	    //
-	    // The min::IS_LEADING flag is set when a
-	    // string is printed after a space, the
-	    // string has only min::IS_LEADING char-
-	    // acters.
-	    //
-	    // TBD
+	    // At the end of a non-training string the
+	    // IS_TRAILING flag in last_char is cleared.
+	    // This means that if this flag is on when
+	    // a new string is to be output, we are
+	    // just after a trailing string.  When
+	    // a new trailing string is to be output,
+	    // a space is output just before it unless
+	    // this IS_TRAILING flag is on, the IS_
+	    // MIDDLING flag is on, or any IS_HSPACE
+	    // flag is on.
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11178,10 +11201,13 @@ namespace min {
     extern const op noexpand_ht;
     extern const op display_picture;
     extern const op nodisplay_picture;
+    extern const op auto_suppress;
+    extern const op noauto_suppress;
 
     extern const op verbatim;
 
-    extern const op suppressible_space;
+    extern const op leading;
+    extern const op trailing;
     extern const op space;
 
     extern const op ascii;
@@ -11198,11 +11224,19 @@ namespace min {
 
     extern const op print_assert; // For debugging only.
 
+    struct str_format;
+    min::printer print_chars
+    	    ( min::printer printer, const char * s,
+	      const min::str_format * = NULL );
+
     min::printer print_unicode
 	    ( min::printer printer,
 	      min::unsptr & n,
 	      min::ptr<const min::Uchar> & p,
-	      min::uns32 & width );
+	      min::uns32 & width,
+	      const min::Uchar * substring = NULL,
+	      min::unsptr substring_length = 0,
+	      const min::ustring * replacement = NULL );
 
     inline min::printer print_unicode
 	    ( min::printer printer,
@@ -11212,6 +11246,36 @@ namespace min {
 	min::uns32 width = 0xFFFFFFFF;
 	return min::print_unicode
 		    ( printer, n, p, width );
+    }
+
+    inline min::printer print_Uchar
+	    ( min::printer printer,
+	      min::Uchar c )
+    {
+        min::unsptr n = 1;
+	min::ptr<const Uchar> p =
+	    min::new_ptr<const Uchar> ( & c );
+        min::uns32 width = 0xFFFFFFFF;
+	return min::print_unicode
+	    ( printer, n, p, width );
+    }
+
+    namespace internal {
+
+	min::printer print_ustring
+	    ( min::printer printer,
+	      const min::ustring * s );
+    }
+
+    inline min::printer print_ustring
+    	    ( min::printer printer,
+	      const min::ustring * s )
+    {
+        if ( s != NULL )
+	    return min::internal::print_ustring
+	        ( printer, s );
+	else
+	    return printer;
     }
 
     void pwidth
@@ -11225,26 +11289,34 @@ min::printer operator <<
 	( min::printer printer,
 	  const min::op & op );
 
-min::printer operator <<
+inline min::printer operator <<
 	( min::printer printer,
-	  const char * s );
+	  const char * s )
+{
+    return min::print_chars ( printer, s );
+}
 
-min::printer operator <<
+inline min::printer operator <<
 	( min::printer printer,
-	  min::ptr<const char> s );
+	  min::ptr<const char> s )
+{
+    return min::print_chars ( printer, ! s );
+}
 
 inline min::printer operator <<
 	( min::printer printer,
 	  min::ptr<char> s )
 {
-    return printer << (min::ptr<const char>) s;
+    return min::print_chars
+        ( printer, ! (min::ptr<const char>) s );
 }
 
 inline min::printer operator <<
 	( min::printer printer,
 	  const min::str_ptr & s )
 {
-    return printer << min::begin_ptr_of ( s );
+    return min::print_chars
+        ( printer, ! min::begin_ptr_of ( s ) );
 }
 
 inline min::printer operator <<
@@ -11252,7 +11324,7 @@ inline min::printer operator <<
 	  char c )
 {
     char temp[2] = { c, 0 };
-    return printer << temp;
+    return min::print_chars ( printer, temp );
 }
 
 min::printer operator <<
@@ -11329,7 +11401,7 @@ namespace min {
     struct quote_control
     {
         min::uns32 unquote_if_first;
-	min::uns32 unquote_if_only;
+	min::uns32 unquote_if_none_of;
     };
 
     extern const min::quote_control
@@ -11383,8 +11455,8 @@ namespace min {
 
     struct specials_format
     {
-	const min::ustring *	    special_prefix;
-	const min::ustring *	    special_postfix;
+	const min::ustring *	    specials_prefix;
+	const min::ustring *	    specials_postfix;
 	packed_vec_ptr<const char *>
 				    special_names;
     };
@@ -11419,8 +11491,13 @@ namespace min {
     extern const min::obj_format *
         raw_obj_format;
 
-    struct new_gen_format
+    struct gen_format
     {
+	min::printer     ( * pgen )
+	    ( min::printer printer,
+	      min::gen v,
+	      const min::gen_format * gen_format );
+
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
         const min::lab_format *	    lab_format;
@@ -11431,16 +11508,16 @@ namespace min {
         const min::gen_format *	    id_map_format;
     };
 
-    extern const min::new_gen_format *
-        top_new_gen_format;
-    extern const min::new_gen_format *
-        id_map_new_gen_format;
-    extern const min::new_gen_format *
-        value_new_gen_format;
-    extern const min::new_gen_format *
-        element_new_gen_format;
+    extern const min::gen_format *
+        top_gen_format;
+    extern const min::gen_format *
+        id_map_gen_format;
+    extern const min::gen_format *
+        value_gen_format;
+    extern const min::gen_format *
+        element_gen_format;
 
-    struct gen_format
+    struct old_gen_format
     {
 	min::printer     ( * pgen )
 	    ( min::printer printer,
@@ -11521,14 +11598,12 @@ namespace min {
     extern packed_vec_ptr<const char *>
            standard_flag_names;
 
+    extern const gen_format old_standard_gen_format;
     extern const gen_format standard_gen_format;
 
     min::printer standard_pgen
 	    ( min::printer printer,
-	      min::uns32 gen_flags,
 	      min::gen v,
-	      const min::context_gen_flags *
-	          context_gen_flags,
 	      const min::gen_format * gen_format );
 
     inline op pgen ( min::gen v )

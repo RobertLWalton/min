@@ -3052,6 +3052,8 @@ void test_printer ( void )
 // Objects
 // -------
 
+# ifdef NONE_SUCH
+
 // Values shared with subsequent object tests.
 //
 static min::gen short_obj_gen;
@@ -4556,6 +4558,9 @@ void test_object_printing ( void )
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
 }
+
+# endif // NONE_SUCH
+
 
 // Main Program
 // ---- -------
