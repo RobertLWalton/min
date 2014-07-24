@@ -358,8 +358,6 @@ void MINT::initialize ( void )
 	    min::gen_packed_vec_type.new_stub ( 9 );
 	::standard_exp_ok_attrs = p;
 	min::standard_exp_ok_attrs = p;
-	* (const min::stub **)
-	& min::standard_gen_format.exp_ok_attrs = p;
 
 	min::push ( p ) = min::dot_initiator;
 	min::push ( p ) = min::dot_separator;
@@ -378,8 +376,6 @@ void MINT::initialize ( void )
 		( ::standard_flag_names_length );
 	::standard_flag_names = p;
 	min::standard_flag_names = p;
-	* (const min::stub **)
-	& min::standard_gen_format.flag_names = p;
 
 	min::push ( p, ::standard_flag_names_length,
 		       ::standard_flag_names_value );
@@ -2208,6 +2204,8 @@ min::uns32 min::print_line
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
+    const min::uns32 * char_flags =
+	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
     uns32 length;
     bool eof = false;
@@ -2277,8 +2275,7 @@ min::uns32 min::print_line
 	{
 	    if ( name_or_picture_flags
 	         &
-		 printer->print_format.char_flags
-		      [(unsigned char) *p] )
+		 char_flags[(unsigned char) *p] )
 	        break;
 	    ++ p;
 	}
@@ -7585,18 +7582,8 @@ const min::line_break min::standard_line_break =
     0, 0, 72, 4
 };
 
-const min::print_format min::standard_print_format =
-{
-    & min::standard_context_gen_flags,
-    & min::standard_gen_format,
-    min::EXPAND_HT,
-    ::standard_char_flags,
-    (const min::ustring *) "\x01\x01<",
-    (const min::ustring *) "\x01\x01>",
-    min::latin1_support_control,
-    min::graphic_and_space_display_control,
-    min::break_after_space_break_control
-};
+// const min::print_format min::standard_print_format
+// defined below after top_gen_format.
 
 static min::uns32 space[1] = { ' ' };
 
@@ -7678,8 +7665,6 @@ inline void push
 
 static void end_line ( min::printer printer )
 {
-    printer->suppress_flags = 0;
-
     // Remove line ending horizontal spaces.
     //
     min::packed_vec_insptr<char> buffer =
@@ -7741,41 +7726,6 @@ min::printer operator <<
     char buffer[256];
     switch ( op.opcode )
     {
-    case min::op::PGEN_CONTEXT:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-
-	return ( * f->pgen )
-	    ( printer,
-	      ( * printer->print_format
-	              .context_gen_flags )[op.v2.u32],
-	      MUP::new_gen ( op.v1.g ),
-	      printer->print_format.context_gen_flags,
-	      f );
-    }
-    case min::op::PGEN_GEN_FLAGS:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-
-	return ( * f->pgen )
-	    ( printer, op.v2.u32,
-	      MUP::new_gen ( op.v1.g ),
-	      printer->print_format.context_gen_flags,
-	      f );
-    }
-    case min::op::PGEN_CONTEXT_GEN_FLAGS:
-    {
-	const min::gen_format * f =
-	    printer->print_format.gen_format;
-
-	return ( * f->pgen )
-	    ( printer, op.v2.u32,
-	      MUP::new_gen ( op.v1.g ),
-	      (const min::context_gen_flags *) op.v3.p,
-	      f );
-    }
     case min::op::MAP_PGEN:
     {
         min::gen g = MUP::new_gen ( op.v1.g );
@@ -7801,6 +7751,9 @@ min::printer operator <<
 	return printer << min::indent << min::pgen ( g )
 	               << min::eol;
     }
+
+# ifdef NONE_SUCH
+
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
     case min::op::FLUSH_ID_MAP:
@@ -7811,6 +7764,9 @@ min::printer operator <<
 	    ::flush_one_id ( printer );
 	return printer;
     }
+
+# endif // NONE_SUCH
+
     case min::op::PUNICODE1:
     {
         min::unsptr length = 1;
@@ -7831,9 +7787,9 @@ min::printer operator <<
 	    ( printer, length, p );
     }
     case min::op::PUSTRING:
-// TBD: Optimize this later.
-        return printer << min::ustring_chars
-	         ( (const min::ustring *) op.v1.p );
+        return min::print_ustring
+	         ( printer,
+		   (const min::ustring *) op.v1.p );
     case min::op::PINT:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
@@ -7870,10 +7826,6 @@ min::printer operator <<
 	    printer->line_break.indent = 0;
 	else
 	    printer->line_break.indent += op.v1.i32;
-	return printer;
-    case min::op::SET_CONTEXT_GEN_FLAGS:
-	printer->print_format.context_gen_flags =
-	    (const min::context_gen_flags *) op.v1.p;
 	return printer;
     case min::op::SET_GEN_FORMAT:
 	printer->print_format.gen_format =
@@ -7972,6 +7924,9 @@ min::printer operator <<
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ON_EOL )
 	    min::flush_file ( printer->file );
+
+# ifdef NONE_SUCH
+
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ID_MAP_ON_EOM )
 	{
@@ -7980,6 +7935,9 @@ min::printer operator <<
 	    while ( id_map->next < id_map->length )
 		::flush_one_id ( printer );
 	}
+
+# endif // NONE_SUCH
+
 	goto restore_print_format;
     case min::op::EOL_IF_AFTER_INDENT:
         if (    printer->column
@@ -8179,10 +8137,21 @@ const min::op min::nodisplay_picture
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_PICTURE );
 
+const min::op min::auto_suppress
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::AUTO_SUPPRESS );
+const min::op min::noauto_suppress
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::AUTO_SUPPRESS );
+const min::op min::leading
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::NEXT_IS_LEADING );
+const min::op min::trailing
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::NEXT_IS_TRAILING );
+
 const min::op min::verbatim
     ( min::op::VERBATIM );
-const min::op min::suppressible_space
-    ( min::op::SUPPRESSIBLE_SPACE );
 const min::op min::space
     ( min::op::SPACE );
 
@@ -8347,12 +8316,129 @@ static bool insert_line_break ( min::printer printer )
     return false;
 }
 
+// Print quoted string according to bracket format.
+//
+// Width is maximum number of columns to be taken by
+// the string and its brackets, but excluding any
+// concatenator.  After printing the first segment of
+// a multi-segment string, width is reduced by the
+// number of columns taken by the concatenator plus one
+// space.
+//
+static min::printer print_quoted_unicode
+	( min::printer printer,
+	  min::unsptr length,
+	  const min::Uchar * string,
+	  const min::bracket_format * bf )
+{
+    min::uns32 reduced_width =
+          printer->line_break.line_length
+        - printer->line_break.indent
+	- min::ustring_columns ( bf->str_prefix )
+        - min::ustring_columns ( bf->str_postfix );
+    if ( reduced_width < 10 ) reduced_width = 10;
+
+    min::uns32 postfix_length =
+        min::ustring_length ( bf->str_postfix );
+    min::Uchar postfix_string[postfix_length+1];
+    {
+	const char * p =
+	    min::ustring_chars ( bf->str_postfix );
+	const char * endp = p + postfix_length;
+	min::Uchar * q = postfix_string;
+	while ( p != endp )
+	    * q ++ = min::utf8_to_unicode ( p, endp );
+	assert (    q - postfix_string
+	         <= postfix_length + 1 );
+	postfix_length = q - postfix_string;
+    }
+
+    printer << min::pustring ( bf->str_prefix );
+
+    min::ptr<const min::Uchar> p =
+        min::new_ptr<const min::Uchar> ( string );
+
+    min::uns32 width = reduced_width;
+    while ( length > 0 )
+    {
+	min::print_unicode
+	    ( printer, length, p, width,
+	        postfix_string,
+		postfix_length,
+		bf->str_postfix_name );
+
+	printer << min::pustring ( bf->str_postfix );
+
+
+	if ( length != 0 )
+	{
+	    assert ( width = 0 );
+	    printer
+		<< " "
+		<< min::set_break
+		<< min::pustring
+		      ( bf->str_concatenator )
+		<< " "
+		<< min::pustring
+		      ( bf->str_prefix );
+	}
+
+	width = reduced_width - 1
+	      - min::ustring_columns
+	            ( bf->str_concatenator );
+    }
+
+    return printer;
+}
+
+inline void compute_flags
+	( const min::print_format & print_format,
+	  const min::Uchar * s, min::unsptr n,
+	  min::uns32 & first_flags,
+	  min::uns32 & or_flags,
+	  min::uns32 & and_flags,
+	  min::uns32 & last_flags )
+{
+    min::support_control sc =
+        print_format.support_control;
+    const min::uns32 * char_flags =
+	print_format.char_flags;
+
+    bool first = true;
+    while ( n -- )
+    {
+        min::Uchar c = * s ++;
+	min::uns32 cflags = sc.unsupported_char_flags;
+
+	if ( c < min::unicode::index_size )
+	{
+	    min::uns16 cindex = min::unicode::index[c];
+	    cflags = char_flags[cindex];
+	    if ( ( cflags & sc.support_mask ) == 0 )
+	        cflags = sc.unsupported_char_flags;
+	}
+
+	if ( first )
+	{
+	    first_flags = or_flags = and_flags = cflags;
+	    first = false;
+	}
+	else
+	{
+	    or_flags |= cflags;
+	    and_flags &= cflags;
+	}
+	last_flags = cflags;
+    }
+}
+
 // NOTE: Importantly this function copies s to the
 // stack BEFORE calling anything that might relocate
 // memory.
 //
-min::printer operator <<
-	( min::printer printer, const char * s )
+min::printer min::print_chars
+	( min::printer printer, const char * s,
+	  const min::str_format * sf )
 {
     // We translate this case to the punicode case
     // because we need to be able to perform look-ahead
@@ -8362,7 +8448,7 @@ min::printer operator <<
     int length = ::strlen ( s );
     const char * ends = s + length;
 
-    min::Uchar buffer[length];
+    min::Uchar buffer[length+1];
     min::unsptr i = 0;
 
     while ( s < ends )
@@ -8380,23 +8466,90 @@ min::printer operator <<
 	buffer[i++] = c;
     }
 
+    if ( sf != NULL )
+    {
+	const min::quote_control * qf =
+	    sf->quote_control;
+	if ( qf != NULL )
+	{
+	    if ( i == 0 )
+	    {
+	        if ( qf->unquote_if_none_of != 0 )
+		    sf = NULL;
+	    }
+	    else
+	    {
+		min::support_control sc =
+		    printer->print_format
+		            .support_control;
+
+		if ( qf->unquote_if_first != 0 )
+		{
+		    uns32 first_flags =
+		        sc.unsupported_char_flags;
+		    Uchar c = buffer[0];
+
+		    if ( c < unicode::index_size )
+		    {
+			uns16 cindex =
+			    unicode::index[c];
+			first_flags =
+			    printer->print_format
+			            .char_flags[cindex];
+			if (    (   first_flags
+			          & sc.support_mask )
+			     == 0 )
+			    first_flags =
+			      sc.unsupported_char_flags;
+		    }
+
+		    if (   first_flags
+		         & qf->unquote_if_first )
+		        sf = NULL;
+		}
+
+		if (    sf != NULL
+		     && qf->unquote_if_none_of != 0 )
+		{
+		    min::uns32 first_flags;
+		    min::uns32 or_flags;
+		    min::uns32 and_flags;
+		    min::uns32 last_flags;
+		    compute_flags
+		        ( printer->print_format,
+			  buffer, i,
+			  first_flags,
+			  or_flags,
+			  and_flags,
+			  last_flags );
+		    if (    (   or_flags
+		              & qf->unquote_if_none_of )
+			 == 0 )
+		        sf = NULL;
+		}
+	    }
+	}
+
+	if ( sf != NULL )
+	    return ::print_quoted_unicode
+	        ( printer, i, buffer,
+		  sf->bracket_format );
+    }
+
     min::ptr<const min::Uchar> p =
         min::new_ptr ( buffer );
 
     return min::print_unicode ( printer, i, p );
 }
 
-min::printer operator <<
-	( min::printer printer, min::ptr<const char> s )
-{
-    return printer << ! s;
-}
-
 min::printer min::print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
 	  min::ptr<const min::uns32> & p,
-	  min::uns32 & width )
+	  min::uns32 & width,
+	  const min::Uchar * substring,
+	  min::unsptr substring_length,
+	  const min::ustring * replacement )
 {
     char temp[32];
 
@@ -8406,6 +8559,8 @@ min::printer min::print_unicode
         printer->print_format.display_control;
     min::break_control bc =
         printer->print_format.break_control;
+    const min::uns32 * char_flags =
+	printer->print_format.char_flags;
 
     uns32 line_length = printer->line_break.line_length;
 
@@ -8414,7 +8569,9 @@ min::printer min::print_unicode
     uns32 expand_ht =
         printer->print_format.op_flags & min::EXPAND_HT;
 
-    if ( printer->suppress_flags != 0 )
+
+
+    if ( printer->last_char_flags & min::IS_LEADING )
     {
         if ( n == 0 ) return printer;
 
@@ -8436,8 +8593,7 @@ min::printer min::print_unicode
 	if ( c < unicode::index_size )
 	{
 	    cindex = unicode::index[c];
-	    cflags = printer->print_format.char_flags
-	    		[cindex];
+	    cflags = char_flags[cindex];
 	    if ( ( cflags & sc.support_mask ) == 0 )
 	        cflags = sc.unsupported_char_flags;
 	}
@@ -8446,12 +8602,28 @@ min::printer min::print_unicode
 	//
 	uns32 columns = 1;
 	uns32 length = 1;
+	unsptr clength = 1;
 	const char * rep = temp;
 	const ustring * prefix = NULL;
 	const ustring * postfix = NULL;
 	bool rep_is_space = false;
 
-	if ( cflags & dc.display_char )
+	if (    substring != NULL
+	     && c == substring[0]
+	     && n >= substring_length
+	     &&    memcmp ( !p, substring,
+	                        substring_length )
+		== 0 )
+	{
+	    // Found substring; output replacement.
+	    //
+	    columns = min::ustring_columns
+		         ( replacement );
+	    length = 0;
+	    prefix = replacement;
+	    clength = substring_length;
+	}
+	else if ( cflags & dc.display_char )
 	{
 	    if ( c == '\t' && expand_ht )
 	    {
@@ -8527,8 +8699,10 @@ min::printer min::print_unicode
 	if ( printer->column + columns > width )
 	    return printer;
 
-	n --;
-	p ++;
+	n -= clength;
+	p = p + clength;
+	printer->last_char_flags = cflags;
+	printer->ored_char_flags |= cflags;
 
 	if ( columns > 0 )
 	{
@@ -8582,6 +8756,70 @@ min::printer min::print_unicode
     return printer;
 }
 
+min::printer MINT::print_ustring
+	( min::printer printer,
+	  const min::ustring * s )
+{
+    min::uns32 flags   = ustring_flags ( s );
+
+    min::uns32 cflags;
+    if ( flags & USTRING_LEADING )
+    {
+        printer << min::leading;
+	cflags = min::IS_LEADING;
+    }
+    else if ( flags & USTRING_TRAILING )
+    {
+        printer << min::trailing;
+	cflags = min::IS_TRAILING;
+    }
+    else
+        return min::print_chars
+	    ( printer, ustring_chars ( s ) );
+
+    min::uns32 columns = ustring_columns ( s );
+    if ( columns != 1 )
+        return min::print_chars
+	    ( printer, ustring_chars ( s ) );
+
+    min::break_control bc =
+	printer->print_format.break_control;
+    min::packed_vec_insptr<char> buffer =
+        printer->file->buffer;
+
+    if ( ( cflags & bc.break_before )
+	 ||
+	 ( ( cflags & bc.break_after ) == 0
+	   &&
+	   printer->break_after ) )
+    {
+	printer->line_break.offset =
+	    buffer->length;
+	printer->line_break.column =
+	    printer->column;
+    }
+
+    if (   printer->column + columns
+         > printer->line_break.line_length )
+	::insert_line_break ( printer );
+
+    printer->break_after =
+	( cflags & bc.break_after )
+	||
+	( ( cflags & bc.conditional_break )
+	  &&
+	       printer->column
+	     - printer->line_break.column
+	  >= bc.conditional_columns );
+       
+    min::push ( buffer,
+		ustring_length ( s ),
+		ustring_chars  ( s ) );
+
+    return printer;
+}
+    
+
 min::printer operator <<
 	( min::printer printer, min::int64 i )
 {
@@ -8616,6 +8854,8 @@ void min::pwidth ( min::uns32 & column,
         print_format.support_control;
     min::display_control dc =
         print_format.display_control;
+    const min::uns32 * char_flags =
+	print_format.char_flags;
     uns32 expand_ht =
         ( print_op_flags & min::EXPAND_HT );
 
@@ -8634,7 +8874,7 @@ void min::pwidth ( min::uns32 & column,
 	if ( c < unicode::index_size )
 	{
 	    cindex = unicode::index[c];
-	    cflags = print_format.char_flags[cindex];
+	    cflags = char_flags[cindex];
 	    if ( ( cflags & sc.support_mask ) == 0 )
 	        cflags = sc.unsupported_char_flags;
 	}
@@ -8826,7 +9066,7 @@ const min::quote_control
 const min::quote_control
 	min::quote_non_graphics_control =
 {
-    0, min::IS_SP + min::IS_GRAPHIC
+    0, min::IS_NON_GRAPHIC
 };
 
 static min::bracket_format quote_bracket_format =
@@ -8965,8 +9205,9 @@ static min::obj_format raw_obj_format =
 const min::obj_format * min::raw_obj_format =
     & ::raw_obj_format;
 
-static min::new_gen_format top_new_gen_format =
+static min::gen_format top_gen_format =
 {
+    & min::standard_pgen,
     & ::long_num_format,
     & ::quote_first_not_letter_str_format,
     & ::name_lab_format,
@@ -8974,8 +9215,20 @@ static min::new_gen_format top_new_gen_format =
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
-const min::new_gen_format * min::top_new_gen_format =
-    & ::top_new_gen_format;
+const min::gen_format * min::top_gen_format =
+    & ::top_gen_format;
+
+const min::print_format min::standard_print_format =
+{
+    & ::top_gen_format,
+    min::EXPAND_HT,
+    ::standard_char_flags,
+    (const min::ustring *) "\x01\x01<",
+    (const min::ustring *) "\x01\x01>",
+    min::latin1_support_control,
+    min::graphic_and_space_display_control,
+    min::break_after_space_break_control
+};
 
 static void init_pgen_formats ( void )
 {
@@ -8990,6 +9243,8 @@ static void init_pgen_formats ( void )
     ::raw_obj_format.flag_names =
         min::standard_flag_names;
 }
+
+#ifdef NONE_SUCH
 
 const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
         min::BRACKET_STR_FLAG
@@ -9030,7 +9285,7 @@ const min::context_gen_flags
     ::NO_EXP_NAME_GEN_FLAGS
 };
 
-const min::gen_format min::standard_gen_format =
+const min::gen_format min::old_standard_gen_format =
 {
     min::standard_pgen,
 
@@ -9051,209 +9306,14 @@ const min::gen_format min::standard_gen_format =
     min::NULL_STUB  // Reset by initialization.
 };
 
+#endif // NONE_SUCH
+
 const min::op min::flush_one_id
     ( min::op::FLUSH_ONE_ID );
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
-// Execute pgen (below) in case string is to be
-// bracketed.  String must NOT be relocatable.
-//
-// Width is maximum number of columns to be taken by
-// the string and its brackets, but excluding any
-// concatenator.  After printing the first segment of
-// a multi-segment string, width is reduced by the
-// number of columns taken by the concatenator plus one
-// space.
-//
-static min::printer pgen_bracketed_str
-	( min::printer printer,
-	  min::uns32 gen_flags,
-	  const min::Uchar * string,
-	  min::uns32 length,
-	  const min::gen_format * f )
-{
-    min::uns32 reduced_width =
-          printer->line_break.line_length
-        - printer->line_break.indent
-	- min::ustring_columns ( f->str_prefix )
-        - min::ustring_columns ( f->str_postfix );
-    if ( reduced_width < 10 ) reduced_width = 10;
 
-    min::uns32 char_name_fix_width =
-                 min::ustring_columns
-	             ( f->str_char_name_prefix )
-               + min::ustring_columns
-	             ( f->str_char_name_postfix );
-
-    min::uns32 postfix_length =
-        min::ustring_length ( f->str_postfix );
-    min::Uchar postfix_string[postfix_length+1];
-    const char * p =
-        min::ustring_chars ( f->str_postfix );
-    const char * endp = p + postfix_length;
-    min::Uchar * q = postfix_string;
-    while ( p != endp )
-        * q ++ = min::utf8_to_unicode ( p, endp );
-    postfix_length = q - postfix_string;
-
-    printer << min::pustring ( f->str_prefix );
-
-    min::uns32 remaining_width = reduced_width;
-
-    min::uns32 i = 0;
-    while ( i < length )
-    {
-	// Strategy is to process a character and
-	// continue if we have not run out of
-	// remaining_width, or to set remaining_width
-	// to 0 without processing the character and
-	// continue to break string before character.
-
-	// First make sure we have some remaining_width.
-	//
-	if ( remaining_width == 0 )
-	{
-	    printer << min::punicode ( i, string )
-		<< min::pustring
-		      ( f->str_postfix )
-		<< " "
-		<< min::set_break
-		<< min::pustring
-		      ( f->str_concatenator )
-		<< " "
-		<< min::pustring
-		      ( f->str_postfix );
-	    length -= i;
-	    string += i;
-	    i = 0;
-	    remaining_width = reduced_width
-	                    - min::ustring_columns
-			        ( f->str_concatenator )
-			    - 1;
-	}
-
-	// Next, process character.
-	//
-        min::Uchar c = string[i];
-
-	if ( c >= UNI::index_size )
-	{
-	    // Unusual very large character; treat as 1
-	    // print column.
-	    //
-	    -- remaining_width;
-	    ++ i;
-	    continue;
-	}
-
-	if ( c == postfix_string[0] )
-	{
-	    if ( length - i >= postfix_length
-	         &&
-		    memcmp ( string + i, postfix_string,
-		             4 * postfix_length )
-		 == 0 )
-	    {
-	        // Found substring of `string' equal to
-		// str_postfix.  Output str_postfix_name
-		// in place of substring found.
-		//
-		min::uns32 columns =
-		     min::ustring_columns
-		         ( f->str_postfix_name );
-	        if ( remaining_width >= columns )
-	        {
-		    printer
-		        << min::punicode ( i, string )
-			<< min::pustring
-			      ( f->str_postfix_name );
-		    ++ i;
-		    length -= i;
-		    string += i;
-		    i = 0;
-		    remaining_width -= columns;
-		}
-		else remaining_width = 0;
-		continue;
-	    }
-	}
-
-	min::uns16 cindex = min::unicode::index[c];
-
-	if ( gen_flags & min::PICTURE_STR_FLAG )
-	{
-	    const min::ustring * picture =
-		min::unicode::picture[cindex];
-	    if ( picture != NULL )
-	    {
-		min::uns32 columns =
-		    min::ustring_columns ( picture );
-		if ( columns <= remaining_width )
-		{
-		    printer
-		        << min::punicode ( i, string )
-			<< min::pustring ( picture );
-
-		    ++ i;
-		    length -= i;
-		    string += i;
-		    i = 0;
-		    remaining_width -= columns;
-		}
-		else remaining_width = 0;
-
-		continue;
-	    }
-	}
-	
-	const min::ustring * name =
-	    min::unicode::name[cindex];
-
-	if ( name != NULL )
-	{
-	    // Character has a name.  Output name
-	    // surrounded by str_char_name_...fix's
-	    // in place of character.
-	    //
-	    min::uns32 columns =
-	        min::ustring_columns ( name )
-		+
-		char_name_fix_width;
-	    if ( columns <= remaining_width )
-	    {
-	        printer
-		    << min::punicode ( i, string )
-		    << min::pustring
-		           ( f->str_char_name_prefix )
-		    << min::pustring ( name )
-		    << min::pustring
-		           ( f->str_char_name_postfix );
-
-		++ i;
-		length -= i;
-		string += i;
-		i = 0;
-		remaining_width -= columns;
-	    }
-	    else remaining_width = 0;
-	}
-	else if ( printer->print_format
-	                  .char_flags[cindex]
-		  &
-		  min::IS_NON_SPACING )
-	    ++ i;
-	else
-	{
-	    -- remaining_width;
-	    ++ i;
-	}
-    }
-
-    return printer << min::punicode ( i, string )
-	           << min::pustring
-			  ( f->str_postfix );
-}
 
 // Execute pgen (below) in case OBJ_ID_FLAG is
 // effective.
@@ -9270,6 +9330,8 @@ min::printer pgen_id
 	    ( printer->id_map, min::stub_of ( v ) );
     return printer << "@" << id;
 }
+
+#ifdef NONE_SUCH
 
 // Execute pgen (below) in the case an object is to be
 // printed without an effective OBJ_EXP_FLAG or
@@ -9908,25 +9970,25 @@ static min::printer pgen_exp
     }
 }
 
+#endif // NONE_SUCH
+
 // Execute min::pgen.
 //
 static min::printer pgen
 	( min::printer printer,
-	  min::uns32 gen_flags,
 	  min::gen v,
-	  const min::context_gen_flags *
-	      context_gen_flags,
 	  const min::gen_format * f,
 	  min::printer ( * pgen )
 	      ( min::printer printer,
-	        min::uns32 gen_flags,
 	        min::gen v,
-		const min::context_gen_flags *
-		    context_gen_flags,
 		const min::gen_format * f ) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
+        // This must be first as MINT::null_stub
+	// may not exist and therefore cannot have its
+	// type tested.
+	//
         return
 	    printer
 	        << "new_stub_gen ( MINT::null_stub )";
@@ -9935,129 +9997,89 @@ static min::printer pgen
     {
         min::float64 vf = MUP::float_of ( v );
 	char buffer[128];
-	sprintf ( buffer, f->number_format, vf );
+	const min::num_format * nf = f->num_format;
+	if ( -1e20 < vf && vf < +1e20 )
+	{
+	    long long vi = (long long) vf;
+	    if ( vi == vf )
+	    {
+		sprintf ( buffer,
+		          nf->int_printf_format,
+			  vi );
+		return printer << buffer;
+	    }
+	}
+	sprintf ( buffer, nf->float_printf_format, vf );
 	return printer << buffer;
     }
     else if ( min::is_str ( v ) )
     {
         min::str_ptr sp ( v );
-	if ( ( gen_flags & min::BRACKET_STR_FLAG )
-	     &&
-	     f->str_prefix != NULL
-	     &&
-	     f->str_postfix != NULL
-	     &&
-	     f->str_postfix_name != NULL
-	    )
-	{
-	    min::uns32 slength = min::strlen ( sp );
-	    min::Uchar buffer[slength + 1];
-	    const char * s = ! min::begin_ptr_of ( sp );
-	    const char * ends = s + slength;
-	    min::Uchar * u = buffer;
-	    const min::Uchar * endu = u + slength + 1;
-	    min::uns32 blength =
-	        min::utf8_to_unicode
-		    ( u, endu, s, ends );
-	    return ::pgen_bracketed_str
-	        ( printer, gen_flags,
-		  buffer, blength, f );
-	}
-	else
-	    return printer << min::begin_ptr_of ( sp );
+	return min::print_chars
+	    ( printer, ! min::begin_ptr_of ( sp ),
+	      f->str_format );
     }
     else if ( min::is_lab ( v ) )
     {
-	min::uns32 lab_gen_flags =
-	    (*context_gen_flags)[min::PGEN_NAME];
-	const char * prefix = "";
-	const char * postfix = "";
-	const char * separator =
-	    ( gen_flags & min::SUPPRESS_LAB_SPACE_FLAG ?
-	      NULL : " " );
-	if ( ( gen_flags & min::BRACKET_LAB_FLAG )
-	     &&
-	     f->lab_prefix != NULL
-	     &&
-	     f->lab_separator != NULL
-	     &&
-	     f->lab_postfix != NULL
-	    )
-	{
-	    lab_gen_flags =
-		(*context_gen_flags)[min::PGEN_VALUE];
-	    prefix = f->lab_prefix;
-	    separator = f->lab_separator;
-	    postfix = f->lab_postfix;
-	}
+        const min::lab_format * lf = f->lab_format;
 
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
-	printer << prefix;
+
+	min::print_ustring ( printer, lf->lab_prefix );
+
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 )
 	    {
-		if ( separator == NULL)
-		    printer << min::suppressible_space;
+		if ( lf->lab_separator )
+		    MINT::print_ustring
+		        ( printer, lf->lab_separator );
 		else
-		    printer << separator;
+		    min::print_Uchar ( printer, ' ' );
 	    }
-	    pgen ( printer, lab_gen_flags,
-	           labp[i],
-	           context_gen_flags, f );
+	    pgen ( printer, labp[i], f );
 	}
-	return printer << postfix;
+
+	min::print_ustring ( printer, lf->lab_postfix );
+
+	return printer;
     }
     else if ( min::is_special ( v ) )
     {
-	const char * prefix = "";
-	const char * postfix = "";
-	if ( ( gen_flags & min::BRACKET_SPECIAL_FLAG )
-	     &&
-	     f->special_prefix != NULL
-	     &&
-	     f->special_postfix != NULL
-	    )
-	{
-	    prefix = f->special_prefix;
-	    postfix = f->special_postfix;
-	}
-
+	const min::specials_format * sf =
+	    f->specials_format;
         min::unsgen index = MUP::special_index_of ( v );
-	bool allow_special_name =
-	    (    (   gen_flags
-	           & min::SUPPRESS_SPECIAL_NAME_FLAG )
-	      == 0 );
+	min::packed_vec_ptr<const char *> special_names =
+	    sf->special_names;
 
-	if ( allow_special_name
+	min::print_ustring
+	    ( printer, sf->specials_prefix );
+	if ( special_names != min::NULL_STUB
 	     &&
 	         0xFFFFFF
-	       - min::standard_special_names->length
+	       - special_names->length
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
-	    return printer << prefix
-	        << min::standard_special_names
-		            [0xFFFFFF - index]
-		<< postfix;
-	else if ( allow_special_name
-	          &&
-		  f->special_names != min::NULL_STUB
-	          &&
-		  index < f->special_names->length )
-	    return printer << prefix
-	        << f->special_names[index]
-		<< postfix;
+	{
+	    min::print_chars
+	        ( printer,
+		  special_names[0xFFFFFF - index] );
+	}
 	else
 	{
 	    char buffer[64];
 	    sprintf ( buffer, "SPECIAL(0x%llx)",
 		              (min::uns64) index );
-	    return printer << prefix << buffer
-	                   << postfix;
+	    min::print_chars ( printer, buffer );
 	}
+	return min::print_ustring
+	    ( printer, sf->specials_postfix );
     }
+
+# ifdef NONE_SUCH
+
     else if ( min::is_obj ( v ) )
     {
         if ( gen_flags & min::OBJ_EXP_FLAG )
@@ -10103,6 +10125,9 @@ static min::printer pgen
 
 	return printer;
     }
+
+# endif // NONE_SUCH
+
     else if ( min::is_stub ( v ) )
     {
         const min::stub * s = MUP::stub_of ( v );
@@ -10143,8 +10168,9 @@ static min::printer pgen
 		  (min::uns64) MUP::value_of ( v ) );
 	return printer << buffer;
     }
-
 }
+
+# ifdef NONE_SUCH
 
 static min::printer flush_one_id
 	( min::printer printer,
@@ -10177,18 +10203,17 @@ static min::printer flush_one_id
     return printer << min::eol;
 }
 
+# endif // NONE_SUCH
+
 min::printer min::standard_pgen
 	( min::printer printer,
-	  min::uns32 gen_flags,
 	  min::gen v,
-	  const min::context_gen_flags *
-	      context_gen_flags,
 	  const min::gen_format * f )
 {
-    return ::pgen
-	    ( printer, gen_flags, v,
-	      context_gen_flags, f, f->pgen );
+    return ::pgen ( printer, v, f, f->pgen );
 }
+
+# ifdef NONE_SUCH
 
 static min::printer flush_one_id
 	( min::printer printer )
@@ -10205,3 +10230,4 @@ static min::printer flush_one_id
 	  printer->print_format.context_gen_flags,
           f, f->pgen, id_map );
 }
+# endif // NONE_SUCH
