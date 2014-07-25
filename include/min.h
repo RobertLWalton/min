@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 01:13:36 EDT 2014
+// Date:	Fri Jul 25 17:10:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10849,9 +10849,8 @@ namespace min {
     {
         enum OPCODE
 	{
-            PGEN_CONTEXT = 1,
-	    PGEN_GEN_FLAGS,
-	    PGEN_CONTEXT_GEN_FLAGS,
+            PGEN = 1,
+            PGEN_FORMAT,
 	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
@@ -10910,7 +10909,7 @@ namespace min {
 	} opcode;
 
 	union {
-	    void * p;
+	    const void * p;
 	    uns32 u32;
 	    int32 i32;
 	    uns64 u64;
@@ -10930,22 +10929,11 @@ namespace min {
 	}
 	op ( op::OPCODE opcode,
 	     min::gen v,
-	     min::uns32 context )
+	     const void * p )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
-	    v2.u32 = context;
-	}
-	op ( op::OPCODE opcode,
-	     min::gen v,
-	     min::uns32 context,
-	     const min::context_gen_flags *
-	         context_gen_flags )
-	    : opcode ( opcode )
-	{
-	    v1.g = unprotected::value_of ( v );
-	    v2.u32 = context;
-	    v3.p = (void *) context_gen_flags;
+	    v2.p = p;
 	}
 	op ( op::OPCODE opcode,
 	     min::uns32 u )
@@ -11008,35 +10996,10 @@ namespace min {
 	    v1.p = (void *) out;
 	}
 	op ( op::OPCODE opcode,
-	     const min::support_control * sc )
+	     const void * p )
 	    : opcode ( opcode )
 	{
-	    v1.p = (void *) sc;
-	}
-	op ( op::OPCODE opcode,
-	     const min::display_control * dc )
-	    : opcode ( opcode )
-	{
-	    v1.p = (void *) dc;
-	}
-	op ( op::OPCODE opcode,
-	     const min::break_control * bc )
-	    : opcode ( opcode )
-	{
-	    v1.p = (void *) bc;
-	}
-	op ( op::OPCODE opcode,
-	     const min::context_gen_flags *
-	         context_gen_flags )
-	    : opcode ( opcode )
-	{
-	    v1.p = (void *) context_gen_flags;
-	}
-	op ( op::OPCODE opcode,
-	     const min::gen_format * gen_format )
-	    : opcode ( opcode )
-	{
-	    v1.p = (void *) gen_format;
+	    v1.p = p;
 	}
 
     };
@@ -11530,6 +11493,8 @@ namespace min {
         value_gen_format;
     extern const min::gen_format *
         element_gen_format;
+    extern const gen_format *
+        never_quote_gen_format;
 
     struct old_gen_format
     {
@@ -11622,50 +11587,18 @@ namespace min {
 
     inline op pgen ( min::gen v )
     {
-        return op ( op::PGEN_CONTEXT, v,
-	            min::PGEN_TOP );
+        return op ( op::PGEN, v );
     }
 
     inline op pgen
-	    ( min::gen v,
-              min::uns32 gen_flags )
+            ( min::gen v, const min::gen_format * f )
     {
-        return op ( op::PGEN_GEN_FLAGS, v, gen_flags );
-    }
-
-    inline op pgen
-	    ( min::gen v,
-              min::uns32 gen_flags,
-	      const min::context_gen_flags *
-	          context_gen_flags )
-    {
-        return op ( op::PGEN_GEN_FLAGS, v, gen_flags,
-	            context_gen_flags );
-    }
-
-    inline op name_pgen ( min::gen v )
-    {
-        return op ( op::PGEN_CONTEXT, v,
-	            min::PGEN_NAME );
-    }
-
-    inline op indent_pgen ( min::gen v )
-    {
-        return op ( op::PGEN_CONTEXT, v,
-	            min::PGEN_INDENT );
+        return op ( op::PGEN_FORMAT, v, f );
     }
 
     inline op map_pgen ( min::gen v )
     {
         return op ( op::MAP_PGEN, v );
-    }
-
-    inline op set_context_gen_flags
-	    ( const min::context_gen_flags *
-		  context_gen_flags )
-    {
-        return op ( op::SET_CONTEXT_GEN_FLAGS,
-	            context_gen_flags );
     }
 
     inline op set_gen_format
