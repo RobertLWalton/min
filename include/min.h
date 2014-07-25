@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 22 04:07:24 EDT 2014
+// Date:	Fri Jul 25 01:13:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10650,7 +10650,8 @@ namespace min {
 	DISPLAY_PICTURE		= ( 1 << 4 ),
 	NEXT_IS_LEADING		= ( 1 << 5 ),
 	NEXT_IS_TRAILING	= ( 1 << 6 ),
-	AUTO_SUPPRESS		= ( 1 << 7 )
+	AUTO_SUPPRESS		= ( 1 << 7 ),
+	DISABLE_SUPPRESS	= ( 1 << 8 )
     };
 
     extern const min::uns32 standard_op_flags;
@@ -10806,7 +10807,7 @@ namespace min {
 	    //
 	    // Ored_char_flags is the logical or of
 	    // char_flags of all the UNICODE characters
-	    // represented in the printer-buffer since
+	    // represented in the printer->buffer since
 	    // the last time this value was zeroed.
 	    // It is soley used for error checking, to
 	    // see if a trailing string contains only
@@ -10818,20 +10819,23 @@ namespace min {
 	    // This means that if this flag is on when
 	    // a new string is to be output, we are
 	    // just after a leading string, and a space
-	    // should be output before the new string
-	    // unless the new string is leading or
-	    // begins with a MIDDLING character.
+	    // is output before the new string if the
+	    // DISABLE SUPPRESS flag is on, or if the
+	    // the new string is not leading and does
+	    // not begin with a middling or space char-
+	    // acter.
 	    //
-	    // At the end of a non-training string the
+	    // At the end of a non-trailing string the
 	    // IS_TRAILING flag in last_char is cleared.
 	    // This means that if this flag is on when
 	    // a new string is to be output, we are
 	    // just after a trailing string.  When
 	    // a new trailing string is to be output,
-	    // a space is output just before it unless
-	    // this IS_TRAILING flag is on, the IS_
-	    // MIDDLING flag is on, or any IS_HSPACE
-	    // flag is on.
+	    // a space is output just before it if the
+	    // DISABLE_SUPPRESS flag is on, or if the
+	    // IS_TRAILING flag is off and the IS_MIDDL-
+	    // ING flag is off and all IS_HSPACE flags
+	    // are off.
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11203,6 +11207,8 @@ namespace min {
     extern const op nodisplay_picture;
     extern const op auto_suppress;
     extern const op noauto_suppress;
+    extern const op disable_suppress;
+    extern const op nodisable_suppress;
 
     extern const op verbatim;
 
@@ -11240,13 +11246,21 @@ namespace min {
 
     inline min::printer print_unicode
 	    ( min::printer printer,
-	      min::unsptr & n,
-	      min::ptr<const min::Uchar> & p )
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p )
     {
 	min::uns32 width = 0xFFFFFFFF;
 	return min::print_unicode
 		    ( printer, n, p, width );
     }
+
+    struct bracket_format;
+    min::printer print_quoted_unicode
+	    ( min::printer printer,
+	      min::unsptr n,
+	      const min::Uchar * p,
+	      const min::bracket_format *
+	          bracket_format );
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
@@ -11323,8 +11337,8 @@ inline min::printer operator <<
 	( min::printer printer,
 	  char c )
 {
-    char temp[2] = { c, 0 };
-    return min::print_chars ( printer, temp );
+    return min::print_Uchar
+        ( printer, (min::uns8) c );
 }
 
 min::printer operator <<
