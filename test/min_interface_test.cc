@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 21:43:37 EDT 2014
+// Date:	Fri Jul 25 16:58:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2688,8 +2688,6 @@ void test_printer ( void )
 	    <<  min::pfloat ( 1.2345, "%04.2f" )
             << min::eom;
 
-#ifdef NONE_SUCH
-
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;
     printer << min::pgen
@@ -2698,19 +2696,38 @@ void test_printer ( void )
     printer << min::new_num_gen ( 1.23456789012345 )
             << min::eol;
 
-    printer << min::pgen
+    printer << min::bom;
+
+    printer << min::set_display_control
+    		( min::graphic_only_display_control )
+            << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
 			   " quote (\")" ) )
             << min::eol;
 
-    printer << min::pgen
+    printer << min::display_picture
+            << min::pgen
+                   ( min::new_str_gen
+			 ( "this is a string with a"
+			   " quote (\")" ) )
+            << min::eol;
+
+    printer << min::set_display_control
+    		( min::
+		  graphic_and_space_display_control )
+	    << min::nodisplay_picture
+            << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
 			   " quote (\")" ),
-		    min::BRACKET_STR_FLAG +
-		    min::PICTURE_STR_FLAG )
+	    	     min::never_quote_gen_format )
             << min::eol;
+
+
+    printer << min::eom;
+
+#ifdef NONE_SUCH
 
     printer << min::pgen
                    ( min::new_str_gen

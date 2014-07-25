@@ -2,8 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 01:12:34 EDT 2014
-//
+// Date:	Fri Jul 25 16:59:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7725,6 +7724,20 @@ min::printer operator <<
     char buffer[256];
     switch ( op.opcode )
     {
+    case min::op::PGEN:
+    {
+        const min::gen_format * f =
+	    printer->print_format.gen_format;
+        return (* f->pgen )
+	    ( printer, MUP::new_gen ( op.v1.g ), f );
+    }
+    case min::op::PGEN_FORMAT:
+    {
+        const min::gen_format * f =
+	    (const min::gen_format *) op.v2.p;
+        return (* f->pgen )
+	    ( printer, MUP::new_gen ( op.v1.g ), f );
+    }
     case min::op::MAP_PGEN:
     {
         min::gen g = MUP::new_gen ( op.v1.g );
@@ -8364,7 +8377,6 @@ min::printer min::print_quoted_unicode
 
 	if ( length != 0 )
 	{
-	    assert ( width = 0 );
 	    printer
 		<< " "
 		<< min::set_break
@@ -8468,7 +8480,27 @@ min::printer min::print_chars
 		printer->print_format
 			.support_control;
 
-	    if ( qf->unquote_if_first != 0 )
+	    if ( qf->unquote_if_none_of != 0 )
+	    {
+		min::uns32 first_flags;
+		min::uns32 or_flags;
+		min::uns32 and_flags;
+		min::uns32 last_flags;
+		compute_flags
+		    ( printer->print_format,
+		      buffer, i,
+		      first_flags,
+		      or_flags,
+		      and_flags,
+		      last_flags );
+		min::uns32 if_none_of =
+		    or_flags & qf->unquote_if_none_of;
+		min::uns32 if_first =
+		    first_flags & qf->unquote_if_first;
+		if ( if_none_of == 0 && if_first != 0 )
+		    sf = NULL;
+	    }
+	    else if ( qf->unquote_if_first != 0 )
 	    {
 		uns32 first_flags =
 		    sc.unsupported_char_flags;
@@ -8493,25 +8525,6 @@ min::printer min::print_chars
 		    sf = NULL;
 	    }
 
-	    if (    sf != NULL
-		 && qf->unquote_if_none_of != 0 )
-	    {
-		min::uns32 first_flags;
-		min::uns32 or_flags;
-		min::uns32 and_flags;
-		min::uns32 last_flags;
-		compute_flags
-		    ( printer->print_format,
-		      buffer, i,
-		      first_flags,
-		      or_flags,
-		      and_flags,
-		      last_flags );
-		if (    (   or_flags
-			  & qf->unquote_if_none_of )
-		     == 0 )
-		    sf = NULL;
-	    }
 	}
 
 	if ( sf != NULL )
@@ -8679,8 +8692,7 @@ min::printer min::print_unicode
 	    columns += ustring_columns ( postfix );
 	}
 
-
-	if ( printer->column + columns > width )
+	if ( columns > width )
 	    return printer;
 
 	n -= clength;
@@ -9043,7 +9055,7 @@ const min::quote_control
 const min::quote_control
 	min::quote_first_not_letter_control =
 {
-    min::QUOTE_SUPPRESS, 0
+    min::QUOTE_SUPPRESS, min::IS_NON_GRAPHIC
 };
 
 
@@ -9201,6 +9213,19 @@ static min::gen_format top_gen_format =
 };
 const min::gen_format * min::top_gen_format =
     & ::top_gen_format;
+
+static min::gen_format never_quote_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    NULL,
+    & ::name_lab_format,
+    & ::name_specials_format,
+    & ::exp_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::never_quote_gen_format =
+    & ::never_quote_gen_format;
 
 const min::print_format min::standard_print_format =
 {
@@ -9989,7 +10014,7 @@ static min::printer pgen
 	    {
 		sprintf ( buffer,
 		          nf->int_printf_format,
-			  vi );
+			  vf );
 		return printer << buffer;
 	    }
 	}
@@ -10034,7 +10059,8 @@ static min::printer pgen
 	const min::specials_format * sf =
 	    f->specials_format;
         min::unsgen index = MUP::special_index_of ( v );
-	min::packed_vec_ptr<const char *> special_names =
+	min::packed_vec_ptr<const char *>
+	        special_names =
 	    sf->special_names;
 
 	min::print_ustring
