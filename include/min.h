@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 17:10:34 EDT 2014
+// Date:	Sat Jul 26 05:20:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11203,6 +11203,8 @@ namespace min {
 	      min::unsptr & n,
 	      min::ptr<const min::Uchar> & p,
 	      min::uns32 & width,
+	      const min::display_control *
+	      	  display_control = NULL,
 	      const min::Uchar * substring = NULL,
 	      min::unsptr substring_length = 0,
 	      const min::ustring * replacement = NULL );
@@ -11222,8 +11224,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::unsptr n,
 	      const min::Uchar * p,
-	      const min::bracket_format *
-	          bracket_format );
+	      const min::str_format * str_format );
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
@@ -11393,6 +11394,7 @@ namespace min {
 
         const min::quote_control *	quote_control;
 	const min::bracket_format *	bracket_format;
+	min::display_control		display_control;
     };
 
     extern const min::str_format *
@@ -11420,8 +11422,8 @@ namespace min {
     struct lab_format
     {
 	const min::ustring *	    lab_prefix;
-	const min::ustring *	    lab_postfix;
 	const min::ustring *	    lab_separator;
+	const min::ustring *	    lab_postfix;
     };
 
     extern const min::lab_format *
@@ -11495,6 +11497,8 @@ namespace min {
         element_gen_format;
     extern const gen_format *
         never_quote_gen_format;
+    extern const gen_format *
+        bracketing_gen_format;
 
     struct old_gen_format
     {

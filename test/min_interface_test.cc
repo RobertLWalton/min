@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 16:58:54 EDT 2014
+// Date:	Fri Jul 25 22:07:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2727,15 +2727,6 @@ void test_printer ( void )
 
     printer << min::eom;
 
-#ifdef NONE_SUCH
-
-    printer << min::pgen
-                   ( min::new_str_gen
-			 ( "this is a string with a"
-			   " quote (\")" ),
-		    0 )  // No BRACKET_STR_FLAG
-            << min::eol;
-
     min::gen lab1[2] =
         { min::new_num_gen ( 1.234 ),
 	  min::new_str_gen ( "str 1" ) };
@@ -2748,16 +2739,18 @@ void test_printer ( void )
 	  min::new_str_gen ( "," ),
 	  min::new_str_gen ( "B" ) };
     printer << min::pgen
-                    ( min::new_lab_gen ( lab2, 3 ) )
+                    ( min::new_lab_gen ( lab2, 3 ),
+		      min::bracketing_gen_format )
             << min::eol;
     printer << min::pgen
-                    ( min::new_lab_gen ( lab3, 3 ),
-		      min::SUPPRESS_LAB_SPACE_FLAG )
+                    ( min::new_lab_gen ( lab3, 3 ) )
 	    << " / "
             << min::pgen
                     ( min::new_lab_gen ( lab3, 3 ),
-		      0 )
+		      min::bracketing_gen_format )
             << min::eol;
+
+#ifdef NONE_SUCH
 
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;

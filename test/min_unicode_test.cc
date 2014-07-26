@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 14:36:38 EDT 2014
+// Date:	Sat Jul 26 05:28:09 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,7 +79,8 @@ int main ( int argc, const char ** argv )
     assert ( sizeof ( UNI::Uchar ) == 4 );
 
     output_data ( "unicode_data.cc" );
-    output_support_sets ( "unicode_data_support_sets.h" );
+    output_support_sets
+        ( "unicode_data_support_sets.h" );
     dump ( "min_unicode_test.dump" );
 
     return 0;

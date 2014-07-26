@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 16:59:25 EDT 2014
+// Date:	Fri Jul 25 22:34:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8334,8 +8334,13 @@ min::printer min::print_quoted_unicode
 	( min::printer printer,
 	  min::unsptr length,
 	  const min::Uchar * string,
-	  const min::bracket_format * bf )
+	  const min::str_format * sf )
 {
+    const min::bracket_format * bf =
+        sf->bracket_format;
+    const min::display_control * dc =
+        & sf->display_control;
+
     min::uns32 reduced_width =
           printer->line_break.line_length
         - printer->line_break.indent
@@ -8367,7 +8372,7 @@ min::printer min::print_quoted_unicode
     while ( length > 0 )
     {
 	min::print_unicode
-	    ( printer, length, p, width,
+	    ( printer, length, p, width, dc,
 	        postfix_string,
 		postfix_length,
 		bf->str_postfix_name );
@@ -8529,8 +8534,7 @@ min::printer min::print_chars
 
 	if ( sf != NULL )
 	    return min::print_quoted_unicode
-	        ( printer, i, buffer,
-		  sf->bracket_format );
+	        ( printer, i, buffer, sf );
     }
 
     min::ptr<const min::Uchar> p =
@@ -8544,6 +8548,7 @@ min::printer min::print_unicode
 	  min::unsptr & n,
 	  min::ptr<const min::uns32> & p,
 	  min::uns32 & width,
+	  const min::display_control * display_control,
 	  const min::Uchar * substring,
 	  min::unsptr substring_length,
 	  const min::ustring * replacement )
@@ -8553,6 +8558,7 @@ min::printer min::print_unicode
     min::support_control sc =
         printer->print_format.support_control;
     min::display_control dc =
+        display_control != NULL ? * display_control :
         printer->print_format.display_control;
     min::break_control bc =
         printer->print_format.break_control;
@@ -9023,10 +9029,10 @@ static const min::ustring * GT_USTRING =
     (const min::ustring *) "\x01\x01" ">";
 static const min::ustring * POUND_USTRING =
     (const min::ustring *) "\x01\x01" "#";
-static const min::ustring * SBRA_COLON_USTRING =
-    (const min::ustring *) "\x02\x02" "[:";
-static const min::ustring * COLON_SKET_USTRING =
-    (const min::ustring *) "\x02\x02" ":]";
+static const min::ustring * SBRA_COLON_SP_USTRING =
+    (const min::ustring *) "\x03\x03" "[: ";
+static const min::ustring * SP_COLON_SKET_USTRING =
+    (const min::ustring *) "\x03\x03" " :]";
 static const min::ustring * SBRA_DOLLAR_USTRING =
     (const min::ustring *) "\x02\x02" "[$";
 static const min::ustring * DOLLAR_SKET_USTRING =
@@ -9076,7 +9082,8 @@ const min::bracket_format * min::quote_bracket_format =
 static min::str_format quote_all_str_format =
 {
     & min::quote_all_control,
-    & ::quote_bracket_format
+    & ::quote_bracket_format,
+    min::graphic_only_display_control
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -9085,7 +9092,8 @@ static min::str_format
 	quote_first_not_letter_str_format =
 {
     & min::quote_first_not_letter_control,
-    & ::quote_bracket_format
+    & ::quote_bracket_format,
+    min::graphic_only_display_control
 };
 const min::str_format *
 	min::quote_first_not_letter_str_format =
@@ -9095,7 +9103,8 @@ static min::str_format
 	quote_non_graphics_str_format =
 {
     & min::quote_non_graphics_control,
-    & ::quote_bracket_format
+    & ::quote_bracket_format,
+    min::graphic_only_display_control
 };
 const min::str_format *
 	min::quote_non_graphics_str_format =
@@ -9138,7 +9147,9 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    ::LT_USTRING, ::COMMA_SP_USTRING, ::GT_USTRING
+    ::SBRA_COLON_SP_USTRING,
+    NULL,
+    ::SP_COLON_SKET_USTRING
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
@@ -9226,6 +9237,19 @@ static min::gen_format never_quote_gen_format =
 };
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
+
+static min::gen_format bracketing_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_specials_format,
+    & ::exp_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::bracketing_gen_format =
+    & ::bracketing_gen_format;
 
 const min::print_format min::standard_print_format =
 {
