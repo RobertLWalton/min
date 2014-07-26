@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 22:34:55 EDT 2014
+// Date:	Sat Jul 26 15:09:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -191,9 +191,6 @@ void MINT::initialize ( void )
 {
     MINT::initialization_done = true;
 
-    init_printer_formats();
-    init_pgen_formats();
-
     PTR_CHECK ( min::packed_struct_ptr<int> );
     PTR_CHECK ( min::packed_struct_updptr<int> );
     PTR_CHECK ( min::packed_vec_ptr<int,int> );
@@ -380,6 +377,9 @@ void MINT::initialize ( void )
 	min::push ( p, ::standard_flag_names_length,
 		       ::standard_flag_names_value );
     }
+
+    init_printer_formats();
+    init_pgen_formats();
 
     for ( min::initializer * i = MINT::last_initializer;
           i != NULL; i = i->previous )
@@ -7460,6 +7460,14 @@ const min::display_control
     0
 };
 
+const min::display_control
+        min::graphic_and_control_display_control =
+{
+      min::IS_GRAPHIC + min::IS_CONTROL
+    + min::IS_SP + min::IS_HT,
+    0
+};
+
 
 const min::break_control
 	min::no_auto_break_break_control =
@@ -7474,7 +7482,7 @@ const min::break_control
 };
 
 const min::break_control
-	min::break_before_nonspace_break_control =
+	min::break_before_non_space_break_control =
 {
     0, min::IS_NON_HSPACE, 0, 0
 };
@@ -7537,14 +7545,17 @@ static void init_printer_formats ( void )
 	    case 0xBF:	flags = min::IS_LEADING;
 	    		break;  // Inverted ! and ?
 
-	    case 0xAD:	flags = min::IS_CONTROL;
+	    case 0xAD:	flags = min::IS_CONTROL
+	                      + min::IS_NON_SPACING;
 	    		break;  // SHY
 
 	    default:
 	        if ( c <= 0x1F )
-		    flags = min::IS_CONTROL;
+		    flags = min::IS_CONTROL
+			  + min::IS_NON_SPACING;
 	        else if ( 0x7F <= c && c <= 0x9F  )
-		    flags = min::IS_CONTROL;
+		    flags = min::IS_CONTROL
+			  + min::IS_NON_SPACING;
 		else if ( isalpha ( c ) )
 		    flags = min::IS_MIDDLING
 		          + min::QUOTE_SUPPRESS;
@@ -7567,9 +7578,11 @@ static void init_printer_formats ( void )
 	    else if ( strcmp ( cat, "Zs" ) == 0 )
 		flags = min::IS_OTHER_HSPACE;
 	    else if ( cat[0] == 'Z' )
-		flags = min::IS_CONTROL;
+		flags = min::IS_CONTROL
+		      + min::IS_NON_SPACING;
 	    else if ( cat[0] == 'C' )
-		flags = min::IS_CONTROL;
+		flags = min::IS_CONTROL
+		      + min::IS_NON_SPACING;
 	}
 
 	::standard_char_flags[i] =
@@ -8182,6 +8195,9 @@ const min::op min::graphic_and_space
 const min::op min::graphic_only
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_only_display_control );
+const min::op min::graphic_and_control
+    ( min::op::SET_DISPLAY_CONTROL,
+      & min::graphic_and_control_display_control );
 
 const min::op min::no_auto_break
     ( min::op::SET_BREAK_CONTROL,
@@ -8189,9 +8205,9 @@ const min::op min::no_auto_break
 const min::op min::break_after_space
     ( min::op::SET_BREAK_CONTROL,
       & min::break_after_space_break_control );
-const min::op min::break_before_nonspace
+const min::op min::break_before_non_space
     ( min::op::SET_BREAK_CONTROL,
-      & min::break_before_nonspace_break_control );
+      & min::break_before_non_space_break_control );
 const min::op min::break_before_all
     ( min::op::SET_BREAK_CONTROL,
       & min::break_before_all_break_control );
@@ -8603,7 +8619,8 @@ min::printer min::print_unicode
 
         // Compute the character representative.
 	//
-	uns32 columns = 1;
+	uns32 columns =
+	    ( cflags & min::IS_NON_SPACING ? 0 : 1 );
 	uns32 length = 1;
 	unsptr clength = 1;
 	const char * rep = temp;
@@ -8646,8 +8663,6 @@ min::printer min::print_unicode
 	    {
 	        char * q = temp;
 		length = min::unicode_to_utf8 ( q, c );
-		if ( cflags & min::IS_NON_SPACING )
-		    columns = 0;
 	    }
 	}
 	else if ( cflags & dc.display_suppress )

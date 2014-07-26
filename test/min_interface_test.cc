@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 25 22:07:34 EDT 2014
+// Date:	Sat Jul 26 15:14:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2545,7 +2545,7 @@ void test_printer ( void )
         ( printer->line_break.line_length == 72 );
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::break_before_nonspace
+            << min::break_before_non_space
             << min::set_display_control
 	           ( min::graphic_only_display_control )
             << "\300\200\001\002\003\004\005\006\007"
@@ -2556,7 +2556,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::break_before_nonspace
+            << min::break_before_non_space
             << min::set_display_control
 	           ( min::graphic_only_display_control )
             << min::display_picture
@@ -2750,8 +2750,6 @@ void test_printer ( void )
 		      min::bracketing_gen_format )
             << min::eol;
 
-#ifdef NONE_SUCH
-
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;
     printer << min::pgen ( min::ANY() ) << min::eol;
@@ -2761,12 +2759,13 @@ void test_printer ( void )
             << min::eol;
     printer << min::pgen ( min::SUCCESS() ) << min::eol;
     printer << min::pgen ( min::FAILURE() ) << min::eol;
+    printer << min::pgen ( min::ERROR() ) << min::eol;
     printer << min::pgen
                     ( min::new_special_gen (0xABCDEF) )
             << min::eol;
     printer << min::pgen
                    ( min::MISSING(),
-		     min::SUPPRESS_SPECIAL_NAME_FLAG )
+		     min::bracketing_gen_format )
             << min::eol;
     
     min::stub * s = MUP::new_aux_stub();
@@ -2804,7 +2803,7 @@ void test_printer ( void )
             << min::pgen ( min::MISSING() )
 	    << " "
 	    << min::pgen ( min::MISSING(),
-	                   min::BRACKET_SPECIAL_FLAG )
+	                   min::bracketing_gen_format )
 	    << " "
 	    << min::pgen ( min::MISSING() )
             << min::eom;
@@ -2816,17 +2815,26 @@ void test_printer ( void )
     printer << min::flush;
     printer << min::restore_print_format;
 
-    min::uns32 column;
     printer << min::save_print_format;
+
+    min::uns32 column;
+    char ctemp[20];
+    char * ctp;
 #   define WTEST(c) \
 	printer << min::punicode ( c ); \
+	ctp = ctemp; \
+	min::unicode_to_utf8 ( ctp, c ); \
+	* ctp = 0; \
 	min::pwidth \
-	    ( column, c, \
-	      printer->print_format.flags ); \
+	    ( column, ctemp, strlen ( ctemp ), \
+	      printer->print_format.op_flags, \
+	      printer->print_format ); \
 	MIN_ASSERT ( printer->column == column );
 
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
+    printer << min::display_picture
+            << min::graphic_and_control;
     WTEST ( '\f' );
     WTEST ( 'a' );
     WTEST ( '\001' );
@@ -2837,7 +2845,7 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::TBD_ascii;
+    printer << min::nodisplay_picture;
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
     WTEST ( '\f' );
@@ -2850,7 +2858,9 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::gbreak << min::graphic;
+    printer << min::break_before_non_space
+            << min::graphic_only
+            << min::nodisplay_picture;
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
     WTEST ( 'a' );
@@ -2862,7 +2872,7 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::TBD_noascii;
+    printer << min::display_picture;
     column = 0;
     MIN_ASSERT ( printer->column == 0 );
     WTEST ( 'a' );
@@ -2880,7 +2890,7 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 2 )
             << min::set_line_length ( 72 )
-	    << min::hbreak
+	    << min::break_after_space
             << "[ "
             << "aaa, "
             << "bbb, "
@@ -2894,7 +2904,7 @@ void test_printer ( void )
 
     printer << min::bom << min::set_indent ( 2 )
             << min::set_line_length ( 14 )
-	    << min::hbreak
+	    << min::break_after_space
             << "[ "
             << "aaa, "
             << "bbb, "
@@ -2982,6 +2992,8 @@ void test_printer ( void )
             << min::set_break << "jjj"
             << " }" << min::restore_indent 
             << min::eom;
+
+# ifdef NONE_SUCH
 
     // Tests of files and printers.
 

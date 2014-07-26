@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 05:20:53 EDT 2014
+// Date:	Sat Jul 26 15:10:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10712,6 +10712,8 @@ namespace min {
         graphic_and_space_display_control;
     extern const min::display_control
         graphic_only_display_control;
+    extern const min::display_control
+        graphic_and_control_display_control;
 
     struct break_control
     {
@@ -10726,7 +10728,7 @@ namespace min {
     extern const min::break_control
         break_after_space_break_control;
     extern const min::break_control
-        break_before_nonspace_break_control;
+        break_before_non_space_break_control;
     extern const min::break_control
         break_before_all_break_control;
     extern const min::break_control
@@ -10990,12 +10992,6 @@ namespace min {
 	    v2.p = (void *) printf_format;
 	}
 	op ( op::OPCODE opcode,
-	     std::ostream * out )
-	    : opcode ( opcode )
-	{
-	    v1.p = (void *) out;
-	}
-	op ( op::OPCODE opcode,
 	     const void * p )
 	    : opcode ( opcode )
 	{
@@ -11184,10 +11180,11 @@ namespace min {
 
     extern const op graphic_and_space;
     extern const op graphic_only;
+    extern const op graphic_and_control;
 
     extern const op no_auto_break;
     extern const op break_after_space;
-    extern const op break_before_nonspace;
+    extern const op break_before_non_space;
     extern const op break_before_all;
     extern const op break_after_space_and_hypenators;
 
