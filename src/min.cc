@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 22:31:51 EDT 2014
+// Date:	Sun Jul 27 05:23:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2308,13 +2308,15 @@ min::uns32 min::print_line
 		  & min::DISPLAY_PICTURE ?  1 :
 		  ustring_columns
 		      ( printer->print_format
-		                .char_name_prefix )
+		                .char_name_format
+			       ->char_name_prefix )
 		  +
 		  2 // width of `NL'
 		  +
 		  ustring_columns
 		      ( printer->print_format
-		                .char_name_prefix ) );
+		                .char_name_format
+			       ->char_name_postfix ) );
     }
     return width;
 }
@@ -7500,6 +7502,15 @@ const min::break_control
     min::CONDITIONAL_BREAK, 4
 };
 
+static min::char_name_format standard_char_name_format =
+{
+    (const min::ustring *) "\x01\x01<",
+    (const min::ustring *) "\x01\x01>"
+};
+const min::char_name_format *
+	min::standard_char_name_format =
+    & ::standard_char_name_format;
+
 
 static void init_printer_formats ( void )
 {
@@ -7707,13 +7718,15 @@ static void end_line ( min::printer printer )
 	{
 	    ::push ( buffer,
 	             printer->print_format
-		                  .char_name_prefix );
+		     	     .char_name_format
+			    ->char_name_prefix );
 	    ::push ( buffer,
 	             min::unicode::name
 		         [cindex] );
 	    ::push ( buffer,
 	             printer->print_format
-		                  .char_name_postfix );
+		     	     .char_name_format
+			    ->char_name_postfix );
 	}
     }
 
@@ -8708,9 +8721,11 @@ min::printer min::print_unicode
 	    }
 
 	    prefix = printer->print_format
-	                     .char_name_prefix;
+		     	     .char_name_format
+			    ->char_name_prefix;
 	    postfix = printer->print_format
-	                     .char_name_postfix;
+		     	     .char_name_format
+			    ->char_name_postfix;
 	    columns += ustring_columns ( prefix );
 	    columns += ustring_columns ( postfix );
 	}
@@ -8939,9 +8954,11 @@ void min::pwidth ( min::uns32 & column,
 	    }
 
 	    column += ustring_columns 
-		( print_format.char_name_prefix );
+		( print_format.char_name_format
+			     ->char_name_prefix );
 	    column += ustring_columns 
-		( print_format.char_name_postfix );
+		( print_format.char_name_format
+			     ->char_name_postfix );
 	}
     }
 }
@@ -9270,14 +9287,15 @@ const min::gen_format * min::bracketing_gen_format =
 
 const min::print_format min::standard_print_format =
 {
-    & ::top_gen_format,
     min::EXPAND_HT,
     ::standard_char_flags,
-    (const min::ustring *) "\x01\x01<",
-    (const min::ustring *) "\x01\x01>",
+
     min::latin1_support_control,
     min::graphic_and_space_display_control,
-    min::break_after_space_break_control
+    min::break_after_space_break_control,
+
+    & ::standard_char_name_format,
+    & ::top_gen_format
 };
 
 static void init_pgen_formats ( void )

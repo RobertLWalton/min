@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 15:10:07 EDT 2014
+// Date:	Sun Jul 27 05:23:20 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10747,22 +10747,27 @@ namespace min {
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;
 
-    typedef min::uns32 context_gen_flags[6];
-    struct gen_format;
-    struct bracket_format;
-    struct print_format
+    struct char_name_format
     {
-	const min::gen_format *	      gen_format;
-
-	min::uns32		      op_flags;
-	const min::uns32 *	      char_flags;
-
 	const min::ustring *	      char_name_prefix;
 	const min::ustring *	      char_name_postfix;
+    };
+
+    extern const char_name_format *
+	standard_char_name_format;
+
+    struct gen_format;
+    struct print_format
+    {
+	min::uns32		      op_flags;
+	const min::uns32 *	      char_flags;
 
 	min::support_control 	      support_control;
 	min::display_control 	      display_control;
 	min::break_control 	      break_control;
+
+	const min::char_name_format * char_name_format;
+	const min::gen_format *	      gen_format;
     };
 
     extern const print_format standard_print_format;
@@ -11496,78 +11501,6 @@ namespace min {
         never_quote_gen_format;
     extern const gen_format *
         bracketing_gen_format;
-
-    struct old_gen_format
-    {
-	min::printer     ( * pgen )
-	    ( min::printer printer,
-	      min::uns32 gen_flags,
-	      min::gen v,
-	      const min::context_gen_flags *
-	          context_gen_flags,
-	      const min::gen_format * gen_format );
-
-	// Members beyond this point may be moved and
-	// new members may be added.
-
-        const char *         number_format;
-
-	const ustring *      str_prefix;
-	const ustring *      str_postfix;
-	const ustring *      str_postfix_name;
-	const ustring *      str_char_name_prefix;
-	const ustring *      str_char_name_postfix;
-	const ustring *      str_concatenator;
-	uns32	     	     str_max_length;
-
-	const char *         lab_prefix;
-	const char *         lab_separator;
-	const char *         lab_postfix;
-
-	const char *         special_prefix;
-	const char *         special_postfix;
-	packed_vec_ptr<const char *>
-	                     special_names;
-
-	const char *         implicit_prefix;
-	const char *         implicit_postfix;
-
-	packed_vec_ptr<min::gen>
-			     exp_ok_attrs;
-
-	packed_vec_ptr<const char *>
-	                     flag_names;
-    };
-
-    enum {
-        PICTURE_STR_FLAG		= ( 1 << 0 ),
-        BRACKET_STR_FLAG		= ( 1 << 1 ),
-        BRACKET_LAB_FLAG		= ( 1 << 2 ),
-        BRACKET_SPECIAL_FLAG		= ( 1 << 3 ),
-        BRACKET_IMPLICIT_FLAG		= ( 1 << 4 ),
-        SUPPRESS_SPECIAL_NAME_FLAG	= ( 1 << 5 ),
-        SUPPRESS_LAB_SPACE_FLAG		= ( 1 << 6 ),
-        SUPPRESS_EXP_SPACE_FLAG		= ( 1 << 7 ),
-	OBJ_EXP_FLAG			= ( 1 << 8 ),
-	OBJ_INDENT_FLAG			= ( 1 << 9 ),
-	OBJ_ID_FLAG			= ( 1 << 10 ),
-	STR_ID_FLAG			= ( 1 << 11 )
-    };
-
-    enum {
-        PGEN_TOP			= 0,
-	PGEN_INDENT			= 1,
-	PGEN_PUNCTUATION		= 2,
-	PGEN_NAME			= 3,
-        PGEN_VALUE			= 4,
-	PGEN_ELEMENT			= 5
-    };
-
-    extern const min::context_gen_flags
-	standard_context_gen_flags;
-
-    extern const min::context_gen_flags
-	no_exp_context_gen_flags;
 
     extern packed_vec_ptr<const char *>
            standard_special_names;
