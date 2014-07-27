@@ -7094,28 +7094,45 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~}l}
-\verb|struct     min::| & \MINKEY{print\_\EOL format}
+\begin{indpar}[1em]\begin{tabular}{rll}
+\verb|struct              min::| & \MINKEY{print\_\EOL format}
+	& \verb|// Defaults:|
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
-\verb|{               | \\
-\verb|   min::uns32   | & \TTMKEY{flags}{in {\tt min::print\_format}}
-		        & \verb|// Default:| \\
-		        &   & \verb|//    min::ALLOW_VSPACE_FLAG| \\
-			&   & \verb|//  + min::HBREAK_FLAG|
-\LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\multicolumn{2}{l}{\tt ~~~~min::context\_gen\_flags *} \\
-                        & \TTMKEY{context\_gen\_flags}%
-                                           {in {\tt min::print\_format}}
-			& \verb|// Default:| \\
-			&   & \verb|// & min::default_context_gen_flags|
-\LABEL{MIN::CONTEXT_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\multicolumn{2}{l}{\tt ~~~~min::gen\_format *} \\
-                        & \TTMKEY{gen\_format}%
-                                           {in {\tt min::print\_format}}
-			& \verb|// Default:| \\
-			&   & \verb|// & min::default_gen_format|
+\verb|{                        | \\
+\verb|            min::uns32   |
+	& \TTMKEY{op\_flags}{in {\tt min::print\_format}}
+	& \verb|// min::EXPAND_HT|
+\LABEL{MIN::OP_FLAGS_IN_PRINT_FORMAT} \\
+\verb|            min::uns32 * |
+	& \TTMKEY{char\_flags}{in {\tt min::print\_format}}
+	& \verb|// min::standard_| \\
+      & & \verb|//   char_flags|
+\LABEL{MIN::CHAR_FLAGS_IN_PRINT_FORMAT} \\
+\verb|     min::support_control|
+	& \TTMKEY{support\_control}{in {\tt min::print\_format}}
+        & \verb|// min::latin1_| \\
+      & & \verb|//   support_control|
+\LABEL{MIN::SUPPORT_CONTROL_IN_PRINT_FORMAT} \\
+\verb|     min::display_control|
+	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
+        & \verb|// min::graphic_and_space| \\
+      & & \verb|//   display_control|
+\LABEL{MIN::DISPLAY_CONTROL_IN_PRINT_FORMAT} \\
+\verb|       min::break_control|
+	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
+        & \verb|// min::break_after_space| \\
+      & & \verb|//   break_control|
+\LABEL{MIN::BREAK_CONTROL_IN_PRINT_FORMAT} \\
+\verb|  min::char_name_format *|
+	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
+        & \verb|// min::standard_| \\
+      & & \verb|//   char_name_format|
+\LABEL{MIN::CHAR_NAME_FORMAT_IN_PRINT_FORMAT} \\
+\verb|        min::gen_format *|
+	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
+        & \verb|// min::top_gen_format|
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
-\verb|}              | \\
+\verb|}                        | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7123,8 +7140,8 @@ accomplished by the following:
     & \TTMKEY{print\_format}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT} \\
 \verb|const min::print_format min::|
-    & \TTKEY{default\_\EOL print\_\EOL format}
-\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
+    & \TTKEY{standard\_\EOL print\_\EOL format}
+\LABEL{MIN::STANDARD_PRINT_FORMAT} \\
 \verb|const min::packed_vec_insptr<min::print_format>  | \\
 \verb|printer->|
     & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
@@ -15358,18 +15375,31 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{2.8in}
-\verb|struct                  min::| & \MINKEY{print\_\EOL format}
+\verb|struct                 min::| & \MINKEY{print\_\EOL format}
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
-\verb|{                            | \\
-\verb|           min::uns32        | & \TTMKEY{flags}{in {\tt min::print\_format}}
-\LABEL{MIN::FLAGS_IN_PRINT_FORMAT} \\
-\verb|    min::context_gen_flags * | & \TTMKEY{context\_gen\_flags}%
-                                           {in {\tt min::print\_format}}
-\LABEL{MIN::CONTEXT_GEN_FLAGS_IN_PRINT_FORMAT} \\
-\verb|           min::gen_format * | & \TTMKEY{gen\_format}%
-                                           {in {\tt min::print\_format}}
+\verb|{                           | \\
+\verb|               min::uns32   |
+	& \TTMKEY{op\_flags}{in {\tt min::print\_format}}
+\LABEL{MIN::OP_FLAGS_IN_PRINT_FORMAT} \\
+\verb|               min::uns32 * |
+	& \TTMKEY{char\_flags}{in {\tt min::print\_format}}
+\LABEL{MIN::CHAR_FLAGS_IN_PRINT_FORMAT} \\
+\verb|       min::support_control|
+	& \TTMKEY{support\_control}{in {\tt min::print\_format}}
+\LABEL{MIN::SUPPORT_CONTROL_IN_PRINT_FORMAT} \\
+\verb|       min::display_control|
+	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
+\LABEL{MIN::DISPLAY_CONTROL_IN_PRINT_FORMAT} \\
+\verb|         min::break_control|
+	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
+\LABEL{MIN::BREAK_CONTROL_IN_PRINT_FORMAT} \\
+\verb|   min::char_name_format *|
+	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
+\LABEL{MIN::CHAR_NAME_FORMAT_IN_PRINT_FORMAT} \\
+\verb|          min::gen_format *|
+	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
 \LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
-\verb|}                            | \\
+\verb|}                           | \\
 \end{TABULAR}
 
 \bigskip
@@ -15389,8 +15419,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.8in}
 \verb|const min::print_format min::|
-    & \TTKEY{default\_\EOL print\_\EOL format}
-\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
+    & \TTKEY{standard\_\EOL print\_\EOL format}
+\LABEL{MIN::STANDARD_PRINT_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
