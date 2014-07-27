@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 15:09:57 EDT 2014
+// Date:	Sat Jul 26 22:31:51 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7894,6 +7894,8 @@ min::printer operator <<
 	    * (const min::break_control *) op.v1.p;
 	return printer;
     case min::op::VERBATIM:
+	printer->print_format.support_control =
+	    min::inclusive_support_control;
 	printer->print_format.display_control =
 	    min::verbatim_display_control;
 	printer->print_format.break_control =
