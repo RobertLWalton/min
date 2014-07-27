@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 4, 2014}
+\date{July 27, 2014}
  
 \maketitle
 
@@ -7157,50 +7157,95 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{tabular}\end{indpar}
 
-{\tt print\_format.flags}:
+{\tt print\_format.op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_HSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_VSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_NSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_NSPACE_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_HSPACE\_FLAG}
-\LABEL{MIN::ALLOW_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_VSPACE\_FLAG}
-\LABEL{MIN::ALLOW_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_NSPACE\_FLAG}
-\LABEL{MIN::ALLOW_NSPACE_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{ASCII\_FLAG}
-\LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{EXPAND\_HT}
+\LABEL{MIN::EXPAND_HT_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_PICTURE}
+\LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{HBREAK\_FLAG}
-\LABEL{MIN::HBREAK_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GBREAK\_FLAG}
-\LABEL{MIN::GBREAK_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ON\_EOL}
+\LABEL{MIN::FLUSH_ON_EOL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_ON\_EOM}
+\LABEL{MIN::FLUSH_ID_MAP_ON_EOM_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{EOL\_FLUSH\_FLAG}
-\LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_FLAG}
-\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_LEADING}
+\LABEL{MIN::NEXT_IS_LEADING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_TRAILING}
+\LABEL{MIN::NEXT_IS_TRAILING_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_FLAGS}
-\LABEL{MIN::GRAPHIC_FLAGS} \\
+\verb|const min::uns32 min::| & \MINKEY{AUTO\_SUPPRESS}
+\LABEL{MIN::AUTO_SUPPRESS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
+\LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct              min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns32   |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
+\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
+\verb|            min::uns32   |
+	& \TTMKEY{unsupport\_char\_flags}{in {\tt min::support\_control}}
+\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
+\verb|}                        | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct              min::| & \MINKEY{display\_\EOL control}
+\LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns16   |
+	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
+\LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{display\_suppess}{in {\tt min::display\_control}}
+\LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
+\verb|}                        | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct              min::| & \MINKEY{break\_\EOL control}
+\LABEL{MIN::BREAK_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns16   |
+	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
+\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{break\_after}{in {\tt min::break\_control}}
+\LABEL{MIN::BREAK_AFTER_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}}
+\LABEL{MIN::CONDITIONAL_BREAK_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}}
+\LABEL{MIN::CONDITIONAL_COLUMNS_IN_BREAK_CONTROL} \\
+\verb|}                        | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct              min::|
+    & \MINKEY{char\_\EOL name\_\EOL format}
+\LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
+\verb|{                        | \\
+\verb|  const min::ustring *   |
+	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}}
+\LABEL{MIN::CHAR_NAME_PREFIX_IN_CHAR_NAME_FORMAT} \\
+\verb|  const min::ustring *   |
+	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}}
+\LABEL{MIN::CHAR_NAME_POSTFIX_IN_CHAR_NAME_FORMAT} \\
+\verb|}                        | \\
 \end{tabular}\end{indpar}
 
 The {\tt min::}\MINKEY{init} function both re-initializes existing
@@ -15425,53 +15470,110 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_HSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_VSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_NSPACE\_FLAG}
-\LABEL{MIN::GRAPHIC_NSPACE_FLAG} \\
-\end{TABULAR}
+{\tt print\_format.op\_flags}:
+
+\medskip
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_HSPACE\_FLAG}
-\LABEL{MIN::ALLOW_HSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_VSPACE\_FLAG}
-\LABEL{MIN::ALLOW_VSPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{ALLOW\_NSPACE\_FLAG}
-\LABEL{MIN::ALLOW_NSPACE_FLAG} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{ASCII\_FLAG}
-\LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL\_FLAG}
+\verb|const min::uns32 min::| & \MINKEY{EXPAND\_HT}
+\LABEL{MIN::EXPAND_HT_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_PICTURE}
+\LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{HBREAK\_FLAG}
-\LABEL{MIN::HBREAK_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{GBREAK\_FLAG}
-\LABEL{MIN::GBREAK_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ON\_EOL}
+\LABEL{MIN::FLUSH_ON_EOL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_ON\_EOM}
+\LABEL{MIN::FLUSH_ID_MAP_ON_EOM_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{EOL\_FLUSH\_FLAG}
-\LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{FLUSH\_ID\_MAP\_FLAG}
-\LABEL{MIN::FLUSH_ID_MAP_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_LEADING}
+\LABEL{MIN::NEXT_IS_LEADING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_TRAILING}
+\LABEL{MIN::NEXT_IS_TRAILING_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_FLAGS}
-\LABEL{MIN::GRAPHIC_FLAGS} \\
+\verb|const min::uns32 min::| & \MINKEY{AUTO\_SUPPRESS}
+\LABEL{MIN::AUTO_SUPPRESS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
+\LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{3.0in}
+\begin{TABULAR}{2.8in}
+\verb|struct              min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns32   |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
+\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
+\verb|            min::uns32   |
+	& \TTMKEY{unsupport\_char\_flags}{in {\tt min::support\_control}}
+\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
+\verb|}                        | \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.8in}
+\verb|struct              min::| & \MINKEY{display\_\EOL control}
+\LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns16   |
+	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
+\LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{display\_suppess}{in {\tt min::display\_control}}
+\LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
+\verb|}                        | \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.8in}
+\verb|struct              min::| & \MINKEY{break\_\EOL control}
+\LABEL{MIN::BREAK_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns16   |
+	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
+\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{break\_after}{in {\tt min::break\_control}}
+\LABEL{MIN::BREAK_AFTER_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}}
+\LABEL{MIN::CONDITIONAL_BREAK_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}}
+\LABEL{MIN::CONDITIONAL_COLUMNS_IN_BREAK_CONTROL} \\
+\verb|}                        | \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.8in}
+\verb|struct              min::|
+    & \MINKEY{char\_\EOL name\_\EOL format}
+\LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
+\verb|{                        | \\
+\verb|  const min::ustring *   |
+	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}}
+\LABEL{MIN::CHAR_NAME_PREFIX_IN_CHAR_NAME_FORMAT} \\
+\verb|  const min::ustring *   |
+	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}}
+\LABEL{MIN::CHAR_NAME_POSTFIX_IN_CHAR_NAME_FORMAT} \\
+\verb|}                        | \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.8in}
 \verb|min::file printer->|
     & \TTMKEY{id\_\EOL map}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP} \\
