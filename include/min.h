@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 27 05:23:20 EDT 2014
+// Date:	Sun Jul 27 15:14:18 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10643,11 +10643,11 @@ namespace min {
 namespace min {
 
     enum {
-        DISPLAY_EOL		= ( 1 << 0 ),
-	FLUSH_ON_EOL		= ( 1 << 1 ),
-        FLUSH_ID_MAP_ON_EOM	= ( 1 << 2 ),
-	EXPAND_HT		= ( 1 << 3 ),
-	DISPLAY_PICTURE		= ( 1 << 4 ),
+	EXPAND_HT		= ( 1 << 0 ),
+        DISPLAY_EOL		= ( 1 << 1 ),
+	DISPLAY_PICTURE		= ( 1 << 2 ),
+	FLUSH_ON_EOL		= ( 1 << 3 ),
+        FLUSH_ID_MAP_ON_EOM	= ( 1 << 4 ),
 	NEXT_IS_LEADING		= ( 1 << 5 ),
 	NEXT_IS_TRAILING	= ( 1 << 6 ),
 	AUTO_SUPPRESS		= ( 1 << 7 ),
