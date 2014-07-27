@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 15:14:24 EDT 2014
+// Date:	Sat Jul 26 22:31:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2993,8 +2993,6 @@ void test_printer ( void )
             << " }" << min::restore_indent 
             << min::eom;
 
-# ifdef NONE_SUCH
-
     // Tests of files and printers.
 
     min::locatable_var<min::file> file;
@@ -3039,8 +3037,8 @@ void test_printer ( void )
 	( printer, file, ppos2,
 	  '#', "<EMPTY>", "<EOF>");
 
-    file->print_flags =
-        min::GRAPHIC_FLAGS + min::DISPLAY_EOL_FLAG;
+    file->line_display =
+        min::DISPLAY_PICTURE + min::DISPLAY_EOL;
     min::print_line ( printer, file, 1 );
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );
@@ -3064,8 +3062,6 @@ void test_printer ( void )
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
 
-# endif
-
     min_assert_print = true;
     cout << endl;
     cout << "Finish Printer Test!" << endl;
@@ -3073,8 +3069,6 @@ void test_printer ( void )
 
 // Objects
 // -------
-
-# ifdef NONE_SUCH
 
 // Values shared with subsequent object tests.
 //
@@ -4451,6 +4445,8 @@ void test_object_attribute_level ( void )
 // Object Printing
 // ------ --------
 
+# ifdef NONE_SUCH
+
 void test_object_printing ( void )
 {
     cout << endl;
@@ -4620,13 +4616,13 @@ int main ( int argc, const char * argv[] )
 	test_file();
 	test_identifier_map();
 	test_printer();
-
-#ifdef NONE_SUCH
-
 	test_objects();
 	test_object_vector_level();
 	test_object_list_level();
 	test_object_attribute_level();
+
+#ifdef NONE_SUCH
+
 	test_object_printing();
 #endif
 
