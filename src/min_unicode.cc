@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 14:36:21 EDT 2014
+// Date:	Mon Jul 28 14:16:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,7 @@ const unsigned
 const unsigned short
     UNI::index[UNI::index_size] =
         { UNICODE_INDEX };
-const unsigned
+const unsigned short
     UNI::index_limit = UNICODE_INDEX_LIMIT;
 const char * const
     UNI::category[UNI::index_limit] =

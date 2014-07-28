@@ -3404,44 +3404,21 @@ Various attributes of UNICODE characters are stored in the
 To keep this data base compact, UNICODE characters are grouped
 so all characters with the same attributes are assigned the
 same group.  This is implemented by mapping each character to
-a \key{character index}, and then mapping the character index to various
+a \key{UNICODE character index}\index{character index!UNICODE},
+and then mapping the character index to various
 attributes.  To enable a program to load only parts of the
 database, each attribute is in a separately loadable vector.
 
-The following implement the first part of this mapping:
+The first part of this mapping is implemented by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns16 min::|
-    & \MINKEY{unicode::index}\TT{[c]}
-\LABEL{MIN::UNICODE::INDEX} \\
-\verb|min::uns16 min::|
-    & \MINKEY{unicode::index\_size}
-\LABEL{MIN::UNICODE::INDEX_SIZE} \\
+    & \MINKEY{Uindex} \verb|( min::Uchar c )|
+\LABEL{MIN::UINDEX} \\
 \end{tabular}\end{indpar}
 
-which should be used in code such as:
-
-\begin{indpar}\begin{verbatim}
-min::Uchar c = ...
-min::uns16 cindex = c <= min::unicode::index_size ?
-                    min::unicode::index[c] :
-		    min::unicode_size - 1;
-\end{verbatim}\end{indpar}
-
-to map the UNICODE character \TT{c} to its character index \TT{cindex}.
-If \TT{c => min::\EOL unicode::\EOL index\_\EOL size - 1}, it is assumed
-that \TT{c} is unsupported.\footnote{in 2014 all these characters were
-`tag' characters (letters, digits, etc.), variation selectors, and
-private use.}
-
-Given the character index \TT{i = min::unicode::index[c]},
-one can find character attributes using:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char * min::|
-    & \MINKEY{unicode::category}\TT{[i]}
-\LABEL{MIN::UNICODE::CATEGORY} \\
-\end{tabular}\end{indpar}
+which maps the UNICODE character \TT{c} to its UNICODE
+character index \TT{Uindex~(~c~)}.
 
 TBD
 

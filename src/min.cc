@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 27 05:23:29 EDT 2014
+// Date:	Mon Jul 28 12:55:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,6 +15,7 @@
 //	Names
 //	Process Management
 //	Allocator/Collector/Compactor
+//	UNICODE Characters
 //	Numbers
 //	Strings
 //	Labels
@@ -185,7 +186,7 @@ static void obj_scavenger_routine
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-static void init_printer_formats ( void );
+static void init_standard_char_flags ( void );
 static void init_pgen_formats ( void );
 void MINT::initialize ( void )
 {
@@ -378,7 +379,7 @@ void MINT::initialize ( void )
 		       ::standard_flag_names_value );
     }
 
-    init_printer_formats();
+    init_standard_char_flags();
     init_pgen_formats();
 
     for ( min::initializer * i = MINT::last_initializer;
@@ -1039,6 +1040,150 @@ void MINT::thread_scavenger_routine
     sc.thread_state = 0;
 }
 
+// UNICODE Characters
+// ------- ----------
+
+static min::uns32 * standard_char_flags =
+    new min::uns32[min::unicode::index_limit];
+const min::uns32 * min::standard_char_flags =
+    ::standard_char_flags;
+
+min::unsptr min::utf8_to_unicode
+    ( min::Uchar * & u, const min::Uchar * endu,
+      const char * & s, const char * ends )
+{
+    min::Uchar * original_u = u;
+    while ( u < endu && s < ends )
+    {
+        * u ++ = utf8_to_unicode ( s, ends );
+    }
+    return u - original_u;
+}
+
+min::unsptr min::unicode_to_utf8
+    ( char * & s, const char * ends,
+      const min::Uchar * & u,
+      const min::Uchar * endu )
+{
+    char * original_s = s;
+    while ( u < endu && s + 7 < ends )
+    {
+        unicode_to_utf8 ( s, * u ++ );
+    }
+    if ( u < endu && s < ends )
+    {
+        char buffer[7];
+	while ( u < endu && s < ends )
+	{
+	    char * b = buffer;
+	    min::unsptr len =
+	        unicode_to_utf8 ( b, * u );
+	    assert ( len <= 7 );
+	    if ( s + len > ends ) break;
+	    std::strncpy ( s, buffer, len );
+	    s += len;
+	    ++ u;
+	}
+    }
+    return s - original_s;
+}
+
+static void init_standard_char_flags ( void )
+{
+    for ( unsigned i = 0;
+          i < min::unicode::index_limit; ++ i )
+    { 
+	min::uns32 flags;
+
+	if ( i <= 0xFF )
+	{
+	    unsigned char c = (unsigned char) i;
+
+	    switch ( c )
+	    {
+	    case ' ':	flags = min::IS_SP; break;	
+	    case '\t':	flags = min::IS_HT; break;
+	    case 0xA0:	flags = min::IS_OTHER_HSPACE;
+	                break;  // NBSP
+	    case '\f':
+	    case '\v':
+	    case '\r': flags = min::IS_VSPACE
+	                     + min::IS_NON_SPACING;
+	    	       break;
+
+	    case '(':
+	    case '[':
+	    case '{':
+	    case '`':
+	    case 0xA8:	flags = min::IS_LEADING;
+	    		break;
+	    
+	    case ')':
+	    case ']':
+	    case '}':
+	    case '\'':
+	    case ',':
+	    case ';':
+	    case 0xB8:
+	    case 0xB4:	flags = min::IS_TRAILING;
+	    		break;
+
+	    case '-':
+	    case '_':
+	    case '%':	flags = min::IS_MIDDLING
+	    		      + min::CONDITIONAL_BREAK;
+	    		break;
+
+	    case 0xA1:
+	    case 0xBF:	flags = min::IS_LEADING;
+	    		break;  // Inverted ! and ?
+
+	    case 0xAD:	flags = min::IS_OTHER_CONTROL
+	                      + min::IS_NON_SPACING;
+	    		break;  // SHY
+
+	    default:
+	        if ( c <= 0x1F )
+		    flags = min::IS_OTHER_CONTROL
+			  + min::IS_NON_SPACING;
+	        else if ( 0x7F <= c && c <= 0x9F  )
+		    flags = min::IS_OTHER_CONTROL
+			  + min::IS_NON_SPACING;
+		else if ( isalpha ( c ) )
+		    flags = min::IS_MIDDLING
+		          + min::QUOTE_SUPPRESS;
+		else
+		    flags = min::IS_MIDDLING;
+	    }
+	}
+	else
+	{
+	    const char * cat =
+	        min::unicode::category[i];
+	    if ( cat == NULL )
+	        flags = min::IS_UNSUPPORTED;
+	    else if ( cat[0] == 'L' )
+		flags = min::IS_MIDDLING
+		      + min::QUOTE_SUPPRESS;
+	    else if ( strcmp ( cat, "Mn" ) == 0 )
+		flags = min::IS_NON_SPACING
+		      + min::QUOTE_SUPPRESS;
+	    else if ( strcmp ( cat, "Zs" ) == 0 )
+		flags = min::IS_OTHER_HSPACE;
+	    else if ( cat[0] == 'Z' )
+		flags = min::IS_OTHER_CONTROL
+		      + min::IS_NON_SPACING;
+	    else if ( cat[0] == 'C' )
+		flags = min::IS_OTHER_CONTROL
+		      + min::IS_NON_SPACING;
+	}
+
+	::standard_char_flags[i] =
+	    flags + min::unicode::support_sets[i];
+    }
+}
+
+
 // Numbers
 // -------
 
@@ -1443,46 +1588,6 @@ min::gen min::new_str_gen
     while ( n -- )
         m += min::unicode_to_utf8 ( q, * p ++ );
     return internal::new_str_gen ( buffer, m );
-}
-
-min::unsptr min::utf8_to_unicode
-    ( min::Uchar * & u, const min::Uchar * endu,
-      const char * & s, const char * ends )
-{
-    min::Uchar * original_u = u;
-    while ( u < endu && s < ends )
-    {
-        * u ++ = utf8_to_unicode ( s, ends );
-    }
-    return u - original_u;
-}
-
-min::unsptr min::unicode_to_utf8
-    ( char * & s, const char * ends,
-      const min::Uchar * & u,
-      const min::Uchar * endu )
-{
-    char * original_s = s;
-    while ( u < endu && s + 7 < ends )
-    {
-        unicode_to_utf8 ( s, * u ++ );
-    }
-    if ( u < endu && s < ends )
-    {
-        char buffer[7];
-	while ( u < endu && s < ends )
-	{
-	    char * b = buffer;
-	    min::unsptr len =
-	        unicode_to_utf8 ( b, * u );
-	    assert ( len <= 7 );
-	    if ( s + len > ends ) break;
-	    std::strncpy ( s, buffer, len );
-	    s += len;
-	    ++ u;
-	}
-    }
-    return s - original_s;
 }
 
 bool min::strto ( min::int32 & value,
@@ -7418,10 +7523,6 @@ min::locatable_var<min::printer> min::error_message;
 
 const min::uns32 min::standard_op_flags =
     min::EXPAND_HT;
-static min::uns32 * standard_char_flags =
-    new min::uns32[min::unicode::index_limit];
-const min::uns32 * min::standard_char_flags =
-    ::standard_char_flags;
 
 const min::support_control
         min::ascii_support_control =
@@ -7465,7 +7566,8 @@ const min::display_control
 const min::display_control
         min::graphic_and_control_display_control =
 {
-      min::IS_GRAPHIC + min::IS_CONTROL
+      min::IS_GRAPHIC
+    + min::IS_VSPACE
     + min::IS_SP + min::IS_HT,
     0
 };
@@ -7511,96 +7613,6 @@ const min::char_name_format *
 	min::standard_char_name_format =
     & ::standard_char_name_format;
 
-
-static void init_printer_formats ( void )
-{
-    for ( unsigned i = 0;
-          i < min::unicode::index_limit; ++ i )
-    { 
-	min::uns32 flags;
-
-	if ( i <= 0xFF )
-	{
-	    unsigned char c = (unsigned char) i;
-
-	    switch ( c )
-	    {
-	    case ' ':	flags = min::IS_SP; break;	
-	    case '\t':	flags = min::IS_HT; break;
-	    case 0xA0:	flags = min::IS_OTHER_HSPACE;
-	                break;  // NBSP
-	    case '(':
-	    case '[':
-	    case '{':
-	    case '`':
-	    case 0xA8:	flags = min::IS_LEADING;
-	    		break;
-	    
-	    case ')':
-	    case ']':
-	    case '}':
-	    case '\'':
-	    case ',':
-	    case ';':
-	    case 0xB8:
-	    case 0xB4:	flags = min::IS_TRAILING;
-	    		break;
-
-	    case '-':
-	    case '_':
-	    case '%':	flags = min::IS_MIDDLING
-	    		      + min::CONDITIONAL_BREAK;
-	    		break;
-
-	    case 0xA1:
-	    case 0xBF:	flags = min::IS_LEADING;
-	    		break;  // Inverted ! and ?
-
-	    case 0xAD:	flags = min::IS_CONTROL
-	                      + min::IS_NON_SPACING;
-	    		break;  // SHY
-
-	    default:
-	        if ( c <= 0x1F )
-		    flags = min::IS_CONTROL
-			  + min::IS_NON_SPACING;
-	        else if ( 0x7F <= c && c <= 0x9F  )
-		    flags = min::IS_CONTROL
-			  + min::IS_NON_SPACING;
-		else if ( isalpha ( c ) )
-		    flags = min::IS_MIDDLING
-		          + min::QUOTE_SUPPRESS;
-		else
-		    flags = min::IS_MIDDLING;
-	    }
-	}
-	else
-	{
-	    const char * cat =
-	        min::unicode::category[i];
-	    if ( cat == NULL )
-	        flags = min::IS_UNSUPPORTED;
-	    else if ( cat[0] == 'L' )
-		flags = min::IS_MIDDLING
-		      + min::QUOTE_SUPPRESS;
-	    else if ( strcmp ( cat, "Mn" ) == 0 )
-		flags = min::IS_NON_SPACING
-		      + min::QUOTE_SUPPRESS;
-	    else if ( strcmp ( cat, "Zs" ) == 0 )
-		flags = min::IS_OTHER_HSPACE;
-	    else if ( cat[0] == 'Z' )
-		flags = min::IS_CONTROL
-		      + min::IS_NON_SPACING;
-	    else if ( cat[0] == 'C' )
-		flags = min::IS_CONTROL
-		      + min::IS_NON_SPACING;
-	}
-
-	::standard_char_flags[i] =
-	    flags + min::unicode::support_sets[i];
-    }
-}
-
 const min::line_break min::standard_line_break =
 {
     0, 0, 72, 4
@@ -7608,9 +7620,6 @@ const min::line_break min::standard_line_break =
 
 // const min::print_format min::standard_print_format
 // defined below after top_gen_format.
-
-static char NUL_UTF8_ENCODING[3] =
-    { (char) 0xC0, (char) 0x80, 0 };
 
 static min::packed_vec<min::line_break>
     line_break_stack_type
@@ -7706,14 +7715,18 @@ static void end_line ( min::printer printer )
          & min::DISPLAY_EOL )
     {
         min::Uchar c = min::unicode::SOFTWARE_NL;
-        min::uns16 cindex =
-	    min::unicode::index[c];
+	assert ( c < min::unicode::index_size );
+        min::uns16 cindex = min::unicode::index[c];
+	assert
+	    ( min::unicode::picture[cindex] != NULL );
+	assert
+	    ( min::unicode::name[cindex] != NULL );
+
 	if ( printer->print_format.op_flags
 	     &
 	     min::DISPLAY_PICTURE )
 	    ::push ( buffer,
-	             min::unicode::picture
-		         [cindex] );
+	             min::unicode::picture [cindex] );
 	else
 	{
 	    ::push ( buffer,
@@ -7721,8 +7734,7 @@ static void end_line ( min::printer printer )
 		     	     .char_name_format
 			    ->char_name_prefix );
 	    ::push ( buffer,
-	             min::unicode::name
-		         [cindex] );
+	             min::unicode::name [cindex] );
 	    ::push ( buffer,
 	             printer->print_format
 		     	     .char_name_format
@@ -8448,15 +8460,10 @@ inline void compute_flags
     while ( n -- )
     {
         min::Uchar c = * s ++;
-	min::uns32 cflags = sc.unsupported_char_flags;
-
-	if ( c < min::unicode::index_size )
-	{
-	    min::uns16 cindex = min::unicode::index[c];
-	    cflags = char_flags[cindex];
-	    if ( ( cflags & sc.support_mask ) == 0 )
-	        cflags = sc.unsupported_char_flags;
-	}
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
 
 	if ( first )
 	{
@@ -8538,23 +8545,16 @@ min::printer min::print_chars
 	    }
 	    else if ( qf->unquote_if_first != 0 )
 	    {
-		uns32 first_flags =
-		    sc.unsupported_char_flags;
 		Uchar c = buffer[0];
-
-		if ( c < unicode::index_size )
-		{
-		    uns16 cindex =
-			unicode::index[c];
+		uns16 cindex = Uindex ( c );
+		uns32 first_flags =
+		    printer->print_format
+			    .char_flags[cindex];
+		if (    (   first_flags
+		          & sc.support_mask )
+		     == 0 )
 		    first_flags =
-			printer->print_format
-				.char_flags[cindex];
-		    if (    (   first_flags
-			      & sc.support_mask )
-			 == 0 )
-			first_flags =
 			  sc.unsupported_char_flags;
-		}
 
 		if (   first_flags
 		     & qf->unquote_if_first )
@@ -8619,18 +8619,10 @@ min::printer min::print_unicode
     while ( n )
     {
         Uchar c = * p;
-	uns32 cflags = sc.unsupported_char_flags;
-
-	uns16 cindex = 0xFFFF;
-	    // Only used to access name or picture.
-
-	if ( c < unicode::index_size )
-	{
-	    cindex = unicode::index[c];
-	    cflags = char_flags[cindex];
-	    if ( ( cflags & sc.support_mask ) == 0 )
-	        cflags = sc.unsupported_char_flags;
-	}
+	uns16 cindex = Uindex ( c );
+	uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
 
         // Compute the character representative.
 	//
@@ -8689,10 +8681,7 @@ min::printer min::print_unicode
 	else if ( (   printer->print_format.op_flags
 	            & min::DISPLAY_PICTURE )
 	          &&
-		  cindex != 0xFFFF
-		  &&
-		     unicode::picture[cindex]
-	          != NULL )
+		  unicode::picture[cindex] != NULL )
 	{
 	    const ustring * picture =
 	        unicode::picture[cindex];
@@ -8702,9 +8691,7 @@ min::printer min::print_unicode
 	}
 	else
 	{
-	    if ( cindex != 0xFFFF
-	         &&
-		 unicode::name[cindex] != NULL )
+	    if ( unicode::name[cindex] != NULL )
 	    {
 		const ustring * name =
 		    unicode::name[cindex];
@@ -8899,19 +8886,10 @@ void min::pwidth ( min::uns32 & column,
     while ( s < ends )
     {
         Uchar c = utf8_to_unicode ( s, ends );
-
-	uns32 cflags = sc.unsupported_char_flags;
-
-	uns16 cindex = 0xFFFF;
-	    // Only used to access name or picture.
-
-	if ( c < unicode::index_size )
-	{
-	    cindex = unicode::index[c];
-	    cflags = char_flags[cindex];
-	    if ( ( cflags & sc.support_mask ) == 0 )
-	        cflags = sc.unsupported_char_flags;
-	}
+	uns16 cindex = Uindex ( c );
+	uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
 
         // Compute column increment.
 	//
@@ -8928,10 +8906,7 @@ void min::pwidth ( min::uns32 & column,
 	else if ( (   print_format.op_flags
 	            & min::DISPLAY_PICTURE )
 		  &&
-		  cindex != 0xFFFF
-	          &&
-		     unicode::picture[cindex]
-	          != NULL )
+		  unicode::picture[cindex] != NULL )
 	{
 	    const ustring * picture =
 	        unicode::picture[cindex];
@@ -8939,9 +8914,7 @@ void min::pwidth ( min::uns32 & column,
 	}
 	else
 	{
-	    if ( cindex != 0xFFFF
-	         &&
-		 unicode::name[cindex] != NULL )
+	    if ( unicode::name[cindex] != NULL )
 	    {
 		const ustring * name =
 		    unicode::name[cindex];

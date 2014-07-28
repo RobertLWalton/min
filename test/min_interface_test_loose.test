@@ -1804,8 +1804,8 @@ UNDEFINED_GEN(0x7ff4140000000000)
 MISSING [$MISSING$] MISSING
 A flush is next:
 The line being flushed
-a       <2400>�
-a       <2400>�
+a␁      ␡<2400><UUC>
+a<SOH>  <DEL><2400><UUC>
 a<SOH><SP><HT><DEL><2400><UUC>
 a␁␣␉␡<2400><UUC>
 [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
