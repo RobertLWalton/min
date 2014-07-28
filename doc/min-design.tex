@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 27, 2014}
+\date{July 28, 2014}
  
 \maketitle
 
@@ -330,6 +330,27 @@ of functions:
 
 \section{Interfaces}
 \label{INTERFACES}
+
+MIN code and documentation is organized within the following
+directories:
+
+\begin{center}
+\begin{tabular}{ll}
+\ldots\TT{/}\ttkey{min/include} & \TT{*.h} files such as \TT{min.h}
+\\[1ex]
+\ldots\TT{/}\ttkey{min/unicode} & UNICODE data base files such as
+				  \TT{unicode\_data.h} \\
+				& (independent of the rest of MIN)
+\\[1ex]
+\ldots\TT{/}\ttkey{min/src} & \TT{*.cc} files such as \TT{min.cc}
+\\[1ex]
+\ldots\TT{/}\ttkey{min/test} & test scripts such as \TT{min\_interface\_test.cc}
+\\[1ex]
+\ldots\TT{/}\ttkey{min/doc} & documentation files such as \TT{min-design.tex}
+\end{tabular}
+\end{center}
+
+
 
 The C++ data and functions described in this document can be
 accessed by C++ code that contains the following inclusion:
@@ -568,7 +589,7 @@ the size of each number is clear:
 \LABEL{MIN::UNSPTR}%
 \LABEL{MIN::INTPTR}%
 \LABEL{MIN::UNSGEN}%
-\LABEL{MIN::UCHAR}%
+%\LABEL{MIN::UCHAR}%
 \label{INT}%
 \label{UNS}
 
@@ -3249,6 +3270,302 @@ value, and `long' which stores more than 8 characters in the body.  The
 above code only works for long strings (\pagref{LONG-STRING-STUB}).
 
 
+\subsection{Unicode Characters}
+\label{UNICODE-CHARACTERS}
+
+Unicode characters are implemented by the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef min::uns32 min::| & \MINKEY{Uchar}
+\LABEL{MIN::UCHAR} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{UNKNOWN\_UCHAR}
+\LABEL{MIN::UNKNOWN_UCHAR} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{SOFTWARE\_NL}
+\LABEL{MIN::SOFTWARE_NL} \\
+\verb|min::Uchar min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_TO_UNICODE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb|( char * & s, min::Uchar c )|
+\LABEL{MIN::UNICODE_TO_UTF8} \\
+\end{tabular}\end{indpar}
+
+Here UNICODE characters are represented as \TT{min::Uchar} values
+that are 32-bit unsigned integers.  `\TT{char *}' strings are treated
+as `Modified UTF-8' (\pagref{MODIFIED-UTF8}) encodings of UNICODE
+character strings.  In these the NUL (zero) UNICODE 
+\TT{min::Uchar} value is encoded as the 2 string bytes `\TT{0xC0,0x80}',
+while the zero `\TT{char}' is used to terminate the `\TT{char *}' string.
+
+The \TT{UNKNOWN\_UCHAR}\label{UNKNOWN_UCHAR} UNICODE character
+is returned by the \TT{min::\EOL utf8\_\EOL to\_\EOL unicode}
+function when it finds an illegal UTF8 encoding.  This is actually
+the `\key{unicode replacement character},
+FFFD (hexadecimal), which is designated by the UNICODE standard
+as representing an input
+that is not encodable in UNICODE.
+
+The \TT{SOFTWARE\_NL}\label{SOFTWARE_NL} UNICODE character is used
+to represent the end of line in a \TT{min::\EOL file},
+which is internally represented by a line-ending NUL character,
+when the end of line is displayed on a printer.
+See \pagref{DISPLAY_EOL}.
+This is actually an arbitrary UNICODE private use character, and is not
+actually input or output itself.
+
+The \TT{min::uft8\_to\_unicode} function reads a UNICODE character
+encoded as a UTF-8 byte string.  Here \TT{s} points at the first byte
+of the encoding and is updated to point after the encoding, while
+\TT{ends} points just after the last byte that can be part of
+the encoding.
+
+The \TT{min::uft8\_to\_unicode} function will accept
+\mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
+and also accept 7-byte encodings (first byte \TT{0xFE})
+so that $2^{32}-1$ can be encoded.  If it encounters an
+illegal encoding it returns \TT{min::\EOL UNKNOWN\_\EOL UCHAR}
+and updates \TT{s} to point just after the illegal encoding.
+Applying the \TT{min::uft8\_to\_unicode} function repeatedly
+until \TT{s >= ends} will produce a sequence of UNICODE
+characters from any byte string, even one that is not legal UTF-8,
+though if the string is not legal some \TT{min::\EOL UNKNOWN\_\EOL UCHAR}
+characters will be returned.
+
+More specifically, an illegal encoding is a string of bytes such that
+the last byte cannot be UTF-8 legal given the previous bytes, or
+is an incomplete UTF-8 encoding at the end of the byte string.
+
+The \TT{min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
+a UTF-8 character \TT{c} into \TT{s}, updating \TT{s} to point after the
+character, and returns the number of bytes written.
+This function will output
+7-byte encodings (first byte \TT{0xFE}) for
+UNICODE character values \TT{=> 0x80000000}, and will output
+the overlong encoding \TT{0xC0},\TT{0x80}
+for \ttmkey{NUL}{UTF-8 encoding}.
+UTF-8 in which this is the \underline{only} permitted overlong encoding
+is called `\key{Modified UTF-8}\label{MODIFIED-UTF8}\index{UTF8!modified}'.
+No other overlong encodings are output.
+At most 7 bytes will be output, and
+\TT{s} \underline{must}
+point to a byte string buffer with \underline{at least} 7 bytes.
+
+Strings of UNICODE characters can be converted to/from strings
+of UTF-8 encoded characters by the functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
+      \verb|  const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, const char * ends,|\ARGBREAK
+      \verb|   const min::Uchar * & u,|\ARGBREAK
+      \verb|   const min::Uchar * endu )|
+\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
+\end{tabular}\end{indpar}
+
+The first of these repeatedly executes
+\begin{center}
+\tt * u ++ = min::utf8\_to\_unicode ( s, ends );
+\end{center}
+while \TT{u < endu} and \TT{s < ends}.
+The second repeatedly executes
+\begin{center}
+\tt min::unicode\_to\_utf8 ( s, * u ++ );
+\end{center}
+while \TT{s < ends} and \TT{u < endu} provided the
+next repetion will \underline{not} end with \TT{s > ends}
+(so the \TT{s} string end will not be overrun).
+Both these functions increment both \TT{s} and \TT{u} and return
+the number of string elements, \TT{min::Uchar}'s or \TT{char}'s respectively,
+written.
+
+\subsection{Unicode Data Base}
+\label{UNICODE-DATA-BASE}
+
+TBD
+
+It is sometimes useful to divide UNICODE characters into
+\ikey{UNICODE categories}{UNICODE category}.  The function
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
+\LABEL{MIN::UNICODE_CATEGORY}
+\end{tabular}\end{indpar}
+
+returns the UNICODE category of the UNICODE character \TT{c}.
+The UNICODE categories of all
+ASCII and LATIN-1\footnote{
+\raggedright
+Note that some possibly useful LATIN-1 non-letter characters
+and their compose key sequences for Linux keyboard entry are:
+\textexclamdown(!!),
+\textcent(/c),
+\textsterling(-l),
+\textcurrency(xo),
+\textyen(=y),
+\textsection(so),
+\"{~}(""),
+\textcopyright(oc),
+\textordfeminine(\_a),
+\guillemotleft({\tt <{}<}),
+$\neg$(-,),
+\textregistered(OR),
+\={~}(\_\_),
+$\pm$(+-),
+$^2$(\tt \^{}2),
+$^3$(\tt \^{}3),
+\'{~}(\tt '{}'),
+\textparagraph(!p),
+$^1$(\tt \^{}1),
+\textordmasculine(\_o),
+\guillemotright({\tt >{}>}),
+\textquestiondown(??),
+$\times$(xx),
+$\div$(-:).
+At the moment (2012), other non-ASCII, non-letter
+characters are not well supported by Linux.  LATIN-1 letters
+are supported via the compose key, but other non-ASCII letters are not.
+Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
+are considered to be lower case letters and \AE(AE)
+is considered to be an upper case letter, other LATIN-1
+letters may be made by composing
+\TT{`},
+\TT{'},
+\TT{\textasciicircum},
+\TT{\textasciitilde},
+\TT{"},
+comma (\TT{,}), or
+\TT{/} with a letter, as in
+\`A(\TT{`A}),
+\'A(\TT{'A}),
+\^A(\TT{\^{}A}),
+\~A(\TT{\textasciitilde A}),
+\"A(\TT{"A}),
+\c{C}(\TT{,C}), and
+\O(\TT{/O}), with the remaining cases
+\AA(\TT{AA}), and
+\aa(\TT{aa}) using a compose sequence consisting of just the letter doubled.
+However the LATIN-1 letters \dh{} and \DH{} cannot currently be input, as
+composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
+LATIN-1 control codes cannot currently be input and have
+no special MIN support for output.}
+characters (characters with codes \TT{< 256})
+are the characters themselves, e.g., the UNICODE category of
+`\TT{*}' is \TT{'*'}, \underline{except}:
+\begin{center}
+\begin{tabular}{l@{~}l}
+\TT{'U'} & is the category of upper case letters; \\
+           & \TT{A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
+	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
+\TT{'L'} & is the category of lower case letters; \\
+           & \TT{a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
+	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
+\end{tabular}
+\end{center}
+
+The UNICODE category of a character with code \TT{>= 256} is determined
+by the UNICODE character `\mkey{general category}{UNICODE}'.
+The general category of the character is encoded
+in a \TT{min::\EOL unicode\_\EOL category} value
+that is a single ASCII letter as indicated
+on Figure~\ref{UNICODE-CATEGORIES}.
+
+\begin{boxedfigure}
+\small
+\begin{center}
+\begin{tabular}{l@{\hspace*{0.3in}}l}
+\begin{tabular}[t]{l@{~denotes~}l}
+\tt U & upper case letter \\
+\tt L & lower case letter \\
+\tt T & title case letter \\
+\tt M & modifier letter \\
+\tt O & other letter
+\\[2ex]
+\tt N & nonspacing mark \\
+\tt S & spacing mark \\
+\tt E & enclosing mark
+\\[2ex]
+\tt D & decimal number \\
+\tt R & letter number \\
+\tt H & other number
+\\[2ex]
+\tt n & connector punctuation \\
+\tt d & dash punctuation \\
+\tt o & open punctuation \\
+\tt c & close punctuation \\
+\tt i & initial punctuation \\
+\tt f & final punctuation \\
+\tt h & other punctuation
+\end{tabular}
+&
+\begin{tabular}[t]{l@{~denotes~}l}
+\tt m & math symbol \\
+\tt y & currency symbol \\
+\tt r & modifier symbol \\
+\tt t & other symbol
+\\[2ex]
+\tt s & space separator \\
+\tt l & line separator \\
+\tt p & paragraph separator
+\\[2ex]
+\tt x & control \\
+\tt z & format \\
+\tt g & surrogate \\
+\tt v & private use \\
+\tt u & unassigned
+\\[2ex]
+\tt w & unspecified
+\end{tabular}
+\end{tabular}
+\end{center}
+\caption{\TT{min::unicode\_category} values}
+\label{UNICODE-CATEGORIES}
+\end{boxedfigure}
+
+Constant \skey{UNICODE string}s can be represented
+as \TT{const min::\EOL Ustring *}\ttindex{Ustring}\label{USTRING} values
+which are sequences of 32 bit unsigned integers.  The first integer,
+called the \mkey{header}{of {\tt Ustring}},
+holds the length of the string (not counting the header) in its
+low order 16 bits, and the number of print columns the string
+will take in its high order 16 bits.  The remainder of the integers
+are \TT{Uchar} values encoding the UNICODE characters.
+In computing the number of print columns, UNICODE characters are all
+assumed to take 1 column except for the non-spacing marks
+(e.g., combining diacritics), the characters with MIN category \TT{'N'},
+which are assumed to take 0 columns.
+
+The following are for programming with \TT{Ustring}'s:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
+\LABEL{MIN::USTRING} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_length} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_columns} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_COLUMNS} \\
+\verb|const min::Uchar * min::|
+    & \MINKEY{unicode\_string} \verb|( const min::Ustring * p )|
+\LABEL{MIN::UNICODE_STRING} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::unicode\_\EOL length} function returns the number
+of \TT{Uchar}'s in the \TT{Ustring}.
+The \TT{min::unicode\_\EOL columns} function returns the number
+of print columns these take.
+The \TT{min::unicode\_\EOL string} function returns a pointer
+to the \TT{Uchar} vector in the \TT{Ustring}.
+
 \subsection{Numbers}
 \label{NUMBERS}
 
@@ -3485,276 +3802,7 @@ vectors of UNICODE characters:
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
 
-Here UNICODE characters are represented as \TT{min::Uchar} values,
-and the strings are \underline{not} terminated by a zero
-\TT{min::Uchar} value, which is encoded as
-the 2 string bytes `\TT{0xC0,0x80}'
-using modified UTF-8 (\pagref{MODIFIED-UTF-8}).
-
-The following may be used to convert between UNICODE
-characters and \key{UTF-8} strings:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::Uchar min::|
-    & \MINKEY{UTF8\_ILLEGAL}
-\LABEL{MIN::UTF8_ILLEGAL} \\
-\verb|min::Uchar min::|
-    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( const char * & s, const char * ends )|
-\LABEL{MIN::UTF8_TO_UNICODE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb|( char * & s, min::Uchar c )|
-\LABEL{MIN::UNICODE_TO_UTF8} \\
-\end{tabular}\end{indpar}
-
-The \TT{min::uft8\_to\_unicode} function reads a UNICODE character
-encoded as a UTF-8 byte string.  Here \TT{s} points at the first byte
-of the encoding and is updated to point after the encoding, while
-\TT{ends} points just after the last byte that can be part of
-the encoding.
-
-The \TT{min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
-a UTF-8 character \TT{c} into \TT{s}, updating \TT{s} to point after the
-character, and returns the number of bytes written.
-
-The \TT{min::uft8\_to\_unicode} function will accept
-\mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
-and also accept 7-byte encodings (first byte \TT{0xFE})
-so that $2^{32}-1$ can be encoded.  If it encounters an
-illegal encoding it returns \verb|min|::\MINKEY{UTF8\_\EOL ILLEGAL},%
-\label{UTF8_ILLEGAL}
-which is FFFD (hexadecimal),
-the `\key{unicode replacement character}%
-\index{replacement character}\,'.
-In this case \TT{s} is updated to point just after the illegal encoding.
-Applying the \TT{min::uft8\_to\_unicode} function repeatedly
-until \TT{s >= ends} and will produce a sequence of UNICODE
-characters from any byte string, even one that is not legal UTF-8,
-though if the string is not legal some \TT{min::\EOL UTF8\_\EOL ILLEGAL}
-characters will be returned.
-
-More specifically, an illegal encoding is a string of bytes such that
-the last byte cannot be UTF-8 legal given the previous bytes, or
-is an incomplete UTF-8 encoding at the end of the byte string
-bounded by \TT{s} and \TT{ends}.
-
-The \TT{min::unicode\_to\_utf8} function will output
-7-byte encodings (first byte \TT{0xFE}) for
-UNICODE character values \TT{=> 0x80000000}, and will output
-the overlong encoding \TT{0xC0},\TT{0x80}
-for \ttmkey{NUL}{UTF-8 encoding}
-(UTF-8 in which this is the \underline{only} permitted overlong encoding
-is called `modified UTF-8').  No other overlong encodings are output.
-At most 7 bytes will be output, and
-\TT{s} must point to a byte string buffer with at least 7 bytes.
-
-Strings of UNICODE characters can be converted to/from strings
-of UTF-8 encoded characters by the functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
-      \verb|  const char * & s, const char * ends )|
-\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb| ( char * & s, const char * ends,|\ARGBREAK
-      \verb|   const min::Uchar * & u,|\ARGBREAK
-      \verb|   const min::Uchar * endu )|
-\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
-\end{tabular}\end{indpar}
-
-The first of these repeatedly executes
-\begin{center}
-\tt * u ++ = min::utf8\_to\_unicode ( s, ends );
-\end{center}
-while \TT{u < endu} and \TT{s < ends}.
-The second repeatedly executes
-\begin{center}
-\tt min::unicode\_to\_utf8 ( s, * u ++ );
-\end{center}
-while \TT{s < ends} and \TT{u < endu} provided the
-next repetion will \underline{not} end with \TT{s > ends}
-(so the \TT{s} string end will not be overrun).
-Both these functions increment both \TT{s} and \TT{u} and return
-the number of string elements, \TT{min::Uchar}'s or \TT{char}'s respectively,
-written.
-
-It is sometimes useful to divide UNICODE characters into
-\ikey{UNICODE categories}{UNICODE category}.  The function
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
-\LABEL{MIN::UNICODE_CATEGORY}
-\end{tabular}\end{indpar}
-
-returns the UNICODE category of the UNICODE character \TT{c}.
-The UNICODE categories of all
-ASCII and LATIN-1\footnote{
-\raggedright
-Note that some possibly useful LATIN-1 non-letter characters
-and their compose key sequences for Linux keyboard entry are:
-\textexclamdown(!!),
-\textcent(/c),
-\textsterling(-l),
-\textcurrency(xo),
-\textyen(=y),
-\textsection(so),
-\"{~}(""),
-\textcopyright(oc),
-\textordfeminine(\_a),
-\guillemotleft({\tt <{}<}),
-$\neg$(-,),
-\textregistered(OR),
-\={~}(\_\_),
-$\pm$(+-),
-$^2$(\tt \^{}2),
-$^3$(\tt \^{}3),
-\'{~}(\tt '{}'),
-\textparagraph(!p),
-$^1$(\tt \^{}1),
-\textordmasculine(\_o),
-\guillemotright({\tt >{}>}),
-\textquestiondown(??),
-$\times$(xx),
-$\div$(-:).
-At the moment (2012), other non-ASCII, non-letter
-characters are not well supported by Linux.  LATIN-1 letters
-are supported via the compose key, but other non-ASCII letters are not.
-Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
-are considered to be lower case letters and \AE(AE)
-is considered to be an upper case letter, other LATIN-1
-letters may be made by composing
-\TT{`},
-\TT{'},
-\TT{\textasciicircum},
-\TT{\textasciitilde},
-\TT{"},
-comma (\TT{,}), or
-\TT{/} with a letter, as in
-\`A(\TT{`A}),
-\'A(\TT{'A}),
-\^A(\TT{\^{}A}),
-\~A(\TT{\textasciitilde A}),
-\"A(\TT{"A}),
-\c{C}(\TT{,C}), and
-\O(\TT{/O}), with the remaining cases
-\AA(\TT{AA}), and
-\aa(\TT{aa}) using a compose sequence consisting of just the letter doubled.
-However the LATIN-1 letters \dh{} and \DH{} cannot currently be input, as
-composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
-LATIN-1 control codes cannot currently be input and have
-no special MIN support for output.}
-characters (characters with codes \TT{< 256})
-are the characters themselves, e.g., the UNICODE category of
-`\TT{*}' is \TT{'*'}, \underline{except}:
-\begin{center}
-\begin{tabular}{l@{~}l}
-\TT{'U'} & is the category of upper case letters; \\
-           & \TT{A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
-	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
-\TT{'L'} & is the category of lower case letters; \\
-           & \TT{a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
-	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
-\end{tabular}
-\end{center}
-
-The UNICODE category of a character with code \TT{>= 256} is determined
-by the UNICODE character `\mkey{general category}{UNICODE}'.
-The general category of the character is encoded
-in a \TT{min::\EOL unicode\_\EOL category} value
-that is a single ASCII letter as indicated
-on Figure~\ref{UNICODE-CATEGORIES}.
-
-\begin{boxedfigure}
-\small
-\begin{center}
-\begin{tabular}{l@{\hspace*{0.3in}}l}
-\begin{tabular}[t]{l@{~denotes~}l}
-\tt U & upper case letter \\
-\tt L & lower case letter \\
-\tt T & title case letter \\
-\tt M & modifier letter \\
-\tt O & other letter
-\\[2ex]
-\tt N & nonspacing mark \\
-\tt S & spacing mark \\
-\tt E & enclosing mark
-\\[2ex]
-\tt D & decimal number \\
-\tt R & letter number \\
-\tt H & other number
-\\[2ex]
-\tt n & connector punctuation \\
-\tt d & dash punctuation \\
-\tt o & open punctuation \\
-\tt c & close punctuation \\
-\tt i & initial punctuation \\
-\tt f & final punctuation \\
-\tt h & other punctuation
-\end{tabular}
-&
-\begin{tabular}[t]{l@{~denotes~}l}
-\tt m & math symbol \\
-\tt y & currency symbol \\
-\tt r & modifier symbol \\
-\tt t & other symbol
-\\[2ex]
-\tt s & space separator \\
-\tt l & line separator \\
-\tt p & paragraph separator
-\\[2ex]
-\tt x & control \\
-\tt z & format \\
-\tt g & surrogate \\
-\tt v & private use \\
-\tt u & unassigned
-\\[2ex]
-\tt w & unspecified
-\end{tabular}
-\end{tabular}
-\end{center}
-\caption{\TT{min::unicode\_category} values}
-\label{UNICODE-CATEGORIES}
-\end{boxedfigure}
-
-Constant \skey{UNICODE string}s can be represented
-as \TT{const min::\EOL Ustring *}\ttindex{Ustring}\label{USTRING} values
-which are sequences of 32 bit unsigned integers.  The first integer,
-called the \mkey{header}{of {\tt Ustring}},
-holds the length of the string (not counting the header) in its
-low order 16 bits, and the number of print columns the string
-will take in its high order 16 bits.  The remainder of the integers
-are \TT{Uchar} values encoding the UNICODE characters.
-In computing the number of print columns, UNICODE characters are all
-assumed to take 1 column except for the non-spacing marks
-(e.g., combining diacritics), the characters with MIN category \TT{'N'},
-which are assumed to take 0 columns.
-
-The following are for programming with \TT{Ustring}'s:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
-\LABEL{MIN::USTRING} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_length} \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_LENGTH} \\
-\verb|min::uns32 min::|
-    & \MINKEY{unicode\_columns} \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_COLUMNS} \\
-\verb|const min::Uchar * min::|
-    & \MINKEY{unicode\_string} \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_STRING} \\
-\end{tabular}\end{indpar}
-
-The \TT{min::unicode\_\EOL length} function returns the number
-of \TT{Uchar}'s in the \TT{Ustring}.
-The \TT{min::unicode\_\EOL columns} function returns the number
-of print columns these take.
-The \TT{min::unicode\_\EOL string} function returns a pointer
-to the \TT{Uchar} vector in the \TT{Ustring}.
+TBD
 
 The following functions test a \TT{min::gen} value to see if it
 is a string and obtain information from
@@ -13991,8 +14039,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 \verb|const min::Uchar min::|
-    & \MINKEY{UTF8\_ILLEGAL}
-\LABEL{MIN::UTF8_ILLEGAL} \\
+    & \MINKEY{UNKNOWN\_UCHAR}
+\LABEL{MIN::UNKNOWN_UCHAR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
