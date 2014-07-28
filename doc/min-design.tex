@@ -111,8 +111,8 @@
 \newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
 
-\newcommand{\ttbkey}[1]{\TT{[#1]}\index{#1@{\tt [#1]}}}
-\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{#1@{\tt [#1]}!#2}}
+\newcommand{\ttbkey}[1]{\TT{[#1]}\index{[]@{\tt [#1]}}}
+\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{[]@{\tt [#1]}!#2}}
 
 \newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
 \newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
@@ -474,22 +474,27 @@ by users is in the following namespaces:
 	    & Abbre- \\
 Namespace   & viation   & Use
 \\[1ex]
-\TT{min::os} & \TT{MOS}	& Operating system independent interface to
+\minkey{os} & \ttkey{MOS}
+			& Operating system independent interface to
 			  operating system functions
 			  not covered by C++ standards.
 			  See Appendix \itemref{MOS}.
 \\[1ex]
-\TT{min::acc} & \TT{MACC} & The part of the interface to the
+\minkey{acc} & \ttkey{MACC}
+			& The part of the interface to the
 			  Allocator/\EOL Collector/\EOL Compactor
 			  that can be
 			  changed when the acc is changed.
 			  See Appendix \itemref{ACC}.
 \\[1ex]
-\TT{min::internal} & \ttkey{MINT}\label{MINT}
+\minkey{internal} & \ttkey{MINT}\label{MINT}
 		        & Interface to internal MIN code that can
 			  be changed without notice at any time.
 			  Not described in this document; see
 			  \TT{.h} files.
+\\[1ex]
+\minkey{unicode} & \ttkey{UNI}
+		        & Interface to UNICODE data base.
 \end{tabular}
 \end{indpar}
 
@@ -3296,10 +3301,13 @@ Unicode characters are implemented by the following:
 
 Here UNICODE characters are represented as \TT{min::Uchar} values
 that are 32-bit unsigned integers.  `\TT{char *}' strings are treated
-as `Modified UTF-8' (\pagref{MODIFIED-UTF8}) encodings of UNICODE
-character strings.  In these the NUL (zero) UNICODE 
-\TT{min::Uchar} value is encoded as the 2 string bytes `\TT{0xC0,0x80}',
+as `Modified UTF-8' encodings of UNICODE character strings.
+In these the NUL (zero) UNICODE \TT{min::Uchar} value is encoded as
+the 2 string bytes \TT{"\textbackslash xC0\textbackslash x80"},
 while the zero `\TT{char}' is used to terminate the `\TT{char *}' string.
+The term `\key{Modified UTF-8}'\label{MODIFIED-UTF8} applies
+to a UTF-8 encoding in which the \underline{only} permitted
+overlong encoding is this 2-byte encoding of NUL.
 
 The \TT{UNKNOWN\_UCHAR}\label{UNKNOWN_UCHAR} UNICODE character
 is returned by the \TT{min::\EOL utf8\_\EOL to\_\EOL unicode}
@@ -3345,10 +3353,10 @@ character, and returns the number of bytes written.
 This function will output
 7-byte encodings (first byte \TT{0xFE}) for
 UNICODE character values \TT{=> 0x80000000}, and will output
-the overlong encoding \TT{0xC0},\TT{0x80}
+the overlong encoding \TT{"\textbackslash xC0\textbackslash x80"}
 for \ttmkey{NUL}{UTF-8 encoding}.
 UTF-8 in which this is the \underline{only} permitted overlong encoding
-is called `\key{Modified UTF-8}\label{MODIFIED-UTF8}\index{UTF8!modified}'.
+is called `Modified UTF-8' (\pagref{MODIFIED-UTF8}).
 No other overlong encodings are output.
 At most 7 bytes will be output, and
 \TT{s} \underline{must}
@@ -3389,6 +3397,51 @@ written.
 
 \subsection{Unicode Data Base}
 \label{UNICODE-DATA-BASE}
+
+Various attributes of UNICODE characters are stored in the
+\key{UNICODE Data Base}.
+
+To keep this data base compact, UNICODE characters are grouped
+so all characters with the same attributes are assigned the
+same group.  This is implemented by mapping each character to
+a \key{character index}, and then mapping the character index to various
+attributes.  To enable a program to load only parts of the
+database, each attribute is in a separately loadable vector.
+
+The following implement the first part of this mapping:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns16 min::|
+    & \MINKEY{unicode::index}\TT{[c]}
+\LABEL{MIN::UNICODE::INDEX} \\
+\verb|min::uns16 min::|
+    & \MINKEY{unicode::index\_size}
+\LABEL{MIN::UNICODE::INDEX_SIZE} \\
+\end{tabular}\end{indpar}
+
+which should be used in code such as:
+
+\begin{indpar}\begin{verbatim}
+min::Uchar c = ...
+min::uns16 cindex = c <= min::unicode::index_size ?
+                    min::unicode::index[c] :
+		    min::unicode_size - 1;
+\end{verbatim}\end{indpar}
+
+to map the UNICODE character \TT{c} to its character index \TT{cindex}.
+If \TT{c => min::\EOL unicode::\EOL index\_\EOL size - 1}, it is assumed
+that \TT{c} is unsupported.\footnote{in 2014 all these characters were
+`tag' characters (letters, digits, etc.), variation selectors, and
+private use.}
+
+Given the character index \TT{i = min::unicode::index[c]},
+one can find character attributes using:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const char * min::|
+    & \MINKEY{unicode::category}\TT{[i]}
+\LABEL{MIN::UNICODE::CATEGORY} \\
+\end{tabular}\end{indpar}
 
 TBD
 
