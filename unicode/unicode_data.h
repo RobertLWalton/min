@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 24 07:00:55 EDT 2014
+// Date:	Mon Jul 28 13:01:46 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -249,9 +249,9 @@ extern unsigned long const cc_support_sets_mask[];
     //     "c" == cc_support_sets_name[j]
     //      m  == cc_support_sets_mask[j]
 
-extern unsigned const index_size;
+extern Uchar const index_size;
 extern unsigned short const index[];
-extern unsigned const index_limit;
+extern unsigned short const index_limit;
     // Index table.
     //
     // index[c] is the index of c.  For c <= 0xFF,

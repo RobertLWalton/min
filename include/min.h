@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 27 15:14:18 EDT 2014
+// Date:	Mon Jul 28 12:56:43 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,6 +26,7 @@
 //	References
 //	Pointers
 //	Locatable Variables
+//	UNICODE Characters
 //	Numbers
 //	Strings
 //	Labels
@@ -3358,6 +3359,66 @@ bool operator != \
 }
 
 
+// UNICODE Characters
+// ------- ----------
+
+namespace min {
+
+    // UTF-8 Conversion Functions
+
+    unsptr utf8_to_unicode
+    	( min::Uchar * & u, const min::Uchar * endu,
+	  const char * & s, const char * ends );
+
+    unsptr unicode_to_utf8
+	( char * & s, const char * ends,
+    	  const min::Uchar * & u,
+	  const min::Uchar * endu );
+
+    inline min::uns16 Uindex ( Uchar c )
+    {
+        return c < unicode::index_size ?
+	           unicode::index[c] :
+		   unicode::index
+		       [unicode::index_size - 1];
+    }
+
+    enum {
+
+        IS_SP			= ( 1 << 0 ),
+        IS_HT			= ( 1 << 1 ),
+        IS_OTHER_HSPACE		= ( 1 << 2 ),
+	IS_VSPACE		= ( 1 << 3 ),
+	IS_OTHER_CONTROL	= ( 1 << 4 ),
+	IS_LEADING		= ( 1 << 5 ),
+	IS_MIDDLING		= ( 1 << 6 ),
+	IS_TRAILING		= ( 1 << 7 ),
+	IS_UNSUPPORTED		= ( 1 << 8 ),
+
+	IS_NON_SPACING		= ( 1 << 13 ),
+	CONDITIONAL_BREAK	= ( 1 << 14 ),
+	QUOTE_SUPPRESS		= ( 1 << 15 ),
+
+	IS_ASCII		= ( 1 << 16 ),
+	IS_LATIN1		= ( 1 << 17 ),
+
+	IS_HSPACE = IS_SP + IS_HT
+	          + IS_OTHER_HSPACE,
+	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
+		   + IS_TRAILING,
+	IS_NON_HSPACE = IS_GRAPHIC
+	              + IS_VSPACE + IS_OTHER_CONTROL
+	              + IS_UNSUPPORTED,
+	IS_NON_GRAPHIC = IS_VSPACE + IS_OTHER_CONTROL
+	               + IS_HSPACE
+	               + IS_UNSUPPORTED
+	          
+    };
+
+    extern const min::uns32 * standard_char_flags;
+
+}
+
 // Numbers
 // -------
 
@@ -4007,17 +4068,6 @@ namespace min {
         return new_str_gen
 	    ( ! p, n );
     }
-
-    // UTF-8 Conversion Functions
-
-    unsptr utf8_to_unicode
-    	( min::Uchar * & u, const min::Uchar * endu,
-	  const char * & s, const char * ends );
-
-    unsptr unicode_to_utf8
-	( char * & s, const char * ends,
-    	  const min::Uchar * & u,
-	  const min::Uchar * endu );
 }
 
 namespace min {
@@ -10655,37 +10705,6 @@ namespace min {
     };
 
     extern const min::uns32 standard_op_flags;
-
-    enum {
-
-	IS_CONTROL		= ( 1 << 0 ),
-        IS_SP			= ( 1 << 1 ),
-        IS_HT			= ( 1 << 2 ),
-        IS_OTHER_HSPACE		= ( 1 << 3 ),
-	IS_LEADING		= ( 1 << 4 ),
-	IS_MIDDLING		= ( 1 << 5 ),
-	IS_TRAILING		= ( 1 << 6 ),
-	IS_UNSUPPORTED		= ( 1 << 7 ),
-
-	IS_NON_SPACING		= ( 1 << 8 ),
-	CONDITIONAL_BREAK	= ( 1 << 9 ),
-	QUOTE_SUPPRESS		= ( 1 << 10 ),
-
-	IS_ASCII		= ( 1 << 16 ),
-	IS_LATIN1		= ( 1 << 17 ),
-
-	IS_HSPACE = IS_SP + IS_HT
-	          + IS_OTHER_HSPACE,
-	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
-		   + IS_TRAILING,
-	IS_NON_HSPACE = IS_GRAPHIC + IS_CONTROL
-	              + IS_UNSUPPORTED,
-	IS_NON_GRAPHIC = IS_CONTROL + IS_HSPACE
-	               + IS_UNSUPPORTED
-	          
-    };
-
-    extern const min::uns32 * standard_char_flags;
 
     struct support_control
     {

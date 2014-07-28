@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 05:30:06 EDT 2014
+// Date:	Mon Jul 28 10:34:19 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -164,6 +164,17 @@ void finalize ( void )
 	    index[c] = i;
 	}
     }
+
+    unsigned i = index[index_size-1];
+    assert ( ::category[i] == NULL );
+    assert ( ::combining_class[i] == -1 );
+    assert ( ::bidi_class[i] == NULL );
+    assert ( ::denominator[i] == 0 );
+    assert ( ::bidi_mirrored[i] == 0 );
+    assert ( ::properties[i] == 0 );
+    assert ( ::name[i] == NULL );
+    assert ( ::picture[i] == NULL );
+    assert ( ::support_sets[i] == 0 );
 }
 
 // Store UNICODE name for a character.  Complain if
