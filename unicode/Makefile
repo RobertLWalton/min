@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jul 21 13:13:26 EDT 2014
+# Date:		Mon Jul 28 14:30:18 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -17,26 +17,27 @@ WFLAGS = -Wall -Wextra \
 
 FROM = http://www.unicode.org/Public/UCD/latest/ucd
 
-DERIVED = DerivedCombiningClass.txt \
-	  DerivedGeneralCategory.txt \
-	  DerivedNumericValues.txt
-NAMES = NameAliases.txt
+DATA = NameAliases.txt \
+       PropList.txt \
+       UnicodeData.txt
 
 
 all:	make_unicode_data.diff \
 	utf8look
 
 curl:
-	rm -f ${DERIVED} ${NAMES}
-	make ${DERIVED} ${NAMES}
+	rm -f ${DATA}
+	make ${DATA}
 
+${DATA}:
+	rm -f $@
+	curl ${FROM}/$@ >$@
+
+# Derived stuff is no longer used
+#
 ${DERIVED}:
 	rm -f $@
 	curl ${FROM}/extracted/$@ >$@
-
-${NAMES}:
-	rm -f $@
-	curl ${FROM}/$@ >$@
 
 make_unicode_data:	make_unicode_data.cc \
 			output_unicode_data.cc \
@@ -49,7 +50,7 @@ make_unicode_data:	make_unicode_data.cc \
 make_unicode_data.out \
 unicode_data.cc \
 unicode_data.dump:	make_unicode_data \
-	${DERIVED} ${NAMES}
+			${DATA}
 	rm -f unicode_data.cc unicode_data.dump \
 	      make_unicode_data.out
 	make_unicode_data unicode_data.cc \
