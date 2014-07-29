@@ -20,6 +20,7 @@
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9.0in}
 \raggedbottom
 
 \setlength{\unitlength}{1in}
@@ -3395,7 +3396,7 @@ Both these functions increment both \TT{s} and \TT{u} and return
 the number of string elements, \TT{min::Uchar}'s or \TT{char}'s respectively,
 written.
 
-\subsection{Unicode Data Base}
+\subsubsection{Unicode Data Base}
 \label{UNICODE-DATA-BASE}
 
 Various attributes of UNICODE characters are stored in the
@@ -3549,7 +3550,14 @@ columns, instead of 1 column.  \TT{min::IS\_LEADING/MIDDLING/TRAILING}
 are used by the single space suppression feature of MIN printers;
 see below.
 
-For the standard character flags, each character gets exactly
+For \TT{min::standard\_char\_flags}, the non-spacing mark characters
+and all control characters except single space and horizontal tab
+are given the \minkey{IS\_NON\_SPACING} flag.  Note that the
+horizontal tabs are handled specially by the printer as far
+as the number of columns they take, and this special handling
+ignores the character flags of the horizontal tab character.
+
+For \TT{min::standard\_char\_flags}, each character gets exactly
 one of the following flags:
 
 \begin{center}
@@ -3593,7 +3601,9 @@ flags.  \TT{IS\_SP} is just for the single space character,
 \TT{IS\_HT} is just for the horizontal tab character,
 and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for other horizontal
 space characters such as the LATIN1 non-breaking-space character
-\TT{NBSP}.
+\TT{NBSP}.  The printer does some special processing on single space
+and horizontal tab characters \underline{independently} of the flags
+of these characters.
 
 Vertical space characters that standardly appear in printed output
 get the \minkey{IS\_VSPACE} flag.  There are four such characters:
@@ -3628,311 +3638,310 @@ codes from \TT{80} through \TT{FF}.  See \pagref{SUPPORT-MASK}.
 
 The question of which characters can be supported is determined
 by the file
+\begin{center}
 \ldots\TT{/min/\EOL unicode/\EOL CompositeCharacters.txt}%
 \ttindex{CompositeCharacters.txt}
+\end{center}
 which lists the multi-key sequences that can be used to input
-non-ASCII supportable characters, and the file
+non-ASCII supportable characters, and also by the file
+\begin{center}
 \ldots\TT{/min/\EOL unicode/\EOL SupportSets.txt}%
-\ttindex{SupportSets.txt} which defines which sets of characters
+\ttindex{SupportSets.txt}
+\end{center}
+which defines which sets of characters
 are marked with which support set character flags, such as
 \TT{min::\EOL IS\_\EOL ASCII/\EOL LATIN1}.
 
+The characters with the \TT{min::IS\_LATIN1} flag are listed,
+along with the multi-key sequences commonly used to input them,
+in Figures~\ref{LATIN1-CHARACTERS-I},
+\ref{LATIN1-CHARACTERS-II},
+and \ref{LATIN1-CHARACTERS-III}.
 
-\begin{center}
+
+\begin{boxedfigure}
 \begin{tabular}{llll}
+& Hex & Multi-Key \\
+& Code & Sequence
+\\[1ex]
 \TT{~}
   & \TT{A0} & \TT{<space><space>} & No Break Space \\
 \TT{\textexclamdown}
   & \TT{A1} & \TT{!!} & Inverted Exclamation \\
-\TT{\textcent}		& \TT{A2} & \TT{c|} & Cent Sign \\
+\TT{\textcent}
+  & \TT{A2} & \TT{c|} & Cent Sign \\
 \TT{\textsterling}
   & \TT{A3} & \TT{L-} & Pound Sign \\
-\TT{\textcurrency}		& \TT{A4} & \TT{ox} & Currency Sign \\
-\TT{\textyen}		& \TT{A5} & \TT{Y=} & Yen Sign \\
-\TT{\textbrokenbar}		& \TT{A6} & \TT{!\textasciicircum} & Broken Bar \\
+\TT{\textcurrency}
+  & \TT{A4} & \TT{ox} & Currency Sign \\
+\TT{\textyen}
+  & \TT{A5} & \TT{Y=} & Yen Sign \\
+\TT{\textbrokenbar}
+  & \TT{A6} & \TT{!\textasciicircum} & Broken Bar \\
 \TT{\textsection}
   & \TT{A7} & \TT{S!} & Section Sign \\
-\TT{\"{~}}		& \TT{A8} & \TT{""} & Diaeresis \\
+\TT{\"{~}}
+  & \TT{A8} & \TT{""} & Diaeresis \\
 \TT{\textcopyright}
   & \TT{A9} & \TT{oc} & Copyright Sign \\
 \TT{\textordfeminine}
   & \TT{AA} & \TT{\textasciicircum\_a} & Feminine Ordinal Indicator \\
 \TT{\guillemotleft}
   & \TT{AB} & \TT{<<} & Left-Pointing Double Angle Quotation Mark \\
-\TT{\textlnot}		& \TT{AC} & \TT{-,} & Not Sign \\
-\TT{~}		& \TT{AD} & \TT{--<space>} & Soft Hypen \\
+\TT{\textlnot}
+  & \TT{AC} & \TT{-,} & Not Sign \\
+\TT{~}
+  & \TT{AD} & \TT{--<space>} & Soft Hypen \\
 \TT{\textregistered}
   & \TT{AE} & \TT{or} & Registered Sign \\
-\TT{\={~}}		& \TT{AF} & \TT{\textasciicircum-} & Macron \\
-\TT{\textdegree}		& \TT{B0} & \TT{oo} & Degree Sign \\
-\TT{\textpm}		& \TT{B1} & \TT{+-} & Plus-Minus Sign \\
-\TT{\textsuperscript{2}}		& \TT{B2} & \TT{\textasciicircum2} & Superscript 2 \\
-\TT{\textsuperscript{3}}		& \TT{B3} & \TT{\textasciicircum3} & Superscript 3 \\
-\TT{\'{~}}		& \TT{B4} & \TT{''} & Acute Accent \\
-\TT{\textmu}		& \TT{B5} & \TT{mu} & Micro Sign \\
+\TT{\={~}}
+  & \TT{AF} & \TT{\textasciicircum-} & Macron \\
+\TT{\textdegree}
+  & \TT{B0} & \TT{oo} & Degree Sign \\
+\TT{\textpm}
+  & \TT{B1} & \TT{+-} & Plus-Minus Sign \\
+\TT{\textsuperscript{2}}
+  & \TT{B2} & \TT{\textasciicircum2} & Superscript 2 \\
+\TT{\textsuperscript{3}}
+  & \TT{B3} & \TT{\textasciicircum3} & Superscript 3 \\
+\TT{\'{~}}
+  & \TT{B4} & \TT{''} & Acute Accent \\
+\TT{\textmu}
+  & \TT{B5} & \TT{mu} & Micro Sign \\
 \TT{\textpilcrow}
   & \TT{B6} & \TT{p!} & Pilcrow Sign \\
-\TT{\textperiodcentered}		& \TT{B7} & \TT{\textasciicircum.} & Middle Dot \\
-\TT{\c{~}}		& \TT{B8} & \TT{,,} & Cedilla \\
-\TT{\textsuperscript{1}}		& \TT{B9} & \TT{\textasciicircum1} & Superscript 1 \\
+\TT{\textperiodcentered}
+  & \TT{B7} & \TT{\textasciicircum.} & Middle Dot \\
+\TT{\c{~}}
+  & \TT{B8} & \TT{,,} & Cedilla \\
+\TT{\textsuperscript{1}}
+  & \TT{B9} & \TT{\textasciicircum1} & Superscript 1 \\
 \TT{\textordmasculine}
   & \TT{BA} & \TT{\textasciicircum\_o} & Masculine Ordinal Indicator \\
 \TT{\guillemotright}
   & \TT{BB} & \TT{>>} & Right-Pointing Double Angle Quotation Mark \\
-\TT{\textonequarter}		& \TT{BC} & \TT{14} & Vulgar Fraction One Quarter \\
-\TT{\textonehalf}		& \TT{BD} & \TT{12} & Vulgar Fraction One Half \\
-\TT{\textthreequarters}		& \TT{BE} & \TT{34} & Vulgar Fraction Three Quarters \\
+\TT{\textonequarter}
+  & \TT{BC} & \TT{14} & Vulgar Fraction One Quarter \\
+\TT{\textonehalf}
+  & \TT{BD} & \TT{12} & Vulgar Fraction One Half \\
+\TT{\textthreequarters}
+  & \TT{BE} & \TT{34} & Vulgar Fraction Three Quarters \\
 \TT{\textquestiondown}
   & \TT{BF} & \TT{??} & Invered Question Mark \\
-\TT{\`A}		& \TT{C0} & \TT{A\`~} & Latin Capital Letter A With Grave \\
-\TT{\'A}		& \TT{C1} & \TT{A'} & Latin Capital Letter A With Acute \\
-\TT{\^A}		& \TT{C2} & \TT{A\textasciicircum} & Latin Capital Letter A With Circumflex \\
-\TT{\~A}		& \TT{C3} & \TT{A\textasciitilde} & Latin Capital Letter A With Tilde \\
-\TT{\"A}		& \TT{C4} & \TT{A"} & Latin Capital Letter A With Diaeresis \\
-\TT{\AA}		& \TT{C5} & \TT{AA} & Latin Capital Letter A With Ring Above \\
-\TT{\AE}		& \TT{C6} & \TT{AE} & Latin Capital Letter AE \\
-\TT{\c{C}}		& \TT{C7} & \TT{C,} & Latin Capital Letter C With Cedilla \\
-\TT{\`E}		& \TT{C8} & \TT{E\`~} & Latin Capital Letter E With Grave \\
-\TT{\'E}		& \TT{C9} & \TT{E'} & Latin Capital Letter E With Acute \\
-\TT{\^E}		& \TT{CA} & \TT{E\textasciicircum} & Latin Capital Letter E With Circumflex \\
-\TT{\"E}		& \TT{CB} & \TT{E"} & Latin Capital Letter E With Diaeresis \\
-\TT{\`I}		& \TT{CC} & \TT{I\`~} & Latin Capital Letter I With Grave \\
-\TT{\'I}		& \TT{CD} & \TT{I'} & Latin Capital Letter I With Acute \\
-\TT{\^I}		& \TT{CE} & \TT{I\textasciicircum} & Latin Capital Letter I With Circumflex \\
-\TT{\"I}		& \TT{CF} & \TT{I"} & Latin Capital Letter I With Diaeresis \\
 \end{tabular}
-\end{center}
-
-\begin{center}
-\begin{tabular}{llll}
-\TT{\DH}		& \TT{D0} & \TT{DH} & Latin Capital Letter ETH \\
-\TT{\~N}		& \TT{D1} & \TT{N\textasciitilde} & Latin Capital Letter N With Tilde \\
-\TT{\`O}		& \TT{D2} & \TT{O\`~} & Latin Capital Letter O With Grave \\
-\TT{\'O}		& \TT{D3} & \TT{O'} & Latin Capital Letter O With Acute \\
-\TT{\^O}		& \TT{D4} & \TT{O\textasciicircum} & Latin Capital Letter O With Circumflex \\
-\TT{\~O}		& \TT{D5} & \TT{O\textasciitilde} & Latin Capital Letter O With Tilde \\
-\TT{\"O}		& \TT{D6} & \TT{O"} & Latin Capital Letter O With Diaeresis \\
-\TT{\texttimes}		& \TT{D7} & \TT{xx} & Multiplication Sign \\
-\TT{\O}		& \TT{D8} & \TT{O/} & Latin Capital Letter O With Stroke \\
-\TT{\`U}		& \TT{D9} & \TT{U\`~} & Latin Capital Letter U With Grave \\
-\TT{\'U}		& \TT{DA} & \TT{U'} & Latin Capital Letter U With Acute \\
-\TT{\^U}		& \TT{DB} & \TT{U\textasciicircum} & Latin Capital Letter U With Circumflex \\
-\TT{\"U}		& \TT{DC} & \TT{U"} & Latin Capital Letter U With Diaeresis \\
-\TT{\'Y}		& \TT{DD} & \TT{Y'} & Latin Capital Letter Y With Acute \\
-\TT{\TH}		& \TT{DE} & \TT{TH} & Latin Capital Letter Thorn \\
-\TT{\ss}		& \TT{DF} & \TT{ss} & Latin Small Letter Sharp S \\
-\TT{\`a}		& \TT{E0} & \TT{a\`~} & Latin Small Letter A With Grave \\
-\TT{\'a}		& \TT{E1} & \TT{a'} & Latin Small Letter A With Acute \\
-\TT{\^a}		& \TT{E2} & \TT{a\textasciicircum} & Latin Small Letter A With Circumflex \\
-\TT{\~a}		& \TT{E3} & \TT{a\textasciitilde} & Latin Small Letter A With Tilde \\
-\TT{\"a}		& \TT{E4} & \TT{a"} & Latin Small Letter A With Diaeresis \\
-\TT{\aa}		& \TT{E5} & \TT{aa} & Latin Small Letter A With Ring Above \\
-\TT{\ae}		& \TT{E6} & \TT{ae} & Latin Small Letter AE \\
-\TT{\c{c}}		& \TT{E7} & \TT{c,} & Latin Small Letter C With Cedilla \\
-\TT{\`e}		& \TT{E8} & \TT{e\`~} & Latin Small Letter E With Grave \\
-\TT{\'e}		& \TT{E9} & \TT{e'} & Latin Small Letter E With Acute \\
-\TT{\^e}		& \TT{EA} & \TT{e\textasciicircum} & Latin Small Letter E With Circumflex \\
-\TT{\"e}		& \TT{EB} & \TT{e"} & Latin Small Letter E With Diaeresis \\
-\TT{\`{\i}}		& \TT{EC} & \TT{i\`~} & Latin Small Letter I With Grave \\
-\TT{\'{\i}}		& \TT{ED} & \TT{i'} & Latin Small Letter I With Acute \\
-\TT{\^{\i}}		& \TT{EE} & \TT{i\textasciicircum} & Latin Small Letter I With Circumflex \\
-\TT{\"{\i}}		& \TT{EF} & \TT{i"} & Latin Small Letter I With Diaeresis \\
-\TT{\dh}		& \TT{F0} & \TT{dh} & Latin Small Letter ETH \\
-\TT{\~n}		& \TT{F1} & \TT{n\textasciitilde} & Latin Small Letter N With Tilde \\
-\TT{\`o}		& \TT{F2} & \TT{o\`~} & Latin Small Letter O With Grave \\
-\TT{\'o}		& \TT{F3} & \TT{o'} & Latin Small Letter O With Acute \\
-\TT{\^o}		& \TT{F4} & \TT{o\textasciicircum} & Latin Small Letter O With Circumflex \\
-\TT{\~o}		& \TT{F5} & \TT{o\textasciitilde} & Latin Small Letter O With Tilde \\
-\TT{\"o}		& \TT{F6} & \TT{o"} & Latin Small Letter O With Diaeresis \\
-\TT{\textdiv}		& \TT{F7} & \TT{-:} & Division Sign \\
-\TT{\o}		& \TT{F8} & \TT{o/} & Latin Small Letter O With Stroke \\
-\TT{\`u}		& \TT{F9} & \TT{u\`~} & Latin Small Letter U With Grave \\
-\TT{\'u}		& \TT{FA} & \TT{u'} & Latin Small Letter U With Acute \\
-\TT{\^u}		& \TT{FB} & \TT{u\textasciicircum} & Latin Small Letter U With Circumflex \\
-\TT{\"u}		& \TT{FC} & \TT{u"} & Latin Small Letter U With Diaeresis \\
-\TT{\'y}		& \TT{FD} & \TT{y'} & Latin Small Letter Y With Acute \\
-\TT{\th}		& \TT{FE} & \TT{th} & Latin Small Letter Thorn \\
-\TT{\"y}		& \TT{FF} & \TT{y"} & Latin Small Letter Y With Diaeresis \\
-\end{tabular}
-\end{center}
-
-
-
-TBD
-
-It is sometimes useful to divide UNICODE characters into
-\ikey{UNICODE categories}{UNICODE category}.  The function
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
-\LABEL{MIN::UNICODE_CATEGORY}
-\end{tabular}\end{indpar}
-
-returns the UNICODE category of the UNICODE character \TT{c}.
-The UNICODE categories of all
-ASCII and LATIN-1\footnote{
-\raggedright
-Note that some possibly useful LATIN-1 non-letter characters
-and their compose key sequences for Linux keyboard entry are:
-\textexclamdown(!!),
-\textcent(/c),
-\textsterling(-l),
-\textcurrency(xo),
-\textyen(=y),
-\textsection(so),
-\"{~}(""),
-\textcopyright(oc),
-\textordfeminine(\_a),
-\guillemotleft({\tt <{}<}),
-$\neg$(-,),
-\textregistered(OR),
-\={~}(\_\_),
-$\pm$(+-),
-$^2$(\tt \^{}2),
-$^3$(\tt \^{}3),
-\'{~}(\tt '{}'),
-\textparagraph(!p),
-$^1$(\tt \^{}1),
-\textordmasculine(\_o),
-\guillemotright({\tt >{}>}),
-\textquestiondown(??),
-$\times$(xx),
-$\div$(-:).
-At the moment (2012), other non-ASCII, non-letter
-characters are not well supported by Linux.  LATIN-1 letters
-are supported via the compose key, but other non-ASCII letters are not.
-Note that \ss(ss), \th(th), \TH(TH), \ae(ae)
-are considered to be lower case letters and \AE(AE)
-is considered to be an upper case letter, other LATIN-1
-letters may be made by composing
-\TT{`},
-\TT{'},
-\TT{\textasciicircum},
-\TT{\textasciitilde},
-\TT{"},
-comma (\TT{,}), or
-\TT{/} with a letter, as in
-\`A(\TT{`A}),
-\'A(\TT{'A}),
-\^A(\TT{\^{}A}),
-\~A(\TT{\textasciitilde A}),
-\"A(\TT{"A}),
-\c{C}(\TT{,C}), and
-\O(\TT{/O}), with the remaining cases
-\AA(\TT{AA}), and
-\aa(\TT{aa}) using a compose sequence consisting of just the letter doubled.
-However the LATIN-1 letters \dh{} and \DH{} cannot currently be input, as
-composing `- d' or `- D' give non-LATIN-1 UNICODE character codes.
-LATIN-1 control codes cannot currently be input and have
-no special MIN support for output.}
-characters (characters with codes \TT{< 256})
-are the characters themselves, e.g., the UNICODE category of
-`\TT{*}' is \TT{'*'}, \underline{except}:
-\begin{center}
-\begin{tabular}{l@{~}l}
-\TT{'U'} & is the category of upper case letters; \\
-           & \TT{A~\ldots~Z~\`A~\'A~\^A~\~A~\"A~\AA~\AE~\c{C}
-	      \ldots~\DH~\ldots~\O~\ldots~\'Y}. \\
-\TT{'L'} & is the category of lower case letters; \\
-           & \TT{a~\dots~z \TH~\ss~\`a~\'a~\^a~\~a~\aa~\ae~\c{c}
-	      \ldots~\dh~\~n \ldots~\o~\ldots~\th~\"y}. \\
-\end{tabular}
-\end{center}
-
-The UNICODE category of a character with code \TT{>= 256} is determined
-by the UNICODE character `\mkey{general category}{UNICODE}'.
-The general category of the character is encoded
-in a \TT{min::\EOL unicode\_\EOL category} value
-that is a single ASCII letter as indicated
-on Figure~\ref{UNICODE-CATEGORIES}.
-
-\begin{boxedfigure}
-\small
-\begin{center}
-\begin{tabular}{l@{\hspace*{0.3in}}l}
-\begin{tabular}[t]{l@{~denotes~}l}
-\tt U & upper case letter \\
-\tt L & lower case letter \\
-\tt T & title case letter \\
-\tt M & modifier letter \\
-\tt O & other letter
-\\[2ex]
-\tt N & nonspacing mark \\
-\tt S & spacing mark \\
-\tt E & enclosing mark
-\\[2ex]
-\tt D & decimal number \\
-\tt R & letter number \\
-\tt H & other number
-\\[2ex]
-\tt n & connector punctuation \\
-\tt d & dash punctuation \\
-\tt o & open punctuation \\
-\tt c & close punctuation \\
-\tt i & initial punctuation \\
-\tt f & final punctuation \\
-\tt h & other punctuation
-\end{tabular}
-&
-\begin{tabular}[t]{l@{~denotes~}l}
-\tt m & math symbol \\
-\tt y & currency symbol \\
-\tt r & modifier symbol \\
-\tt t & other symbol
-\\[2ex]
-\tt s & space separator \\
-\tt l & line separator \\
-\tt p & paragraph separator
-\\[2ex]
-\tt x & control \\
-\tt z & format \\
-\tt g & surrogate \\
-\tt v & private use \\
-\tt u & unassigned
-\\[2ex]
-\tt w & unspecified
-\end{tabular}
-\end{tabular}
-\end{center}
-\caption{\TT{min::unicode\_category} values}
-\label{UNICODE-CATEGORIES}
+\caption{LATIN1 Characters: Part I}
+\label{LATIN1-CHARACTERS-I}
 \end{boxedfigure}
 
-Constant \skey{UNICODE string}s can be represented
-as \TT{const min::\EOL Ustring *}\ttindex{Ustring}\label{USTRING} values
-which are sequences of 32 bit unsigned integers.  The first integer,
-called the \mkey{header}{of {\tt Ustring}},
-holds the length of the string (not counting the header) in its
-low order 16 bits, and the number of print columns the string
-will take in its high order 16 bits.  The remainder of the integers
-are \TT{Uchar} values encoding the UNICODE characters.
-In computing the number of print columns, UNICODE characters are all
-assumed to take 1 column except for the non-spacing marks
-(e.g., combining diacritics), the characters with MIN category \TT{'N'},
-which are assumed to take 0 columns.
+\begin{boxedfigure}
+\begin{tabular}{llll}
+& Hex & Multi-Key \\
+& Code & Sequence
+\\[1ex]
+\TT{\`A}
+  & \TT{C0} & \TT{A\`~} & Latin Capital Letter A With Grave \\
+\TT{\'A}
+  & \TT{C1} & \TT{A'} & Latin Capital Letter A With Acute \\
+\TT{\^A}
+  & \TT{C2} & \TT{A\textasciicircum} & Latin Capital Letter A With Circumflex \\
+\TT{\~A}
+  & \TT{C3} & \TT{A\textasciitilde} & Latin Capital Letter A With Tilde \\
+\TT{\"A}
+  & \TT{C4} & \TT{A"} & Latin Capital Letter A With Diaeresis \\
+\TT{\AA}
+  & \TT{C5} & \TT{AA} & Latin Capital Letter A With Ring Above \\
+\TT{\AE}
+  & \TT{C6} & \TT{AE} & Latin Capital Letter AE \\
+\TT{\c{C}}
+  & \TT{C7} & \TT{C,} & Latin Capital Letter C With Cedilla \\
+\TT{\`E}
+  & \TT{C8} & \TT{E\`~} & Latin Capital Letter E With Grave \\
+\TT{\'E}
+  & \TT{C9} & \TT{E'} & Latin Capital Letter E With Acute \\
+\TT{\^E}
+  & \TT{CA} & \TT{E\textasciicircum} & Latin Capital Letter E With Circumflex \\
+\TT{\"E}
+  & \TT{CB} & \TT{E"} & Latin Capital Letter E With Diaeresis \\
+\TT{\`I}
+  & \TT{CC} & \TT{I\`~} & Latin Capital Letter I With Grave \\
+\TT{\'I}
+  & \TT{CD} & \TT{I'} & Latin Capital Letter I With Acute \\
+\TT{\^I}
+  & \TT{CE} & \TT{I\textasciicircum} & Latin Capital Letter I With Circumflex \\
+\TT{\"I}
+  & \TT{CF} & \TT{I"} & Latin Capital Letter I With Diaeresis \\
+\TT{\DH}
+  & \TT{D0} & \TT{DH} & Latin Capital Letter ETH \\
+\TT{\~N}
+  & \TT{D1} & \TT{N\textasciitilde} & Latin Capital Letter N With Tilde \\
+\TT{\`O}
+  & \TT{D2} & \TT{O\`~} & Latin Capital Letter O With Grave \\
+\TT{\'O}
+  & \TT{D3} & \TT{O'} & Latin Capital Letter O With Acute \\
+\TT{\^O}
+  & \TT{D4} & \TT{O\textasciicircum} & Latin Capital Letter O With Circumflex \\
+\TT{\~O}
+  & \TT{D5} & \TT{O\textasciitilde} & Latin Capital Letter O With Tilde \\
+\TT{\"O}
+  & \TT{D6} & \TT{O"} & Latin Capital Letter O With Diaeresis \\
+\TT{\texttimes}
+  & \TT{D7} & \TT{xx} & Multiplication Sign \\
+\TT{\O}
+  & \TT{D8} & \TT{O/} & Latin Capital Letter O With Stroke \\
+\TT{\`U}
+  & \TT{D9} & \TT{U\`~} & Latin Capital Letter U With Grave \\
+\TT{\'U}
+  & \TT{DA} & \TT{U'} & Latin Capital Letter U With Acute \\
+\TT{\^U}
+  & \TT{DB} & \TT{U\textasciicircum} & Latin Capital Letter U With Circumflex \\
+\TT{\"U}
+  & \TT{DC} & \TT{U"} & Latin Capital Letter U With Diaeresis \\
+\TT{\'Y}
+  & \TT{DD} & \TT{Y'} & Latin Capital Letter Y With Acute \\
+\TT{\TH}
+  & \TT{DE} & \TT{TH} & Latin Capital Letter Thorn \\
+\TT{\ss}
+  & \TT{DF} & \TT{ss} & Latin Small Letter Sharp S \\
+\end{tabular}
+\caption{LATIN1 Characters: Part II}
+\label{LATIN1-CHARACTERS-II}
+\end{boxedfigure}
 
-The following are for programming with \TT{Ustring}'s:
+\begin{boxedfigure}
+\begin{tabular}{llll}
+& Hex & Multi-Key \\
+& Code & Sequence
+\\[1ex]
+\TT{\`a}
+  & \TT{E0} & \TT{a\`~} & Latin Small Letter A With Grave \\
+\TT{\'a}
+  & \TT{E1} & \TT{a'} & Latin Small Letter A With Acute \\
+\TT{\^a}
+  & \TT{E2} & \TT{a\textasciicircum} & Latin Small Letter A With Circumflex \\
+\TT{\~a}
+  & \TT{E3} & \TT{a\textasciitilde} & Latin Small Letter A With Tilde \\
+\TT{\"a}
+  & \TT{E4} & \TT{a"} & Latin Small Letter A With Diaeresis \\
+\TT{\aa}
+  & \TT{E5} & \TT{aa} & Latin Small Letter A With Ring Above \\
+\TT{\ae}
+  & \TT{E6} & \TT{ae} & Latin Small Letter AE \\
+\TT{\c{c}}
+  & \TT{E7} & \TT{c,} & Latin Small Letter C With Cedilla \\
+\TT{\`e}
+  & \TT{E8} & \TT{e\`~} & Latin Small Letter E With Grave \\
+\TT{\'e}
+  & \TT{E9} & \TT{e'} & Latin Small Letter E With Acute \\
+\TT{\^e}
+  & \TT{EA} & \TT{e\textasciicircum} & Latin Small Letter E With Circumflex \\
+\TT{\"e}
+  & \TT{EB} & \TT{e"} & Latin Small Letter E With Diaeresis \\
+\TT{\`{\i}}
+  & \TT{EC} & \TT{i\`~} & Latin Small Letter I With Grave \\
+\TT{\'{\i}}
+  & \TT{ED} & \TT{i'} & Latin Small Letter I With Acute \\
+\TT{\^{\i}}
+  & \TT{EE} & \TT{i\textasciicircum} & Latin Small Letter I With Circumflex \\
+\TT{\"{\i}}
+  & \TT{EF} & \TT{i"} & Latin Small Letter I With Diaeresis \\
+\TT{\dh}
+  & \TT{F0} & \TT{dh} & Latin Small Letter ETH \\
+\TT{\~n}
+  & \TT{F1} & \TT{n\textasciitilde} & Latin Small Letter N With Tilde \\
+\TT{\`o}
+  & \TT{F2} & \TT{o\`~} & Latin Small Letter O With Grave \\
+\TT{\'o}
+  & \TT{F3} & \TT{o'} & Latin Small Letter O With Acute \\
+\TT{\^o}
+  & \TT{F4} & \TT{o\textasciicircum} & Latin Small Letter O With Circumflex \\
+\TT{\~o}
+  & \TT{F5} & \TT{o\textasciitilde} & Latin Small Letter O With Tilde \\
+\TT{\"o}
+  & \TT{F6} & \TT{o"} & Latin Small Letter O With Diaeresis \\
+\TT{\textdiv}
+  & \TT{F7} & \TT{-:} & Division Sign \\
+\TT{\o}
+  & \TT{F8} & \TT{o/} & Latin Small Letter O With Stroke \\
+\TT{\`u}
+  & \TT{F9} & \TT{u\`~} & Latin Small Letter U With Grave \\
+\TT{\'u}
+  & \TT{FA} & \TT{u'} & Latin Small Letter U With Acute \\
+\TT{\^u}
+  & \TT{FB} & \TT{u\textasciicircum} & Latin Small Letter U With Circumflex \\
+\TT{\"u}
+  & \TT{FC} & \TT{u"} & Latin Small Letter U With Diaeresis \\
+\TT{\'y}
+  & \TT{FD} & \TT{y'} & Latin Small Letter Y With Acute \\
+\TT{\th}
+  & \TT{FE} & \TT{th} & Latin Small Letter Thorn \\
+\TT{\"y}
+  & \TT{FF} & \TT{y"} & Latin Small Letter Y With Diaeresis \\
+\end{tabular}
+\caption{LATIN1 Characters: Part III}
+\label{LATIN1-CHARACTERS-III}
+\end{boxedfigure}
+
+\newpage
+
+
+\subsubsection{UNICODE Strings}
+\label{UNICODE-STRINGS}
+
+
+Constant \skey{UNICODE string}s can be represented
+as \TT{const min::\EOL ustring *}\ttindex{ustring}\label{USTRING} values
+which are sequences of 8 bit bytes.  The first two bytes,
+called the \mkey{header}{of {\tt ustring}},
+holds the length of the string (not counting the header) in the first
+bytes, and the number of print columns the string will take,
+plus some flags, in its second byte.  The remainder of the bytes
+constitute a `\TT{const char *}' value that is the Modified UTF-8 encoded,
+NUL-terminated, string itself.
+
+Importantly \TT{const ustring *} values are pointers into
+\underline{unrelocatable}
+memory.  It is intended that \TT{ustrings} be used as parametric values in
+printing formats, as character names and pictures, etc.
+
+The following are for programming with \TT{ustring}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
+\verb|typedef min::uns8 min::| & \MINKEY{ustring}
 \LABEL{MIN::USTRING} \\
 \verb|min::unsptr min::|
-    & \MINKEY{unicode\_length} \verb|( const min::Ustring * p )|
+    & \MINKEY{unicode\_length} \verb|( const min::ustring * p )|
 \LABEL{MIN::UNICODE_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{unicode\_columns} \verb|( const min::Ustring * p )|
+    & \MINKEY{unicode\_columns} \verb|( const min::ustring * p )|
 \LABEL{MIN::UNICODE_COLUMNS} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_flags} \verb|( const min::ustring * p )|
+\LABEL{MIN::UNICODE_FLAGS} \\
 \verb|const min::Uchar * min::|
-    & \MINKEY{unicode\_string} \verb|( const min::Ustring * p )|
+    & \MINKEY{unicode\_string} \verb|( const min::ustring * p )|
 \LABEL{MIN::UNICODE_STRING} \\
 \end{tabular}\end{indpar}
 
+where the possible \skey{ustring flag}s are:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING}
+\LABEL{MIN::USTRING_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
+\LABEL{MIN::USTRING_TRAILING} \\
+\end{tabular}\end{indpar}
+
 The \TT{min::unicode\_\EOL length} function returns the number
-of \TT{Uchar}'s in the \TT{Ustring}.
+of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
+(not including the terminating \TT{NUL}).
 The \TT{min::unicode\_\EOL columns} function returns the number
-of print columns these take.
+of print columns these take; the maximum is 31, and it is assumed
+there are no space or control characters in the \TT{ustring}.
+The \TT{min::unicode\_\EOL flags} function returns the flags,
+which can be tested by anding the unsigned flags value with
+the \TT{min::USTRING\_LEADING/TRAILING} flags.
 The \TT{min::unicode\_\EOL string} function returns a pointer
-to the \TT{Uchar} vector in the \TT{Ustring}.
+to the \TT{const char *} string in the \TT{ustring}.
 
 \subsection{Numbers}
 \label{NUMBERS}
