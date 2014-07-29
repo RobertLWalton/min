@@ -3609,6 +3609,154 @@ All characters not given one of the above flags get the
 is not supported by keyboard input and/or hardware printers,
 and ideally, the character should not be used.
 
+The next two flags are used in conjuction with printer format
+masks to perform special printer functions.
+The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
+can be followed by a line break, such as \TT{-} and \TT{\_}.
+See \pagref{CONDITIONAL-BREAK}.
+The \minkey{QUOTE\_\EOL SUPPRESS} flag marks characters that
+suppress quoting strings if they are the first character of
+the string; currently letters are given this flag.
+See \pagref{QUOTE-SUPPRESS}.
+
+The last two flags are used in conjunction with printer format
+masks to dynamically control which characters are supported.
+The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters with
+codes from \TT{00} through \TT{7F}.
+The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters with
+codes from \TT{80} through \TT{FF}.  See \pagref{SUPPORT-MASK}.
+
+The question of which characters can be supported is determined
+by the file
+\ldots\TT{/min/\EOL unicode/\EOL CompositeCharacters.txt}%
+\ttindex{CompositeCharacters.txt}
+which lists the multi-key sequences that can be used to input
+non-ASCII supportable characters, and the file
+\ldots\TT{/min/\EOL unicode/\EOL SupportSets.txt}%
+\ttindex{SupportSets.txt} which defines which sets of characters
+are marked with which support set character flags, such as
+\TT{min::\EOL IS\_\EOL ASCII/\EOL LATIN1}.
+
+
+\begin{center}
+\begin{tabular}{llll}
+\TT{~}
+  & \TT{A0} & \TT{<space><space>} & No Break Space \\
+\TT{\textexclamdown}
+  & \TT{A1} & \TT{!!} & Inverted Exclamation \\
+\TT{\textcent}		& \TT{A2} & \TT{c|} & Cent Sign \\
+\TT{\textsterling}
+  & \TT{A3} & \TT{L-} & Pound Sign \\
+\TT{\textcurrency}		& \TT{A4} & \TT{ox} & Currency Sign \\
+\TT{\textyen}		& \TT{A5} & \TT{Y=} & Yen Sign \\
+\TT{\textbrokenbar}		& \TT{A6} & \TT{!\textasciicircum} & Broken Bar \\
+\TT{\textsection}
+  & \TT{A7} & \TT{S!} & Section Sign \\
+\TT{\"{~}}		& \TT{A8} & \TT{""} & Diaeresis \\
+\TT{\textcopyright}
+  & \TT{A9} & \TT{oc} & Copyright Sign \\
+\TT{\textordfeminine}
+  & \TT{AA} & \TT{\textasciicircum\_a} & Feminine Ordinal Indicator \\
+\TT{\guillemotleft}
+  & \TT{AB} & \TT{<<} & Left-Pointing Double Angle Quotation Mark \\
+\TT{xx}		& \TT{AC} & \TT{-,} & Not Sign \\
+\TT{xx}		& \TT{AD} & \TT{--<space>} & Soft Hypen \\
+\TT{\textregistered}
+  & \TT{AE} & \TT{or} & Registered Sign \\
+\TT{xx}		& \TT{AF} & \TT{\textasciicircum-} & Macron \\
+\TT{\textdegree}		& \TT{B0} & \TT{oo} & Degree Sign \\
+\TT{xx}		& \TT{B1} & \TT{+-} & Plus-Minus Sign \\
+\TT{\textsuperscript{2}}		& \TT{B2} & \TT{\textasciicircum2} & Superscript 2 \\
+\TT{\textsuperscript{3}}		& \TT{B3} & \TT{\textasciicircum3} & Superscript 3 \\
+\TT{\'{~}}		& \TT{B4} & \TT{''} & Acute Accent \\
+\TT{\textmu}		& \TT{B5} & \TT{mu} & Micro Sign \\
+\TT{\textpilcrow}
+  & \TT{B6} & \TT{p!} & Pilcrow Sign \\
+\TT{xx}		& \TT{B7} & \TT{\textasciicircum.} & Middle Dot \\
+\TT{\c{~}}		& \TT{B8} & \TT{,,} & Cedilla \\
+\TT{\textsuperscript{1}}		& \TT{B9} & \TT{\textasciicircum1} & Superscript 1 \\
+\TT{\textordmasculine}
+  & \TT{BA} & \TT{\textasciicircum\_o} & Masculine Ordinal Indicator \\
+\TT{\guillemotright}
+  & \TT{BB} & \TT{>>} & Right-Pointing Double Angle Quotation Mark \\
+\TT{\textonequarter}		& \TT{BC} & \TT{14} & Vulgar Fraction One Quarter \\
+\TT{\textonehalf}		& \TT{BD} & \TT{12} & Vulgar Fraction One Half \\
+\TT{\textthreequarters}		& \TT{BE} & \TT{34} & Vulgar Fraction Three Quarters \\
+\TT{\textquestiondown}
+  & \TT{BF} & \TT{??} & Invered Question Mark \\
+\TT{\`A}		& \TT{C0} & \TT{A\`~} & Latin Capital Letter A With Grave \\
+\TT{\'A}		& \TT{C1} & \TT{A'} & Latin Capital Letter A With Acute \\
+\TT{\^A}		& \TT{C2} & \TT{A\textasciicircum} & Latin Capital Letter A With Circumflex \\
+\TT{\~A}		& \TT{C3} & \TT{A\textasciitilde} & Latin Capital Letter A With Tilde \\
+\TT{\"A}		& \TT{C4} & \TT{A"} & Latin Capital Letter A With Diaeresis \\
+\TT{\AA}		& \TT{C5} & \TT{AA} & Latin Capital Letter A With Ring Above \\
+\TT{\AE}		& \TT{C6} & \TT{AE} & Latin Capital Letter AE \\
+\TT{\c{C}}		& \TT{C7} & \TT{C,} & Latin Capital Letter C With Cedilla \\
+\TT{\`E}		& \TT{C8} & \TT{E\`~} & Latin Capital Letter E With Grave \\
+\TT{\'E}		& \TT{C9} & \TT{E'} & Latin Capital Letter E With Acute \\
+\TT{\^E}		& \TT{CA} & \TT{E\textasciicircum} & Latin Capital Letter E With Circumflex \\
+\TT{\"E}		& \TT{CB} & \TT{E"} & Latin Capital Letter E With Diaeresis \\
+\TT{\`I}		& \TT{CC} & \TT{I\`~} & Latin Capital Letter I With Grave \\
+\TT{\'I}		& \TT{CD} & \TT{I'} & Latin Capital Letter I With Acute \\
+\TT{\^I}		& \TT{CE} & \TT{I\textasciicircum} & Latin Capital Letter I With Circumflex \\
+\TT{\"I}		& \TT{CF} & \TT{I"} & Latin Capital Letter I With Diaeresis \\
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{llll}
+\TT{xx}		& \TT{D0} & \TT{DH} & Latin Capital Letter ETH \\
+\TT{\~N}		& \TT{D1} & \TT{N\textasciitilde} & Latin Capital Letter N With Tilde \\
+\TT{\`O}		& \TT{D2} & \TT{O\`~} & Latin Capital Letter O With Grave \\
+\TT{\'O}		& \TT{D3} & \TT{O'} & Latin Capital Letter O With Acute \\
+\TT{\^O}		& \TT{D4} & \TT{O\textasciicircum} & Latin Capital Letter O With Circumflex \\
+\TT{\~O}		& \TT{D5} & \TT{O\textasciitilde} & Latin Capital Letter O With Tilde \\
+\TT{\"O}		& \TT{D6} & \TT{O"} & Latin Capital Letter O With Diaeresis \\
+\TT{xx}		& \TT{D7} & \TT{xx} & Multiplication Sign \\
+\TT{\O}		& \TT{D8} & \TT{O/} & Latin Capital Letter O With Stroke \\
+\TT{\`U}		& \TT{D9} & \TT{U\`~} & Latin Capital Letter U With Grave \\
+\TT{\'U}		& \TT{DA} & \TT{U'} & Latin Capital Letter U With Acute \\
+\TT{\^U}		& \TT{DB} & \TT{U\textasciicircum} & Latin Capital Letter U With Circumflex \\
+\TT{\"U}		& \TT{DC} & \TT{U"} & Latin Capital Letter U With Diaeresis \\
+\TT{\'Y}		& \TT{DD} & \TT{Y'} & Latin Capital Letter Y With Acute \\
+\TT{xx}		& \TT{DE} & \TT{TH} & Latin Capital Letter Thorn \\
+\TT{xx}		& \TT{DF} & \TT{SS} & Latin Capital Letter Sharp S \\
+\TT{\`a}		& \TT{E0} & \TT{a\`~} & Latin Small Letter A With Grave \\
+\TT{\'a}		& \TT{E1} & \TT{a'} & Latin Small Letter A With Acute \\
+\TT{\^a}		& \TT{E2} & \TT{a\textasciicircum} & Latin Small Letter A With Circumflex \\
+\TT{\~a}		& \TT{E3} & \TT{a\textasciitilde} & Latin Small Letter A With Tilde \\
+\TT{\"a}		& \TT{E4} & \TT{a"} & Latin Small Letter A With Diaeresis \\
+\TT{\aa}		& \TT{E5} & \TT{aa} & Latin Small Letter A With Ring Above \\
+\TT{\ae}		& \TT{E6} & \TT{ae} & Latin Small Letter AE \\
+\TT{\c{c}}		& \TT{E7} & \TT{c,} & Latin Small Letter C With Cedilla \\
+\TT{\`e}		& \TT{E8} & \TT{e\`~} & Latin Small Letter E With Grave \\
+\TT{\'e}		& \TT{E9} & \TT{e'} & Latin Small Letter E With Acute \\
+\TT{\^e}		& \TT{EA} & \TT{e\textasciicircum} & Latin Small Letter E With Circumflex \\
+\TT{\"e}		& \TT{EB} & \TT{e"} & Latin Small Letter E With Diaeresis \\
+\TT{\`{\i}}		& \TT{EC} & \TT{i\`~} & Latin Small Letter I With Grave \\
+\TT{\'{\i}}		& \TT{ED} & \TT{i'} & Latin Small Letter I With Acute \\
+\TT{\^{\i}}		& \TT{EE} & \TT{i\textasciicircum} & Latin Small Letter I With Circumflex \\
+\TT{\"{\i}}		& \TT{EF} & \TT{i"} & Latin Small Letter I With Diaeresis \\
+\TT{xx}		& \TT{F0} & \TT{dh} & Latin Small Letter ETH \\
+\TT{\~n}		& \TT{F1} & \TT{n\textasciitilde} & Latin Small Letter N With Tilde \\
+\TT{\`o}		& \TT{F2} & \TT{o\`~} & Latin Small Letter O With Grave \\
+\TT{\'o}		& \TT{F3} & \TT{o'} & Latin Small Letter O With Acute \\
+\TT{\^o}		& \TT{F4} & \TT{o\textasciicircum} & Latin Small Letter O With Circumflex \\
+\TT{\~o}		& \TT{F5} & \TT{o\textasciitilde} & Latin Small Letter O With Tilde \\
+\TT{\"o}		& \TT{F6} & \TT{o"} & Latin Small Letter O With Diaeresis \\
+\TT{xx}		& \TT{F7} & \TT{-:} & Division Sign \\
+\TT{\o}		& \TT{F8} & \TT{o/} & Latin Small Letter O With Stroke \\
+\TT{\`u}		& \TT{F9} & \TT{u\`~} & Latin Small Letter U With Grave \\
+\TT{\'u}		& \TT{FA} & \TT{u'} & Latin Small Letter U With Acute \\
+\TT{\^u}		& \TT{FB} & \TT{u\textasciicircum} & Latin Small Letter U With Circumflex \\
+\TT{\"u}		& \TT{FC} & \TT{u"} & Latin Small Letter U With Diaeresis \\
+\TT{\'y}		& \TT{FD} & \TT{y'} & Latin Small Letter Y With Acute \\
+\TT{xx}		& \TT{FE} & \TT{th} & Latin Small Letter Thorn \\
+\TT{\"y}		& \TT{FF} & \TT{y"} & Latin Small Letter Y With Diaeresis \\
+\end{tabular}
+\end{center}
+
+
 
 TBD
 
