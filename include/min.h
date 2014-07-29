@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 28 12:56:43 EDT 2014
+// Date:	Tue Jul 29 02:07:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3384,18 +3384,21 @@ namespace min {
     }
 
     enum {
+	IS_NON_SPACING		= ( 1 << 0 ),
 
-        IS_SP			= ( 1 << 0 ),
-        IS_HT			= ( 1 << 1 ),
-        IS_OTHER_HSPACE		= ( 1 << 2 ),
-	IS_VSPACE		= ( 1 << 3 ),
-	IS_OTHER_CONTROL	= ( 1 << 4 ),
-	IS_LEADING		= ( 1 << 5 ),
-	IS_MIDDLING		= ( 1 << 6 ),
-	IS_TRAILING		= ( 1 << 7 ),
-	IS_UNSUPPORTED		= ( 1 << 8 ),
+	IS_LEADING		= ( 1 << 1 ),
+	IS_MIDDLING		= ( 1 << 2 ),
+	IS_TRAILING		= ( 1 << 3 ),
 
-	IS_NON_SPACING		= ( 1 << 13 ),
+        IS_SP			= ( 1 << 4 ),
+        IS_HT			= ( 1 << 5 ),
+        IS_OTHER_HSPACE		= ( 1 << 6 ),
+
+	IS_VSPACE		= ( 1 << 7 ),
+	IS_OTHER_CONTROL	= ( 1 << 8 ),
+
+	IS_UNSUPPORTED		= ( 1 << 9 ),
+
 	CONDITIONAL_BREAK	= ( 1 << 14 ),
 	QUOTE_SUPPRESS		= ( 1 << 15 ),
 

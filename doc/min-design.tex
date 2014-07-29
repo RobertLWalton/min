@@ -148,8 +148,8 @@
            {\TT{min::#1}\ttindex{min::#1}\ttindex{#1}}
 \newcommand{\minikey}[2]%
            {\TT{min::#1}\ttindex{min::#2}\ttindex{#2}}
-\newcommand{\minmkey}[3]%
-           {\TT{min::#1}\ttmindex{min::#2}{#3}\ttmindex{#2}{#3}}
+\newcommand{\minmkey}[2]%
+           {\TT{min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\MUPkey}[1]{\TT{MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
 \newcommand{\MUPmkey}[2]%
            {\TT{MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
@@ -239,7 +239,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 28, 2014}
+\date{July 29, 2014}
  
 \maketitle
 
@@ -3419,6 +3419,196 @@ The first part of this mapping is implemented by
 
 which maps the UNICODE character \TT{c} to its UNICODE
 character index \TT{Uindex~(~c~)}.
+
+Given the index \TT{i = min::Uindex ( c )} of \TT{c}, you can
+find out the name, picture, and flags of \TT{c} by using:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::ustring * min::|
+    & \MINKEY{unicode::name}\verb|[i]|
+\LABEL{MIN::UNICODE::NAME} \\
+\verb|const min::ustring * min::|
+    & \MINKEY{unicode::picture}\verb|[i]|
+\LABEL{MIN::UNICODE::PICTURE} \\
+\verb|const min::uns32 printer->|
+    & \MINKEY{print\_format.char\_flags}\verb|[i]|
+\LABEL{MIN::PRINT_FORMAT.CHAR_FLAGS} \\
+\verb|const min::uns32 * min::|
+    & \MINKEY{standard\_char\_flags}
+\LABEL{MIN::STANDARD_CHAR_FLAGS} \\
+\end{tabular}\end{indpar}
+
+where usually
+
+\begin{center}
+\tt printer->print\_format.char\_flags == min::standard\_char\_flags
+\end{center}
+
+Here `\TT{const min::ustring *}' values encode UNICODE character
+strings in a format optimized for printing, or are \TT{NULL} to
+indicate a missing value.  The \mkey{name}{of UNICODE character}
+is non-missing only for common control characters; examples
+are the name
+\TT{CR} for the ASCII carriage return character with code \TT{0D},
+\TT{SP} for the ASCII single space character with code \TT{20} (hex),
+and \TT{NBSP} for the LATIN1 non-breaking single space character
+with code \TT{A0}.
+For ASCII graphic characters (which produce marks on paper) the
+name is \TT{NULL}.
+
+The \mkey{picture}{of UNICODE character} is non-missing for
+ASCII control characters, and for these is the UNICODE control picture
+character corresponding to the ASCII control character name.
+For example, the carriage return picture is
+{\tiny $\stackrel{\textstyle C~}{\textstyle ~R}$},
+which is the single UNICODE character with code \TT{240D}.
+As a special case, single space has the picture \TT{\textvisiblespace}.
+
+Also as special cases the \minmkey{UNKOWN\_UCHAR}{name} character 
+has name \TT{UUC} but no picture, and the
+\minmkey{SOFTWARE\_NL}{name and picture} character has name
+\TT{NL} and picture {\tiny $\stackrel{\textstyle N~}{\textstyle ~L}$}.
+
+The most important attributes of a character are its
+\smkey{flag}s{of UNICODE character}\index{character flag}.
+These are obtained from
+the \TT{char\_\EOL flags} member of the \TT{print\_\EOL format} member of
+the \TT{printer} being used to print the character, and this
+in turn is usually set to the \TT{min::\EOL standard\_\EOL char\_\EOL flags}
+vector.  Unlike other character attributes, the flags can be computed
+by user code in a very flexible manner, so the standard character
+flags which we describe here are only a special case of what is
+possible.
+
+The standard character flags are
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
+\LABEL{MIN::IS_NON_SPACING} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{MIN::IS_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
+\LABEL{MIN::IS_MIDDLING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{MIN::IS_TRAILING} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
+\LABEL{MIN::IS_SP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_HT}
+\LABEL{MIN::IS_HT} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_HSPACE}
+\LABEL{MIN::IS_OTHER_HSPACE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_VSPACE}
+\LABEL{MIN::IS_VSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_CONTROL}
+\LABEL{MIN::IS_OTHER_CONTROL} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
+\LABEL{MIN::IS_UNSUPPORTED} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
+\LABEL{MIN::CONDITIONAL_BREAK} \\
+\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
+\LABEL{MIN::QUOTE_SUPPRESS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_ASCII}
+\LABEL{MIN::IS_ASCII} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
+\LABEL{MIN::IS_LATIN1} \\
+\end{tabular}\end{indpar}
+
+Of these flags, only the first four:
+
+\begin{center}
+\begin{tabular}{l}
+\TT{min::IS\_NON\_SPACING} \\
+\TT{min::IS\_LEADING} \\
+\TT{min::IS\_MIDDLING} \\
+\TT{min::IS\_TRAILING} \\
+\end{tabular}
+\end{center}
+
+are built into MIN printer code and need to be in user
+defined character flags as well as standard character flags.
+\minkey{IS\_NON\_SPACING} signifies that a character takes zero
+columns, instead of 1 column.  \TT{min::IS\_LEADING/MIDDLING/TRAILING}
+are used by the single space suppression feature of MIN printers;
+see below.
+
+For the standard character flags, each character gets exactly
+one of the following flags:
+
+\begin{center}
+\begin{tabular}{l}
+\TT{min::IS\_LEADING} \\
+\TT{min::IS\_MIDDLING} \\
+\TT{min::IS\_TRAILING} \\
+\\
+\TT{min::IS\_SP} \\
+\TT{min::IS\_HT} \\
+\TT{min::IS\_OTHER\_HSPACE} \\
+\\
+\TT{min::IS\_VSPACE} \\
+\TT{min::IS\_OTHER\_CONTROL} \\
+\\
+\TT{min::IS\_UNSUPPORTED} \\
+\end{tabular}
+\end{center}
+
+Graphic characters which make a mark on the paper get one of the
+\TT{min::IS\_LEADING/\EOL MIDDLING/\EOL TRAILING}%
+\minindex{IS\_LEADING}%
+\minindex{IS\_MIDDLING}%
+\minindex{IS\_TRAILING}
+flags.  The rough concept is
+that a string of characters with no spaces may be separated into
+lexemes by stripping leading separators from its beginning and
+trailing separators from its end, so `\TT{[5;}' becomes the
+leading separator lexeme \TT{[}, the middling lexeme \TT{5},
+and the trailing separator lexeme \TT{;}, and therefore
+\TT{[} is \TT{IS\_LEADING}, \TT{5} is \TT{IS\_MIDDLING}, and
+\TT{;} is \TT{IS\_TRAILING}.  See 
+\itemref{SUPPRESSING-SPACES} for details.
+
+Horizontal space characters get one of the
+\TT{min::IS\_SP/HT/OTHER\_HSPACE}%
+\minindex{IS\_SP}%
+\minindex{IS\_HT}%
+\minindex{IS\_OTHER\_HSPACE}
+flags.  \TT{IS\_SP} is just for the single space character,
+\TT{IS\_HT} is just for the horizontal tab character,
+and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for other horizontal
+space characters such as the LATIN1 non-breaking-space character
+\TT{NBSP}.
+
+Vertical space characters that standardly appear in printed output
+get the \minkey{IS\_VSPACE} flag.  There are four such characters:
+form feed \TT{FF}, vertical tab \TT{VT}, line feed \TT{LF},
+and carriage return \TT{CR}.  The last is included because
+it is associated with line feeds.
+
+All other control characters get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
+flag.  These are often suppressed in printed output.
+
+All characters not given one of the above flags get the
+\minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
+is not supported by keyboard input and/or hardware printers,
+and ideally, the character should not be used.
+
 
 TBD
 
