@@ -3652,11 +3652,25 @@ which defines which sets of characters
 are marked with which support set character flags, such as
 \TT{min::\EOL IS\_\EOL ASCII/\EOL LATIN1}.
 
-The characters with the \TT{min::IS\_LATIN1} flag are listed,
+The characters with the \TT{min::IS\_LATIN1} flag 
+in \TT{min::standard\_char\_flags}
+are listed,
 along with the multi-key sequences commonly used to input them,
 in Figures~\ref{LATIN1-CHARACTERS-I},
 \ref{LATIN1-CHARACTERS-II},
 and \ref{LATIN1-CHARACTERS-III}.
+
+\TT{min::standard\_char\_flags} is computed using data in
+\ldots\TT{/min/\EOL unicode/\EOL unicode\_data.h}%
+\ttindex{unicode\_data.h} (which is included in the \ttkey{min::unicode}
+namespace by the \ttkey{min\_unicode.h} file that is in turn
+included in \TT{min.h}).  Other character flag vectors can be computed
+using this data.  For \TT{c <= 0xFF}, \TT{min::Uindex(c) == c}, and
+for \TT{c > 0xFF}, \TT{min::Uindex(c) > 0xFF}, so
+each ASCII and LATIN1 character has its own private character flag
+element in any character flag vector.
+
+
 
 
 \begin{boxedfigure}
@@ -7627,6 +7641,21 @@ accomplished by the following:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::support_control min::|%
+    \MINKEY{ascii\_support\_control} \verb|=| \\
+\verb|            { min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\verb|const min::support_control min::|%
+    \MINKEY{latin1\_support\_control} \verb|=| \\
+\verb|            { min::IS_LATIN1, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\verb|const min::support_control min::|%
+    \MINKEY{inclusive\_support\_control} \verb|=| \\
+\verb|            { 0xFFFF, min::IS_UNSUPPORTED };|
+\LABEL{MIN::INCLUSIVE_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{display\_\EOL control}
 \LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
@@ -7638,6 +7667,26 @@ accomplished by the following:
 	& \TTMKEY{display\_suppess}{in {\tt min::display\_control}}
 \LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
 \verb|}                        | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::display_control min::|%
+    \MINKEY{verbatim\_display\_control} \verb|=| \\
+\verb|            { 0xFFFF, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\verb|const min::display_control min::|%
+    \MINKEY{graphic\_and\_space\_display\_control} \verb|=| \\
+\verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\verb|const min::display_control min::|%
+    \MINKEY{graphic\_only\_display\_control} \verb|=| \\
+\verb|            { HT + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\verb|const min::display_control min::|%
+    \MINKEY{graphic\_and\_control\_display\_control} \verb|=| \\
+\verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC| \\
+\verb|                         + min::IS_CONTROL, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
