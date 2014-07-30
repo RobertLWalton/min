@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 26 22:31:06 EDT 2014
+// Date:	Wed Jul 30 04:45:41 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2545,9 +2545,8 @@ void test_printer ( void )
         ( printer->line_break.line_length == 72 );
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::break_before_non_space
-            << min::set_display_control
-	           ( min::graphic_only_display_control )
+            << min::break_before_all
+            << min::graphic_only
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
@@ -2556,9 +2555,8 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
-            << min::break_before_non_space
-            << min::set_display_control
-	           ( min::graphic_only_display_control )
+            << min::break_before_all
+            << min::graphic_only
             << min::display_picture
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
@@ -2698,8 +2696,7 @@ void test_printer ( void )
 
     printer << min::bom;
 
-    printer << min::set_display_control
-    		( min::graphic_only_display_control )
+    printer << min::graphic_only
             << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
@@ -2713,9 +2710,7 @@ void test_printer ( void )
 			   " quote (\")" ) )
             << min::eol;
 
-    printer << min::set_display_control
-    		( min::
-		  graphic_and_space_display_control )
+    printer << min::graphic_and_space
 	    << min::nodisplay_picture
             << min::pgen
                    ( min::new_str_gen
@@ -2834,7 +2829,7 @@ void test_printer ( void )
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
     printer << min::display_picture
-            << min::graphic_and_control;
+            << min::graphic_and_vspace;
     WTEST ( '\f' );
     WTEST ( 'a' );
     WTEST ( '\001' );
@@ -2858,7 +2853,7 @@ void test_printer ( void )
     WTEST ( min::UNKNOWN_UCHAR );
     printer << min::eol;
 
-    printer << min::break_before_non_space
+    printer << min::break_before_all
             << min::graphic_only
             << min::nodisplay_picture;
     MIN_ASSERT ( printer->column == 0 );

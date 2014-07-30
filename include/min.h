@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 29 02:07:02 EDT 2014
+// Date:	Wed Jul 30 06:53:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10735,7 +10735,7 @@ namespace min {
     extern const min::display_control
         graphic_only_display_control;
     extern const min::display_control
-        graphic_and_control_display_control;
+        graphic_and_vspace_display_control;
 
     struct break_control
     {
@@ -10750,11 +10750,9 @@ namespace min {
     extern const min::break_control
         break_after_space_break_control;
     extern const min::break_control
-        break_before_non_space_break_control;
-    extern const min::break_control
         break_before_all_break_control;
     extern const min::break_control
-        break_after_space_and_hypenators_break_control;
+        break_after_hyphenators_break_control;
 
     struct line_break
     {
@@ -10764,7 +10762,7 @@ namespace min {
 	uns32 indent;
     };
 
-    extern const line_break standard_line_break;
+    extern const line_break default_line_break;
 
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;
@@ -10792,7 +10790,7 @@ namespace min {
 	const min::gen_format *	      gen_format;
     };
 
-    extern const print_format standard_print_format;
+    extern const print_format default_print_format;
 
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;
@@ -11207,13 +11205,12 @@ namespace min {
 
     extern const op graphic_and_space;
     extern const op graphic_only;
-    extern const op graphic_and_control;
+    extern const op graphic_and_vspace;
 
     extern const op no_auto_break;
     extern const op break_after_space;
-    extern const op break_before_non_space;
     extern const op break_before_all;
-    extern const op break_after_space_and_hypenators;
+    extern const op break_after_hyphenators;
 
     extern const op print_assert; // For debugging only.
 
