@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 28 12:55:43 EDT 2014
+// Date:	Wed Jul 30 06:54:36 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7564,7 +7564,7 @@ const min::display_control
 };
 
 const min::display_control
-        min::graphic_and_control_display_control =
+        min::graphic_and_vspace_display_control =
 {
       min::IS_GRAPHIC
     + min::IS_VSPACE
@@ -7586,19 +7586,13 @@ const min::break_control
 };
 
 const min::break_control
-	min::break_before_non_space_break_control =
-{
-    0, min::IS_NON_HSPACE, 0, 0
-};
-
-const min::break_control
 	min::break_before_all_break_control =
 {
     0, 0xFFFF, 0, 0
 };
 
 const min::break_control
-   min::break_after_space_and_hypenators_break_control =
+   min::break_after_hyphenators_break_control =
 {
     min::IS_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
@@ -7613,12 +7607,12 @@ const min::char_name_format *
 	min::standard_char_name_format =
     & ::standard_char_name_format;
 
-const min::line_break min::standard_line_break =
+const min::line_break min::default_line_break =
 {
     0, 0, 72, 4
 };
 
-// const min::print_format min::standard_print_format
+// const min::print_format min::default_print_format
 // defined below after top_gen_format.
 
 static min::packed_vec<min::line_break>
@@ -7670,8 +7664,8 @@ min::printer min::init
 	init_input ( file_ref(printer) );
 
     printer->column = 0;
-    printer->line_break = min::standard_line_break;
-    printer->print_format = min::standard_print_format;
+    printer->line_break = min::default_line_break;
+    printer->print_format = min::default_print_format;
 
     return printer;
 }
@@ -8222,9 +8216,9 @@ const min::op min::graphic_and_space
 const min::op min::graphic_only
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_only_display_control );
-const min::op min::graphic_and_control
+const min::op min::graphic_and_vspace
     ( min::op::SET_DISPLAY_CONTROL,
-      & min::graphic_and_control_display_control );
+      & min::graphic_and_vspace_display_control );
 
 const min::op min::no_auto_break
     ( min::op::SET_BREAK_CONTROL,
@@ -8232,16 +8226,13 @@ const min::op min::no_auto_break
 const min::op min::break_after_space
     ( min::op::SET_BREAK_CONTROL,
       & min::break_after_space_break_control );
-const min::op min::break_before_non_space
-    ( min::op::SET_BREAK_CONTROL,
-      & min::break_before_non_space_break_control );
 const min::op min::break_before_all
     ( min::op::SET_BREAK_CONTROL,
       & min::break_before_all_break_control );
-const min::op min::break_after_space_and_hypenators
+const min::op min::break_after_hyphenators
     ( min::op::SET_BREAK_CONTROL,
       & min::
-      break_after_space_and_hypenators_break_control );
+      break_after_hyphenators_break_control );
 
 const min::op min::print_assert
     ( min::op::PRINT_ASSERT );
@@ -9258,7 +9249,7 @@ static min::gen_format bracketing_gen_format =
 const min::gen_format * min::bracketing_gen_format =
     & ::bracketing_gen_format;
 
-const min::print_format min::standard_print_format =
+const min::print_format min::default_print_format =
 {
     min::EXPAND_HT,
     ::standard_char_flags,

@@ -7474,7 +7474,7 @@ if ( error-occurred )
 ...
 \end{verbatim}\end{indpar}
 
-Creation, initialization, and parametrization of printers is
+Creation and initialization of printers is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7497,9 +7497,37 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_FILE} \\
 \verb|std::ostream * printer->| & \TTMKEY{ostream}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_OSTREAM} \\
-\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_COLUMN} \\
 \end{tabular}\end{indpar}
+
+The {\tt min::}\MINKEY{init} function both re-initializes existing
+printers and creates new ones.  It takes a variable as its
+first argument, and if the variable value is {\tt min::\EOL
+NULL\_\EOL STUB}, then a new printer is created and the
+variable is set to point at the new printer.
+The second argument to {\tt min::init} supplies the {\tt min::file}
+to which the printer is attached.  If this argument is
+{\tt min::\EOL NULL\_\EOL STUB}, then {\tt min::\EOL init\_\EOL input}
+is applied to {\tt printer->file} to create that file if necessary
+and empty it if it already exists; but if the argument is
+not {\tt min::\EOL NULL\_\EOL STUB} then {\tt printer->file} is set
+to the argument and the file is \underline{not} emptied or changed.
+
+The {\tt min::}\MINKEY{init\_\EOL ostream}
+function just executes
+\begin{indpar}\begin{verbatim}
+min::init ( printer );
+min::init_ostream ( printer->file, ostream );
+printer << min::eol_flush;
+\end{verbatim}\end{indpar}
+
+which is a very common way of setting up a printer.
+
+Both initialization functions return the printer, which is
+sometimes convenient, as in the code often used 
+with {\tt min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
+
+Parameterization of the printing process is accomplished using the
+following printer parameters:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
 \verb|struct    min::| & \MINKEY{line\_\EOL break}
@@ -7521,6 +7549,8 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_COLUMN} \\
 \verb|const min::line_break printer->|
     & \TTMKEY{line\_break}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE_BREAK} \\
@@ -7579,8 +7609,8 @@ accomplished by the following:
     & \TTMKEY{print\_format}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT} \\
 \verb|const min::print_format min::|
-    & \TTKEY{standard\_\EOL print\_\EOL format}
-\LABEL{MIN::STANDARD_PRINT_FORMAT} \\
+    & \TTKEY{default\_\EOL print\_\EOL format}
+\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
 \verb|const min::packed_vec_insptr<min::print_format>  | \\
 \verb|printer->|
     & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
@@ -7664,7 +7694,7 @@ accomplished by the following:
 	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
 \LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
 \verb|            min::uns16   |
-	& \TTMKEY{display\_suppess}{in {\tt min::display\_control}}
+	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}}
 \LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
@@ -7683,10 +7713,10 @@ accomplished by the following:
 \verb|            { HT + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
-    \MINKEY{graphic\_and\_control\_display\_control} \verb|=| \\
+    \MINKEY{graphic\_and\_vspace\_display\_control} \verb|=| \\
 \verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC| \\
-\verb|                         + min::IS_CONTROL, 0 };|
-\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\verb|                         + min::IS_VSPACE, 0 };|
+\LABEL{MIN::GRAPHIC_AND_CONTROL_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7708,6 +7738,29 @@ accomplished by the following:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::break_control min::|%
+    \MINKEY{no\_auto\_break\_break\_control} \verb|=| \\
+\verb|            { 0, 0, 0, 0 };|
+\LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
+\verb|const min::break_control min::|%
+    \MINKEY{break\_after\_space\_break\_control} \verb|=| \\
+\verb|            { min::IS_HSPACE, 0, 0, 0 };|
+\LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
+\verb|const min::break_control min::|%
+    \MINKEY{break\_before\_all\_break\_control} \verb|=| \\
+\verb|            { 0, 0xFFFF, 0, 0 };|
+\LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
+\verb|const min::break_control min::|%
+    \MINKEY{no\_auto\_break\_break\_control} \verb|=| \\
+\verb|            { 0, 0, 0, 0 };|
+\LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
+\verb|const min::break_control min::|%
+    \MINKEY{break\_after\_hyphenators\_break\_control} \verb|=| \\
+\verb|            { min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
+\LABEL{MIN::BREAK_AFTER_HYPHENATORS_BREAK_CONTROL} \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::|
     & \MINKEY{char\_\EOL name\_\EOL format}
@@ -7722,32 +7775,65 @@ accomplished by the following:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
-The {\tt min::}\MINKEY{init} function both re-initializes existing
-printers and creates new ones.  It takes a variable as its
-first argument, and if the variable value is {\tt min::\EOL
-NULL\_\EOL STUB}, then a new printer is created and the
-variable is set to point at the new printer.
-The second argument to {\tt min::init} supplies the {\tt min::file}
-to which the printer is attached.  If this argument is
-{\tt min::\EOL NULL\_\EOL STUB}, then {\tt min::\EOL init\_\EOL input}
-is applied to {\tt printer->file} to create that file if necessary
-and empty it if it already exists; but if the argument is
-not {\tt min::\EOL NULL\_\EOL STUB} then {\tt printer->file} is set
-to the argument and the file is \underline{not} emptied or changed.
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|const min::char_name_format min::|%
+    \MINKEY{standard\_char\_name\_format} \verb|=| \\
+\verb|            { (const min::ustring *) "\x01\x01<",| \\
+\verb|              (const min::ustring *) "\x01\x01>" };|
+\LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
+\end{tabular}\end{indpar}
 
-The {\tt min::}\MINKEY{init\_\EOL ostream}
-function just executes
+The basic algorithm for printing a UNICODE character \TT{c} is:
+
+\begin{enumerate}
+
+\item Compute flags of \TT{c}:
 \begin{indpar}\begin{verbatim}
-min::init ( printer );
-min::init_ostream ( printer->file, ostream );
-printer << min::eol_flush;
+min::uns16 cindex = min::Uindex ( c );
+min::uns32 cflags = printer->print_format.char_flags[cindex];
 \end{verbatim}\end{indpar}
 
-which is a very common way of setting up a printer.
+\item Replace \TT{cflags} if \TT{c} is unsupported:
+\begin{indpar}\begin{verbatim}
+min::support_control sc = printer->print_format.support_control;
+if ( ( cflags & sc.support_mask ) == 0 )
+    cflags = sc.unsupported_char_flags;
+\end{verbatim}\end{indpar}
 
-Both initialization functions return the printer, which is
-sometimes convenient, as in the code often used 
-with {\tt min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
+\item Compute printed representation of \TT{c}:
+\begin{indpar}\begin{verbatim}
+min::display_control dc = printer->print_format.display_control;
+if ( cflags & dc.display_char )
+    // Character represents itself, but if c == '\t', c is
+    // represented by a sequence of ' ' spaces if EXPAND_HT
+    // op_flag is on.
+else if ( cflags & dc.display_suppress )
+    // Ignore character and do not print it
+else
+    // Character is represented by min::unicode::picture[cindex]
+    // if that is not NULL and DISPLAY_PICTURE op_flag is on;
+    // else character is represented by <X> where < and > are
+    // the char_name_format prefix and postfix, and X is
+    // min::unicode::name[cindex] if that is not NULL, or is the
+    // character code in hexa-decimal with a leading digit
+    // otherwise.
+\end{verbatim}\end{indpar}
+
+\item Compute automatic break point settings for \TT{c}:
+\begin{indpar}\begin{verbatim}
+min::break_control bc = printer->print_format.break_control;
+if ( cflags & bc.break_after )
+    set break after representative of c
+if ( cflags & bc.break_before )
+    set break before representative of c
+if ( cflags & bc.conditional_break
+     &&
+        printer->column - printer->line_break.column
+     >= bc.conditional_columns )
+    set break after representative of c
+\end{verbatim}\end{indpar}
+
+\end{enumerate}
 
 The members of a printer may be read but \underline{not} written.
 They are:
@@ -15938,8 +16024,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.8in}
 \verb|const min::print_format min::|
-    & \TTKEY{standard\_\EOL print\_\EOL format}
-\LABEL{MIN::STANDARD_PRINT_FORMAT} \\
+    & \TTKEY{default\_\EOL print\_\EOL format}
+\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
@@ -16003,7 +16089,7 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
 \LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
 \verb|            min::uns16   |
-	& \TTMKEY{display\_suppess}{in {\tt min::display\_control}}
+	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}}
 \LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
 \verb|}                        | \\
 \end{TABULAR}
