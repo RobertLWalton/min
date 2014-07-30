@@ -240,7 +240,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 29, 2014}
+\date{July 30, 2014}
  
 \maketitle
 
@@ -7805,18 +7805,18 @@ if ( ( cflags & sc.support_mask ) == 0 )
 min::display_control dc = printer->print_format.display_control;
 if ( cflags & dc.display_char )
     // Character represents itself, but if c == '\t', c is
-    // represented by a sequence of ' ' spaces if EXPAND_HT
-    // op_flag is on.
+    // represented by a sequence of 8 - printer->column % 8
+    // ' ' spaces if EXPAND_HT op_flag is on.
 else if ( cflags & dc.display_suppress )
     // Ignore character and do not print it
 else
     // Character is represented by min::unicode::picture[cindex]
     // if that is not NULL and DISPLAY_PICTURE op_flag is on;
     // else character is represented by <X> where < and > are
-    // the char_name_format prefix and postfix, and X is
-    // min::unicode::name[cindex] if that is not NULL, or is the
-    // character code in hexa-decimal with a leading digit
-    // otherwise.
+    // the printer->print_format.char_name_format prefix and
+    // postfix, and X is min::unicode::name[cindex] if that is
+    // not NULL, or is the character code in hexa-decimal with
+    // a leading decimal digit (may be 0) otherwise.
 \end{verbatim}\end{indpar}
 
 \item Compute automatic break point settings for \TT{c}:
@@ -7836,7 +7836,7 @@ if ( cflags & bc.conditional_break
 \end{enumerate}
 
 The members of a printer may be read but \underline{not} written.
-They are:
+A complete list of these members follows:
 
 \begin{itemlist}[0.8in]
 
@@ -7871,8 +7871,9 @@ Initialized to {\tt 0}.
 Nominal maximum line length in columns.  Initialized to {\tt 72}.
 
 More specifically,
-when a character representative other that single space or horizontal
-tab is to be inserted into the line, and this would cause the number
+when a character representative other than a single space, a horizontal
+tab, or a sequence of single spaces representing a horizontal tab
+is to be inserted into the line, and this would cause the number
 of columns in the line to exceed {\tt line\_\EOL break.line\_length}, then if
 \begin{center}
 \tt line\_break.column > line\_break.indent
@@ -7882,7 +7883,7 @@ spaces,
 is inserted into the printer file buffer just after the break point
 (i.e., is inserted at {\tt line\_\EOL break.offset}).
 
-Horizontal space
+Single space and horizontal tab
 characters immediately before the inserted line end are deleted.
 After the break is inserted, {\tt line\_\EOL break.column} is reset to
 the number of indentation spaces
@@ -7890,8 +7891,7 @@ and {\tt line\_\EOL break.offset} to the first position after
 the inserted indentation spaces.
 
 Break points may be inserted automatically by using
-{\tt min::\EOL HBREAK\_\EOL FLAG} or
-{\tt min::\EOL GBREAK\_\EOL FLAG}: see below.
+\TT{print\_format.break\_con\-trol}; see above.
 
 If a non-empty {\tt line\_break\_stack} exists
 because a {\tt min::\EOL save\_\EOL line\_\EOL break} or 
