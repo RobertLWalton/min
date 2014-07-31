@@ -7926,7 +7926,7 @@ Initialized to an empty stack.
 
 \item[\ttmkey{print\_format.op\_flags}{in {\tt min::printer}}]%
 \label{PRINT_FORMAT_OP_FLAGS}~\\
-These are flag bits that control printing.  When passed as
+These are printer \skey{operation flag}s that control printing.  When passed as
 function arguments they are referred to as the
 \TT{print\_\EOL op\_\EOL flags}.
 The flags are listed immediately below.
@@ -8193,8 +8193,7 @@ point at the contents of a string \TT{min::gen} value.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
 When a horizontal tab is to be copied to the printer buffer, then if
-the \TT{min::\EOL EXPAND\_\EOL HT} flag in
-\TT{printer->\EOL print\_EOL format.op\_\EOL flags} is on,
+the \TT{min::\EOL EXPAND\_\EOL HT} printer operation flag is on,
 the horizontal tab is converted to between 1 and 8 single space characters.
 But if the flag is off, the horizontal character itself is copied.
 In either case the printer column is adjusted to the next multiple of 8.
@@ -8241,8 +8240,8 @@ operation:
 \end{tabular}\end{indpar}
 
 which inserts a line end into the output and then executes a
-flush operation if the \TT{min::\EOL FLUSH\_\EOL ON\_\EOL EOL} is set
-in \TT{printer->\EOL print\_EOL format.op\_\EOL flags}.
+flush operation if the \TT{min::\EOL FLUSH\_\EOL ON\_\EOL EOL} printer
+operation flag is set.
 
 The flush operation:
 
@@ -8312,8 +8311,9 @@ printer->line_break.column = printer->column;
 
 Recall from the description of \TT{line\_\EOL break.line\_\EOL length} on
 \pagref{LINE-LENGTH}
-that when a character representative other that single space or horizontal
-tab is to be inserted into the line, and this would cause the number
+that when a character representative other than single space, horizontal
+tab, or spaces representing a horizontal tab
+is to be inserted into the line, and this would cause the number
 of columns in the line to exceed \TT{line\_\EOL break.line\_\EOL length},
 then if
 \begin{center}
@@ -8323,13 +8323,14 @@ a break, consisting of a line end followed by \TT{line\_\EOL break.indent}
 spaces,
 is inserted into the printer file buffer just after the break point
 (i.e., at \TT{line\_\EOL break.offset}).  Also
-horizontal spaces
+single space and horizontal tab
 characters immediately before the inserted line end are deleted.
 
 One typically sets a break point just before printing text that one wants
 to appear all on one line.  Then if
-a character representative other that single space or horizontal
-tab is to be inserted into the line, and this would cause the number
+a character representative other than single space, horizontal
+tab, or spaces representing a horizontal tab
+is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the \TT{line\_\EOL break.line\_\EOL length},
 a line end will be inserted at the break point.
 
@@ -8339,7 +8340,8 @@ print
 \tt [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 \end{center}
 in which \TT{min::\EOL set\_\EOL break} was called after every single space
-character (which could be done automatically via the \TT{HBREAK\_\EOL FLAG}).
+character (which could be done automatically using
+\TT{break\_\EOL control.break\_\EOL after}).
 If instead \TT{line\_\EOL break.line\_\EOL length}
 was just 14 and \TT{line\_\EOL break.indent} was 2,
 the same output would
@@ -8407,8 +8409,8 @@ Both operations behave exactly as if spaces were inserted at the
 appropriate point by \TT{printer << "~"}, except that
 \TT{min::right} will give undefined results if a horizontal
 tab has been output since the last break point (which can only
-happen in non-graphic mode with
-\TT{min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} on).
+happen if the horizontal tab is to represent itself and the
+\TT{min::\EOL EXPAND\_\EOL HT} printer operation flag is off).
 
 The \TT{min::reserve} operation:
 
@@ -8508,8 +8510,9 @@ pops this element from the stack.
 
 In addition, a non-empty line break stack modifies break point
 behavior in the following way.
-When a character representative other that single space or horizontal
-tab is to be inserted into the line, and this would cause the number
+When a character representative other than single space, horizontal
+tab, or spaces representing a horizontal tab
+is to be inserted into the line, and this would cause the number
 of columns in the line to exceed
 the printer \TT{line\_\EOL break.line\_\EOL length} parameter,
 then if any break stack entry is enabled, the first such entry's
@@ -8561,7 +8564,7 @@ the \TT{line\_\EOL break\_\EOL stack} using the operations:
 \LABEL{MIN::RESTORE_INDENT} \\
 \end{tabular}\end{indpar}
 
-It is indended that a list header will be printed by first
+It is intended that a list header will be printed by first
 executing a \TT{min::\EOL set\_\EOL break}, then printing the
 header (e.g.~\TT{"[ "}), then executing
 \TT{min::save\_indent}, while the list trailer will be printed
@@ -8639,8 +8642,8 @@ Next this third element is popped after printing `\TT{~),~}'.
 Then when the second `\TT{h}' is about to be printed, neither of the
 two break points left in the line break stack are enabled, so the non-stack
 break point before the first `\TT{h}' is used.  At this point the
-current \TT{indent} is that which was saved and restore by the popped
-third element, and this indent is just after `{\tt[~}'.
+current \TT{indent} is that which was saved in and restore from the
+second element, and this indent is just after `{\tt[~}'.
 
 The \key{begin message} and \TT{end message} operations can be used
 to surround the body of an error message or other message:
@@ -8659,12 +8662,12 @@ and a \TT{min::\EOL save\_\EOL print\_\EOL format} operation.
 \TT{min::\EOL restore\_\EOL indent},
 a \TT{min::\EOL eol},
 a \TT{min::\EOL flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP})
-if the print format
-\TT{FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on, and lastly
+if the printer operation flag
+\TT{FLUSH\_ID\_MAP\_ON\_EOM} printer operation flag is on, and lastly
 a \TT{min::\EOL restore\_\EOL print\_\EOL format}.
-Note that the print format flags in effect just before \TT{min::\EOL eom}
-is executed govern \TT{min::\EOL eol}
-and \TT{min::\EOL flush\_\EOL id\_\EOL map} operations executed by
+Note that the print format and its operation flags
+in effect just before \TT{min::\EOL eom}
+is executed govern all the operations executed by
 \TT{min::\EOL eom}.
 
 For example, the following might be used to print an error message:
@@ -8700,7 +8703,8 @@ These operations set the indent in \TT{line\_\EOL break.indent}
 to the sum of `\TT{offset}' and either
 the printer `\TT{column}' for \TT{min::\EOL place\_\EOL indent}
 or the indent itself for \TT{min::\EOL adjust\_\EOL indent}.
-If the value to be set would be negative, \TT{0} is used instead.
+If the indent would be set to a negative value,
+\TT{0} is used instead.
 
 \TT{min::gen} values may be printed under the control of a
 \TT{min::\EOL gen\_\EOL format}.  As printing objects
@@ -8731,42 +8735,32 @@ Here it must be remembered that a `\TT{const min::uns32~*}' pointer
 \TT{str} must not be relocatable.
 
 Sometimes it is desirable to find out how many columns a
-single UNICODE character will take for a given value of
-\TT{print\_\EOL format.flags}.  For the horizontal tab character,
+Modified UTF-8 string would take if printed.
+For the horizontal tab character,
 this depends upon the column the character is printed in.
 So the following function updates a \TT{column} variable
 whose initial value is that of \TT{printer->column}
-before a UNICODE character is printed with
-\TT{printer << min::\EOL punicode~(~c~)}
+before the string is printed
 and whose final value is \TT{printer->\EOL column}
-after the character is printed.  Here \TT{print\_\EOL format.flags}
-is input to the function as the
-\ttkey{print\_\EOL flags} argument.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{pwidth}\ARGBREAK
-         \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  min::Uchar c,|\ARGBREAK
-         \verb|  min::uns32 print_flags )|
-\LABEL{MIN::PWIDTH} \\
-\end{tabular}\end{indpar}
-
-In order to find the number of columns consumed by a UTF-8
-encoded string, the following can be used:
+after the string is printed.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  min::uns32 print_flags )|
+         \verb|  min::uns32 print_op_flags,|\ARGBREAK
+         \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{tabular}\end{indpar}
 
-This function updates `\TT{column}'
-by applying the previous \TT{pwidth} function successively to the
-UNICODE characters encoded by the \TT{n} byte string \TT{s}.
+This function updates `\TT{column}' to what it would be if
+the \TT{n} byte string \TT{s} were printed with the given
+\TT{print\_\EOL format} modified by replacing
+\TT{print\_\EOL format.op\_\EOL flags}
+by the \TT{print\_\EOL op\_\EOL flags} argument value.
+Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
+function does not allocate or resize objects.
 
 Numbers may be formatted by specified \TT{printf} formats and the results
 printed by using the following operations:
@@ -8788,6 +8782,8 @@ printed by using the following operations:
 	  \verb|  const char * printf_format )|
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
+
+TBD
 
 Objects, packed structures and vectors, and long strings can be
 output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
