@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 31 12:51:23 EDT 2014
+// Date:	Thu Jul 31 16:42:21 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8895,7 +8895,7 @@ void min::pwidth ( min::uns32 & column,
 	//
 	if ( cflags & dc.display_char )
 	{
-	    if ( c == '\t' && expand_ht )
+	    if ( c == '\t' )
 	        column += 8 - column % 8;
 	    else if ( ! (   cflags
 	                  & min::IS_NON_SPACING ) )
