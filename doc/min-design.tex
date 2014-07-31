@@ -240,7 +240,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 30, 2014}
+\date{July 31, 2014}
  
 \maketitle
 
@@ -3276,7 +3276,7 @@ value, and `long' which stores more than 8 characters in the body.  The
 above code only works for long strings (\pagref{LONG-STRING-STUB}).
 
 
-\subsection{Unicode Characters}
+\subsection{UNICODE Characters}
 \label{UNICODE-CHARACTERS}
 
 Unicode characters are implemented by the following:
@@ -3634,7 +3634,7 @@ masks to dynamically control which characters are supported.
 The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters with
 codes from \TT{00} through \TT{7F}.
 The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters with
-codes from \TT{80} through \TT{FF}.  See \pagref{SUPPORT-MASK}.
+codes from \TT{80} through \TT{FF}.  See \pagref{SUPPORT-CONTROL}.
 
 The question of which characters can be supported is determined
 by the file
@@ -3670,6 +3670,10 @@ for \TT{c > 0xFF}, \TT{min::Uindex(c) > 0xFF}, so
 each ASCII and LATIN1 character has its own private character flag
 element in any character flag vector.
 
+Only the low order 16 bits of a 32 bit character flags value are
+used for some printer functions, like controlling how the character
+displays or breaks are inserted, so flags relevant to these functions
+need to be in the low order 16 bits.
 
 
 
@@ -7690,7 +7694,7 @@ following printer parameters:
 \verb|const min::display_control min::|%
     \MINKEY{verbatim\_display\_control} \verb|=| \\
 \verb|            { 0xFFFF, 0 };|
-\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\LABEL{MIN::VERBATIM_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_and\_space\_display\_control} \verb|=| \\
 \verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC, 0 };|
@@ -7698,12 +7702,12 @@ following printer parameters:
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_only\_display\_control} \verb|=| \\
 \verb|            { HT + min::IS_GRAPHIC, 0 };|
-\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_and\_vspace\_display\_control} \verb|=| \\
 \verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC| \\
 \verb|                         + min::IS_VSPACE, 0 };|
-\LABEL{MIN::GRAPHIC_AND_CONTROL_DISPLAY_CONTROL} \\
+\LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7739,10 +7743,6 @@ following printer parameters:
 \verb|            { 0, 0xFFFF, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \verb|const min::break_control min::|%
-    \MINKEY{no\_auto\_break\_break\_control} \verb|=| \\
-\verb|            { 0, 0, 0, 0 };|
-\LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
-\verb|const min::break_control min::|%
     \MINKEY{break\_after\_hyphenators\_break\_control} \verb|=| \\
 \verb|            { min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
 \LABEL{MIN::BREAK_AFTER_HYPHENATORS_BREAK_CONTROL} \\
@@ -7774,20 +7774,23 @@ The basic algorithm for printing a UNICODE character \TT{c} is:
 
 \begin{enumerate}
 
-\item Compute flags of \TT{c}:
+\item Compute character flags of \TT{c} (see \itemref{UNICODE-DATA-BASE}):%
+\label{COMPUTE-CHARACTER-FLAGS}
 \begin{indpar}\begin{verbatim}
 min::uns16 cindex = min::Uindex ( c );
 min::uns32 cflags = printer->print_format.char_flags[cindex];
 \end{verbatim}\end{indpar}
 
-\item Replace \TT{cflags} if \TT{c} is unsupported:
+\item Replace character flags \TT{cflags} if \TT{c} is unsupported:%
+\label{REPLACE-CHARACTER-FLAGS}
 \begin{indpar}\begin{verbatim}
 min::support_control sc = printer->print_format.support_control;
 if ( ( cflags & sc.support_mask ) == 0 )
     cflags = sc.unsupported_char_flags;
 \end{verbatim}\end{indpar}
 
-\item Compute printed representation of \TT{c}:
+\item Compute printed representation of \TT{c}:%
+\label{COMPUTE-PRINTED-REPRESENTATION}
 \begin{indpar}\begin{verbatim}
 min::display_control dc = printer->print_format.display_control;
 if ( cflags & dc.display_char )
@@ -7806,7 +7809,15 @@ else
     // a leading decimal digit (may be 0) otherwise.
 \end{verbatim}\end{indpar}
 
-\item Compute automatic break point settings for \TT{c}:
+Note that \TT{<FF>} represents the form feed character with (hex)
+code \TT{0C}, while \TT{<0FF>} represents the
+latin small letter y with diaeresis, with code \TT{FF}.
+
+Note that only the low order 16 bits of \TT{cflags} are used
+by a \TT{display\_control}.
+
+\item Compute automatic break points for \TT{c}:%
+\label{COMPUTE-AUTOMATIC-BREAK-POINTS}
 \begin{indpar}\begin{verbatim}
 min::break_control bc = printer->print_format.break_control;
 if ( cflags & bc.break_after )
@@ -7819,6 +7830,9 @@ if ( cflags & bc.conditional_break
      >= bc.conditional_columns )
     set break after representative of c
 \end{verbatim}\end{indpar}
+
+Note that only the low order 16 bits of \TT{cflags} are used
+by a \TT{break\_control}.
 
 \end{enumerate}
 
@@ -7914,177 +7928,187 @@ Initialized to an empty stack.
 \label{PRINT_FORMAT_OP_FLAGS}~\\
 These are flag bits that control printing.  When passed as
 function arguments they are referred to as the
-{\tt print\_\EOL flags}.
-
+{\tt print\_\EOL op\_\EOL flags}.
 The flags are listed immediately below.
-Some of these
-flags affect only certain categories of characters, which are
-defined as follows:
-
-\begin{itemlist}[0.8in]
-\item[\ttmkey{HSPACE}{character category}]
-    Horizontal Space Characters: single space, horizontal tab
-\item[\ttmkey{VSPACE}{character category}]
-    Vertical Space Characters: form feed, vertical tab
-\item[\ttmkey{NSPACE}{character category}]
-    Non-Space Control Characters: all other characters
-with codes {\tt <~0x20}, including line feed and carriage return,
-plus the delete character with code {\tt 0x7f}
-\item[\ttmkey{ASCII}{character category}] ASCII Characters: characters
-with codes {\tt <= 0x7F}.
-\end{itemlist}
 
 \end{itemlist}
 
 \begin{indpar}\begin{itemlist}[0.4in]
 
-\item[\ttmkey{GRAPHIC\_HSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]
-\item[\ttmkey{GRAPHIC\_VSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]%
-\vspace{-1ex}
-\item[\ttmkey{GRAPHIC\_NSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]%
-\vspace{-1ex}
+\item[\ttmkey{EXPAND\_HT}{in printer {\tt print\_\EOL format.op\_\EOL flags}}]
 ~\\
-{\tt GRAPHIC\_XXX\_FLAG} causes all characters in class {\tt XXX} to be
-represented by `graphic' characters that print some mark.
-This is referred to as `\key{graphic mode}'.
+{\tt EXPAND\_HT} causes the character \TT{'\textbackslash t'}
+to be represented by a sequence of single spaces when it is to be
+displayed as `itself' (and not using its picture or name).
+As tabs are set every 8 spaces, the number of single spaces is:
+\begin{center}
+\tt 8 - printer->column % 8
+\end{center}
 
-If both {\tt ASCII\_FLAG} and {\tt GRAPHIC\_XXX\_FLAG} are on,
-the characters in class {\tt XXX} are printed as `{\tt <YY>}',
-where {\tt YY} is the 2 or 3 letter ASCII standard character name.
-The possibilities are:
-\begin{indpar} \tt
-    <NUL>, <SOH>, <STX>, <ETX>, <EOT>, <ENQ>, \\
-    <ACK>, <BEL>, <BS>, <HT>, <LF>, <VT>, \\
-    <FF>, <CR>, <SO>, <SI>, <DLE>, \\
-    <DC1>, <DC2>, <DC3>, <DC4>, <NAK>, <SYN>, \\
-    <ETB>, <CAN>, <EM>, <SUB>, <ESC>, \\
-    <FS>, <GS>, <RS>, <US>, <SP>, <DEL>
-\end{indpar}
+If {\tt EXPAND\_HT} is \underline{off} and the character \TT{'\textbackslash t'}
+is to be displayed as `itself', the character represents itself, but its
+width in columns is
+\begin{center}
+\tt 8 - printer->column % 8
+\end{center}
 
-For example, `{\tt <FF>}' represents the form-feed character, and
-`{\tt <SP>}' represents the single space character.
 
-If {\tt GRAPHIC\_XXX\_FLAG} is on and {\tt ASCII\_FLAG} is
-\underline{off}, control and space characters are
-printed as UNICODE Control Picture script characters,
-range 2400-243F (hexadecimal).
-For example, single space prints as {\tt \textvisiblespace} and
-line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
-All these character representations take exactly 1 column.
+\item[\ttmkey{DISPLAY\_EOL}%
+               {in printer {\tt print\_\EOL format.op\_EOL flags}}]~\\
+If this flag is on, the end of line prints as the
+{\tiny $\stackrel{\textstyle N~}{~L}$}
+picture character if
+\TT{DISPLAY\_\EOL PICTURE} is on, and as the name \TT{NL} (e.g., in \TT{<NL>})
+otherwise.
 
-\item[\ttmkey{GRAPHIC\_FLAGS}{in printer {\tt print\_\EOL format.flags}}]~\\
-The sum of the {\tt min::GRAPHIC\_XXX\_FLAG}'s:
-\begin{indpar}
-\tt
-min::GRAPHIC\_HSPACE\_FLAG \\
-min::GRAPHIC\_VSPACE\_FLAG \\
-min::GRAPHIC\_NSPACE\_FLAG
-\end{indpar}
+\item[\ttmkey{DISPLAY\_PICTURE}%
+               {in printer {\tt print\_\EOL format.op\_EOL flags}}]~\\
+If this flag is on, characters not displayed as themselves
+are displayed as picture characters
+using \TT{min::\EOL unicode::\EOL picture[cindex]} if this is not
+\TT{NULL}, as per \pagref{COMPUTE-PRINTED-REPRESENTATION}.
+Otherwise they are displayed using their name if that exists, or
+using their hex code if no name exists.
 
-\item[\ttmkey{ASCII\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-Used in graphics mode to control the printing of ASCII control characters:
-see {\tt GRAPHIC\_XXX\_FLAG}'s above.
-
-Also controls the printing of non-ASCII UNICODE characters as follows:
-
-If the {\tt ASCII\_FLAG} is on (this is known as being in \key{ASCII mode}),
-non-ASCII characters are printed as `{\tt <XXXX>}', where
-{\tt XXXX} represents the character code in hexadecimal,
-and consists of some non-zero number of hexadecimal digits.
-{\tt XXXX} begins with
-one of the digits {\tt 0}, {\tt 1}, \dots, {\tt 9}, to avoid
-ambiguity with representations of control characters.  Thus
-{\tt <0FF>} represents the character whose code in decimal is
-{\tt 255}, whereas {\tt <FF>} represents the form feed character.
-
-If the {\tt ASCII\_FLAG} is off, non-ASCII characters print as
-themselves.  They are all considered to occupy {\tt 1} column, except
-for \skey{diacritical combining mark}s
-20D0-20FF (hexadecimal) which are considered
-to occupy {\tt 0} columns.
-
-If the {\tt ASCII\_FLAG} is on,
-ill-formed UTF-8 encodings are printed as `{\tt <ILL>}'.  If it is
-off, they are printed as character FFFD (hexadecimal),
-the `\key{unicode replacement character}%
-\index{replacement character}\,'.
-
-\item[\ttmkey{ALLOW\_HSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]
-\item[\ttmkey{ALLOW\_VSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]%
-\vspace{-1ex}
-\item[\ttmkey{ALLOW\_NSPACE\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]%
-\vspace{-1ex}
-~\\
-If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is off,
-printing of characters of class {\tt XXX} is controlled by the
-{\tt ALLOW\_\EOL XXX\_\EOL FLAG}, which
-causes all characters in class {\tt XXX} to
-represent themselves.  The single space character takes {\tt 1}
-column, the horizontal tab character takes from {\tt 1} to {\tt 8}
-columns depending on its position (tabs are every 8 spaces), and
-all vertical space and non-space control characters take {\tt 0}
-columns.
-
-If the {\tt ALLOW\_XXX\_FLAG} and
-{\tt GRAPHIC\_XXX\_FLAG} are both off, the single space
-character represents itself, the horizontal tab character is
-represented by {\tt 1} to {\tt 8} single spaces, and all
-vertical space and non-space control characters are represented
-by the empty string: i.e., they do not output anything.
-
-If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
-{\tt ALLOW\_\EOL XXX\_\EOL FLAG} has no affect.
-
-\item[\ttmkey{DISPLAY\_EOL\_FLAG}%
-               {in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, the end of line prints as a graphic mode control
-character, even if {\tt GRAPHIC\_\EOL NSPACE\_\EOL FLAG} is off.
-If the {\tt ASCII\_FLAG} is on, it prints as
-{\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
-
-\item[\ttmkey{HBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, a break point is automatically set
-before every character representation that
-follows a single space or horizontal tab character,
-except for representations of ASCII control characters in non-graphic mode
-(this includes horizontal and vertical spaces)
-and UNICODE \skey{diacritical combining mark}s in non-ASCII mode.
-
-\item[\ttmkey{GBREAK\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
-If this flag is on, a break point is automatically set
-before every character representation
-except for representations of ASCII vertical space and non-space
-control characters in non-graphic mode,
-representations of ASCII horizontal control characters (single space
-and horizontal tab) in non-graphic mode
-if these are preceded by representations of ASCII horizontal control
-characters in non-graphic mode,
-and UNICODE diacritical combining marks in non-ASCII mode.
-
-\item[\ttmkey{EOL\_FLUSH\_FLAG}{in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{FLUSH\_ON\_EOL}%
+{in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, a {\tt min::flush()} printer operation (\pagref{MIN::FLUSH})
-is executed at the very end of a {\tt min::\EOL eol} operation.
+is executed at the very end of each {\tt min::\EOL eol} operation.
 
-\item[\ttmkey{FLUSH\_ID\_MAP\_FLAG}%
-    {in printer {\tt print\_\EOL format.flags}}]~\\
+\item[\ttmkey{FLUSH\_ID\_MAP\_ON\_EOM}%
+    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, a {\tt min::eom()} printer operation performs
 a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
 {\tt min::\EOL eol} operation.
 
+\item[\ttmkey{NEXT\_IS\_LEADING}%
+{in printer {\tt print\_\EOL format.op\_\EOL flags}}]
+\item[\ttmkey{NEXT\_IS\_TRAILING}%
+{in printer {\tt print\_\EOL format.op\_\EOL flags}}]%
+\vspace{-1ex}~\\
+These flags are set by the \TT{min::\EOL leading} and
+\TT{min::\EOL trailing} printer operations to indicate the
+the next string printed is a leading or trailing string,
+repspectively.
+
+\item[\ttmkey{AUTO\_SUPPRESS}%
+    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+If this flag is on, each string output is checked to see if
+it consists of nothing but characters with the \TT{min::\EOL IS\_\EOL LEADING}
+character flag, and if yes, and if the last character output
+to the printer is a single space, that single space is
+in effect converted to a \TT{min::\EOL leading} printer
+operation.  Similarly strings are
+checked to see if they have nothing but characters with the
+\TT{min::\EOL IS\_\EOL TRAILING} character flag, and if yes, and
+if the last character output is a single space, 
+the space is effectively converted to a
+\TT{min::\EOL trailing} operation.
+
+Note that a string containing a single space character will
+not pass the checks: the whole string output by single printer
+request is checked, and not just the part before the first
+space character or after the last space character.
+
+\item[\ttmkey{DISABLE\_SUPPRESS}%
+    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+If this flag is on, \TT{min::leading} and \TT{min::trailing}
+operations are disabled from their normal function and instead
+simply output a single space character.
+
 \end{itemlist}\end{indpar}
 
 \begin{itemlist}[0.6in]
-\item[\ttmkey{print\_format.context\_gen\_flags}{in {\tt min::printer}}]
-\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]%
-\vspace{-2ex}~\\
-These control the printing of
+
+\item[\ttmkey{print\_format.char\_flags}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_CHAR_FLAGS}~\\
+This is the vector of character flags indexed by UNICODE character
+indices.
+See `Compute character flags' above
+(\pagref{COMPUTE-CHARACTER-FLAGS})
+and Section~\itemref{COMPUTE-CHARACTER-FLAGS}.
+
+\item[\ttmkey{print\_format.support\_control}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_SUPPORT_CONTROL}~\\
+\label{SUPPORT-CONTROL}
+This \TT{min::support\_control} controls which characters are supported
+and which are not.  The \TT{support\_\EOL mask}
+(e.g., \TT{min::\EOL IS\_\EOL LATIN1}) is bitwise AND'ed with
+the character flags and if the result is zero, the character is unsupported
+and its flags are replaced by the
+\TT{unsupported\_\EOL char\_\EOL flags}
+(e.g., \TT{min::\EOL IS\_\EOL UNSUPPORTED}).
+See `Replace character flags \ldots{} if \ldots{} unsupported' above
+(\pagref{REPLACE-CHARACTER-FLAGS}).
+
+\item[\ttmkey{print\_format.display\_control}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_DISPLAY_CONTROL}~\\
+This \TT{min::display\_control} controls which characters display as
+themselves and which are suppressed (ignored and not printed).
+The \TT{display\_\EOL char} mask
+(e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL GRAPHIC})
+is bitwise AND'ed with
+the character flags and if the result is non-zero,
+the character is displayed as itself.  Note however there may
+be special processing in this case for the horizontal tab character.
+
+If the character is \underline{not} to be displayed as itself, then
+the \TT{display\_\EOL suppress} mask
+(e.g., \TT{min::\EOL IS\_\EOL CONTROL})
+is bitwise AND'ed with
+the character flags and if the result is non-zero,
+the character is suppressed (ignored).
+
+If a character is not displayed as itself or suppressed, its picture
+or name are used to represent it.
+
+See `Compute character representation' above
+(\pagref{COMPUTE-PRINTED-REPRESENTATION}) for details.
+
+\item[\ttmkey{print\_format.break\_control}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_BREAK_CONTROL}~\\
+This \TT{min::break\_control} controls when breaks are automatically
+inserted into the output (see \TT{min::\EOL set\_\EOL break},
+\pagref{MIN::SET_BREAK}).
+
+The \TT{break\_\EOL after} mask
+(e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL HT})
+is bitwise AND'ed with
+the character flags and if the result is non-zero,
+a break is inserted `after the character representative', or
+more precisely, a break is inserted before the representative
+of the next character if that character is not having
+a break automatically inserted after it..
+
+The \TT{break\_\EOL before} mask
+(e.g., \TT{0xFFFF})
+is bitwise AND'ed with
+the character flags and if the result is non-zero,
+a break is inserted before the character representative.
+
+The \TT{conditional\_\EOL break} mask\label{CONDITIONAL-BREAK}
+(e.g., \TT{min::\EOL CONDITIONAL\_\EOL BREAK}, set for the hyphen \TT{'-'})
+is bitwise AND'ed with
+the character flags and if the result is non-zero,
+\underline{and} if
+\begin{center}
+\tt printer->column - printer->line\_break.column >= condition\_columns
+\end{center}
+a break is inserted `after the character representative' in the
+same manner as for \TT{break\_\EOL after}.
+
+See `Compute automatic break points' above
+(\pagref{COMPUTE-AUTOMATIC-BREAK-POINTS}) for details.
+
+\item[\ttmkey{print\_format.char\_name\_format}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_CHAR_NAME_FORMAT}~\\
+This defines the prefix and suffix on character names and
+codes: e.g., provides the prefix \TT{<} and suffix \TT{>} for
+the representative \TT{<FF>} of a form feed character.
+
+\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]~\\
+This controls the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
