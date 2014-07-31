@@ -3660,8 +3660,8 @@ in Figures~\ref{LATIN1-CHARACTERS-I},
 \ref{LATIN1-CHARACTERS-II},
 and \ref{LATIN1-CHARACTERS-III}.
 
-\TT{min::standard\_char\_flags} is computed using data in
-\ldots\TT{/min/\EOL unicode/\EOL unicode\_data.h}%
+\TT{min::standard\_char\_flags} is computed using data taken from
+\ldots\TT{/min/\EOL unicode/\EOL uni\-code\_\EOL data.h}%
 \ttindex{unicode\_data.h} (which is included in the \ttkey{min::unicode}
 namespace by the \ttkey{min\_unicode.h} file that is in turn
 included in \TT{min.h}).  Other character flag vectors can be computed
@@ -6355,8 +6355,8 @@ The data types and members of a file are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_SPOOL_LINES} \\
-\verb|min::uns32 file| & \TTARMKEY{print\_flags}{in {\tt min::file}}
-\LABEL{MIN::FILE_PRINT_FLAGS} \\
+\verb|min::uns32 file| & \TTARMKEY{line\_display}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE_DISPLAY} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6547,9 +6547,10 @@ that defaults to \TT{min::\EOL ALL\_\EOL LINES}, the largest
 \TT{min::uns32} number,
 by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
-\item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
+\item[\ttmkey{line\_\EOL display}{in {\tt min::file}}]\label{FILE_LINE_DISPLAY}
 These are some of the printer
-\TT{print\_\EOL format.flags} (see \pagref{PRINT_FORMAT_FLAGS}) used to print
+\TT{print\_\EOL format.op\_flags}
+(see \pagref{PRINT_FORMAT_OP_FLAGS}) used to print
 a file line for error message purposes,
 in particular by the \TT{min::\EOL print\_\EOL line}
 function (\pagref{MIN::PRINT_LINE}).
@@ -6557,14 +6558,8 @@ The flags involved are:
 \begin{indpar}
 \tt
 \begin{tabular}{l}
-min::GRAPHIC\_HSPACE\_FLAG \\
-min::GRAPHIC\_VSPACE\_FLAG \\
-min::GRAPHIC\_NSPACE\_FLAG \\
-min::ALLOW\_HSPACE\_FLAG \\
-min::ALLOW\_VSPACE\_FLAG \\
-min::ALLOW\_NSPACE\_FLAG \\
-min::ASCII\_FLAG \\
-min::DISPLAY\_EOL\_FLAG
+min::DISPLAY\_EOL \\
+min::DISPLAY\_PICTURE \\
 \end{tabular}
 \end{indpar}
 
@@ -6576,31 +6571,23 @@ function (\pagref{MIN::PRINT_LINE_COLUMN}).
 For example, the carriage
 return prints as follows with the given flags:
 \begin{center}
-\begin{tabular}{l@{~~~~}l}
-\TT{min::GRAPHIC\_NSPACE\_FLAG} only
-	& {\tiny $\stackrel{\textstyle C~}{~R}$} ~~~ 1 column \\
-~~ but no \TT{min::ASCII\_FLAG}
+\begin{tabular}{l@{~~~~}ll}
+\TT{min::DISPLAY\_PICTURE}
+	& {\tiny $\stackrel{\textstyle C~}{~R}$} & 1 column \\
 \\[1ex]
-\TT{min::GRAPHIC\_NSPACE\_FLAG} & \TT{<CR>} ~~~ 4 columns \\
-~~ and \TT{min::ASCII\_FLAG}
-\\[1ex]
-\TT{min::ALLOW\_NSPACE\_FLAG}   & the carriage return \\
-~~ but no \TT{min::GRAPHIC\_NSPACE\_FLAG} & character itself, \\
-					   & 0 columns
-\\[1ex]
-no \TT{min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
-~~ and no \TT{min::GRAPHIC\_NSPACE\_FLAG}  & 0 columns
+no \TT{min::DISPLAY\_PICTURE} & \TT{<CR>} & 4 columns \\
 \end{tabular}
 \end{center}
 
 The \TT{min::print\_line} function, and the other functions that use
-it, print file lines with the printer \TT{print\_\EOL format.flags}
-mentioned above set as in this \TT{print\_\EOL flags} file member, with the
-\TT{min::\EOL HBREAK\_\EOL FLAG} and \TT{min::\EOL GBREAK\_\EOL FLAG} set
-off, and with other flags set by the printer's format flags:
-see \TT{print\_\EOL format.flags} on \pagref{PRINT_FORMAT_FLAGS}.
+it, print file lines with the printer \TT{op\_flags} and \TT{print\_\EOL format}
+set by
+\begin{center}
+\tt printer << min::set\_line\_display ( file->line\_display )
+\end{center}
 
-Set to \TT{0} when the file is created.  Set to an argument
+\TT{line\_display} is set
+to \TT{0} when the file is created, and set to an argument
 that defaults to \TT{0}
 by \TT{min::\EOL init\_\EOL input\ldots} functions.
 
@@ -6635,7 +6622,7 @@ line are output as per the \TT{min::\EOL verbatim}
 printer operation (\pagref{MIN::VERBATIM}),
 and the line-terminating
 NUL elements are translated into sending \TT{min::eol} to the printer.
-Note that \TT{print\_\EOL flags} is \underline{not} used
+Note that \TT{line\_\EOL display} is \underline{not} used
 when buffer elements are flushed to \TT{printer}.
 
 Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
@@ -6670,9 +6657,9 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_print\_flags\REL}\ARGBREAK
+    & \MINKEY{init\_line\_display\REL}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::uns32 print_flags )|
+	  \verb|  min::uns32 line_display )|
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
@@ -6708,7 +6695,7 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -6718,7 +6705,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  std::istream & istream,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -6728,7 +6715,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::file ifile,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -6738,7 +6725,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::gen file_name,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -6748,21 +6735,21 @@ accomplished by the following:
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<const char> string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<char> string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  const char * string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -6773,8 +6760,8 @@ has the value \TT{min::\EOL NULL\_\EOL STUB}.
 
 The non-\TT{init\_\EOL input\ldots} functions just do this and set
 a file member.
-For example, \TT{min::\EOL init\_\EOL print\_\EOL flags} just
-creates the file if necessary and sets \TT{print\_\EOL flags},
+For example, \TT{min::\EOL init\_\EOL line\_\EOL display} just
+creates the file if necessary and sets \TT{line\_\EOL display},
 while \TT{min::\EOL init\_\EOL ostream} just
 creates the file if necessary and sets \TT{ostream}.
 Used on an existing file, these functions do nothing but change
@@ -6784,7 +6771,7 @@ The \TT{min::\EOL init\_\EOL input\ldots} functions
 reinitialize all members except \TT{ostream}, \TT{ofile},
 and \TT{printer}.  Like all file \TT{init} functions, these
 create the file if necessary.
-All these functions take arguments that initialize \TT{print\_\EOL flags}
+All these functions take arguments that initialize \TT{line\_\EOL display}
 and \TT{spool\_\EOL lines}.
 
 The \TT{min::init\_input} function assumes
@@ -7923,8 +7910,8 @@ Initialized to an empty stack.
 
 \begin{itemlist}[0.6in]
 
-\item[\ttmkey{print\_format.flags}{in {\tt min::printer}}]%
-\label{PRINT_FORMAT_FLAGS}~\\
+\item[\ttmkey{print\_format.op\_flags}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_OP_FLAGS}~\\
 These are flag bits that control printing.  When passed as
 function arguments they are referred to as the
 {\tt print\_\EOL flags}.
@@ -9863,11 +9850,11 @@ an error message:
 \end{tabular}\end{indpar}
 
 The {\tt file} line with the given {\tt line\_number}
-is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
-(\pagref{FILE_PRINT_FLAGS})
+is printed on a single {\tt printer} line.  {\tt file->\EOL line\_\EOL display}
+(\pagref{FILE_LINE_DISPLAY})
 are used to print this line, and the number of columns in the result,
 including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}, is returned.
+{\tt min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
 If a line is
 unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
@@ -15565,8 +15552,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{3.4in}
 \verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_SPOOL_LINES} \\
-\verb|min::uns32 file| & \TTARMKEY{print\_flags}{in {\tt min::file}}
-\LABEL{MIN::FILE_PRINT_FLAGS} \\
+\verb|min::uns32 file| & \TTARMKEY{line\_display}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE_DISPLAY} \\
 \end{TABULAR}
 
 \begin{TABULAR}{3.4in}
@@ -15593,9 +15580,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|void min::|
-    & \MINKEY{init\_print\_flags\REL}\ARGBREAK
+    & \MINKEY{init\_line\_display\REL}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::uns32 print_flags )|
+	  \verb|  min::uns32 line_display )|
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
@@ -15634,7 +15621,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
 \end{TABULAR}
@@ -15644,7 +15631,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  std::istream & istream,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{TABULAR}
@@ -15654,7 +15641,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::file ifile,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{TABULAR}
@@ -15690,21 +15677,21 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<const char> string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<char> string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  const char * string,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{TABULAR}
@@ -15714,7 +15701,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::gen file_name,|\ARGBREAK
-	  \verb|  min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|  min::uns32 line_display = 0,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{TABULAR}
