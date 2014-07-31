@@ -378,7 +378,7 @@ interface is in the with \minkey{unprotected} namespace, whereas
 the protected interface is in the \ttkey{min} namespace.  User code
 that accesses the unprotected interface typically abbreviates the long
 `\TT{min::unprotected::}' prefix to
-`\ttmkey{MUP}{abbreviates \TT{min::unprotected}}\TT{::}'\label{MUP}
+`\ttmkey{MUP}{abbreviates {\tt min::unprotected}}\TT{::}'\label{MUP}
 by including the following definition:
 \begin{center}
 \verb|#define  MUP  min::unprotected|
@@ -786,10 +786,10 @@ and \TT{min::NONE()} is a special value used only to
 indicate that a function argument or result does not exist.
 See \itemref{SPECIAL-VALUES}.
 
-The {\tt min::}\MINKEY{gen}\LABEL{MIN::GEN}
+The \TT{min::}\MINKEY{gen}\LABEL{MIN::GEN}
 type is defined as a C++ class that
 consists of a single \TT{private} element of type
-{\tt min::}\MINKEY{unsgen}, which is an unsigned integer.
+\TT{min::}\MINKEY{unsgen}, which is an unsigned integer.
 From the point of view of C++ type checking, a \TT{min::\EOL gen}
 value is a class, but from the computational point of view it is
 an unsigned integer.
@@ -997,7 +997,7 @@ and for direct string general values the datum holds 0-5 \TT{char}'s.
 
 The \TT{min::gen} type has the alignment
 properties of either \TT{min::uns32} or \TT{min::uns64},
-and {\tt min::}\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
+and \TT{min::}\EOL \MINKEY{unsgen} is \TT{typedef}'ed to the appropriate one
 of these two types.
 
 Many \TT{min::gen} values, which are 32 or 64 bits, are divided into a subtype,
@@ -1084,7 +1084,7 @@ the above macro settings are:
 \begin{indpar}
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \TTKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
-				  Must equal `{\tt !~MIN\_IS\_COMPACT}\,'.
+				  Must equal `\TT{!~MIN\_IS\_COMPACT}\,'.
 \LABEL{MIN_IS_LOOSE}
 \end{tabular}
 \end{indpar}
@@ -1095,12 +1095,12 @@ the above macro settings are:
 				  exist in \underline{any} execution
 				  of the compiled binary.  Defaults: \\
 & \hspace*{1em}\begin{tabular}{ll}
-if {\tt MIN\_IS\_COMPACT} = 1:	& $2^{28} - 2^{25}$ \\
+if \TT{MIN\_IS\_COMPACT} = 1:	& $2^{28} - 2^{25}$ \\
 else pointers are 32 bits:	& $2^{28}$ \\
 else:				& $2^{40-4e}$ \\
 \end{tabular} \\
 & where \\
-& ~~$e = max(0,\mbox{{\tt MIN\_MAX\_EPHEMERAL\_LEVELS}}-2)$.
+& ~~$e = max(0,\mbox{\TT{MIN\_MAX\_EPHEMERAL\_LEVELS}}-2)$.
 \LABEL{MIN_MAX_NUMBER_OF_STUBS}
 \end{tabular}
 \end{indpar}
@@ -1110,7 +1110,7 @@ else:				& $2^{40-4e}$ \\
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
           this must be a non-negative integer constant.  Defaults to
-	  \TT{0} if {\tt MIN\_MAX\_NUMBER\_OF\_STUBS} is set by
+	  \TT{0} if \TT{MIN\_MAX\_NUMBER\_OF\_STUBS} is set by
 	  default, and otherwise is left undefined.
 \LABEL{MIN_STUB_BASE}
 \end{tabular}
@@ -1120,7 +1120,7 @@ else:				& $2^{40-4e}$ \\
 \multicolumn{2}{l}{\TTKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}} \\
 	& The maximum address of any stub relative to the `stub base' (address
 	  of the first stub), as an unsigned integer constant.  Default: \\
-	& ~~{\tt 16*MIN\_MAX\_NUMBER\_OF\_STUBS - 1}.
+	& ~~\TT{16*MIN\_MAX\_NUMBER\_OF\_STUBS - 1}.
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS}
 \end{tabular}
 \end{indpar}
@@ -2287,7 +2287,7 @@ and \TT{const min::stub~*} values must be locatable.
 
 Consequently
 locatable values of type \TT{T} in static or stack memory must be stored
-in locations of type {\tt min::}\MINKEY{locatable\_\EOL var<T>}:
+in locations of type \TT{min::}\MINKEY{locatable\_\EOL var<T>}:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|class min::| & \MINKEY{locatable\_var<T>} \TT{: public T} \\
@@ -7249,7 +7249,7 @@ Note that neither of these functions calls \TT{min::\EOL next\_\EOL line},
 the \TT{min::\EOL flush\_file/\EOL line/\EOL remaining}
 functions call \TT{min::\EOL flush\_\EOL spool}.
 
-The following \TT{<{}<} operators do the same thing as
+The following \TT{<<} operators do the same thing as
 \TT{min::\EOL flush\_\EOL file} with a \TT{false} \TT{copy\_\EOL complete}
 argument, except that, instead of copying
 to the file's \TT{ostream}, \TT{ofile}, and/or
@@ -7276,14 +7276,14 @@ to the file's \TT{ostream}, \TT{ofile}, and/or
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Note that these \TT{<{}<} operators call the \TT{min::\EOL next\_\EOL line}
+Note that these \TT{<<} operators call the \TT{min::\EOL next\_\EOL line}
 and \TT{min::\EOL skip\_\EOL remaining} functions in the same way as
 \TT{min::\EOL flush\_\EOL file} does, and therefore
-these \TT{<{}<} operators interact with each other and with the
+these \TT{<<} operators interact with each other and with the
 \TT{min::\EOL flush\_\EOL file} function.  Generally such interaction
-is avoided by using only one of the \TT{<{}<} operators or only
+is avoided by using only one of the \TT{<<} operators or only
 the \TT{min::\EOL flush\_\EOL file} function on a given file.
-Also note that the \TT{<{}<} operators never
+Also note that the \TT{<<} operators never
 call \TT{min::\EOL complete\_\EOL file}.
 
 \subsection{Identifier Maps}
@@ -7429,12 +7429,12 @@ to determine the proper size of the hash table.
 
 A \key{printer} may be used to print general values, print graphics for
 control characters, and break long lines to enforce line length.
-Internally a {\tt min::\EOL printer} is
-a packed structure that points at a {\tt min::\EOL file} and contains
+Internally a \TT{min::\EOL printer} is
+a packed structure that points at a \TT{min::\EOL file} and contains
 additional information used to format lines put into the file.
-Values are written to printers via the \TT{<{}<} operator, much like the
-way values are written to {\tt std::\EOL ostream}'s.  A special
-printer line end operation writes a line terminating {\tt NUL}
+Values are written to printers via the \TT{<<} operator, much like the
+way values are written to \TT{std::\EOL ostream}'s.  A special
+printer line end operation writes a line terminating \TT{NUL}
 at the end of the printer file buffer, and optionally flushes the file.
 
 The MIN system has a per-thread printer to hold error messages:
@@ -7444,11 +7444,11 @@ The MIN system has a per-thread printer to hold error messages:
 \label{ERROR_MESSAGE} \\
 \end{tabular}\end{indpar}
 
-This functions like {\tt errno} in UNIX, but
+This functions like \TT{errno} in UNIX, but
 holds multi-line error messages instead of an integer error
 code.  The protocol for writing
 an error message into this printer is to first apply
-the 1-argument {\tt min::init} function to the printer to create the printer
+the 1-argument \TT{min::init} function to the printer to create the printer
 if necessary, remove any previous message from the printer,
 and put the printer into a default state,
 and then write an error message consisting of one or more
@@ -7490,20 +7490,20 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_OSTREAM} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::}\MINKEY{init} function both re-initializes existing
+The \TT{min::}\MINKEY{init} function both re-initializes existing
 printers and creates new ones.  It takes a variable as its
-first argument, and if the variable value is {\tt min::\EOL
+first argument, and if the variable value is \TT{min::\EOL
 NULL\_\EOL STUB}, then a new printer is created and the
 variable is set to point at the new printer.
-The second argument to {\tt min::init} supplies the {\tt min::file}
+The second argument to \TT{min::init} supplies the \TT{min::file}
 to which the printer is attached.  If this argument is
-{\tt min::\EOL NULL\_\EOL STUB}, then {\tt min::\EOL init\_\EOL input}
-is applied to {\tt printer->file} to create that file if necessary
+\TT{min::\EOL NULL\_\EOL STUB}, then \TT{min::\EOL init\_\EOL input}
+is applied to \TT{printer->file} to create that file if necessary
 and empty it if it already exists; but if the argument is
-not {\tt min::\EOL NULL\_\EOL STUB} then {\tt printer->file} is set
+not \TT{min::\EOL NULL\_\EOL STUB} then \TT{printer->file} is set
 to the argument and the file is \underline{not} emptied or changed.
 
-The {\tt min::}\MINKEY{init\_\EOL ostream}
+The \TT{min::}\MINKEY{init\_\EOL ostream}
 function just executes
 \begin{indpar}\begin{verbatim}
 min::init ( printer );
@@ -7515,7 +7515,7 @@ which is a very common way of setting up a printer.
 
 Both initialization functions return the printer, which is
 sometimes convenient, as in the code often used 
-with {\tt min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
+with \TT{min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
 
 Parameterization of the printing process is accomplished using the
 following printer parameters:
@@ -7617,7 +7617,7 @@ following printer parameters:
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
 \end{tabular}\end{indpar}
 
-{\tt print\_format.op\_flags}:
+\TT{print\_format.op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{EXPAND\_HT}
@@ -7842,16 +7842,16 @@ A complete list of these members follows:
 \begin{itemlist}[0.8in]
 
 \item[\ttmkey{file}{in {\tt min::printer}}]
-The {\tt min::file} which contains the lines produced by the printer.
-Initialized by the second argument of {\tt min::\EOL init}, if that is
-not {\tt min::\EOL NULL\_\EOL STUB}, or otherwise created when the
-printer is created.  Initialized by {\tt min::\EOL init(printer->\EOL file)}
-except when 2-argument {\tt min::init} is called (see above).
+The \TT{min::file} which contains the lines produced by the printer.
+Initialized by the second argument of \TT{min::\EOL init}, if that is
+not \TT{min::\EOL NULL\_\EOL STUB}, or otherwise created when the
+printer is created.  Initialized by \TT{min::\EOL init(printer->\EOL file)}
+except when 2-argument \TT{min::init} is called (see above).
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
 The number of columns currently in the line being assembled,
 which equals the column number of the next character to be input to the
-printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
+printer.  The first column number is \TT{0}.  Initialized to \TT{0}.
 
 \end{itemlist}
 
@@ -7860,62 +7860,62 @@ printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
 \item[\ttmkey{line\_\EOL break.column}{in {\tt min::printer}}]~\\
 The column of the
 first byte in the current line after the last break point in the line.
-Initialized to {\tt 0}.
+Initialized to \TT{0}.
 
 \item[\ttmkey{line\_\EOL break.offset}{in {\tt min::printer}}]~\\
-The {\tt file->buffer} index of the
+The \TT{file->buffer} index of the
 first byte in the current line after the last break point in the line.
-Initialized to {\tt 0}.
+Initialized to \TT{0}.
 
 \item[\ttmkey{line\_\EOL break.line\_length}{in {\tt min::printer}}]%
 \label{LINE-LENGTH}~\\
-Nominal maximum line length in columns.  Initialized to {\tt 72}.
+Nominal maximum line length in columns.  Initialized to \TT{72}.
 
 More specifically,
 when a character representative other than a single space, a horizontal
 tab, or a sequence of single spaces representing a horizontal tab
 is to be inserted into the line, and this would cause the number
-of columns in the line to exceed {\tt line\_\EOL break.line\_length}, then if
+of columns in the line to exceed \TT{line\_\EOL break.line\_length}, then if
 \begin{center}
 \tt line\_break.column > line\_break.indent
 \end{center}
-a break, consisting of a line end followed by {\tt line\_break.indent}
+a break, consisting of a line end followed by \TT{line\_break.indent}
 spaces,
 is inserted into the printer file buffer just after the break point
-(i.e., is inserted at {\tt line\_\EOL break.offset}).
+(i.e., is inserted at \TT{line\_\EOL break.offset}).
 
 Single space and horizontal tab
 characters immediately before the inserted line end are deleted.
-After the break is inserted, {\tt line\_\EOL break.column} is reset to
+After the break is inserted, \TT{line\_\EOL break.column} is reset to
 the number of indentation spaces
-and {\tt line\_\EOL break.offset} to the first position after
+and \TT{line\_\EOL break.offset} to the first position after
 the inserted indentation spaces.
 
 Break points may be inserted automatically by using
 \TT{print\_format.break\_con\-trol}; see above.
 
-If a non-empty {\tt line\_break\_stack} exists
-because a {\tt min::\EOL save\_\EOL line\_\EOL break} or 
-{\tt min::\EOL save\_\EOL indent} was executed,
+If a non-empty \TT{line\_break\_stack} exists
+because a \TT{min::\EOL save\_\EOL line\_\EOL break} or 
+\TT{min::\EOL save\_\EOL indent} was executed,
 then an element of the line break stack may provide overrides for the
-{\tt column}, {\tt offset}, and
-{\tt indent} members, but not the {\tt line\_\EOL length} member,
-of {\tt printer->\EOL line\_\EOL break}.
+\TT{column}, \TT{offset}, and
+\TT{indent} members, but not the \TT{line\_\EOL length} member,
+of \TT{printer->\EOL line\_\EOL break}.
 See \pagref{LINE-BREAK-STACK} for details.
 
 \item[\ttmkey{line\_\EOL break.indent}{in {\tt min::printer}}]~\\
 Indention of a new line created by automatic break insertion.
-Also used by the {\tt min::\EOL indent} operation (\pagref{MIN::INDENT}).
-Initialized to {\tt 4}.
+Also used by the \TT{min::\EOL indent} operation (\pagref{MIN::INDENT}).
+Initialized to \TT{4}.
 
 Specifically, when
 a line break is automatically pushed into a printer file buffer, the
-break consists of a line end ({\tt NUL} character) followed by
-{\tt line\_\EOL break.indent} single space characters.
+break consists of a line end (\TT{NUL} character) followed by
+\TT{line\_\EOL break.indent} single space characters.
 
 \item[\ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}]~\\
-Used with {\tt min::\EOL save\_\EOL line\_\EOL break} and
-{\tt min::\EOL save\_\EOL indent} to set
+Used with \TT{min::\EOL save\_\EOL line\_\EOL break} and
+\TT{min::\EOL save\_\EOL indent} to set
 multiple break points when printing nested lists.
 See \pagref{LINE-BREAK-STACK} for details.
 Initialized to an empty stack.
@@ -7928,7 +7928,7 @@ Initialized to an empty stack.
 \label{PRINT_FORMAT_OP_FLAGS}~\\
 These are flag bits that control printing.  When passed as
 function arguments they are referred to as the
-{\tt print\_\EOL op\_\EOL flags}.
+\TT{print\_\EOL op\_\EOL flags}.
 The flags are listed immediately below.
 
 \end{itemlist}
@@ -7937,7 +7937,7 @@ The flags are listed immediately below.
 
 \item[\ttmkey{EXPAND\_HT}{in printer {\tt print\_\EOL format.op\_\EOL flags}}]
 ~\\
-{\tt EXPAND\_HT} causes the character \TT{'\textbackslash t'}
+\TT{EXPAND\_HT} causes the character \TT{'\textbackslash t'}
 to be represented by a sequence of single spaces when it is to be
 displayed as `itself' (and not using its picture or name).
 As tabs are set every 8 spaces, the number of single spaces is:
@@ -7945,7 +7945,7 @@ As tabs are set every 8 spaces, the number of single spaces is:
 \tt 8 - printer->column % 8
 \end{center}
 
-If {\tt EXPAND\_HT} is \underline{off} and the character \TT{'\textbackslash t'}
+If \TT{EXPAND\_HT} is \underline{off} and the character \TT{'\textbackslash t'}
 is to be displayed as `itself', the character represents itself, but its
 width in columns is
 \begin{center}
@@ -7972,15 +7972,15 @@ using their hex code if no name exists.
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
 {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, a {\tt min::flush()} printer operation (\pagref{MIN::FLUSH})
-is executed at the very end of each {\tt min::\EOL eol} operation.
+If this flag is on, a \TT{min::flush()} printer operation (\pagref{MIN::FLUSH})
+is executed at the very end of each \TT{min::\EOL eol} operation.
 
 \item[\ttmkey{FLUSH\_ID\_MAP\_ON\_EOM}%
     {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, a {\tt min::eom()} printer operation performs
-a {\tt min::\EOL flush\_\EOL id\_\EOL map} operation
+If this flag is on, a \TT{min::eom()} printer operation performs
+a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
-{\tt min::\EOL eol} operation.
+\TT{min::\EOL eol} operation.
 
 \item[\ttmkey{NEXT\_IS\_LEADING}%
 {in printer {\tt print\_\EOL format.op\_\EOL flags}}]
@@ -8109,25 +8109,25 @@ the representative \TT{<FF>} of a form feed character.
 
 \item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]~\\
 This controls the printing of
-{\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
+\TT{min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
-Used with {\tt min::save\_print\_format} and
-{\tt min::\EOL restore\_\EOL print\_\EOL format} to save and
-restore the {\tt print\_\EOL format} parameters.
+Used with \TT{min::save\_print\_format} and
+\TT{min::\EOL restore\_\EOL print\_\EOL format} to save and
+restore the \TT{print\_\EOL format} parameters.
 See \pagref{PRINT-FORMAT-STACK} for details.
 Initialized to an empty stack.
 
 \item[\ttmkey{id\_\EOL map}{in {\tt min::printer}}]~\\
 Used to find or create identifiers when printing values with stubs
-and {\tt min::gen} values that contain stub pointers.
+and \TT{min::gen} values that contain stub pointers.
 See \itemref{IDENTIFIER-MAPS} and
-{\tt flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
+\TT{flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
 
 \end{itemlist}
 
 Copying characters into a printer is done by the
-{\tt <{}<} operator:
+\TT{<<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
@@ -8180,32 +8180,33 @@ Copying characters into a printer is done by the
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
 \end{tabular}\end{indpar}
 
-A `{\tt const char *}' is interpreted as a UTF-8 encoded
+A `\TT{const char *}' is interpreted as a UTF-8 encoded
 string of UNICODE characters as per
-{\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
-However, a `{\tt const char *}' cannot be an unprotected body pointer,
+\TT{min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
+However, a `\TT{const char *}' cannot be an unprotected body pointer,
 as the body it points into may be relocated during the execution of the
-{\tt <{}<\RESIZE} operator on a printer.
-A `{\tt min::\EOL ptr<char>}' value can be used
-instead as a pointer to a `{\tt const char *}' string inside a body.
-And a `{\tt min::\EOL str\_\EOL ptr}' can be used instead to
-point at the contents of a string {\tt min::gen} value.
+\TT{<<\RESIZE} operator on a printer.
+A `\TT{min::\EOL ptr<char>}' value can be used
+instead as a pointer to a `\TT{const char *}' string inside a body.
+And a `\TT{min::\EOL str\_\EOL ptr}' can be used instead to
+point at the contents of a string \TT{min::gen} value.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
-When a horizontal tab is copied to a printer file buffer
-in non-graphic mode with
-the {\tt min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} off,
+When a horizontal tab is to be copied to the printer buffer, then if
+the \TT{min::\EOL EXPAND\_\EOL HT} flag in
+\TT{printer->\EOL print\_EOL format.op\_\EOL flags} is on,
 the horizontal tab is converted to between 1 and 8 single space characters.
+But if the flag is off, the horizontal character itself is copied.
+In either case the printer column is adjusted to the next multiple of 8.
 
-When a \ttkey{NUL} is copied into a printer file buffer, which can only happen
-in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE\_\EOL FLAG} on,
-it is encoded as the overlong UTF-8 encoding {\tt 0xC0},{\tt 0x80}.
+When a \ttkey{NUL} is to be copied into a printer file buffer,
+it is encoded as the overlong UTF-8 encoding \TT{0xC0},\TT{0x80}.
 
 Values of types other than `\TT{const char *}'
-which are presented to {\tt <{}<} are converted to `{\tt const char~*}' strings
+which are presented to \TT{<<} are converted to `\TT{const char~*}' strings
 as follows:
-`{\tt char}' converts to a 1-{\tt char} string whose only element
-is the {\tt char} value.  Numbers are converted by {\tt printf}
+`\TT{char}' converts to a 1-\TT{char} string whose only element
+is the \TT{char} value.  Numbers are converted by \TT{printf}
 formats as follows:
 \begin{center}
 \tt
@@ -8219,7 +8220,7 @@ min::float64	& "\%.15g" \\
 \end{center}
 
 Operations can be performed on printers by applying the
-{\tt <{}<} operator to a {\tt min::}\MINKEY{op}:
+\TT{<<} operator to a \TT{min::}\MINKEY{op}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
@@ -8229,9 +8230,9 @@ Operations can be performed on printers by applying the
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
 \end{tabular}\end{indpar}
 
-Operations behave for printers as {\tt iomanip}
-C++ objects behave for {\tt iostreams}.  For example, the
-printer analog of {\tt std::\EOL endl} is the \key{end of line}
+Operations behave for printers as \TT{iomanip}
+C++ objects behave for \TT{iostreams}.  For example, the
+printer analog of \TT{std::\EOL endl} is the \key{end of line}
 operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8240,7 +8241,8 @@ operation:
 \end{tabular}\end{indpar}
 
 which inserts a line end into the output and then executes a
-flush operation if the {\tt min::\EOL EOL\_\EOL FLUSH\_\EOL FLAG} is set.
+flush operation if the \TT{min::\EOL FLUSH\_\EOL ON\_\EOL EOL} is set
+in \TT{printer->\EOL print\_EOL format.op\_\EOL flags}.
 
 The flush operation:
 
@@ -8261,13 +8263,13 @@ The \key{beginning of line} operation:
 \LABEL{MIN::BOL} \\
 \end{tabular}\end{indpar}
 
-executes {\tt min::eol} if and only if the printer is \underline{not}
+executes \TT{min::eol} if and only if the printer is \underline{not}
 already at the beginning of a line.
 
-A {\ldots{} \tt <{}< printer} operation can be used to
-flush the contents of {\tt printer->\EOL file} into
-an {\tt std::\EOL ostream}, a {\tt min::\EOL file}, or
-into another {\tt min::\EOL printer}:
+A {\ldots{} \tt << printer} operation can be used to
+flush the contents of \TT{printer->\EOL file} into
+an \TT{std::\EOL ostream}, a \TT{min::\EOL file}, or
+into another \TT{min::\EOL printer}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
@@ -8290,10 +8292,10 @@ into another {\tt min::\EOL printer}:
 \LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
-In general {\ldots{} \tt <{}< printer} is equivalent to
-{\ldots{} \tt <{}< printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
+In general {\ldots{} \tt << printer} is equivalent to
+{\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
-The {\tt min::set\_\EOL break} printer operation:
+The \TT{min::set\_\EOL break} printer operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{set\_\EOL break}
@@ -8301,26 +8303,26 @@ The {\tt min::set\_\EOL break} printer operation:
 \end{tabular}\end{indpar}
 
 can be used to explicitly set a break point:
-More specifically, {\tt printer<{}<min::set\_\EOL break} sets a break point after
+More specifically, \TT{printer<<min::set\_\EOL break} sets a break point after
 the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
 printer->line_break.offset = printer->buffer->length;
 printer->line_break.column = printer->column;
 \end{verbatim}\end{indpar}
 
-Recall from the description of {\tt line\_\EOL break.line\_\EOL length} on
+Recall from the description of \TT{line\_\EOL break.line\_\EOL length} on
 \pagref{LINE-LENGTH}
 that when a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed {\tt line\_\EOL break.line\_\EOL length},
+of columns in the line to exceed \TT{line\_\EOL break.line\_\EOL length},
 then if
 \begin{center}
 \tt line\_break.column > line\_break.indent
 \end{center}
-a break, consisting of a line end followed by {\tt line\_\EOL break.indent}
+a break, consisting of a line end followed by \TT{line\_\EOL break.indent}
 spaces,
 is inserted into the printer file buffer just after the break point
-(i.e., at {\tt line\_\EOL break.offset}).  Also
+(i.e., at \TT{line\_\EOL break.offset}).  Also
 horizontal spaces
 characters immediately before the inserted line end are deleted.
 
@@ -8328,18 +8330,18 @@ One typically sets a break point just before printing text that one wants
 to appear all on one line.  Then if
 a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the {\tt line\_\EOL break.line\_\EOL length},
+of columns in the line to exceed the \TT{line\_\EOL break.line\_\EOL length},
 a line end will be inserted at the break point.
 
-For example, if {\tt line\_\EOL break.line\_\EOL length} is 72 one might
+For example, if \TT{line\_\EOL break.line\_\EOL length} is 72 one might
 print
 \begin{center}
 \tt [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 \end{center}
-in which {\tt min::\EOL set\_\EOL break} was called after every single space
-character (which could be done automatically via the {\tt HBREAK\_\EOL FLAG}).
-If instead {\tt line\_\EOL break.line\_\EOL length}
-was just 14 and {\tt line\_\EOL break.indent} was 2,
+in which \TT{min::\EOL set\_\EOL break} was called after every single space
+character (which could be done automatically via the \TT{HBREAK\_\EOL FLAG}).
+If instead \TT{line\_\EOL break.line\_\EOL length}
+was just 14 and \TT{line\_\EOL break.indent} was 2,
 the same output would
 print as
 \begin{center}
@@ -8352,16 +8354,16 @@ print as
 \end{tabular}
 \end{center}
 
-In particular, after `{\tt [~aaa,~bbb,~}' a break point would be set,
-and then when the third `{\tt c}' is about to be printed in column 15,
-after `{\tt [~aaa,~bbb,~cc}' has already been printed, this
+In particular, after `\TT{[~aaa,~bbb,~}' a break point would be set,
+and then when the third `\TT{c}' is about to be printed in column 15,
+after `\TT{[~aaa,~bbb,~cc}' has already been printed, this
 break point would be changed to a line end with 2 following single
 spaces and the single space preceding the line end would be deleted.  Similarly
-a break point would be set after `{\tt \ldots~ddd,~}' and changed
-when `{\tt e}' is about to be printed in column 15, and a break
-point would be set after `{\tt \ldots~fff,~}' and changed
-when `{\tt g}' is about to be printed in column 15.  Break points
-would also be set after `{\tt [~}', `{\tt \ldots~aaa,~}', etc. but
+a break point would be set after `\TT{\ldots~ddd,~}' and changed
+when `\TT{e}' is about to be printed in column 15, and a break
+point would be set after `\TT{\ldots~fff,~}' and changed
+when `\TT{g}' is about to be printed in column 15.  Break points
+would also be set after `\TT{[~}', `\TT{\ldots~aaa,~}', etc. but
 these would never be used.
 
 The break point is said to be `\mkey{enabled}{break point}' whenever
@@ -8375,17 +8377,17 @@ and `\mkey{disabled}{break point}' whenever
 A break point must be enabled to be used.
 Whenever a line end is inserted, the break point is
 disabled by either setting it to be at the beginning of the line
-(so {\tt line\_\EOL break.column} is {\tt 0}) or setting it to
-just after the {\tt line\_\EOL break.indent} spaces
+(so \TT{line\_\EOL break.column} is \TT{0}) or setting it to
+just after the \TT{line\_\EOL break.indent} spaces
 if these are inserted after the line end.
-Thus {\tt min::\EOL eol} and the {\tt min::\EOL indent} operation
+Thus \TT{min::\EOL eol} and the \TT{min::\EOL indent} operation
 (see \pagref{MIN::INDENT}) both end by executing
-an implied {\tt min::\EOL set\_\EOL break},
-and an implied {\tt min::\EOL set\_\EOL break}
+an implied \TT{min::\EOL set\_\EOL break},
+and an implied \TT{min::\EOL set\_\EOL break}
 is also executed just after inserting a line end
-and {\tt line\_\EOL break.indent} spaces at a break point.
+and \TT{line\_\EOL break.indent} spaces at a break point.
 
-The {\tt min::left} and {\tt min::right} operations:
+The \TT{min::left} and \TT{min::right} operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{left} \verb|( min::uns32 width )|
@@ -8396,32 +8398,32 @@ The {\tt min::left} and {\tt min::right} operations:
 
 can be used to left or right adjust text in a line.
 These operations add spaces to make the current printer column
-equal to {\tt line\_\EOL break.column + width}.
-The {\tt min::\EOL left} operation simply appends spaces to the
-current line.  The {\tt min::\EOL right} operation inserts spaces
+equal to \TT{line\_\EOL break.column + width}.
+The \TT{min::\EOL left} operation simply appends spaces to the
+current line.  The \TT{min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
-{\tt min::\EOL set\_\EOL break} that resets the breakpoint.
+\TT{min::\EOL set\_\EOL break} that resets the breakpoint.
 Both operations behave exactly as if spaces were inserted at the
-appropriate point by {\tt printer <{}< "~"}, except that
-{\tt min::right} will give undefined results if a horizontal
+appropriate point by \TT{printer << "~"}, except that
+\TT{min::right} will give undefined results if a horizontal
 tab has been output since the last break point (which can only
 happen in non-graphic mode with
-{\tt min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} on).
+\TT{min::\EOL ALLOW\_\EOL HSPACE\_\EOL FLAG} on).
 
-The {\tt min::reserve} operation:
+The \TT{min::reserve} operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{reserve} \verb|( min::uns32 width )|
 \LABEL{MIN::RESERVE} \\
 \end{tabular}\end{indpar}
 
-can be used to force a line break if there are fewer than {\tt width}
+can be used to force a line break if there are fewer than \TT{width}
 columns remaining in a line.
-Here the line break consists of a {\tt min::eol} end of line followed
-by {\tt line\_\EOL break.indent} single spaces followed by setting a break
-as per {\tt min::\EOL set\_\EOL break}.
+Here the line break consists of a \TT{min::eol} end of line followed
+by \TT{line\_\EOL break.indent} single spaces followed by setting a break
+as per \TT{min::\EOL set\_\EOL break}.
 
-The {\tt min::indent} operation:
+The \TT{min::indent} operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{indent}
@@ -8429,15 +8431,15 @@ The {\tt min::indent} operation:
 \end{tabular}\end{indpar}
 
 produces a line break if the current printer
-column is greater than {\tt line\_\EOL break.indent}, and then (always) inserts
+column is greater than \TT{line\_\EOL break.indent}, and then (always) inserts
 single spaces until the current printer column is equal to
-{\tt line\_\EOL break.indent} (whether or not a line break was inserted).
+\TT{line\_\EOL break.indent} (whether or not a line break was inserted).
 The operation
-ends by setting a break point as per {\tt min::\EOL set\_\EOL break}.
+ends by setting a break point as per \TT{min::\EOL set\_\EOL break}.
 
 Several operations are conditioned on the relative values of
-{\tt printer->\EOL line\_\EOL break.indent}, the printer indent,
-and {\tt printer->\EOL column}, the printer column:
+\TT{printer->\EOL line\_\EOL break.indent}, the printer indent,
+and \TT{printer->\EOL column}, the printer column:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{eol\_\EOL if\_\EOL after\_\EOL indent}
@@ -8448,14 +8450,14 @@ and {\tt printer->\EOL column}, the printer column:
 \LABEL{MIN::SPACE_IF_AFTER_INDENT} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::eol\_\EOL if\_\EOL after\_\EOL indent} operation performs
-an {\tt min::eol} operation if and only if the printer column is after
+The \TT{min::eol\_\EOL if\_\EOL after\_\EOL indent} operation performs
+an \TT{min::eol} operation if and only if the printer column is after
 the printer indent.
-The {\tt min::spaces\_\EOL if\_\EOL before\_\EOL indent} operation performs
-an {\tt min::indent} operation if and only if the printer column is before
+The \TT{min::spaces\_\EOL if\_\EOL before\_\EOL indent} operation performs
+an \TT{min::indent} operation if and only if the printer column is before
 the printer indent, inserting single space characters to make the
 column equal to the indent in this case.
-The {\tt min::space\_\EOL if\_\EOL after\_\EOL indent} operation outputs
+The \TT{min::space\_\EOL if\_\EOL after\_\EOL indent} operation outputs
 a single space character if and only if the printer column is after
 the printer indent.
 
@@ -8474,11 +8476,11 @@ This may be done by the following operations:
 \LABEL{MIN::RESTORE_PRINT_FORMAT} \\
 \end{tabular}\end{indpar}
 
-{\tt min::save\_print\_format}
+\TT{min::save\_print\_format}
 pushes into the format stack a new element containing
-the current {\tt print\_\EOL format}, while
-{\tt min::\EOL restore\_\EOL print\_\EOL format}
-resets {\tt print\_\EOL format} from the top format stack element and then
+the current \TT{print\_\EOL format}, while
+\TT{min::\EOL restore\_\EOL print\_\EOL format}
+resets \TT{print\_\EOL format} from the top format stack element and then
 pops this element from the stack.
 
 Similarly the line break parameters of a printer
@@ -8497,11 +8499,11 @@ This may be done by the following operations:
 \LABEL{MIN::RESTORE_LINE_BREAK} \\
 \end{tabular}\end{indpar}
 
-{\tt min::save\_line\_break}
+\TT{min::save\_line\_break}
 pushes into the line break stack a new element containing
-the current value of {\tt line\_\EOL break}, while
-{\tt min::\EOL restore\_\EOL line\_\EOL break}
-resets {\tt line\_\EOL break} from the top line break stack element and then
+the current value of \TT{line\_\EOL break}, while
+\TT{min::\EOL restore\_\EOL line\_\EOL break}
+resets \TT{line\_\EOL break} from the top line break stack element and then
 pops this element from the stack.
 
 In addition, a non-empty line break stack modifies break point
@@ -8509,46 +8511,46 @@ behavior in the following way.
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed
-the printer {\tt line\_\EOL break.line\_\EOL length} parameter,
+the printer \TT{line\_\EOL break.line\_\EOL length} parameter,
 then if any break stack entry is enabled, the first such entry's
-{\tt offset}, {\tt column}, and {\tt indent},
+\TT{offset}, \TT{column}, and \TT{indent},
 are used in place of the printer
-{\tt line\_\EOL break.offset},
-{\tt line\_\EOL break.column}, and
-{\tt line\_\EOL break.indent} parameters.
+\TT{line\_\EOL break.offset},
+\TT{line\_\EOL break.column}, and
+\TT{line\_\EOL break.indent} parameters.
 If this happens, then all later line break stack entries
-and the printer {\tt line\_\EOL break}
+and the printer \TT{line\_\EOL break}
 are adjusted by adding to offsets
 the change in offset of the character following the break and adding to
 columns and indents the change in column of this character.
 
 To be more specific, we say that a line break stack
-entry {\tt break\_\EOL stack[i]} is `\key{enabled}' if
+entry \TT{break\_\EOL stack[i]} is `\key{enabled}' if
 \begin{center}
 \tt break\_stack[i].column > break\_stack[i].indent
 \end{center}
-and `\key{disabled}' otherwise.  The entries are ordered by {\tt i},
-so the `first enabled entry' means the enabled entry with lowest {\tt i},
+and `\key{disabled}' otherwise.  The entries are ordered by \TT{i},
+so the `first enabled entry' means the enabled entry with lowest \TT{i},
 which is the bottommost (not topmost) enabled element of the line break stack.
-The `later entries' are entries with larger {\tt i}.  Note that
+The `later entries' are entries with larger \TT{i}.  Note that
 after using an entry to insert a line end, that entry's
-{\tt line\_\EOL break.offset}
-and {\tt line\_\EOL break.column} are reset to make its break point
+\TT{line\_\EOL break.offset}
+and \TT{line\_\EOL break.column} are reset to make its break point
 be just after the indentation spaces that are inserted after the line end.
-This sets {\tt break\_\EOL stack[i].column}
-equal to {\tt break\_\EOL stack[i].indent},
-and thus disables {\tt break\_\EOL stack[i]} so it will not be reused.
+This sets \TT{break\_\EOL stack[i].column}
+equal to \TT{break\_\EOL stack[i].indent},
+and thus disables \TT{break\_\EOL stack[i]} so it will not be reused.
 Note also that if \underline{no} line break stack entry is enabled,
-break point operation proceeds using the printer {\tt line\_\EOL break}
+break point operation proceeds using the printer \TT{line\_\EOL break}
 as if the line break stack did not exist.
-Lastly note that {\tt break\_\EOL stack[i].line\_\EOL length} is never
+Lastly note that \TT{break\_\EOL stack[i].line\_\EOL length} is never
 used during these operations; its only use is to restore 
-{\tt line\_\EOL break.line\_\EOL length} when the {\tt break\_\EOL stack}
+\TT{line\_\EOL break.line\_\EOL length} when the \TT{break\_\EOL stack}
 is popped.
 
 
 Management of nested list indentation can be done with the help of
-the {\tt line\_\EOL break\_\EOL stack} using the operations:
+the \TT{line\_\EOL break\_\EOL stack} using the operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::|
@@ -8560,22 +8562,22 @@ the {\tt line\_\EOL break\_\EOL stack} using the operations:
 \end{tabular}\end{indpar}
 
 It is indended that a list header will be printed by first
-executing a {\tt min::\EOL set\_\EOL break}, then printing the
-header (e.g.~{\tt "[ "}), then executing
-{\tt min::save\_indent}, while the list trailer will be printed
-by first \underline{not} executing {\tt min::\EOL set\_\EOL break},
-then printing the trailer (e.g.~{\tt " ]"}), then executing
-{\tt min::\EOL restore\_\EOL indent}.
+executing a \TT{min::\EOL set\_\EOL break}, then printing the
+header (e.g.~\TT{"[ "}), then executing
+\TT{min::save\_indent}, while the list trailer will be printed
+by first \underline{not} executing \TT{min::\EOL set\_\EOL break},
+then printing the trailer (e.g.~\TT{" ]"}), then executing
+\TT{min::\EOL restore\_\EOL indent}.
 
-{\tt min::save\_indent} first executes
-{\tt min::\EOL save\_\EOL line\_\EOL break} and then
-sets {\tt line\_\EOL break.indent} to equal the printer
-{\tt column}.
-~{\tt min::restore\_\EOL indent} just
-executes {\tt min::\EOL restore\_\EOL line\_\EOL break}.
+\TT{min::save\_indent} first executes
+\TT{min::\EOL save\_\EOL line\_\EOL break} and then
+sets \TT{line\_\EOL break.indent} to equal the printer
+\TT{column}.
+~\TT{min::restore\_\EOL indent} just
+executes \TT{min::\EOL restore\_\EOL line\_\EOL break}.
 
 For example, suppose we print the following
-with {\tt line\_\EOL length} equal to 72:
+with \TT{line\_\EOL length} equal to 72:
 \begin{center}
 \tt \{~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff,~ggg~),~hhh~],~iii,~jjj~\}
 \end{center}
@@ -8599,7 +8601,7 @@ by using code equivalent to the statement:
             << " }" << min::restore_indent 
             << min::eol;
 \end{verbatim}\end{indpar}
-Then if instead {\tt line\_\EOL length} was just 34 the same output would
+Then if instead \TT{line\_\EOL length} was just 34 the same output would
 print as
 \begin{center}
 \tt
@@ -8614,13 +8616,13 @@ After printing the 34 characters
 \begin{center}
 \tt \{~aaa,~bbb,~[~ccc,~ddd,~eee,~(~fff
 \end{center}
-a line break is triggered just before printing the `{\tt ,}' following
-`{\tt fff}'.  The first element in the line break stack was pushed
-just after printing `{\tt \{~}'% }
+a line break is triggered just before printing the `\TT{,}' following
+`\TT{fff}'.  The first element in the line break stack was pushed
+just after printing `\TT{\{~}'% }
 and is disabled as it is at the beginning of the line.
-The second element, pushed just after printing `{\tt [~}', has
-{\tt column} just after `{\tt bbb,~}', and {\tt indent}
-just after `{\tt \{~}', and so it is
+The second element, pushed just after printing `\TT{[~}', has
+\TT{column} just after `\TT{bbb,~}', and \TT{indent}
+just after `\TT{\{~}', and so it is
 enabled and used, and in the process it is disabled.
 At this point the output is
 \begin{center}
@@ -8630,17 +8632,17 @@ At this point the output is
 ~~[~ccc,~ddd,~eee,~(~fff \\
 \end{tabular}
 \end{center}
-The third element was pushed after printing `{\tt (~}' and it
+The third element was pushed after printing `\TT{(~}' and it
 is updated when the second element is used so it still faithfully
-reflects the point just after `{\tt (~}'.
-Next this third element is popped after printing `{\tt ~),~}'.
-Then when the second `{\tt h}' is about to be printed, neither of the
+reflects the point just after `\TT{(~}'.
+Next this third element is popped after printing `\TT{~),~}'.
+Then when the second `\TT{h}' is about to be printed, neither of the
 two break points left in the line break stack are enabled, so the non-stack
-break point before the first `{\tt h}' is used.  At this point the
-current {\tt indent} is that which was saved and restore by the popped
+break point before the first `\TT{h}' is used.  At this point the
+current \TT{indent} is that which was saved and restore by the popped
 third element, and this indent is just after `{\tt[~}'.
 
-The \key{begin message} and {\tt end message} operations can be used
+The \key{begin message} and \TT{end message} operations can be used
 to surround the body of an error message or other message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8650,20 +8652,20 @@ to surround the body of an error message or other message:
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
-{\tt min::bom} executes both
-a {\tt min::\EOL save\_\EOL indent}
-and a {\tt min::\EOL save\_\EOL print\_\EOL format} operation.
-{\tt min::\EOL eom} executes in order a
-{\tt min::\EOL restore\_\EOL indent},
-a {\tt min::\EOL eol},
-a {\tt min::\EOL flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP})
+\TT{min::bom} executes both
+a \TT{min::\EOL save\_\EOL indent}
+and a \TT{min::\EOL save\_\EOL print\_\EOL format} operation.
+\TT{min::\EOL eom} executes in order a
+\TT{min::\EOL restore\_\EOL indent},
+a \TT{min::\EOL eol},
+a \TT{min::\EOL flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP})
 if the print format
-{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on, and lastly
-a {\tt min::\EOL restore\_\EOL print\_\EOL format}.
-Note that the print format flags in effect just before {\tt min::\EOL eom}
-is executed govern {\tt min::\EOL eol}
-and {\tt min::\EOL flush\_\EOL id\_\EOL map} operations executed by
-{\tt min::\EOL eom}.
+\TT{FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on, and lastly
+a \TT{min::\EOL restore\_\EOL print\_\EOL format}.
+Note that the print format flags in effect just before \TT{min::\EOL eom}
+is executed govern \TT{min::\EOL eol}
+and \TT{min::\EOL flush\_\EOL id\_\EOL map} operations executed by
+\TT{min::\EOL eom}.
 
 For example, the following might be used to print an error message:
 \begin{indpar}\begin{verbatim}
@@ -8675,14 +8677,14 @@ For example, the following might be used to print an error message:
 \end{verbatim}\end{indpar}
 
 Here the error message will be indented by the number of columns
-consumed by `{\tt ERROR:~}', and any format parameters changed
+consumed by `\TT{ERROR:~}', and any format parameters changed
 while printing the error message body will be restored at the end
-of the message by the {\tt min::\EOL eom}.
+of the message by the \TT{min::\EOL eom}.
 
-{\tt min::bom} will set {\tt line\_\EOL break.indent}
-to the current value of {\tt column},
+\TT{min::bom} will set \TT{line\_\EOL break.indent}
+to the current value of \TT{column},
 but if a different indent is desired, it can be set by following
-{\tt min::\EOL bom} with {\tt min::\EOL set\_\EOL indent}
+\TT{min::\EOL bom} with \TT{min::\EOL set\_\EOL indent}
 (\pagref{MIN::SET_INDENT}) or one of the operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8694,19 +8696,19 @@ but if a different indent is desired, it can be set by following
 \LABEL{MIN::ADJUST_INDENT} \\
 \end{tabular}\end{indpar}
 
-These operations set the indent in {\tt line\_\EOL break.indent}
-to the sum of `{\tt offset}' and either
-the printer `{\tt column}' for {\tt min::\EOL place\_\EOL indent}
-or the indent itself for {\tt min::\EOL adjust\_\EOL indent}.
-If the value to be set would be negative, {\tt 0} is used instead.
+These operations set the indent in \TT{line\_\EOL break.indent}
+to the sum of `\TT{offset}' and either
+the printer `\TT{column}' for \TT{min::\EOL place\_\EOL indent}
+or the indent itself for \TT{min::\EOL adjust\_\EOL indent}.
+If the value to be set would be negative, \TT{0} is used instead.
 
-{\tt min::gen} values may be printed under the control of a
-{\tt min::\EOL gen\_\EOL format}.  As printing objects
-can be complex, printing {\tt min::gen} values is
+\TT{min::gen} values may be printed under the control of a
+\TT{min::\EOL gen\_\EOL format}.  As printing objects
+can be complex, printing \TT{min::gen} values is
 described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
 
-A single UNICODE character {\tt c}, or a string of UNICODE characters
-{\tt str} of a given {\tt length},
+A single UNICODE character \TT{c}, or a string of UNICODE characters
+\TT{str} of a given \TT{length},
 can be printed using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8725,19 +8727,19 @@ can be printed using the following operations:
 \LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{tabular}\end{indpar}
 
-Here it must be remembered that a `{\tt const min::uns32~*}' pointer
-{\tt str} must not be relocatable.
+Here it must be remembered that a `\TT{const min::uns32~*}' pointer
+\TT{str} must not be relocatable.
 
 Sometimes it is desirable to find out how many columns a
 single UNICODE character will take for a given value of
-{\tt print\_\EOL format.flags}.  For the horizontal tab character,
+\TT{print\_\EOL format.flags}.  For the horizontal tab character,
 this depends upon the column the character is printed in.
-So the following function updates a {\tt column} variable
-whose initial value is that of {\tt printer->column}
+So the following function updates a \TT{column} variable
+whose initial value is that of \TT{printer->column}
 before a UNICODE character is printed with
-{\tt printer <{}< min::\EOL punicode~(~c~)}
-and whose final value is {\tt printer->\EOL column}
-after the character is printed.  Here {\tt print\_\EOL format.flags}
+\TT{printer << min::\EOL punicode~(~c~)}
+and whose final value is \TT{printer->\EOL column}
+after the character is printed.  Here \TT{print\_\EOL format.flags}
 is input to the function as the
 \ttkey{print\_\EOL flags} argument.
 
@@ -8766,7 +8768,7 @@ This function updates `\TT{column}'
 by applying the previous \TT{pwidth} function successively to the
 UNICODE characters encoded by the \TT{n} byte string \TT{s}.
 
-Numbers may be formatted by specified {\tt printf} formats and the results
+Numbers may be formatted by specified \TT{printf} formats and the results
 printed by using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8788,10 +8790,10 @@ printed by using the following operations:
 \end{tabular}\end{indpar}
 
 Objects, packed structures and vectors, and long strings can be
-output as an identifier of the form {\tt @<}{\em id}{\tt >} by using
+output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
 the printer \key{object ID map}.
 
-A printer's {\tt id\_map} member is initialized automatically when
+A printer's \TT{id\_map} member is initialized automatically when
 needed.  However, it can also be set by:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8805,8 +8807,8 @@ needed.  However, it can also be set by:
 which permits maps to be shared among printers.  If no second argument
 is given, an identifier map is created for the printer if none previously
 exists.  This can then be shared with other printers.  The final
-{\tt id\_\EOL map} member of the printer is returned, and this
-is never {\tt min::\EOL NULL\_\EOL STUB}.
+\TT{id\_\EOL map} member of the printer is returned, and this
+is never \TT{min::\EOL NULL\_\EOL STUB}.
 
 Printer parameters may be set
 by the following printer operations:
@@ -8826,19 +8828,19 @@ by the following printer operations:
 \LABEL{MIN::CLEAR_PRINT_FLAGS} \\
 \end{tabular}\end{indpar}
 
-{\tt min::\EOL set\_\EOL print\_\EOL flags} logically OR's
-its argument into {\tt print\_\EOL format.flags} and
-{\tt min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
-the bitwise complement of its argument into {\tt print\_\EOL format.flags}
-(recall that {\tt print\_\EOL format.flags} are also referred to as
-{\tt print\_\EOL flags} when used as arguments to functions).
+\TT{min::\EOL set\_\EOL print\_\EOL flags} logically OR's
+its argument into \TT{print\_\EOL format.flags} and
+\TT{min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
+the bitwise complement of its argument into \TT{print\_\EOL format.flags}
+(recall that \TT{print\_\EOL format.flags} are also referred to as
+\TT{print\_\EOL flags} when used as arguments to functions).
 For example, 
 \begin{center}
-\tt printer<{}<min::set\_print\_flags(min::ASCII\_FLAG)
+\tt printer<<min::set\_print\_flags(min::ASCII\_FLAG)
 \end{center}
-sets the {\tt ASCII\_FLAG} of {\tt printer->\EOL print\_\EOL format.flags}.
+sets the \TT{ASCII\_FLAG} of \TT{printer->\EOL print\_\EOL format.flags}.
 
-Particular {\tt print\_format.flags} may be set and cleared by the
+Particular \TT{print\_format.flags} may be set and cleared by the
 following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8903,10 +8905,10 @@ following printer operations:
 \LABEL{MIN::NOEOL_FLUSH} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt printer<{}<min::ascii}' sets the
-{\tt min::\EOL ASCII\_\EOL FLAG} in
-{\tt printer->\EOL print\_\EOL for\-mat.flags},
-and `{\tt printer<{}<\EOL min::\EOL noascii}' clears this flag.
+For example, `\TT{printer<<min::ascii}' sets the
+\TT{min::\EOL ASCII\_\EOL FLAG} in
+\TT{printer->\EOL print\_\EOL for\-mat.flags},
+and `\TT{printer<<\EOL min::\EOL noascii}' clears this flag.
 
 There are several operations that set and clear several flags each:
 
@@ -8919,7 +8921,7 @@ There are several operations that set and clear several flags each:
 \LABEL{MIN::VERBATIM} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::\EOL graphic} operation sets the following flags:
+The \TT{min::\EOL graphic} operation sets the following flags:
 \begin{indpar}
 \tt
 min::GRAPHIC\_HSPACE\_FLAG \\
@@ -8928,14 +8930,14 @@ min::GRAPHIC\_NSPACE\_FLAG \\
 min::GBREAK\_FLAG
 \end{indpar}
 
-and the {\tt min::\EOL nographic} operation clears these flags.
-{\tt min::\EOL graphic} permits all characters to be represented
+and the \TT{min::\EOL nographic} operation clears these flags.
+\TT{min::\EOL graphic} permits all characters to be represented
 by a graphic, i.e., a printed mark, and automatically sets break points
 just before
 and just after each of these character representations, in order to
 enforce line length limits.
 
-The {\tt min::\EOL verbatim} operation sets the following flags:
+The \TT{min::\EOL verbatim} operation sets the following flags:
 \begin{indpar}
 \tt
 min::ALLOW\_HSPACE\_FLAG \\
@@ -8954,21 +8956,21 @@ min::GBREAK\_FLAG \\
 min::ASCII\_FLAG
 \end{indpar}
 
-This permits characters in a {\tt printer->file} line to be copied
+This permits characters in a \TT{printer->file} line to be copied
 to another printer verbatim.  Note that
-the {\tt min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}
+the \TT{min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}
 is not affected, as when copying to a printer from
-from some {\tt printer->\EOL file}
-line terminating NULs are translated to {\tt min::\EOL eol}
+from some \TT{printer->\EOL file}
+line terminating NULs are translated to \TT{min::\EOL eol}
 operations on the target printer.
 Also note that the operation to undo the results
-of {\tt min::\EOL verbatim} does not exist (you must save and restore
-{\tt print\_\EOL format}).
+of \TT{min::\EOL verbatim} does not exist (you must save and restore
+\TT{print\_\EOL format}).
 
-Strictly for testing purposes, in situations where {\tt min::printer}'s
-are not working, printer operations ({\tt min::}\MINKEY{op}'s)
-can be presented to a {\tt std::\EOL ostream} by the
-{\tt <{}<} operator:
+Strictly for testing purposes, in situations where \TT{min::printer}'s
+are not working, printer operations (\TT{min::}\MINKEY{op}'s)
+can be presented to a \TT{std::\EOL ostream} by the
+\TT{<<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
@@ -8978,10 +8980,10 @@ can be presented to a {\tt std::\EOL ostream} by the
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
 \end{tabular}\end{indpar}
 
-The parts of printer operations that change {\tt min::\EOL printer}
-parameters or read {\tt line\_\EOL break} parameters
+The parts of printer operations that change \TT{min::\EOL printer}
+parameters or read \TT{line\_\EOL break} parameters
 are treated as no-operations, and parts that just
-use the {\tt print\_\EOL format} parameters are executed using
+use the \TT{print\_\EOL format} parameters are executed using
 the value of
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8990,11 +8992,11 @@ the value of
 \LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
 \end{tabular}\end{indpar}
 
-instead, where this is a (non-{\tt const}) global variable initialized to the
-value of {\tt min::\EOL default\_\EOL print\_\EOL format}.
+instead, where this is a (non-\TT{const}) global variable initialized to the
+value of \TT{min::\EOL default\_\EOL print\_\EOL format}.
 
-Also, {\tt gen\_format->pgen} is ignored, and so cannot override the
-default {\tt pgen}.
+Also, \TT{gen\_format->pgen} is ignored, and so cannot override the
+default \TT{pgen}.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -9023,7 +9025,7 @@ operations:
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt printer\,<{}<\,min::pgen(v)}'
+The expression `{\tt printer\,<<\,min::pgen(v)}'
 prints the {\tt min::gen} value \TT{v} to the
 {\tt printer} using
 \begin{center}
@@ -9036,15 +9038,15 @@ and & {\tt printer->\EOL print\_\EOL format.gen\_\EOL format} \\
 \end{center}
 to control the printing.
 
-`{\tt printer\,<{}<\,v}' can be used as the equivalent of
-`{\tt printer\,<{}<\,min::pgen(v)}'
+`{\tt printer\,<<\,v}' can be used as the equivalent of
+`{\tt printer\,<<\,min::pgen(v)}'
 
-The expression `{\tt printer\,<{}<\,min::pgen\_name(v)}' is similar but
+The expression `{\tt printer\,<<\,min::pgen\_name(v)}' is similar but
 uses the {\tt PGEN\_NAME} context instead of {\tt PGEN\_TOP}
 to select from
 {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
 
-The expression `{\tt printer\,<{}<\,min::pgen(v,gen\_flags)}'
+The expression `{\tt printer\,<<\,min::pgen(v,gen\_flags)}'
 is similar except that it uses the {\tt gen\_\EOL flags} argument
 in place of flags selected from
 {\tt printer->\EOL print\_\EOL format.context\_\EOL gen\_\EOL flags}.
@@ -9696,7 +9698,7 @@ This member is only enabled if it
 is not {\tt min::\EOL NULL\_\EOL STUB}.
 
 {\tt flag\_names[i]} is printed as the representation of
-control flag {\tt 1 <{}< i} of an attribute.
+control flag {\tt 1 << i} of an attribute.
 
 WARNING: The {\tt flag\_\EOL names} member of a {\tt min::gen\_format} is
 \underline{not} locatable by the ACC, and its value must therefore be

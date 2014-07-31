@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 30 06:54:36 EDT 2014
+// Date:	Thu Jul 31 12:51:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8643,12 +8643,21 @@ min::printer min::print_unicode
 	}
 	else if ( cflags & dc.display_char )
 	{
-	    if ( c == '\t' && expand_ht )
+	    if ( c == '\t' )
 	    {
-	        uns32 spaces = 8 - printer->column % 8;
-		::strcpy ( temp, "        " );
-		temp[spaces] = 0;
-		length = columns = spaces;
+		uns32 spaces = 8 - printer->column % 8;
+		columns = spaces;
+	        if ( expand_ht )
+		{
+		    ::strcpy ( temp, "        " );
+		    temp[spaces] = 0;
+		    length = spaces;
+		}
+		else
+		{
+		    temp[0] = (char) c;
+		    temp[1] = 0;
+		}
 		rep_is_space = true;
 	    }
 	    else if ( 0 < c && c < 128 )
