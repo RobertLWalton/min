@@ -7672,9 +7672,9 @@ following printer parameters:
 \verb|            { min::IS_LATIN1, min::IS_UNSUPPORTED };|
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \verb|const min::support_control min::|%
-    \MINKEY{inclusive\_support\_control} \verb|=| \\
+    \MINKEY{support\_all\_support\_control} \verb|=| \\
 \verb|            { 0xFFFF, min::IS_UNSUPPORTED };|
-\LABEL{MIN::INCLUSIVE_SUPPORT_CONTROL} \\
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7692,10 +7692,6 @@ following printer parameters:
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|const min::display_control min::|%
-    \MINKEY{verbatim\_display\_control} \verb|=| \\
-\verb|            { 0xFFFF, 0 };|
-\LABEL{MIN::VERBATIM_DISPLAY_CONTROL} \\
-\verb|const min::display_control min::|%
     \MINKEY{graphic\_and\_space\_display\_control} \verb|=| \\
 \verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
@@ -7708,6 +7704,10 @@ following printer parameters:
 \verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC| \\
 \verb|                         + min::IS_VSPACE, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
+\verb|const min::display_control min::|%
+    \MINKEY{display\_all\_display\_control} \verb|=| \\
+\verb|            { 0xFFFF, 0 };|
+\LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7743,9 +7743,9 @@ following printer parameters:
 \verb|            { 0, 0xFFFF, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \verb|const min::break_control min::|%
-    \MINKEY{break\_after\_hyphenators\_break\_control} \verb|=| \\
+    \MINKEY{break\_after\_hyphens\_break\_control} \verb|=| \\
 \verb|            { min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
-\LABEL{MIN::BREAK_AFTER_HYPHENATORS_BREAK_CONTROL} \\
+\LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -8572,7 +8572,7 @@ by first \underline{not} executing \TT{min::\EOL set\_\EOL break},
 then printing the trailer (e.g.~\TT{" ]"}), then executing
 \TT{min::\EOL restore\_\EOL indent}.
 
-\TT{min::save\_indent} first executes
+\TT{min::save\_indent} executes
 \TT{min::\EOL save\_\EOL line\_\EOL break} and then
 sets \TT{line\_\EOL break.indent} to equal the printer
 \TT{column}.
@@ -8783,8 +8783,6 @@ printed by using the following operations:
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
 
-TBD
-
 Objects, packed structures and vectors, and long strings can be
 output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
 the printer \key{object ID map}.
@@ -8817,63 +8815,35 @@ by the following printer operations:
     & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
 \LABEL{MIN::SET_INDENT} \\
 \verb|min::op min::|
-    & \MINKEY{set\_print\_flags} \verb|( min::uns32 print_flags )|
-\LABEL{MIN::SET_PRINT_FLAGS} \\
+    & \MINKEY{set\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::SET_PRINT_OP_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
-\LABEL{MIN::CLEAR_PRINT_FLAGS} \\
+    & \MINKEY{clear\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::CLEAR_PRINT_OP_FLAGS} \\
 \end{tabular}\end{indpar}
 
-\TT{min::\EOL set\_\EOL print\_\EOL flags} logically OR's
-its argument into \TT{print\_\EOL format.flags} and
-\TT{min::\EOL clear\_\EOL print\_\EOL flags} logically AND's
-the bitwise complement of its argument into \TT{print\_\EOL format.flags}
-(recall that \TT{print\_\EOL format.flags} are also referred to as
-\TT{print\_\EOL flags} when used as arguments to functions).
+\TT{min::\EOL set\_\EOL print\_\EOL op\_\EOL flags} logically OR's
+its argument into \TT{print\_\EOL format.op\_\EOL flags} and
+\TT{min::\EOL clear\_\EOL print\_\EOL op\_\EOL flags} logically AND's
+the bitwise complement of its argument into
+\TT{print\_\EOL format.op\_\EOL flags}
+(recall that \TT{print\_\EOL format.op\_\EOL flags} are referred to as
+\TT{print\_\EOL op\_\EOL flags} when used as arguments to functions).
 For example, 
 \begin{center}
-\tt printer<<min::set\_print\_flags(min::ASCII\_FLAG)
+\tt printer<<min::set\_print\_op\_flags(min::DISPLAY\_PICTURE)
 \end{center}
-sets the \TT{ASCII\_FLAG} of \TT{printer->\EOL print\_\EOL format.flags}.
+sets the \TT{min::DISPLAY\_PICTURE} flag of
+\TT{printer->\EOL print\_\EOL format.op\_\EOL flags}.
 
-Particular \TT{print\_format.flags} may be set and cleared by the
+Particular \TT{print\_format.op\_flags} may be set and cleared by the
 following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{ascii}
-\LABEL{MIN::ASCII} \\
-\verb|const min::op min::| & \MINKEY{noascii}
-\LABEL{MIN::NOASCII} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-
-\verb|const min::op min::| & \MINKEY{graphic\_hspace}
-\LABEL{MIN::GRAPHIC_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_hspace}
-\LABEL{MIN::NOGRAPHIC_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{graphic\_vspace}
-\LABEL{MIN::GRAPHIC_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_vspace}
-\LABEL{MIN::NOGRAPHIC_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{graphic\_nspace}
-\LABEL{MIN::GRAPHIC_NSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_nspace}
-\LABEL{MIN::NOGRAPHIC_NSPACE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{allow\_hspace}
-\LABEL{MIN::ALLOW_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_hspace}
-\LABEL{MIN::NOALLOW_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{allow\_vspace}
-\LABEL{MIN::ALLOW_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_vspace}
-\LABEL{MIN::NOALLOW_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{allow\_nspace}
-\LABEL{MIN::ALLOW_NSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_nspace}
-\LABEL{MIN::NOALLOW_NSPACE} \\
+\verb|const min::op min::| & \MINKEY{expand\_ht}
+\LABEL{MIN::EXPAND_HT} \\
+\verb|const min::op min::| & \MINKEY{noexpand\_ht}
+\LABEL{MIN::NOEXPAND_HT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8881,118 +8851,169 @@ following printer operations:
 \LABEL{MIN::DISPLAY_EOL} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_eol}
 \LABEL{MIN::NODISPLAY_EOL} \\
+\verb|const min::op min::| & \MINKEY{display\_picture}
+\LABEL{MIN::DISPLAY_PICTURE} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_picture}
+\LABEL{MIN::NODISPLAY_PICTURE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{hbreak}
-\LABEL{MIN::HBREAK} \\
-\verb|const min::op min::| & \MINKEY{nohbreak}
-\LABEL{MIN::NOHBREAK} \\
-\verb|const min::op min::| & \MINKEY{gbreak}
-\LABEL{MIN::GBREAK} \\
-\verb|const min::op min::| & \MINKEY{nogbreak}
-\LABEL{MIN::NOGBREAK} \\
+\verb|const min::op min::| & \MINKEY{flush\_on\_eol}
+\LABEL{MIN::FLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{noflush\_on\_eol}
+\LABEL{MIN::NOFLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{flush\_id\_map\_on\_eom}
+\LABEL{MIN::FLUSH_ID_MAP_ON_EOM} \\
+\verb|const min::op min::| & \MINKEY{noflush\_id\_map\_on\_eom}
+\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{eol\_flush}
-\LABEL{MIN::EOL_FLUSH} \\
-\verb|const min::op min::| & \MINKEY{noeol\_flush}
-\LABEL{MIN::NOEOL_FLUSH} \\
+\verb|const min::op min::| & \MINKEY{auto\_suppress}
+\LABEL{MIN::AUTO_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{noauto\_suppress}
+\LABEL{MIN::NOAUTO_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{disable\_suppress}
+\LABEL{MIN::DISABLE_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
+\LABEL{MIN::NODISABLE_SUPPRESS} \\
 \end{tabular}\end{indpar}
 
-For example, `\TT{printer<<min::ascii}' sets the
-\TT{min::\EOL ASCII\_\EOL FLAG} in
-\TT{printer->\EOL print\_\EOL for\-mat.flags},
-and `\TT{printer<<\EOL min::\EOL noascii}' clears this flag.
+Here the \TT{min::display\_picture} operation sets the
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} prin\-ter operation flag in
+\TT{printer->\EOL print\_\EOL format.op\_\EOL flags},
+while the \TT{min::\EOL nodisplay\_\EOL picture} operation clears this flag.
+The other operations similarly set or clear their associated flags.
 
-There are several operations that set and clear several flags each:
+The \TT{printer\_format.support\_control} can be set by the following
+printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{graphic}
-\LABEL{MIN::GRAPHIC} \\
-\verb|const min::op min::| & \MINKEY{nographic}
-\LABEL{MIN::NOGRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{ascii}
+\LABEL{MIN::ASCII} \\
+\verb|const min::op min::| & \MINKEY{latin1}
+\LABEL{MIN::LATIN1} \\
+\verb|const min::op min::| & \MINKEY{support\_all}
+\LABEL{MIN::SUPPORT_ALL} \\
+\verb|min::op min::|
+    & \MINKEY{set\_support\_control}\ARGBREAK
+          \verb|( const min::support_control & sc )|
+\LABEL{MIN::SET_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::ascii} is equivalent to
+\begin{center}
+\verb|min::set_support_control ( min::ascii_support_control )|
+\end{center}
+and similarly for \TT{min::latin1} and \TT{min::support\_all}.
+
+The \TT{printer\_format.display\_control} can be set by the following
+printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
+\LABEL{MIN::GRAPHIC_AND_SPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_only}
+\LABEL{MIN::GRAPHIC_ONLY} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
+\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|min::op min::|
+    & \MINKEY{set\_display\_control}\ARGBREAK
+          \verb|( const min::display_control & dc )|
+\LABEL{MIN::SET_DISPLAY_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::graphic\_and\_space} is equivalent to
+\begin{center}
+\verb|min::set_display_control ( min::graphic_and_space_display_control )|
+\end{center}
+and similarly for \TT{min::\EOL graphic\_\EOL only},
+\TT{min::\EOL graphic\_\EOL and\_vspace}, and \TT{min::\EOL display\_\EOL all}.
+
+The \TT{printer\_format.break\_control} can be set by the following
+printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{no\_auto\_break}
+\LABEL{MIN::NO_AUTO_BREAK} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_space}
+\LABEL{MIN::BREAK_AFTER_SPACE} \\
+\verb|const min::op min::| & \MINKEY{break\_before\_all}
+\LABEL{MIN::BREAK_BEFORE_ALL} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_hyphens}
+\LABEL{MIN::BREAK_AFTER_HYPHENS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_break\_control}\ARGBREAK
+          \verb|( const min::break_control & bc )|
+\LABEL{MIN::SET_BREAK_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::no\_auto\_break} is equivalent to
+\begin{center}
+\verb|min::set_break_control ( min::no_auto_break_break_control )|
+\end{center}
+and similarly for \TT{min::break\_\EOL after\_\EOL space},
+\TT{min::break\_\EOL before\_\EOL all},
+and \TT{min::break\_\EOL after\_\EOL hyphens}.
+
+The printer operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{verbatim}
 \LABEL{MIN::VERBATIM} \\
 \end{tabular}\end{indpar}
 
-The \TT{min::\EOL graphic} operation sets the following flags:
-\begin{indpar}
-\tt
-min::GRAPHIC\_HSPACE\_FLAG \\
-min::GRAPHIC\_VSPACE\_FLAG \\
-min::GRAPHIC\_NSPACE\_FLAG \\
-min::GBREAK\_FLAG
-\end{indpar}
+is used when it is desired to copy characters verbatim to the
+printer buffer.  \TT{printer << min::\EOL verbatim} is equivalent to:
 
-and the \TT{min::\EOL nographic} operation clears these flags.
-\TT{min::\EOL graphic} permits all characters to be represented
-by a graphic, i.e., a printed mark, and automatically sets break points
-just before
-and just after each of these character representations, in order to
-enforce line length limits.
-
-The \TT{min::\EOL verbatim} operation sets the following flags:
-\begin{indpar}
-\tt
-min::ALLOW\_HSPACE\_FLAG \\
-min::ALLOW\_VSPACE\_FLAG \\
-min::ALLOW\_NSPACE\_FLAG
-\end{indpar}
-
-and clears the following flags:
-\begin{indpar}
-\tt
-min::GRAPHIC\_HSPACE\_FLAG \\
-min::GRAPHIC\_VSPACE\_FLAG \\
-min::GRAPHIC\_NSPACE\_FLAG \\
-min::HBREAK\_FLAG \\
-min::GBREAK\_FLAG \\
-min::ASCII\_FLAG
-\end{indpar}
+\begin{indpar}\begin{verbatim}
+printer << min::noexpand_ht
+        << min::noauto_suppress
+        << min::support_all
+        << min::display_all
+        << min::no_auto_break
+\end{verbatim}\end{indpar}
 
 This permits characters in a \TT{printer->file} line to be copied
 to another printer verbatim.  Note that
-the \TT{min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}
+the \TT{min::\EOL DISPLAY\_\EOL EOL} printer operation flag
 is not affected, as when copying to a printer from
 from some \TT{printer->\EOL file}
 line terminating NULs are translated to \TT{min::\EOL eol}
-operations on the target printer.
+operations on the target printer and may or may not be
+displayed according to the setting of
+\TT{min::\EOL DISPLAY\_\EOL EOL} on the target printer.
 Also note that the operation to undo the results
 of \TT{min::\EOL verbatim} does not exist (you must save and restore
 \TT{print\_\EOL format}).
 
-Strictly for testing purposes, in situations where \TT{min::printer}'s
-are not working, printer operations (\TT{min::}\MINKEY{op}'s)
-can be presented to a \TT{std::\EOL ostream} by the
-\TT{<<} operator:
+The printer operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
-      \verb|( std::ostream & out,|\ARGBREAK
-      \verb|  min::op const & op )|
-\LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
+\verb|min::op min::|
+    & \MINKEY{set\_line\_display} \verb|( min::uns32 line_display )|
+\LABEL{MIN::SET_LINE_DISPLAY} \\
 \end{tabular}\end{indpar}
 
-The parts of printer operations that change \TT{min::\EOL printer}
-parameters or read \TT{line\_\EOL break} parameters
-are treated as no-operations, and parts that just
-use the \TT{print\_\EOL format} parameters are executed using
-the value of
+is used when it is desired print a line in a file as part of an
+error message, and is used, for example, by the
+\TT{min::\EOL print\_\EOL line} function, \pagref{MIN::PRINT_LINE}.
+\TT{printer << min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
+is equivalent to:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt min::print\_format
-                       min::\MINKEY{ostream\_print\_format}}
-\LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
-\end{tabular}\end{indpar}
+\begin{indpar}\begin{verbatim}
+min::uns32 flags = ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
 
-instead, where this is a (non-\TT{const}) global variable initialized to the
-value of \TT{min::\EOL default\_\EOL print\_\EOL format}.
-
-Also, \TT{gen\_format->pgen} is ignored, and so cannot override the
-default \TT{pgen}.
+printer << min::clear_op_flags ( flags )
+        << min::set_op_flags ( flags & line_display )
+        << min::expand_ht
+        << min::noauto_suppress
+        << min::set_display_control
+               ( flags & min::DISPLAY_PICTURE ?
+                 min::graphic_only_display_control :
+                 min::graphic_and_space_display_control )
+        << min::no_auto_break
+\end{verbatim}\end{indpar}
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -9849,6 +9870,19 @@ specific changes to it, as members may be added to or reordered in
 the value.  If the stack is used, old values must be restored
 before the stack memory is deallocated.
 
+Strictly for testing purposes, in situations where \TT{min::printer}'s
+are not working, general values can be printed to \TT{std::ostreams}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
+      \verb|( std::ostream & out,|\ARGBREAK
+      \verb|  min::gen g )|
+\LABEL{OPERATOR<<_OF_OSTREAM_AND_GEN} \\
+\end{tabular}\end{indpar}
+
+Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
+but other \TT{min::gen} values print in a reasonable way.
 
 \subsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
