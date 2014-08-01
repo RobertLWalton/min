@@ -8294,6 +8294,322 @@ into another \TT{min::\EOL printer}:
 In general {\ldots{} \tt << printer} is equivalent to
 {\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
+A single UNICODE character \TT{c}, or a string of UNICODE characters
+\TT{str} of a given \TT{length},
+can be printed using the following operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{punicode} \verb|( min::Uchar c )|
+\LABEL{MIN::PUNICODE} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  const min::Uchar * str )|
+\LABEL{MIN::PUNICODE_BUFFER} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<const min::Uchar> str )|
+\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
+\end{tabular}\end{indpar}
+
+Here it must be remembered that a `\TT{const min::uns32~*}' pointer
+\TT{str} must not be relocatable.
+
+Numbers may be formatted by specified \TT{printf} formats and the results
+printed by using the following operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{pint}\ARGBREAK
+	  \verb|( min::int64 i,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PINT} \\
+\verb|min::op min::|
+    & \MINKEY{puns}\ARGBREAK
+	  \verb|( min::uns64 u,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PUNS} \\
+\verb|min::op min::|
+    & \MINKEY{pfloat}\ARGBREAK
+	  \verb|( min::float64 f,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PFLOAT} \\
+\end{tabular}\end{indpar}
+
+\TT{min::gen} values may be printed under the control of a
+\TT{min::\EOL gen\_\EOL format}.  As printing objects
+can be complex, printing \TT{min::gen} values is
+described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
+
+Sometimes it is desirable to find out how many columns a
+Modified UTF-8 string would take if printed.
+For the horizontal tab character,
+this depends upon the column the character is printed in.
+So the following function updates a \TT{column} variable
+whose initial value is that of \TT{printer->column}
+before the string is printed
+and whose final value is \TT{printer->\EOL column}
+after the string is printed.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{pwidth}\ARGBREAK
+         \verb|( min::uns32 & column,|\ARGBREAK
+         \verb|  const char * s, min::unsptr n,|\ARGBREAK
+         \verb|  min::uns32 print_op_flags,|\ARGBREAK
+         \verb|  const min::print_format & print_format )|
+\LABEL{MIN::PWIDTH_OF_STRING} \\
+\end{tabular}\end{indpar}
+
+This function updates `\TT{column}' to what it would be if
+the \TT{n} byte string \TT{s} were printed with the given
+\TT{print\_\EOL format} modified by replacing
+\TT{print\_\EOL format.op\_\EOL flags}
+by the \TT{print\_\EOL op\_\EOL flags} argument value.
+Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
+function does not allocate or resize objects.
+
+\subsubsection{Adjusting Printer Parameters}
+\label{ADJUSTING-PRINTER-PARAMETERS}
+
+The format parameters of a printer may be saved in the
+\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}%
+\label{PRINT-FORMAT-STACK}
+of the printer, and restored from that stack.
+This may be done by the following operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::|
+    & \MINKEY{save\_print\_format}
+\LABEL{MIN::SAVE_PRINT_FORMAT} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_print\_format}
+\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\TT{min::save\_print\_format}
+pushes into the format stack a new element containing
+the current \TT{print\_\EOL format}, while
+\TT{min::\EOL restore\_\EOL print\_\EOL format}
+resets \TT{print\_\EOL format} from the top format stack element and then
+pops this element from the stack.
+
+Some printer parameters may be set
+by the following printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
+\LABEL{MIN::SET_LINE_LENGTH} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
+\LABEL{MIN::SET_INDENT} \\
+\verb|min::op min::|
+    & \MINKEY{set\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::SET_PRINT_OP_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::CLEAR_PRINT_OP_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\TT{min::\EOL set\_\EOL print\_\EOL op\_\EOL flags} logically OR's
+its argument into \TT{print\_\EOL format.op\_\EOL flags} and
+\TT{min::\EOL clear\_\EOL print\_\EOL op\_\EOL flags} logically AND's
+the bitwise complement of its argument into
+\TT{print\_\EOL format.op\_\EOL flags}
+(recall that \TT{print\_\EOL format.op\_\EOL flags} are referred to as
+\TT{print\_\EOL op\_\EOL flags} when used as arguments to functions).
+For example, 
+\begin{center}
+\tt printer<<min::set\_print\_op\_flags(min::DISPLAY\_PICTURE)
+\end{center}
+sets the \TT{min::DISPLAY\_PICTURE} flag of
+\TT{printer->\EOL print\_\EOL format.op\_\EOL flags}.
+
+Particular \TT{print\_format.op\_flags} may be set and cleared by the
+following printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{expand\_ht}
+\LABEL{MIN::EXPAND_HT} \\
+\verb|const min::op min::| & \MINKEY{noexpand\_ht}
+\LABEL{MIN::NOEXPAND_HT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{display\_eol}
+\LABEL{MIN::DISPLAY_EOL} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_eol}
+\LABEL{MIN::NODISPLAY_EOL} \\
+\verb|const min::op min::| & \MINKEY{display\_picture}
+\LABEL{MIN::DISPLAY_PICTURE} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_picture}
+\LABEL{MIN::NODISPLAY_PICTURE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{flush\_on\_eol}
+\LABEL{MIN::FLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{noflush\_on\_eol}
+\LABEL{MIN::NOFLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{flush\_id\_map\_on\_eom}
+\LABEL{MIN::FLUSH_ID_MAP_ON_EOM} \\
+\verb|const min::op min::| & \MINKEY{noflush\_id\_map\_on\_eom}
+\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{auto\_suppress}
+\LABEL{MIN::AUTO_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{noauto\_suppress}
+\LABEL{MIN::NOAUTO_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{disable\_suppress}
+\LABEL{MIN::DISABLE_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
+\LABEL{MIN::NODISABLE_SUPPRESS} \\
+\end{tabular}\end{indpar}
+
+Here the \TT{min::display\_picture} operation sets the
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} prin\-ter operation flag in
+\TT{printer->\EOL print\_\EOL format.op\_\EOL flags},
+while the \TT{min::\EOL nodisplay\_\EOL picture} operation clears this flag.
+The other operations similarly set or clear their associated flags.
+
+The \TT{printer\_format.support\_control} can be set by the following
+printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{ascii}
+\LABEL{MIN::ASCII} \\
+\verb|const min::op min::| & \MINKEY{latin1}
+\LABEL{MIN::LATIN1} \\
+\verb|const min::op min::| & \MINKEY{support\_all}
+\LABEL{MIN::SUPPORT_ALL} \\
+\verb|min::op min::|
+    & \MINKEY{set\_support\_control}\ARGBREAK
+          \verb|( const min::support_control & sc )|
+\LABEL{MIN::SET_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::ascii} is equivalent to
+\begin{center}
+\verb|min::set_support_control ( min::ascii_support_control )|
+\end{center}
+and similarly for \TT{min::latin1} and \TT{min::support\_all}.
+
+The \TT{printer\_format.display\_control} can be set by the following
+printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
+\LABEL{MIN::GRAPHIC_AND_SPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_only}
+\LABEL{MIN::GRAPHIC_ONLY} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
+\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|min::op min::|
+    & \MINKEY{set\_display\_control}\ARGBREAK
+          \verb|( const min::display_control & dc )|
+\LABEL{MIN::SET_DISPLAY_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::graphic\_and\_space} is equivalent to
+\begin{center}
+\verb|min::set_display_control ( min::graphic_and_space_display_control )|
+\end{center}
+and similarly for \TT{min::\EOL graphic\_\EOL only},
+\TT{min::\EOL graphic\_\EOL and\_vspace}, and \TT{min::\EOL display\_\EOL all}.
+
+The \TT{printer\_format.break\_control} can be set by the following
+printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{no\_auto\_break}
+\LABEL{MIN::NO_AUTO_BREAK} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_space}
+\LABEL{MIN::BREAK_AFTER_SPACE} \\
+\verb|const min::op min::| & \MINKEY{break\_before\_all}
+\LABEL{MIN::BREAK_BEFORE_ALL} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_hyphens}
+\LABEL{MIN::BREAK_AFTER_HYPHENS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_break\_control}\ARGBREAK
+          \verb|( const min::break_control & bc )|
+\LABEL{MIN::SET_BREAK_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::no\_auto\_break} is equivalent to
+\begin{center}
+\verb|min::set_break_control ( min::no_auto_break_break_control )|
+\end{center}
+and similarly for \TT{min::break\_\EOL after\_\EOL space},
+\TT{min::break\_\EOL before\_\EOL all},
+and \TT{min::break\_\EOL after\_\EOL hyphens}.
+
+The printer operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{verbatim}
+\LABEL{MIN::VERBATIM} \\
+\end{tabular}\end{indpar}
+
+is used when it is desired to copy characters verbatim to the
+printer buffer.  \TT{printer << min::\EOL verbatim} is equivalent to:
+
+\begin{indpar}\begin{verbatim}
+printer << min::noexpand_ht
+        << min::noauto_suppress
+        << min::support_all
+        << min::display_all
+        << min::no_auto_break
+\end{verbatim}\end{indpar}
+
+This permits characters in a \TT{printer->file} line to be copied
+to another printer verbatim.  Note that
+the \TT{min::\EOL DISPLAY\_\EOL EOL} printer operation flag
+is not affected, as when copying to a printer from
+from some \TT{printer->\EOL file}
+line terminating NULs are translated to \TT{min::\EOL eol}
+operations on the target printer and may or may not be
+displayed according to the setting of
+\TT{min::\EOL DISPLAY\_\EOL EOL} on the target printer.
+Also note that the operation to undo the results
+of \TT{min::\EOL verbatim} does not exist (you must save and restore
+\TT{print\_\EOL format}).
+
+The printer operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_line\_display} \verb|( min::uns32 line_display )|
+\LABEL{MIN::SET_LINE_DISPLAY} \\
+\end{tabular}\end{indpar}
+
+is used when it is desired print a line in a file as part of an
+error message, and is used, for example, by the
+\TT{min::\EOL print\_\EOL line} function, \pagref{MIN::PRINT_LINE}.
+\TT{printer << min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
+is equivalent to:
+
+\begin{indpar}\begin{verbatim}
+min::uns32 flags = ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
+
+printer << min::clear_op_flags ( flags )
+        << min::set_op_flags ( flags & line_display )
+        << min::expand_ht
+        << min::noauto_suppress
+        << min::set_display_control
+               ( flags & min::DISPLAY_PICTURE ?
+                 min::graphic_only_display_control :
+                 min::graphic_and_space_display_control )
+        << min::no_auto_break
+\end{verbatim}\end{indpar}
+
+\subsubsection{Line Breaks}
+\label{LINE-BREAKS}
+
 The \TT{min::set\_\EOL break} printer operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8463,29 +8779,7 @@ The \TT{min::space\_\EOL if\_\EOL after\_\EOL indent} operation outputs
 a single space character if and only if the printer column is after
 the printer indent.
 
-The format parameters of a printer may be saved in the
-\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}%
-\label{PRINT-FORMAT-STACK}
-of the printer, and restored from that stack.
-This may be done by the following operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::|
-    & \MINKEY{save\_print\_format}
-\LABEL{MIN::SAVE_PRINT_FORMAT} \\
-\verb|const min::op min::|
-    & \MINKEY{restore\_print\_format}
-\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
-\end{tabular}\end{indpar}
-
-\TT{min::save\_print\_format}
-pushes into the format stack a new element containing
-the current \TT{print\_\EOL format}, while
-\TT{min::\EOL restore\_\EOL print\_\EOL format}
-resets \TT{print\_\EOL format} from the top format stack element and then
-pops this element from the stack.
-
-Similarly the line break parameters of a printer
+The line break parameters of a printer
 may be saved in the
 \ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}%
 \label{LINE-BREAK-STACK}
@@ -8706,314 +9000,357 @@ or the indent itself for \TT{min::\EOL adjust\_\EOL indent}.
 If the indent would be set to a negative value,
 \TT{0} is used instead.
 
-\TT{min::gen} values may be printed under the control of a
-\TT{min::\EOL gen\_\EOL format}.  As printing objects
-can be complex, printing \TT{min::gen} values is
-described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
+\subsection{Printing File Lines and Phrases}
+\label{PRINTING-FILE-LINES-AND-PHRASES}
 
-A single UNICODE character \TT{c}, or a string of UNICODE characters
-\TT{str} of a given \TT{length},
-can be printed using the following operations:
+The following function uses {\tt min::line} to print a line as part of
+an error message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{punicode} \verb|( min::Uchar c )|
-\LABEL{MIN::PUNICODE} \\
-\verb|min::op min::|
-    & \MINKEY{punicode}\ARGBREAK
-      \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  const min::Uchar * str )|
-\LABEL{MIN::PUNICODE_BUFFER} \\
-\verb|min::op min::|
-    & \MINKEY{punicode}\ARGBREAK
-      \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  min::ptr<const min::Uchar> str )|
-\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE} \\
 \end{tabular}\end{indpar}
 
-Here it must be remembered that a `\TT{const min::uns32~*}' pointer
-\TT{str} must not be relocatable.
+The {\tt file} line with the given {\tt line\_number}
+is printed on a single {\tt printer} line.  {\tt file->\EOL line\_\EOL display}
+(\pagref{FILE_LINE_DISPLAY})
+are used to print this line, and the number of columns in the result,
+including any end of line representation printed by the
+{\tt min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
-Sometimes it is desirable to find out how many columns a
-Modified UTF-8 string would take if printed.
-For the horizontal tab character,
-this depends upon the column the character is printed in.
-So the following function updates a \TT{column} variable
-whose initial value is that of \TT{printer->column}
-before the string is printed
-and whose final value is \TT{printer->\EOL column}
-after the string is printed.
+If a line is
+unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
+see above)
+and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
+then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
+{\tt 0} is returned, if {\tt unavailable\_\EOL line} is not {\tt NULL}.
+But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
+to return {\tt min::\EOL NO\_\EOL LINE}.
+
+If a line would print as blank, i.e., consisting of
+nothing but horizontal space characters with no end of line display, and if
+{\tt blank\_\EOL line} is not {\tt NULL},
+{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
+
+If there is no line
+because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
+then any partial line at the end of the file buffer is printed,
+immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
+and the number of columns used to print the partial line is returned.
+However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
+if there is a partial line, only that is printed, on a single line
+without any visible ending line feed, and if there is no partial line,
+nothing is printed and {\tt NO\_\EOL LINE} is returned.
+
+Note that
+{\tt file->\EOL print\_\EOL flags} is not used to print
+{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
+{\tt end\_\EOL of\_\EOL line} or any following line feed,
+and it is best if these special strings consist of nothing but
+graphic ASCII characters and single spaces.
+Also, these ASCII strings may not be unprotected body pointers,
+as printing may relocate bodies.
+
+In all cases where anything is printed, exactly one complete print line is
+printed.
+
+Error messages typically consist of a description of the error
+followed by the lines involved printed with the above function
+(often the portions of the lines involved are marked by printing
+`\TT{\^{ }}' characters under them).  The error description before
+the lines typically ends with the name of the file containing
+the lines and the numbers of the lines.  This can be produced
+by the code:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  min::uns32 first, min::uns32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer |
+    & \TTOMKEY{<<}{<<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pline_numbers const & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+An example use is
+
+\begin{indpar}\begin{verbatim}
+    printer << ... error description ...
+            << min::pline_numbers ( file, first, last )
+            << min::eol;
+    for ( min::uns32 line_number = first;
+          line_number <= last,
+          ++ line_number )
+        min::print_line ( printer, file, line_number );
+\end{verbatim}\end{indpar}
+
+The line numbers printed by {\tt min::\EOL pline\_\EOL number}
+are \TT{1} greater than the line numbers given in the arguments,
+so the line number of the first line of a file is denoted by a
+\TT{0} argument which is printed as \TT{1}.
+
+There is a better way to print the lines of a file within an
+error message if the positions of the erroneous text in the file
+are known and are encoded in
+\TT{min::position} structures:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 line;|\ARGBREAK
+    \verb|  min::uns32 offset;|\ARGBREAK
+    \verb|};|
+\ttmindex{line}{in {\tt min::position}}
+\ttmindex{offset}{in {\tt min::position}}
+\ttmindex{column}{in {\tt min::position}}
+\LABEL{MIN::POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here \TT{line} is the number of full lines before the line
+containing the position and \TT{offset} is the
+number of bytes before the position in the line.
+
+Two \TT{min::position} structures are needed to encode the boundaries
+of a piece of text in a file.  Such a piece of text is called
+a `\key{phrase}', and its positions are encoded in a
+{\tt min::\EOL phrase\_\EOL position} structure:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::position begin;|\ARGBREAK
+    \verb|  min::position end;|\ARGBREAK
+    \verb|};|
+\ttmindex{begin}{in {\tt min::phrase\_position}}
+\ttmindex{end}{in {\tt min::phrase\_position}}
+\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here `\TT{begin}' encodes the position of the first character
+of the phrase in the file, and `\TT{end}' encodes the position
+of the first character \underline{after} the phrase in the file.
+If the phrase is empty, {\tt begin == end}, and the position
+referenced by both `\TT{begin}' and `\TT{end}'
+is the position of the empty phrase in the file.
+
+To print the line numbers of a phrase one can use the constructor:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  min::phrase_position const & position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{tabular}\end{indpar}
+
+which uses {\tt position.begin.line} and
+{\tt position.end.line} as
+line numbers, except that when
+\begin{center}
+{\tt position.end.offset == 0} \\
+and \\
+{\tt position.end.line > position.begin.line}
+\end{center}
+then {\tt position.end.line - 1} is used in place of
+{\tt position.end.line}.
+
+To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{pwidth}\ARGBREAK
-         \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  min::uns32 print_op_flags,|\ARGBREAK
-         \verb|  const min::print_format & print_format )|
-\LABEL{MIN::PWIDTH_OF_STRING} \\
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  char mark = '^',|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{tabular}\end{indpar}
 
-This function updates `\TT{column}' to what it would be if
-the \TT{n} byte string \TT{s} were printed with the given
-\TT{print\_\EOL format} modified by replacing
-\TT{print\_\EOL format.op\_\EOL flags}
-by the \TT{print\_\EOL op\_\EOL flags} argument value.
-Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
-function does not allocate or resize objects.
+The lines containing the phrase are printed, and under each phrase
+character a \TT{mark} is printed.  The lines are printed
+as per {\tt min::\EOL print\_\EOL line} using the
+{\tt blank\_\EOL line},
+{\tt end\_\EOL of\_\EOL file}, and
+{\tt unavailable\_\EOL line} arguments.
+An empty phrase is marked as if it were 1-column wide, that column
+being at the empty phrase position.
 
-Numbers may be formatted by specified \TT{printf} formats and the results
-printed by using the following operations:
+If the {\tt mark} argument is given as {\tt 0}, the marking lines
+will be omitted.  This permits just printing the lines containing
+a phrase, without marking the phrase.
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{pint}\ARGBREAK
-	  \verb|( min::int64 i,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PINT} \\
-\verb|min::op min::|
-    & \MINKEY{puns}\ARGBREAK
-	  \verb|( min::uns64 u,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PUNS} \\
-\verb|min::op min::|
-    & \MINKEY{pfloat}\ARGBREAK
-	  \verb|( min::float64 f,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PFLOAT} \\
-\end{tabular}\end{indpar}
-
-Objects, packed structures and vectors, and long strings can be
-output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
-the printer \key{object ID map}.
-
-A printer's \TT{id\_map} member is initialized automatically when
-needed.  However, it can also be set by:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::obj_id_map min::|
-    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
-    \verb|( <min::printer printer,|\ARGBREAK
-    \verb|  min::id_map map = min::NULL_STUB )|
-\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
-\end{tabular}\end{indpar}
-
-which permits maps to be shared among printers.  If no second argument
-is given, an identifier map is created for the printer if none previously
-exists.  This can then be shared with other printers.  The final
-\TT{id\_\EOL map} member of the printer is returned, and this
-is never \TT{min::\EOL NULL\_\EOL STUB}.
-
-Printer parameters may be set
-by the following printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
-\LABEL{MIN::SET_LINE_LENGTH} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
-\LABEL{MIN::SET_INDENT} \\
-\verb|min::op min::|
-    & \MINKEY{set\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
-\LABEL{MIN::SET_PRINT_OP_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
-\LABEL{MIN::CLEAR_PRINT_OP_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\TT{min::\EOL set\_\EOL print\_\EOL op\_\EOL flags} logically OR's
-its argument into \TT{print\_\EOL format.op\_\EOL flags} and
-\TT{min::\EOL clear\_\EOL print\_\EOL op\_\EOL flags} logically AND's
-the bitwise complement of its argument into
-\TT{print\_\EOL format.op\_\EOL flags}
-(recall that \TT{print\_\EOL format.op\_\EOL flags} are referred to as
-\TT{print\_\EOL op\_\EOL flags} when used as arguments to functions).
-For example, 
-\begin{center}
-\tt printer<<min::set\_print\_op\_flags(min::DISPLAY\_PICTURE)
-\end{center}
-sets the \TT{min::DISPLAY\_PICTURE} flag of
-\TT{printer->\EOL print\_\EOL format.op\_\EOL flags}.
-
-Particular \TT{print\_format.op\_flags} may be set and cleared by the
-following printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{expand\_ht}
-\LABEL{MIN::EXPAND_HT} \\
-\verb|const min::op min::| & \MINKEY{noexpand\_ht}
-\LABEL{MIN::NOEXPAND_HT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{display\_eol}
-\LABEL{MIN::DISPLAY_EOL} \\
-\verb|const min::op min::| & \MINKEY{nodisplay\_eol}
-\LABEL{MIN::NODISPLAY_EOL} \\
-\verb|const min::op min::| & \MINKEY{display\_picture}
-\LABEL{MIN::DISPLAY_PICTURE} \\
-\verb|const min::op min::| & \MINKEY{nodisplay\_picture}
-\LABEL{MIN::NODISPLAY_PICTURE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{flush\_on\_eol}
-\LABEL{MIN::FLUSH_ON_EOL} \\
-\verb|const min::op min::| & \MINKEY{noflush\_on\_eol}
-\LABEL{MIN::NOFLUSH_ON_EOL} \\
-\verb|const min::op min::| & \MINKEY{flush\_id\_map\_on\_eom}
-\LABEL{MIN::FLUSH_ID_MAP_ON_EOM} \\
-\verb|const min::op min::| & \MINKEY{noflush\_id\_map\_on\_eom}
-\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{auto\_suppress}
-\LABEL{MIN::AUTO_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{noauto\_suppress}
-\LABEL{MIN::NOAUTO_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{disable\_suppress}
-\LABEL{MIN::DISABLE_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
-\LABEL{MIN::NODISABLE_SUPPRESS} \\
-\end{tabular}\end{indpar}
-
-Here the \TT{min::display\_picture} operation sets the
-\TT{min::\EOL DISPLAY\_\EOL PICTURE} prin\-ter operation flag in
-\TT{printer->\EOL print\_\EOL format.op\_\EOL flags},
-while the \TT{min::\EOL nodisplay\_\EOL picture} operation clears this flag.
-The other operations similarly set or clear their associated flags.
-
-The \TT{printer\_format.support\_control} can be set by the following
-printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{ascii}
-\LABEL{MIN::ASCII} \\
-\verb|const min::op min::| & \MINKEY{latin1}
-\LABEL{MIN::LATIN1} \\
-\verb|const min::op min::| & \MINKEY{support\_all}
-\LABEL{MIN::SUPPORT_ALL} \\
-\verb|min::op min::|
-    & \MINKEY{set\_support\_control}\ARGBREAK
-          \verb|( const min::support_control & sc )|
-\LABEL{MIN::SET_SUPPORT_CONTROL} \\
-\end{tabular}\end{indpar}
-
-Here \TT{min::ascii} is equivalent to
-\begin{center}
-\verb|min::set_support_control ( min::ascii_support_control )|
-\end{center}
-and similarly for \TT{min::latin1} and \TT{min::support\_all}.
-
-The \TT{printer\_format.display\_control} can be set by the following
-printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
-\LABEL{MIN::GRAPHIC_AND_SPACE} \\
-\verb|const min::op min::| & \MINKEY{graphic\_only}
-\LABEL{MIN::GRAPHIC_ONLY} \\
-\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
-\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
-\verb|min::op min::|
-    & \MINKEY{set\_display\_control}\ARGBREAK
-          \verb|( const min::display_control & dc )|
-\LABEL{MIN::SET_DISPLAY_CONTROL} \\
-\end{tabular}\end{indpar}
-
-Here \TT{min::graphic\_and\_space} is equivalent to
-\begin{center}
-\verb|min::set_display_control ( min::graphic_and_space_display_control )|
-\end{center}
-and similarly for \TT{min::\EOL graphic\_\EOL only},
-\TT{min::\EOL graphic\_\EOL and\_vspace}, and \TT{min::\EOL display\_\EOL all}.
-
-The \TT{printer\_format.break\_control} can be set by the following
-printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{no\_auto\_break}
-\LABEL{MIN::NO_AUTO_BREAK} \\
-\verb|const min::op min::| & \MINKEY{break\_after\_space}
-\LABEL{MIN::BREAK_AFTER_SPACE} \\
-\verb|const min::op min::| & \MINKEY{break\_before\_all}
-\LABEL{MIN::BREAK_BEFORE_ALL} \\
-\verb|const min::op min::| & \MINKEY{break\_after\_hyphens}
-\LABEL{MIN::BREAK_AFTER_HYPHENS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_break\_control}\ARGBREAK
-          \verb|( const min::break_control & bc )|
-\LABEL{MIN::SET_BREAK_CONTROL} \\
-\end{tabular}\end{indpar}
-
-Here \TT{min::no\_auto\_break} is equivalent to
-\begin{center}
-\verb|min::set_break_control ( min::no_auto_break_break_control )|
-\end{center}
-and similarly for \TT{min::break\_\EOL after\_\EOL space},
-\TT{min::break\_\EOL before\_\EOL all},
-and \TT{min::break\_\EOL after\_\EOL hyphens}.
-
-The printer operation:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{verbatim}
-\LABEL{MIN::VERBATIM} \\
-\end{tabular}\end{indpar}
-
-is used when it is desired to copy characters verbatim to the
-printer buffer.  \TT{printer << min::\EOL verbatim} is equivalent to:
+An example using a {\tt phrase\_position} is
 
 \begin{indpar}\begin{verbatim}
-printer << min::noexpand_ht
-        << min::noauto_suppress
-        << min::support_all
-        << min::display_all
-        << min::no_auto_break
+    printer << ... error description ...
+            << min::pline_numbers ( file, phrase_position )
+            << min::eol;
+    min::print_phrase_lines ( printer, file, phrase_position );
 \end{verbatim}\end{indpar}
 
-This permits characters in a \TT{printer->file} line to be copied
-to another printer verbatim.  Note that
-the \TT{min::\EOL DISPLAY\_\EOL EOL} printer operation flag
-is not affected, as when copying to a printer from
-from some \TT{printer->\EOL file}
-line terminating NULs are translated to \TT{min::\EOL eol}
-operations on the target printer and may or may not be
-displayed according to the setting of
-\TT{min::\EOL DISPLAY\_\EOL EOL} on the target printer.
-Also note that the operation to undo the results
-of \TT{min::\EOL verbatim} does not exist (you must save and restore
-\TT{print\_\EOL format}).
-
-The printer operation:
+Internally {\tt min::\EOL print\_\EOL phrase\_\EOL lines}
+uses the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{set\_line\_display} \verb|( min::uns32 line_display )|
-\LABEL{MIN::SET_LINE_DISPLAY} \\
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
+      \verb|( min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
 
-is used when it is desired print a line in a file as part of an
-error message, and is used, for example, by the
-\TT{min::\EOL print\_\EOL line} function, \pagref{MIN::PRINT_LINE}.
-\TT{printer << min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
-is equivalent to:
+which, given a file and a position within that file, returns the number of
+columns before the position in a {\tt min::\EOL print\_\EOL line}
+printout of the line specified by the position.
 
-\begin{indpar}\begin{verbatim}
-min::uns32 flags = ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
+Some of the above functions use {\tt file->print\_flags}
+to control how lines are printed and therefore which column
+a position corresponds to.  For example, depending upon the
+setting of the print flags, a horizontal tab may appear as
+1 to 8 whitespace columns, or as the 4 characters `{\tt <HT>}',
+or as the 1-column character {\tiny $\stackrel{\textstyle H~}{~T}$}.
+The following are alternatives to the above functions that take
+an extra {\tt print\_\EOL flags} argument and use that in place of
+{\tt file->\EOL print\_\EOL flags}:
 
-printer << min::clear_op_flags ( flags )
-        << min::set_op_flags ( flags & line_display )
-        << min::expand_ht
-        << min::noauto_suppress
-        << min::set_display_control
-               ( flags & min::DISPLAY_PICTURE ?
-                 min::graphic_only_display_control :
-                 min::graphic_and_space_display_control )
-        << min::no_auto_break
-\end{verbatim}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::uns32 print_flags,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::uns32 print_flags,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  char mark = '^',|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
+      \verb|( min::uns32 print_flags,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
+
+There is a type of packed vector, the `\key{phrase position vector}\,',
+that is specialized to
+record the phrase positions of elements of any linear vector:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_ptr<min::phrase_position_vec_header,|\\&
+	  \verb|               min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec}
+\LABEL{MIN::PHRASE_POSITION_VEC} \\
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<min::phrase_position_vec_header,|\\&
+	  \verb|                  min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec\_insptr}
+\LABEL{MIN::PHRASE_POSITION_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::| 
+  & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
+    \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
+    \verb|  min::file file,|\ARGBREAK
+    \verb|  min::phrase_position const & position,|\ARGBREAK
+    \verb|  min::uns32 max_length )|
+\LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 vpp| & \TTARMKEY{length}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
+\verb|const min::file vpp| & \TTARMKEY{file}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_FILE} \\
+\verb|min::phrase_position vpp| & \TTARMKEY{position}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_POSITION} \\
+\verb|min::phrase_position vpp| & \TTBMKEY{i}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_ELEMENT} \\
+\end{tabular}\end{indpar}
+
+A phrase position vector is associated with some other data vector.
+For example, a phrase position vector may be the value of the
+{\tt .position} attribute of an object
+(see below), in which case it will be associated with
+the attribute vector of the object.
+If {\tt vpp} is a phrase position vector pointer, {\tt vpp->\EOL position}
+is the position of the phrase that is encoded in the data vector,
+{\tt vp[i]} is the position of the phrase that is encoded in
+the {\tt i+1}'st element of the data vector, and
+{\tt vpp->\EOL file} is the file containing these phrases.
+{\tt vpp->\EOL length} is, as per the definition of packed vectors,
+the number of elements in the phrase position vector, and should
+match the number of elements in the data vector.
+The {\tt min::\EOL init} function above can be used to create or
+reinitialize a {\tt min::\EOL phrase\_\EOL position\_\EOL vec},
+and sets the {\tt file}, {\tt position}, and initial maximum length
+of the phrase position vector.
+
+A MIN object may have a {\tt .position} attribute equal to a
+phrase position vector.  If an object does, the phrase position
+pointer is returned by the following function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::phrase_position_vec min::| & \MINKEY{position\_of}
+    \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+Here the object is identified by the {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+which is being used to access the object elements.  If the
+object has no {\tt .position} attribute, or if the attribute is
+not a {\tt min::\EOL phrase\_\EOL position\_\EOL vec} value,
+{\tt min::\EOL NULL\_\EOL STUB} is returned.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -9728,6 +10065,27 @@ will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
 
 \end{itemlist}
 
+Objects, packed structures and vectors, and long strings can be
+output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
+the printer \key{object ID map}.
+
+A printer's \TT{id\_map} member is initialized automatically when
+needed.  However, it can also be set by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::obj_id_map min::|
+    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
+    \verb|( <min::printer printer,|\ARGBREAK
+    \verb|  min::id_map map = min::NULL_STUB )|
+\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+which permits maps to be shared among printers.  If no second argument
+is given, an identifier map is created for the printer if none previously
+exists.  This can then be shared with other printers.  The final
+\TT{id\_\EOL map} member of the printer is returned, and this
+is never \TT{min::\EOL NULL\_\EOL STUB}.
+
 When a datum with a stub is printed as
 `{\tt @}i', it is recorded in {\tt printer->\EOL id\_\EOL map}
 so it may be printed on separate lines.  This may be done by
@@ -9883,358 +10241,6 @@ are not working, general values can be printed to \TT{std::ostreams}:
 
 Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
 but other \TT{min::gen} values print in a reasonable way.
-
-\subsection{Printing File Lines and Phrases}
-\label{PRINTING-FILE-LINES-AND-PHRASES}
-
-The following function uses {\tt min::line} to print a line as part of
-an error message:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE} \\
-\end{tabular}\end{indpar}
-
-The {\tt file} line with the given {\tt line\_number}
-is printed on a single {\tt printer} line.  {\tt file->\EOL line\_\EOL display}
-(\pagref{FILE_LINE_DISPLAY})
-are used to print this line, and the number of columns in the result,
-including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL}, is returned.
-
-If a line is
-unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
-see above)
-and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
-then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
-{\tt 0} is returned, if {\tt unavailable\_\EOL line} is not {\tt NULL}.
-But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
-to return {\tt min::\EOL NO\_\EOL LINE}.
-
-If a line would print as blank, i.e., consisting of
-nothing but horizontal space characters with no end of line display, and if
-{\tt blank\_\EOL line} is not {\tt NULL},
-{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
-
-If there is no line
-because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
-then any partial line at the end of the file buffer is printed,
-immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
-and the number of columns used to print the partial line is returned.
-However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
-if there is a partial line, only that is printed, on a single line
-without any visible ending line feed, and if there is no partial line,
-nothing is printed and {\tt NO\_\EOL LINE} is returned.
-
-Note that
-{\tt file->\EOL print\_\EOL flags} is not used to print
-{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
-{\tt end\_\EOL of\_\EOL line} or any following line feed,
-and it is best if these special strings consist of nothing but
-graphic ASCII characters and single spaces.
-Also, these ASCII strings may not be unprotected body pointers,
-as printing may relocate bodies.
-
-In all cases where anything is printed, exactly one complete print line is
-printed.
-
-Error messages typically consist of a description of the error
-followed by the lines involved printed with the above function
-(often the portions of the lines involved are marked by printing
-`\TT{\^{ }}' characters under them).  The error description before
-the lines typically ends with the name of the file containing
-the lines and the numbers of the lines.  This can be produced
-by the code:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  min::uns32 first, min::uns32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::pline_numbers const & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
-\end{tabular}\end{indpar}
-
-An example use is
-
-\begin{indpar}\begin{verbatim}
-    printer << ... error description ...
-            << min::pline_numbers ( file, first, last )
-            << min::eol;
-    for ( min::uns32 line_number = first;
-          line_number <= last,
-          ++ line_number )
-        min::print_line ( printer, file, line_number );
-\end{verbatim}\end{indpar}
-
-The line numbers printed by {\tt min::\EOL pline\_\EOL number}
-are \TT{1} greater than the line numbers given in the arguments,
-so the line number of the first line of a file is denoted by a
-\TT{0} argument which is printed as \TT{1}.
-
-There is a better way to print the lines of a file within an
-error message if the positions of the erroneous text in the file
-are known and are encoded in
-\TT{min::position} structures:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 line;|\ARGBREAK
-    \verb|  min::uns32 offset;|\ARGBREAK
-    \verb|};|
-\ttmindex{line}{in {\tt min::position}}
-\ttmindex{offset}{in {\tt min::position}}
-\ttmindex{column}{in {\tt min::position}}
-\LABEL{MIN::POSITION_STRUCT} \\
-\end{tabular}\end{indpar}
-
-Here \TT{line} is the number of full lines before the line
-containing the position and \TT{offset} is the
-number of bytes before the position in the line.
-
-Two \TT{min::position} structures are needed to encode the boundaries
-of a piece of text in a file.  Such a piece of text is called
-a `\key{phrase}', and its positions are encoded in a
-{\tt min::\EOL phrase\_\EOL position} structure:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::position begin;|\ARGBREAK
-    \verb|  min::position end;|\ARGBREAK
-    \verb|};|
-\ttmindex{begin}{in {\tt min::phrase\_position}}
-\ttmindex{end}{in {\tt min::phrase\_position}}
-\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
-\end{tabular}\end{indpar}
-
-Here `\TT{begin}' encodes the position of the first character
-of the phrase in the file, and `\TT{end}' encodes the position
-of the first character \underline{after} the phrase in the file.
-If the phrase is empty, {\tt begin == end}, and the position
-referenced by both `\TT{begin}' and `\TT{end}'
-is the position of the empty phrase in the file.
-
-To print the line numbers of a phrase one can use the constructor:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
-\end{tabular}\end{indpar}
-
-which uses {\tt position.begin.line} and
-{\tt position.end.line} as
-line numbers, except that when
-\begin{center}
-{\tt position.end.offset == 0} \\
-and \\
-{\tt position.end.line > position.begin.line}
-\end{center}
-then {\tt position.end.line - 1} is used in place of
-{\tt position.end.line}.
-
-To print a phrase one can use the function:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_PHRASE_LINES} \\
-\end{tabular}\end{indpar}
-
-The lines containing the phrase are printed, and under each phrase
-character a \TT{mark} is printed.  The lines are printed
-as per {\tt min::\EOL print\_\EOL line} using the
-{\tt blank\_\EOL line},
-{\tt end\_\EOL of\_\EOL file}, and
-{\tt unavailable\_\EOL line} arguments.
-An empty phrase is marked as if it were 1-column wide, that column
-being at the empty phrase position.
-
-If the {\tt mark} argument is given as {\tt 0}, the marking lines
-will be omitted.  This permits just printing the lines containing
-a phrase, without marking the phrase.
-
-An example using a {\tt phrase\_position} is
-
-\begin{indpar}\begin{verbatim}
-    printer << ... error description ...
-            << min::pline_numbers ( file, phrase_position )
-            << min::eol;
-    min::print_phrase_lines ( printer, file, phrase_position );
-\end{verbatim}\end{indpar}
-
-Internally {\tt min::\EOL print\_\EOL phrase\_\EOL lines}
-uses the function:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN} \\
-\end{tabular}\end{indpar}
-
-which, given a file and a position within that file, returns the number of
-columns before the position in a {\tt min::\EOL print\_\EOL line}
-printout of the line specified by the position.
-
-Some of the above functions use {\tt file->print\_flags}
-to control how lines are printed and therefore which column
-a position corresponds to.  For example, depending upon the
-setting of the print flags, a horizontal tab may appear as
-1 to 8 whitespace columns, or as the 4 characters `{\tt <HT>}',
-or as the 1-column character {\tiny $\stackrel{\textstyle H~}{~T}$}.
-The following are alternatives to the above functions that take
-an extra {\tt print\_\EOL flags} argument and use that in place of
-{\tt file->\EOL print\_\EOL flags}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
-\end{tabular}\end{indpar}
-
-There is a type of packed vector, the `\key{phrase position vector}\,',
-that is specialized to
-record the phrase positions of elements of any linear vector:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|typedef min::|
-	& \verb|packed_vec_ptr<min::phrase_position_vec_header,|\\&
-	  \verb|               min::phrase_position>|\\&
-	  \verb|    min::|\MINKEY{phrase\_position\_vec}
-\LABEL{MIN::PHRASE_POSITION_VEC} \\
-\verb|typedef min::|
-	& \verb|packed_vec_insptr<min::phrase_position_vec_header,|\\&
-	  \verb|                  min::phrase_position>|\\&
-	  \verb|    min::|\MINKEY{phrase\_position\_vec\_insptr}
-\LABEL{MIN::PHRASE_POSITION_VEC_INSPTR} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::| 
-  & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
-    \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
-    \verb|  min::file file,|\ARGBREAK
-    \verb|  min::phrase_position const & position,|\ARGBREAK
-    \verb|  min::uns32 max_length )|
-\LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 vpp| & \TTARMKEY{length}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
-\verb|const min::file vpp| & \TTARMKEY{file}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_FILE} \\
-\verb|min::phrase_position vpp| & \TTARMKEY{position}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_POSITION} \\
-\verb|min::phrase_position vpp| & \TTBMKEY{i}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_ELEMENT} \\
-\end{tabular}\end{indpar}
-
-A phrase position vector is associated with some other data vector.
-For example, a phrase position vector may be the value of the
-{\tt .position} attribute of an object
-(see below), in which case it will be associated with
-the attribute vector of the object.
-If {\tt vpp} is a phrase position vector pointer, {\tt vpp->\EOL position}
-is the position of the phrase that is encoded in the data vector,
-{\tt vp[i]} is the position of the phrase that is encoded in
-the {\tt i+1}'st element of the data vector, and
-{\tt vpp->\EOL file} is the file containing these phrases.
-{\tt vpp->\EOL length} is, as per the definition of packed vectors,
-the number of elements in the phrase position vector, and should
-match the number of elements in the data vector.
-The {\tt min::\EOL init} function above can be used to create or
-reinitialize a {\tt min::\EOL phrase\_\EOL position\_\EOL vec},
-and sets the {\tt file}, {\tt position}, and initial maximum length
-of the phrase position vector.
-
-A MIN object may have a {\tt .position} attribute equal to a
-phrase position vector.  If an object does, the phrase position
-pointer is returned by the following function:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::phrase_position_vec min::| & \MINKEY{position\_of}
-    \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
-\end{tabular}\end{indpar}
-
-Here the object is identified by the {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
-which is being used to access the object elements.  If the
-object has no {\tt .position} attribute, or if the attribute is
-not a {\tt min::\EOL phrase\_\EOL position\_\EOL vec} value,
-{\tt min::\EOL NULL\_\EOL STUB} is returned.
 
 \subsection{Objects}
 \label{OBJECTS}
