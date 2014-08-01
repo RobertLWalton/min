@@ -240,7 +240,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 31, 2014}
+\date{August 1, 2014}
  
 \maketitle
 
@@ -9003,7 +9003,7 @@ If the indent would be set to a negative value,
 \subsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
 
-The following function uses {\tt min::line} to print a line as part of
+The following function uses \TT{min::line} to print a line as part of
 an error message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9021,41 +9021,41 @@ an error message:
 \LABEL{MIN::PRINT_LINE} \\
 \end{tabular}\end{indpar}
 
-The {\tt file} line with the given {\tt line\_number}
-is printed on a single {\tt printer} line.  {\tt file->\EOL line\_\EOL display}
+The \TT{file} line with the given \TT{line\_number}
+is printed on a single \TT{printer} line.  \TT{file->\EOL line\_\EOL display}
 (\pagref{FILE_LINE_DISPLAY})
 are used to print this line, and the number of columns in the result,
 including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL}, is returned.
+\TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
 If a line is
-unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
+unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
 see above)
-and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
-then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
-{\tt 0} is returned, if {\tt unavailable\_\EOL line} is not {\tt NULL}.
-But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
-to return {\tt min::\EOL NO\_\EOL LINE}.
+and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
+then \TT{unavailable\_\EOL line} is printed on a line by itself instead, and
+\TT{0} is returned, if \TT{unavailable\_\EOL line} is not \TT{NULL}.
+But if \TT{unavailable\_\EOL line} is \TT{NULL}, nothing is done except
+to return \TT{min::\EOL NO\_\EOL LINE}.
 
 If a line would print as blank, i.e., consisting of
 nothing but horizontal space characters with no end of line display, and if
-{\tt blank\_\EOL line} is not {\tt NULL},
-{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
+\TT{blank\_\EOL line} is not \TT{NULL},
+\TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
 
 If there is no line
-because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
+because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
 then any partial line at the end of the file buffer is printed,
-immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
+immediately followed by \TT{end\_\EOL of\_\EOL file}, all on one line,
 and the number of columns used to print the partial line is returned.
-However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
+However, if \TT{end\_\EOL of\_\EOL file} is \TT{NULL}, then
 if there is a partial line, only that is printed, on a single line
 without any visible ending line feed, and if there is no partial line,
-nothing is printed and {\tt NO\_\EOL LINE} is returned.
+nothing is printed and \TT{NO\_\EOL LINE} is returned.
 
 Note that
-{\tt file->\EOL print\_\EOL flags} is not used to print
-{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
-{\tt end\_\EOL of\_\EOL line} or any following line feed,
+\TT{file->\EOL print\_\EOL flags} is not used to print
+\TT{unavailable\_\EOL line}, \TT{blank\_\EOL line}, or
+\TT{end\_\EOL of\_\EOL line} or any following line feed,
 and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
 Also, these ASCII strings may not be unprotected body pointers,
@@ -9100,7 +9100,7 @@ An example use is
         min::print_line ( printer, file, line_number );
 \end{verbatim}\end{indpar}
 
-The line numbers printed by {\tt min::\EOL pline\_\EOL number}
+The line numbers printed by \TT{min::\EOL pline\_\EOL number}
 are \TT{1} greater than the line numbers given in the arguments,
 so the line number of the first line of a file is denoted by a
 \TT{0} argument which is printed as \TT{1}.
@@ -9129,7 +9129,7 @@ number of bytes before the position in the line.
 Two \TT{min::position} structures are needed to encode the boundaries
 of a piece of text in a file.  Such a piece of text is called
 a `\key{phrase}', and its positions are encoded in a
-{\tt min::\EOL phrase\_\EOL position} structure:
+\TT{min::\EOL phrase\_\EOL position} structure:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
@@ -9145,7 +9145,7 @@ a `\key{phrase}', and its positions are encoded in a
 Here `\TT{begin}' encodes the position of the first character
 of the phrase in the file, and `\TT{end}' encodes the position
 of the first character \underline{after} the phrase in the file.
-If the phrase is empty, {\tt begin == end}, and the position
+If the phrase is empty, \TT{begin == end}, and the position
 referenced by both `\TT{begin}' and `\TT{end}'
 is the position of the empty phrase in the file.
 
@@ -9158,16 +9158,16 @@ To print the line numbers of a phrase one can use the constructor:
 \LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
 \end{tabular}\end{indpar}
 
-which uses {\tt position.begin.line} and
-{\tt position.end.line} as
+which uses \TT{position.begin.line} and
+\TT{position.end.line} as
 line numbers, except that when
 \begin{center}
-{\tt position.end.offset == 0} \\
+\TT{position.end.offset == 0} \\
 and \\
-{\tt position.end.line > position.begin.line}
+\TT{position.end.line > position.begin.line}
 \end{center}
-then {\tt position.end.line - 1} is used in place of
-{\tt position.end.line}.
+then \TT{position.end.line - 1} is used in place of
+\TT{position.end.line}.
 
 To print a phrase one can use the function:
 
@@ -9189,18 +9189,18 @@ To print a phrase one can use the function:
 
 The lines containing the phrase are printed, and under each phrase
 character a \TT{mark} is printed.  The lines are printed
-as per {\tt min::\EOL print\_\EOL line} using the
-{\tt blank\_\EOL line},
-{\tt end\_\EOL of\_\EOL file}, and
-{\tt unavailable\_\EOL line} arguments.
+as per \TT{min::\EOL print\_\EOL line} using the
+\TT{blank\_\EOL line},
+\TT{end\_\EOL of\_\EOL file}, and
+\TT{unavailable\_\EOL line} arguments.
 An empty phrase is marked as if it were 1-column wide, that column
 being at the empty phrase position.
 
-If the {\tt mark} argument is given as {\tt 0}, the marking lines
+If the \TT{mark} argument is given as \TT{0}, the marking lines
 will be omitted.  This permits just printing the lines containing
 a phrase, without marking the phrase.
 
-An example using a {\tt phrase\_position} is
+An example using a \TT{phrase\_position} is
 
 \begin{indpar}\begin{verbatim}
     printer << ... error description ...
@@ -9209,7 +9209,7 @@ An example using a {\tt phrase\_position} is
     min::print_phrase_lines ( printer, file, phrase_position );
 \end{verbatim}\end{indpar}
 
-Internally {\tt min::\EOL print\_\EOL phrase\_\EOL lines}
+Internally \TT{min::\EOL print\_\EOL phrase\_\EOL lines}
 uses the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9221,18 +9221,18 @@ uses the function:
 \end{tabular}\end{indpar}
 
 which, given a file and a position within that file, returns the number of
-columns before the position in a {\tt min::\EOL print\_\EOL line}
+columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line specified by the position.
 
-Some of the above functions use {\tt file->print\_flags}
+Some of the above functions use \TT{file->print\_flags}
 to control how lines are printed and therefore which column
 a position corresponds to.  For example, depending upon the
 setting of the print flags, a horizontal tab may appear as
-1 to 8 whitespace columns, or as the 4 characters `{\tt <HT>}',
+1 to 8 whitespace columns, or as the 4 characters `\TT{<HT>}',
 or as the 1-column character {\tiny $\stackrel{\textstyle H~}{~T}$}.
 The following are alternatives to the above functions that take
-an extra {\tt print\_\EOL flags} argument and use that in place of
-{\tt file->\EOL print\_\EOL flags}:
+an extra \TT{print\_\EOL flags} argument and use that in place of
+\TT{file->\EOL print\_\EOL flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -9320,23 +9320,23 @@ record the phrase positions of elements of any linear vector:
 
 A phrase position vector is associated with some other data vector.
 For example, a phrase position vector may be the value of the
-{\tt .position} attribute of an object
+\TT{.position} attribute of an object
 (see below), in which case it will be associated with
 the attribute vector of the object.
-If {\tt vpp} is a phrase position vector pointer, {\tt vpp->\EOL position}
+If \TT{vpp} is a phrase position vector pointer, \TT{vpp->\EOL position}
 is the position of the phrase that is encoded in the data vector,
-{\tt vp[i]} is the position of the phrase that is encoded in
-the {\tt i+1}'st element of the data vector, and
-{\tt vpp->\EOL file} is the file containing these phrases.
-{\tt vpp->\EOL length} is, as per the definition of packed vectors,
+\TT{vp[i]} is the position of the phrase that is encoded in
+the \TT{i+1}'st element of the data vector, and
+\TT{vpp->\EOL file} is the file containing these phrases.
+\TT{vpp->\EOL length} is, as per the definition of packed vectors,
 the number of elements in the phrase position vector, and should
 match the number of elements in the data vector.
-The {\tt min::\EOL init} function above can be used to create or
-reinitialize a {\tt min::\EOL phrase\_\EOL position\_\EOL vec},
-and sets the {\tt file}, {\tt position}, and initial maximum length
+The \TT{min::\EOL init} function above can be used to create or
+reinitialize a \TT{min::\EOL phrase\_\EOL position\_\EOL vec},
+and sets the \TT{file}, \TT{position}, and initial maximum length
 of the phrase position vector.
 
-A MIN object may have a {\tt .position} attribute equal to a
+A MIN object may have a \TT{.position} attribute equal to a
 phrase position vector.  If an object does, the phrase position
 pointer is returned by the following function:
 
@@ -9346,16 +9346,16 @@ pointer is returned by the following function:
 \LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
-Here the object is identified by the {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+Here the object is identified by the \TT{min::\EOL obj\_\EOL vec\_\EOL ptr}
 which is being used to access the object elements.  If the
-object has no {\tt .position} attribute, or if the attribute is
-not a {\tt min::\EOL phrase\_\EOL position\_\EOL vec} value,
-{\tt min::\EOL NULL\_\EOL STUB} is returned.
+object has no \TT{.position} attribute, or if the attribute is
+not a \TT{min::\EOL phrase\_\EOL position\_\EOL vec} value,
+\TT{min::\EOL NULL\_\EOL STUB} is returned.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
 
-{\tt min::gen} values are printed using the {\tt min::\EOL pgen} printer
+\TT{min::gen} values are printed using the \TT{min::\EOL pgen} printer
 operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
