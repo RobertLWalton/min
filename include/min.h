@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 30 06:53:56 EDT 2014
+// Date:	Fri Aug  1 02:13:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10720,7 +10720,7 @@ namespace min {
     extern const min::support_control
         latin1_support_control;
     extern const min::support_control
-        inclusive_support_control;
+        support_all_support_control;
 
     struct display_control
     {
@@ -10729,13 +10729,13 @@ namespace min {
     };
 
     extern const min::display_control
-        verbatim_display_control;
-    extern const min::display_control
         graphic_and_space_display_control;
     extern const min::display_control
         graphic_only_display_control;
     extern const min::display_control
         graphic_and_vspace_display_control;
+    extern const min::display_control
+	display_all_display_control;
 
     struct break_control
     {
@@ -10752,7 +10752,7 @@ namespace min {
     extern const min::break_control
         break_before_all_break_control;
     extern const min::break_control
-        break_after_hyphenators_break_control;
+        break_after_hyphens_break_control;
 
     struct line_break
     {
@@ -11179,16 +11179,18 @@ namespace min {
     extern const op spaces_if_before_indent;
     extern const op space_if_after_indent;
 
+    extern const op expand_ht;
+    extern const op noexpand_ht;
     extern const op display_eol;
     extern const op nodisplay_eol;
+    extern const op display_picture;
+    extern const op nodisplay_picture;
+
     extern const op flush_on_eol;
     extern const op noflush_on_eol;
     extern const op flush_id_map_on_eom;
     extern const op noflush_id_map_on_eom;
-    extern const op expand_ht;
-    extern const op noexpand_ht;
-    extern const op display_picture;
-    extern const op nodisplay_picture;
+
     extern const op auto_suppress;
     extern const op noauto_suppress;
     extern const op disable_suppress;
@@ -11202,15 +11204,17 @@ namespace min {
 
     extern const op ascii;
     extern const op latin1;
+    extern const op support_all;
 
     extern const op graphic_and_space;
     extern const op graphic_only;
     extern const op graphic_and_vspace;
+    extern const op display_all;
 
     extern const op no_auto_break;
     extern const op break_after_space;
     extern const op break_before_all;
-    extern const op break_after_hyphenators;
+    extern const op break_after_hyphens;
 
     extern const op print_assert; // For debugging only.
 

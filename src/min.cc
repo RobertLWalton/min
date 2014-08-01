@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 31 16:42:21 EDT 2014
+// Date:	Fri Aug  1 02:13:41 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7538,13 +7538,13 @@ const min::support_control
 };
 
 const min::support_control
-        min::inclusive_support_control =
+        min::support_all_support_control =
 {
     0xFFFF, min::IS_UNSUPPORTED
 };
 
 const min::display_control
-        min::verbatim_display_control =
+        min::display_all_display_control =
 {
     0xFFFF, 0
 };
@@ -7592,7 +7592,7 @@ const min::break_control
 };
 
 const min::break_control
-   min::break_after_hyphenators_break_control =
+   min::break_after_hyphens_break_control =
 {
     min::IS_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
@@ -7892,6 +7892,8 @@ min::printer operator <<
 	printer->print_format.op_flags |= flags;
 	printer->print_format.op_flags |=
 	    min::EXPAND_HT;
+	printer->print_format.op_flags &=
+	    ~ min::AUTO_SUPPRESS;
 	printer->print_format.display_control =
 	    flags & min::DISPLAY_PICTURE ?
 	    min::graphic_only_display_control :
@@ -7913,10 +7915,12 @@ min::printer operator <<
 	    * (const min::break_control *) op.v1.p;
 	return printer;
     case min::op::VERBATIM:
+	printer->print_format.op_flags &=
+	    ~ ( min::EXPAND_HT + min::AUTO_SUPPRESS );
 	printer->print_format.support_control =
-	    min::inclusive_support_control;
+	    min::support_all_support_control;
 	printer->print_format.display_control =
-	    min::verbatim_display_control;
+	    min::display_all_display_control;
 	printer->print_format.break_control =
 	    min::no_auto_break_break_control;
 	return printer;
@@ -8142,12 +8146,26 @@ const min::op min::spaces_if_before_indent
 const min::op min::space_if_after_indent
     ( min::op::SPACE_IF_AFTER_INDENT );
 
+const min::op min::expand_ht
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::EXPAND_HT );
+const min::op min::noexpand_ht
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::EXPAND_HT );
+
 const min::op min::display_eol
     ( min::op::SET_PRINT_OP_FLAGS,
       min::DISPLAY_EOL );
 const min::op min::nodisplay_eol
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_EOL );
+
+const min::op min::display_picture
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::DISPLAY_PICTURE );
+const min::op min::nodisplay_picture
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::DISPLAY_PICTURE );
 
 const min::op min::flush_on_eol
     ( min::op::SET_PRINT_OP_FLAGS,
@@ -8162,20 +8180,6 @@ const min::op min::flush_id_map_on_eom
 const min::op min::noflush_id_map_on_eom
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FLUSH_ID_MAP_ON_EOM );
-
-const min::op min::expand_ht
-    ( min::op::SET_PRINT_OP_FLAGS,
-      min::EXPAND_HT );
-const min::op min::noexpand_ht
-    ( min::op::CLEAR_PRINT_OP_FLAGS,
-      min::EXPAND_HT );
-
-const min::op min::display_picture
-    ( min::op::SET_PRINT_OP_FLAGS,
-      min::DISPLAY_PICTURE );
-const min::op min::nodisplay_picture
-    ( min::op::CLEAR_PRINT_OP_FLAGS,
-      min::DISPLAY_PICTURE );
 
 const min::op min::auto_suppress
     ( min::op::SET_PRINT_OP_FLAGS,
@@ -8209,6 +8213,9 @@ const min::op min::ascii
 const min::op min::latin1
     ( min::op::SET_SUPPORT_CONTROL,
       & min::latin1_support_control );
+const min::op min::support_all
+    ( min::op::SET_SUPPORT_CONTROL,
+      & min::support_all_support_control );
 
 const min::op min::graphic_and_space
     ( min::op::SET_DISPLAY_CONTROL,
@@ -8219,6 +8226,9 @@ const min::op min::graphic_only
 const min::op min::graphic_and_vspace
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_and_vspace_display_control );
+const min::op min::display_all
+    ( min::op::SET_DISPLAY_CONTROL,
+      & min::display_all_display_control );
 
 const min::op min::no_auto_break
     ( min::op::SET_BREAK_CONTROL,
@@ -8229,10 +8239,10 @@ const min::op min::break_after_space
 const min::op min::break_before_all
     ( min::op::SET_BREAK_CONTROL,
       & min::break_before_all_break_control );
-const min::op min::break_after_hyphenators
+const min::op min::break_after_hyphens
     ( min::op::SET_BREAK_CONTROL,
       & min::
-      break_after_hyphenators_break_control );
+      break_after_hyphens_break_control );
 
 const min::op min::print_assert
     ( min::op::PRINT_ASSERT );
@@ -8877,8 +8887,6 @@ void min::pwidth ( min::uns32 & column,
         print_format.display_control;
     const min::uns32 * char_flags =
 	print_format.char_flags;
-    uns32 expand_ht =
-        ( print_op_flags & min::EXPAND_HT );
 
     const char * ends = s + n;
     char temp[32];
