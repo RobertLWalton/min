@@ -9024,23 +9024,25 @@ an error message:
 The \TT{file} line with the given \TT{line\_number}
 is printed on a single \TT{printer} line.  \TT{file->\EOL line\_\EOL display}
 (\pagref{FILE_LINE_DISPLAY})
-are used to print this line, and the number of columns in the result,
+is used to print this line, and the number of columns in the result,
 including any end of line representation printed by the
 \TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
 If a line is
-unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
-see above)
+unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
+see \pagref{MIN::LINE_OF_FILE})
 and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
 then \TT{unavailable\_\EOL line} is printed on a line by itself instead, and
 \TT{0} is returned, if \TT{unavailable\_\EOL line} is not \TT{NULL}.
 But if \TT{unavailable\_\EOL line} is \TT{NULL}, nothing is done except
 to return \TT{min::\EOL NO\_\EOL LINE}.
 
-If a line would print as blank, i.e., consisting of
-nothing but horizontal space characters with no end of line display, and if
+If a line would print as blank, and if
 \TT{blank\_\EOL line} is not \TT{NULL},
 \TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
+More specifically, a line is deemed to print as blank if it only contains
+ASCII control characters or single spaces which when printed
+represent themselves or are suppressed.
 
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
@@ -9053,7 +9055,7 @@ without any visible ending line feed, and if there is no partial line,
 nothing is printed and \TT{NO\_\EOL LINE} is returned.
 
 Note that
-\TT{file->\EOL print\_\EOL flags} is not used to print
+\TT{file->\EOL line\_\EOL display} is not used to print
 \TT{unavailable\_\EOL line}, \TT{blank\_\EOL line}, or
 \TT{end\_\EOL of\_\EOL line} or any following line feed,
 and it is best if these special strings consist of nothing but
@@ -9224,21 +9226,36 @@ which, given a file and a position within that file, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line specified by the position.
 
-Some of the above functions use \TT{file->print\_flags}
+Some of the above functions use \TT{file->line\_display}
 to control how lines are printed and therefore which column
-a position corresponds to.  For example, depending upon the
-setting of the print flags, a horizontal tab may appear as
-1 to 8 whitespace columns, or as the 4 characters `\TT{<HT>}',
-or as the 1-column character {\tiny $\stackrel{\textstyle H~}{~T}$}.
+a position corresponds to.  Specifically, if \TT{min::\EOL DISPLAY\_\EOL EOL}
+is on in \TT{file->line\_display}, \TT{<NL>} 
+will print at the end of a line if
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} is off, and
+{\tiny $\stackrel{\textstyle N~}{~L}$} will print if
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} is on.  Also, if
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, ASCII control
+characters and single spaces will print as UNICODE picture characters
+(e.g., {\tiny $\stackrel{\textstyle H~}{~T}$}
+and {\tiny $\stackrel{\textstyle F~}{~F}$}),
+but if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is off,
+ASCII control characters except horizontal tab will
+print as their names with prefix and postfix determined by
+\TT{printer->\EOL print\_\EOL format.char\_\EOL name\_\EOL format}
+(e.g., \TT{<FF>}),
+horizontal tab will
+be expanded to a sequence of single spaces, and single space will
+print as itself.
+
 The following are alternatives to the above functions that take
-an extra \TT{print\_\EOL flags} argument and use that in place of
-\TT{file->\EOL print\_\EOL flags}:
+an extra \TT{line\_\EOL display} argument and use that in place of
+\TT{file->\EOL line\_\EOL display}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::uns32 line_number,|\ARGBREAK
       \verb|  const char * blank_line =|\ARGBREAK
@@ -9254,7 +9271,7 @@ an extra \TT{print\_\EOL flags} argument and use that in place of
 \verb|void min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
       \verb|  char mark = '^',|\ARGBREAK
@@ -9270,7 +9287,7 @@ an extra \TT{print\_\EOL flags} argument and use that in place of
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::uns32 print_flags,|\ARGBREAK
+      \verb|( min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position )|
 \LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
