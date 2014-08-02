@@ -20,7 +20,7 @@
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\textwidth}{6.5in}
-\setlength{\textheight}{9.0in}
+\setlength{\textheight}{8.5in}
 \raggedbottom
 
 \setlength{\unitlength}{1in}
@@ -180,9 +180,10 @@
 
 	 \end{minipage}
 	 \end{lrbox}
-	 \begin{center}
+
+	 \vspace*{-15ex}
+	 \centering
 	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
-	 \end{center}
 	 \end{figure*}}
 
 \newenvironment{indpar}[1][0.3in]%
@@ -240,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 1, 2014}
+\date{August 2, 2014}
  
 \maketitle
 
@@ -3577,7 +3578,9 @@ one of the following flags:
 \end{tabular}
 \end{center}
 
-Graphic characters which make a mark on the paper get one of the
+Graphic characters
+\label{LEADING/MIDDLING/TRAILING-CHAR-FLAGS}
+which make a mark on the paper get one of the
 \TT{min::IS\_LEADING/\EOL MIDDLING/\EOL TRAILING}%
 \minindex{IS\_LEADING}%
 \minindex{IS\_MIDDLING}%
@@ -3590,7 +3593,7 @@ leading separator lexeme \TT{[}, the middling lexeme \TT{5},
 and the trailing separator lexeme \TT{;}, and therefore
 \TT{[} is \TT{IS\_LEADING}, \TT{5} is \TT{IS\_MIDDLING}, and
 \TT{;} is \TT{IS\_TRAILING}.  See 
-\itemref{SUPPRESSING-SPACES} for details.
+\itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
 Horizontal space characters get one of the
 \TT{min::IS\_SP/HT/OTHER\_HSPACE}%
@@ -9000,7 +9003,163 @@ or the indent itself for \TT{min::\EOL adjust\_\EOL indent}.
 If the indent would be set to a negative value,
 \TT{0} is used instead.
 
-\subsection{Printing File Lines and Phrases}
+\subsubsection{Leading and Trailing Separators}
+\label{LEADING-AND-TRAILING-SEPARATORS}
+
+Consider a lexical scanner in which proto-lexemes that contain
+no space characters are first scanned, and then `\skey{leading separator}s'
+such as the opening single quote (\TT{`}) and dollar sign (\TT{\$})
+are removed from the beginning of the proto-lexeme,
+`\skey{trailing separator}s' such as closing single quote (\TT{'})
+and comma are removed from the end of the proto-lexeme,
+and anything left over of the proto-lexeme is designated to be a
+`\key{middle lexeme}'.  So the proto-lexeme \TT{\$10,000,} translates
+to the three lexemes TT{\$}, \TT{10,000}, and comma (\TT{,}).  Note
+that the first comma is part of the middle lexeme and the last is
+a trailing separator by itself.
+
+The same effect can be achieved by a different kind of scanner
+that declares a \TT{\$} character to be a separator only if it is
+followed by a digit and a comma to be a separator unless
+it is surrounded by digits.
+
+Suppose you want to print the 3 element list of strings,
+\TT{\$} \TT{10,000} comma (\TT{,}), and you know the first string
+may be a leading separator, the second may be middle, and the last
+may be trailing.  But maybe not.
+
+You can do this with the code
+\begin{center}
+\verb|printer << "$" << min::leading << "10,000" << min::trailing ",";|
+\end{center}
+
+Here we have used the printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::| & \MINKEY{leading}
+\LABEL{MIN::LEADING} \\
+\verb|min::op min::| & \MINKEY{trailing}
+\LABEL{MIN::TRAILING} \\
+\end{tabular}\end{indpar}
+
+Each of these denotes a space character with may be output or
+not according to its context.
+
+To give as second example, consider the code:
+\begin{indpar}\begin{verbatim}
+printer << "100" << min::trailing << "," << " " << "200";
+printer << "100" << min::trailing << "#" << " " << "200";
+\end{verbatim}\end{indpar}
+
+We want the first line to output `\TT{100, 200}' in which
+\TT{min::\EOL trailing} does \underline{not} output a space,
+while we want the second line to output `\TT{100 \# 200}'
+in which \TT{min::\EOL trailing} \underline{does} output a space.
+
+And to consider one last example, consider the code:
+\begin{indpar}\begin{verbatim}
+printer << "("   << min::leading << "100" << min::trailing <<  ")";
+printer << "(+"  << min::leading << "100" << min::trailing << "+)";
+\end{verbatim}\end{indpar}
+
+We want the first line to output `\TT{(100)}' in which there are
+\underline{no} spaces,
+while we want the second line to output `\TT{(+ 100 +)}'
+in which there are \underline{two} spaces.
+
+So how to we compute the context?
+
+First, we classify characters into leading, trailing, middling, or other
+using the character flags:
+\begin{center}
+\TT{min::IS\_LEADING ~~~~~ min::IS\_TRAILING ~~~~~ min::IS\_MIDDLING}
+\end{center}
+See \pagref{LEADING/MIDDLING/TRAILING-CHAR-FLAGS} for details.
+
+Then we classify each string as `\mkey{leading}{string}' if it contains only
+\TT{IS\_\EOL LEADING} characters, `\mkey{trailing}{string}' if it contains
+only \TT{IS\_\EOL TRAILING} characters, and `other'.  Note there
+are no middling strings.
+
+Now the rough idea of \TT{min::leading}
+is that it will output a space \underline{unless}
+it is part of a sequence of leading strings each followed by an
+\TT{min::leading} operation, with the sequence being
+prefaced by whitespace and followed
+by either whitespace or a middling character.
+
+Similarly the rough idea of \TT{min::trailing}
+is that it will output a space \underline{unless}
+it is part of a sequence of trailing strings each preceeded by a
+\TT{min::trailing} operation, with the sequence
+being followed by whitespace and preceded
+by either whitespace or a middling character.
+
+In the above examples these ideas succeed because
+\TT{\$} and \TT{(} have the \TT{IS\_\EOL LEADING} flag,
+comma and \TT{)} have the \TT{IS\_\EOL TRAILING} flag,
+while \TT{\#}, \TT{+}, and digits have the \TT{IS\_\EOL MIDDLING} flag.
+
+The precise implementation is as follows.
+
+The printer may or may not be in the leading state according to whether
+the \TT{min::\EOL LEADING\_\EOL STATE} printer operation flag is set or not.
+The rules regarding leading state are:
+\begin{enumerate}
+\item The printer is initially in the leading state.
+\item The \TT{min::eol} operation enters the leading state.
+\item Outputting a single space or horizontal tab enters the leading state.
+(This does not apply to outputting a picture or name of these characters.)
+\item Outputting a non-leading string that does not end in
+a single space or horizontal tab leaves the leading state.
+\item \TT{min::leading} outputs a single space unless the printer
+is in the leading state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
+printer operation flag is off, and the next thing output is one of:
+\begin{enumerate}
+\item a leading string
+\item a string beginning with a middling character
+\item a string beginning with a single space or horizontal tab character
+\item the \TT{min::eol} operation or equivalent
+\end{enumerate}
+\end{enumerate}
+
+This works provided every leading string output in the leading state
+is followed by a \TT{min::\EOL leading} operation.
+
+Note that the leading state only affects whether \TT{min::\EOL leading}
+operations output spaces.
+
+The printer may or may not be in the trailing state according to whether
+the \TT{min::\EOL TRAILING\_\EOL STATE} printer operation flag is set or not.
+The rules regarding trailing state are:
+\begin{enumerate}
+\item The printer is initially in the trailing state.
+\item The \TT{min::eol} operation enters the trailing state.
+\item Outputting a single space or horizontal tab enters the trailing state.
+(This does not apply to outputting a picture or name of these characters.)
+\item Outputting a string that ends in a middling character enters
+the trailing state.
+\item Outputting a non-trailing string that does not end in a middling
+character, single space, or horizontal tab leaves the trailing state.
+\item \TT{min::trailing} outputs a single space unless the printer
+is in the trailing state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
+printer operation flag is off, and the next thing output is one of:
+\begin{enumerate}
+\item a trailing string
+\item a string beginning with a single space or horizontal tab character
+\item the \TT{min::eol} operation or equivalent
+\end{enumerate}
+\end{enumerate}
+
+This works provided every trailing string output in the trailing state
+is preceded by a \TT{min::\EOL trailing} operation.
+
+Note that the trailing state only affects whether \TT{min::\EOL trailing}
+operations output spaces.
+
+
+
+\subsubsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
 
 The following function uses \TT{min::line} to print a line as part of
