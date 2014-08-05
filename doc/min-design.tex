@@ -9612,35 +9612,89 @@ is as follows:
 \end{tabular}
 \end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format
-                       min::\MINKEY{default\_gen\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::default_pgen,|\ARGBREAK
-    \verb|  "%.15g",             // number_format|\ARGBREAK
-    \verb|  U"\"", U"\"",        // str_prefix/postfix|\ARGBREAK
-    \verb|  U"<Q>",              // str_postfix_name|\ARGBREAK
-    \verb|  U"<", U">",          // str_char_name_prefix/postfix|\ARGBREAK
-    \verb|  U"#", 8,             // str_concatenate/str_max_length|\ARGBREAK
-    \verb|  "[: "," "," :]",     // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "[$ "," $]",         // special_prefix/postfix|\ARGBREAK
-    \verb|  min::NULL_STUB,      // special_names|\ARGBREAK
-    \verb|  "[. "," .]",         // implicit_prefix/postfix|\ARGBREAK
-    \verb|  & min::default_suppress_matrix,|\ARGBREAK
-    \verb|  min::default_exp_ok_attrs|\ARGBREAK
-    \verb|  min::default_flag_names|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\begin{indpar}[1em]
+\tt
+const min::gen\_format * min::\MINKEY{top\_gen\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+\& min::standard\_pgen 	& // pgen  \\
+min::long\_num\_format  & // num\_format \\
+min::quote\_first\_not\_letter\_str\_format  & // str\_format \\
+min::bracket\_lab\_format  & // lab\_format \\
+min::bracket\_specials\_format  & // specials\_format \\
+min::exp\_obj\_format  & // obj\_format \\
+TBD  & // id\_map\_format \\
+\LABEL{MIN::TOP_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::gen\_format * min::\MINKEY{name\_gen\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+\& min::standard\_pgen 	& // pgen  \\
+min::long\_num\_format  & // num\_format \\
+min::quote\_first\_not\_letter\_str\_format  & // str\_format \\
+min::name\_lab\_format  & // lab\_format \\
+min::bracket\_specials\_format  & // specials\_format \\
+min::exp\_obj\_format  & // obj\_format \\
+TBD  & // id\_map\_format \\
+\LABEL{MIN::NAME_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::gen\_format * min::\MINKEY{never\_quote\_gen\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+\& min::standard\_pgen 	& // pgen  \\
+min::long\_num\_format  & // num\_format \\
+NULL  & // str\_format \\
+min::name\_lab\_format  & // lab\_format \\
+min::name\_specials\_format  & // specials\_format \\
+min::exp\_obj\_format  & // obj\_format \\
+TBD  & // id\_map\_format \\
+\LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::uns32 gen_flags,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::context_gen_flags * context_gen_flags,|\ARGBREAK
     \verb|  const min::gen_format * g );|
-\LABEL{MIN::DEFAULT_PGEN} \\
+\LABEL{MIN::STANDARD_PGEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{num\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char *  int_printf_format;|%
+\ttmindex{int\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  const char *  float_printf_format;|%
+\ttmindex{float\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  const min::uns32 *  fraction_divisors;|%
+\ttmindex{fraction\_divisors\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::NUM_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::num\_format * min::\MINKEY{short\_num\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+"\%.0f"		& // int\_printf\_format \\
+"\%.6g"		& // float\_printf\_format \\
+NULL		& // fraction\_divisors \\
+\LABEL{MIN::SHORT_NUM_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::num\_format * min::\MINKEY{long\_num\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+"\%.0f"		& // int\_printf\_format \\
+"\%.15g		& // float\_printf\_format \\
+NULL		& // fraction\_divisors \\
+\LABEL{MIN::LONG_NUM_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -9650,17 +9704,6 @@ is as follows:
 \verb|    //     [0 .. 7] == |\\
 \verb|    //        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\\
 \verb|    //        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|\\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|typedef const char * min::|
-    & \MINKEY{char\_names}\verb|[256]|
-\LABEL{MIN::CHAR_NAMES} \\
-\verb|typedef min::uns32 * min::|
-    & \MINKEY{char\_flags}\verb|[256]|
-\LABEL{MIN::CHAR_FLAGS} \\
-\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
-\LABEL{MIN::SUPPRESS_MATRIX} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 05:05:31 EDT 2014
+// Date:	Tue Aug  5 13:29:41 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9141,14 +9141,14 @@ const min::uns32 * min::first_100_divisors =
 
 static min::num_format short_num_format =
 {
-    "%.0f", "%.6g", ::first_100_divisors
+    "%.0f", "%.6g", NULL
 };
 const min::num_format * min::short_num_format =
     & ::short_num_format;
 
 static min::num_format long_num_format =
 {
-    "%.0f", "%.15g", ::first_100_divisors
+    "%.0f", "%.15g", NULL
 };
 const min::num_format * min::long_num_format =
     & ::long_num_format;
@@ -9246,7 +9246,7 @@ static min::gen_format name_gen_format =
     & ::long_num_format,
     & ::quote_first_not_letter_str_format,
     & ::name_lab_format,
-    & ::name_specials_format,
+    & ::bracket_specials_format,
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
@@ -9292,70 +9292,6 @@ static void init_pgen_formats ( void )
     ::raw_obj_format.flag_names =
         min::standard_flag_names;
 }
-
-#ifdef NONE_SUCH
-
-const min::uns32 DEFAULT_VALUE_GEN_FLAGS =
-        min::BRACKET_STR_FLAG
-      + min::BRACKET_LAB_FLAG
-      + min::BRACKET_IMPLICIT_FLAG
-      + min::OBJ_EXP_FLAG;
-
-const min::uns32 DEFAULT_NAME_GEN_FLAGS =
-        min::SUPPRESS_LAB_SPACE_FLAG
-      + min::BRACKET_IMPLICIT_FLAG
-      + min::OBJ_EXP_FLAG
-      + min::OBJ_ID_FLAG;
-
-const min::context_gen_flags
-    min::standard_context_gen_flags =
-{
-    ::DEFAULT_VALUE_GEN_FLAGS,
-    ::DEFAULT_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
-    ::DEFAULT_NAME_GEN_FLAGS,
-    ::DEFAULT_NAME_GEN_FLAGS,
-    ::DEFAULT_VALUE_GEN_FLAGS,
-    ::DEFAULT_NAME_GEN_FLAGS
-};
-
-const min::uns32 NO_EXP_VALUE_GEN_FLAGS =
-    DEFAULT_VALUE_GEN_FLAGS & ~ min::OBJ_EXP_FLAG;
-const min::uns32 NO_EXP_NAME_GEN_FLAGS =
-    DEFAULT_NAME_GEN_FLAGS & ~ min::OBJ_EXP_FLAG;
-
-const min::context_gen_flags
-    min::no_exp_context_gen_flags =
-{
-    ::NO_EXP_VALUE_GEN_FLAGS,
-    ::NO_EXP_VALUE_GEN_FLAGS + min::OBJ_INDENT_FLAG,
-    ::NO_EXP_NAME_GEN_FLAGS,
-    ::NO_EXP_NAME_GEN_FLAGS,
-    ::NO_EXP_VALUE_GEN_FLAGS,
-    ::NO_EXP_NAME_GEN_FLAGS
-};
-
-const min::gen_format min::old_standard_gen_format =
-{
-    min::standard_pgen,
-
-    "%.15g",
-    
-    ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
-    ::LT_USTRING, ::GT_USTRING,
-    ::POUND_USTRING, 8,
-
-    "[: ", " ", " :]",
-
-    "[$ ", " $]",
-    min::NULL_STUB,
-
-    "[. ", " .]",
-
-    min::NULL_STUB, // Reset by initialization.
-    min::NULL_STUB  // Reset by initialization.
-};
-
-#endif // NONE_SUCH
 
 const min::op min::flush_one_id
     ( min::op::FLUSH_ONE_ID );
