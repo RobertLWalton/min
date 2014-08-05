@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 3, 2014}
+\date{August 5, 2014}
  
 \maketitle
 
@@ -9537,6 +9537,8 @@ operations:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
+\verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_NAME} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
@@ -9558,316 +9560,23 @@ prints the \TT{min::gen} value \TT{v} to the
 to control the printing.
 The expression `\TT{printer\,<<\,min::pgen(v,f)}' is similar but
 uses \TT{f} as the \TT{gen\_\EOL format} value.
+\TT{min::\EOL pgen\_\EOL name(v)} is shorthand for
+\begin{center}
+\tt min::pgen ( v, min::name\_gen\_format )
+\end{center}
 
 `\TT{printer\,<<\,v}' can be used as the equivalent of
-`\TT{printer\,<<\,min::pgen(v)}'
+`\TT{printer\,<<\,min::pgen(v)}'.
 
-TBD
-
-{\tt Pgen} calls itself recursively, and when it does, it uses different
-elements of {\tt context\_\EOL gen\_\EOL flags} as the {\tt gen\_\EOL flags}
-value that controls printing.  The index to
-{\tt context\_\EOL gen\_\EOL flags} is called the \key{pgen context}.
-The data structure for {\tt pgen} contexts is:
-
-{\tt PGEN\_}\ldots{} contexts:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_TOP}
-\LABEL{MIN::PGEN_TOP_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
-\LABEL{MIN::PGEN_INDENT_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_PUNCTUATION}
-\LABEL{MIN::PGEN_PUNCTUATION_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
-\LABEL{MIN::PGEN_NAME_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
-\LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|typedef min::uns32 min::|
-    & \MINKEY{context\_gen\_flags}\verb|[|$n$\verb|]| \\
-    & \tt ~~~~~ // $n$ is number of PGEN\_...~contexts
-\LABEL{MIN::CONTEXT_GEN_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]
-\begin{tabular}{l}
-\verb|const min::context_gen_flags min::|%
-    \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
-\LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
-\verb|    // default_context_gen_flags[PGEN_TOP]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::BRACKET_STR_FLAG| \\
-\verb|    //  + min::BRACKET_LAB_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\end{tabular}
-\\
-\begin{tabular}{l}
-\verb|    // default_context_gen_flags[PGEN_INDENT]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::BRACKET_STR_FLAG| \\
-\verb|    //  + min::BRACKET_LAB_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\verb|    //  + min::OBJ_INDENT_FLAG| \\
-\end{tabular}
-\\
-\begin{tabular}{l}
-\verb|    // default_context_gen_flags[PGEN_PUNCTUATION]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\verb|    //  + min::OBJ_ID_FLAG| \\
-\end{tabular}
-\\
-\begin{tabular}{l}
-\verb|    // default_context_gen_flags[PGEN_NAME]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\verb|    //  + min::OBJ_ID_FLAG| \\
-\end{tabular}
-\\
-\begin{tabular}{l}
-\verb|    // default_context_gen_flags[PGEN_VALUE]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::BRACKET_STR_FLAG| \\
-\verb|    //  + min::BRACKET_LAB_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\end{tabular}
-\\
-\begin{tabular}{l}
-\verb|    // default_context_gen_flags[PGEN_ELEMENT]:| \\
-\verb|    //    min::GRAPHIC_STR_FLAG| \\
-\verb|    //  + min::SUPPRESS_LAB_SPACE_FLAG| \\
-\verb|    //  + min::BRACKET_IMPLICIT_FLAG| \\
-\verb|    //  + min::OBJ_EXP_FLAG| \\
-\verb|    //  + min::OBJ_ID_FLAG| \\
-\end{tabular}
-\end{indpar}
-
-\begin{indpar}[1em]
-\begin{tabular}{l}
-\verb|const min::context_gen_flags min::|%
-    \MINKEY{no\_\EOL exp\_\EOL context\_\EOL gen\_\EOL flags}
-\LABEL{MIN::NO_EXP_CONTEXT_GEN_FLAGS} \\
-\verb|    // Same as default_context_gen_flags| \\
-\verb|    // but without any min::OBJ_EXP_FLAGs.| \\
-\end{tabular}
-\end{indpar}
-
-The uses of the various {\tt pgen} contexts are:
-
-\begin{itemlist}[0.4in]
-
-\item[\ttkey{PGEN\_TOP}]
-This is for printing the top level {\tt min::gen} values.
-
-\item[\ttkey{PGEN\_INDENT}]
-\label{PGEN_INDENT}
-This is for printing the top level value in the context of
-{\tt flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
-
-\item[\ttkey{PGEN\_PUNCTUATION}]
-This is for printing punctuation including
-{\tt .initiator}'s, {\tt .separa\-tor}'s, and {\tt .terminator}'s,
-and also including {\tt .type}'s when these are printed as marks.
-
-\item[\ttkey{PGEN\_NAME}]
-This is for printing attribute labels, {\tt .type}'s not printed as marks,
-and names in general.
-
-\item[\ttkey{PGEN\_VALUE}]
-This is for printing non-double-arrow, non-vector-element attribute
-values.
-
-\item[\ttkey{PGEN\_ELEMENT}]
-This is for printing vector element values.
-
-\end{itemlist}
-
-Neither {\tt min::context\_\EOL gen\_\EOL flags} or
-{\tt min::gen\_\EOL format} can be stored in a
-relocatable body, and they are intended to be a static C++ structures.
-In making new versions, one must copy
-{\tt min::\EOL default\_\EOL context\_\EOL gen\_\EOL flags} or
-{\tt min::\EOL default\_\EOL gen\_\EOL format}
+A {\tt min::gen\_\EOL format} cannot be stored in a
+relocatable body, and is intended to be a static C++ structure.
+In making new versions, one must copy and existing
+{\tt min::\EOL gen\_\EOL format}
 and then change particular members in the copy, because one cannot
 count on all the members being organized in a particular way.
 Copies can be made in the stack.
 
-The detailed structure and meaning of general value printing flags 
-is as follows:
-
-\ldots{\tt \_gen\_flags} Flags:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
-\LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
-\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
-\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
-\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
-\LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
-\LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
-\LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
-\LABEL{MIN::STR_ID_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
-
-\item[\ttmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
-This flag causes {\tt min::gen} string value characters to be printed
-in graphic mode, as per the {\tt min::graphic} printer operation
-(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
-
-\item[\ttkey{BRACKET\_STR\_FLAG}]
-\item[\ttkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
-\item[\ttkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
-\item[\ttkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
-These flags enable use of the following {\tt gen\_\EOL format}
-members which are described below:
-\begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}l}
-{\tt BRACKET\_STR\_FLAG}	& {\tt str\_prefix},
-				  {\tt str\_postfix},
-				  {\tt str\_quote}
-\\
-{\tt BRACKET\_LAB\_FLAG}	& {\tt lab\_prefix},
-				  {\tt lab\_postfix}
-\\
-{\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
-				  {\tt special\_postfix}
-\\
-{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_prefix},
-				  {\tt implicit\_postfix}
-
-\end{tabular}
-\end{center}
-
-\item[\ttkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
-This flag suppresses use of the
-{\tt special\_\EOL names} member
-of {\tt gen\_\EOL format}, described below, to
-print a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
-
-If the flag is \underline{off}, if {\tt special\_\EOL names}
-is not {\tt min::\EOL NULL\_\EOL STUB}, and if
-{\tt 0 <= i < special\_\EOL names->\EOL length}, then
-the value prints as {\tt special\_\EOL names[i]}.
-
-If the flag is \underline{off} and
-\begin{center}
-\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL
-names->\EOL length
-\end{center}
-then the value prints as
-{\tt min::\EOL standard\_\EOL special\_\EOL names[0xFFFFFF\,-\,i]}.
-
-Otherwise the value prints as `{\tt SPECIAL(i)}'.
-
-\item[\ttkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
-\item[\ttkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
-See {\tt surpress\_matrix} below.
-
-\item[\ttmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set and if all attributes of an object have names listed in
-{\tt exp\_\EOL ok\_\EOL attrs} (see below), then the object is
-printed as an expression.  In this case attributes other than
- \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
-\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
-are ignored.
-
-Note that objects with the {\tt .initiator}'s `{\tt \#}' and `{\tt "}' are
-printed unwrapped; for example,
-\begin{center}
-\verb/"foo" {| .initiator "<Q>" |}/
-\end{center}
-prints as
-\TT{"foo"}.
-
-\item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, and if an object is not being printed as an expression as
-per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
-then an identifier i will be allocated for the object
-in {\tt printer->\EOL id\_\EOL map} and the object will be
-printed as `{\tt @}i'.
-
-\item[\ttmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
-This flag controls how an object is printed if the
-{\tt OBJ\_\EOL EXP\_\EOL FLAG} and
-{\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
-is \underline{off}
-the object will be printed in the general form:
-\begin{center}
-\begin{tabular}{ll}
-\TT{\{|} {\em element} & \{ \TT{;} {\em attribute-name-and-values}
-                          \}$^\star$ \\
-                        & \{ \TT{;} {\em reverse-attribute-name-and-values}
-                          \}$^\star$  \TT{|\}}
-\end{tabular}
-\end{center}
-and if this flag is \underline{on} the object will be printed in the
-general form:
-\begin{center}
-\begin{tabular}{r@{}l}
-XXX	& {\em element}$^\star$\TT{:|} \\
-	& {\em attribute-name-and-values}\\
-	& \ldots\ldots\ldots\\
-	& {\em reverse-attribute-name-and-values}\\
-	& \ldots\ldots\ldots\\
-\end{tabular}
-\end{center}
-
-The two forms are is similar, with semi-colons in the first being
-replaced by line ends, indentation, and the indentation mark
-\TT{:|} in the second, and the
-surrounding \TT{\{|} \TT{|\}} of the first being omitted in the second.
-The indentation is the column position when the value is output; in
-the above XXX is printed before the value is output and the indent is
-at the end of the XXX.
-
-See \pagref{GEN-OBJ-FORM} for more details.
-
-\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} (see below)
-have an identifier i allocated
-in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
-Otherwise string values are printed normally.
-
-\end{itemlist}\end{indpar}
+TBD
 
 The detailed structure and meaning of the general value format
 is as follows:
@@ -9878,65 +9587,27 @@ is as follows:
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::uns32 gen_flags,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::context_gen_flags * context_gen_flags,|\ARGBREAK
-    \verb|         const min::gen_format * g );|\ARGBREAK
-\ttmindex{pgen}{in {\tt min::gen\_format}}
+    \verb|         const min::gen_format * g );|%
+\ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
     \verb|  // new members may be added.|\ARGBREAK
     \verb||\ARGBREAK
-    \verb|  const char *             number_format;|\ARGBREAK
-\ttmindex{number\_format}{in {\tt min::gen\_format}}
+    \verb|  const min::num_format *  num_format;|%
+\ttmindex{num\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::str_format *  str_format;|%
+\ttmindex{str\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::lab_format *  lab_format;|%
+\ttmindex{lab\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::specials_format *  specials_format;|%
+\ttmindex{specials\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::obj_format *  obj_format;|%
+\ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::Ustring *     str_prefix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_postfix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_postfix_name;|\ARGBREAK
-    \verb|  const min::Ustring *     str_char_name_prefix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_char_name_postfix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_concatenator;|\ARGBREAK
-    \verb|  min::uns32         	     str_max_length;|\ARGBREAK
-\ttmindex{str\_prefix}{in {\tt min::gen\_format}}
-\ttmindex{str\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{str\_char\_names}{in {\tt min::gen\_format}}
-\ttmindex{str\_char\_name\_prefix}{in {\tt min::gen\_format}}
-\ttmindex{str\_char\_name\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{str\_concatenator}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             lab_prefix;|\ARGBREAK
-    \verb|  const char *             lab_separator;|\ARGBREAK
-    \verb|  const char *             lab_postfix;|\ARGBREAK
-\ttmindex{lab\_prefix}{in {\tt min::gen\_format}}
-\ttmindex{lab\_separator}{in {\tt min::gen\_format}}
-\ttmindex{lab\_postfix}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             special_prefix;|\ARGBREAK
-    \verb|  const char *             special_postfix;|\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
-    \verb|                           special_names;|\ARGBREAK
-\ttmindex{special\_prefix}{in {\tt min::gen\_format}}
-\ttmindex{special\_postfix}{in {\tt min::gen\_format}}
-\ttmindex{special\_names}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             implicit_prefix;|\ARGBREAK
-    \verb|  const char *             implicit_postfix;|\ARGBREAK
-\ttmindex{implicit\_prefix}{in {\tt min::gen\_format}}
-\ttmindex{implicit\_postfix}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::suppress_matrix *|\ARGBREAK
-    \verb|                           suppress_matrix;|\ARGBREAK
-\ttmindex{suppress\_matrix}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  min::packed_vec_ptr<min::gen>|\ARGBREAK
-    \verb|                           exp_ok_attrs;|\ARGBREAK
-\ttmindex{str\_max\_length}{in {\tt min::gen\_format}}
-\ttmindex{exp\_ok\_attrs}{in {\tt min::gen\_format}}
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
-    \verb|                           flag_names;|\ARGBREAK
+    \verb|  const min::gen_format *  id_map_format;|%
+\ttmindex{id\_map\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
-\ttmindex{flag\_names}{in {\tt min::gen\_format}}
 \LABEL{MIN::GEN_FORMAT}
 \end{tabular}
 \end{indpar}
@@ -9990,46 +9661,6 @@ is as follows:
 \LABEL{MIN::CHAR_FLAGS} \\
 \verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
 \LABEL{MIN::SUPPRESS_MATRIX} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::char_names min::|%
-    \MINKEY{default\_\EOL char\_\EOL names}
-\LABEL{MIN::DEFAULT_CHAR_NAMES} \\
-\verb|    // All entries NULL except:|\\
-\verb|    //     [0x00 .. 0x20] ==|\\
-\verb|    //       "NUL", "SOH", "STX", "ETX", "EOT", "ENQ", "ACK", "BEL",|\\
-\verb|    //       "BS",  "HT",  "LF",  "VT",  "FF",  "CR",  "SO",  "SI",|\\
-\verb|    //       "DLE", "DC1", "DC2", "DC3", "DC4", "NAK", "SYN", "ETB",|\\
-\verb|    //       "CAN", "EM",  "SUB", "ESC", "FS",  "GS",  "FS",  "US",|\\
-\verb|    //       "SP"|\\
-\verb|    //     [0x22] == "Q"   // Quote "|\\
-\verb|    //     [0x7F] == "DEL"|\\
-\verb|    //     [0x82 .. 0xA0] ==|\\
-\verb|    //                     "BPH", "NBH", "IND", "NEL", "SSA", "ESA",|\\
-\verb|    //       "HTS", "HTJ", "VTS", "PLD", "PLU", "RI",  "SS2", "SS3",|\\
-\verb|    //       "DCS", "PU1", "PU2", "STS", "CCH", "MW",  "SPA", "EPA",|\\
-\verb|    //       "SOS", NULL,  "SCI", "CSI", "ST",  "OSC", "PM",  "APC",|\\
-\verb|    //       "NBSP"|\\
-\verb|    //     [0xAD] == "SHY"|\\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::suppress_matrix min::|%
-    \MINKEY{default\_\EOL suppress\_\EOL matrix}
-\LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
-\verb|    // All entries false except:|\\
-\verb|    //     [B][.] for B == '(', '[', '{', '|\TT{\`~}
-                                       \verb|', 0xA8 (|\LAQUOTE\verb|)| \\
-\verb|    //     [.][C] for C == ')', ']', '}', 0xB8 (|\RAQUOTE
-				       \verb|), 0xB4 (|\TT{\'~}
-				       \verb|),| \\
-\verb|    //                     ',', ';'| \\
-\verb|    //     [B]['\''] for B not a letter| \\
-\verb|    //     [B][C] and [C][B]| \\
-\verb|    //        for B a letter and C not a letter or '\'',| \\
-\verb|    //     or for B a digit and C not a digit or|%
-			\verb| ',', '.', ':', '/'|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -10397,6 +10028,171 @@ are not working, general values can be printed to \TT{std::ostreams}:
 
 Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
 but other \TT{min::gen} values print in a reasonable way.
+
+The detailed structure and meaning of general value printing flags 
+is as follows:
+
+\ldots{\tt \_gen\_flags} Flags:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
+\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
+
+\item[\ttmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
+This flag causes {\tt min::gen} string value characters to be printed
+in graphic mode, as per the {\tt min::graphic} printer operation
+(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
+printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
+
+\item[\ttkey{BRACKET\_STR\_FLAG}]
+\item[\ttkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
+These flags enable use of the following {\tt gen\_\EOL format}
+members which are described below:
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}l}
+{\tt BRACKET\_STR\_FLAG}	& {\tt str\_prefix},
+				  {\tt str\_postfix},
+				  {\tt str\_quote}
+\\
+{\tt BRACKET\_LAB\_FLAG}	& {\tt lab\_prefix},
+				  {\tt lab\_postfix}
+\\
+{\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
+				  {\tt special\_postfix}
+\\
+{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_prefix},
+				  {\tt implicit\_postfix}
+
+\end{tabular}
+\end{center}
+
+\item[\ttkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
+This flag suppresses use of the
+{\tt special\_\EOL names} member
+of {\tt gen\_\EOL format}, described below, to
+print a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
+
+If the flag is \underline{off}, if {\tt special\_\EOL names}
+is not {\tt min::\EOL NULL\_\EOL STUB}, and if
+{\tt 0 <= i < special\_\EOL names->\EOL length}, then
+the value prints as {\tt special\_\EOL names[i]}.
+
+If the flag is \underline{off} and
+\begin{center}
+\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL
+names->\EOL length
+\end{center}
+then the value prints as
+{\tt min::\EOL standard\_\EOL special\_\EOL names[0xFFFFFF\,-\,i]}.
+
+Otherwise the value prints as `{\tt SPECIAL(i)}'.
+
+\item[\ttkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
+\item[\ttkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
+See {\tt surpress\_matrix} below.
+
+\item[\ttmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set and if all attributes of an object have names listed in
+{\tt exp\_\EOL ok\_\EOL attrs} (see below), then the object is
+printed as an expression.  In this case attributes other than
+ \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
+\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
+are ignored.
+
+Note that objects with the {\tt .initiator}'s `{\tt \#}' and `{\tt "}' are
+printed unwrapped; for example,
+\begin{center}
+\verb/"foo" {| .initiator "<Q>" |}/
+\end{center}
+prints as
+\TT{"foo"}.
+
+\item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, and if an object is not being printed as an expression as
+per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
+then an identifier i will be allocated for the object
+in {\tt printer->\EOL id\_\EOL map} and the object will be
+printed as `{\tt @}i'.
+
+\item[\ttmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
+This flag controls how an object is printed if the
+{\tt OBJ\_\EOL EXP\_\EOL FLAG} and
+{\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
+is \underline{off}
+the object will be printed in the general form:
+\begin{center}
+\begin{tabular}{ll}
+\TT{\{|} {\em element} & \{ \TT{;} {\em attribute-name-and-values}
+                          \}$^\star$ \\
+                        & \{ \TT{;} {\em reverse-attribute-name-and-values}
+                          \}$^\star$  \TT{|\}}
+\end{tabular}
+\end{center}
+and if this flag is \underline{on} the object will be printed in the
+general form:
+\begin{center}
+\begin{tabular}{r@{}l}
+XXX	& {\em element}$^\star$\TT{:|} \\
+	& {\em attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
+	& {\em reverse-attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
+\end{tabular}
+\end{center}
+
+The two forms are is similar, with semi-colons in the first being
+replaced by line ends, indentation, and the indentation mark
+\TT{:|} in the second, and the
+surrounding \TT{\{|} \TT{|\}} of the first being omitted in the second.
+The indentation is the column position when the value is output; in
+the above XXX is printed before the value is output and the indent is
+at the end of the XXX.
+
+See \pagref{GEN-OBJ-FORM} for more details.
+
+\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, {\tt min::gen} string values that have length greater
+than {\tt str\_\EOL max\_\EOL length} (see below)
+have an identifier i allocated
+in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+Otherwise string values are printed normally.
+
+\end{itemlist}\end{indpar}
 
 \subsection{Objects}
 \label{OBJECTS}

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 30 04:45:41 EDT 2014
+// Date:	Tue Aug  5 05:09:18 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2734,16 +2734,18 @@ void test_printer ( void )
 	  min::new_str_gen ( "," ),
 	  min::new_str_gen ( "B" ) };
     printer << min::pgen
-                    ( min::new_lab_gen ( lab2, 3 ),
-		      min::bracketing_gen_format )
+                    ( min::new_lab_gen ( lab2, 3 ) )
             << min::eol;
-    printer << min::pgen
+    printer << min::pgen_name
                     ( min::new_lab_gen ( lab3, 3 ) )
 	    << " / "
             << min::pgen
-                    ( min::new_lab_gen ( lab3, 3 ),
-		      min::bracketing_gen_format )
+                    ( min::new_lab_gen ( lab3, 3 ) )
             << min::eol;
+
+    printer << min::bom
+            << min::set_gen_format
+	           ( min::name_gen_format );
 
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;
@@ -2760,8 +2762,10 @@ void test_printer ( void )
             << min::eol;
     printer << min::pgen
                    ( min::MISSING(),
-		     min::bracketing_gen_format )
+		     min::top_gen_format )
             << min::eol;
+
+    printer << min::eom;
     
     min::stub * s = MUP::new_aux_stub();
     printer << min::pgen ( min::new_stub_gen ( s ) )
@@ -2797,8 +2801,7 @@ void test_printer ( void )
     printer << min::bom
             << min::pgen ( min::MISSING() )
 	    << " "
-	    << min::pgen ( min::MISSING(),
-	                   min::bracketing_gen_format )
+	    << min::pgen_name ( min::MISSING() )
 	    << " "
 	    << min::pgen ( min::MISSING() )
             << min::eom;
