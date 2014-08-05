@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  1 02:13:41 EDT 2014
+// Date:	Tue Aug  5 05:05:31 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9232,13 +9232,26 @@ static min::gen_format top_gen_format =
     & min::standard_pgen,
     & ::long_num_format,
     & ::quote_first_not_letter_str_format,
-    & ::name_lab_format,
-    & ::name_specials_format,
+    & ::bracket_lab_format,
+    & ::bracket_specials_format,
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::top_gen_format =
     & ::top_gen_format;
+
+static min::gen_format name_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::name_lab_format,
+    & ::name_specials_format,
+    & ::exp_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::name_gen_format =
+    & ::name_gen_format;
 
 static min::gen_format never_quote_gen_format =
 {
@@ -9252,19 +9265,6 @@ static min::gen_format never_quote_gen_format =
 };
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
-
-static min::gen_format bracketing_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_specials_format,
-    & ::exp_obj_format,
-    NULL,			    // id_map_format
-};
-const min::gen_format * min::bracketing_gen_format =
-    & ::bracketing_gen_format;
 
 const min::print_format min::default_print_format =
 {
