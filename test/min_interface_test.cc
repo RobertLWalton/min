@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 05:09:18 EDT 2014
+// Date:	Tue Aug  5 13:35:16 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2745,7 +2745,7 @@ void test_printer ( void )
 
     printer << min::bom
             << min::set_gen_format
-	           ( min::name_gen_format );
+	           ( min::never_quote_gen_format );
 
     printer << min::pgen ( min::MISSING() ) << min::eol;
     printer << min::pgen ( min::NONE() ) << min::eol;
@@ -2801,7 +2801,7 @@ void test_printer ( void )
     printer << min::bom
             << min::pgen ( min::MISSING() )
 	    << " "
-	    << min::pgen_name ( min::MISSING() )
+	    << min::pgen_never_quote ( min::MISSING() )
 	    << " "
 	    << min::pgen ( min::MISSING() )
             << min::eom;
