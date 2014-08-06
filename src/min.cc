@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 07:00:13 EDT 2014
+// Date:	Wed Aug  6 10:20:19 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8512,9 +8512,18 @@ min::printer min::print_chars
 	buffer[i++] = c;
     }
 
-    if ( sf != NULL && i != 0 )
+    if ( sf != NULL )
     {
+        if ( i == 0 )
+	    return min::print_quoted_unicode
+	        ( printer, i, buffer, sf );
+
 	min::quote_control qc = sf->quote_control;
+
+	// Divide into the case where we need to call
+	// compute_flags and the case where we do not
+	// need to.
+	//
 	if ( qc.unquote_if_none_of != 0 )
 	{
 	    min::uns32 first_flags;
@@ -9074,7 +9083,7 @@ const min::quote_control
 
 
 const min::quote_control
-	min::quote_non_graphics_control =
+	min::quote_non_graphic_control =
 {
     0, min::IS_NON_GRAPHIC
 };
@@ -9106,15 +9115,15 @@ const min::str_format *
     & ::quote_first_not_letter_str_format;
 
 static min::str_format
-	quote_non_graphics_str_format =
+	quote_non_graphic_str_format =
 {
-    min::quote_non_graphics_control,
+    min::quote_non_graphic_control,
     min::quote_bracket_format,
     min::graphic_only_display_control
 };
 const min::str_format *
-	min::quote_non_graphics_str_format =
-    & ::quote_non_graphics_str_format;
+	min::quote_non_graphic_str_format =
+    & ::quote_non_graphic_str_format;
 
 
 static min::uns32 first_100_divisors[] =
