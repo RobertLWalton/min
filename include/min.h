@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 07:00:02 EDT 2014
+// Date:	Wed Aug  6 13:30:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3412,8 +3412,8 @@ namespace min {
 	IS_NON_HSPACE = IS_GRAPHIC
 	              + IS_VSPACE + IS_OTHER_CONTROL
 	              + IS_UNSUPPORTED,
-	IS_NON_GRAPHIC = IS_VSPACE + IS_OTHER_CONTROL
-	               + IS_HSPACE
+	IS_NON_GRAPHIC = IS_HSPACE
+		       + IS_VSPACE + IS_OTHER_CONTROL
 	               + IS_UNSUPPORTED
 	          
     };
@@ -11412,7 +11412,7 @@ namespace min {
     extern const min::quote_control
         quote_first_not_letter_control;
     extern const min::quote_control
-        quote_non_graphics_control;
+        quote_non_graphic_control;
 
     struct str_format
     {
@@ -11427,7 +11427,7 @@ namespace min {
     extern const min::str_format *
         quote_first_not_letter_str_format;
     extern const min::str_format *
-        quote_non_graphics_str_format;
+        quote_non_graphic_str_format;
 
     struct num_format
     {
