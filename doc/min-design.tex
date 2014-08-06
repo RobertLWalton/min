@@ -9666,9 +9666,9 @@ TBD  & // id\_map\_format \\
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{num\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const char *  int_printf_format;|%
+    \verb|  const char *        int_printf_format;|%
 \ttmindex{int\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
-    \verb|  const char *  float_printf_format;|%
+    \verb|  const char *        float_printf_format;|%
 \ttmindex{float\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
     \verb|  const min::uns32 *  fraction_divisors;|%
 \ttmindex{fraction\_divisors\_format}{in {\tt min::num\_format}}\ARGBREAK
@@ -9695,6 +9695,52 @@ const min::num\_format * min::\MINKEY{long\_num\_format}: \\
 "\%.15g		& // float\_printf\_format \\
 NULL		& // fraction\_divisors \\
 \LABEL{MIN::LONG_NUM_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{str\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::quote_control *  quote_control;|%
+\ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  const bracket_format *      bracket_format;|%
+\ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  const min::display_control  display_control;|%
+\ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::STR_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::str\_format * min::\MINKEY{quote\_all\_str\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+min::quote\_all\_control		& // quote\_control \\
+min::quote\_bracket\_format		& // bracket\_format \\
+min::graphic\_only\_display\_control	& // display\_control \\
+\LABEL{MIN::QUOTE_ALL_STR_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::str\_format *
+    min::\MINKEY{quote\_first\_not\_letter\_str\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+min::quote\_first\_not\_letter\_control		& // quote\_control \\
+min::quote\_bracket\_format		& // bracket\_format \\
+min::graphic\_only\_display\_control	& // display\_control \\
+\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_STR_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::str\_format * min::\MINKEY{quote\_non\_graphics\_str\_format}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+min::quote\_non\_graphics\_control		& // quote\_control \\
+min::quote\_bracket\_format		& // bracket\_format \\
+min::graphic\_only\_display\_control	& // display\_control \\
+\LABEL{MIN::QUOTE_NON_GRAPHICS_STR_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
