@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 5, 2014}
+\date{August 6, 2014}
  
 \maketitle
 
@@ -9701,11 +9701,11 @@ NULL		& // fraction\_divisors \\
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{str\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::quote_control *  quote_control;|%
+    \verb|  min::quote_control    quote_control;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  const bracket_format *      bracket_format;|%
+    \verb|  min::bracket_format   bracket_format;|%
 \ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  const min::display_control  display_control;|%
+    \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
@@ -9741,6 +9741,28 @@ min::quote\_non\_graphics\_control		& // quote\_control \\
 min::quote\_bracket\_format		& // bracket\_format \\
 min::graphic\_only\_display\_control	& // display\_control \\
 \LABEL{MIN::QUOTE_NON_GRAPHICS_STR_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{quote\_control}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32    unquote_of_first;|%
+\ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    unquote_of_none_of;|%
+\ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::QUOTE_CONTROL}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]
+\tt
+const min::quote\_control min::\MINKEY{quote\_all\_control}: \\
+\hspace*{0.5in}\begin{tabular}{l@{~~~~~}l}
+0				& // unquote\_if\_first \\
+0				& // unquote\_if\_none\_of \\
+\LABEL{MIN::QUOTE_ALL_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}

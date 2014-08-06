@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 13:29:27 EDT 2014
+// Date:	Wed Aug  6 07:00:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11398,7 +11398,7 @@ namespace min {
 	const min::ustring *	str_concatenator;
     };
 
-    extern const min::bracket_format *
+    extern const min::bracket_format
         quote_bracket_format;
 
     struct quote_control
@@ -11417,9 +11417,9 @@ namespace min {
     struct str_format
     {
 
-        const min::quote_control *	quote_control;
-	const min::bracket_format *	bracket_format;
-	min::display_control		display_control;
+        min::quote_control	quote_control;
+	min::bracket_format 	bracket_format;
+	min::display_control	display_control;
     };
 
     extern const min::str_format *
