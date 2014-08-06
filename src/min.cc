@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 13:29:41 EDT 2014
+// Date:	Wed Aug  6 07:00:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8380,24 +8380,21 @@ min::printer min::print_quoted_unicode
 	  const min::Uchar * string,
 	  const min::str_format * sf )
 {
-    const min::bracket_format * bf =
-        sf->bracket_format;
-    const min::display_control * dc =
-        & sf->display_control;
+    min::bracket_format bf = sf->bracket_format;
 
     min::uns32 reduced_width =
           printer->line_break.line_length
         - printer->line_break.indent
-	- min::ustring_columns ( bf->str_prefix )
-        - min::ustring_columns ( bf->str_postfix );
+	- min::ustring_columns ( bf.str_prefix )
+        - min::ustring_columns ( bf.str_postfix );
     if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 postfix_length =
-        min::ustring_length ( bf->str_postfix );
+        min::ustring_length ( bf.str_postfix );
     min::Uchar postfix_string[postfix_length+1];
     {
 	const char * p =
-	    min::ustring_chars ( bf->str_postfix );
+	    min::ustring_chars ( bf.str_postfix );
 	const char * endp = p + postfix_length;
 	min::Uchar * q = postfix_string;
 	while ( p != endp )
@@ -8407,7 +8404,7 @@ min::printer min::print_quoted_unicode
 	postfix_length = q - postfix_string;
     }
 
-    printer << min::pustring ( bf->str_prefix );
+    printer << min::pustring ( bf.str_prefix );
 
     min::ptr<const min::Uchar> p =
         min::new_ptr<const min::Uchar> ( string );
@@ -8416,12 +8413,13 @@ min::printer min::print_quoted_unicode
     while ( length > 0 )
     {
 	min::print_unicode
-	    ( printer, length, p, width, dc,
-	        postfix_string,
-		postfix_length,
-		bf->str_postfix_name );
+	    ( printer, length, p, width,
+	               & sf->display_control,
+	               postfix_string,
+		       postfix_length,
+		       bf.str_postfix_name );
 
-	printer << min::pustring ( bf->str_postfix );
+	printer << min::pustring ( bf.str_postfix );
 
 
 	if ( length != 0 )
@@ -8430,15 +8428,15 @@ min::printer min::print_quoted_unicode
 		<< " "
 		<< min::set_break
 		<< min::pustring
-		      ( bf->str_concatenator )
+		      ( bf.str_concatenator )
 		<< " "
 		<< min::pustring
-		      ( bf->str_prefix );
+		      ( bf.str_prefix );
 	}
 
 	width = reduced_width - 1
 	      - min::ustring_columns
-	            ( bf->str_concatenator );
+	            ( bf.str_concatenator );
     }
 
     return printer;
@@ -8516,52 +8514,47 @@ min::printer min::print_chars
 
     if ( sf != NULL && i != 0 )
     {
-	const min::quote_control * qf =
-	    sf->quote_control;
-	if ( qf != NULL )
+	min::quote_control qc = sf->quote_control;
+	if ( qc.unquote_if_none_of != 0 )
+	{
+	    min::uns32 first_flags;
+	    min::uns32 or_flags;
+	    min::uns32 and_flags;
+	    min::uns32 last_flags;
+	    compute_flags
+		( printer->print_format,
+		  buffer, i,
+		  first_flags,
+		  or_flags,
+		  and_flags,
+		  last_flags );
+	    min::uns32 if_none_of =
+		or_flags & qc.unquote_if_none_of;
+	    min::uns32 if_first =
+		first_flags & qc.unquote_if_first;
+	    if ( if_none_of == 0 && if_first != 0 )
+		sf = NULL;
+	}
+	else if ( qc.unquote_if_first != 0 )
 	{
 	    min::support_control sc =
 		printer->print_format
 			.support_control;
 
-	    if ( qf->unquote_if_none_of != 0 )
-	    {
-		min::uns32 first_flags;
-		min::uns32 or_flags;
-		min::uns32 and_flags;
-		min::uns32 last_flags;
-		compute_flags
-		    ( printer->print_format,
-		      buffer, i,
-		      first_flags,
-		      or_flags,
-		      and_flags,
-		      last_flags );
-		min::uns32 if_none_of =
-		    or_flags & qf->unquote_if_none_of;
-		min::uns32 if_first =
-		    first_flags & qf->unquote_if_first;
-		if ( if_none_of == 0 && if_first != 0 )
-		    sf = NULL;
-	    }
-	    else if ( qf->unquote_if_first != 0 )
-	    {
-		Uchar c = buffer[0];
-		uns16 cindex = Uindex ( c );
-		uns32 first_flags =
-		    printer->print_format
-			    .char_flags[cindex];
-		if (    (   first_flags
-		          & sc.support_mask )
-		     == 0 )
-		    first_flags =
-			  sc.unsupported_char_flags;
+	    Uchar c = buffer[0];
+	    uns16 cindex = Uindex ( c );
+	    uns32 first_flags =
+		printer->print_format
+			.char_flags[cindex];
+	    if (    (   first_flags
+		      & sc.support_mask )
+		 == 0 )
+		first_flags =
+		      sc.unsupported_char_flags;
 
-		if (   first_flags
-		     & qf->unquote_if_first )
-		    sf = NULL;
-	    }
-
+	    if (   first_flags
+		 & qc.unquote_if_first )
+		sf = NULL;
 	}
 
 	if ( sf != NULL )
@@ -9086,18 +9079,16 @@ const min::quote_control
     0, min::IS_NON_GRAPHIC
 };
 
-static min::bracket_format quote_bracket_format =
+const min::bracket_format min::quote_bracket_format =
 {
     ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
     ::POUND_USTRING
 };
-const min::bracket_format * min::quote_bracket_format =
-    & ::quote_bracket_format;
 
 static min::str_format quote_all_str_format =
 {
-    & min::quote_all_control,
-    & ::quote_bracket_format,
+    min::quote_all_control,
+    min::quote_bracket_format,
     min::graphic_only_display_control
 };
 const min::str_format * min::quote_all_str_format =
@@ -9106,8 +9097,8 @@ const min::str_format * min::quote_all_str_format =
 static min::str_format
 	quote_first_not_letter_str_format =
 {
-    & min::quote_first_not_letter_control,
-    & ::quote_bracket_format,
+    min::quote_first_not_letter_control,
+    min::quote_bracket_format,
     min::graphic_only_display_control
 };
 const min::str_format *
@@ -9117,8 +9108,8 @@ const min::str_format *
 static min::str_format
 	quote_non_graphics_str_format =
 {
-    & min::quote_non_graphics_control,
-    & ::quote_bracket_format,
+    min::quote_non_graphics_control,
+    min::quote_bracket_format,
     min::graphic_only_display_control
 };
 const min::str_format *
