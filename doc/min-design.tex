@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 6, 2014}
+\date{August 7, 2014}
  
 \maketitle
 
@@ -9625,8 +9625,8 @@ is as follows:
 \ttmindex{str\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::lab_format *  lab_format;|%
 \ttmindex{lab\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb|  const min::specials_format *  specials_format;|%
-\ttmindex{specials\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::special_format *  special_format;|%
+\ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::obj_format *  obj_format;|%
 \ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
@@ -9644,7 +9644,7 @@ is as follows:
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
-\verb|min::bracket_specials_format            // specials_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
 \verb|TBD                                     // id_map_format|
 \LABEL{MIN::TOP_GEN_FORMAT} \\
@@ -9657,7 +9657,7 @@ is as follows:
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
-\verb|min::bracket_specials_format            // specials_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
 \verb|TBD                                     // id_map_format|
 \LABEL{MIN::NAME_GEN_FORMAT} \\
@@ -9670,7 +9670,7 @@ is as follows:
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|NULL                                    // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
-\verb|min::name_specials_format               // specials_format|\ARGBREAK
+\verb|min::name_special_format                // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
 \verb|TBD                                     // id_map_format|
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
@@ -9794,6 +9794,99 @@ is as follows:
 \verb|0                          // unquote_if_first|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{bracket\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *    str_prefix;|%
+\ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_postfix;|%
+\ttmindex{str\_postfix}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_postfix_name;|%
+\ttmindex{str\_postfix\_name}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_concatenator;|%
+\ttmindex{str\_concatenator}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::BRACKET_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::bracket\_format
+                   min::\MINKEY{quote\_bracket\_format}:}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01\""   // str_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01\""   // str_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03<Q>"  // str_postfix_name|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01#"    // str_concatenator|\ARGBREAK
+\LABEL{MIN::QUOTE_BRACKET_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{lab\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *    lab_prefix;|%
+\ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_concatenator;|%
+\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_separator;|%
+\ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::LAB_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{name\_lab\_format}:}\ARGBREAK
+\verb|NULL                                  // lab_prefix|\ARGBREAK
+\verb|NULL                                  // lab_separator|\ARGBREAK
+\verb|NULL                                  // lab_postfix|\ARGBREAK
+\LABEL{MIN::NAME_LAB_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{bracket\_lab\_format}:}\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03[: "  // lab_prefix|\ARGBREAK
+\verb|NULL                                  // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03 :]"  // lab_postfix|\ARGBREAK
+\LABEL{MIN::BRACKET_LAB_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{special\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *                 special_prefix;|%
+\ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 special_postfix;|%
+\ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>    special_names;|%
+\ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::SPECIAL_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::special\_format
+                   min::\MINKEY{name\_special\_format}:}\ARGBREAK
+\verb|NULL                                  // special_prefix|\ARGBREAK
+\verb|NULL                                  // special_postfix|\ARGBREAK
+\verb|min::standard_special_names           // special_names|\ARGBREAK
+\LABEL{MIN::NAME_SPECIAL_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::special\_format
+                   min::\MINKEY{bracket\_special\_format}:}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02[$"   // special_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02$]"   // special_postfix|\ARGBREAK
+\verb|min::standard_special_names           // special_names|\ARGBREAK
+\LABEL{MIN::BRACKET_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
