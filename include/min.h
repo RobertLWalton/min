@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 13:30:54 EDT 2014
+// Date:	Thu Aug  7 05:39:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11386,7 +11386,7 @@ namespace min {
     struct bracket_format;
     struct num_format;
     struct lab_format;
-    struct specials_format;
+    struct special_format;
     struct obj_format;
     struct gen_format;
 
@@ -11457,18 +11457,18 @@ namespace min {
         bracket_lab_format;
 
 
-    struct specials_format
+    struct special_format
     {
-	const min::ustring *	    specials_prefix;
-	const min::ustring *	    specials_postfix;
+	const min::ustring *	    special_prefix;
+	const min::ustring *	    special_postfix;
 	packed_vec_ptr<const char *>
 				    special_names;
     };
 
-    extern const min::specials_format *
-        name_specials_format;
-    extern const min::specials_format *
-        bracket_specials_format;
+    extern const min::special_format *
+        name_special_format;
+    extern const min::special_format *
+        bracket_special_format;
 
     struct obj_format
     {
@@ -11505,8 +11505,7 @@ namespace min {
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
         const min::lab_format *	    lab_format;
-        const min::specials_format *
-				    specials_format;
+        const min::special_format * special_format;
         const min::obj_format *	    obj_format;
 
         const min::gen_format *	    id_map_format;

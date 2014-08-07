@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  6 10:20:19 EDT 2014
+// Date:	Thu Aug  7 05:41:20 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9034,41 +9034,6 @@ std::ostream & operator <<
 		   << std::dec << ")";
 }
 
-static const min::ustring * QUOTE_USTRING =
-    (const min::ustring *) "\x01\x01" "\"";
-static const min::ustring * LT_Q_GT_USTRING =
-    (const min::ustring *) "\x03\x03" "<Q>";
-static const min::ustring * LT_USTRING =
-    (const min::ustring *) "\x01\x01" "<";
-static const min::ustring * COMMA_SP_USTRING =
-    (const min::ustring *) "\x02\x02" ", ";
-static const min::ustring * GT_USTRING =
-    (const min::ustring *) "\x01\x01" ">";
-static const min::ustring * POUND_USTRING =
-    (const min::ustring *) "\x01\x01" "#";
-static const min::ustring * SBRA_COLON_SP_USTRING =
-    (const min::ustring *) "\x03\x03" "[: ";
-static const min::ustring * SP_COLON_SKET_USTRING =
-    (const min::ustring *) "\x03\x03" " :]";
-static const min::ustring * SBRA_DOLLAR_USTRING =
-    (const min::ustring *) "\x02\x02" "[$";
-static const min::ustring * DOLLAR_SKET_USTRING =
-    (const min::ustring *) "\x02\x02" "$]";
-static const min::ustring * SBRA_POINT_USTRING =
-    (const min::ustring *) "\x02\x02" "[.";
-static const min::ustring * POINT_SKET_USTRING =
-    (const min::ustring *) "\x02\x02" ".]";
-static const min::ustring * CBRA_USTRING =
-    (const min::ustring *) "\x01\x01" "{";
-static const min::ustring * VBAR_USTRING =
-    (const min::ustring *) "\x01\x01" "|";
-static const min::ustring * CKET_USTRING =
-    (const min::ustring *) "\x01\x01" "}";
-static const min::ustring * CBRA_VBAR_USTRING =
-    (const min::ustring *) "\x02\x02" "{|";
-static const min::ustring * VBAR_CKET_USTRING =
-    (const min::ustring *) "\x02\x02" "|}";
-
 const min::quote_control
 	min::quote_all_control =
 {
@@ -9090,8 +9055,10 @@ const min::quote_control
 
 const min::bracket_format min::quote_bracket_format =
 {
-    ::QUOTE_USTRING, ::QUOTE_USTRING, ::LT_Q_GT_USTRING,
-    ::POUND_USTRING
+    (const min::ustring *) "\x01\x01" "\"",
+    (const min::ustring *) "\x01\x01" "\"",
+    (const min::ustring *) "\x03\x03" "<Q>",
+    (const min::ustring *) "\x01\x01" "#"
 };
 
 static min::str_format quote_all_str_format =
@@ -9162,30 +9129,30 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    ::SBRA_COLON_SP_USTRING,
+    (const min::ustring *) "\x03\x03" "[: ",
     NULL,
-    ::SP_COLON_SKET_USTRING
+    (const min::ustring *) "\x03\x03" " :]"
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
 
-static min::specials_format name_specials_format =
+static min::special_format name_special_format =
 {
     NULL, NULL,
     min::NULL_STUB	    // special_names*
 };
-const min::specials_format * min::name_specials_format =
-    & ::name_specials_format;
+const min::special_format * min::name_special_format =
+    & ::name_special_format;
 
-static min::specials_format bracket_specials_format =
+static min::special_format bracket_special_format =
 {
-    ::SBRA_DOLLAR_USTRING,
-    ::DOLLAR_SKET_USTRING,
+    (const min::ustring *) "\x02\x02" "[$",
+    (const min::ustring *) "\x02\x02" "$]",
     min::NULL_STUB	    // special_names*
 };
-const min::specials_format *
-	min::bracket_specials_format =
-    & ::bracket_specials_format;
+const min::special_format *
+	min::bracket_special_format =
+    & ::bracket_special_format;
 
 static min::obj_format exp_obj_format =
 {
@@ -9193,13 +9160,19 @@ static min::obj_format exp_obj_format =
     NULL,		    // element_format*
     NULL,		    // value_format*
 
-    ::CBRA_USTRING,	    // obj_prefix
-    ::COMMA_SP_USTRING,	    // obj_separator
-    ::VBAR_USTRING,	    // obj_minfix
-    ::CKET_USTRING,	    // obj_postfix
+    (const min::ustring *)
+        "\x01\x01" "{",     // obj_prefix
+    (const min::ustring *)
+        "\x02\x02" ", ",    // obj_separator
+    (const min::ustring *)
+        "\x01\x01" "|",     // obj_minfix
+    (const min::ustring *)
+        "\x01\x01" "}",     // obj_postfix
 
-    ::CBRA_VBAR_USTRING,    // implicit_prefix
-    ::VBAR_CKET_USTRING,    // implicit_postfix
+    (const min::ustring *)
+        "\x02\x02" "{|",    // implicit_prefix
+    (const min::ustring *)
+        "\x02\x02" "|}",    // implicit_postfix
 
     min::NULL_STUB,	    // exp_ok_attrs*
     min::NULL_STUB	    // flag_names*
@@ -9233,7 +9206,7 @@ static min::gen_format top_gen_format =
     & ::long_num_format,
     & ::quote_first_not_letter_str_format,
     & ::bracket_lab_format,
-    & ::bracket_specials_format,
+    & ::bracket_special_format,
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
@@ -9246,7 +9219,7 @@ static min::gen_format name_gen_format =
     & ::long_num_format,
     & ::quote_first_not_letter_str_format,
     & ::name_lab_format,
-    & ::bracket_specials_format,
+    & ::bracket_special_format,
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
@@ -9259,7 +9232,7 @@ static min::gen_format never_quote_gen_format =
     & ::long_num_format,
     NULL,
     & ::name_lab_format,
-    & ::name_specials_format,
+    & ::name_special_format,
     & ::exp_obj_format,
     NULL,			    // id_map_format
 };
@@ -9281,9 +9254,9 @@ const min::print_format min::default_print_format =
 
 static void init_pgen_formats ( void )
 {
-    ::name_specials_format.special_names =
+    ::name_special_format.special_names =
         min::standard_special_names;
-    ::bracket_specials_format.special_names =
+    ::bracket_special_format.special_names =
         min::standard_special_names;
     ::exp_obj_format.exp_ok_attrs =
         min::standard_exp_ok_attrs;
@@ -10032,15 +10005,15 @@ static min::printer pgen
     }
     else if ( min::is_special ( v ) )
     {
-	const min::specials_format * sf =
-	    f->specials_format;
+	const min::special_format * sf =
+	    f->special_format;
         min::unsgen index = MUP::special_index_of ( v );
 	min::packed_vec_ptr<const char *>
 	        special_names =
 	    sf->special_names;
 
 	min::print_ustring
-	    ( printer, sf->specials_prefix );
+	    ( printer, sf->special_prefix );
 	if ( special_names != min::NULL_STUB
 	     &&
 	         0xFFFFFF
@@ -10061,7 +10034,7 @@ static min::printer pgen
 	    min::print_chars ( printer, buffer );
 	}
 	return min::print_ustring
-	    ( printer, sf->specials_postfix );
+	    ( printer, sf->special_postfix );
     }
 
 # ifdef NONE_SUCH
