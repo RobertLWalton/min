@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 28 10:34:19 EDT 2014
+// Date:	Fri Aug  8 14:53:14 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -142,7 +142,7 @@ void finalize ( void )
 	}
 
 	unsigned i;
-	for ( i = 0; i < index_limit; ++ i )
+	for ( i = 0x100; i < index_limit; ++ i )
 	{
 	    if ( index_eq ( i, c ) ) break;
 	}

@@ -16,5 +16,5 @@
 # the cc-names to a single s-name which has the value
 # `( 1 << shift )'.
 #
-ascii;		16;	special ascii
+ascii;		16;	ascii
 latin1;		17;	latin1

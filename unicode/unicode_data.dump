@@ -2,7 +2,7 @@
 
 ===== SUPPORT SETS:
 
-       ascii = ( 1 << 16 ): special, ascii
+       ascii = ( 1 << 16 ): ascii
       latin1 = ( 1 << 17 ): latin1
 
 ===== INDEXED DATA:
@@ -26489,7 +26489,7 @@
  733        Sk    0 L    N Diacritic, AB5B
  734        Cs    0 L    N D800, DB7F, DB80, DBFF, DC00, DFFF
  735        Co    0 L    N E000, F8FF
- 736 NL   ␤                ascii, F0FF
+ 736 NL   ␤                F0FF
  737        Lo    0 L    N 3, Ideographic, F96B
  738        Lo    0 L    N 10, Ideographic, F973, F9FD
  739        Lo    0 L    N 2, Ideographic, F978
@@ -26549,7 +26549,7 @@
  788        Pe    0 ON   Y Quotation_Mark, FF63
  789        Lm    0 L    N Diacritic, Other_Grapheme_Extend, FF9E, FF9F
  790        Cf    0 ON   N FFF9, FFFA, FFFB
- 791 UUC    So    0 ON   N ascii, FFFD
+ 791 UUC    So    0 ON   N FFFD
  792        No    0 L    N 200, 1011A
  793        No    0 L    N 300, 1011B
  794        No    0 L    N 400, 1011C
