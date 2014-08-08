@@ -7494,6 +7494,9 @@ if ( error-occurred )
 ...
 \end{verbatim}\end{indpar}
 
+Here the \TT{min::init} function erases any previous error
+message.
+
 Creation and initialization of printers is
 accomplished by the following:
 
@@ -7537,7 +7540,7 @@ function just executes
 \begin{indpar}\begin{verbatim}
 min::init ( printer );
 min::init_ostream ( printer->file, ostream );
-printer << min::eol_flush;
+printer << min::flush_on_eol;
 \end{verbatim}\end{indpar}
 
 which is a very common way of setting up a printer.
@@ -7546,7 +7549,7 @@ Both initialization functions return the printer, which is
 sometimes convenient, as in the code often used 
 with \TT{min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
 
-Parameterization of the printing process is accomplished using the
+Parameterization of printing is accomplished using the
 following printer parameters:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
