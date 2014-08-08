@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Aug  7 17:41:05 EDT 2014
+# Date:		Fri Aug  8 15:00:57 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -115,7 +115,7 @@ optimization_test:	\
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
 	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
-            < $*.out | diff --unified=3 $*.test -
+            < $*.out | diff -u $*.test -
 
 %.out:	%
 	rm -f $*.out
@@ -219,18 +219,18 @@ min_unicode_test.diff:	../unicode/unicode_data.cc \
 			min_unicode_test.dump
 	@echo DIFFING ../unicode/unicode_data.cc \
 	              min_unicode_test.code
-	-@diff --unified=3 \
+	-@diff -u \
 	              ../unicode/unicode_data.cc \
 		      min_unicode_test.code
 	@echo DIFFING \
 		../unicode/unicode_data_support_sets.h \
 	        min_unicode_test.header
-	-@diff --unified=3 \
+	-@diff -u \
 	        ../unicode/unicode_data_support_sets.h \
 	        min_unicode_test.header
 	@echo DIFFING ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
-	-@diff --unified=3 \
+	-@diff -u \
 	              ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
 
