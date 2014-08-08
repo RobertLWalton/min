@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug  8 14:43:24 EDT 2014
+# Date:		Fri Aug  8 15:02:14 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -70,8 +70,8 @@ make_unicode_data.test:	make_unicode_data.out
 make_unicode_data.diff:	make_unicode_data.out
 	echo DIFFING make_unicode_data.test \
 	             make_unicode_data.out
-	@diff make_unicode_data.test \
-	      make_unicode_data.out
+	@diff -u make_unicode_data.test \
+	         make_unicode_data.out
 
 print_unicode:	print_unicode.cc
 	rm -f print_unicode
