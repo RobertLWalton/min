@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jul 28 14:30:18 EDT 2014
+# Date:		Fri Aug  8 14:43:24 EDT 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -20,6 +20,9 @@ FROM = http://www.unicode.org/Public/UCD/latest/ucd
 DATA = NameAliases.txt \
        PropList.txt \
        UnicodeData.txt
+
+LOCAL_DATA = CompositeCharacters.txt \
+             SupportSets.txt
 
 
 all:	make_unicode_data.diff \
@@ -50,7 +53,7 @@ make_unicode_data:	make_unicode_data.cc \
 make_unicode_data.out \
 unicode_data.cc \
 unicode_data.dump:	make_unicode_data \
-			${DATA}
+			${DATA} ${LOCAL_DATA}
 	rm -f unicode_data.cc unicode_data.dump \
 	      make_unicode_data.out
 	make_unicode_data unicode_data.cc \

@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 7, 2014}
+\date{August 8, 2014}
  
 \maketitle
 
@@ -3314,7 +3314,7 @@ overlong encoding is this 2-byte encoding of NUL.
 The \TT{UNKNOWN\_UCHAR}\label{UNKNOWN_UCHAR} UNICODE character
 is returned by the \TT{min::\EOL utf8\_\EOL to\_\EOL unicode}
 function when it finds an illegal UTF8 encoding.  This is actually
-the `\key{unicode replacement character},
+the `\key{UNICODE replacement character}',
 FFFD (hexadecimal), which is designated by the UNICODE standard
 as representing an input
 that is not encodable in UNICODE.
@@ -3323,7 +3323,7 @@ The \TT{SOFTWARE\_NL}\label{SOFTWARE_NL} UNICODE character is used
 to represent the end of line in a \TT{min::\EOL file},
 which is internally represented by a line-ending NUL character,
 when the end of line is displayed on a printer.
-See \pagref{DISPLAY_EOL}.
+See \TT{min::\EOL DISPLAY\_\EOL EOL} on \pagref{DISPLAY_EOL}.
 This is actually an arbitrary UNICODE private use character, and is not
 actually input or output itself.
 
@@ -3448,7 +3448,8 @@ where usually
 
 Here `\TT{const min::ustring *}' values encode UNICODE character
 strings in a format optimized for printing, or are \TT{NULL} to
-indicate a missing value.  The \mkey{name}{of UNICODE character}
+indicate a missing value; see \itemref{UNICODE-STRINGS} for details.
+The \mkey{name}{of UNICODE character}
 is non-missing only for common control characters; examples
 are the name
 \TT{CR} for the ASCII carriage return character with code \TT{0D},
@@ -3614,7 +3615,7 @@ flags.  The rough concept is
 that a string of characters with no spaces may be separated into
 lexemes by stripping leading separators from its beginning and
 trailing separators from its end, so `\TT{[5;}' becomes the
-leading separator lexeme \TT{[}, the middling lexeme \TT{5},
+leading separator lexeme \TT{[}, the middle lexeme \TT{5},
 and the trailing separator lexeme \TT{;}, and therefore
 \TT{[} is \TT{IS\_LEADING}, \TT{5} is \TT{IS\_MIDDLING}, and
 \TT{;} is \TT{IS\_TRAILING}.  See 
@@ -7983,6 +7984,7 @@ width in columns is
 
 \item[\ttmkey{DISPLAY\_EOL}%
                {in printer {\tt print\_\EOL format.op\_EOL flags}}]~\\
+\label{DISPLAY_EOL}
 If this flag is on, the end of line prints as the
 {\tiny $\stackrel{\textstyle N~}{~L}$}
 picture character if
