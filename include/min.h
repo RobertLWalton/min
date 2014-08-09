@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  7 05:39:54 EDT 2014
+// Date:	Sat Aug  9 03:39:28 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10703,8 +10703,7 @@ namespace min {
         FLUSH_ID_MAP_ON_EOM	= ( 1 << 4 ),
 	NEXT_IS_LEADING		= ( 1 << 5 ),
 	NEXT_IS_TRAILING	= ( 1 << 6 ),
-	AUTO_SUPPRESS		= ( 1 << 7 ),
-	DISABLE_SUPPRESS	= ( 1 << 8 )
+	DISABLE_SUPPRESS	= ( 1 << 7 )
     };
 
     extern const min::uns32 standard_op_flags;
@@ -11191,8 +11190,6 @@ namespace min {
     extern const op flush_id_map_on_eom;
     extern const op noflush_id_map_on_eom;
 
-    extern const op auto_suppress;
-    extern const op noauto_suppress;
     extern const op disable_suppress;
     extern const op nodisable_suppress;
 

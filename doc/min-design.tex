@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 8, 2014}
+\date{August 9, 2014}
  
 \maketitle
 
@@ -6639,13 +6639,15 @@ Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 Note that it is a programming error if \TT{istream != NULL}
 \underline{and} \TT{ifile != NULL\_\EOL STUB}.
 
-\item[\ttmkey{ostream}{in {\tt min::file}}]
+\item[\ttmkey{ostream}{in {\tt min::file}}]\label{OSTREAM_OF_FILE}
 If not \TT{NULL}, then the \TT{min::\EOL flush\_\EOL file} function
 outputs buffer \TT{char} elements to this \TT{std::\EOL ostream} when it finds
 there are elements not yet output.
+Line-terminating \TT{NUL} elements are translated into calls to
+\TT{std::\EOL endl}.
 Set to \TT{NULL} when the file is created.
 
-\item[\ttmkey{printer}{in {\tt min::file}}]
+\item[\ttmkey{printer}{in {\tt min::file}}]\label{PRINTER_OF_FILE}
 If not \TT{min::NULL\_STUB}, then the \TT{min::\EOL flush\_\EOL file} function
 outputs buffer \TT{char} elements
 to this \TT{min::\EOL printer} when it finds
@@ -6660,7 +6662,7 @@ when buffer elements are flushed to \TT{printer}.
 
 Set to \TT{min::\EOL NULL\_\EOL STUB} when the file is created.
 
-\item[\ttmkey{ofile}{in {\tt min::file}}]
+\item[\ttmkey{ofile}{in {\tt min::file}}]\label{OFILE_OF_FILE}
 If not \TT{min::NULL\_STUB}, then the \TT{min::\EOL flush\_\EOL file} function
 outputs buffer \TT{char} elements to this \TT{min::\EOL file} when it finds
 there are elements not yet output.
@@ -7248,6 +7250,11 @@ Lastly, if the \TT{copy\_\EOL completion} argument is \TT{true},
 if the file is complete, and
 if the file has an \TT{ofile}, the \TT{min::\EOL complete\_\EOL file}
 function is called for \TT{ofile} to mark that file as being complete.
+
+See descriptions of the \TT{ostream} (\pagref{OSTREAM_OF_FILE}),
+\TT{ofile} (\pagref{OFILE_OF_FILE}),
+and \TT{printer} (\pagref{PRINTER_OF_FILE}) members of a file for more
+specifics on how lines are flushed.
 
 The flushing sub-actions of \TT{min::flush\_file} are available by using
 the following functions:
@@ -7861,6 +7868,14 @@ if ( cflags & bc.conditional_break
     set break after representative of c
 \end{verbatim}\end{indpar}
 
+When we say that a break is set after the representative of \TT{c},
+what we mean precisely is that a break is set before the representative
+of the next character after \TT{c}, unless that character also sets
+a break after its representative.  Thus given a sequence of single
+spaces with the \TT{IS\_\EOL SP} flag in \TT{bc.break\_\EOL after},
+followed by a letter, only one break, after the last single space
+and before the letter, will be set.
+
 Note that only the low order 16 bits of \TT{cflags} are used
 by a \TT{break\_control}.
 
@@ -7876,7 +7891,9 @@ The \TT{min::file} which contains the lines produced by the printer.
 Initialized by the second argument of \TT{min::\EOL init}, if that is
 not \TT{min::\EOL NULL\_\EOL STUB}, or otherwise created when the
 printer is created.  Initialized by \TT{min::\EOL init(printer->\EOL file)}
-except when 2-argument \TT{min::init} is called (see above).
+(which resets the \TT{file} to empty)
+\underline{except} when the 2-argument \TT{min::init} is called (see above).
+
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
 The number of columns currently in the line being assembled,
@@ -7917,12 +7934,12 @@ is inserted into the printer file buffer just after the break point
 Single space and horizontal tab
 characters immediately before the inserted line end are deleted.
 After the break is inserted, \TT{line\_\EOL break.column} is reset to
-the number of indentation spaces
+the number of indentation spaces (\TT{= line\_\EOL break.indent})
 and \TT{line\_\EOL break.offset} to the first position after
 the inserted indentation spaces.
 
 Break points may be inserted automatically by using
-\TT{print\_format.break\_con\-trol}; see above.
+\TT{print\_format.break\_con\-trol}; see below.
 
 If a non-empty \TT{line\_break\_stack} exists
 because a \TT{min::\EOL save\_\EOL line\_\EOL break} or 
@@ -7972,14 +7989,14 @@ to be represented by a sequence of single spaces when it is to be
 displayed as `itself' (and not using its picture or name).
 As tabs are set every 8 spaces, the number of single spaces is:
 \begin{center}
-\tt 8 - printer->column % 8
+\tt 8 - printer->column \% 8
 \end{center}
 
 If \TT{EXPAND\_HT} is \underline{off} and the character \TT{'\textbackslash t'}
 is to be displayed as `itself', the character represents itself, but its
 width in columns is
 \begin{center}
-\tt 8 - printer->column % 8
+\tt 8 - printer->column \% 8
 \end{center}
 
 
@@ -8019,9 +8036,9 @@ a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 {in printer {\tt print\_\EOL format.op\_\EOL flags}}]%
 \vspace{-1ex}~\\
 These flags are set by the \TT{min::\EOL leading} and
-\TT{min::\EOL trailing} printer operations to indicate the
-the next string printed is a leading or trailing string,
-repspectively.
+\TT{min::\EOL trailing} printer operations to indicate that
+a single space is to be printed before the next character
+representative provided certain conditions are met.
 
 \item[\ttmkey{DISABLE\_SUPPRESS}%
     {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -8090,7 +8107,7 @@ is bitwise AND'ed with
 the character flags and if the result is non-zero,
 a break is inserted `after the character representative', or
 more precisely, a break is inserted before the representative
-of the next character if that character is not having
+of the next character if that character is not also having
 a break automatically inserted after it..
 
 The \TT{break\_\EOL before} mask
@@ -8111,7 +8128,7 @@ a break is inserted `after the character representative' in the
 same manner as for \TT{break\_\EOL after}.
 
 See `Compute automatic break points' above
-(\pagref{COMPUTE-AUTOMATIC-BREAK-POINTS}) for details.
+(\pagref{COMPUTE-AUTOMATIC-BREAK-POINTS}) for more details.
 
 \item[\ttmkey{print\_format.char\_name\_format}{in {\tt min::printer}}]%
 \label{PRINT_FORMAT_CHAR_NAME_FORMAT}~\\
@@ -8211,7 +8228,8 @@ But if the flag is off, the horizontal character itself is copied.
 In either case the printer column is adjusted to the next multiple of 8.
 
 When a \ttkey{NUL} is to be copied into a printer file buffer,
-it is encoded as the overlong UTF-8 encoding \TT{0xC0},\TT{0x80}.
+it is encoded as the overlong UTF-8 encoding
+\TT{"\textbackslash xC0\textbackslash x80"}.
 
 Values of types other than `\TT{const char *}'
 which are presented to \TT{<<} are converted to `\TT{const char~*}' strings
@@ -8323,6 +8341,11 @@ can be printed using the following operations:
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
       \verb|  min::ptr<const min::Uchar> str )|
+\LABEL{MIN::PUNICODE_BUFFER_CONST_PTR} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<min::Uchar> str )|
 \LABEL{MIN::PUNICODE_BUFFER_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -13634,7 +13657,7 @@ variable vector element.  This always refers to a variable in the context.
 The second is an indirect \verb|min::gen| value that points at a pair
 of values in an auxiliary area: the first being an index \verb|min::gen|
 value and the second a pointer-to-object-stub \verb|min::gen| value.
-This refers the the variable vector element of the object pointed to
+This refers to the variable vector element of the object pointed to
 that is indexed by the given index.  If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
