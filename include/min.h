@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 03:39:28 EDT 2014
+// Date:	Sat Aug  9 14:06:54 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3391,7 +3391,7 @@ namespace min {
 	IS_TRAILING		= ( 1 << 3 ),
 
         IS_SP			= ( 1 << 4 ),
-        IS_HT			= ( 1 << 5 ),
+        IS_NB_HSPACE		= ( 1 << 5 ),
         IS_OTHER_HSPACE		= ( 1 << 6 ),
 
 	IS_VSPACE		= ( 1 << 7 ),
@@ -3405,7 +3405,7 @@ namespace min {
 	IS_ASCII		= ( 1 << 16 ),
 	IS_LATIN1		= ( 1 << 17 ),
 
-	IS_HSPACE = IS_SP + IS_HT
+	IS_HSPACE = IS_SP + IS_NB_HSPACE
 	          + IS_OTHER_HSPACE,
 	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
 		   + IS_TRAILING,

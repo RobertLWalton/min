@@ -170,7 +170,7 @@
  157 OSC    Cc    0 BN   N 9D
  158 PM     Cc    0 BN   N 9E
  159 APC    Cc    0 BN   N 9F
- 160 NBSP   Zs    0 CS   N latin1, White_Space, A0
+ 160 NBSP ␢ Zs    0 CS   N latin1, White_Space, A0
  161        Po    0 ON   N latin1, Pattern_Syntax, A1
  162        Sc    0 ET   N latin1, Pattern_Syntax, A2
  163        Sc    0 ET   N latin1, Pattern_Syntax, A3
@@ -26549,7 +26549,7 @@
  788        Pe    0 ON   Y Quotation_Mark, FF63
  789        Lm    0 L    N Diacritic, Other_Grapheme_Extend, FF9E, FF9F
  790        Cf    0 ON   N FFF9, FFFA, FFFB
- 791 UUC    So    0 ON   N FFFD
+ 791 UUC  ␥ So    0 ON   N FFFD
  792        No    0 L    N 200, 1011A
  793        No    0 L    N 300, 1011B
  794        No    0 L    N 400, 1011C
