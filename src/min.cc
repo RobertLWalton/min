@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  7 05:41:20 EDT 2014
+// Date:	Fri Aug  8 21:44:46 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7527,13 +7527,13 @@ const min::uns32 min::standard_op_flags =
 const min::support_control
         min::ascii_support_control =
 {
-    min::unicode::ascii, min::IS_UNSUPPORTED
+    min::IS_ASCII, min::IS_UNSUPPORTED
 };
 
 const min::support_control
         min::latin1_support_control =
 {
-    min::unicode::latin1 + min::unicode::ascii,
+    min::IS_LATIN1 + min::IS_ASCII,
     min::IS_UNSUPPORTED
 };
 

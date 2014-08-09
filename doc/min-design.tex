@@ -7607,12 +7607,12 @@ following printer parameters:
 \LABEL{MIN::SUPPORT_CONTROL_IN_PRINT_FORMAT} \\
 \verb|     min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
-        & \verb|// min::graphic_and_space| \\
+        & \verb|// min::graphic_and_space_| \\
       & & \verb|//   display_control|
 \LABEL{MIN::DISPLAY_CONTROL_IN_PRINT_FORMAT} \\
 \verb|       min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
-        & \verb|// min::break_after_space| \\
+        & \verb|// min::break_after_space_| \\
       & & \verb|//   break_control|
 \LABEL{MIN::BREAK_CONTROL_IN_PRINT_FORMAT} \\
 \verb|  min::char_name_format *|
@@ -7668,15 +7668,13 @@ following printer parameters:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_LEADING}
-\LABEL{MIN::NEXT_IS_LEADING_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_TRAILING}
-\LABEL{MIN::NEXT_IS_TRAILING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{LEADING}
+\LABEL{MIN::LEADING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{TRAILING}
+\LABEL{MIN::TRAILING_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{AUTO\_SUPPRESS}
-\LABEL{MIN::AUTO_SUPPRESS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
 \LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
 \end{tabular}\end{indpar}
@@ -7689,7 +7687,7 @@ following printer parameters:
 	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
 \LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
 \verb|            min::uns32   |
-	& \TTMKEY{unsupport\_char\_flags}{in {\tt min::support\_control}}
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
 \LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
@@ -7701,7 +7699,7 @@ following printer parameters:
 \LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
 \verb|const min::support_control min::|%
     \MINKEY{latin1\_support\_control} \verb|=| \\
-\verb|            { min::IS_LATIN1, min::IS_UNSUPPORTED };|
+\verb|            { min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \verb|const min::support_control min::|%
     \MINKEY{support\_all\_support\_control} \verb|=| \\
@@ -7747,11 +7745,11 @@ following printer parameters:
 \LABEL{MIN::BREAK_CONTROL_STRUCT} \\
 \verb|{                        | \\
 \verb|            min::uns16   |
-	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
-\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
 	& \TTMKEY{break\_after}{in {\tt min::break\_control}}
 \LABEL{MIN::BREAK_AFTER_IN_BREAK_CONTROL} \\
+\verb|            min::uns16   |
+	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
+\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
 \verb|            min::uns16   |
 	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}}
 \LABEL{MIN::CONDITIONAL_BREAK_IN_BREAK_CONTROL} \\
@@ -7797,8 +7795,8 @@ following printer parameters:
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|const min::char_name_format min::|%
     \MINKEY{standard\_char\_name\_format} \verb|=| \\
-\verb|            { (const min::ustring *) "\x01\x01<",| \\
-\verb|              (const min::ustring *) "\x01\x01>" };|
+\verb|            { (const min::ustring *) "\x01\x01" "<",| \\
+\verb|              (const min::ustring *) "\x01\x01" ">" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -7843,7 +7841,7 @@ else
 
 Note that \TT{<FF>} represents the form feed character with (hex)
 code \TT{0C}, while \TT{<0FF>} represents the
-latin small letter y with diaeresis, with code \TT{FF}.
+latin small letter y with diaeresis, \"y, with code \TT{FF}.
 
 Note that only the low order 16 bits of \TT{cflags} are used
 by a \TT{display\_control}.
@@ -8015,34 +8013,15 @@ a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
 \TT{min::\EOL eol} operation.
 
-\item[\ttmkey{NEXT\_IS\_LEADING}%
+\item[\ttmkey{LEADING}%
 {in printer {\tt print\_\EOL format.op\_\EOL flags}}]
-\item[\ttmkey{NEXT\_IS\_TRAILING}%
+\item[\ttmkey{TRAILING}%
 {in printer {\tt print\_\EOL format.op\_\EOL flags}}]%
 \vspace{-1ex}~\\
 These flags are set by the \TT{min::\EOL leading} and
 \TT{min::\EOL trailing} printer operations to indicate the
 the next string printed is a leading or trailing string,
 repspectively.
-
-\item[\ttmkey{AUTO\_SUPPRESS}%
-    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, each string output is checked to see if
-it consists of nothing but characters with the \TT{min::\EOL IS\_\EOL LEADING}
-character flag, and if yes, and if the last character output
-to the printer is a single space, that single space is
-in effect converted to a \TT{min::\EOL leading} printer
-operation.  Similarly strings are
-checked to see if they have nothing but characters with the
-\TT{min::\EOL IS\_\EOL TRAILING} character flag, and if yes, and
-if the last character output is a single space, 
-the space is effectively converted to a
-\TT{min::\EOL trailing} operation.
-
-Note that a string containing a single space character will
-not pass the checks: the whole string output by single printer
-request is checked, and not just the part before the first
-space character or after the last space character.
 
 \item[\ttmkey{DISABLE\_SUPPRESS}%
     {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -8494,10 +8473,6 @@ following printer operations:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{auto\_suppress}
-\LABEL{MIN::AUTO_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{noauto\_suppress}
-\LABEL{MIN::NOAUTO_SUPPRESS} \\
 \verb|const min::op min::| & \MINKEY{disable\_suppress}
 \LABEL{MIN::DISABLE_SUPPRESS} \\
 \verb|const min::op min::| & \MINKEY{nodisable\_suppress}
@@ -9821,10 +9796,10 @@ is as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::bracket\_format
                    min::\MINKEY{quote\_bracket\_format}:}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01\""   // str_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01\""   // str_postfix|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03<Q>"  // str_postfix_name|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01#"    // str_concatenator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \LABEL{MIN::QUOTE_BRACKET_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -9855,9 +9830,9 @@ is as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03[: "  // lab_prefix|\ARGBREAK
-\verb|NULL                                  // lab_separator|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03 :]"  // lab_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
+\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
 \LABEL{MIN::BRACKET_LAB_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -9888,8 +9863,8 @@ is as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{bracket\_special\_format}:}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02[$"   // special_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02$]"   // special_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "[$"   // special_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "$]"   // special_postfix|\ARGBREAK
 \verb|min::standard_special_names           // special_names|\ARGBREAK
 \LABEL{MIN::BRACKET_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
@@ -16299,8 +16274,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{AUTO\_SUPPRESS}
-\LABEL{MIN::AUTO_SUPPRESS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
 \LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
 \end{TABULAR}
@@ -16315,7 +16288,7 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
 \LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
 \verb|            min::uns32   |
-	& \TTMKEY{unsupport\_char\_flags}{in {\tt min::support\_control}}
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
 \LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
 \verb|}                        | \\
 \end{TABULAR}
