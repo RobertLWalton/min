@@ -3465,10 +3465,12 @@ character corresponding to the ASCII control character name.
 For example, the carriage return picture is
 {\tiny $\stackrel{\textstyle C~}{\textstyle ~R}$},
 which is the single UNICODE character with code \TT{240D}.
-As a special case, single space has the picture \TT{\textvisiblespace}.
+As a special case, single space has the picture \TT{\textvisiblespace} and
+the non-breaking single space (\TT{NBSP}) has the picture
+\TT{\textblank}.
 
 Also as special cases the \minmkey{UNKOWN\_UCHAR}{name} character 
-has name \TT{UUC} but no picture, and the
+has name \TT{UUC} and picture $/\!\!/\!\!/$, and the
 \minmkey{SOFTWARE\_NL}{name and picture} character has name
 \TT{NL} and picture {\tiny $\stackrel{\textstyle N~}{\textstyle ~L}$}.
 
@@ -3502,8 +3504,8 @@ The standard character flags are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_SP}
 \LABEL{MIN::IS_SP} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_HT}
-\LABEL{MIN::IS_HT} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NB\_HSPACE}
+\LABEL{MIN::IS_NB_HSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_HSPACE}
 \LABEL{MIN::IS_OTHER_HSPACE} \\
 \end{tabular}\end{indpar}
@@ -3536,7 +3538,7 @@ The standard character flags are
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE} =\ARGBREAK
-    \verb|  min::IS_SP + min::IS_HT|\ARGBREAK
+    \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
     \verb|+ min::IS_OTHER_HSPACE|
 \LABEL{MIN::IS_HSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC} =\ARGBREAK
@@ -3594,7 +3596,7 @@ one of the following flags:
 \TT{min::IS\_TRAILING} \\
 \\
 \TT{min::IS\_SP} \\
-\TT{min::IS\_HT} \\
+\TT{min::IS\_NB\_HSPACE} \\
 \TT{min::IS\_OTHER\_HSPACE} \\
 \\
 \TT{min::IS\_VSPACE} \\
@@ -3622,15 +3624,16 @@ and the trailing separator lexeme \TT{;}, and therefore
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
 Horizontal space characters get one of the
-\TT{min::IS\_SP/HT/OTHER\_HSPACE}%
+\TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
 \minindex{IS\_SP}%
-\minindex{IS\_HT}%
+\minindex{IS\_NB\_HSPACE}%
 \minindex{IS\_OTHER\_HSPACE}
 flags.  \TT{IS\_SP} is just for the single space character,
-\TT{IS\_HT} is just for the horizontal tab character,
+\TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
+(such as LATIN1 \TT{NBSP}),
 and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for other horizontal
-space characters such as the LATIN1 non-breaking-space character
-\TT{NBSP}.  The printer does some special processing on single space
+space characters that are breaking, like horizontal tab.
+The printer does some special processing on single space
 and horizontal tab characters \underline{independently} of the flags
 of these characters.
 
@@ -3712,7 +3715,7 @@ need to be in the low order 16 bits.
 & Code & Sequence
 \\[1ex]
 \TT{~}
-  & \TT{A0} & \TT{<space><space>} & No Break Space \\
+  & \TT{A0} & \TT{<space><space>} & No Break Space (\ttkey{NBSP}) \\
 \TT{\textexclamdown}
   & \TT{A1} & \TT{!!} & Inverted Exclamation \\
 \TT{\textcent}
@@ -3774,7 +3777,7 @@ need to be in the low order 16 bits.
 \TT{\textthreequarters}
   & \TT{BE} & \TT{34} & Vulgar Fraction Three Quarters \\
 \TT{\textquestiondown}
-  & \TT{BF} & \TT{??} & Invered Question Mark \\
+  & \TT{BF} & \TT{??} & Inverted Question Mark \\
 \end{tabular}
 \caption{LATIN1 Characters: Part I}
 \label{LATIN1-CHARACTERS-I}
@@ -7730,7 +7733,7 @@ following printer parameters:
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_and\_space\_display\_control} \verb|=| \\
-\verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC, 0 };|
+\verb|            { min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_only\_display\_control} \verb|=| \\
@@ -7738,8 +7741,8 @@ following printer parameters:
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
     \MINKEY{graphic\_and\_vspace\_display\_control} \verb|=| \\
-\verb|            { min::IS_SP + min::IS_HT + min::IS_GRAPHIC| \\
-\verb|                         + min::IS_VSPACE, 0 };|
+\verb|            { min::IS_HSPACE + min::IS_GRAPHIC| \\
+\verb|                             + min::IS_VSPACE, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
 \verb|const min::display_control min::|%
     \MINKEY{display\_all\_display\_control} \verb|=| \\
@@ -8103,7 +8106,7 @@ inserted into the output (see \TT{min::\EOL set\_\EOL break},
 \pagref{MIN::SET_BREAK}).
 
 The \TT{break\_\EOL after} mask
-(e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL HT})
+(e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL OTHER\_\EOL HSPACE})
 is bitwise AND'ed with
 the character flags and if the result is non-zero,
 a break is inserted `after the character representative', or

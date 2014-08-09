@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  8 14:53:14 EDT 2014
+// Date:	Sat Aug  9 14:18:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -889,17 +889,19 @@ void set_support_sets ( void )
 }
 
 // picture[c] is set for 0 <= c <= 0x20, c == 0x7F,
-// and c == SOFTWARE_NL.
+// c == 0xA0 (NBSP), c == SOFTWARE_NL, c == UNKNOWN_UCHAR.
 //
 void set_pictures ( void )
 {
-    for ( Uchar c = 0; c <= SOFTWARE_NL; )
+    for ( Uchar c = 0; c <= UNKNOWN_UCHAR; )
     {
         Uchar pic =
 	    c  < 0x20 ? c + 0x2400 :  // NUL ... US
 	    c == 0x20 ? 0x2423 :     // SP
 	    c == 0x7F ? 0x2421 :     // DEL
+	    c == 0xA0 ? 0x2422 :     // NBSP
 	    c == SOFTWARE_NL ? 0x2424 :
+	    c == UNKNOWN_UCHAR ? 0x2425 :
 		 UNKNOWN_UCHAR;
 
 
@@ -913,7 +915,9 @@ void set_pictures ( void )
 	picture[c] = (ustring *) strdup ( buffer );
 
 	if ( c == 0x20 ) c = 0x7F;
-	else if ( c == 0x7F) c = SOFTWARE_NL;
+	else if ( c == 0x7F) c = 0xA0;
+	else if ( c == 0xA0) c = SOFTWARE_NL;
+	else if ( c == SOFTWARE_NL) c = UNKNOWN_UCHAR;
 	else ++ c;
     }
 }

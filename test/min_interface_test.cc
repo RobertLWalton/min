@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  5 13:35:16 EDT 2014
+// Date:	Sat Aug  9 14:29:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2551,7 +2551,7 @@ void test_printer ( void )
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
-		   "\040\177\200\300"
+		   "\040\177\xC2\x80\xC2\xA0\200\xC2"
             << min::eom;
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -2562,7 +2562,7 @@ void test_printer ( void )
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
-		   "\040\177\200\300"
+		   "\040\177\xC2\x80\xC2\xA0\200\xC2"
             << min::eom;
 
     char buffer[128*8];

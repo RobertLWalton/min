@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 03:39:42 EDT 2014
+// Date:	Sat Aug  9 14:07:05 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1102,8 +1102,9 @@ static void init_standard_char_flags ( void )
 	    switch ( c )
 	    {
 	    case ' ':	flags = min::IS_SP; break;	
-	    case '\t':	flags = min::IS_HT; break;
-	    case 0xA0:	flags = min::IS_OTHER_HSPACE;
+	    case '\t':	flags = min::IS_OTHER_HSPACE;
+	                break;
+	    case 0xA0:	flags = min::IS_NB_HSPACE;
 	                break;  // NBSP
 	    case '\f':
 	    case '\v':
@@ -7552,7 +7553,7 @@ const min::display_control
 const min::display_control
         min::graphic_and_space_display_control =
 {
-    min::IS_SP + min::IS_HT + min::IS_GRAPHIC,
+    min::IS_HSPACE + min::IS_GRAPHIC,
     0
 };
 
@@ -7568,7 +7569,7 @@ const min::display_control
 {
       min::IS_GRAPHIC
     + min::IS_VSPACE
-    + min::IS_SP + min::IS_HT,
+    + min::IS_HSPACE,
     0
 };
 
@@ -7582,7 +7583,7 @@ const min::break_control
 const min::break_control
 	min::break_after_space_break_control =
 {
-    min::IS_HSPACE, 0, 0, 0
+    min::IS_SP + min::IS_OTHER_HSPACE, 0, 0, 0
 };
 
 const min::break_control
@@ -7594,7 +7595,7 @@ const min::break_control
 const min::break_control
    min::break_after_hyphens_break_control =
 {
-    min::IS_HSPACE, 0,
+    min::IS_SP + min::IS_OTHER_HSPACE, 0,
     min::CONDITIONAL_BREAK, 4
 };
 
