@@ -7892,7 +7892,8 @@ Initialized by the second argument of \TT{min::\EOL init}, if that is
 not \TT{min::\EOL NULL\_\EOL STUB}, or otherwise created when the
 printer is created.  Initialized by \TT{min::\EOL init(printer->\EOL file)}
 (which resets the \TT{file} to empty)
-\underline{except} when the 2-argument \TT{min::init} is called (see above).
+\underline{except} when the 2-argument \TT{min::\EOL init}
+is called (see above).
 
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
@@ -8409,7 +8410,7 @@ function does not allocate or resize objects.
 \subsubsection{Adjusting Printer Parameters}
 \label{ADJUSTING-PRINTER-PARAMETERS}
 
-The format parameters of a printer may be saved in the
+The \TT{print\_format} parameters of a printer may be saved in the
 \ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}%
 \label{PRINT-FORMAT-STACK}
 of the printer, and restored from that stack.
@@ -8502,10 +8503,10 @@ following printer operations:
 \LABEL{MIN::NODISABLE_SUPPRESS} \\
 \end{tabular}\end{indpar}
 
-Here the \TT{min::display\_picture} operation sets the
+Here \TT{printer << min::display\_picture} sets the
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} prin\-ter operation flag in
 \TT{printer->\EOL print\_\EOL format.op\_\EOL flags},
-while the \TT{min::\EOL nodisplay\_\EOL picture} operation clears this flag.
+while the \TT{printer << min::\EOL nodisplay\_\EOL picture} clears this flag.
 The other operations similarly set or clear their associated flags.
 
 The \TT{printer\_format.support\_control} can be set by the following
@@ -8540,6 +8541,8 @@ printer operations:
 \LABEL{MIN::GRAPHIC_ONLY} \\
 \verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
 \LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{display\_all}
+\LABEL{MIN::DISPLAY_ALL} \\
 \verb|min::op min::|
     & \MINKEY{set\_display\_control}\ARGBREAK
           \verb|( const min::display_control & dc )|
@@ -8591,7 +8594,6 @@ printer buffer.  \TT{printer << min::\EOL verbatim} is equivalent to:
 
 \begin{indpar}\begin{verbatim}
 printer << min::noexpand_ht
-        << min::noauto_suppress
         << min::support_all
         << min::display_all
         << min::no_auto_break
@@ -8600,8 +8602,7 @@ printer << min::noexpand_ht
 This permits characters in a \TT{printer->file} line to be copied
 to another printer verbatim.  Note that
 the \TT{min::\EOL DISPLAY\_\EOL EOL} printer operation flag
-is not affected, as when copying to a printer from
-from some \TT{printer->\EOL file}
+is not affected, as when copying to a printer from some file
 line terminating NULs are translated to \TT{min::\EOL eol}
 operations on the target printer and may or may not be
 displayed according to the setting of
@@ -8630,9 +8631,8 @@ min::uns32 flags = ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
 printer << min::clear_op_flags ( flags )
         << min::set_op_flags ( flags & line_display )
         << min::expand_ht
-        << min::noauto_suppress
         << min::set_display_control
-               ( flags & min::DISPLAY_PICTURE ?
+               ( line_display & min::DISPLAY_PICTURE ?
                  min::graphic_only_display_control :
                  min::graphic_and_space_display_control )
         << min::no_auto_break
