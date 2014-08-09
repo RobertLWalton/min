@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  8 21:44:46 EDT 2014
+// Date:	Sat Aug  9 03:39:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7892,8 +7892,6 @@ min::printer operator <<
 	printer->print_format.op_flags |= flags;
 	printer->print_format.op_flags |=
 	    min::EXPAND_HT;
-	printer->print_format.op_flags &=
-	    ~ min::AUTO_SUPPRESS;
 	printer->print_format.display_control =
 	    flags & min::DISPLAY_PICTURE ?
 	    min::graphic_only_display_control :
@@ -7916,7 +7914,7 @@ min::printer operator <<
 	return printer;
     case min::op::VERBATIM:
 	printer->print_format.op_flags &=
-	    ~ ( min::EXPAND_HT + min::AUTO_SUPPRESS );
+	    ~ min::EXPAND_HT;
 	printer->print_format.support_control =
 	    min::support_all_support_control;
 	printer->print_format.display_control =
@@ -8180,13 +8178,6 @@ const min::op min::flush_id_map_on_eom
 const min::op min::noflush_id_map_on_eom
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FLUSH_ID_MAP_ON_EOM );
-
-const min::op min::auto_suppress
-    ( min::op::SET_PRINT_OP_FLAGS,
-      min::AUTO_SUPPRESS );
-const min::op min::noauto_suppress
-    ( min::op::CLEAR_PRINT_OP_FLAGS,
-      min::AUTO_SUPPRESS );
 
 const min::op min::disable_suppress
     ( min::op::SET_PRINT_OP_FLAGS,
