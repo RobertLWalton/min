@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 9, 2014}
+\date{August 10, 2014}
  
 \maketitle
 
@@ -3546,6 +3546,11 @@ The standard character flags are
     \verb|+ min::IS_MIDDLING|\ARGBREAK
     \verb|+ min::IS_TRAILING|
 \LABEL{MIN::IS_GRAPHIC} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL} =\ARGBREAK
+    \verb|  min::IS_HSPACE|\ARGBREAK
+    \verb|+ min::IS_VSPACE|\ARGBREAK
+    \verb|+ min::IS_OTHER_CONTROL|
+\LABEL{MIN::IS_CONTROL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3580,7 +3585,8 @@ are used by the single space suppression feature of MIN printers;
 see below.
 
 For \TT{min::standard\_char\_flags}, the non-spacing mark characters
-and all control characters except single space and horizontal tab
+and all control characters except single space, horizontal tab,
+and non-break space
 are given the \minkey{IS\_NON\_SPACING} flag.  Note that the
 horizontal tabs are handled specially by the printer as far
 as the number of columns they take, and this special handling
@@ -9231,8 +9237,9 @@ If a line would print as blank, and if
 \TT{blank\_\EOL line} is not \TT{NULL},
 \TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
-ASCII control characters or single spaces which when printed
-represent themselves or are suppressed.
+ASCII and LATIN1 control characters (including horizontal tabs and
+single spaces, see \pagref{MIN::IS_CONTROL})
+which when printed represent themselves or are suppressed.
 
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
@@ -9247,7 +9254,7 @@ nothing is printed and \TT{NO\_\EOL LINE} is returned.
 Note that
 \TT{file->\EOL line\_\EOL display} is not used to print
 \TT{unavailable\_\EOL line}, \TT{blank\_\EOL line}, or
-\TT{end\_\EOL of\_\EOL line} or any following line feed,
+\TT{end\_\EOL of\_\EOL line} or any line feed following these,
 and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
 Also, these ASCII strings may not be unprotected body pointers,
@@ -9257,11 +9264,11 @@ In all cases where anything is printed, exactly one complete print line is
 printed.
 
 Error messages typically consist of a description of the error
-followed by the lines involved printed with the above function
-(often the portions of the lines involved are marked by printing
-`\TT{\^{ }}' characters under them).  The error description before
+followed by the lines involved printed with the above function.
+Often the portions of the lines involved are marked by printing
+`\TT{\^{ }}' characters under them.  The error description before
 the lines typically ends with the name of the file containing
-the lines and the numbers of the lines.  This can be produced
+the lines and the numbers of the lines, which can be produced
 by the code:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9554,8 +9561,9 @@ pointer is returned by the following function:
 \end{tabular}\end{indpar}
 
 Here the object is identified by the \TT{min::\EOL obj\_\EOL vec\_\EOL ptr}
-which is being used to access the object elements.  If the
-object has no \TT{.position} attribute, or if the attribute is
+which is being used to access the object elements; see
+\pagref{MIN::OBJ_VEC_PTR_OF_GEN}.
+If the object has no \TT{.position} attribute, or if the attribute is
 not a \TT{min::\EOL phrase\_\EOL position\_\EOL vec} value,
 \TT{min::\EOL NULL\_\EOL STUB} is returned.
 
@@ -9601,16 +9609,14 @@ uses \TT{f} as the \TT{gen\_\EOL format} value.
 
 A {\tt min::gen\_\EOL format} cannot be stored in a
 relocatable body, and is intended to be a static C++ structure.
-In making new versions, one must copy and existing
+In making new versions, one must copy an existing
 {\tt min::\EOL gen\_\EOL format}
 and then change particular members in the copy, because one cannot
 count on all the members being organized in a particular way.
 Copies can be made in the stack.
 
-TBD
-
-The detailed structure and meaning of the general value format
-is as follows:
+The detailed structure and available standard values
+for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -9619,7 +9625,7 @@ is as follows:
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::gen_format * g );|%
+    \verb|         const void * gen_format );|%
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
@@ -9682,11 +9688,24 @@ is as follows:
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
+A general value format is actually the closure of a function whose
+address is the first member of the format.  This permits radically
+different general value formats to be used, should they be
+necessary.
+
+TBD
+
+The members of a general value format control the printing
+of different kinds of general values.  For example, the
+\TT{str\_\EOL format} member controls the printing of string
+general values.  We will describe how each member is used in
+the following subsections.
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * g );|
+    \verb|  const void * gen_format );|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{tabular}\end{indpar}
 

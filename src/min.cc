@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 14:07:05 EDT 2014
+// Date:	Sun Aug 10 14:58:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2377,11 +2377,13 @@ min::uns32 min::print_line
 	     ! printer->print_format.display_control
 				    .display_suppress );
 
-	while ( * p && ( * p <= ' ' || * p == 0x7F ) )
+	while ( * p && * p < 256 )
 	{
-	    if ( name_or_picture_flags
-	         &
-		 char_flags[(unsigned char) *p] )
+	    min::uns32 cflags =
+		 char_flags[(unsigned char) *p];
+	    if ( ( cflags & min::IS_CONTROL ) == 0 )
+	        break;
+	    if ( name_or_picture_flags & cflags )
 	        break;
 	    ++ p;
 	}
@@ -9931,7 +9933,7 @@ static min::printer pgen
 	  min::printer ( * pgen )
 	      ( min::printer printer,
 	        min::gen v,
-		const min::gen_format * f ) )
+		const void * f ) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -10159,8 +10161,10 @@ static min::printer flush_one_id
 min::printer min::standard_pgen
 	( min::printer printer,
 	  min::gen v,
-	  const min::gen_format * f )
+	  const void * gen_format )
 {
+    const min::gen_format * f =
+        (const min::gen_format *) gen_format;
     return ::pgen ( printer, v, f, f->pgen );
 }
 
