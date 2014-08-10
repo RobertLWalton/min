@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 14:06:54 EDT 2014
+// Date:	Sun Aug 10 14:58:10 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3409,11 +3409,12 @@ namespace min {
 	          + IS_OTHER_HSPACE,
 	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
 		   + IS_TRAILING,
+	IS_CONTROL = IS_HSPACE
+		   + IS_VSPACE + IS_OTHER_CONTROL,
 	IS_NON_HSPACE = IS_GRAPHIC
 	              + IS_VSPACE + IS_OTHER_CONTROL
 	              + IS_UNSUPPORTED,
-	IS_NON_GRAPHIC = IS_HSPACE
-		       + IS_VSPACE + IS_OTHER_CONTROL
+	IS_NON_GRAPHIC = IS_CONTROL
 	               + IS_UNSUPPORTED
 	          
     };
@@ -11497,7 +11498,7 @@ namespace min {
 	min::printer     ( * pgen )
 	    ( min::printer printer,
 	      min::gen v,
-	      const min::gen_format * gen_format );
+	      const void * gen_format );
 
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
@@ -11533,7 +11534,7 @@ namespace min {
     min::printer standard_pgen
 	    ( min::printer printer,
 	      min::gen v,
-	      const min::gen_format * gen_format );
+	      const void * gen_format );
 
     inline op pgen ( min::gen v )
     {
