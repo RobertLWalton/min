@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 10 14:58:01 EDT 2014
+// Date:	Mon Aug 11 05:12:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9926,14 +9926,10 @@ static min::printer pgen_exp
 
 // Execute min::pgen.
 //
-static min::printer pgen
+min::printer min::standard_pgen
 	( min::printer printer,
 	  min::gen v,
-	  const min::gen_format * f,
-	  min::printer ( * pgen )
-	      ( min::printer printer,
-	        min::gen v,
-		const void * f ) )
+	  const min::gen_format * f )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -9990,7 +9986,7 @@ static min::printer pgen
 		else
 		    min::print_Uchar ( printer, ' ' );
 	    }
-	    pgen ( printer, labp[i], f );
+	    (* f->pgen) ( printer, labp[i], f );
 	}
 
 	min::print_ustring ( printer, lf->lab_postfix );
@@ -10157,16 +10153,6 @@ static min::printer flush_one_id
 }
 
 # endif // NONE_SUCH
-
-min::printer min::standard_pgen
-	( min::printer printer,
-	  min::gen v,
-	  const void * gen_format )
-{
-    const min::gen_format * f =
-        (const min::gen_format *) gen_format;
-    return ::pgen ( printer, v, f, f->pgen );
-}
 
 # ifdef NONE_SUCH
 

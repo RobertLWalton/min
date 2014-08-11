@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 10 14:58:10 EDT 2014
+// Date:	Mon Aug 11 05:10:31 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11498,7 +11498,7 @@ namespace min {
 	min::printer     ( * pgen )
 	    ( min::printer printer,
 	      min::gen v,
-	      const void * gen_format );
+	      const min::gen_format * gen_format );
 
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
@@ -11534,7 +11534,7 @@ namespace min {
     min::printer standard_pgen
 	    ( min::printer printer,
 	      min::gen v,
-	      const void * gen_format );
+	      const min::gen_format * gen_format );
 
     inline op pgen ( min::gen v )
     {
