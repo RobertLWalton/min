@@ -9625,7 +9625,7 @@ for general value formats is as follows:
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const void * gen_format );|%
+    \verb|         const min::gen_format * gen_format );|%
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
@@ -9688,12 +9688,38 @@ for general value formats is as follows:
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
-A general value format is actually the closure of a function whose
-address is the first member of the format.  This permits radically
-different general value formats to be used, should they be
-necessary.
+A general value format can be any structure whose first member
+is:
 
-TBD
+\begin{indpar}[1em]
+\verb|min::printer ( * pgen )|\\
+\verb|     ( min::printer printer,|\\
+\verb|       min::gen v,|\\
+\verb|       const min::gen_format * gen_format );|\\
+\end{indpar}
+
+This first member is called with the \TT{min::\EOL gen\_\EOL format}
+itself as third argument to execute the \TT{pgen} operation.  So in
+effect a \TT{min::\EOL gen\_\EOL format} value is a
+`\mkey{closure}{\tt min::gen\_\EOL format}' whose first member is
+the function to execute and whose remaining members are data for
+this function.
+
+The standard first member function value is:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format );|
+\LABEL{MIN::STANDARD_PGEN} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::\EOL gen\_\EOL format} structure described above
+is what is expected by this
+`\ikey{standard \TT{pgen}}{standard pgen@standard {\tt pgen}}'.
+In this document it is this format and the standard \TT{pgen}
+that are implicitly described.
 
 The members of a general value format control the printing
 of different kinds of general values.  For example, the
@@ -9701,13 +9727,8 @@ of different kinds of general values.  For example, the
 general values.  We will describe how each member is used in
 the following subsections.
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen v,|\ARGBREAK
-    \verb|  const void * gen_format );|
-\LABEL{MIN::STANDARD_PGEN} \\
-\end{tabular}\end{indpar}
+\subsubsection{Printing Numeric General Values}
+\label{PRINTING-NUMERIC-GENERAL-VALUES}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -9741,6 +9762,9 @@ the following subsections.
 \verb|NULL             // fraction_divisors|
 \LABEL{MIN::LONG_NUM_FORMAT} \\
 \end{tabular}\end{indpar}
+
+\subsubsection{Printing String General Values}
+\label{PRINTING-STRING-GENERAL-VALUES}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -9848,6 +9872,9 @@ the following subsections.
 \LABEL{MIN::QUOTE_BRACKET_FORMAT}
 \end{tabular}\end{indpar}
 
+\subsubsection{Printing Label General Values}
+\label{PRINTING-LABEL-GENERAL-VALUES}
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{lab\_format}}\ARGBREAK
@@ -9880,6 +9907,9 @@ the following subsections.
 \verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
 \LABEL{MIN::BRACKET_LAB_FORMAT}
 \end{tabular}\end{indpar}
+
+\subsubsection{Printing Special General Values}
+\label{PRINTING-SPECIAL-GENERAL-VALUES}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -9922,6 +9952,9 @@ the following subsections.
 \verb|    //        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\\
 \verb|    //        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|\\
 \end{tabular}\end{indpar}
+
+\subsubsection{Printing Other General Values}
+\label{PRINTING-OTHER-GENERAL-VALUES}
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<min::gen> min::|%
