@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 10, 2014}
+\date{August 11, 2014}
  
 \maketitle
 
@@ -9736,10 +9736,14 @@ the following subsections.
     \verb|{|\ARGBREAK
     \verb|  const char *        int_printf_format;|%
 \ttmindex{int\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  min::float64        non_float_bound;|%
+\ttmindex{non\_float\_bound}{in {\tt min::num\_format}}\ARGBREAK
     \verb|  const char *        float_printf_format;|%
 \ttmindex{float\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
     \verb|  const min::uns32 *  fraction_divisors;|%
 \ttmindex{fraction\_divisors\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  min::float64        fraction_accuracy;|%
+\ttmindex{fraction\_accuracy}{in {\tt min::num\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::NUM_FORMAT}
 \end{tabular}
@@ -9748,18 +9752,33 @@ the following subsections.
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::num\_format *
                    min::\MINKEY{short\_num\_format}:}\ARGBREAK
-\verb|"%.0f"            // int_printf_format|\ARGBREAK
-\verb|"%.6g"            // float_printf_format|\ARGBREAK
-\verb|NULL              // fraction_divisors|
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e7                     // non_float_bound|\ARGBREAK
+\verb|"%.6g"                  // float_printf_format|\ARGBREAK
+\verb|NULL                    // fraction_divisors|\ARGBREAK
+\verb|0                       // fraction_accuracy|
 \LABEL{MIN::SHORT_NUM_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::num\_format *
+                   min::\MINKEY{fraction\_num\_format}:}\ARGBREAK
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e7                     // non_float_bound|\ARGBREAK
+\verb|"%.6g"                  // float_printf_format|\ARGBREAK
+\verb|min::standard_divisors  // fraction_divisors|\ARGBREAK
+\verb|1e-9                    // fraction_accuracy|
+\LABEL{MIN::FRACTION_NUM_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{const min::num\_format *
                    min::\MINKEY{long\_num\_format}:}\ARGBREAK
-\verb|"%.0f"           // int_printf_format|\ARGBREAK
-\verb|"%.15g           // float_printf_format|\ARGBREAK
-\verb|NULL             // fraction_divisors|
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e15                    // non_float_bound|\ARGBREAK
+\verb|"%.15g                  // float_printf_format|\ARGBREAK
+\verb|NULL                    // fraction_divisors|\ARGBREAK
+\verb|0                       // fraction_accuracy|
 \LABEL{MIN::LONG_NUM_FORMAT} \\
 \end{tabular}\end{indpar}
 

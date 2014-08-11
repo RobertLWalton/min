@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 14:29:11 EDT 2014
+// Date:	Mon Aug 11 14:06:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2692,6 +2692,24 @@ void test_printer ( void )
                     ( min::new_num_gen ( 1.23456789 ) )
             << min::eol;
     printer << min::new_num_gen ( 1.23456789012345 )
+            << min::eol;
+    min::print_num ( printer, 1.23456789012345,
+		     min::fraction_num_format )
+            << min::eol;
+    min::print_num ( printer, 0.333333334,
+		     min::fraction_num_format )
+            << min::eol;
+    min::print_num ( printer, 0.33333334,
+		     min::fraction_num_format )
+            << min::eol;
+    min::print_num ( printer, 1.333333334,
+		     min::fraction_num_format )
+            << min::eol;
+    min::print_num ( printer, -0.333333334,
+		     min::fraction_num_format )
+            << min::eol;
+    min::print_num ( printer, -1.333333334,
+		     min::fraction_num_format )
             << min::eol;
 
     printer << min::bom;

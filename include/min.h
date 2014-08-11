@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 11 05:10:31 EDT 2014
+// Date:	Mon Aug 11 14:05:55 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11388,6 +11388,30 @@ namespace min {
     struct obj_format;
     struct gen_format;
 
+    struct num_format
+    {
+        const char * 		int_printf_format;
+	min::float64		non_float_bound;
+        const char * 		float_printf_format;
+	const min::uns32 *	fraction_divisors;
+	min::float64		fraction_accuracy;
+    };
+
+    extern const min::uns32 * standard_divisors;
+
+    extern const min::num_format *
+        short_num_format;
+    extern const min::num_format *
+        long_num_format;
+    extern const min::num_format *
+        fraction_num_format;
+
+    min::printer print_num
+    	    ( min::printer printer,
+	      min::float64 value,
+	      const min::num_format * num_format =
+	          NULL );
+
     struct bracket_format
     {
 	const min::ustring *	str_prefix;
@@ -11426,21 +11450,6 @@ namespace min {
         quote_first_not_letter_str_format;
     extern const min::str_format *
         quote_non_graphic_str_format;
-
-    struct num_format
-    {
-        const char * 		int_printf_format;
-        const char * 		float_printf_format;
-	const min::uns32 *	fraction_divisors;
-    };
-
-    extern const min::uns32 *
-        first_100_divisors;
-
-    extern const min::num_format *
-        short_num_format;
-    extern const min::num_format *
-        long_num_format;
 
     struct lab_format
     {

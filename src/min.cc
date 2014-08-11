@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 11 05:12:56 EDT 2014
+// Date:	Mon Aug 11 14:06:04 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@
 # include <min_os.h>
 # include <cstdlib>
 # include <cstdio>
+# include <cmath>
 # include <cerrno>
 # include <cctype>
 # define MUP min::unprotected
@@ -49,7 +50,6 @@
 //
 # include <iostream>
 # include <iomanip>
-# include <cmath>
 
 // Initialization
 // --------------
@@ -2377,7 +2377,7 @@ min::uns32 min::print_line
 	     ! printer->print_format.display_control
 				    .display_suppress );
 
-	while ( * p && * p < 256 )
+	while ( * p && (unsigned) * p < 256 )
 	{
 	    min::uns32 cflags =
 		 char_flags[(unsigned char) *p];
@@ -9028,6 +9028,99 @@ std::ostream & operator <<
 		   << std::dec << ")";
 }
 
+static min::uns32 standard_divisors[] =
+{
+    2,3,4,5,6,7,8,9,10,11,12,
+    16,32,56,128,256,512,1024,
+    0
+};
+const min::uns32 * min::standard_divisors =
+    ::standard_divisors;
+
+static min::num_format short_num_format =
+{
+    "%.0f", 1e7, "%.6g", NULL, 0
+};
+const min::num_format * min::short_num_format =
+    & ::short_num_format;
+
+static min::num_format long_num_format =
+{
+    "%.0f", 1e15, "%.15g", NULL, 0
+};
+const min::num_format * min::long_num_format =
+    & ::long_num_format;
+
+static min::num_format fraction_num_format =
+{
+    "%.0f", 1e7, "%.6g", min::standard_divisors, 1e-9
+};
+const min::num_format * min::fraction_num_format =
+    & ::fraction_num_format;
+
+min::printer min::print_num
+	( min::printer printer,
+	  min::float64 value,
+	  const min::num_format * nf )
+{
+    if ( nf == NULL )
+        nf = printer->print_format.gen_format
+	            ->num_format;
+
+    char buffer[128];
+    if ( fabs ( value ) < nf->non_float_bound )
+    {
+	long long I = (long long) floor ( value );
+	if ( I == value )
+	{
+	    sprintf ( buffer,
+		      nf->int_printf_format,
+		      value );
+	    return printer << buffer;
+	}
+
+	if ( nf->fraction_divisors != NULL )
+	{
+	    min::uns32 N, D;
+	    double f = value - I;
+	    if ( I < 0 ) f = 1 - f;
+
+	    const min::uns32 * p =
+	        nf->fraction_divisors;
+	    while ( ( D = * p ++ ) )
+	    {
+		N = (min::uns32) round ( D * f );
+		if ( fabs ( (double) N / D - f )
+		     < nf->fraction_accuracy )
+		    break;
+	    }
+
+	    if ( D != 0 )
+	    {
+		char * p = buffer;
+		if ( I > 0 )
+		    p += sprintf ( p, "%lld ", I );
+		else if ( I < -1 )
+		    p += sprintf ( p, "%lld ", I + 1 );
+		else if ( I < 0 )
+		    * p ++ = '-';
+	        sprintf ( p, "%d/%d", N, D );
+		return printer << buffer;
+	    }
+	}
+    }
+
+    sprintf ( buffer, nf->float_printf_format, value );
+    return printer << buffer;
+}
+
+static min::lab_format name_lab_format =
+{
+    NULL, NULL, NULL
+};
+const min::lab_format * min::name_lab_format =
+    & ::name_lab_format;
+
 const min::quote_control
 	min::quote_all_control =
 {
@@ -9086,40 +9179,6 @@ const min::str_format *
 	min::quote_non_graphic_str_format =
     & ::quote_non_graphic_str_format;
 
-
-static min::uns32 first_100_divisors[] =
-{
-    64*81*25*49*11*13,
-    16*9*5*7*11*13*17*19,
-    4*3*23*29*31*37*41,
-    2*43*47*51*53*57,
-    59*61*67*71*73,
-    79*83*89*97,
-    0
-};
-const min::uns32 * min::first_100_divisors =
-    ::first_100_divisors;
-
-static min::num_format short_num_format =
-{
-    "%.0f", "%.6g", NULL
-};
-const min::num_format * min::short_num_format =
-    & ::short_num_format;
-
-static min::num_format long_num_format =
-{
-    "%.0f", "%.15g", NULL
-};
-const min::num_format * min::long_num_format =
-    & ::long_num_format;
-
-static min::lab_format name_lab_format =
-{
-    NULL, NULL, NULL
-};
-const min::lab_format * min::name_lab_format =
-    & ::name_lab_format;
 
 static min::lab_format bracket_lab_format =
 {
@@ -9943,22 +10002,9 @@ min::printer min::standard_pgen
     }
     else if ( min::is_num ( v ) )
     {
-        min::float64 vf = MUP::float_of ( v );
-	char buffer[128];
+        min::float64 value = MUP::float_of ( v );
 	const min::num_format * nf = f->num_format;
-	if ( -1e20 < vf && vf < +1e20 )
-	{
-	    long long vi = (long long) vf;
-	    if ( vi == vf )
-	    {
-		sprintf ( buffer,
-		          nf->int_printf_format,
-			  vf );
-		return printer << buffer;
-	    }
-	}
-	sprintf ( buffer, nf->float_printf_format, vf );
-	return printer << buffer;
+	return min::print_num ( printer, value, nf );
     }
     else if ( min::is_str ( v ) )
     {
