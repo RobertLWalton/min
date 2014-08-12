@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 11 14:06:04 EDT 2014
+// Date:	Mon Aug 11 22:21:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9031,7 +9031,7 @@ std::ostream & operator <<
 static min::uns32 standard_divisors[] =
 {
     2,3,4,5,6,7,8,9,10,11,12,
-    16,32,56,128,256,512,1024,
+    16,32,64,128,256,512,1024,
     0
 };
 const min::uns32 * min::standard_divisors =

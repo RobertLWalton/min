@@ -9730,6 +9730,8 @@ the following subsections.
 \subsubsection{Printing Numeric General Values}
 \label{PRINTING-NUMERIC-GENERAL-VALUES}
 
+The format for printing \TT{min::gen} number values is:
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{num\_format}}\ARGBREAK
@@ -9781,6 +9783,67 @@ the following subsections.
 \verb|0                       // fraction_accuracy|
 \LABEL{MIN::LONG_NUM_FORMAT} \\
 \end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{const min::uns32 *
+                   min::\MINKEY{standard\_divisors}:}\ARGBREAK
+\verb|2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,|\ARGBREAK
+\verb|16, 32, 64, 128, 256, 512, 1024, 0|\ARGBREAK
+\LABEL{MIN::LONG_NUM_FORMAT} \\
+\end{tabular}\end{indpar}
+
+The following function is called when a numeric \TT{min::gen} value
+is printed, and can be used to print a \TT{min::\EOL float64}
+value according to the above formats:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_num}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::float64 value,|\ARGBREAK
+    \verb|  const min::num_format * num_format = NULL );|
+\LABEL{MIN::PRINT_NUM} \\
+\end{tabular}\end{indpar}
+
+If the third argument is not provided,
+\TT{printer->\EOL print\_\EOL format.num\_\EOL format} is used.
+
+Given an \TT{min::gen} numeric value \TT{g}, \TT{printer << g}
+and \TT{printer << min::\EOL pgen~(~g~)} are both
+equivalent to
+\begin{center}
+\verb|min::print_num ( printer, min::float_of ( g ) )|
+\end{center}
+
+\TT{printer << min::\EOL pgen~(~g,~f~)} is equivalent to
+\begin{center}
+\verb|min::print_num ( printer, min::float_of ( g ), f->num_format )| \\
+\end{center}
+
+The algorithm used by \TT{min::print\_num} is as follows when the
+\TT{min::\EOL num\_\EOL format} argument is \TT{nf}:
+
+\begin{enumerate}
+\item If the absolute value of the \TT{value} argument is strictly
+less than \TT{nf->\EOL non\_\EOL float\_\EOL bound}, then:
+\begin{enumerate}
+\item If \TT{value} is an integer, it is printed using the
+\TT{nf->\EOL int\_\EOL printf\_\EOL format}.
+\item If \TT{nf->fraction\_divisors} is not \TT{NULL} and within
+this vector a divisor \TT{D} can be found such that for suitable integers
+\TT{I} and \TT{N}, \TT{0 <= N < D} and
+\begin{center}
+\TT{|value - I - N/D| < nf->fraction\_accuracy}
+\end{center}
+then `\TT{I N/D}' is printed if \TT{I>0}, `\TT{N/D}' is printed if \TT{I == 0},
+`\TT{-M/D}' is printed if \TT{I == -1} where \TT{M = D-N}, and
+`\TT{-J M/D}' is printed if \TT{I < -1} where \TT{J = I+1}.
+\end{enumerate}
+\item If \TT{value} has not been printed by the above, it is printed
+using \TT{nf->\EOL float\_\EOL printf\_\EOL format}.
+\end{enumerate}
+
+The list of allowed divisors \TT{D} in \TT{nf->fraction\_\EOL divisors}
+must be in ascending order and be terminated by a \TT{0}.
 
 \subsubsection{Printing String General Values}
 \label{PRINTING-STRING-GENERAL-VALUES}
