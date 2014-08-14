@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 11, 2014}
+\date{August 14, 2014}
  
 \maketitle
 
@@ -9730,7 +9730,7 @@ the following subsections.
 \subsubsection{Printing Numeric General Values}
 \label{PRINTING-NUMERIC-GENERAL-VALUES}
 
-The format for printing \TT{min::gen} number values is:
+The format for printing numeric \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -9848,6 +9848,8 @@ must be in ascending order and be terminated by a \TT{0}.
 \subsubsection{Printing String General Values}
 \label{PRINTING-STRING-GENERAL-VALUES}
 
+The formats for printing string \TT{min::gen} values is:
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{str\_format}}\ARGBREAK
@@ -9953,6 +9955,44 @@ must be in ascending order and be terminated by a \TT{0}.
 \verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \LABEL{MIN::QUOTE_BRACKET_FORMAT}
 \end{tabular}\end{indpar}
+
+The following function is called when a string \TT{min::gen} value
+is printed, and can be used to print a \TT{const char *}
+value according to the above formats:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const char * str,|\ARGBREAK
+    \verb|  const min::str_format * str_format = NULL );|
+\LABEL{MIN::PRINT_NUM} \\
+\end{tabular}\end{indpar}
+
+Here \TT{str\_format->quote\_control}
+determines whether the string will be printed plain or as a quoted string, and 
+if it is quoted, the other parts of \TT{str\_\EOL format} determine how
+it is quoted.  If \TT{str\_\EOL format} is \TT{NULL},
+the string is simply printed as is without quoting.
+Note that
+\TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
+implicitly used when \TT{min::\EOL print\_\EOL chars} is called directly
+with a \TT{NULL} third argument,
+but it is used as the third argument when a \TT{min::gen} value is
+printed.
+
+\TT{min::print\_chars} copies the string to the stack (converting from
+UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
+any functions that might allocate or relocate objects, so \TT{str}
+\underline{can} be a relocatable address.
+
+A \TT{min::quote\_control} value \TT{qc} determines whether a string will
+be quoted as follows.  If any character in the string has a character
+flag that is in \TT{qc.unquote\_\EOL if\_\EOL none\_\EOL of}, the
+string is quoted.  Otherwise if the first character of the string
+has a flag that is in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
+is not quoted, and if not, the string is quoted.
+
+If the string is to be quoted, \TT{str\_format->bracket\_format}
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}

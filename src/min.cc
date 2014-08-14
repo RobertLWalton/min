@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 11 22:21:26 EDT 2014
+// Date:	Thu Aug 14 14:15:47 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8368,218 +8368,16 @@ static bool insert_line_break ( min::printer printer )
     return false;
 }
 
-min::printer min::print_quoted_unicode
-	( min::printer printer,
-	  min::unsptr length,
-	  const min::Uchar * string,
-	  const min::str_format * sf )
-{
-    min::bracket_format bf = sf->bracket_format;
-
-    min::uns32 reduced_width =
-          printer->line_break.line_length
-        - printer->line_break.indent
-	- min::ustring_columns ( bf.str_prefix )
-        - min::ustring_columns ( bf.str_postfix );
-    if ( reduced_width < 10 ) reduced_width = 10;
-
-    min::uns32 postfix_length =
-        min::ustring_length ( bf.str_postfix );
-    min::Uchar postfix_string[postfix_length+1];
-    {
-	const char * p =
-	    min::ustring_chars ( bf.str_postfix );
-	const char * endp = p + postfix_length;
-	min::Uchar * q = postfix_string;
-	while ( p != endp )
-	    * q ++ = min::utf8_to_unicode ( p, endp );
-	assert (    q - postfix_string
-	         <= postfix_length + 1 );
-	postfix_length = q - postfix_string;
-    }
-
-    printer << min::pustring ( bf.str_prefix );
-
-    min::ptr<const min::Uchar> p =
-        min::new_ptr<const min::Uchar> ( string );
-
-    min::uns32 width = reduced_width;
-    while ( length > 0 )
-    {
-	min::print_unicode
-	    ( printer, length, p, width,
-	               & sf->display_control,
-	               postfix_string,
-		       postfix_length,
-		       bf.str_postfix_name );
-
-	printer << min::pustring ( bf.str_postfix );
-
-
-	if ( length != 0 )
-	{
-	    printer
-		<< " "
-		<< min::set_break
-		<< min::pustring
-		      ( bf.str_concatenator )
-		<< " "
-		<< min::pustring
-		      ( bf.str_prefix );
-	}
-
-	width = reduced_width - 1
-	      - min::ustring_columns
-	            ( bf.str_concatenator );
-    }
-
-    return printer;
-}
-
-inline void compute_flags
-	( const min::print_format & print_format,
-	  const min::Uchar * s, min::unsptr n,
-	  min::uns32 & first_flags,
-	  min::uns32 & or_flags,
-	  min::uns32 & and_flags,
-	  min::uns32 & last_flags )
-{
-    min::support_control sc =
-        print_format.support_control;
-    const min::uns32 * char_flags =
-	print_format.char_flags;
-
-    bool first = true;
-    while ( n -- )
-    {
-        min::Uchar c = * s ++;
-	min::uns16 cindex = min::Uindex ( c );
-	min::uns32 cflags = char_flags[cindex];
-	if ( ( cflags & sc.support_mask ) == 0 )
-	    cflags = sc.unsupported_char_flags;
-
-	if ( first )
-	{
-	    first_flags = or_flags = and_flags = cflags;
-	    first = false;
-	}
-	else
-	{
-	    or_flags |= cflags;
-	    and_flags &= cflags;
-	}
-	last_flags = cflags;
-    }
-}
-
-// NOTE: Importantly this function copies s to the
-// stack BEFORE calling anything that might relocate
-// memory.
-//
-min::printer min::print_chars
-	( min::printer printer, const char * s,
-	  const min::str_format * sf )
-{
-    // We translate this case to the punicode case
-    // because we need to be able to perform look-ahead
-    // for combining diacritics, and in the future for
-    // other things.
-    
-    int length = ::strlen ( s );
-    const char * ends = s + length;
-
-    min::Uchar buffer[length+1];
-    min::unsptr i = 0;
-
-    while ( s < ends )
-    {
-	min::Uchar c = (min::uns8) * s ++;
-        if ( c >= 0x80 )
-	{
-	    // UTF-8 encoded character.  Might be
-	    // overlong encoded ASCII character such
-	    // as NUL.
-
-	    -- s;
-	    c = min::utf8_to_unicode ( s, ends );
-	}
-	buffer[i++] = c;
-    }
-
-    if ( sf != NULL )
-    {
-        if ( i == 0 )
-	    return min::print_quoted_unicode
-	        ( printer, i, buffer, sf );
-
-	min::quote_control qc = sf->quote_control;
-
-	// Divide into the case where we need to call
-	// compute_flags and the case where we do not
-	// need to.
-	//
-	if ( qc.unquote_if_none_of != 0 )
-	{
-	    min::uns32 first_flags;
-	    min::uns32 or_flags;
-	    min::uns32 and_flags;
-	    min::uns32 last_flags;
-	    compute_flags
-		( printer->print_format,
-		  buffer, i,
-		  first_flags,
-		  or_flags,
-		  and_flags,
-		  last_flags );
-	    min::uns32 if_none_of =
-		or_flags & qc.unquote_if_none_of;
-	    min::uns32 if_first =
-		first_flags & qc.unquote_if_first;
-	    if ( if_none_of == 0 && if_first != 0 )
-		sf = NULL;
-	}
-	else if ( qc.unquote_if_first != 0 )
-	{
-	    min::support_control sc =
-		printer->print_format
-			.support_control;
-
-	    Uchar c = buffer[0];
-	    uns16 cindex = Uindex ( c );
-	    uns32 first_flags =
-		printer->print_format
-			.char_flags[cindex];
-	    if (    (   first_flags
-		      & sc.support_mask )
-		 == 0 )
-		first_flags =
-		      sc.unsupported_char_flags;
-
-	    if (   first_flags
-		 & qc.unquote_if_first )
-		sf = NULL;
-	}
-
-	if ( sf != NULL )
-	    return min::print_quoted_unicode
-	        ( printer, i, buffer, sf );
-    }
-
-    min::ptr<const min::Uchar> p =
-        min::new_ptr ( buffer );
-
-    return min::print_unicode ( printer, i, p );
-}
-
-min::printer min::print_unicode
+static min::printer print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
-	  min::ptr<const min::uns32> & p,
+	  min::ptr<const min::Uchar> & p,
 	  min::uns32 & width,
-	  const min::display_control * display_control,
-	  const min::Uchar * substring,
-	  min::unsptr substring_length,
-	  const min::ustring * replacement )
+	  const min::display_control * display_control =
+	      NULL,
+	  const min::Uchar * substring = NULL,
+	  min::unsptr substring_length = 0,
+	  const min::ustring * replacement = NULL )
 {
     char temp[32];
 
@@ -8593,11 +8391,12 @@ min::printer min::print_unicode
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
 
-    uns32 line_length = printer->line_break.line_length;
+    min::uns32 line_length =
+        printer->line_break.line_length;
 
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
-    uns32 expand_ht =
+    min::uns32 expand_ht =
         printer->print_format.op_flags & min::EXPAND_HT;
 
 
@@ -8615,21 +8414,21 @@ min::printer min::print_unicode
 
     while ( n )
     {
-        Uchar c = * p;
-	uns16 cindex = Uindex ( c );
-	uns32 cflags = char_flags[cindex];
+        min::Uchar c = * p;
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
 	if ( ( cflags & sc.support_mask ) == 0 )
 	    cflags = sc.unsupported_char_flags;
 
         // Compute the character representative.
 	//
-	uns32 columns =
+	min::uns32 columns =
 	    ( cflags & min::IS_NON_SPACING ? 0 : 1 );
-	uns32 length = 1;
-	unsptr clength = 1;
+	min::uns32 length = 1;
+	min::unsptr clength = 1;
 	const char * rep = temp;
-	const ustring * prefix = NULL;
-	const ustring * postfix = NULL;
+	const min::ustring * prefix = NULL;
+	const min::ustring * postfix = NULL;
 	bool rep_is_space = false;
 
 	if (    substring != NULL
@@ -8651,7 +8450,8 @@ min::printer min::print_unicode
 	{
 	    if ( c == '\t' )
 	    {
-		uns32 spaces = 8 - printer->column % 8;
+		min::uns32 spaces =
+		    8 - printer->column % 8;
 		columns = spaces;
 	        if ( expand_ht )
 		{
@@ -8687,23 +8487,24 @@ min::printer min::print_unicode
 	else if ( (   printer->print_format.op_flags
 	            & min::DISPLAY_PICTURE )
 	          &&
-		  unicode::picture[cindex] != NULL )
+		     min::unicode::picture[cindex]
+		  != NULL )
 	{
-	    const ustring * picture =
-	        unicode::picture[cindex];
-	    length = ustring_length ( picture );
-	    columns = ustring_columns ( picture );
-	    rep = ustring_chars ( picture );
+	    const min::ustring * picture =
+	        min::unicode::picture[cindex];
+	    length = min::ustring_length ( picture );
+	    columns = min::ustring_columns ( picture );
+	    rep = min::ustring_chars ( picture );
 	}
 	else
 	{
-	    if ( unicode::name[cindex] != NULL )
+	    if ( min::unicode::name[cindex] != NULL )
 	    {
-		const ustring * name =
-		    unicode::name[cindex];
-		length = ustring_length ( name );
-		columns = ustring_columns ( name );
-		rep = ustring_chars ( name );
+		const min::ustring * name =
+		    min::unicode::name[cindex];
+		length = min::ustring_length ( name );
+		columns = min::ustring_columns ( name );
+		rep = min::ustring_chars ( name );
 	    }
 	    else
 	    {
@@ -8719,8 +8520,8 @@ min::printer min::print_unicode
 	    postfix = printer->print_format
 		     	     .char_name_format
 			    ->char_name_postfix;
-	    columns += ustring_columns ( prefix );
-	    columns += ustring_columns ( postfix );
+	    columns += min::ustring_columns ( prefix );
+	    columns += min::ustring_columns ( postfix );
 	}
 
 	if ( columns > width )
@@ -8767,20 +8568,236 @@ min::printer min::print_unicode
 	      >= bc.conditional_columns );
 	   
 	if ( prefix != NULL )
-	    min::push ( buffer,
-	                ustring_length ( prefix ),
-			ustring_chars  ( prefix ) );
+	    min::push
+	        ( buffer,
+		  min::ustring_length ( prefix ),
+		  min::ustring_chars  ( prefix ) );
 	min::push ( buffer, length, rep );
 	if ( postfix != NULL )
-	    min::push ( buffer,
-	                ustring_length ( postfix ),
-			ustring_chars  ( postfix ) );
+	    min::push
+	        ( buffer,
+		  min::ustring_length ( postfix ),
+		  min::ustring_chars  ( postfix ) );
 	printer->column += columns;
 	width -= columns;
 
     }
 
     return printer;
+}
+
+min::printer min::print_quoted_unicode
+	( min::printer printer,
+	  min::unsptr length,
+	  min::ptr<const min::Uchar> p,
+	  const min::str_format * sf )
+{
+    min::bracket_format bf = sf->bracket_format;
+
+    min::uns32 reduced_width =
+          printer->line_break.line_length
+        - printer->line_break.indent
+	- min::ustring_columns ( bf.str_prefix )
+        - min::ustring_columns ( bf.str_postfix );
+    if ( reduced_width < 10 ) reduced_width = 10;
+
+    min::uns32 postfix_length =
+        min::ustring_length ( bf.str_postfix );
+    min::Uchar postfix_string[postfix_length+1];
+    {
+	const char * p =
+	    min::ustring_chars ( bf.str_postfix );
+	const char * endp = p + postfix_length;
+	min::Uchar * q = postfix_string;
+	while ( p != endp )
+	    * q ++ = min::utf8_to_unicode ( p, endp );
+	assert (    q - postfix_string
+	         <= postfix_length + 1 );
+	postfix_length = q - postfix_string;
+    }
+
+    printer << min::pustring ( bf.str_prefix );
+
+    min::uns32 width = reduced_width;
+    while ( length > 0 )
+    {
+	::print_unicode
+	    ( printer, length, p, width,
+	               & sf->display_control,
+	               postfix_string,
+		       postfix_length,
+		       bf.str_postfix_name );
+
+	printer << min::pustring ( bf.str_postfix );
+
+
+	if ( length != 0 )
+	{
+	    printer
+		<< " "
+		<< min::set_break
+		<< min::pustring
+		      ( bf.str_concatenator )
+		<< " "
+		<< min::pustring
+		      ( bf.str_prefix );
+	}
+
+	width = reduced_width - 1
+	      - min::ustring_columns
+	            ( bf.str_concatenator );
+    }
+
+    return printer;
+}
+
+inline void compute_flags
+	( const min::print_format & print_format,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p,
+	  min::uns32 & first_flags,
+	  min::uns32 & or_flags,
+	  min::uns32 & and_flags,
+	  min::uns32 & last_flags )
+{
+    min::support_control sc =
+        print_format.support_control;
+    const min::uns32 * char_flags =
+	print_format.char_flags;
+
+    bool first = true;
+    while ( n -- )
+    {
+        min::Uchar c = * p ++;
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
+
+	if ( first )
+	{
+	    first_flags = or_flags = and_flags = cflags;
+	    first = false;
+	}
+	else
+	{
+	    or_flags |= cflags;
+	    and_flags &= cflags;
+	}
+	last_flags = cflags;
+    }
+}
+
+min::printer min::print_unicode
+	( min::printer printer,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p,
+	  const min::str_format * sf )
+{
+    if ( sf != NULL )
+    {
+        if ( n == 0 )
+	    return min::print_quoted_unicode
+	        ( printer, n, p, sf );
+
+	min::quote_control qc = sf->quote_control;
+
+	// Divide into the case where we need to call
+	// compute_flags and the case where we do not
+	// need to.
+	//
+	if ( qc.unquote_if_none_of != 0 )
+	{
+	    min::uns32 first_flags;
+	    min::uns32 or_flags;
+	    min::uns32 and_flags;
+	    min::uns32 last_flags;
+	    compute_flags
+		( printer->print_format,
+		  n, p,
+		  first_flags,
+		  or_flags,
+		  and_flags,
+		  last_flags );
+	    min::uns32 if_none_of =
+		or_flags & qc.unquote_if_none_of;
+	    min::uns32 if_first =
+		first_flags & qc.unquote_if_first;
+	    if ( if_none_of == 0 && if_first != 0 )
+		sf = NULL;
+	}
+	else if ( qc.unquote_if_first != 0 )
+	{
+	    min::support_control sc =
+		printer->print_format
+			.support_control;
+
+	    Uchar c = p[0];
+	    uns16 cindex = Uindex ( c );
+	    uns32 first_flags =
+		printer->print_format
+			.char_flags[cindex];
+	    if (    (   first_flags
+		      & sc.support_mask )
+		 == 0 )
+		first_flags =
+		      sc.unsupported_char_flags;
+
+	    if (   first_flags
+		 & qc.unquote_if_first )
+		sf = NULL;
+	}
+
+	if ( sf != NULL )
+	    return min::print_quoted_unicode
+	        ( printer, n, p, sf );
+    }
+
+    min::uns32 width = 0xFFFFFFFF;
+
+    return ::print_unicode ( printer, n, p, width );
+}
+
+
+
+// NOTE: Importantly this function copies s to the
+// stack BEFORE calling anything that might relocate
+// memory.
+//
+min::printer min::print_chars
+	( min::printer printer, const char * s,
+	  const min::str_format * sf )
+{
+    // We translate this case to the punicode case
+    // because we need to be able to perform look-ahead
+    // for combining diacritics, and in the future for
+    // other things.
+    
+    int length = ::strlen ( s );
+    const char * ends = s + length;
+
+    min::Uchar buffer[length+1];
+    min::unsptr i = 0;
+
+    while ( s < ends )
+    {
+	min::Uchar c = (min::uns8) * s ++;
+        if ( c >= 0x80 )
+	{
+	    // UTF-8 encoded character.  Might be
+	    // overlong encoded ASCII character such
+	    // as NUL.
+
+	    -- s;
+	    c = min::utf8_to_unicode ( s, ends );
+	}
+	buffer[i++] = c;
+    }
+
+    min::ptr<const min::Uchar> p =
+        min::new_ptr<const min::Uchar> ( buffer );
+
+    return min::print_unicode ( printer, i, p, sf );
 }
 
 min::printer MINT::print_ustring

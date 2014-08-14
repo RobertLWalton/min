@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 11 14:05:55 EDT 2014
+// Date:	Thu Aug 14 14:14:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11223,42 +11223,25 @@ namespace min {
 
     min::printer print_unicode
 	    ( min::printer printer,
-	      min::unsptr & n,
-	      min::ptr<const min::Uchar> & p,
-	      min::uns32 & width,
-	      const min::display_control *
-	      	  display_control = NULL,
-	      const min::Uchar * substring = NULL,
-	      min::unsptr substring_length = 0,
-	      const min::ustring * replacement = NULL );
-
-    inline min::printer print_unicode
-	    ( min::printer printer,
 	      min::unsptr n,
-	      min::ptr<const min::Uchar> p )
-    {
-	min::uns32 width = 0xFFFFFFFF;
-	return min::print_unicode
-		    ( printer, n, p, width );
-    }
+	      min::ptr<const min::Uchar> p,
+	      const min::str_format * = NULL );
 
     struct bracket_format;
     min::printer print_quoted_unicode
 	    ( min::printer printer,
 	      min::unsptr n,
-	      const min::Uchar * p,
+	      min::ptr<const min::Uchar> p,
 	      const min::str_format * str_format );
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
 	      min::Uchar c )
     {
-        min::unsptr n = 1;
 	min::ptr<const Uchar> p =
 	    min::new_ptr<const Uchar> ( & c );
-        min::uns32 width = 0xFFFFFFFF;
 	return min::print_unicode
-	    ( printer, n, p, width );
+	    ( printer, 1, p );
     }
 
     namespace internal {
