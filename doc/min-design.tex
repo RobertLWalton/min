@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 14, 2014}
+\date{August 15, 2014}
  
 \maketitle
 
@@ -9695,7 +9695,7 @@ is:
 \verb|min::printer ( * pgen )|\\
 \verb|     ( min::printer printer,|\\
 \verb|       min::gen v,|\\
-\verb|       const min::gen_format * gen_format );|\\
+\verb|       const min::gen_format * gen_format );|
 \end{indpar}
 
 This first member is called with the \TT{min::\EOL gen\_\EOL format}
@@ -9965,7 +9965,7 @@ value according to the above formats:
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format * str_format = NULL );|
-\LABEL{MIN::PRINT_NUM} \\
+\LABEL{MIN::PRINT_CHARS} \\
 \end{tabular}\end{indpar}
 
 Here \TT{str\_format->quote\_control}
@@ -9993,6 +9993,70 @@ has a flag that is in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
 is not quoted, and if not, the string is quoted.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
+determines how the string is quoted.  The quoted string is preceeded
+by the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and followed by the
+\TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the quoted string itself
+contains a copy of the \TT{str\_\EOL postfix} member (e.g., \TT{"}),
+that copy is replaced by the \TT{str\_\EOL postfix\_\EOL replacement}
+member (e.g., \TT{<Q>}).  If the string is too long to fit in the
+columns between \TT{printer->\EOL line\_\EOL break.indent}
+and \TT{printer->\EOL line\_\EOL break.line\_\EOL length}
+(\pagref{LINE-LENGTH}), and if
+the \TT{str\_\EOL concatenator} member is not \TT{NULL}, then
+the quoted string is broken into multiple quoted strings, each
+fitting within the columns, separated by copies of
+\TT{str\_\EOL concatenator} (e.g., \TT{\#})
+surroundsed by single spaces.
+
+Lastly, the characters of the string being quoted (but \underline{not}
+those of \TT{str\_\EOL format->\EOL bracket\_\EOL format.str\_\ldots})
+are printed using \TT{str\_\EOL format->\EOL display\_\EOL control}
+instead of \TT{printer->\EOL print\_\EOL format.display\_\EOL control}.
+E.g., only graphic characters may be allowed to print as themselves,
+and everything else may be represented by a character name
+(or if the \TT{min::\EOL DISPLAY\_\EOL PICTURE} printer operation
+flag is set, by a character picture).
+
+If instead of a \TT{const char *} string you want to print a vector
+of \TT{n} UNICODE \TT{Uchar}'s pointed at by \TT{p}, you may use the
+function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format * str_format = NULL );|
+\LABEL{MIN::PRINT_UNICODE} \\
+\end{tabular}\end{indpar}
+
+Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
+
+You can also print a single unquoted \TT{min::Uchar} with:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::Uchar c )|
+\LABEL{MIN::PRINT_UCHAR} \\
+\end{tabular}\end{indpar}
+
+and an unquoted \TT{min::ustring} with:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const min::ustring * s )|
+\LABEL{MIN::PRINT_USTRING} \\
+\end{tabular}\end{indpar}
+
+This last has the special property that it prints nothing if
+\TT{s} is \TT{NULL}.  It also inserts a \TT{min::\EOL trailing}
+operation before printing \TT{s} if \TT{s} has the
+\TT{min::\EOL USTRING\_\EOL TRAILING} flag,
+and a \TT{min::\EOL leading}
+operation after printing \TT{s} if \TT{s} has the
+\TT{min::\EOL USTRING\_\EOL LEADING} flag.
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}

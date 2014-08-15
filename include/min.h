@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 14 14:14:08 EDT 2014
+// Date:	Fri Aug 15 03:55:40 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11217,22 +11217,45 @@ namespace min {
     extern const op print_assert; // For debugging only.
 
     struct str_format;
+
+    namespace internal {
+
+	min::printer print_unicode
+		( min::printer printer,
+		  min::unsptr & n,
+		  min::ptr<const min::Uchar> & p,
+		  min::uns32 & width,
+		  const min::display_control *
+		      display_control = NULL,
+		  const min::Uchar * substring = NULL,
+		  min::unsptr substring_length = 0,
+		  const min::ustring * replacement = NULL );
+
+    }
+
     min::printer print_chars
     	    ( min::printer printer, const char * s,
 	      const min::str_format * = NULL );
 
+    // Rather than have a default NULL str_format,
+    // we default to an inline purely to optimize.
+    // The effect is the same.
+    //
     min::printer print_unicode
 	    ( min::printer printer,
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
-	      const min::str_format * = NULL );
+	      const min::str_format * );
 
-    struct bracket_format;
-    min::printer print_quoted_unicode
+    inline min::printer print_unicode
 	    ( min::printer printer,
 	      min::unsptr n,
-	      min::ptr<const min::Uchar> p,
-	      const min::str_format * str_format );
+	      min::ptr<const min::Uchar> p )
+    {
+	min::uns32 width = 0xFFFFFFFF;
+	return min::internal::print_unicode
+		    ( printer, n, p, width );
+    }
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
@@ -11399,7 +11422,7 @@ namespace min {
     {
 	const min::ustring *	str_prefix;
 	const min::ustring *	str_postfix;
-	const min::ustring *	str_postfix_name;
+	const min::ustring *	str_postfix_replacement;
 	const min::ustring *	str_concatenator;
     };
 

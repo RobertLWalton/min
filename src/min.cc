@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 14 14:15:47 EDT 2014
+// Date:	Thu Aug 14 20:46:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8368,16 +8368,15 @@ static bool insert_line_break ( min::printer printer )
     return false;
 }
 
-static min::printer print_unicode
+min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
 	  min::ptr<const min::Uchar> & p,
 	  min::uns32 & width,
-	  const min::display_control * display_control =
-	      NULL,
-	  const min::Uchar * substring = NULL,
-	  min::unsptr substring_length = 0,
-	  const min::ustring * replacement = NULL )
+	  const min::display_control * display_control,
+	  const min::Uchar * substring,
+	  min::unsptr substring_length,
+	  const min::ustring * replacement )
 {
     char temp[32];
 
@@ -8586,7 +8585,7 @@ static min::printer print_unicode
     return printer;
 }
 
-min::printer min::print_quoted_unicode
+static min::printer print_quoted_unicode
 	( min::printer printer,
 	  min::unsptr length,
 	  min::ptr<const min::Uchar> p,
@@ -8621,12 +8620,12 @@ min::printer min::print_quoted_unicode
     min::uns32 width = reduced_width;
     while ( length > 0 )
     {
-	::print_unicode
+	MINT::print_unicode
 	    ( printer, length, p, width,
 	               & sf->display_control,
 	               postfix_string,
 		       postfix_length,
-		       bf.str_postfix_name );
+		       bf.str_postfix_replacement );
 
 	printer << min::pustring ( bf.str_postfix );
 
@@ -8697,7 +8696,7 @@ min::printer min::print_unicode
     if ( sf != NULL )
     {
         if ( n == 0 )
-	    return min::print_quoted_unicode
+	    return ::print_quoted_unicode
 	        ( printer, n, p, sf );
 
 	min::quote_control qc = sf->quote_control;
@@ -8749,13 +8748,13 @@ min::printer min::print_unicode
 	}
 
 	if ( sf != NULL )
-	    return min::print_quoted_unicode
+	    return ::print_quoted_unicode
 	        ( printer, n, p, sf );
     }
 
     min::uns32 width = 0xFFFFFFFF;
 
-    return ::print_unicode ( printer, n, p, width );
+    return MINT::print_unicode ( printer, n, p, width );
 }
 
 
@@ -8806,59 +8805,14 @@ min::printer MINT::print_ustring
 {
     min::uns32 flags   = ustring_flags ( s );
 
-    min::uns32 cflags;
-    if ( flags & USTRING_LEADING )
-    {
-        printer << min::leading;
-	cflags = min::IS_LEADING;
-    }
-    else if ( flags & USTRING_TRAILING )
-    {
+    if ( flags & USTRING_TRAILING )
         printer << min::trailing;
-	cflags = min::IS_TRAILING;
-    }
-    else
-        return min::print_chars
-	    ( printer, ustring_chars ( s ) );
 
-    min::uns32 columns = ustring_columns ( s );
-    if ( columns != 1 )
-        return min::print_chars
-	    ( printer, ustring_chars ( s ) );
+    min::print_chars
+	( printer, ustring_chars ( s ) );
 
-    min::break_control bc =
-	printer->print_format.break_control;
-    min::packed_vec_insptr<char> buffer =
-        printer->file->buffer;
-
-    if ( ( cflags & bc.break_before )
-	 ||
-	 ( ( cflags & bc.break_after ) == 0
-	   &&
-	   printer->break_after ) )
-    {
-	printer->line_break.offset =
-	    buffer->length;
-	printer->line_break.column =
-	    printer->column;
-    }
-
-    if (   printer->column + columns
-         > printer->line_break.line_length )
-	::insert_line_break ( printer );
-
-    printer->break_after =
-	( cflags & bc.break_after )
-	||
-	( ( cflags & bc.conditional_break )
-	  &&
-	       printer->column
-	     - printer->line_break.column
-	  >= bc.conditional_columns );
-       
-    min::push ( buffer,
-		ustring_length ( s ),
-		ustring_chars  ( s ) );
+    if ( flags & USTRING_LEADING )
+        printer << min::leading;
 
     return printer;
 }
