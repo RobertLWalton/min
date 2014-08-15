@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 14 20:46:34 EDT 2014
+// Date:	Fri Aug 15 14:59:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9991,13 +9991,14 @@ min::printer min::standard_pgen
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
 
-	min::print_ustring ( printer, lf->lab_prefix );
+	if ( lf ) min::print_ustring
+	              ( printer, lf->lab_prefix );
 
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 )
 	    {
-		if ( lf->lab_separator )
+		if ( lf && lf->lab_separator )
 		    MINT::print_ustring
 		        ( printer, lf->lab_separator );
 		else
@@ -10006,7 +10007,8 @@ min::printer min::standard_pgen
 	    (* f->pgen) ( printer, labp[i], f );
 	}
 
-	min::print_ustring ( printer, lf->lab_postfix );
+	if ( lf ) min::print_ustring
+	              ( printer, lf->lab_postfix );
 
 	return printer;
     }
@@ -10017,10 +10019,12 @@ min::printer min::standard_pgen
         min::unsgen index = MUP::special_index_of ( v );
 	min::packed_vec_ptr<const char *>
 	        special_names =
-	    sf->special_names;
+	    sf ? sf->special_names
+	       : (min::packed_vec_ptr<const char *>)
+	         min::NULL_STUB;
 
-	min::print_ustring
-	    ( printer, sf->special_prefix );
+	if ( sf ) min::print_ustring
+		      ( printer, sf->special_prefix );
 	if ( special_names != min::NULL_STUB
 	     &&
 	         0xFFFFFF
@@ -10036,12 +10040,13 @@ min::printer min::standard_pgen
 	else
 	{
 	    char buffer[64];
-	    sprintf ( buffer, "SPECIAL(0x%llx)",
+	    sprintf ( buffer, "SPECIAL(0x%06llX)",
 		              (min::uns64) index );
 	    min::print_chars ( printer, buffer );
 	}
-	return min::print_ustring
-	    ( printer, sf->special_postfix );
+	if ( sf ) min::print_ustring
+		      ( printer, sf->special_postfix );
+	return printer;
     }
 
 # ifdef NONE_SUCH
@@ -10105,34 +10110,46 @@ min::printer min::standard_pgen
 	    printer << "TYPE(" << type << ")";
 	return printer;
     }
-    else if ( min::is_list_aux ( v ) )
-        return printer << "LIST_AUX("
-	               << MUP::list_aux_of ( v ) << ")";
-    else if ( min::is_sublist_aux ( v ) )
-        return printer << "SUBLIST_AUX("
-	               << MUP::sublist_aux_of ( v )
-		       << ")";
-    else if ( min::is_indirect_aux ( v ) )
-        return printer << "INDIRECT_AUX("
-	               << MUP::indirect_aux_of ( v )
-		       << ")";
-    else if ( min::is_index ( v ) )
-        return printer << "INDEX("
-	               << MUP::index_of ( v ) << ")";
-    else if ( min::is_control_code ( v ) )
-    {
-	char buffer[64];
-	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
-		          (min::uns64)
-		          MUP::control_code_of ( v ) );
-	return printer << buffer;
-    }
     else
     {
-	char buffer[64];
-	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
-		  (min::uns64) MUP::value_of ( v ) );
-	return printer << buffer;
+	min::uns64 index;
+	const char * type;
+	int length = min::VSIZE / 4;
+	    // Number hex digits.
+
+	if ( min::is_list_aux ( v ) )
+	    type = "LIST_AUX",
+	    index = MUP::list_aux_of ( v );
+	else if ( min::is_sublist_aux ( v ) )
+	    type = "SUBLIST_AUX",
+	    index = MUP::sublist_aux_of ( v );
+	else if ( min::is_indirect_aux ( v ) )
+	    type = "INDIRECT_AUX",
+	    index = MUP::indirect_aux_of ( v );
+	else if ( min::is_index ( v ) )
+	    type = "INDEX",
+	    index = MUP::index_of ( v );
+	else if ( min::is_control_code ( v ) )
+	    type = "CONTROL_CODE",
+	    index = MUP::control_code_of ( v );
+	else
+	    type = "UNDEFINED_GEN",
+	    index = MUP::value_of ( v ),
+	    length = sizeof ( min::unsptr ) / 2;
+
+        char buffer[100];
+	sprintf ( buffer, "%s(0x%0*llX)",
+	          type, length, index );
+
+	const min::special_format * sf =
+	    f->special_format;
+
+	if ( sf ) min::print_ustring
+		      ( printer, sf->special_prefix );
+	min::print_chars ( printer, buffer );
+	if ( sf ) min::print_ustring
+		      ( printer, sf->special_postfix );
+	return printer;
     }
 }
 

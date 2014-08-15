@@ -9848,7 +9848,7 @@ must be in ascending order and be terminated by a \TT{0}.
 \subsubsection{Printing String General Values}
 \label{PRINTING-STRING-GENERAL-VALUES}
 
-The formats for printing string \TT{min::gen} values is:
+The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -10061,6 +10061,8 @@ operation after printing \TT{s} if \TT{s} has the
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}
 
+The format for printing label \TT{min::gen} values is:
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{lab\_format}}\ARGBREAK
@@ -10094,8 +10096,23 @@ operation after printing \TT{s} if \TT{s} has the
 \LABEL{MIN::BRACKET_LAB_FORMAT}
 \end{tabular}\end{indpar}
 
+A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
+as the latter is needed to print the elements of the label.
+
+Given a label format \TT{lf}, a \TT{min::gen} label value is printed as
+\TT{lf->\EOL lab\_\EOL prefix}, followed by the label elements separated by
+\TT{lf->\EOL lab\_\EOL separator}'s, followed by
+\TT{lf->\EOL lab\_\EOL postfix}.  Note that \TT{NULL} values for
+\TT{lf->\EOL lab\_\EOL prefix/separator/postfix} act like empty strings
+that print nothing, and a \TT{NULL} value for \TT{lf} acts like
+a label format with all \TT{NULL} parts.  However, if
+\TT{lf->\EOL lab\_\EOL separator} is \TT{NULL}, it is replaced by
+a single space character.
+
 \subsubsection{Printing Special General Values}
 \label{PRINTING-SPECIAL-GENERAL-VALUES}
+
+The format for printing special \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -10115,9 +10132,9 @@ operation after printing \TT{s} if \TT{s} has the
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}\ARGBREAK
-\verb|NULL                                  // special_prefix|\ARGBREAK
-\verb|NULL                                  // special_postfix|\ARGBREAK
-\verb|min::standard_special_names           // special_names|\ARGBREAK
+\verb|NULL                                     // special_prefix|\ARGBREAK
+\verb|NULL                                     // special_postfix|\ARGBREAK
+\verb|min::standard_special_names              // special_names|\ARGBREAK
 \LABEL{MIN::NAME_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -10126,7 +10143,7 @@ operation after printing \TT{s} if \TT{s} has the
                    min::\MINKEY{bracket\_special\_format}:}\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" "[$"   // special_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" "$]"   // special_postfix|\ARGBREAK
-\verb|min::standard_special_names           // special_names|\ARGBREAK
+\verb|min::standard_special_names              // special_names|\ARGBREAK
 \LABEL{MIN::BRACKET_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -10139,8 +10156,58 @@ operation after printing \TT{s} if \TT{s} has the
 \verb|    //        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|\\
 \end{tabular}\end{indpar}
 
+Given a special format \TT{sf},
+a \TT{min::gen} special value \TT{v} is printed as its name surrounded
+by \TT{lf->\EOL special\_\EOL prefix/\EOL postfix}.
+Let
+\begin{center}
+\tt i = min::special\_index\_of ( v ) \\
+\tt j = 0xFFFFFF - i
+\end{center}
+Here \TT{i} is the index of \TT{v} and \TT{0xFFFFFF} is the maximum possible
+value of \TT{i}.
+Then if \TT{lf->\EOL special\_\EOL names} is not \TT{min::\EOL NULL\_\EOL STUB},
+and
+\begin{center}
+\tt 0 <= j < lf->special\_names->length
+\end{center}
+then \TT{lf->\EOL special\_\EOL names[j]} is the name of \TT{v}.
+
+Otherwise
+\TT{SPECIAL(}$i$\TT{)} is he name of \TT{v}, where $i$ is represented as
+a 6-digit hexadecimal integer (e.g., \TT{0x000000}, \TT{0x000001},
+\ldots, \TT{0xFFFFFF}).
+
+If \TT{lf} is \TT{NULL}, it is treated as if its
+\TT{special\_\EOL prefix/\EOL postfix/\EOL names} components were
+\TT{NULL} or \TT{NULL\_\EOL STUB}.
+
+WARNING: The {\tt special\_\EOL names} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt special\_\EOL names} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
+
 \subsubsection{Printing Other General Values}
 \label{PRINTING-OTHER-GENERAL-VALUES}
+
+Printing \TT{min::gen} values that are objects is complex and
+its discussion is deferred until \itemref{PRINTING-OBJECT-GENERAL-VALUES},
+after the description of object general values.
+
+The other kinds of general values are similar to special values but
+with a different types and without names such as `\TT{MISSING}'.
+They are printed in the same way as special values and given
+names such as \TT{AUX(0x000000004)}.  They are also printed using
+\TT{printer->\EOL print\_\EOL format.gen\_\EOL format->\EOL
+special\_\EOL format.special\_\EOL prefix/\EOL postfix}
+to surround the value name.
+
+
+\subsubsection{TBD}
+
+Old stuff to be deleted as it is incorporated elsewhere.
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<min::gen> min::|%
@@ -10245,13 +10312,6 @@ This member is only enabled if
 and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
 See
 {\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} above for usage.
-
-WARNING: The {\tt special\_\EOL names} member of a {\tt min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-{\tt special\_\EOL names} will never be garbage collected and
-will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
-{\tt min::\EOL locatable\_\EOL gen} variables.
 
 \item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
 This member controls the {\tt min::suppressible\_space} operation, which
