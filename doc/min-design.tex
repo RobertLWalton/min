@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 15, 2014}
+\date{August 16, 2014}
  
 \maketitle
 
@@ -10205,534 +10205,6 @@ special\_\EOL format.special\_\EOL prefix/\EOL postfix}
 to surround the value name.
 
 
-\subsubsection{TBD}
-
-Old stuff to be deleted as it is incorporated elsewhere.
-
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::packed_vec_ptr<min::gen> min::|%
-    \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
-\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
-\verb|    // 2 element (first element ".") min::gen labels for:| \\
-\verb|    //     .initiator, .separator, .terminator, .middle,| \\
-\verb|    //     .name, .arguments, .keys, .operator, .position|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::packed_vec_ptr<const char *> min::|%
-    \MINKEY{default\_\EOL flag\_\EOL names}
-\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
-\verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
-\verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
-\verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
-\verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
-\verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
-\end{tabular}\end{indpar}
-
-In the above, \ttkey{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
-converted to a \TT{const min::\EOL Uchar *} vector with initial header
-element: see \pagref{USTRING}.
-
-The {\tt min::gen\_format} members are:
-
-\begin{itemlist}[0.4in]
-
-\item[\ttmkey{pgen}{in {\tt min::gen\_format}}]
-The {\tt pgen} function is called to by {\tt min::pgen} to print
-the general value {\tt v} on the given {\tt printer} using
-the given {\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags}
-and {\tt gen\_\EOL format}.
-The function must return the {\tt printer}.  The description of
-{\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags},
-and {\tt gen\_\EOL format} members in
-this section apply only to {\tt min::\EOL default\_\EOL pgen},
-the default value of this {\tt pgen} member.
-
-\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]~\\
-The {\tt number\_format} member is used as a {\tt printf} format
-for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
-
-\item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
-and none of these three members is {\tt NULL}.
-
-The {\tt str\_\EOL \{pre,post\} fix} members are printed just before and
-just after the string of characters in a {\tt min::gen} string value
-(which is itself a UTF-8 encoded UNICODE character string).
-
-Any {\tt min::gen} string
-subsequence of characters equal to {\tt str\_\EOL post\-fix} is replaced
-by the characters of {\tt str\_\EOL quote}.
-
-For example, if
-{\tt str\_\EOL postfix} is \TT{"\textbackslash""}, and
-{\tt str\_\EOL quote} is \TT{"<Q>"}, then \TT{<Q>} replaces
-each \TT{"} in the {\tt min::gen} string that is being printed
-(but of course not in {\tt str\_\EOL postfix}
-when that is printed just after the {\tt min::gen} string is printed).
-
-\item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
-and none of these three members is {\tt NULL}.
-
-The {\tt lab\_\EOL \{pre,post\} fix} members are printed just before and
-just after the elements of a label {\tt min::gen} value,
-and the {\tt lab\_\EOL separa\-tor} member
-is printed between elements.  Note that the {\tt lab\_\EOL sep\-ara\-tor}
-member must include any single space characters that are to be placed between
-elements.
-
-\item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL SPECIAL\_\EOL FLAG} is on
-and neither of these two members is {\tt NULL}.
-
-The {\tt special\_\EOL \{pre,post\} fix}
-members are printed just before and
-just after special {\tt min::gen} values (such as `{\tt MISSING()}').
-
-\item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if both the
-{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt OBJ\_\EOL EXP\_\EOL FLAG}
-are on and neither of these two members is {\tt NULL}.
-
-The {\tt implicit\_\EOL prefix/postfix} members surround an object being
-printed as an expression per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}, provided that
-the object has \underline{neither}
-an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
-
-\item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
-This member is only enabled if
-{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
-and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
-See
-{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} above for usage.
-
-\item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
-This member controls the {\tt min::suppressible\_space} operation, which
-may or may not output a single space character, and which is used
-to put the space between label elements
-if {\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on
-and {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is \underline{off},
-and which is also used to put the space between object vector elements
-being printed in an expression as per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}
-if {\tt SUPPRESS\_\EOL EXP\_\EOL SPACE\_\EOL FLAG} is on.
-If the flags are not set as indicated,
-{\tt min::\EOL suppressible\_\EOL space} is not used for printing labels or
-object expression vector elements.
-
-If {\tt suppress\_\EOL matrix} is {\tt NULL},
-{\tt min::\EOL suppressible\_\EOL space} outputs a single space character.
-Otherwise it outputs a single space character if and only if
-\begin{center}
-\tt ! suppress\_space[B][C]
-\end{center}
-where
-\begin{center}
-\tt
-\begin{tabular}{l}
-B = min::unicode\_category ( b ) \\
-C = min::unicode\_category ( c ) \\
-b = {\rm the previous printed UNICODE character} \\
-c = {\rm the following printed UNICODE character} \\
-\end{tabular}
-\end{center}
-
-If we are at the beginning of printing, or if we are at the beginning
-of a line, the previous printed UNICODE character
-is assumed to be a newline character.  A space is
-never output if it would be at the end of a line.
-
-{\tt suppress\_matrix} must be a pointer to a matrix of
-{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX})
-stored in {\tt static} memory or in the stack.  If stored in the stack,
-printer commands that might reference it must not be executed after
-it is deallocated.
-
-\item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
-This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
-In this case {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
-in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
-
-\item[\ttmkey{exp\_ok\_attrs}{in {\tt min::gen\_format}}]~\\
-This member is only enabled if {\tt OBJ\_\EOL EXP\_\EOL FLAG} is on.
-Then if an object is to be printed that all of whose attributes have
-names that are elements of {\tt exp\_\EOL ok\_\EOL attrs}, that object
-is printed as an expression.  See {\tt OBJ\_\EOL EXP\_\EOL FLAG} below.
-
-WARNING: The {\tt exp\_ok\_attrs} member of a {\tt min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-{\tt exp\_\EOL ok\_\EOL attrs} will never be garbage collected and
-will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
-{\tt min::\EOL locatable\_\EOL gen} variables.
-
-\item[\ttmkey{flag\_names}{in {\tt min::gen\_format}}]
-This member is only enabled if it
-is not {\tt min::\EOL NULL\_\EOL STUB}.
-
-{\tt flag\_names[i]} is printed as the representation of
-control flag {\tt 1 << i} of an attribute.
-
-WARNING: The {\tt flag\_\EOL names} member of a {\tt min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-{\tt flag\_\EOL names} will never be garbage collected and
-will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
-{\tt min::\EOL locatable\_\EOL gen} variables.
-
-
-
-\end{itemlist}
-
-Objects, packed structures and vectors, and long strings can be
-output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
-the printer \key{object ID map}.
-
-A printer's \TT{id\_map} member is initialized automatically when
-needed.  However, it can also be set by:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::obj_id_map min::|
-    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
-    \verb|( <min::printer printer,|\ARGBREAK
-    \verb|  min::id_map map = min::NULL_STUB )|
-\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
-\end{tabular}\end{indpar}
-
-which permits maps to be shared among printers.  If no second argument
-is given, an identifier map is created for the printer if none previously
-exists.  This can then be shared with other printers.  The final
-\TT{id\_\EOL map} member of the printer is returned, and this
-is never \TT{min::\EOL NULL\_\EOL STUB}.
-
-When a datum with a stub is printed as
-`{\tt @}i', it is recorded in {\tt printer->\EOL id\_\EOL map}
-so it may be printed on separate lines.  This may be done by
-the printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
-\LABEL{MIN::FLUSH_ONE_ID} \\
-\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
-\LABEL{MIN::FLUSH_ID_MAP} \\
-\end{tabular}\end{indpar}
-
-The first operation prints the datum at {\tt printer->\EOL id\_\EOL map[i]}
-where {\tt i} equals {\tt printer->\EOL id\_\EOL map->\EOL next}, and then
-increments {\tt printer->\EOL id\_\EOL map->\EOL next}.  The second operation
-simply repeats the first operation as long as
-{\tt printer->\EOL id\_\EOL map->\EOL next}
-is less than {\tt printer->\EOL id\_\EOL map->\EOL length}.
-The {\tt min::\EOL flush\_\EOL id\_\EOL map} operation is also
-performed by the {\tt min::\EOL eom} end-of-message operation
-if the print format
-{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
-
-These {\tt id\_map} flushing operations use the
-{\tt context\_\EOL gen\_\EOL flags[PGEN\_INDENT]} gen flags
-(\pagref{PGEN_INDENT}) with {\tt min::\EOL pgen}
-to print the {\em values} in lines of the form:
-\begin{center}
-\TT{@}i \TT{=} {\em value}
-\end{center}
-If a line is too long, it may be broken into multiple lines
-as specified by the printer parameters.
-
-If the {\em value} is an object not being printed as per
-{\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the {\tt OBJ\_\EOL INDENT} flag
-will cause the object will be printed on
-multiple lines whose form will be:\label{GEN-OBJ-FORM}
-\begin{center}
-\begin{tabular}{l}
-\TT{@}i \TT{=} {\em element}$^\star$\TT{:} \\
-~~~~{\em attribute-name-and-values}\\
-~~~~\ldots\ldots\ldots\\
-~~~~{\em reverse-attribute-name-and-values}\\
-~~~~\ldots\ldots\ldots\\
-\end{tabular}
-\end{center}
-
-where:
-
-\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
-{\em attribute-name-and-values} & ::= &
-    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
-    	&  & \TT{~~~~=} {\em attribute-values}
-\\[1ex]
-{\em attribute-values} & ::= & {\em attribute-value} \\
-                       & $|$ & \TT{\{|} {\em attribute-value} \ldots
-		               \TT{|\}}
-\\[1ex]
-{\em attribute-value} & ::= & printed representation of value
-\end{tabular}
-
-\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
-{\em reverse-attribute-name-and-values} & ::= &
-    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
-    	&  & \TT{~~~~=} {\em reverse-attribute-values} \\
-	&  & \TT{~~~~=} {\em reverse-attribute-name}
-\\[1ex]
-{\em reverse-attribute-values} & ::= & {\em reverse-attribute-value} \\
-                       & $|$ & \TT{\{|} {\em reverse-attribute-value} \ldots
-		               \TT{|\}}
-\\[1ex]
-{\em reverse-attribute-value} & ::= & \TT{@}{\em natural-number}
-\end{tabular}
-
-Note that a {\em reverse-attribute-value} is always an object and is
-always printed as per the {\tt OBJ\_\EOL ID\_\EOL FLAG}, even when
-that flag is off.
-
-The {\em attribute-flags} have the form:
-
-\newcommand{\TTBS}[1]{\TT{\textbackslash#1}}
-\begin{tabular}{rrl}
-{\em attribute-flags}
-    & ::= & \TT{[}{\em attribute-flag-name}$^\star$\TT{]} \\
-    & $|$ & {\em empty} \hspace*{2in}if no flags \\
-{\em attribute-flag-name} & ::= &
-        \TT{!} $|$ \TT{\#} $|$ \TT{\$} $|$ \TT{\%} $|$ \TT{\&}
-    $|$ \TT{*} $|$ \TT{+} $|$ \TT{-} $|$ \TT{/} $|$ \TT{=}
-    $|$ \TT{?} $|$ \TT{@} \\
-& $|$ & \TT{a} $|$ \ldots{} $|$ \TT{z} $|$ \TT{A} $|$ \ldots{} $|$ \TT{Z} \\
-& $|$ & \TT{\~{ }!} $|$ \TT{\~{ }\#} $|$ \TT{\~{ }\$} $|$ \TT{\~{ }\%}
-  $|$ \TT{\~{ }\&} $|$ \TT{\~{ }*} $|$ \TT{\~{ }+} $|$ \TT{\~{ }-}
-  $|$ \TT{\~{ }/} $|$ \TT{\~{ }=} $|$ \TT{\~{ }?} $|$ \TT{\~{ }@} \\
-& $|$ & \TT{\~{ }a} $|$ \ldots{} $|$ \TT{\~{ }z}
-  $|$ \TT{\~{ }A} $|$ \ldots{} $|$ \TT{\~{ }Z} \\
-& $|$ & \TT{\^{ }!} $|$ \TT{\^{ }\#} $|$ \TT{\^{ }\$} $|$ \TT{\^{ }\%}
-  $|$ \TT{\^{ }\&} $|$ \TT{\^{ }*} $|$ \TT{\^{ }+} $|$ \TT{\^{ }-}
-  $|$ \TT{\^{ }/} $|$ \TT{\^{ }=} $|$ \TT{\^{ }?} $|$ \TT{\^{ }@} \\
-& $|$ & \TT{\^{ }a} $|$ \ldots{} $|$ \TT{\^{ }z} $|$ \TT{\^{ }A}
-  $|$ \ldots{} $|$ \TT{\^{ }Z} \\
-& $|$ & \TTBS{!} $|$ \TTBS{\#} $|$ \TTBS{\$} $|$ \TTBS{\%} $|$ \TTBS{\&}
-  $|$ \TTBS{*} $|$ \TTBS{+} $|$ \TTBS{-} $|$ \TTBS{/} $|$ \TTBS{=}
-  $|$ \TTBS{?} $|$ \TTBS{@} \\
-& $|$ & \TTBS{a} $|$ \ldots{} $|$ \TTBS{z}
-  $|$ \TTBS{A} $|$ \ldots{} $|$ \TTBS{Z} \\
-& $|$ & \TT{,}{\em flag-number}
-\end{tabular}
-
-Here {\em attribute-flag-names} are listed in the order of their flag number,
-where the default correspondence is
-\begin{center}
-\begin{tabular}{r@{~correspond to flag numbers~}l}
-\TT{!} \ldots{} \TT{Z} & \TT{0} \ldots{} \TT{63} \\
-\TT{\~{ }!} \ldots{} \TT{\~{ }Z} & \TT{64} \ldots{} \TT{127} \\
-\TT{\^{ }!} \ldots{} \TT{\^{ }Z} & \TT{128} \ldots{} \TT{191} \\
-\TTBS{!} \ldots{} \TTBS{Z} & \TT{192} \ldots{} \TT{255} \\
-\end{tabular}
-\end{center}
-The {\tt flag\_names} member of the effective {\tt gen\_format}
-is used to produce flag names, and the correspondence just
-given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
-
-The {\tt context\_gen\_flags} or {\tt gen\_format} of a printer
-may be changed by the printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL context\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::context_gen_flags * context_gen_flags )|
-\LABEL{MIN::SET_CONTEXT_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
-      \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
-\end{tabular}\end{indpar}
-
-New {\em context\_gen\_flags} and {\tt gen\_formats} should be made
-by copying a default value into static memory or the stack and then making
-specific changes to it, as members may be added to or reordered in
-the value.  If the stack is used, old values must be restored
-before the stack memory is deallocated.
-
-Strictly for testing purposes, in situations where \TT{min::printer}'s
-are not working, general values can be printed to \TT{std::ostreams}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
-      \verb|( std::ostream & out,|\ARGBREAK
-      \verb|  min::gen g )|
-\LABEL{OPERATOR<<_OF_OSTREAM_AND_GEN} \\
-\end{tabular}\end{indpar}
-
-Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
-but other \TT{min::gen} values print in a reasonable way.
-
-The detailed structure and meaning of general value printing flags 
-is as follows:
-
-\ldots{\tt \_gen\_flags} Flags:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
-\LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
-\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
-\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
-\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
-\LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
-\LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
-\LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
-\LABEL{MIN::STR_ID_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
-
-\item[\ttmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
-This flag causes {\tt min::gen} string value characters to be printed
-in graphic mode, as per the {\tt min::graphic} printer operation
-(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
-
-\item[\ttkey{BRACKET\_STR\_FLAG}]
-\item[\ttkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
-\item[\ttkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
-\item[\ttkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
-These flags enable use of the following {\tt gen\_\EOL format}
-members which are described below:
-\begin{center}
-\begin{tabular}{l@{~~~~~~~~~~}l}
-{\tt BRACKET\_STR\_FLAG}	& {\tt str\_prefix},
-				  {\tt str\_postfix},
-				  {\tt str\_quote}
-\\
-{\tt BRACKET\_LAB\_FLAG}	& {\tt lab\_prefix},
-				  {\tt lab\_postfix}
-\\
-{\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
-				  {\tt special\_postfix}
-\\
-{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_prefix},
-				  {\tt implicit\_postfix}
-
-\end{tabular}
-\end{center}
-
-\item[\ttkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
-This flag suppresses use of the
-{\tt special\_\EOL names} member
-of {\tt gen\_\EOL format}, described below, to
-print a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
-
-If the flag is \underline{off}, if {\tt special\_\EOL names}
-is not {\tt min::\EOL NULL\_\EOL STUB}, and if
-{\tt 0 <= i < special\_\EOL names->\EOL length}, then
-the value prints as {\tt special\_\EOL names[i]}.
-
-If the flag is \underline{off} and
-\begin{center}
-\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL
-names->\EOL length
-\end{center}
-then the value prints as
-{\tt min::\EOL standard\_\EOL special\_\EOL names[0xFFFFFF\,-\,i]}.
-
-Otherwise the value prints as `{\tt SPECIAL(i)}'.
-
-\item[\ttkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
-\item[\ttkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
-See {\tt surpress\_matrix} below.
-
-\item[\ttmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set and if all attributes of an object have names listed in
-{\tt exp\_\EOL ok\_\EOL attrs} (see below), then the object is
-printed as an expression.  In this case attributes other than
- \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
-\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
-are ignored.
-
-Note that objects with the {\tt .initiator}'s `{\tt \#}' and `{\tt "}' are
-printed unwrapped; for example,
-\begin{center}
-\verb/"foo" {| .initiator "<Q>" |}/
-\end{center}
-prints as
-\TT{"foo"}.
-
-\item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, and if an object is not being printed as an expression as
-per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
-then an identifier i will be allocated for the object
-in {\tt printer->\EOL id\_\EOL map} and the object will be
-printed as `{\tt @}i'.
-
-\item[\ttmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
-This flag controls how an object is printed if the
-{\tt OBJ\_\EOL EXP\_\EOL FLAG} and
-{\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
-is \underline{off}
-the object will be printed in the general form:
-\begin{center}
-\begin{tabular}{ll}
-\TT{\{|} {\em element} & \{ \TT{;} {\em attribute-name-and-values}
-                          \}$^\star$ \\
-                        & \{ \TT{;} {\em reverse-attribute-name-and-values}
-                          \}$^\star$  \TT{|\}}
-\end{tabular}
-\end{center}
-and if this flag is \underline{on} the object will be printed in the
-general form:
-\begin{center}
-\begin{tabular}{r@{}l}
-XXX	& {\em element}$^\star$\TT{:|} \\
-	& {\em attribute-name-and-values}\\
-	& \ldots\ldots\ldots\\
-	& {\em reverse-attribute-name-and-values}\\
-	& \ldots\ldots\ldots\\
-\end{tabular}
-\end{center}
-
-The two forms are is similar, with semi-colons in the first being
-replaced by line ends, indentation, and the indentation mark
-\TT{:|} in the second, and the
-surrounding \TT{\{|} \TT{|\}} of the first being omitted in the second.
-The indentation is the column position when the value is output; in
-the above XXX is printed before the value is output and the indent is
-at the end of the XXX.
-
-See \pagref{GEN-OBJ-FORM} for more details.
-
-\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} (see below)
-have an identifier i allocated
-in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
-Otherwise string values are printed normally.
-
-\end{itemlist}\end{indpar}
-
 \subsection{Objects}
 \label{OBJECTS}
 
@@ -13963,6 +13435,588 @@ that is indexed by the given index.  If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
 taken, to any depth.
+
+\subsubsection{Printing Object General Values}
+\label{PRINTING-OTHER-OBJECT-VALUES}
+
+The format for printing object \TT{min::gen} values is:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{obj\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::lab_format                      name_format;|%
+\ttmindex{name\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format                      element_format;|%
+\ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format                      value_format;|%
+\ttmindex{value\_format}{in {\tt min::obj\_format}}\ARGBREAK
+\ARGBREAK
+    \verb|  const min::ustring *                 obj_prefix;|%
+\ttmindex{obj\_prefix}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_separator;|%
+\ttmindex{obj\_separator}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_midfix;|%
+\ttmindex{obj\_midfix}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_postfix;|%
+\ttmindex{obj\_postfix}{in {\tt min::obj\_format}}\ARGBREAK
+\ARGBREAK
+    \verb|  const min::ustring *                 implicit_prefix;|%
+\ttmindex{implicit\_prefix}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 implicit_postfix;|%
+\ttmindex{implicit\_postfix}{in {\tt min::obj\_format}}\ARGBREAK
+\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::gen>        expr_ok_attr;|%
+\ttmindex{expr\_ok\_attr}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>    flag_names;|%
+\ttmindex{flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::OBJ_FORMAT}
+\end{tabular}
+\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{name\_obj\_format}:}\ARGBREAK
+\verb|min::name_lab_format                     // name_format|\ARGBREAK
+\verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::top_gen_format                      // value_format|\ARGBREAK
+\ARGBREAK
+\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x41" "{"    // obj_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" ","    // obj_separator|\ARGBREAK
+\verb$(const min::ustring *) "\x01\xC1" "|"    // obj_midfix$\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" "}"    // obj_postfix|\ARGBREAK
+\LABEL{MIN::NAME_OBJ_FORMAT}
+\end{tabular}\end{indpar}
+
+\subsubsection{TBD}
+
+Old stuff to be deleted as it is incorporated elsewhere.
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<min::gen> min::|%
+    \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
+\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+\verb|    // 2 element (first element ".") min::gen labels for:| \\
+\verb|    //     .initiator, .separator, .terminator, .middle,| \\
+\verb|    //     .name, .arguments, .keys, .operator, .position|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<const char *> min::|%
+    \MINKEY{default\_\EOL flag\_\EOL names}
+\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
+\verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
+\verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
+\verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
+\verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
+\verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
+\end{tabular}\end{indpar}
+
+In the above, \ttkey{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
+converted to a \TT{const min::\EOL Uchar *} vector with initial header
+element: see \pagref{USTRING}.
+
+The {\tt min::gen\_format} members are:
+
+\begin{itemlist}[0.4in]
+
+\item[\ttmkey{pgen}{in {\tt min::gen\_format}}]
+The {\tt pgen} function is called to by {\tt min::pgen} to print
+the general value {\tt v} on the given {\tt printer} using
+the given {\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags}
+and {\tt gen\_\EOL format}.
+The function must return the {\tt printer}.  The description of
+{\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags},
+and {\tt gen\_\EOL format} members in
+this section apply only to {\tt min::\EOL default\_\EOL pgen},
+the default value of this {\tt pgen} member.
+
+\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]~\\
+The {\tt number\_format} member is used as a {\tt printf} format
+for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
+
+\item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
+and none of these three members is {\tt NULL}.
+
+The {\tt str\_\EOL \{pre,post\} fix} members are printed just before and
+just after the string of characters in a {\tt min::gen} string value
+(which is itself a UTF-8 encoded UNICODE character string).
+
+Any {\tt min::gen} string
+subsequence of characters equal to {\tt str\_\EOL post\-fix} is replaced
+by the characters of {\tt str\_\EOL quote}.
+
+For example, if
+{\tt str\_\EOL postfix} is \TT{"\textbackslash""}, and
+{\tt str\_\EOL quote} is \TT{"<Q>"}, then \TT{<Q>} replaces
+each \TT{"} in the {\tt min::gen} string that is being printed
+(but of course not in {\tt str\_\EOL postfix}
+when that is printed just after the {\tt min::gen} string is printed).
+
+\item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
+\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
+and none of these three members is {\tt NULL}.
+
+The {\tt lab\_\EOL \{pre,post\} fix} members are printed just before and
+just after the elements of a label {\tt min::gen} value,
+and the {\tt lab\_\EOL separa\-tor} member
+is printed between elements.  Note that the {\tt lab\_\EOL sep\-ara\-tor}
+member must include any single space characters that are to be placed between
+elements.
+
+\item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if {\tt BRACKET\_\EOL SPECIAL\_\EOL FLAG} is on
+and neither of these two members is {\tt NULL}.
+
+The {\tt special\_\EOL \{pre,post\} fix}
+members are printed just before and
+just after special {\tt min::gen} values (such as `{\tt MISSING()}').
+
+\item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
+\item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
+These members are only enabled if both the
+{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt OBJ\_\EOL EXP\_\EOL FLAG}
+are on and neither of these two members is {\tt NULL}.
+
+The {\tt implicit\_\EOL prefix/postfix} members surround an object being
+printed as an expression per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}, provided that
+the object has \underline{neither}
+an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
+
+\item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
+This member is only enabled if
+{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
+and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
+See
+{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} above for usage.
+
+\item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
+This member controls the {\tt min::suppressible\_space} operation, which
+may or may not output a single space character, and which is used
+to put the space between label elements
+if {\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on
+and {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is \underline{off},
+and which is also used to put the space between object vector elements
+being printed in an expression as per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}
+if {\tt SUPPRESS\_\EOL EXP\_\EOL SPACE\_\EOL FLAG} is on.
+If the flags are not set as indicated,
+{\tt min::\EOL suppressible\_\EOL space} is not used for printing labels or
+object expression vector elements.
+
+If {\tt suppress\_\EOL matrix} is {\tt NULL},
+{\tt min::\EOL suppressible\_\EOL space} outputs a single space character.
+Otherwise it outputs a single space character if and only if
+\begin{center}
+\tt ! suppress\_space[B][C]
+\end{center}
+where
+\begin{center}
+\tt
+\begin{tabular}{l}
+B = min::unicode\_category ( b ) \\
+C = min::unicode\_category ( c ) \\
+b = {\rm the previous printed UNICODE character} \\
+c = {\rm the following printed UNICODE character} \\
+\end{tabular}
+\end{center}
+
+If we are at the beginning of printing, or if we are at the beginning
+of a line, the previous printed UNICODE character
+is assumed to be a newline character.  A space is
+never output if it would be at the end of a line.
+
+{\tt suppress\_matrix} must be a pointer to a matrix of
+{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX})
+stored in {\tt static} memory or in the stack.  If stored in the stack,
+printer commands that might reference it must not be executed after
+it is deallocated.
+
+\item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
+This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
+In this case {\tt min::gen} string values that have length greater
+than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
+in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+
+\item[\ttmkey{exp\_ok\_attrs}{in {\tt min::gen\_format}}]~\\
+This member is only enabled if {\tt OBJ\_\EOL EXP\_\EOL FLAG} is on.
+Then if an object is to be printed that all of whose attributes have
+names that are elements of {\tt exp\_\EOL ok\_\EOL attrs}, that object
+is printed as an expression.  See {\tt OBJ\_\EOL EXP\_\EOL FLAG} below.
+
+WARNING: The {\tt exp\_ok\_attrs} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt exp\_\EOL ok\_\EOL attrs} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
+
+\item[\ttmkey{flag\_names}{in {\tt min::gen\_format}}]
+This member is only enabled if it
+is not {\tt min::\EOL NULL\_\EOL STUB}.
+
+{\tt flag\_names[i]} is printed as the representation of
+control flag {\tt 1 << i} of an attribute.
+
+WARNING: The {\tt flag\_\EOL names} member of a {\tt min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+{\tt flag\_\EOL names} will never be garbage collected and
+will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
+{\tt min::\EOL locatable\_\EOL gen} variables.
+
+
+
+\end{itemlist}
+
+Objects, packed structures and vectors, and long strings can be
+output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
+the printer \key{object ID map}.
+
+A printer's \TT{id\_map} member is initialized automatically when
+needed.  However, it can also be set by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::obj_id_map min::|
+    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
+    \verb|( <min::printer printer,|\ARGBREAK
+    \verb|  min::id_map map = min::NULL_STUB )|
+\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+which permits maps to be shared among printers.  If no second argument
+is given, an identifier map is created for the printer if none previously
+exists.  This can then be shared with other printers.  The final
+\TT{id\_\EOL map} member of the printer is returned, and this
+is never \TT{min::\EOL NULL\_\EOL STUB}.
+
+When a datum with a stub is printed as
+`{\tt @}i', it is recorded in {\tt printer->\EOL id\_\EOL map}
+so it may be printed on separate lines.  This may be done by
+the printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+The first operation prints the datum at {\tt printer->\EOL id\_\EOL map[i]}
+where {\tt i} equals {\tt printer->\EOL id\_\EOL map->\EOL next}, and then
+increments {\tt printer->\EOL id\_\EOL map->\EOL next}.  The second operation
+simply repeats the first operation as long as
+{\tt printer->\EOL id\_\EOL map->\EOL next}
+is less than {\tt printer->\EOL id\_\EOL map->\EOL length}.
+The {\tt min::\EOL flush\_\EOL id\_\EOL map} operation is also
+performed by the {\tt min::\EOL eom} end-of-message operation
+if the print format
+{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
+
+These {\tt id\_map} flushing operations use the
+{\tt context\_\EOL gen\_\EOL flags[PGEN\_INDENT]} gen flags
+(\pagref{PGEN_INDENT}) with {\tt min::\EOL pgen}
+to print the {\em values} in lines of the form:
+\begin{center}
+\TT{@}i \TT{=} {\em value}
+\end{center}
+If a line is too long, it may be broken into multiple lines
+as specified by the printer parameters.
+
+If the {\em value} is an object not being printed as per
+{\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the {\tt OBJ\_\EOL INDENT} flag
+will cause the object will be printed on
+multiple lines whose form will be:\label{GEN-OBJ-FORM}
+\begin{center}
+\begin{tabular}{l}
+\TT{@}i \TT{=} {\em element}$^\star$\TT{:} \\
+~~~~{\em attribute-name-and-values}\\
+~~~~\ldots\ldots\ldots\\
+~~~~{\em reverse-attribute-name-and-values}\\
+~~~~\ldots\ldots\ldots\\
+\end{tabular}
+\end{center}
+
+where:
+
+\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
+{\em attribute-name-and-values} & ::= &
+    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
+    	&  & \TT{~~~~=} {\em attribute-values}
+\\[1ex]
+{\em attribute-values} & ::= & {\em attribute-value} \\
+                       & $|$ & \TT{\{|} {\em attribute-value} \ldots
+		               \TT{|\}}
+\\[1ex]
+{\em attribute-value} & ::= & printed representation of value
+\end{tabular}
+
+\begin{tabular}{rrl}\hspace*{3in}\\[-2ex]
+{\em reverse-attribute-name-and-values} & ::= &
+    {\em attribute-name}\TT{[}{\em attribute-flags}\TT{]} \\
+    	&  & \TT{~~~~=} {\em reverse-attribute-values} \\
+	&  & \TT{~~~~=} {\em reverse-attribute-name}
+\\[1ex]
+{\em reverse-attribute-values} & ::= & {\em reverse-attribute-value} \\
+                       & $|$ & \TT{\{|} {\em reverse-attribute-value} \ldots
+		               \TT{|\}}
+\\[1ex]
+{\em reverse-attribute-value} & ::= & \TT{@}{\em natural-number}
+\end{tabular}
+
+Note that a {\em reverse-attribute-value} is always an object and is
+always printed as per the {\tt OBJ\_\EOL ID\_\EOL FLAG}, even when
+that flag is off.
+
+The {\em attribute-flags} have the form:
+
+\newcommand{\TTBS}[1]{\TT{\textbackslash#1}}
+\begin{tabular}{rrl}
+{\em attribute-flags}
+    & ::= & \TT{[}{\em attribute-flag-name}$^\star$\TT{]} \\
+    & $|$ & {\em empty} \hspace*{2in}if no flags \\
+{\em attribute-flag-name} & ::= &
+        \TT{!} $|$ \TT{\#} $|$ \TT{\$} $|$ \TT{\%} $|$ \TT{\&}
+    $|$ \TT{*} $|$ \TT{+} $|$ \TT{-} $|$ \TT{/} $|$ \TT{=}
+    $|$ \TT{?} $|$ \TT{@} \\
+& $|$ & \TT{a} $|$ \ldots{} $|$ \TT{z} $|$ \TT{A} $|$ \ldots{} $|$ \TT{Z} \\
+& $|$ & \TT{\~{ }!} $|$ \TT{\~{ }\#} $|$ \TT{\~{ }\$} $|$ \TT{\~{ }\%}
+  $|$ \TT{\~{ }\&} $|$ \TT{\~{ }*} $|$ \TT{\~{ }+} $|$ \TT{\~{ }-}
+  $|$ \TT{\~{ }/} $|$ \TT{\~{ }=} $|$ \TT{\~{ }?} $|$ \TT{\~{ }@} \\
+& $|$ & \TT{\~{ }a} $|$ \ldots{} $|$ \TT{\~{ }z}
+  $|$ \TT{\~{ }A} $|$ \ldots{} $|$ \TT{\~{ }Z} \\
+& $|$ & \TT{\^{ }!} $|$ \TT{\^{ }\#} $|$ \TT{\^{ }\$} $|$ \TT{\^{ }\%}
+  $|$ \TT{\^{ }\&} $|$ \TT{\^{ }*} $|$ \TT{\^{ }+} $|$ \TT{\^{ }-}
+  $|$ \TT{\^{ }/} $|$ \TT{\^{ }=} $|$ \TT{\^{ }?} $|$ \TT{\^{ }@} \\
+& $|$ & \TT{\^{ }a} $|$ \ldots{} $|$ \TT{\^{ }z} $|$ \TT{\^{ }A}
+  $|$ \ldots{} $|$ \TT{\^{ }Z} \\
+& $|$ & \TTBS{!} $|$ \TTBS{\#} $|$ \TTBS{\$} $|$ \TTBS{\%} $|$ \TTBS{\&}
+  $|$ \TTBS{*} $|$ \TTBS{+} $|$ \TTBS{-} $|$ \TTBS{/} $|$ \TTBS{=}
+  $|$ \TTBS{?} $|$ \TTBS{@} \\
+& $|$ & \TTBS{a} $|$ \ldots{} $|$ \TTBS{z}
+  $|$ \TTBS{A} $|$ \ldots{} $|$ \TTBS{Z} \\
+& $|$ & \TT{,}{\em flag-number}
+\end{tabular}
+
+Here {\em attribute-flag-names} are listed in the order of their flag number,
+where the default correspondence is
+\begin{center}
+\begin{tabular}{r@{~correspond to flag numbers~}l}
+\TT{!} \ldots{} \TT{Z} & \TT{0} \ldots{} \TT{63} \\
+\TT{\~{ }!} \ldots{} \TT{\~{ }Z} & \TT{64} \ldots{} \TT{127} \\
+\TT{\^{ }!} \ldots{} \TT{\^{ }Z} & \TT{128} \ldots{} \TT{191} \\
+\TTBS{!} \ldots{} \TTBS{Z} & \TT{192} \ldots{} \TT{255} \\
+\end{tabular}
+\end{center}
+The {\tt flag\_names} member of the effective {\tt gen\_format}
+is used to produce flag names, and the correspondence just
+given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
+
+The {\tt context\_gen\_flags} or {\tt gen\_format} of a printer
+may be changed by the printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL context\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::context_gen_flags * context_gen_flags )|
+\LABEL{MIN::SET_CONTEXT_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
+      \verb|( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+New {\em context\_gen\_flags} and {\tt gen\_formats} should be made
+by copying a default value into static memory or the stack and then making
+specific changes to it, as members may be added to or reordered in
+the value.  If the stack is used, old values must be restored
+before the stack memory is deallocated.
+
+Strictly for testing purposes, in situations where \TT{min::printer}'s
+are not working, general values can be printed to \TT{std::ostreams}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
+      \verb|( std::ostream & out,|\ARGBREAK
+      \verb|  min::gen g )|
+\LABEL{OPERATOR<<_OF_OSTREAM_AND_GEN} \\
+\end{tabular}\end{indpar}
+
+Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
+but other \TT{min::gen} values print in a reasonable way.
+
+The detailed structure and meaning of general value printing flags 
+is as follows:
+
+\ldots{\tt \_gen\_flags} Flags:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
+\LABEL{MIN::BRACKET_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
+\LABEL{MIN::BRACKET_LAB_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
+\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
+\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
+\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
+\LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
+\LABEL{MIN::OBJ_EXP_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
+\LABEL{MIN::OBJ_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
+\LABEL{MIN::OBJ_INDENT} \\
+\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
+\LABEL{MIN::STR_ID_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
+
+\item[\ttmkey{GRAPHIC\_STR\_FLAG}{{\tt min::gen\_format} flag}]~\\
+This flag causes {\tt min::gen} string value characters to be printed
+in graphic mode, as per the {\tt min::graphic} printer operation
+(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
+printing of {\tt str\_\EOL pre\-fix/\EOL post\-fix/\EOL quote} (see below).
+
+\item[\ttkey{BRACKET\_STR\_FLAG}]
+\item[\ttkey{BRACKET\_LAB\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_SPECIAL\_FLAG}]\vspace{-1ex}
+\item[\ttkey{BRACKET\_IMPLICIT\_FLAG}]\vspace{-1ex}~\\
+These flags enable use of the following {\tt gen\_\EOL format}
+members which are described below:
+\begin{center}
+\begin{tabular}{l@{~~~~~~~~~~}l}
+{\tt BRACKET\_STR\_FLAG}	& {\tt str\_prefix},
+				  {\tt str\_postfix},
+				  {\tt str\_quote}
+\\
+{\tt BRACKET\_LAB\_FLAG}	& {\tt lab\_prefix},
+				  {\tt lab\_postfix}
+\\
+{\tt BRACKET\_SPECIAL\_FLAG}	& {\tt special\_prefix},
+				  {\tt special\_postfix}
+\\
+{\tt BRACKET\_IMPLICIT\_FLAG}	& {\tt implicit\_prefix},
+				  {\tt implicit\_postfix}
+
+\end{tabular}
+\end{center}
+
+\item[\ttkey{SUPPRESS\_SPECIAL\_NAME\_FLAG}]~\\
+This flag suppresses use of the
+{\tt special\_\EOL names} member
+of {\tt gen\_\EOL format}, described below, to
+print a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value.
+
+If the flag is \underline{off}, if {\tt special\_\EOL names}
+is not {\tt min::\EOL NULL\_\EOL STUB}, and if
+{\tt 0 <= i < special\_\EOL names->\EOL length}, then
+the value prints as {\tt special\_\EOL names[i]}.
+
+If the flag is \underline{off} and
+\begin{center}
+\tt 0 <= 0xFFFFFF\,-\,i\,<\,min::\EOL standard\_\EOL special\_\EOL
+names->\EOL length
+\end{center}
+then the value prints as
+{\tt min::\EOL standard\_\EOL special\_\EOL names[0xFFFFFF\,-\,i]}.
+
+Otherwise the value prints as `{\tt SPECIAL(i)}'.
+
+\item[\ttkey{SUPPRESS\_LAB\_SPACE\_FLAG}]
+\item[\ttkey{SUPPRESS\_EXP\_SPACE\_FLAG}]\vspace{-1ex}~\\
+See {\tt surpress\_matrix} below.
+
+\item[\ttmkey{OBJ\_EXP\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set and if all attributes of an object have names listed in
+{\tt exp\_\EOL ok\_\EOL attrs} (see below), then the object is
+printed as an expression.  In this case attributes other than
+ \ttdkey{initiator}, \ttdkey{separator}, \ttdkey{terminator},
+\ttdkey{middle}, \ttdkey{name}, \ttdkey{arguments}, and \ttdkey{keys}
+are ignored.
+
+Note that objects with the {\tt .initiator}'s `{\tt \#}' and `{\tt "}' are
+printed unwrapped; for example,
+\begin{center}
+\verb/"foo" {| .initiator "<Q>" |}/
+\end{center}
+prints as
+\TT{"foo"}.
+
+\item[\ttmkey{OBJ\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, and if an object is not being printed as an expression as
+per the {\tt OBJ\_\EOL EXP\_\EOL FLAG},
+then an identifier i will be allocated for the object
+in {\tt printer->\EOL id\_\EOL map} and the object will be
+printed as `{\tt @}i'.
+
+\item[\ttmkey{OBJ\_INDENT\_FLAG}{{\tt min::gen\_format} flag}]~\\
+This flag controls how an object is printed if the
+{\tt OBJ\_\EOL EXP\_\EOL FLAG} and
+{\tt OBJ\_\EOL ID\_\EOL FLAG} do not apply.  Then if this flag
+is \underline{off}
+the object will be printed in the general form:
+\begin{center}
+\begin{tabular}{ll}
+\TT{\{|} {\em element} & \{ \TT{;} {\em attribute-name-and-values}
+                          \}$^\star$ \\
+                        & \{ \TT{;} {\em reverse-attribute-name-and-values}
+                          \}$^\star$  \TT{|\}}
+\end{tabular}
+\end{center}
+and if this flag is \underline{on} the object will be printed in the
+general form:
+\begin{center}
+\begin{tabular}{r@{}l}
+XXX	& {\em element}$^\star$\TT{:|} \\
+	& {\em attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
+	& {\em reverse-attribute-name-and-values}\\
+	& \ldots\ldots\ldots\\
+\end{tabular}
+\end{center}
+
+The two forms are is similar, with semi-colons in the first being
+replaced by line ends, indentation, and the indentation mark
+\TT{:|} in the second, and the
+surrounding \TT{\{|} \TT{|\}} of the first being omitted in the second.
+The indentation is the column position when the value is output; in
+the above XXX is printed before the value is output and the indent is
+at the end of the XXX.
+
+See \pagref{GEN-OBJ-FORM} for more details.
+
+\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
+If set, {\tt min::gen} string values that have length greater
+than {\tt str\_\EOL max\_\EOL length} (see below)
+have an identifier i allocated
+in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+Otherwise string values are printed normally.
+
+\end{itemlist}\end{indpar}
 
 \section{Code and Execution}
 
