@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 15 14:59:02 EDT 2014
+// Date:	Sat Aug 16 17:04:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9180,23 +9180,25 @@ const min::special_format *
 
 static min::obj_format exp_obj_format =
 {
-    & ::name_lab_format,    // name_format
+    min::name_lab_format,   // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
 
+    // USTRING_LEADING  == 0x40
+    // USTRING_TRAILING == 0x80
     (const min::ustring *)
-        "\x01\x01" "{",     // obj_prefix
+        "\x01\x41" "{",     // obj_prefix
     (const min::ustring *)
-        "\x02\x02" ", ",    // obj_separator
+        "\x01\x81" ",",     // obj_separator
     (const min::ustring *)
-        "\x01\x01" "|",     // obj_minfix
+        "\x01\xC1" "|",     // obj_midfix
     (const min::ustring *)
-        "\x01\x01" "}",     // obj_postfix
+        "\x01\x81" "}",     // obj_postfix
 
     (const min::ustring *)
-        "\x02\x02" "{|",    // implicit_prefix
+        "\x02\x42" "{|",    // implicit_prefix
     (const min::ustring *)
-        "\x02\x02" "|}",    // implicit_postfix
+        "\x02\x82" "|}",    // implicit_postfix
 
     min::NULL_STUB,	    // exp_ok_attrs*
     min::NULL_STUB	    // flag_names*
@@ -9206,7 +9208,7 @@ const min::obj_format * min::exp_obj_format =
 
 static min::obj_format raw_obj_format =
 {
-    & ::name_lab_format,    // name_format
+    min::name_lab_format,   // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
 
