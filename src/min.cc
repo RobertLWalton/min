@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 16 17:04:24 EDT 2014
+// Date:	Sun Aug 17 01:35:23 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -74,6 +74,7 @@ min::locatable_gen min::dot_arguments;
 min::locatable_gen min::dot_keys;
 min::locatable_gen min::dot_operator;
 min::locatable_gen min::dot_position;
+min::locatable_gen min::dot_type;
 min::locatable_gen min::new_line;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::number_sign;
@@ -334,6 +335,8 @@ void MINT::initialize ( void )
         min::new_lab_gen ( ".", "operator" );
     min::dot_position =
         min::new_lab_gen ( ".", "position" );
+    min::dot_type =
+        min::new_lab_gen ( ".", "type" );
     min::new_line =
         min::new_str_gen ( "\n" );
     min::doublequote =
@@ -366,6 +369,7 @@ void MINT::initialize ( void )
 	min::push ( p ) = min::dot_keys;
 	min::push ( p ) = min::dot_operator;
 	min::push ( p ) = min::dot_position;
+	min::push ( p ) = min::dot_type;
     }
 
     {
