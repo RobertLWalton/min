@@ -13466,8 +13466,8 @@ The format for printing object \TT{min::gen} values is:
     \verb|  const min::ustring *                 implicit_postfix;|%
 \ttmindex{implicit\_postfix}{in {\tt min::obj\_format}}\ARGBREAK
 \ARGBREAK
-    \verb|  min::packed_vec_ptr<min::gen>        expr_ok_attr;|%
-\ttmindex{expr\_ok\_attr}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::gen>        exp_ok_attr;|%
+\ttmindex{exp\_ok\_attr}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    flag_names;|%
 \ttmindex{flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
@@ -13477,7 +13477,7 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{name\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{exp\_obj\_format}:}\ARGBREAK
 \verb|min::name_lab_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
@@ -13487,32 +13487,38 @@ The format for printing object \TT{min::gen} values is:
 \verb|(const min::ustring *) "\x01\x81" ","    // obj_separator|\ARGBREAK
 \verb$(const min::ustring *) "\x01\xC1" "|"    // obj_midfix$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" "}"    // obj_postfix|\ARGBREAK
-\LABEL{MIN::NAME_OBJ_FORMAT}
+\ARGBREAK
+\verb$(const min::ustring *) "\x02\x42" "{|"   // implicit_prefix$\ARGBREAK
+\verb$(const min::ustring *) "\x02\x82" "|}"   // implicit_postfix$\ARGBREAK
+\ARGBREAK
+\verb|min::standard_exp_ok_attr                // exp_ok_attr|\ARGBREAK
+\verb|min::standard_flag_names                 // flag_names|\ARGBREAK
+\LABEL{MIN::EXP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
-
-\subsubsection{TBD}
-
-Old stuff to be deleted as it is incorporated elsewhere.
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<min::gen> min::|%
-    \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
-\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+    \MINKEY{standard\_\EOL exp\_\EOL ok\_\EOL attrs}
+\LABEL{MIN::STANDARD_EXP_OK_ATTRS} \\
 \verb|    // 2 element (first element ".") min::gen labels for:| \\
-\verb|    //     .initiator, .separator, .terminator, .middle,| \\
-\verb|    //     .name, .arguments, .keys, .operator, .position|
+\verb|    //     .initiator, .separator, .terminator, .middle, .name,| \\
+\verb|    //     .arguments, .keys, .operator, .position, .type|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<const char *> min::|%
-    \MINKEY{default\_\EOL flag\_\EOL names}
-\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
+    \MINKEY{standard\_\EOL flag\_\EOL names}
+\LABEL{MIN::STANDARD_FLAG_NAMES} \\
 \verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
 \verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
 \verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
 \verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
 \verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
 \end{tabular}\end{indpar}
+
+\subsubsection{TBD}
+
+Old stuff to be deleted as it is incorporated elsewhere.
 
 In the above, \ttkey{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
 converted to a \TT{const min::\EOL Uchar *} vector with initial header

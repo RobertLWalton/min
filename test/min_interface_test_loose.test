@@ -32,6 +32,8 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -462,7 +464,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 36
+initial stubs allocated = 38
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -657,6 +659,8 @@ min_interface_test.cc:XXXX assert:
 
 Test string general values:
 min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 20 ) == strgen13 true.
@@ -781,8 +785,6 @@ Test protected string ptrs:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
@@ -852,6 +854,8 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
@@ -970,8 +974,6 @@ min_interface_test.cc:XXXX assert:
     si == 5 true.
 min_interface_test.cc:XXXX assert:
     snumsp[j] == 0 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     ! min::strto ( si, sspace ) true.
 min_interface_test.cc:XXXX assert:
@@ -1184,6 +1186,8 @@ min_interface_test.cc:XXXX assert:
     -1 == min::is_subsequence ( min::new_str_gen ( "66" ), lab ) true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1202,8 +1206,6 @@ min_interface_test.cc:XXXX assert:
     0 == min::is_subsequence ( min::new_lab_gen ( labv1, 2 ), lab ) true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1222,6 +1224,8 @@ min_interface_test.cc:XXXX assert:
     1 == min::is_subsequence ( min::new_lab_gen ( labv1 + 1, 2 ), lab ) true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1244,10 +1248,6 @@ Finish Labels Test!
 Start Names Test!
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_num ( g ) true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -1260,6 +1260,10 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
+../include/min.h:XXXX assert:
+    is_num ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
 HASH of new_num_gen ( 1 ) = 3919206129
@@ -1460,8 +1464,6 @@ min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 upv2->control = 2
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
@@ -1475,6 +1477,8 @@ min_interface_test.cc:XXXX assert:
     pv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
     pv2->j == 99 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     upv2 == min::stub_of ( v2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3562,8 +3566,6 @@ Start Object Attribute Level Test!
     ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
-../include/min.h:XXXX assert:
-    is_num ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
@@ -3572,6 +3574,8 @@ min_interface_test.cc:XXXX assert:
     is_num ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
+../include/min.h:XXXX assert:
+    is_num ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
