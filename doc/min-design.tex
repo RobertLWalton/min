@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 16, 2014}
+\date{August 20, 2014}
  
 \maketitle
 
@@ -15062,6 +15062,191 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\INDEXHEADER{UNICODE Characters}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.4in}
+\verb|typedef min::uns32 min::| & \MINKEY{Uchar}
+\LABEL{MIN::UCHAR} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{UNKNOWN\_UCHAR}
+\LABEL{MIN::UNKNOWN_UCHAR} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{SOFTWARE\_NL}
+\LABEL{MIN::SOFTWARE_NL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::Uchar min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_TO_UNICODE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb|( char * & s, min::Uchar c )|
+\LABEL{MIN::UNICODE_TO_UTF8} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
+      \verb|  const char * & s, const char * ends )|
+\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, const char * ends,|\ARGBREAK
+      \verb|   const min::Uchar * & u,|\ARGBREAK
+      \verb|   const min::Uchar * endu )|
+\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
+\end{TABULAR}
+
+\INDEXHEADER{UNICODE Data Base}
+
+\begin{TABULAR}{2.4in}
+\verb|min::uns16 min::|
+    & \MINKEY{Uindex} \verb|( min::Uchar c )|
+\LABEL{MIN::UINDEX} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::ustring * min::|
+    & \MINKEY{unicode::name}\verb|[i]|
+\LABEL{MIN::UNICODE::NAME} \\
+\verb|const min::ustring * min::|
+    & \MINKEY{unicode::picture}\verb|[i]|
+\LABEL{MIN::UNICODE::PICTURE} \\
+\verb|const min::uns32 printer->|
+    & \MINKEY{print\_format.char\_flags}\verb|[i]|
+\LABEL{MIN::PRINT_FORMAT.CHAR_FLAGS} \\
+\verb|const min::uns32 * min::|
+    & \MINKEY{standard\_char\_flags}
+\LABEL{MIN::STANDARD_CHAR_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
+\LABEL{MIN::IS_NON_SPACING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{MIN::IS_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
+\LABEL{MIN::IS_MIDDLING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{MIN::IS_TRAILING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
+\LABEL{MIN::IS_SP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NB\_HSPACE}
+\LABEL{MIN::IS_NB_HSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_HSPACE}
+\LABEL{MIN::IS_OTHER_HSPACE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_VSPACE}
+\LABEL{MIN::IS_VSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_CONTROL}
+\LABEL{MIN::IS_OTHER_CONTROL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
+\LABEL{MIN::IS_UNSUPPORTED} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
+\LABEL{MIN::CONDITIONAL_BREAK} \\
+\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
+\LABEL{MIN::QUOTE_SUPPRESS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_ASCII}
+\LABEL{MIN::IS_ASCII} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
+\LABEL{MIN::IS_LATIN1} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE} =\ARGBREAK
+    \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
+    \verb|+ min::IS_OTHER_HSPACE|
+\LABEL{MIN::IS_HSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC} =\ARGBREAK
+    \verb|  min::IS_LEADING|\ARGBREAK
+    \verb|+ min::IS_MIDDLING|\ARGBREAK
+    \verb|+ min::IS_TRAILING|
+\LABEL{MIN::IS_GRAPHIC} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL} =\ARGBREAK
+    \verb|  min::IS_HSPACE|\ARGBREAK
+    \verb|+ min::IS_VSPACE|\ARGBREAK
+    \verb|+ min::IS_OTHER_CONTROL|
+\LABEL{MIN::IS_CONTROL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_HSPACE} =\ARGBREAK
+    \verb|  min::IS_GRAPHIC|\ARGBREAK
+    \verb|+ min::IS_VSPACE|\ARGBREAK
+    \verb|+ min::IS_OTHER_CONTROL|\ARGBREAK
+    \verb|+ min::IS_UNSUPPORTED|
+\LABEL{MIN::IS_NON_HSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
+    \verb|  min::IS_HSPACE|\ARGBREAK
+    \verb|+ min::IS_VSPACE|\ARGBREAK
+    \verb|+ min::IS_OTHER_CONTROL|\ARGBREAK
+    \verb|+ min::IS_UNSUPPORTED|
+\LABEL{MIN::IS_NON_GRAPHIC} \\
+\end{TABULAR}
+
+\INDEXHEADER{UNICODE Strings}
+
+\begin{TABULAR}{2.4in}
+\verb|typedef min::uns8 min::| & \MINKEY{ustring}
+\LABEL{MIN::USTRING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_length}\ARGBREAK
+      \verb|( const min::ustring * p )|
+\LABEL{MIN::UNICODE_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_columns} \ARGBREAK
+      \verb|( const min::ustring * p )|
+\LABEL{MIN::UNICODE_COLUMNS} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode\_flags} \ARGBREAK
+      \verb|( const min::ustring * p )|
+\LABEL{MIN::UNICODE_FLAGS} \\
+\verb|const min::Uchar * min::|
+    & \MINKEY{unicode\_string} \ARGBREAK
+      \verb|( const min::ustring * p )|
+\LABEL{MIN::UNICODE_STRING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING}
+\LABEL{MIN::USTRING_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
+\LABEL{MIN::USTRING_TRAILING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\end{TABULAR}
+
+\end{indpar}
+
 \INDEXHEADER{Number Protected Functions}
 
 \begin{indpar}[0.2in]
@@ -16536,8 +16721,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PRINTER_FILE} \\
 \verb|std::ostream * printer->| & \TTMKEY{ostream}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_OSTREAM} \\
-\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_COLUMN} \\
 \end{TABULAR}
 
 \bigskip
@@ -16560,6 +16743,8 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{4.0in}
+\verb|const min::uns32 printer->| & \TTMKEY{column}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_COLUMN} \\
 \verb|const min::line_break printer->|
     & \TTMKEY{line\_break}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE_BREAK} \\
