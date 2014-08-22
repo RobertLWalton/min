@@ -17368,6 +17368,194 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\INDEXHEADER{Printing File Lines and Phrases}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  min::uns32 first, min::uns32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::printer |
+    & \TTOMKEY{<<}{<<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pline_numbers const & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|struct min::| & \MINKEY{position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 line;|\ARGBREAK
+    \verb|  min::uns32 offset;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::POSITION_STRUCT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::position begin;|\ARGBREAK
+    \verb|  min::position end;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.7in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  const min::phrase_position|\ARGBREAK
+    \verb|        & position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|void min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  char mark = '^',|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
+      \verb|( min::file file,|\ARGBREAK
+      \verb|  const min::phrase_position|\ARGBREAK
+      \verb|        & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|void min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  char mark = '^',|\ARGBREAK
+      \verb|  const char * blank_line =|\ARGBREAK
+      \verb|      "<BLANK-LINE>",|\ARGBREAK
+      \verb|  const char * end_of_file =|\ARGBREAK
+      \verb|      "<END-OF-FILE>",|\ARGBREAK
+      \verb|  const char * unavailable_line =|\ARGBREAK
+      \verb|      "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
+      \verb|( min::uns32 line_display,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|typedef min::|
+	& \verb|packed_vec_ptr<min::phrase_position_vec_header,|\\&
+	  \verb|               min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec}
+\LABEL{MIN::PHRASE_POSITION_VEC} \\
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<min::phrase_position_vec_header,|\\&
+	  \verb|                  min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec\_insptr}
+\LABEL{MIN::PHRASE_POSITION_VEC_INSPTR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.8in}
+\verb|min::| 
+  & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
+    \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
+    \verb|  min::file file,|\ARGBREAK
+    \verb|  min::phrase_position const & position,|\ARGBREAK
+    \verb|  min::uns32 max_length )|
+\LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.6in}
+\verb|const min::uns32 vpp| & \TTARMKEY{length}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
+\verb|const min::file vpp| & \TTARMKEY{file}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_FILE} \\
+\verb|min::phrase_position vpp| & \TTARMKEY{position}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_POSITION} \\
+\verb|min::phrase_position vpp| & \TTBMKEY{i}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_ELEMENT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.6in}
+\verb|min::phrase_position_vec min::| & \MINKEY{position\_of}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
+\end{TABULAR}
+
+\end{indpar}
+
 \INDEXHEADER{Printing General Values}
 
 \begin{indpar}[0.2in]
@@ -17595,194 +17783,6 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
       \verb|( min::gen_format * gen_format )|
 \LABEL{MIN::SET_GEN_FORMAT} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\INDEXHEADER{Printing File Lines and Phrases}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.8in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  min::uns32 first, min::uns32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::pline_numbers const & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 line;|\ARGBREAK
-    \verb|  min::uns32 offset;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::POSITION_STRUCT} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::position begin;|\ARGBREAK
-    \verb|  min::position end;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.7in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position|\ARGBREAK
-    \verb|        & position )|
-\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_PHRASE_LINES} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position|\ARGBREAK
-      \verb|        & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::uns32 print_flags,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|typedef min::|
-	& \verb|packed_vec_ptr<min::phrase_position_vec_header,|\\&
-	  \verb|               min::phrase_position>|\\&
-	  \verb|    min::|\MINKEY{phrase\_position\_vec}
-\LABEL{MIN::PHRASE_POSITION_VEC} \\
-\verb|typedef min::|
-	& \verb|packed_vec_insptr<min::phrase_position_vec_header,|\\&
-	  \verb|                  min::phrase_position>|\\&
-	  \verb|    min::|\MINKEY{phrase\_position\_vec\_insptr}
-\LABEL{MIN::PHRASE_POSITION_VEC_INSPTR} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.8in}
-\verb|min::| 
-  & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
-    \verb|( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
-    \verb|  min::file file,|\ARGBREAK
-    \verb|  min::phrase_position const & position,|\ARGBREAK
-    \verb|  min::uns32 max_length )|
-\LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{2.6in}
-\verb|const min::uns32 vpp| & \TTARMKEY{length}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
-\verb|const min::file vpp| & \TTARMKEY{file}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_FILE} \\
-\verb|min::phrase_position vpp| & \TTARMKEY{position}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_POSITION} \\
-\verb|min::phrase_position vpp| & \TTBMKEY{i}%
-    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
-\LABEL{MIN::PHRASE_POSITION_VEC_ELEMENT} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{2.6in}
-\verb|min::phrase_position_vec min::| & \MINKEY{position\_of}\ARGBREAK
-    \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
 \end{TABULAR}
 
 \end{indpar}
