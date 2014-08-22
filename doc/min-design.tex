@@ -8003,7 +8003,7 @@ The flags are listed immediately below.
 
 \begin{indpar}\begin{itemlist}[0.4in]
 
-\item[\ttmkey{EXPAND\_HT}{in printer {\tt print\_\EOL format.op\_\EOL flags}}]
+\item[\ttmkey{EXPAND\_HT}{in {\tt print\_\EOL format.op\_\EOL flags}}]
 ~\\
 \TT{EXPAND\_HT} causes the character \TT{'\textbackslash t'}
 to be represented by a sequence of single spaces when it is to be
@@ -8022,7 +8022,7 @@ width in columns is
 
 
 \item[\ttmkey{DISPLAY\_EOL}%
-               {in printer {\tt print\_\EOL format.op\_EOL flags}}]~\\
+               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
 \label{DISPLAY_EOL}
 If this flag is on, the end of line prints as the
 {\tiny $\stackrel{\textstyle N~}{~L}$}
@@ -8031,7 +8031,7 @@ picture character if
 otherwise.
 
 \item[\ttmkey{DISPLAY\_PICTURE}%
-               {in printer {\tt print\_\EOL format.op\_EOL flags}}]~\\
+               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
 If this flag is on, characters not displayed as themselves
 are displayed as picture characters
 using \TT{min::\EOL unicode::\EOL picture[cindex]} if this is not
@@ -8040,21 +8040,21 @@ Otherwise they are displayed using their name if that exists, or
 using their hex code if no name exists.
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
-{in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+{in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, a \TT{min::flush()} printer operation (\pagref{MIN::FLUSH})
 is executed at the very end of each \TT{min::\EOL eol} operation.
 
 \item[\ttmkey{FLUSH\_ID\_MAP\_ON\_EOM}%
-    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+    {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, a \TT{min::eom()} printer operation performs
 a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
 \TT{min::\EOL eol} operation.
 
 \item[\ttmkey{LEADING}%
-{in printer {\tt print\_\EOL format.op\_\EOL flags}}]
+{in {\tt print\_\EOL format.op\_\EOL flags}}]
 \item[\ttmkey{TRAILING}%
-{in printer {\tt print\_\EOL format.op\_\EOL flags}}]%
+{in {\tt print\_\EOL format.op\_\EOL flags}}]%
 \vspace{-1ex}~\\
 These flags are set by the \TT{min::\EOL leading} and
 \TT{min::\EOL trailing} printer operations to indicate that
@@ -8062,7 +8062,7 @@ a single space is to be printed before the next character
 representative provided certain conditions are met.
 
 \item[\ttmkey{DISABLE\_SUPPRESS}%
-    {in printer {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+    {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, \TT{min::leading} and \TT{min::trailing}
 operations are disabled from their normal function and instead
 simply output a single space character.
@@ -9593,7 +9593,7 @@ operations:
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
 	  \verb|  const min::gen_format * gen_format )|
-\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
+\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
@@ -9631,7 +9631,8 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{gen\_format}}\ARGBREAK
+                       min::\MINKEY{gen\_format}}
+\LABEL{MIN::GEN_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
@@ -9656,7 +9657,6 @@ for general value formats is as follows:
     \verb|  const min::gen_format *  id_map_format;|%
 \ttmindex{id\_map\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::GEN_FORMAT}
 \end{tabular}
 \end{indpar}
 
@@ -9722,7 +9722,7 @@ The standard first member function value is:
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * gen_format );|
+    \verb|  const min::gen_format * gen_format )|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -9745,7 +9745,8 @@ The format for printing numeric \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{num\_format}}\ARGBREAK
+                       min::\MINKEY{num\_format}}
+\LABEL{MIN::NUM_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const char *        int_printf_format;|%
 \ttmindex{int\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
@@ -9758,7 +9759,6 @@ The format for printing numeric \TT{min::gen} values is:
     \verb|  min::float64        fraction_accuracy;|%
 \ttmindex{fraction\_accuracy}{in {\tt min::num\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::NUM_FORMAT}
 \end{tabular}
 \end{indpar}
 
@@ -9800,7 +9800,7 @@ The format for printing numeric \TT{min::gen} values is:
                    min::\MINKEY{standard\_divisors}:}\ARGBREAK
 \verb|2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,|\ARGBREAK
 \verb|16, 32, 64, 128, 256, 512, 1024, 0|\ARGBREAK
-\LABEL{MIN::LONG_NUM_FORMAT} \\
+\LABEL{MIN::STANDARD_DIVISORS} \\
 \end{tabular}\end{indpar}
 
 The following function is called when a numeric \TT{min::gen} value
@@ -9873,8 +9873,7 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
@@ -9954,8 +9953,7 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{str\_concatenator}{in {\tt min::bracket\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::BRACKET_FORMAT}
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::bracket\_format
@@ -10086,8 +10084,7 @@ The format for printing label \TT{min::gen} values is:
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::LAB_FORMAT}
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::lab\_format
@@ -10137,8 +10134,7 @@ The format for printing special \TT{min::gen} values is:
 \ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::SPECIAL_FORMAT}
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
@@ -10158,13 +10154,13 @@ The format for printing special \TT{min::gen} values is:
 \LABEL{MIN::BRACKET_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::packed_vec_ptr<const char *> min::|%
-    \MINKEY{standard\_\EOL special\_\EOL names}
-\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
-\verb|    //     [0 .. 7] == |\\
-\verb|    //        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\\
-\verb|    //        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|\\
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char *>
+    min::\MINKEY{standard\_\EOL special\_\EOL names}}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
+\verb|// [0 .. 7] == |\ARGBREAK
+\verb|//        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\ARGBREAK
+\verb|//        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -17556,32 +17552,22 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\bigskip
+
 \INDEXHEADER{Printing General Values}
 
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.2in}
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v )|
+\verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
+\verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_NAME} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  min::uns32 gen_flags )|
-\LABEL{MIN::PGEN_WITH_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-            \verb|( min::gen v,|\ARGBREAK
-            \verb|  min::uns32 gen_flags,|\ARGBREAK
-            \verb|  const min::context_gen_flags *|\ARGBREAK
-	    \verb|            context_gen_flags )|
-\LABEL{MIN::PGEN_WITH_CONTEXT_GEN_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
+	  \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
@@ -17591,161 +17577,427 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\ldots{\tt \_gen\_flags}:
-\\[2ex]
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_STR\_FLAG}
-\LABEL{MIN::BRACKET_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_LAB\_FLAG}
-\LABEL{MIN::BRACKET_LAB_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_SPECIAL\_FLAG}
-\LABEL{MIN::BRACKET_SPECIAL_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{BRACKET\_IMPLICIT\_FLAG}
-\LABEL{MIN::BRACKET_IMPLICIT_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_SPECIAL\_NAME\_FLAG}
-\LABEL{MIN::SUPPRESS_SPECIAL_NAME_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_LAB\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_LAB_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{SUPPRESS\_EXP\_SPACE\_FLAG}
-\LABEL{MIN::SUPPRESS_EXP_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_EXP\_FLAG}
-\LABEL{MIN::OBJ_EXP_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_ID\_FLAG}
-\LABEL{MIN::OBJ_ID_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{OBJ\_INDENT\_FLAG}
-\LABEL{MIN::OBJ_INDENT} \\
-\verb|const min::uns32 min::| & \MINKEY{STR\_ID\_FLAG}
-\LABEL{MIN::STR_ID_FLAG} \\
-\end{TABULAR}
-
-\bigskip
-
-{\tt PGEN\_}\ldots contexts:
-\\[2ex]
-\begin{TABULAR}{2.2in}
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_TOP}
-\LABEL{MIN::PGEN_TOP_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_INDENT}
-\LABEL{MIN::PGEN_INDENT_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_PUNCTUATION}
-\LABEL{MIN::PGEN_PUNCTUATION_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_NAME}
-\LABEL{MIN::PGEN_NAME_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_VALUE}
-\LABEL{MIN::PGEN_VALUE_CONTEXT} \\
-\verb|const min::uns32 min::| & \MINKEY{PGEN\_ELEMENT}
-\LABEL{MIN::PGEN_ELEMENT_CONTEXT} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{2.2in}
-\verb|typedef min::uns32 min::|
-    & \MINKEY{context\_gen\_flags}\verb|[|$n$\verb|]| \\
-    & \tt ~~ // $n$ is number of PGEN\_...~contexts
-\LABEL{MIN::CONTEXT_GEN_FLAGS} \\
-\multicolumn{2}{l}{\tt const min::context\_gen\_flags} \\
-\verb|min::| & \MINKEY{default\_\EOL context\_\EOL gen\_\EOL flags}
-\LABEL{MIN::DEFAULT_CONTEXT_GEN_FLAGS} \\
-\multicolumn{2}{l}{\tt const min::context\_gen\_flags} \\
-\verb|min::| & \MINKEY{no\_\EOL exp\_\EOL context\_\EOL gen\_\EOL flags}
-\LABEL{MIN::NO_EXP_CONTEXT_GEN_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
 \begin{TABULAR}{1.2in}
-\verb|struct min::| & \MINKEY{gen\_format}\ARGBREAK
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{gen\_format}}
+\LABEL{MIN::GEN_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::uns32 gen_flags,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         min::context_gen_flags * context_gen_flags,|\ARGBREAK
-    \verb|         const min::gen_format * g );|\ARGBREAK
+    \verb|         const min::gen_format * gen_format );|%
+\ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point may be moved and|\ARGBREAK
     \verb|  // new members may be added.|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const min::num_format *  num_format;|%
+\ttmindex{num\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::str_format *  str_format;|%
+\ttmindex{str\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::lab_format *  lab_format;|%
+\ttmindex{lab\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::special_format *  special_format;|%
+\ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  const min::obj_format *  obj_format;|%
+\ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             number_format;|\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::Ustring *     str_prefix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_postfix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_postfix_name;|\ARGBREAK
-    \verb|  const min::Ustring *     str_char_name_prefix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_char_name_postfix;|\ARGBREAK
-    \verb|  const min::Ustring *     str_concatenator;|\ARGBREAK
-    \verb|  min::uns32         	     str_max_length;|\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             lab_prefix;|\ARGBREAK
-    \verb|  const char *             lab_separator;|\ARGBREAK
-    \verb|  const char *             lab_postfix;|\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             special_prefix;|\ARGBREAK
-    \verb|  const char *             special_postfix;|\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
-    \verb|                           special_names;|\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const char *             implicit_prefix;|\ARGBREAK
-    \verb|  const char *             implicit_postfix;|\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::suppress_matrix *|\ARGBREAK
-    \verb|                           suppress_matrix;|\ARGBREAK
-    \verb|  min::packed_vec_ptr<min::gen>|\ARGBREAK
-    \verb|                           exp_ok_attrs;|\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>|\ARGBREAK
-    \verb|                           flag_names;|\ARGBREAK
+    \verb|  const min::gen_format *  id_map_format;|%
+\ttmindex{id\_map\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::GEN_FORMAT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{top\_gen\_format}:}
+\LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|TBD                                     // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{name\_gen\_format}:}
+\LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|TBD                                     // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{never\_quote\_gen\_format}:}
+\LABEL{MIN::NEVER_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
+\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
+\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|TBD                                     // id_map_format|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{default\_pgen}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::uns32 gen_flags,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  min::context_gen_flags * context_gen_flags,|\ARGBREAK
-    \verb|  const min::gen_format * g );|
-\LABEL{MIN::DEFAULT_PGEN} \\
+    \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::STANDARD_PGEN} \\
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
-\verb|min::| & \MINKEY{standard\_\EOL special\_\EOL names}
-\LABEL{MIN::STANDARD_SPECIAL_NAMES} \\
+\INDEXHEADER{Printing Numeric General Values}
+
+\begin{TABULAR}{1.6in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{num\_format}}
+\LABEL{MIN::NUM_FORMAT}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char *        int_printf_format;|%
+\ttmindex{int\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  min::float64        non_float_bound;|%
+\ttmindex{non\_float\_bound}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  const char *        float_printf_format;|%
+\ttmindex{float\_printf\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  const min::uns32 *  fraction_divisors;|%
+\ttmindex{fraction\_divisors\_format}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|  min::float64        fraction_accuracy;|%
+\ttmindex{fraction\_accuracy}{in {\tt min::num\_format}}\ARGBREAK
+    \verb|};|
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
-\verb|typedef const char * min::|
-    & \MINKEY{char\_names}\verb|[256]|
-\LABEL{MIN::CHAR_NAMES} \\
-\multicolumn{2}{l}{\tt const min::char\_names} \\
-\verb|min::| & \MINKEY{default\_\EOL char\_\EOL names}
-\LABEL{MIN::DEFAULT_CHAR_NAMES} \\
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{const min::num\_format *
+                   min::\MINKEY{short\_num\_format}:}
+\LABEL{MIN::SHORT_NUM_FORMAT}\ARGBREAK
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e7                     // non_float_bound|\ARGBREAK
+\verb|"%.6g"                  // float_printf_format|\ARGBREAK
+\verb|NULL                    // fraction_divisors|\ARGBREAK
+\verb|0                       // fraction_accuracy|
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
-\verb|typedef min::uns32 * min::|
-    & \MINKEY{char\_flags}\verb|[256]|
-\LABEL{MIN::CHAR_FLAGS} \\
-\multicolumn{2}{l}{\tt const min::char\_flags} \\
-\verb|min::| & \MINKEY{default\_\EOL char\_\EOL flags}
-\LABEL{MIN::DEFAULT_CHAR_FLAGS} \\
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{const min::num\_format *
+                   min::\MINKEY{fraction\_num\_format}:}
+\LABEL{MIN::FRACTION_NUM_FORMAT}\ARGBREAK
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e7                     // non_float_bound|\ARGBREAK
+\verb|"%.6g"                  // float_printf_format|\ARGBREAK
+\verb|min::standard_divisors  // fraction_divisors|\ARGBREAK
+\verb|1e-9                    // fraction_accuracy|
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
-\verb|typedef bool min::| & \MINKEY{suppress\_matrix}\verb|[256][256]|
-\LABEL{MIN::SUPPRESS_MATRIX} \\
-\multicolumn{2}{l}{\tt const min::suppress\_matrix} \\
-\verb|min::| & \MINKEY{default\_\EOL suppress\_\EOL matrix}
-\LABEL{MIN::DEFAULT_SUPPRESS_MATRIX} \\
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{const min::num\_format *
+                   min::\MINKEY{long\_num\_format}:}
+\LABEL{MIN::LONG_NUM_FORMAT}\ARGBREAK
+\verb|"%.0f"                  // int_printf_format|\ARGBREAK
+\verb|1e15                    // non_float_bound|\ARGBREAK
+\verb|"%.15g                  // float_printf_format|\ARGBREAK
+\verb|NULL                    // fraction_divisors|\ARGBREAK
+\verb|0                       // fraction_accuracy|
 \end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{const min::uns32 *
+                   min::\MINKEY{standard\_divisors}:}\ARGBREAK
+\verb|2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,|\ARGBREAK
+\verb|16, 32, 64, 128, 256, 512, 1024, 0|\ARGBREAK
+\LABEL{MIN::STANDARD_DIVISORS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_num}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::float64 value,|\ARGBREAK
+    \verb|  const min::num_format *|\ARGBREAK
+    \verb|        num_format = NULL );|
+\LABEL{MIN::PRINT_NUM} \\
+\end{TABULAR}
+
+\bigskip
+
+\INDEXHEADER{Printing String General Values}
+
+\begin{TABULAR}{1.6in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{str\_format}}
+\LABEL{MIN::STR_FORMAT}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::quote_control    quote_control;|%
+\ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::bracket_format   bracket_format;|%
+\ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::display_control  display_control;|%
+\ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINKEY{quote\_all\_str\_format}:}
+\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
+\verb|min::quote_all_control                 // quote_control|\ARGBREAK
+\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::graphic_only_display_control      // display_control|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+    min::\MINKEY{quote\_first\_not\_letter\_str\_format}:}
+\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_STR_FORMAT}\ARGBREAK
+\verb|min::quote_first_not_letter_control    // quote_control|\ARGBREAK
+\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::graphic_only_display_control      // display_control|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINKEY{quote\_non\_graphic\_str\_format}:}
+\LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
+\verb|min::quote_non_graphic_control         // quote_control|\ARGBREAK
+\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::graphic_only_display_control      // display_control|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{quote\_control}}
+\LABEL{MIN::QUOTE_CONTROL}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32    unquote_of_first;|%
+\ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    unquote_of_none_of;|%
+\ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::quote\_control
+                   min::~{quote\_all\_control}:}
+\LABEL{MIN::QUOTE_ALL_CONTROL}\ARGBREAK
+\verb|0                          // unquote_if_first|\ARGBREAK
+\verb|0                          // unquote_if_none_of|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::quote\_control
+		   min::~{quote\_first\_not\_letter\_control}:}
+\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}\ARGBREAK
+\verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::quote\_control
+		   min::~{quote\_non\_graphic\_control}:}
+\LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}\ARGBREAK
+\verb|0                          // unquote_if_first|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{bracket\_format}}
+\LABEL{MIN::BRACKET_FORMAT}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *    str_prefix;|%
+\ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_postfix;|%
+\ttmindex{str\_postfix}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_postfix_name;|%
+\ttmindex{str\_postfix\_name}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|  const min::ustring *    str_concatenator;|%
+\ttmindex{str\_concatenator}{in {\tt min::bracket\_format}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::bracket\_format
+                   min::\MINKEY{quote\_bracket\_format}:}
+\LABEL{MIN::QUOTE_BRACKET_FORMAT}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const char * str,|\ARGBREAK
+    \verb|  const min::str_format *|\ARGBREAK
+    \verb|        str_format = NULL );|
+\LABEL{MIN::PRINT_CHARS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format *|\ARGBREAK
+    \verb|        str_format = NULL );|
+\LABEL{MIN::PRINT_UNICODE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::Uchar c )|
+\LABEL{MIN::PRINT_UCHAR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const min::ustring * s )|
+\LABEL{MIN::PRINT_USTRING} \\
+\end{TABULAR}
+
+\bigskip
+
+\INDEXHEADER{Printing Label General Values}
+
+\begin{TABULAR}{1.6in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{lab\_format}}
+\LABEL{MIN::LAB_FORMAT}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *    lab_prefix;|%
+\ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_concatenator;|%
+\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_separator;|%
+\ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{name\_lab\_format}:}
+\LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{bracket\_lab\_format}:}
+\LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
+\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\INDEXHEADER{Printing Special General Values}
+
+\begin{TABULAR}{1.1in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{special\_format}}
+\LABEL{MIN::SPECIAL_FORMAT}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::ustring *                 special_prefix;|%
+\ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 special_postfix;|%
+\ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>    special_names;|%
+\ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::special\_format
+                   min::\MINKEY{name\_special\_format}:}
+\LABEL{MIN::NAME_SPECIAL_FORMAT}\ARGBREAK
+\verb|NULL                                     // special_prefix|\ARGBREAK
+\verb|NULL                                     // special_postfix|\ARGBREAK
+\verb|min::standard_special_names              // special_names|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::special\_format
+                   min::\MINKEY{bracket\_special\_format}:}
+\LABEL{MIN::BRACKET_SPECIAL_FORMAT}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "[$"   // special_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "$]"   // special_postfix|\ARGBREAK
+\verb|min::standard_special_names              // special_names|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char *>
+    min::\MINKEY{standard\_\EOL special\_\EOL names}}
+\LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
+\verb|// [0 .. 7] == |\ARGBREAK
+\verb|//        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\ARGBREAK
+\verb|//        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|
+\end{TABULAR}
+
+\bigskip
+
+\INDEXHEADER{Printing Object General Values}
 
 \begin{TABULAR}{2.4in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
