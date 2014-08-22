@@ -241,7 +241,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 20, 2014}
+\date{August 22, 2014}
  
 \maketitle
 
@@ -7647,13 +7647,16 @@ following printer parameters:
 \verb|const min::print_format printer->|
     & \TTMKEY{print\_format}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT} \\
-\verb|const min::print_format min::|
-    & \TTKEY{default\_\EOL print\_\EOL format}
-\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
 \verb|const min::packed_vec_insptr<min::print_format>  | \\
 \verb|printer->|
     & \TTMKEY{print\_format\_stack}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PRINT_FORMAT_STACK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::print_format min::|
+    & \TTKEY{default\_\EOL print\_\EOL format}
+\LABEL{MIN::DEFAULT_PRINT_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7695,6 +7698,8 @@ following printer parameters:
 \LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
 \end{tabular}\end{indpar}
 
+\TT{print\_format.support\_control}:
+
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{support\_\EOL control}
 \LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
@@ -7708,20 +7713,22 @@ following printer parameters:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::support_control min::|%
-    \MINKEY{ascii\_support\_control} \verb|=| \\
-\verb|            { min::IS_ASCII, min::IS_UNSUPPORTED };|
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
 \LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
-\verb|const min::support_control min::|%
-    \MINKEY{latin1\_support\_control} \verb|=| \\
-\verb|            { min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
-\verb|const min::support_control min::|%
-    \MINKEY{support\_all\_support\_control} \verb|=| \\
-\verb|            { 0xFFFF, min::IS_UNSUPPORTED };|
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{tabular}\end{indpar}
+
+\TT{print\_format.display\_control}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{display\_\EOL control}
@@ -7736,25 +7743,27 @@ following printer parameters:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::display_control min::|%
-    \MINKEY{graphic\_and\_space\_display\_control} \verb|=| \\
-\verb|            { min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINKEY{graphic\_and\_space\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
-\verb|const min::display_control min::|%
-    \MINKEY{graphic\_only\_display\_control} \verb|=| \\
-\verb|            { HT + min::IS_GRAPHIC, 0 };|
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINKEY{graphic\_only\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ HT + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
-\verb|const min::display_control min::|%
-    \MINKEY{graphic\_and\_vspace\_display\_control} \verb|=| \\
-\verb|            { min::IS_HSPACE + min::IS_GRAPHIC| \\
-\verb|                             + min::IS_VSPACE, 0 };|
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINKEY{graphic\_and\_vspace\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[1.0in]
+	\verb|                 + min::IS_VSPACE, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
-\verb|const min::display_control min::|%
-    \MINKEY{display\_all\_display\_control} \verb|=| \\
-\verb|            { 0xFFFF, 0 };|
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINKEY{display\_all\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ 0xFFFF, 0 };|
 \LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
+
+\TT{print\_format.break\_control}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{break\_\EOL control}
@@ -7775,24 +7784,26 @@ following printer parameters:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::break_control min::|%
-    \MINKEY{no\_auto\_break\_break\_control} \verb|=| \\
-\verb|            { 0, 0, 0, 0 };|
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{no\_auto\_break\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ 0, 0, 0, 0 };|
 \LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
-\verb|const min::break_control min::|%
-    \MINKEY{break\_after\_space\_break\_control} \verb|=| \\
-\verb|            { min::IS_HSPACE, 0, 0, 0 };|
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_after\_space\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ min::IS_HSPACE, 0, 0, 0 };|
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
-\verb|const min::break_control min::|%
-    \MINKEY{break\_before\_all\_break\_control} \verb|=| \\
-\verb|            { 0, 0xFFFF, 0, 0 };|
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_before\_all\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ 0, 0xFFFF, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
-\verb|const min::break_control min::|%
-    \MINKEY{break\_after\_hyphens\_break\_control} \verb|=| \\
-\verb|            { min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_after\_hyphens\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
 \LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
 \end{tabular}\end{indpar}
+
+\TT{print\_format.char\_name\_format}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::|
@@ -7808,11 +7819,11 @@ following printer parameters:
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|const min::char_name_format min::|%
-    \MINKEY{standard\_char\_name\_format} \verb|=| \\
-\verb|            { (const min::ustring *) "\x01\x01" "<",| \\
-\verb|              (const min::ustring *) "\x01\x01" ">" };|
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::char\_name\_format
+    min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
+\verb|{ (const min::ustring *) "\x01\x01" "<",|\ARGBREAK[1.0in]
+\verb|  (const min::ustring *) "\x01\x01" ">" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -9650,7 +9661,7 @@ for general value formats is as follows:
 \end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{const min::gen\_format *
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{top\_gen\_format}:}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
@@ -9663,7 +9674,7 @@ for general value formats is as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{const min::gen\_format *
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{name\_gen\_format}:}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
@@ -9676,7 +9687,7 @@ for general value formats is as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{const min::gen\_format *
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{never\_quote\_gen\_format}:}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
@@ -14055,6 +14066,7 @@ This is a logical time to pay this cost.
 
 {
 \renewcommand{\LABEL}[1]{\dotfill~\pagref{#1}}
+\renewcommand{\TT}[1]{{\tt #1}}
 \renewcommand{\TTKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\TTMKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\TTBMKEY}[2]{{\tt ~~[#1]~~}}
@@ -16815,6 +16827,17 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
+\begin{TABULAR}{2.8in}
+\verb|min::file printer->|
+    & \TTMKEY{id\_\EOL map}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_ID_MAP} \\
+\verb|min::uns32 printer->|
+    & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
+\end{TABULAR}
+
+\bigskip
+
 {\tt print\_format.op\_flags}:
 
 \medskip
@@ -16836,10 +16859,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_LEADING}
-\LABEL{MIN::NEXT_IS_LEADING_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{NEXT\_IS\_TRAILING}
-\LABEL{MIN::NEXT_IS_TRAILING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{LEADING}
+\LABEL{MIN::LEADING_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{TRAILING}
+\LABEL{MIN::TRAILING_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -16848,6 +16871,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \bigskip
+
+\TT{print\_format.support\_control}:
+
+\medskip
 
 \begin{TABULAR}{2.8in}
 \verb|struct              min::| & \MINKEY{support\_\EOL control}
@@ -16861,6 +16888,25 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
 \verb|}                        | \\
 \end{TABULAR}
+
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\TT{print\_format.display\_control}:
 
 \medskip
 
@@ -16876,6 +16922,30 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
 \verb|}                        | \\
 \end{TABULAR}
+
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::~{graphic\_and\_space\_display\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::~{graphic\_only\_display\_control} =}\ARGBREAK[0.5in]
+	\verb|{ HT + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::~{graphic\_and\_vspace\_display\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[0.5in]
+	\verb|                 + min::IS_VSPACE, 0 };|
+\LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::~{display\_all\_display\_control} =}\ARGBREAK[0.5in]
+	\verb|{ 0xFFFF, 0 };|
+\LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\TT{print\_format.break\_control}:
 
 \medskip
 
@@ -16898,6 +16968,29 @@ These are in \verb|min_parameters.h|.
 \verb|}                        | \\
 \end{TABULAR}
 
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{no\_auto\_break\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ 0, 0, 0, 0 };|
+\LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_after\_space\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ min::IS_HSPACE, 0, 0, 0 };|
+\LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_before\_all\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ 0, 0xFFFF, 0, 0 };|
+\LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::break\_control
+    min::\MINKEY{break\_after\_hyphens\_break\_control} =}\ARGBREAK[1.0in]
+\verb|{ min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
+\LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\TT{print\_format.char\_name\_format}:
+
 \medskip
 
 \begin{TABULAR}{2.8in}
@@ -16914,15 +17007,12 @@ These are in \verb|min_parameters.h|.
 \verb|}                        | \\
 \end{TABULAR}
 
-\bigskip
-
-\begin{TABULAR}{2.8in}
-\verb|min::file printer->|
-    & \TTMKEY{id\_\EOL map}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_ID_MAP} \\
-\verb|min::uns32 printer->|
-    & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::char\_name\_format
+    min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
+\verb|{ (const min::ustring *) "\x01\x01" "<",|\ARGBREAK[1.0in]
+\verb|  (const min::ustring *) "\x01\x01" ">" };|
+\LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
