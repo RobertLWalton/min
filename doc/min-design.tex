@@ -8658,8 +8658,8 @@ printer << min::clear_op_flags ( flags )
         << min::no_auto_break
 \end{verbatim}\end{indpar}
 
-\subsubsection{Line Breaks}
-\label{LINE-BREAKS}
+\subsubsection{Printer Line Breaks}
+\label{PRINTER-LINE-BREAKS}
 
 The \TT{min::set\_\EOL break} printer operation:
 
@@ -17111,6 +17111,193 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
+\begin{TABULAR}{1.0in}
+\verb|min::op min::|
+    & \MINKEY{punicode} \verb|( min::Uchar c )|
+\LABEL{MIN::PUNICODE} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  const min::Uchar * str )|
+\LABEL{MIN::PUNICODE_BUFFER} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<const min::Uchar> str )|
+\LABEL{MIN::PUNICODE_BUFFER_CONST_PTR} \\
+\verb|min::op min::|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb|( min::unsptr length,|\ARGBREAK
+      \verb|  min::ptr<min::Uchar> str )|
+\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\verb|min::op min::|
+    & \MINKEY{pint}\ARGBREAK
+	  \verb|( min::int64 i,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PINT} \\
+\verb|min::op min::|
+    & \MINKEY{puns}\ARGBREAK
+	  \verb|( min::uns64 u,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PUNS} \\
+\verb|min::op min::|
+    & \MINKEY{pfloat}\ARGBREAK
+	  \verb|( min::float64 f,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PFLOAT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\verb|void min::|
+    & \MINKEY{pwidth}\ARGBREAK
+         \verb|( min::uns32 & column,|\ARGBREAK
+         \verb|  const char * s, min::unsptr n,|\ARGBREAK
+         \verb|  min::uns32 print_op_flags,|\ARGBREAK
+         \verb|  const min::print_format & print_format )|
+\LABEL{MIN::PWIDTH_OF_STRING} \\
+\end{TABULAR}
+
+\bigskip
+
+\INDEXHEADER{Ajusting Printer Parameters}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::|
+    & \MINKEY{save\_print\_format}
+\LABEL{MIN::SAVE_PRINT_FORMAT} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_print\_format}
+\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
+\LABEL{MIN::SET_LINE_LENGTH} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
+\LABEL{MIN::SET_INDENT} \\
+\verb|min::op min::|
+    & \MINKEY{set\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::SET_PRINT_OP_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{clear\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::CLEAR_PRINT_OP_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{expand\_ht}
+\LABEL{MIN::EXPAND_HT} \\
+\verb|const min::op min::| & \MINKEY{noexpand\_ht}
+\LABEL{MIN::NOEXPAND_HT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{display\_eol}
+\LABEL{MIN::DISPLAY_EOL} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_eol}
+\LABEL{MIN::NODISPLAY_EOL} \\
+\verb|const min::op min::| & \MINKEY{display\_picture}
+\LABEL{MIN::DISPLAY_PICTURE} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_picture}
+\LABEL{MIN::NODISPLAY_PICTURE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{flush\_on\_eol}
+\LABEL{MIN::FLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{noflush\_on\_eol}
+\LABEL{MIN::NOFLUSH_ON_EOL} \\
+\verb|const min::op min::| & \MINKEY{flush\_id\_map\_on\_eom}
+\LABEL{MIN::FLUSH_ID_MAP_ON_EOM} \\
+\verb|const min::op min::| & \MINKEY{noflush\_id\_map\_on\_eom}
+\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{disable\_suppress}
+\LABEL{MIN::DISABLE_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
+\LABEL{MIN::NODISABLE_SUPPRESS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{ascii}
+\LABEL{MIN::ASCII} \\
+\verb|const min::op min::| & \MINKEY{latin1}
+\LABEL{MIN::LATIN1} \\
+\verb|const min::op min::| & \MINKEY{support\_all}
+\LABEL{MIN::SUPPORT_ALL} \\
+\verb|min::op min::|
+    & \MINKEY{set\_support\_control}\ARGBREAK
+          \verb|( const min::support_control & sc )|
+\LABEL{MIN::SET_SUPPORT_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
+\LABEL{MIN::GRAPHIC_AND_SPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_only}
+\LABEL{MIN::GRAPHIC_ONLY} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
+\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{display\_all}
+\LABEL{MIN::DISPLAY_ALL} \\
+\verb|min::op min::|
+    & \MINKEY{set\_display\_control}\ARGBREAK
+          \verb|( const min::display_control & dc )|
+\LABEL{MIN::SET_DISPLAY_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{no\_auto\_break}
+\LABEL{MIN::NO_AUTO_BREAK} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_space}
+\LABEL{MIN::BREAK_AFTER_SPACE} \\
+\verb|const min::op min::| & \MINKEY{break\_before\_all}
+\LABEL{MIN::BREAK_BEFORE_ALL} \\
+\verb|const min::op min::| & \MINKEY{break\_after\_hyphens}
+\LABEL{MIN::BREAK_AFTER_HYPHENS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_break\_control}\ARGBREAK
+          \verb|( const min::break_control & bc )|
+\LABEL{MIN::SET_BREAK_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{verbatim}
+\LABEL{MIN::VERBATIM} \\
+\verb|min::op min::|
+    & \MINKEY{set\_line\_display}\ARGBREAK
+      \verb|( min::uns32 line_display )|
+\LABEL{MIN::SET_LINE_DISPLAY} \\
+\end{TABULAR}
+
+\INDEXHEADER{Printer Line Breaks}
+
+\bigskip
+
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::| & \MINKEY{set\_\EOL break}
 \LABEL{MIN::SET_BREAK} \\
@@ -17139,11 +17326,22 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::|
-    & \MINKEY{save\_print\_format}
-\LABEL{MIN::SAVE_PRINT_FORMAT} \\
+    & \MINKEY{save\_line\_break}
+\LABEL{MIN::SAVE_LINE_BREAK} \\
 \verb|const min::op min::|
-    & \MINKEY{restore\_print\_format}
-\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
+    & \MINKEY{restore\_line\_break}
+\LABEL{MIN::RESTORE_LINE_BREAK} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::|
+    & \MINKEY{save\_indent}
+\LABEL{MIN::SAVE_INDENT} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_indent}
+\LABEL{MIN::RESTORE_INDENT} \\
 \end{TABULAR}
 
 \bigskip
@@ -17167,167 +17365,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|min::op min::|
-    & \MINKEY{punicode}\verb|( min::Uchar c )|
-\LABEL{MIN::PUNICODE} \\
-\verb|min::op min::|
-    & \MINKEY{punicode}\ARGBREAK
-      \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  const min::Uchar * str )|
-\LABEL{MIN::PUNICODE_BUFFER} \\
-\verb|min::op min::|
-    & \MINKEY{punicode}\ARGBREAK
-      \verb|( min::unsptr length,|\ARGBREAK
-      \verb|  min::ptr<const min::Uchar> str )|
-\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|void min::|
-    & \MINKEY{pwidth}\ARGBREAK
-         \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  min::Uchar c,|\ARGBREAK
-         \verb|  min::uns32 flags )|
-\LABEL{MIN::PWIDTH} \\
-\verb|void min::|
-    & \MINKEY{pwidth}\ARGBREAK
-         \verb|( min::uns32 & column,|\ARGBREAK
-         \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  min::uns32 flags )|
-\LABEL{MIN::PWIDTH_OF_STRING} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|min::op min::|
-    & \MINKEY{pint}\ARGBREAK
-	  \verb|( min::int64 i,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PINT} \\
-\verb|min::op min::|
-    & \MINKEY{puns}\ARGBREAK
-	  \verb|( min::uns64 u,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PUNS} \\
-\verb|min::op min::|
-    & \MINKEY{pfloat}\ARGBREAK
-	  \verb|( min::float64 f,|\ARGBREAK
-	  \verb|  const char * printf_format )|
-\LABEL{MIN::PFLOAT} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
-\LABEL{MIN::SET_LINE_LENGTH} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
-\LABEL{MIN::SET_INDENT} \\
-\verb|min::op min::|
-    & \MINKEY{set\_print\_flags} \verb|( min::uns32 print_flags )|
-\LABEL{MIN::SET_PRINT_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{clear\_print\_flags} \verb|( min::uns32 print_flags )|
-\LABEL{MIN::CLEAR_PRINT_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{ascii}
-\LABEL{MIN::ASCII} \\
-\verb|const min::op min::| & \MINKEY{noascii}
-\LABEL{MIN::NOASCII} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{graphic\_hspace}
-\LABEL{MIN::GRAPHIC_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_hspace}
-\LABEL{MIN::NOGRAPHIC_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{graphic\_vspace}
-\LABEL{MIN::GRAPHIC_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_vspace}
-\LABEL{MIN::NOGRAPHIC_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{graphic\_nspace}
-\LABEL{MIN::GRAPHIC_NSPACE} \\
-\verb|const min::op min::| & \MINKEY{nographic\_nspace}
-\LABEL{MIN::NOGRAPHIC_NSPACE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{allow\_hspace}
-\LABEL{MIN::ALLOW_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_hspace}
-\LABEL{MIN::NOALLOW_HSPACE} \\
-\verb|const min::op min::| & \MINKEY{allow\_vspace}
-\LABEL{MIN::ALLOW_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_vspace}
-\LABEL{MIN::NOALLOW_VSPACE} \\
-\verb|const min::op min::| & \MINKEY{allow\_nspace}
-\LABEL{MIN::ALLOW_NSPACE} \\
-\verb|const min::op min::| & \MINKEY{noallow\_nspace}
-\LABEL{MIN::NOALLOW_NSPACE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{display\_eol}
-\LABEL{MIN::DISPLAY_EOL} \\
-\verb|const min::op min::| & \MINKEY{nodisplay\_eol}
-\LABEL{MIN::NODISPLAY_EOL} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{hbreak}
-\LABEL{MIN::HBREAK} \\
-\verb|const min::op min::| & \MINKEY{nohbreak}
-\LABEL{MIN::NOHBREAK} \\
-\verb|const min::op min::| & \MINKEY{gbreak}
-\LABEL{MIN::GBREAK} \\
-\verb|const min::op min::| & \MINKEY{nogbreak}
-\LABEL{MIN::NOGBREAK} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{eol\_flush}
-\LABEL{MIN::EOL_FLUSH} \\
-\verb|const min::op min::| & \MINKEY{noeol\_flush}
-\LABEL{MIN::NOEOL_FLUSH} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{graphic}
-\LABEL{MIN::GRAPHIC} \\
-\verb|const min::op min::| & \MINKEY{nographic}
-\LABEL{MIN::NOGRAPHIC} \\
-\verb|const min::op min::| & \MINKEY{verbatim}
-\LABEL{MIN::VERBATIM} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
-      \verb| ( std::ostream & out,|\ARGBREAK
-      \verb|   min::op const & op )|
-\LABEL{OPERATOR<<_OF_OSTREAM_AND_PRINTER_OP} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.8in}
-\multicolumn{2}{l}{\tt min::print\_format
-                       min::\MINKEY{ostream\_print\_format}}
-\LABEL{MIN::OSTREAM_PRINT_FORMAT} \\
-\end{TABULAR}
 
 \end{indpar}
 
