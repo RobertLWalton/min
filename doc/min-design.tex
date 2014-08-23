@@ -147,6 +147,9 @@
 
 \newcommand{\minkey}[1]%
            {\TT{min::#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\minlkey}[2]%
+           {\TT{min::#1#2}\index{min::#1@{\tt min::#1}!#2@{\tt #2}}%
+                          \index{#1@{\tt #1}!#2@{\tt #2}}}
 \newcommand{\minikey}[2]%
            {\TT{min::#1}\ttindex{min::#2}\ttindex{#2}}
 \newcommand{\minmkey}[2]%
@@ -220,6 +223,9 @@
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
 \newcommand{\MINKEY}[1]%
 	   {\TT{#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\MINLKEY}[2]%
+           {\TT{#1#2}\index{min::#1@{\tt min::#1}!#2@{\tt #2}}%
+                     \index{#1@{\tt #1}!#2@{\tt #2}}}
 \newcommand{\MINIKEY}[2]%
            {\TT{#1}\ttindex{min::#2}\ttindex{#2}}
 \newcommand{\MINMKEY}[3]%
@@ -7745,20 +7751,20 @@ following printer parameters:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINKEY{graphic\_and\_space\_display\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{graphic\_and\_space}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINKEY{graphic\_only\_display\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{graphic\_only}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ HT + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINKEY{graphic\_and\_vspace\_display\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{graphic\_and\_vspace}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[1.0in]
 	\verb|                 + min::IS_VSPACE, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINKEY{display\_all\_display\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{display\_all}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ 0xFFFF, 0 };|
 \LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
@@ -7790,15 +7796,15 @@ following printer parameters:
 \verb|{ 0, 0, 0, 0 };|
 \LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
-    min::\MINKEY{break\_after\_space\_break\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{break\_after\_space}{\_break\_control} =}\ARGBREAK[1.0in]
 \verb|{ min::IS_HSPACE, 0, 0, 0 };|
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
-    min::\MINKEY{break\_before\_all\_break\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{break\_before\_all}{\_break\_control} =}\ARGBREAK[1.0in]
 \verb|{ 0, 0xFFFF, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
-    min::\MINKEY{break\_after\_hyphens\_break\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{break\_after\_hyphens}{\_break\_control} =}\ARGBREAK[1.0in]
 \verb|{ min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
 \LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
 \end{tabular}\end{indpar}
@@ -10847,7 +10853,7 @@ the contents of the other parts of the object body.
 
 The operations
 
-\begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
 \verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
 	& [same as {\tt min::attr}]\\&
@@ -10857,7 +10863,7 @@ The operations
 \verb|min::unsptr min::| & \MINKEY{size\_of}
 	& [same as {\tt min::attr\_size\_of}]\\&
           \multicolumn{2}{l}{~( min::obj\_vec\_ptr \& vp )}
-\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR} \\
+\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR}
 \end{tabular}\end{indpar}
 
 are can be used as alternatives that make the attribute
@@ -12390,7 +12396,7 @@ the object lists have the syntax:
 \emkey{double-arrow-sublist} ::=
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{double-arrow-name-descriptor-pair} ::=
+\emlkey{double-arrow}{-name-descriptor-pair} ::=
     {\em reverse-attribute-name } {\em value-multiset}
 \\[1ex]
 \emkey{reverse-attribute-name} ::= {\em atom } $|$ {\em label}
@@ -12544,7 +12550,7 @@ the object lists have the following alternative syntax:
 \emkey{double-arrow-sublist} ::=
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{double-arrow-name-descriptor-pair} ::=
+\emlkey{double-arrow}{-name-descriptor-pair} ::=
     {\em reverse-attribute-name } {\em value-multiset}
 \\[1ex]
 \emkey{reverse-attribute-name} ::= {\em atom } $|$ {\em label}
@@ -17107,7 +17113,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.0in}
+\begin{TABULAR}{1.4in}
 \verb|min::op min::|
     & \MINKEY{punicode} \verb|( min::Uchar c )|
 \LABEL{MIN::PUNICODE} \\
@@ -17125,12 +17131,12 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{punicode}\ARGBREAK
       \verb|( min::unsptr length,|\ARGBREAK
       \verb|  min::ptr<min::Uchar> str )|
-\LABEL{MIN::PUNICODE_BUFFER_PTR} \\
+\LABEL{MIN::PUNICODE_BUFFER_PTR}
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{1.0in}
+\begin{TABULAR}{1.4in}
 \verb|min::op min::|
     & \MINKEY{pint}\ARGBREAK
 	  \verb|( min::int64 i,|\ARGBREAK
@@ -17145,19 +17151,19 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{pfloat}\ARGBREAK
 	  \verb|( min::float64 f,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PFLOAT} \\
+\LABEL{MIN::PFLOAT}
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{1.0in}
+\begin{TABULAR}{1.4in}
 \verb|void min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
          \verb|  min::uns32 print_op_flags,|\ARGBREAK
          \verb|  const min::print_format & print_format )|
-\LABEL{MIN::PWIDTH_OF_STRING} \\
+\LABEL{MIN::PWIDTH_OF_STRING}
 \end{TABULAR}
 
 \bigskip
@@ -17172,24 +17178,28 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SAVE_PRINT_FORMAT} \\
 \verb|const min::op min::|
     & \MINKEY{restore\_print\_format}
-\LABEL{MIN::RESTORE_PRINT_FORMAT} \\
+\LABEL{MIN::RESTORE_PRINT_FORMAT}
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.4in}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL line\_length} \verb|( min::uns32 line_length )|
+    & \MINKEY{set\_\EOL line\_length}\ARGBREAK
+      \verb|( min::uns32 line_length )|
 \LABEL{MIN::SET_LINE_LENGTH} \\
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL indent} \verb|( min::uns32 indent )|
+    & \MINKEY{set\_\EOL indent}\ARGBREAK
+      \verb|( min::uns32 indent )|
 \LABEL{MIN::SET_INDENT} \\
 \verb|min::op min::|
-    & \MINKEY{set\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
+    & \MINKEY{set\_print\_op\_flags}\ARGBREAK
+      \verb|( min::uns32 print_op_flags )|
 \LABEL{MIN::SET_PRINT_OP_FLAGS} \\
 \verb|min::op min::|
-    & \MINKEY{clear\_print\_op\_flags} \verb|( min::uns32 print_op_flags )|
-\LABEL{MIN::CLEAR_PRINT_OP_FLAGS} \\
+    & \MINKEY{clear\_print\_op\_flags}\ARGBREAK
+      \verb|( min::uns32 print_op_flags )|
+\LABEL{MIN::CLEAR_PRINT_OP_FLAGS}
 \end{TABULAR}
 
 \bigskip
@@ -17198,7 +17208,7 @@ These are in \verb|min_parameters.h|.
 \verb|const min::op min::| & \MINKEY{expand\_ht}
 \LABEL{MIN::EXPAND_HT} \\
 \verb|const min::op min::| & \MINKEY{noexpand\_ht}
-\LABEL{MIN::NOEXPAND_HT} \\
+\LABEL{MIN::NOEXPAND_HT}
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -17209,7 +17219,7 @@ These are in \verb|min_parameters.h|.
 \verb|const min::op min::| & \MINKEY{display\_picture}
 \LABEL{MIN::DISPLAY_PICTURE} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_picture}
-\LABEL{MIN::NODISPLAY_PICTURE} \\
+\LABEL{MIN::NODISPLAY_PICTURE}
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -17220,14 +17230,14 @@ These are in \verb|min_parameters.h|.
 \verb|const min::op min::| & \MINKEY{flush\_id\_map\_on\_eom}
 \LABEL{MIN::FLUSH_ID_MAP_ON_EOM} \\
 \verb|const min::op min::| & \MINKEY{noflush\_id\_map\_on\_eom}
-\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM} \\
+\LABEL{MIN::NOFLUSH_ID_MAP_ON_EOM}
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|const min::op min::| & \MINKEY{disable\_suppress}
 \LABEL{MIN::DISABLE_SUPPRESS} \\
 \verb|const min::op min::| & \MINKEY{nodisable\_suppress}
-\LABEL{MIN::NODISABLE_SUPPRESS} \\
+\LABEL{MIN::NODISABLE_SUPPRESS}
 \end{TABULAR}
 
 \bigskip
@@ -17242,7 +17252,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_support\_control}\ARGBREAK
           \verb|( const min::support_control & sc )|
-\LABEL{MIN::SET_SUPPORT_CONTROL} \\
+\LABEL{MIN::SET_SUPPORT_CONTROL}
 \end{TABULAR}
 
 \bigskip
@@ -17259,7 +17269,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_display\_control}\ARGBREAK
           \verb|( const min::display_control & dc )|
-\LABEL{MIN::SET_DISPLAY_CONTROL} \\
+\LABEL{MIN::SET_DISPLAY_CONTROL}
 \end{TABULAR}
 
 \bigskip
@@ -17276,7 +17286,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_break\_control}\ARGBREAK
           \verb|( const min::break_control & bc )|
-\LABEL{MIN::SET_BREAK_CONTROL} \\
+\LABEL{MIN::SET_BREAK_CONTROL}
 \end{TABULAR}
 
 \bigskip
@@ -17287,7 +17297,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_line\_display}\ARGBREAK
       \verb|( min::uns32 line_display )|
-\LABEL{MIN::SET_LINE_DISPLAY} \\
+\LABEL{MIN::SET_LINE_DISPLAY}
 \end{TABULAR}
 
 \INDEXHEADER{Printer Line Breaks}
@@ -17997,60 +18007,20 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\INDEXHEADER{Printing Object General Values}
-
-\begin{TABULAR}{2.4in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
-\verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
-\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
-\verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
-\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb| min::gen_format min::| & \MINKEY{default\_gen\_format}
-\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
-\LABEL{MIN::FLUSH_ONE_ID} \\
-\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
-\LABEL{MIN::FLUSH_ID_MAP} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL context\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::context_gen_flags *|\ARGBREAK
-      \verb|      context_gen_flags )|
-\LABEL{MIN::SET_CONTEXT_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
-      \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
-\end{TABULAR}
-
 \end{indpar}
 
 \INDEXHEADER{Object Creation}
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{2.0in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
     \verb|( min::unsptr unused_size,|\ARGBREAK
     \verb|  min::unsptr hash_size = 0,|\ARGBREAK
     \verb|  min::unsptr variables_size = 0 )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \verb|bool min::| & \MINKEY{is\_obj} \verb|( min::gen v )|
-\LABEL{MIN::IS_OBJ} \\
+\LABEL{MIN::IS_OBJ}
 \end{TABULAR}
 
 \end{indpar}
@@ -18073,7 +18043,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::| & \MINKEY{expand\RESIZE}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
     \verb|  min::unsptr unused_size )|
-\LABEL{MIN::EXPAND} \\
+\LABEL{MIN::EXPAND}
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
@@ -18083,7 +18053,7 @@ These are in \verb|min_parameters.h|.
     \verb|  min::unsptr variable_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
-\LABEL{MIN::REORGANIZE} \\
+\LABEL{MIN::REORGANIZE}
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
@@ -18098,7 +18068,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::COMPACT} \\
 \verb|void min::| & \MINKEY{publish\REORG}
     \verb|( min::gen object )|
-\LABEL{MIN::PUBLISH} \\
+\LABEL{MIN::PUBLISH}
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
@@ -18107,7 +18077,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PRIVATE_FLAG_OF} \\
 \verb|bool min::| & \MINKEY{public\_flag\_of}
     \verb|( min::gen object )|
-\LABEL{MIN::PUBLIC_FLAG_OF} \\
+\LABEL{MIN::PUBLIC_FLAG_OF}
 \end{TABULAR}
 
 \end{indpar}
@@ -18124,7 +18094,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::OBJ_VEC_PTR_OF_STUB} \\
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}
        \verb|vp ( void )|
-\LABEL{MIN::OBJ_VEC_PTR_OF_VOID} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_VOID}
 \end{TABULAR}
 
 \medskip
@@ -18143,7 +18113,7 @@ These are in \verb|min_parameters.h|.
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  const min::stub * s )|
-\LABEL{MIN::=_OBJ_VEC_PTR_OF_STUB} \\
+\LABEL{MIN::=_OBJ_VEC_PTR_OF_STUB}
 \end{TABULAR}
 
 \medskip
@@ -18166,7 +18136,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::AUX_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{total\_size\_of}
     \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::TOTAL_SIZE_OF_OBJ_VEC_PTR} \\
+\LABEL{MIN::TOTAL_SIZE_OF_OBJ_VEC_PTR}
 \end{TABULAR}
 
 \medskip
@@ -18187,7 +18157,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen | & \MINKEY{aux}\ARGBREAK
     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|  min::unsptr aux_ptr )|
-\LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
+\LABEL{MIN::AUX_OF_OBJ_VEC_PTR}
 \end{TABULAR}
 
 \begin{TABULAR}{1.9in}
@@ -18198,10 +18168,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
           \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR} \\
+\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR}
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
+\begin{TABULAR}{2.6in}
 \verb|min::ptr<const min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
@@ -18214,7 +18184,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::ptr<const min::gen> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR}
 \end{TABULAR}
 
 \bigskip
@@ -18231,7 +18201,7 @@ These are in \verb|min_parameters.h|.
 \verb|(constructor) min::|
     & \MINKEY{obj\_vec\_updptr} \verb|vp|
     \verb|( void )|
-\LABEL{MIN::OBJ_VEC_UPDPTR_OF_VOID} \\
+\LABEL{MIN::OBJ_VEC_UPDPTR_OF_VOID}
 \end{TABULAR}
 
 \medskip
@@ -18250,7 +18220,7 @@ These are in \verb|min_parameters.h|.
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp,|\ARGBREAK
 	  \verb|  const min::stub * s )|
-\LABEL{MIN::=_OBJ_VEC_UPDPTR_OF_STUB} \\
+\LABEL{MIN::=_OBJ_VEC_UPDPTR_OF_STUB}
 \end{TABULAR}
 
 \medskip
@@ -18271,7 +18241,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::ref<min::gen> | & \MINKEY{aux}\ARGBREAK
     \verb|( min::obj_vec_updptr & vp,|\ARGBREAK
     \verb|  min::unsptr index )|
-\LABEL{MIN::AUX_OF_OBJ_VEC_UPDPTR} \\
+\LABEL{MIN::AUX_OF_OBJ_VEC_UPDPTR}
 \end{TABULAR}
 
 \begin{TABULAR}{1.9in}
@@ -18279,10 +18249,10 @@ These are in \verb|min_parameters.h|.
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj_vec\_updptr}}\ARGBREAK
 	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
-\LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
+\LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR}
 \end{TABULAR}
 
-\begin{TABULAR}{1.9in}
+\begin{TABULAR}{2.1in}
 \verb|min::ptr<min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
 	  \verb|( min::obj_vec_updptr const & vp,|\ARGBREAK
@@ -18295,7 +18265,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::ptr<min::gen> min::|
     & \MINKEY{end\_ptr\_of}\ARGBREAK
       \verb|( min::obj_vec_updptr & vp )|
-\LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR}
 \end{TABULAR}
 
 \bigskip
@@ -18312,7 +18282,7 @@ These are in \verb|min_parameters.h|.
 \verb|(constructor) min::|
     & \MINKEY{obj\_vec\_insptr} \verb|vp|
     \verb|( void )|
-\LABEL{MIN::OBJ_VEC_INSPTR_OF_VOID} \\
+\LABEL{MIN::OBJ_VEC_INSPTR_OF_VOID}
 \end{TABULAR}
 
 
@@ -18332,7 +18302,7 @@ These are in \verb|min_parameters.h|.
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
 	  \verb|  const min::stub * s )|
-\LABEL{MIN::=_OBJ_VEC_INSPTR_OF_STUB} \\
+\LABEL{MIN::=_OBJ_VEC_INSPTR_OF_STUB}
 \end{TABULAR}
 
 \medskip
@@ -18343,7 +18313,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
 \verb|void min::ref<min::gen> min::| & \MINKEY{aux\_push}\ARGBREAK
       \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
+\LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR}
 \end{TABULAR}
 
 \begin{TABULAR}{1.9in}
@@ -18365,7 +18335,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
 \verb|min::gen min::| & \MINKEY{aux\_pop}
       \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
+\LABEL{MIN::AUX_POP_OF_VEC_INSPTR}
 \end{TABULAR}
 
 \begin{TABULAR}{1.9in}
@@ -19288,6 +19258,50 @@ These are in \verb|min_parameters.h|.
     \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Printing Object General Values}
+
+\begin{indpar}
+
+\begin{TABULAR}{2.4in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
+\verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
+\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
+\verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
+\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb| min::gen_format min::| & \MINKEY{default\_gen\_format}
+\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL context\_\EOL gen\_\EOL flags}\ARGBREAK
+      \verb|( min::context_gen_flags *|\ARGBREAK
+      \verb|      context_gen_flags )|
+\LABEL{MIN::SET_CONTEXT_GEN_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
+      \verb|( min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \end{TABULAR}
 
 \end{indpar}
