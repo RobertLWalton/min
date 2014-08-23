@@ -5605,7 +5605,7 @@ named \TT{pvtype} use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base<E,H,B,L=min::uns32>}
+	& \MINLKEY{packed\_vec\_with\_base}{<E,H,B,L=min::uns32>}
 		\verb|pvtype|\ARGBREAK
 	  \verb|( const char * name,|\ARGBREAK
 	  \verb|  const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
@@ -9893,7 +9893,7 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{quote\_first\_not\_letter\_str\_format}:}\ARGBREAK
+    min::\MINLKEY{quote\_first\_not\_letter}{\_str\_format}:}\ARGBREAK
 \verb|min::quote_first_not_letter_control    // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
@@ -9902,7 +9902,7 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINKEY{quote\_non\_graphic\_str\_format}:}\ARGBREAK
+                   min::\MINLKEY{quote\_non\_graphic}{\_str\_format}:}\ARGBREAK
 \verb|min::quote_non_graphic_control         // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
@@ -9932,7 +9932,7 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::quote\_control
-		   min::\MINKEY{quote\_first\_not\_letter\_control}:}\ARGBREAK
+		   min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
 \verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}
@@ -17645,7 +17645,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{quote\_first\_not\_letter\_str\_format}:}
+    min::\MINLKEY{quote\_first\_not\_letter}{\_str\_format}:}
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_STR_FORMAT}\ARGBREAK
 \verb|min::quote_first_not_letter_control    // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
@@ -19122,23 +19122,18 @@ These are in \verb|min_parameters.h|.
 
 \INDEXHEADER{Printing Object General Values}
 
-\begin{indpar}
+\begin{indpar}[0.2in]
 
-\begin{TABULAR}{2.4in}
+\begin{TABULAR}{2.0in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
 \verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
-\LABEL{MIN::DEFAULT_EXP_OK_ATTRS} \\
+\LABEL{MIN::STANDARD_EXP_OK_ATTRS}
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
+\begin{TABULAR}{2.0in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
 \verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
-\LABEL{MIN::DEFAULT_FLAG_NAMES} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb| min::gen_format min::| & \MINKEY{default\_gen\_format}
-\LABEL{MIN::DEFAULT_GEN_FORMAT} \\
+\LABEL{MIN::STANDARD_FLAG_NAMES}
 \end{TABULAR}
 
 \bigskip
