@@ -228,8 +228,8 @@
                      \index{#1@{\tt #1}!#2@{\tt #2}}}
 \newcommand{\MINIKEY}[2]%
            {\TT{#1}\ttindex{min::#2}\ttindex{#2}}
-\newcommand{\MINMKEY}[3]%
-           {\TT{#1}\ttmindex{min::#2}{#3}\ttmindex{#2}{#3}}
+\newcommand{\MINMKEY}[2]%
+           {\TT{#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\MUPKEY}[1]%
 	   {\TT{#1}\ttindex{MUP::#1}\ttindex{#1}}
 
@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 22, 2014}
+\date{August 23, 2014}
  
 \maketitle
 
@@ -3671,7 +3671,8 @@ See \pagref{CONDITIONAL-BREAK}.
 The \minkey{QUOTE\_\EOL SUPPRESS} flag marks characters that
 suppress quoting strings if they are the first character of
 the string; currently letters are given this flag.
-See \pagref{QUOTE-SUPPRESS}.
+See \TT{quote\_\EOL control.unquote\_\EOL if\_\EOL first}
+on \pagref{UNQUOTE_IF_FIRST}.\label{QUOTE-SUPPRESS}
 
 The last two flags are used in conjunction with printer format
 masks to dynamically control which characters are supported.
@@ -4422,7 +4423,8 @@ a \key{string pointer}:
     & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char> min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( min::str_ptr const & sp )|
+    & \MINMKEY{begin\_ptr\_of}{{\tt str\_ptr}}
+      \verb|( min::str_ptr const & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4698,11 +4700,11 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<const min::gen> min::|
-	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	& \MINMKEY{begin\_ptr\_of}{{\tt lab\_ptr}}\ARGBREAK
 	  \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::BEGIN_PTR_OF_LAB_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	& \MINMKEY{end\_ptr\_of}{{\tt lab\_ptr}}\ARGBREAK
 	  \verb|( min::lab_ptr & labp )|
 \LABEL{MIN::END_PTR_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
@@ -4929,11 +4931,11 @@ and furthermore do not check subscript ranges:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<const min::gen> min::|
-	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	& \MINMKEY{begin\_ptr\_of}{{\tt lab\_ptr}}\ARGBREAK
 	  \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::BEGIN_PTR_OF_MUP_LAB_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	& \MINMKEY{end\_ptr\_of}{{\tt lab\_ptr}}\ARGBREAK
 	  \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::END_PTR_OF_MUP_LAB_PTR} \\
 \end{tabular}\end{indpar}
@@ -5855,8 +5857,7 @@ The following are defined for general use:
 	& \MINKEY{uns32\_packed\_vec\_type}
 \LABEL{MIN::UNS32_PACKED_VEC_TYPE} \\
 \verb|min::packed_vec<const char *> min::|
-	& \MINMKEY{const\_char\_ptr\_packed\_vec\_type}%
-	          {const\_char\_ptr\_}{packed\_vec\_type}
+	& \MINLKEY{const\_char\_ptr}{\_packed\_vec\_type}
 \LABEL{MIN::CONST_CHAR_PTR_PACKED_VEC_TYPE} \\
 \verb|min::packed_vec<min::gen> min::|
 	& \MINKEY{gen\_packed\_vec\_type}
@@ -5930,11 +5931,11 @@ packed vector pointer type which has the usage:
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_PTR_+} \\
 \verb|min::ptr<E const>  min::|
-    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+    & \MINMKEY{begin\_ptr\_of}{{\TT packed\_vec\_ptr}}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
 \verb|min::ptr<E const> min::|
-    & \MINKEY{end\_ptr\_of}\ARGBREAK
+    & \MINMKEY{end\_ptr\_of}{{\tt packed\_vec\_ptr}}\ARGBREAK
       \verb|( min::packed_vec_ptr<E,H,L> pvp )|
 \LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
 \end{tabular}\end{indpar}
@@ -6046,11 +6047,11 @@ pointer type is:
     & \TTMOKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
 \verb|min::ptr<E>  min::|
-    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+    & \MINMKEY{begin\_ptr\_of}{{\TT packed\_vec\_updptr}}\ARGBREAK
       \verb|( min::packed_vec_updptr<E,H,L> pvup )|
 \LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_UPDPTR} \\
 \verb|min::ptr<E> min::|
-    & \MINKEY{end\_ptr\_of}\ARGBREAK
+    & \MINMKEY{end\_ptr\_of}{{\tt packed\_vec\_updptr}}\ARGBREAK
       \verb|( min::packed_vec_updptr<E,H,L> pvup )|
 \LABEL{MIN::END_PTR_OF_PACKED_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -10005,7 +10006,9 @@ be quoted as follows.  If any character in the string has a character
 flag that is in \TT{qc.unquote\_\EOL if\_\EOL none\_\EOL of}, the
 string is quoted.  Otherwise if the first character of the string
 has a flag that is in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
-is not quoted, and if not, the string is quoted.
+is not quoted, and if not, the string is quoted.%
+\label{UNQUOTE_IF_FIRST}  See the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
+flag on \pagref{QUOTE-SUPPRESS}.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
 determines how the string is quoted.  The quoted string is preceeded
@@ -10886,10 +10889,12 @@ Also in this vein, the operations
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( min::obj_vec_ptr & vp )|
+    & \MINMKEY{begin\_ptr\_of}{{\tt obj\_vec\_ptr}}
+      \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-    & \MINKEY{end\_ptr\_of} \verb|( min::obj_vec_ptr & vp )|
+    & \MINMKEY{end\_ptr\_of}{{\tt obj\_vec\_ptr}}
+      \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -10975,10 +10980,12 @@ to permit writing elements.  Its functions are:
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
-    & \MINKEY{begin\_ptr\_of} \verb|( min::obj_vec_updptr & vp )|
+    & \MINMKEY{begin\_ptr\_of}{{\tt obj\_vec\_updptr}}
+      \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
-    & \MINKEY{end\_ptr\_of} \verb|( min::obj_vec_updptr & vp )|
+    & \MINMKEY{end\_ptr\_of}{{\tt obj\_vec\_updptr}}
+       \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
@@ -11478,7 +11485,8 @@ are:
 	& \MINKEY{list\_ptr} \verb|lp ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::obj_vec_ptr & min::|
-	& \MINKEY{obj\_vec\_ptr\_of} \verb|( min::list_ptr & lp )|
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_ptr}}
+	  \verb|( min::list_ptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -11734,7 +11742,7 @@ from lists.  The functions for using this are:
 \LABEL{MIN::LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_updptr}}
 	  \verb|( min::list_updptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -11853,7 +11861,7 @@ The functions defined for this are:
 \LABEL{MIN::LIST_INSPTR_OF_VEC_INSPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
 \verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_insptr}}
 	  \verb|( min::list_insptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
@@ -12696,7 +12704,7 @@ are:
 \LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_ptr \&} \\
 \verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_ptr}}
 	  \verb|( min::attr_ptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_PTR} \\
 \end{tabular}\end{indpar}
@@ -13034,7 +13042,7 @@ are:
 \LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_updptr}}
 	  \verb|( min::attr_updptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -13142,7 +13150,7 @@ are:
 \LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
 \verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_insptr}}
 	  \verb|( min::attr_insptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
@@ -13450,7 +13458,7 @@ If that in turn has an indirect pointer value, that indirection is also
 taken, to any depth.
 
 \subsubsection{Printing Object General Values}
-\label{PRINTING-OTHER-OBJECT-VALUES}
+\label{PRINTING-OBJECT-GENERAL-VALUES}
 
 The format for printing object \TT{min::gen} values is:
 
@@ -13552,53 +13560,6 @@ and {\tt gen\_\EOL format} members in
 this section apply only to {\tt min::\EOL default\_\EOL pgen},
 the default value of this {\tt pgen} member.
 
-\item[\ttmkey{number\_format}{in {\tt min::gen\_format}}]~\\
-The {\tt number\_format} member is used as a {\tt printf} format
-for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
-
-\item[\ttmkey{str\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{str\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{str\_quote}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL STR\_\EOL FLAG} is on
-and none of these three members is {\tt NULL}.
-
-The {\tt str\_\EOL \{pre,post\} fix} members are printed just before and
-just after the string of characters in a {\tt min::gen} string value
-(which is itself a UTF-8 encoded UNICODE character string).
-
-Any {\tt min::gen} string
-subsequence of characters equal to {\tt str\_\EOL post\-fix} is replaced
-by the characters of {\tt str\_\EOL quote}.
-
-For example, if
-{\tt str\_\EOL postfix} is \TT{"\textbackslash""}, and
-{\tt str\_\EOL quote} is \TT{"<Q>"}, then \TT{<Q>} replaces
-each \TT{"} in the {\tt min::gen} string that is being printed
-(but of course not in {\tt str\_\EOL postfix}
-when that is printed just after the {\tt min::gen} string is printed).
-
-\item[\ttmkey{lab\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{lab\_separator}{in {\tt min::gen\_format}}]\vspace{-2ex}
-\item[\ttmkey{lab\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is on
-and none of these three members is {\tt NULL}.
-
-The {\tt lab\_\EOL \{pre,post\} fix} members are printed just before and
-just after the elements of a label {\tt min::gen} value,
-and the {\tt lab\_\EOL separa\-tor} member
-is printed between elements.  Note that the {\tt lab\_\EOL sep\-ara\-tor}
-member must include any single space characters that are to be placed between
-elements.
-
-\item[\ttmkey{special\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{special\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if {\tt BRACKET\_\EOL SPECIAL\_\EOL FLAG} is on
-and neither of these two members is {\tt NULL}.
-
-The {\tt special\_\EOL \{pre,post\} fix}
-members are printed just before and
-just after special {\tt min::gen} values (such as `{\tt MISSING()}').
-
 \item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
 \item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
 These members are only enabled if both the
@@ -13609,54 +13570,6 @@ The {\tt implicit\_\EOL prefix/postfix} members surround an object being
 printed as an expression per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}, provided that
 the object has \underline{neither}
 an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
-
-\item[\ttmkey{special\_names}{in {\tt min::gen\_format}}]
-This member is only enabled if
-{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} is \underline{off}
-and {\tt spec\-ial\_\EOL names} is not {\tt min::\EOL NULL\_\EOL STUB}.
-See
-{\tt SUPPRESS\_\EOL SPECIAL\_\EOL NAMES\_\EOL FLAG} above for usage.
-
-\item[\ttmkey{suppress\_matrix}{in {\tt min::gen\_format}}]~\\
-This member controls the {\tt min::suppressible\_space} operation, which
-may or may not output a single space character, and which is used
-to put the space between label elements
-if {\tt SUP\-PRESS\_\EOL LAB\_\EOL SPACE\_\EOL FLAG} is on
-and {\tt BRACKET\_\EOL LAB\_\EOL FLAG} is \underline{off},
-and which is also used to put the space between object vector elements
-being printed in an expression as per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}
-if {\tt SUPPRESS\_\EOL EXP\_\EOL SPACE\_\EOL FLAG} is on.
-If the flags are not set as indicated,
-{\tt min::\EOL suppressible\_\EOL space} is not used for printing labels or
-object expression vector elements.
-
-If {\tt suppress\_\EOL matrix} is {\tt NULL},
-{\tt min::\EOL suppressible\_\EOL space} outputs a single space character.
-Otherwise it outputs a single space character if and only if
-\begin{center}
-\tt ! suppress\_space[B][C]
-\end{center}
-where
-\begin{center}
-\tt
-\begin{tabular}{l}
-B = min::unicode\_category ( b ) \\
-C = min::unicode\_category ( c ) \\
-b = {\rm the previous printed UNICODE character} \\
-c = {\rm the following printed UNICODE character} \\
-\end{tabular}
-\end{center}
-
-If we are at the beginning of printing, or if we are at the beginning
-of a line, the previous printed UNICODE character
-is assumed to be a newline character.  A space is
-never output if it would be at the end of a line.
-
-{\tt suppress\_matrix} must be a pointer to a matrix of
-{\tt min::\EOL suppress\_\EOL matrix} type (see \pagref{MIN::SUPPRESS_MATRIX})
-stored in {\tt static} memory or in the stack.  If stored in the stack,
-printer commands that might reference it must not be executed after
-it is deallocated.
 
 \item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
 This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
@@ -14078,6 +13991,7 @@ This is a logical time to pay this cost.
 \renewcommand{\TTARMKEY}[2]{{\tt ~~->#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINIKEY}[2]{{\tt ~~#1~~}}
+\renewcommand{\MINMKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
 
@@ -15346,62 +15260,6 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
       \verb|( min::ptr<min::Uchar> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.2in}
-\verb|const min::Uchar min::|
-    & \MINKEY{UNKNOWN\_UCHAR}
-\LABEL{MIN::UNKNOWN_UCHAR} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::Uchar min::|
-    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( const char * & s )|
-\LABEL{MIN::UTF8_TO_UNICODE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb|( char * & s, min::Uchar c )|
-\LABEL{MIN::UNICODE_TO_UTF8} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::unsptr min::|
-    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb|( min::Uchar * & u, const min::Uchar * endu,|\ARGBREAK
-      \verb|  const char * & s, const char * ends )|
-\LABEL{MIN::UTF8_STR_TO_UNICODE_STR} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
-      \verb| ( char * & s, const char * ends,|\ARGBREAK
-      \verb|   const min::Uchar * & u,|\ARGBREAK
-      \verb|   const min::Uchar * endu )|
-\LABEL{MIN::UNICODE_STR_TO_UTF8_STR} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns8 min::| & \MINKEY{unicode\_category} \verb|( min::Uchar c )|
-\LABEL{MIN::UNICODE_CATEGORY}
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|typedef min::Uchar min::| & \MINKEY{Ustring}
-\LABEL{MIN::USTRING} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_length} \ARGBREAK
-      \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_LENGTH} \\
-\verb|min::uns32 min::|
-    & \MINKEY{unicode\_columns}\ARGBREAK
-      \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_COLUMNS} \\
-\verb|const min::Uchar * min::|
-    & \MINKEY{unicode\_string} \ARGBREAK
-      \verb|( const min::Ustring * p )|
-\LABEL{MIN::UNICODE_STRING} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
