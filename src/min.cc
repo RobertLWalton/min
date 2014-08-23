@@ -9321,27 +9321,11 @@ min::printer pgen_id
 
 #ifdef NONE_SUCH
 
-// Execute pgen (below) in the case an object is to be
-// printed without an effective OBJ_EXP_FLAG or
-// OBJ_ID_FLAG.
-//
-static min::printer pgen_obj
+min::printer min::print_obj
 	( min::printer printer,
-	  min::uns32 gen_flags,
 	  min::gen v,
-	  const min::context_gen_flags *
-	      context_gen_flags,
-	  const min::gen_format * f,
-	  min::printer ( * pgen )
-	      ( min::printer printer,
-	        min::uns32 gen_flags,
-	        min::gen v,
-	        const min::context_gen_flags *
-		    context_gen_flags,
-		const min::gen_format * f ) )
+	  const min::obj_format * of )
 {
-    bool indent = ( gen_flags & min::OBJ_INDENT_FLAG );
-
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
 
@@ -9355,6 +9339,45 @@ static min::printer pgen_obj
 	info = second_info;
         min::get_attrs ( info, m, ap );
     }
+
+    min::gen separator = min::NONE;
+    min::gen initiator = min::NONE;
+    min::gen terminator = min::NONE;
+    min::gen type = min::NONE;
+
+    bool compact_ok = true;
+    for ( min::unsptr i = 0; compact_ok && i < m; ++ i )
+    {
+        if ( info[i].name == min::dot_separator )
+	    separator = info[i].value;
+        else if ( info[i].name == min::dot_initiator )
+	    initiator = info[i].value;
+        else if ( info[i].name == min::dot_initiator )
+	    initiator = info[i].value;
+        else if ( info[i].name == min::dot_initiator )
+	    initiator = info[i].value;
+        else if ( info[i].name == min::dot_position )
+	    /* do nothing */;
+	else { compact_ok = false; continue; }
+
+	compact_of =
+	    (    info[i].value_count == 1
+	      && info[i].flag_count == 0
+	      && info[i].reverse_attr_count == 0 );
+    }
+
+    if ( compact_ok )
+    {
+	if ( initiator != min::NONE )
+	    compact_ok == (    terminator != min::NONE
+			    && type == min::NONE );
+	else if ( terminator != min::NONE )
+	    compact_ok == (    initiator != min::NONE
+			    && type == min::NONE );
+    }
+         
+
+
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
