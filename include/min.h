@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 17 01:35:49 EDT 2014
+// Date:	Sun Aug 24 04:22:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10702,9 +10702,7 @@ namespace min {
 	DISPLAY_PICTURE		= ( 1 << 2 ),
 	FLUSH_ON_EOL		= ( 1 << 3 ),
         FLUSH_ID_MAP_ON_EOM	= ( 1 << 4 ),
-	NEXT_IS_LEADING		= ( 1 << 5 ),
-	NEXT_IS_TRAILING	= ( 1 << 6 ),
-	DISABLE_SUPPRESS	= ( 1 << 7 )
+	DISABLE_SUPPRESS	= ( 1 << 5 ),
     };
 
     extern const min::uns32 standard_op_flags;
@@ -10795,6 +10793,16 @@ namespace min {
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;
 
+    // Flags for printer->state.
+    //
+    enum {
+        BREAK_AFTER		= ( 1 << 0 ),
+        LEADING_STATE		= ( 1 << 1 ),
+        TRAILING_STATE		= ( 1 << 2 ),
+        AFTER_LEADING		= ( 1 << 3 ),
+        AFTER_TRAILING		= ( 1 << 4 )
+    };
+
     struct printer_struct
     {
         const uns32 control;
@@ -10815,54 +10823,28 @@ namespace min {
 	// The following are not printer parameters but
 	// are set during printer operation.
 
-	bool break_after;
-	    // Last character enabled break_after.
+        min::uns32 state;
+	    // See state flags above.
 
 	min::uns32 last_char_flags;
-	min::uns32 ored_char_flags;
-	    // Flags indicating state of suppressible
-	    // space computation.
-	    // 
+	min::uns32 and_ed_char_flags;
 	    // Last_char_flags are the char_flags of the
 	    // UNICODE character whose representation
 	    // is last in the printer->buffer.  Note
 	    // the representation may not have the
 	    // same kind of flags as the character
 	    // represented, and it is the latter whose
-	    // flags are here.  Furthermore, last_char_
-	    // flags is modified as indicated below.
+	    // flags are here.
 	    //
-	    // Ored_char_flags is the logical or of
+	    // And_ed_char_flags is the logical AND of
 	    // char_flags of all the UNICODE characters
 	    // represented in the printer->buffer since
-	    // the last time this value was zeroed.
-	    // It is soley used for error checking, to
-	    // see if a trailing string contains only
-	    // trailing characters and a leading string
-	    // contains only leading characters.
-	    //
-	    // At the end of a non-leading string the
-	    // IS_LEADING flag in last_char is cleared.
-	    // This means that if this flag is on when
-	    // a new string is to be output, we are
-	    // just after a leading string, and a space
-	    // is output before the new string if the
-	    // DISABLE SUPPRESS flag is on, or if the
-	    // the new string is not leading and does
-	    // not begin with a middling or space char-
-	    // acter.
-	    //
-	    // At the end of a non-trailing string the
-	    // IS_TRAILING flag in last_char is cleared.
-	    // This means that if this flag is on when
-	    // a new string is to be output, we are
-	    // just after a trailing string.  When
-	    // a new trailing string is to be output,
-	    // a space is output just before it if the
-	    // DISABLE_SUPPRESS flag is on, or if the
-	    // IS_TRAILING flag is off and the IS_MIDDL-
-	    // ING flag is off and all IS_HSPACE flags
-	    // are off.
+	    // the last time this value was initialized.
+	    // It is reset to min::IS_LEADING + min::IS_
+	    // TRAILING just before a string is output,
+	    // and can be used to check whether a lead-
+	    // ing or trailing string has just been
+	    // output.
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -10926,7 +10908,8 @@ namespace min {
 
 	    VERBATIM,
 
-	    SUPPRESSIBLE_SPACE,
+	    LEADING,
+	    TRAILING,
 	    SPACE,
 
 	    FLUSH_ONE_ID,
