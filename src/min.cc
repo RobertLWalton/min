@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 17 01:35:23 EDT 2014
+// Date:	Sun Aug 24 04:30:47 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7673,6 +7673,8 @@ min::printer min::init
     printer->column = 0;
     printer->line_break = min::default_line_break;
     printer->print_format = min::default_print_format;
+    printer->state = min::LEADING_STATE
+                   + min::TRAILING_STATE;
 
     return printer;
 }
@@ -7748,6 +7750,8 @@ static void end_line ( min::printer printer )
     printer->column = 0;
     printer->line_break.offset = buffer->length;
     printer->line_break.column = 0;
+    printer->state = min::LEADING_STATE
+                   + min::TRAILING_STATE;
 }
 
 static bool insert_line_break
@@ -7929,12 +7933,6 @@ min::printer operator <<
 	printer->print_format.break_control =
 	    min::no_auto_break_break_control;
 	return printer;
-    case min::op::SUPPRESSIBLE_SPACE:
-	{
-	    // TBD
-		    
-	    return printer;
-	}
     case min::op::SPACE:
 	return min::print_Uchar ( printer, ' ' );
     case min::op::SAVE_LINE_BREAK:
@@ -8014,6 +8012,16 @@ min::printer operator <<
 	printer->line_break.column = printer->column;
 	return printer;
     case min::op::LEFT:
+        if (   printer->column
+	     <   printer->line_break.column
+	       + op.v1.u32 )
+	{
+	    printer->state |= min::LEADING_STATE
+			    + min::TRAILING_STATE;
+	    printer->state &=
+	        ~ (   min::AFTER_LEADING
+		    + min::AFTER_TRAILING );
+	}
         while (   printer->column
 	        <   printer->line_break.column
 		  + op.v1.u32 )
@@ -8087,6 +8095,15 @@ min::printer operator <<
 	     > printer->line_break.indent )
 	    ::end_line ( printer );
     execute_indent:
+	if (   printer->column
+	     < printer->line_break.indent )
+	{
+	    printer->state |= min::LEADING_STATE
+			    + min::TRAILING_STATE;
+	    printer->state &=
+	        ~ (   min::AFTER_LEADING
+		    + min::AFTER_TRAILING );
+	}
 	while (   printer->column
 		< printer->line_break.indent )
 	{
@@ -8104,9 +8121,48 @@ min::printer operator <<
         if (   printer->column
 	     > printer->line_break.indent )
 	{
+	    printer->state |= min::LEADING_STATE
+			    + min::TRAILING_STATE;
+	    printer->state &=
+	        ~ (   min::AFTER_LEADING
+		    + min::AFTER_TRAILING );
 	    ++ printer->column;
 	    min::push(printer->file->buffer) = ' ';
 	}
+	return printer;
+    case min::op::LEADING:
+        if ( ! ( printer->state & min::LEADING_STATE )
+	     ||
+	     (   printer->print_format.op_flags
+	       & min::DISABLE_SUPPRESS ) )
+	{
+	    printer->state |= min::LEADING_STATE
+			    + min::TRAILING_STATE;
+	    printer->state &=
+	        ~ (   min::AFTER_LEADING
+		    + min::AFTER_TRAILING );
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	else
+	    printer->state |= min::AFTER_LEADING;
+	return printer;
+    case min::op::TRAILING:
+        if ( ! ( printer->state & min::TRAILING_STATE )
+	     ||
+	     (   printer->print_format.op_flags
+	       & min::DISABLE_SUPPRESS ) )
+	{
+	    printer->state |= min::LEADING_STATE
+			    + min::TRAILING_STATE;
+	    printer->state &=
+	        ~ (   min::AFTER_LEADING
+		    + min::AFTER_TRAILING );
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	else
+	    printer->state |= min::AFTER_TRAILING;
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
@@ -8194,11 +8250,9 @@ const min::op min::nodisable_suppress
       min::DISABLE_SUPPRESS );
 
 const min::op min::leading
-    ( min::op::SET_PRINT_OP_FLAGS,
-      min::NEXT_IS_LEADING );
+    ( min::op::LEADING );
 const min::op min::trailing
-    ( min::op::SET_PRINT_OP_FLAGS,
-      min::NEXT_IS_TRAILING );
+    ( min::op::TRAILING );
 
 const min::op min::verbatim
     ( min::op::VERBATIM );
@@ -8382,6 +8436,8 @@ min::printer MINT::print_unicode
 	  min::unsptr substring_length,
 	  const min::ustring * replacement )
 {
+    if ( n == 0 ) return printer;
+
     char temp[32];
 
     min::support_control sc =
@@ -8403,18 +8459,13 @@ min::printer MINT::print_unicode
         printer->print_format.op_flags & min::EXPAND_HT;
 
 
-
-    if ( printer->last_char_flags & min::IS_LEADING )
-    {
-        if ( n == 0 ) return printer;
-
-	// TBD
-    }
-
     bool no_line_break_enabled = false;
         // This prevents repeated checks for an enabled
 	// line break that does not exist.
 
+    bool rep_is_space;
+    printer->and_ed_char_flags = min::IS_LEADING
+                               + min::IS_TRAILING;
     while ( n )
     {
         min::Uchar c = * p;
@@ -8432,7 +8483,7 @@ min::printer MINT::print_unicode
 	const char * rep = temp;
 	const min::ustring * prefix = NULL;
 	const min::ustring * postfix = NULL;
-	bool rep_is_space = false;
+	rep_is_space = false;
 
 	if (    substring != NULL
 	     && c == substring[0]
@@ -8533,7 +8584,7 @@ min::printer MINT::print_unicode
 	n -= clength;
 	p = p + clength;
 	printer->last_char_flags = cflags;
-	printer->ored_char_flags |= cflags;
+	printer->and_ed_char_flags &= cflags;
 
 	if ( columns > 0 )
 	{
@@ -8541,7 +8592,8 @@ min::printer MINT::print_unicode
 	         ||
 	         ( ( cflags & bc.break_after ) == 0
 	           &&
-		   printer->break_after ) )
+		   (   printer->state
+		     & min::BREAK_AFTER ) ) )
 	    {
 		printer->line_break.offset =
 		    buffer->length;
@@ -8561,14 +8613,16 @@ min::printer MINT::print_unicode
 	    }
 	}
 
-	printer->break_after =
-	    ( cflags & bc.break_after )
-	    ||
-	    ( ( cflags & bc.conditional_break )
-	      &&
-	           printer->column
-		 - printer->line_break.column
-	      >= bc.conditional_columns );
+	if ( ( cflags & bc.break_after )
+	     ||
+	     ( ( cflags & bc.conditional_break )
+	       &&
+	            printer->column
+		  - printer->line_break.column
+	       >= bc.conditional_columns ) )
+	    printer->state |= min::BREAK_AFTER;
+	else
+	    printer->state &= ~ min::BREAK_AFTER;
 	   
 	if ( prefix != NULL )
 	    min::push
@@ -8586,6 +8640,24 @@ min::printer MINT::print_unicode
 
     }
 
+    if ( rep_is_space )
+	printer->state |= min::LEADING_STATE
+			+ min::TRAILING_STATE;
+    else if (   printer->last_char_flags
+              & min::IS_MIDDLING )
+    {
+	printer->state &= ~ min::LEADING_STATE;
+	printer->state |= min::TRAILING_STATE;
+    }
+    else if (   printer->and_ed_char_flags
+              & min::IS_LEADING )
+	printer->state &= ~ min::TRAILING_STATE;
+    else if (   printer->and_ed_char_flags
+              & min::IS_TRAILING )
+	printer->state &= ~ min::LEADING_STATE;
+    else
+	printer->state &= ~ (   min::LEADING_STATE
+	                      + min::TRAILING_STATE );
     return printer;
 }
 
