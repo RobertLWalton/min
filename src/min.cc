@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 24 04:30:47 EDT 2014
+// Date:	Mon Aug 25 15:56:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8726,14 +8726,27 @@ static min::printer print_quoted_unicode
     return printer;
 }
 
-inline void compute_flags
+inline min::uns32 compute_flags
+	( const min::print_format & print_format,
+	  min::Uchar c )
+{
+    min::support_control sc =
+        print_format.support_control;
+    const min::uns32 * char_flags =
+	print_format.char_flags;
+
+    min::uns16 cindex = min::Uindex ( c );
+    min::uns32 cflags = char_flags[cindex];
+    if ( ( cflags & sc.support_mask ) == 0 )
+	cflags = sc.unsupported_char_flags;
+    return cflags;
+}
+
+inline min::uns32 compute_or_flags
 	( const min::print_format & print_format,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::uns32 & first_flags,
-	  min::uns32 & or_flags,
-	  min::uns32 & and_flags,
-	  min::uns32 & last_flags )
+	  min::uns32 & first_flags )
 {
     min::support_control sc =
         print_format.support_control;
@@ -8741,6 +8754,7 @@ inline void compute_flags
 	print_format.char_flags;
 
     bool first = true;
+    min::uns32 or_flags;
     while ( n -- )
     {
         min::Uchar c = * p ++;
@@ -8751,16 +8765,45 @@ inline void compute_flags
 
 	if ( first )
 	{
-	    first_flags = or_flags = and_flags = cflags;
+	    first_flags = or_flags = cflags;
 	    first = false;
 	}
 	else
-	{
 	    or_flags |= cflags;
-	    and_flags &= cflags;
-	}
-	last_flags = cflags;
     }
+    return or_flags;
+}
+
+inline min::uns32 compute_and_flags
+	( const min::print_format & print_format,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p,
+	  min::uns32 & first_flags )
+{
+    min::support_control sc =
+        print_format.support_control;
+    const min::uns32 * char_flags =
+	print_format.char_flags;
+
+    bool first = true;
+    min::uns32 and_flags;
+    while ( n -- )
+    {
+        min::Uchar c = * p ++;
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
+
+	if ( first )
+	{
+	    first_flags = and_flags = cflags;
+	    first = false;
+	}
+	else
+	    and_flags &= cflags;
+    }
+    return and_flags;
 }
 
 min::printer min::print_unicode
@@ -8778,22 +8821,17 @@ min::printer min::print_unicode
 	min::quote_control qc = sf->quote_control;
 
 	// Divide into the case where we need to call
-	// compute_flags and the case where we do not
+	// compute_or_flags and the case where we do not
 	// need to.
 	//
 	if ( qc.unquote_if_none_of != 0 )
 	{
 	    min::uns32 first_flags;
-	    min::uns32 or_flags;
-	    min::uns32 and_flags;
-	    min::uns32 last_flags;
-	    compute_flags
-		( printer->print_format,
-		  n, p,
-		  first_flags,
-		  or_flags,
-		  and_flags,
-		  last_flags );
+	    min::uns32 or_flags =
+		::compute_or_flags
+		    ( printer->print_format,
+		      n, p,
+		      first_flags );
 	    min::uns32 if_none_of =
 		or_flags & qc.unquote_if_none_of;
 	    min::uns32 if_first =
@@ -8803,20 +8841,9 @@ min::printer min::print_unicode
 	}
 	else if ( qc.unquote_if_first != 0 )
 	{
-	    min::support_control sc =
-		printer->print_format
-			.support_control;
-
-	    Uchar c = p[0];
-	    uns16 cindex = Uindex ( c );
 	    uns32 first_flags =
-		printer->print_format
-			.char_flags[cindex];
-	    if (    (   first_flags
-		      & sc.support_mask )
-		 == 0 )
-		first_flags =
-		      sc.unsupported_char_flags;
+	        ::compute_flags
+		    ( printer->print_format, p[0] );
 
 	    if (   first_flags
 		 & qc.unquote_if_first )
