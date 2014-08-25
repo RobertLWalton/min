@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 13:40:14 EDT 2014
+// Date:	Mon Aug 25 14:42:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -501,17 +501,19 @@ static void dump_compare_pools ( void )
     }
 }
 
-// Find the lowest address not less than begin that ends
-// a used pool, has size unused bytes following it, and
-// preceeds some used pool.
+// Find the lowest address not less than `begin' that
+// either ends a used pool or equals `begin', has size
+// unused bytes following it, and preceeds some used
+// pool.
 //
 static void * find_unused
     ( void * begin, min::unsptr size )
 {
     void * best = NULL;
-    for ( unsigned i = 0; i < used_pools_count; ++ i )
+    for ( int i = -1; i < (int) used_pools_count; ++ i )
     {
-        void * next = used_pools[i].end;
+        void * next =
+	    ( i == -1 ? begin : used_pools[i].end );
 	if ( next < begin ) continue;
 	if ( best != NULL && best < next ) continue;
 	void * end = (void *) ( (char *) next + size );
@@ -519,16 +521,17 @@ static void * find_unused
 	    // Wraparound check.
 
 	bool above_found = false;
-	unsigned j;
-	for ( j = 0; j < used_pools_count; ++ j )
+	int j;
+	for ( j = 0; j < (int) used_pools_count; ++ j )
 	{
-	    if ( i == j ) continue;
+	    if ( j == i ) continue;
 	    if ( used_pools[j].start >= end )
 	        above_found = true;
 	    else if ( used_pools[j].end > next )
 	        break;
 	}
-	if ( above_found && j == used_pools_count ) 
+	if (    above_found
+	     && j == (int) used_pools_count )
 	    best = next;
     }
     return best;
