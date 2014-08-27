@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 23, 2014}
+\date{August 27, 2014}
  
 \maketitle
 
@@ -9615,15 +9615,36 @@ prints the \TT{min::gen} value \TT{v} to the
 \TT{printer->\EOL print\_\EOL format.gen\_\EOL format} \\
 \end{center}
 to control the printing.
+`\TT{printer\,<<\,v}' can be used as the equivalent of
+`\TT{printer\,<<\,min::pgen(v)}'.
+The following function does the same thing:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::PRINT_GEN} \\
+\end{tabular}\end{indpar}
+
 The expression `\TT{printer\,<<\,min::pgen(v,f)}' is similar but
 uses \TT{f} as the \TT{gen\_\EOL format} value.
+The following function does the same thing:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  const min::gen_format * f )|
+\LABEL{MIN::PRINT_GEN_WITH_FORMAT} \\
+\end{tabular}\end{indpar}
+
+
 \TT{min::\EOL pgen\_\EOL name(v)} is shorthand for
 \begin{center}
 \tt min::pgen ( v, min::name\_gen\_format )
 \end{center}
 
-`\TT{printer\,<<\,v}' can be used as the equivalent of
-`\TT{printer\,<<\,min::pgen(v)}'.
+
 
 A {\tt min::gen\_\EOL format} cannot be stored in a
 relocatable body, and is intended to be a static C++ structure.
@@ -9713,7 +9734,7 @@ is:
 \verb|min::printer ( * pgen )|\\
 \verb|     ( min::printer printer,|\\
 \verb|       min::gen v,|\\
-\verb|       const min::gen_format * gen_format );|
+\verb|       const min::gen_format * gen_format )|
 \end{indpar}
 
 This first member is called with the \TT{min::\EOL gen\_\EOL format}
@@ -9818,7 +9839,7 @@ value according to the above formats:
 \verb|min::printer min::| & \MINKEY{print\_num}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::float64 value,|\ARGBREAK
-    \verb|  const min::num_format * num_format = NULL );|
+    \verb|  const min::num_format * num_format = NULL )|
 \LABEL{MIN::PRINT_NUM} \\
 \end{tabular}\end{indpar}
 
@@ -9972,15 +9993,15 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::QUOTE_BRACKET_FORMAT}
 \end{tabular}\end{indpar}
 
-The following function is called when a string \TT{min::gen} value
-is printed, and can be used to print a \TT{const char *}
+The following function, which is used to print string general values,
+prints a \TT{const char *}
 value according to the above formats:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
-    \verb|  const min::str_format * str_format = NULL );|
+    \verb|  const min::str_format * str_format = NULL )|
 \LABEL{MIN::PRINT_CHARS} \\
 \end{tabular}\end{indpar}
 
@@ -10044,7 +10065,7 @@ function:
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::unsptr n,|\ARGBREAK
     \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
-    \verb|  const min::str_format * str_format = NULL );|
+    \verb|  const min::str_format * str_format = NULL )|
 \LABEL{MIN::PRINT_UNICODE} \\
 \end{tabular}\end{indpar}
 
@@ -10075,6 +10096,24 @@ operation before printing \TT{s} if \TT{s} has the
 and a \TT{min::\EOL leading}
 operation after printing \TT{s} if \TT{s} has the
 \TT{min::\EOL USTRING\_\EOL LEADING} flag.
+
+The following function may be called to print a string \TT{min::gen} value:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_str}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min:gen str,|\ARGBREAK
+    \verb|  const min::str_format * str_format = NULL )|
+\LABEL{MIN::PRINT_STR} \\
+\end{tabular}\end{indpar}
+
+`\TT{printer << min::pgen ( str )}' calls this function with
+\begin{center}
+\TT{str\_format = printer->print\_format.gen\_format->str\_format}
+\end{center}
+This function just calls the \TT{min::\EOL print\_\EOL chars} function
+described above with the \TT{const char *} part of the string general value.
+The \TT{str} argument must be a string general value.
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}
@@ -17426,7 +17465,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.6in}
 \verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
 \verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
@@ -17441,6 +17480,18 @@ These are in \verb|min_parameters.h|.
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::PRINT_GEN} \\
+\verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  const min::gen_format * f )|
+\LABEL{MIN::PRINT_GEN_WITH_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
@@ -17608,7 +17659,7 @@ These are in \verb|min_parameters.h|.
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::float64 value,|\ARGBREAK
     \verb|  const min::num_format *|\ARGBREAK
-    \verb|        num_format = NULL );|
+    \verb|        num_format = NULL )|
 \LABEL{MIN::PRINT_NUM} \\
 \end{TABULAR}
 
@@ -17740,11 +17791,20 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_str}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min:gen str,|\ARGBREAK
+    \verb|  const min::str_format *|\ARGBREAK
+    \verb|        str_format = NULL )|
+\LABEL{MIN::PRINT_STR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
 \verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK
-    \verb|        str_format = NULL );|
+    \verb|        str_format = NULL )|
 \LABEL{MIN::PRINT_CHARS} \\
 \end{TABULAR}
 
@@ -17754,7 +17814,7 @@ These are in \verb|min_parameters.h|.
     \verb|  min::unsptr n,|\ARGBREAK
     \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK
-    \verb|        str_format = NULL );|
+    \verb|        str_format = NULL )|
 \LABEL{MIN::PRINT_UNICODE} \\
 \end{TABULAR}
 

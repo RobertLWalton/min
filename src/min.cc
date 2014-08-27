@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 25 15:56:02 EDT 2014
+// Date:	Wed Aug 27 04:59:11 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7768,19 +7768,12 @@ min::printer operator <<
     switch ( op.opcode )
     {
     case min::op::PGEN:
-    {
-        const min::gen_format * f =
-	    printer->print_format.gen_format;
-        return (* f->pgen )
-	    ( printer, MUP::new_gen ( op.v1.g ), f );
-    }
+        return min::print_gen
+	    ( printer, MUP::new_gen ( op.v1.g ) );
     case min::op::PGEN_FORMAT:
-    {
-        const min::gen_format * f =
-	    (const min::gen_format *) op.v2.p;
-        return (* f->pgen )
-	    ( printer, MUP::new_gen ( op.v1.g ), f );
-    }
+        return min::print_gen
+	    ( printer, MUP::new_gen ( op.v1.g ),
+	      (const min::gen_format *) op.v2.p );
     case min::op::MAP_PGEN:
     {
         min::gen g = MUP::new_gen ( op.v1.g );
@@ -9283,7 +9276,7 @@ const min::special_format *
 
 static min::obj_format exp_obj_format =
 {
-    min::name_lab_format,   // name_format
+    min::name_gen_format,   // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
 
@@ -9311,7 +9304,7 @@ const min::obj_format * min::exp_obj_format =
 
 static min::obj_format raw_obj_format =
 {
-    min::name_lab_format,   // name_format
+    min::name_gen_format,   // name_format
     NULL,		    // element_format*
     NULL,		    // value_format*
 
@@ -9439,10 +9432,10 @@ min::printer min::print_obj
         min::get_attrs ( info, m, ap );
     }
 
-    min::gen separator = min::NONE;
-    min::gen initiator = min::NONE;
-    min::gen terminator = min::NONE;
-    min::gen type = min::NONE;
+    min::gen separator = min::NONE();
+    min::gen initiator = min::NONE();
+    min::gen terminator = min::NONE();
+    min::gen type = min::NONE();
 
     bool compact_ok = true;
     for ( min::unsptr i = 0; compact_ok && i < m; ++ i )
@@ -9451,15 +9444,15 @@ min::printer min::print_obj
 	    separator = info[i].value;
         else if ( info[i].name == min::dot_initiator )
 	    initiator = info[i].value;
-        else if ( info[i].name == min::dot_initiator )
-	    initiator = info[i].value;
-        else if ( info[i].name == min::dot_initiator )
-	    initiator = info[i].value;
+        else if ( info[i].name == min::dot_terminator )
+	    terminator = info[i].value;
+        else if ( info[i].name == min::dot_type )
+	    type = info[i].value;
         else if ( info[i].name == min::dot_position )
 	    /* do nothing */;
 	else { compact_ok = false; continue; }
 
-	compact_of =
+	compact_ok =
 	    (    info[i].value_count == 1
 	      && info[i].flag_count == 0
 	      && info[i].reverse_attr_count == 0 );
@@ -9467,16 +9460,27 @@ min::printer min::print_obj
 
     if ( compact_ok )
     {
-	if ( initiator != min::NONE )
-	    compact_ok == (    terminator != min::NONE
-			    && type == min::NONE );
-	else if ( terminator != min::NONE )
-	    compact_ok == (    initiator != min::NONE
-			    && type == min::NONE );
+	if ( initiator != min::NONE() )
+	    compact_ok == (    terminator != min::NONE()
+			    && type == min::NONE() );
+	else if ( terminator != min::NONE() )
+	    compact_ok == (    initiator != min::NONE()
+			    && type == min::NONE() );
     }
-         
 
-
+    if ( compact_ok )
+    {
+        if ( initiator != min::NONE() )
+	    min::print_str ( printer, initiator );
+	else
+	{
+	    min::print_ustring
+	        ( printer, of->obj_prefix );
+	    if ( type != min::NONE() )
+	    {
+	    }
+	}
+    }
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
@@ -10107,10 +10111,8 @@ min::printer min::standard_pgen
     }
     else if ( min::is_str ( v ) )
     {
-        min::str_ptr sp ( v );
-	return min::print_chars
-	    ( printer, ! min::begin_ptr_of ( sp ),
-	      f->str_format );
+	return min::print_str
+	    ( printer, v, f->str_format );
     }
     else if ( min::is_lab ( v ) )
     {

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 24 04:22:02 EDT 2014
+// Date:	Wed Aug 27 04:59:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11219,7 +11219,16 @@ namespace min {
 
     min::printer print_chars
     	    ( min::printer printer, const char * s,
-	      const min::str_format * = NULL );
+	      const min::str_format * sf = NULL );
+
+    inline min::printer print_str
+    	    ( min::printer printer, min::gen str,
+	      const min::str_format * sf = NULL )
+    {
+        min::str_ptr sp ( str );
+	return min::print_chars
+	    ( printer, ! min::begin_ptr_of ( sp ), sf );
+    }
 
     // Rather than have a default NULL str_format,
     // we default to an inline purely to optimize.
@@ -11469,7 +11478,7 @@ namespace min {
 
     struct obj_format
     {
-        const min::lab_format *	    name_format;
+        const min::gen_format *	    name_format;
 	const min::gen_format *     element_format;
 	const min::gen_format *     value_format;
 
@@ -11534,6 +11543,21 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      const min::gen_format * gen_format );
+
+    inline min::printer print_gen
+            ( min::printer printer, min::gen v,
+	      const min::gen_format * f )
+    {
+        return ( * f->pgen ) ( printer, v, f );
+    }
+
+    inline min::printer print_gen
+            ( min::printer printer, min::gen v )
+    {
+        const min::gen_format * f =
+	    printer->print_format.gen_format;
+        return ( * f->pgen ) ( printer, v, f );
+    }
 
     inline op pgen ( min::gen v )
     {
