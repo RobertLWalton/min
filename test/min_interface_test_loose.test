@@ -34,6 +34,8 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -464,7 +466,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 38
+initial stubs allocated = 42
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -947,8 +949,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     sd == 1e-307 true.
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::strto ( si, snumsp, j ) true.
 min_interface_test.cc:XXXX assert:
     si == 1 true.
@@ -1021,6 +1021,8 @@ labhash1: 95375049
 Test labels:
 ../include/min.h:XXXX assert:
     is_num ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -1454,8 +1456,6 @@ Finish Names Test!
 Start Packed Structs Test!
 ps1type.name = ps1type
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
@@ -1644,8 +1644,6 @@ min_interface_test.cc:XXXX assert:
     ::id_map->occupied == 0 true.
 min_interface_test.cc:XXXX assert:
     ::id_map->next == 1 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:

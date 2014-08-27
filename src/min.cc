@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 27 06:08:08 EDT 2014
+// Date:	Wed Aug 27 11:44:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,7 +75,9 @@ min::locatable_gen min::dot_keys;
 min::locatable_gen min::dot_operator;
 min::locatable_gen min::dot_position;
 min::locatable_gen min::dot_type;
+min::locatable_gen min::dot_reversed_type;
 min::locatable_gen min::new_line;
+min::locatable_gen min::empty_string;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::number_sign;
 
@@ -337,8 +339,12 @@ void MINT::initialize ( void )
         min::new_lab_gen ( ".", "position" );
     min::dot_type =
         min::new_lab_gen ( ".", "type" );
+    min::dot_reversed_type =
+        min::new_lab_gen ( ".", "reversed", "type" );
     min::new_line =
         min::new_str_gen ( "\n" );
+    min::empty_string =
+        min::new_str_gen ( "" );
     min::doublequote =
         min::new_str_gen ( "\"" );
     min::number_sign =
@@ -8739,7 +8745,8 @@ inline min::uns32 compute_or_flags
 	( const min::print_format & print_format,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::uns32 & first_flags )
+	  min::uns32 & first_flags,
+	  min::uns32 mask = 0 )
 {
     min::support_control sc =
         print_format.support_control;
@@ -8747,8 +8754,8 @@ inline min::uns32 compute_or_flags
 	print_format.char_flags;
 
     bool first = true;
-    min::uns32 or_flags;
-    while ( n -- )
+    min::uns32 or_flags = 0;
+    while ( ( or_flags & mask ) == 0 && n -- )
     {
         min::Uchar c = * p ++;
 	min::uns16 cindex = min::Uindex ( c );
@@ -8758,11 +8765,10 @@ inline min::uns32 compute_or_flags
 
 	if ( first )
 	{
-	    first_flags = or_flags = cflags;
+	    first_flags = cflags;
 	    first = false;
 	}
-	else
-	    or_flags |= cflags;
+	or_flags |= cflags;
     }
     return or_flags;
 }
@@ -8771,7 +8777,8 @@ inline min::uns32 compute_and_flags
 	( const min::print_format & print_format,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::uns32 & first_flags )
+	  min::uns32 & first_flags,
+	  min::uns32 mask = 0xFFFFFFFF )
 {
     min::support_control sc =
         print_format.support_control;
@@ -8779,8 +8786,8 @@ inline min::uns32 compute_and_flags
 	print_format.char_flags;
 
     bool first = true;
-    min::uns32 and_flags;
-    while ( n -- )
+    min::uns32 and_flags = mask;
+    while ( and_flags != 0 && n -- )
     {
         min::Uchar c = * p ++;
 	min::uns16 cindex = min::Uindex ( c );
@@ -8790,11 +8797,10 @@ inline min::uns32 compute_and_flags
 
 	if ( first )
 	{
-	    first_flags = and_flags = cflags;
+	    first_flags = cflags;
 	    first = false;
 	}
-	else
-	    and_flags &= cflags;
+	and_flags &= cflags;
     }
     return and_flags;
 }
@@ -8824,7 +8830,8 @@ min::printer min::print_unicode
 		::compute_or_flags
 		    ( printer->print_format,
 		      n, p,
-		      first_flags );
+		      first_flags,
+		      qc.unquote_if_none_of );
 	    min::uns32 if_none_of =
 		or_flags & qc.unquote_if_none_of;
 	    min::uns32 if_first =
@@ -9416,7 +9423,7 @@ min::printer pgen_id
 min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
-	  const min::obj_format * of )
+	  const min::obj_format * objf )
 {
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
@@ -9436,6 +9443,7 @@ min::printer min::print_obj
     min::gen initiator = min::NONE();
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
+    min::gen reversed_type = min::NONE();
 
     bool compact_ok = true;
     for ( min::unsptr i = 0; compact_ok && i < m; ++ i )
@@ -9448,6 +9456,8 @@ min::printer min::print_obj
 	    terminator = info[i].value;
         else if ( info[i].name == min::dot_type )
 	    type = info[i].value;
+        else if ( info[i].name == min::dot_reversed_type )
+	    reversed_type = info[i].value;
         else if ( info[i].name == min::dot_position )
 	    /* do nothing */;
 	else { compact_ok = false; continue; }
@@ -9463,12 +9473,16 @@ min::printer min::print_obj
 	if ( initiator != min::NONE() )
 	    compact_ok == (    terminator != min::NONE()
 			    && type == min::NONE()
+			    && reversed_type == min::NONE()
 			    && min::is_str ( initiator )
 			    && min::is_str ( terminator ) )
 	else if ( terminator != min::NONE() )
 	    compact_ok == false;
+	else if ( reversed_type != min::NONE() )
+	    compact_ok == ( type != min::NONE() );
     }
 
+    bool marked_type = false;
     if ( compact_ok )
     {
         if ( initiator != min::NONE() )
@@ -9476,14 +9490,61 @@ min::printer min::print_obj
 	else
 	{
 	    min::print_ustring
-	        ( printer, of->obj_prefix );
+	        ( printer, objf->obj_prefix );
 	    if ( type != min::NONE() )
 	    {
-	        min::print_gen
-		    ( printer, type, of->name_format );
+	        if ( min::is_str ( type ) )
+		{
+		    min::str_ptr sp ( type );
+		    min::unsptr length =
+		        min::strlen ( sp );
+		    min::Uchar string [length];
+		    min::Uchar * p = string,
+		               * endp = string + length;
+		    const char * s =
+		        ! min::begin_ptr_of ( sp );
+		    const char * ends = s + length;
+		    min::unsptr n = min::utf8_to_unicode
+		        ( u, endu, s, ends );
+		    min::ptr<const min::Uchar> p =
+		       min::new_ptr<const min::Uchar>
+			           ( string ),
+		    min::uns32 first_flags;
+		    if ( min::TYPE_MARK
+		         &
+			 ::compute_and_flags
+			     ( printer, n, p,
+			       first_flags,
+			       min::TYPE_MARK ) )
+		    {
+		        marked_type = true;
+			min::print_unicode
+			    ( printer, n, p );
+		    }
+		    else
+			min::print_unicode
+			    ( printer, n, p,
+			      objf->name_format
+			        ->str_format );
+		}
+		else
+		    min::print_gen
+			( printer, type,
+			  objf->name_format );
 	    }
+	    else
+		min::print_ustring
+		    ( printer, objf->obj_midfix );
 	}
     }
+    else
+    {
+        min::print_ustring ( printer, objf->obj_prefix );
+	min::print_gen
+	    ( printer, type != min::NONE() ?
+	               type : min::empty_string,
+		       objf->name_format );
+
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
