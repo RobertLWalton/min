@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 27 04:59:11 EDT 2014
+// Date:	Wed Aug 27 06:08:08 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9462,10 +9462,11 @@ min::printer min::print_obj
     {
 	if ( initiator != min::NONE() )
 	    compact_ok == (    terminator != min::NONE()
-			    && type == min::NONE() );
+			    && type == min::NONE()
+			    && min::is_str ( initiator )
+			    && min::is_str ( terminator ) )
 	else if ( terminator != min::NONE() )
-	    compact_ok == (    initiator != min::NONE()
-			    && type == min::NONE() );
+	    compact_ok == false;
     }
 
     if ( compact_ok )
@@ -9478,6 +9479,8 @@ min::printer min::print_obj
 	        ( printer, of->obj_prefix );
 	    if ( type != min::NONE() )
 	    {
+	        min::print_gen
+		    ( printer, type, of->name_format );
 	    }
 	}
     }
