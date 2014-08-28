@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 27 12:52:29 EDT 2014
+// Date:	Thu Aug 28 00:22:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3399,7 +3399,6 @@ namespace min {
 
 	IS_UNSUPPORTED		= ( 1 << 9 ),
 
-	TYPE_MARK		= ( 1 << 13 ),
 	CONDITIONAL_BREAK	= ( 1 << 14 ),
 	QUOTE_SUPPRESS		= ( 1 << 15 ),
 
@@ -11607,7 +11606,6 @@ namespace min {
     extern min::locatable_gen dot_operator;
     extern min::locatable_gen dot_position;
     extern min::locatable_gen dot_type;
-    extern min::locatable_gen dot_reversed_type;
     extern min::locatable_gen new_line;
     extern min::locatable_gen empty_string;
     extern min::locatable_gen doublequote;
