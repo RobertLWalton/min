@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 28 00:23:27 EDT 2014
+// Date:	Fri Aug 29 04:48:19 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -65,6 +65,8 @@ min::locatable_gen *
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
 
+min::locatable_gen min::TRUE;
+min::locatable_gen min::FALSE;
 min::locatable_gen min::dot_initiator;
 min::locatable_gen min::dot_separator;
 min::locatable_gen min::dot_terminator;
@@ -318,6 +320,10 @@ void MINT::initialize ( void )
     MINT::scavenger_routines[HUGE_OBJ]
     	= & obj_scavenger_routine;
 
+    min::TRUE =
+        min::new_str_gen ( "TRUE" );
+    min::FALSE =
+        min::new_str_gen ( "FALSE" );
     min::dot_initiator =
         min::new_lab_gen ( ".", "initiator" );
     min::dot_separator =
@@ -9441,34 +9447,37 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
+    // Loop until we determine compact_ok is false AND
+    // we have found type.
+    //
     bool compact_ok = true;
-    for ( min::unsptr i = 0; compact_ok && i < m; ++ i )
+    for ( min::unsptr i = 0;
+             ( compact_ok || type == min::NONE() )
+	  && i < m;
+	  ++ i )
     {
-        if ( info[i].name == min::dot_separator )
-	{
-	    separator = info[i].value;
-	    compact_ok = min::is_str ( separator );
-	}
-        else if ( info[i].name == min::dot_initiator )
-	{
-	    initiator = info[i].value;
-	    compact_ok = min::is_str ( initiator );
-	}
-        else if ( info[i].name == min::dot_terminator )
-	{
-	    terminator = info[i].value;
-	    compact_ok = min::is_str ( terminator );
-	}
-        else if ( info[i].name == min::dot_type )
-	    type = info[i].value;
-        else if ( info[i].name == min::dot_position )
-	    /* do nothing */;
-	else { compact_ok = false; continue; }
+        if ( info[i].name == min::dot_position )
+	    continue;
 
-	compact_ok =
-	    (    info[i].value_count == 1
-	      && info[i].flag_count == 0
-	      && info[i].reverse_attr_count == 0 );
+	if (    info[i].value_count != 1
+	     || info[i].flag_count != 0
+	     || info[i].reverse_attr_count != 0 )
+	    compact_ok = false;
+        else if ( info[i].name == min::dot_type )
+	{
+	    if ( min::is_name ( info[i].value ) )
+		type = info[i].value;
+	    else compact_ok = false;
+	}
+	else if ( ! min::is_str ( info[i].value ) )
+	    compact_ok = false;
+        else if ( info[i].name == min::dot_separator )
+	    separator = info[i].value;
+        else if ( info[i].name == min::dot_initiator )
+	    initiator = info[i].value;
+        else if ( info[i].name == min::dot_terminator )
+	    terminator = info[i].value;
+	else compact_ok = false;
     }
 
     if ( compact_ok )
@@ -9479,6 +9488,8 @@ min::printer min::print_obj
 	    compact_ok == false;
     }
 
+    printer << min::set_break;
+
     if ( compact_ok )
     {
         if ( initiator != min::NONE() )
@@ -9487,26 +9498,73 @@ min::printer min::print_obj
 	{
 	    min::print_ustring
 	        ( printer, objf->obj_prefix );
+	    printer << min::leading;
 	    if ( type != min::NONE() )
 		min::print_gen
 		    ( printer, type,
 		      objf->name_format );
-	    else
-		min::print_ustring
-		    ( printer, objf->obj_midfix );
+	    printer << min::trailing;
+	    min::print_ustring
+		( printer, objf->obj_midfix );
 	}
+	printer << " " << min::save_indent;
     }
     else
     {
         min::print_ustring
 	    ( printer, objf->obj_prefix );
+	printer << min::leading;
 	min::print_gen
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
 		       objf->name_format );
+	printer << min::trailing;
         min::print_ustring
 	    ( printer, objf->obj_propfix );
+	printer << " " << min::save_indent;
 
+	bool first = false;
+	for ( min::unsptr i = 0; i < m; ++ i )
+	{
+	    if ( info[i].name == min::dot_separator )
+	    {
+	        if (    info[i].value_count == 1
+	             && info[i].flag_count == 0
+	             && info[i].reverse_attr_count == 0
+		     && min::is_str ( separator ) )
+		{
+		    separator = info[i].value;
+		    continue;
+		}
+	    }
+	    else if ( info[i].name == min::dot_type
+	              &&
+		      type != min::NONE() )
+		continue;
+	    else if ( info[i].name == min::dot_position )
+		continue;
+
+	    if ( first ) first = false;
+	    else printer << min::trailing << ", ";
+
+	    printer << min::set_break;
+
+	    bool suppress_value = false;
+	    if (    info[i].value == min::FALSE
+		 && info[i].value_count == 1
+		 && info[i].flag_count == 0
+		 && info[i].reverse_attr_count == 0 )
+	    {
+		min::print_ustring
+		    ( printer, objf->lab_negate );
+		suppress_value = true;
+	    }
+	    min::print_gen
+		( printer, info[i].name,
+			   objf->name_format );
+
+	    // TBD
+	}
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
