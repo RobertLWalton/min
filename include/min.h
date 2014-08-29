@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 28 00:22:56 EDT 2014
+// Date:	Fri Aug 29 04:48:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11596,6 +11596,8 @@ namespace min {
     extern const op flush_one_id;
     extern const op flush_id_map;
 
+    extern min::locatable_gen TRUE;
+    extern min::locatable_gen FALSE;
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
