@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 27, 2014}
+\date{August 30, 2014}
  
 \maketitle
 
@@ -3999,8 +3999,8 @@ of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
 (not including the terminating \TT{NUL}).
 The \TT{min::unicode\_\EOL columns} function returns the number
 of print columns these take; the maximum is 31, and it is assumed
-there are no space or control characters in the \TT{ustring}.
-The \TT{min::unicode\_\EOL flags} function returns the flags,
+there are control characters aside from single spaces in the \TT{ustring}.
+The \TT{min::\EOL unicode\_\EOL flags} function returns the flags,
 which can be tested by anding the unsigned flags value with
 the \TT{min::USTRING\_LEADING/TRAILING} flags.
 The \TT{min::unicode\_\EOL string} function returns a pointer
@@ -10071,7 +10071,16 @@ function:
 
 Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
 
-You can also print a single unquoted \TT{min::Uchar} with:
+You can also print \TT{n} single space characters with:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_spaces}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n )|
+\LABEL{MIN::PRINT_SPACES} \\
+\end{tabular}\end{indpar}
+
+a single unquoted \TT{min::Uchar} with:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
@@ -17816,6 +17825,13 @@ These are in \verb|min_parameters.h|.
     \verb|  const min::str_format *|\ARGBREAK
     \verb|        str_format = NULL )|
 \LABEL{MIN::PRINT_UNICODE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_spaces}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n )|
+\LABEL{MIN::PRINT_SPACES} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}

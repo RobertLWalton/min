@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 29 04:48:49 EDT 2014
+// Date:	Sat Aug 30 13:30:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11217,6 +11217,32 @@ namespace min {
 
     }
 
+    inline min::printer print_spaces
+    	    ( min::printer printer, min::unsptr n = 1 )
+    {
+        // In the future this might be optimized by
+	// pre-computing that ' ' would take no special
+	// actions other than setting BREAK_AFTER.
+	//
+	// Code to be include in optimzation:
+	//
+	//    printer->state |= min::LEADING_STATE
+	//		      + min::TRAILING_STATE;
+	//    printer->state &=
+	//        ~ (   min::AFTER_LEADING
+	//	      + min::AFTER_TRAILING );
+	//
+        min::Uchar buffer[n];
+	for ( min::unsptr i = 0; i < n; ++ i )
+	    buffer[i] = ' ';
+	min::uns32 width = 0xFFFFFFFF;
+        min::ptr<const min::Uchar> p =
+	      min::new_ptr<const min::Uchar>( buffer );
+	return min::internal::print_unicode
+	    ( printer, n, p, width );
+    }
+
+
     min::printer print_chars
     	    ( min::printer printer, const char * s,
 	      const min::str_format * sf = NULL );
@@ -11483,9 +11509,13 @@ namespace min {
 	const min::gen_format *     value_format;
 
 	const min::ustring *   	    obj_prefix;
-	const min::ustring *   	    obj_separator;
 	const min::ustring *   	    obj_midfix;
 	const min::ustring *   	    obj_postfix;
+
+	const min::ustring *   	    obj_propinit;
+	const min::ustring *   	    obj_propsep;
+	const min::ustring *   	    obj_propneg;
+	const min::ustring *   	    obj_propeq;
 
 	const min::ustring *   	    implicit_prefix;
 	const min::ustring *   	    implicit_postfix;
