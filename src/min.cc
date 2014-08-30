@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 29 04:48:19 EDT 2014
+// Date:	Sat Aug 30 13:40:40 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7936,7 +7936,7 @@ min::printer operator <<
 	    min::no_auto_break_break_control;
 	return printer;
     case min::op::SPACE:
-	return min::print_Uchar ( printer, ' ' );
+	return min::print_spaces ( printer, 1 );
     case min::op::SAVE_LINE_BREAK:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
@@ -8017,20 +8017,11 @@ min::printer operator <<
         if (   printer->column
 	     <   printer->line_break.column
 	       + op.v1.u32 )
-	{
-	    printer->state |= min::LEADING_STATE
-			    + min::TRAILING_STATE;
-	    printer->state &=
-	        ~ (   min::AFTER_LEADING
-		    + min::AFTER_TRAILING );
-	}
-        while (   printer->column
-	        <   printer->line_break.column
-		  + op.v1.u32 )
-	{
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
+	    min::print_spaces
+	        ( printer,
+	            printer->line_break.column
+	          + op.v1.u32
+                  - printer->column );
 	goto set_break;
     case min::op::RIGHT:
         if (   printer->column
@@ -8099,19 +8090,10 @@ min::printer operator <<
     execute_indent:
 	if (   printer->column
 	     < printer->line_break.indent )
-	{
-	    printer->state |= min::LEADING_STATE
-			    + min::TRAILING_STATE;
-	    printer->state &=
-	        ~ (   min::AFTER_LEADING
-		    + min::AFTER_TRAILING );
-	}
-	while (   printer->column
-		< printer->line_break.indent )
-	{
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
+	    min::print_spaces
+	        ( printer,
+		    printer->line_break.indent
+		  - printer->column );
 	goto set_break;
     case min::op::SPACES_IF_BEFORE_INDENT:
 	if (   printer->column
@@ -8122,49 +8104,25 @@ min::printer operator <<
     case min::op::SPACE_IF_AFTER_INDENT:
         if (   printer->column
 	     > printer->line_break.indent )
-	{
-	    printer->state |= min::LEADING_STATE
-			    + min::TRAILING_STATE;
-	    printer->state &=
-	        ~ (   min::AFTER_LEADING
-		    + min::AFTER_TRAILING );
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
+	    min::print_spaces ( printer, 1 );
 	return printer;
     case min::op::LEADING:
         if ( ! ( printer->state & min::LEADING_STATE )
 	     ||
 	     (   printer->print_format.op_flags
 	       & min::DISABLE_SUPPRESS ) )
-	{
-	    printer->state |= min::LEADING_STATE
-			    + min::TRAILING_STATE;
-	    printer->state &=
-	        ~ (   min::AFTER_LEADING
-		    + min::AFTER_TRAILING );
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
-	else
-	    printer->state |= min::AFTER_LEADING;
+	    return min::print_spaces ( printer, 1 );
+
+	printer->state |= min::AFTER_LEADING;
 	return printer;
     case min::op::TRAILING:
         if ( ! ( printer->state & min::TRAILING_STATE )
 	     ||
 	     (   printer->print_format.op_flags
 	       & min::DISABLE_SUPPRESS ) )
-	{
-	    printer->state |= min::LEADING_STATE
-			    + min::TRAILING_STATE;
-	    printer->state &=
-	        ~ (   min::AFTER_LEADING
-		    + min::AFTER_TRAILING );
-	    ++ printer->column;
-	    min::push(printer->file->buffer) = ' ';
-	}
-	else
-	    printer->state |= min::AFTER_TRAILING;
+	    return min::print_spaces ( printer, 1 );
+
+	printer->state |= min::AFTER_TRAILING;
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
@@ -9295,11 +9253,18 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x41" "{",     // obj_prefix
     (const min::ustring *)
-        "\x01\x81" ",",     // obj_separator
-    (const min::ustring *)
         "\x01\xC1" "|",     // obj_midfix
     (const min::ustring *)
         "\x01\x81" "}",     // obj_postfix
+
+    (const min::ustring *)
+        "\x01\x81" ":",     // obj_propinit
+    (const min::ustring *)
+        "\x01\x81" ",",     // obj_propsep
+    (const min::ustring *)
+        "\x03\x03" "no ",   // obj_propneg
+    (const min::ustring *)
+        "\x03\x03" " =",    // obj_propeq
 
     (const min::ustring *)
         "\x02\x42" "{|",    // implicit_prefix
@@ -9319,9 +9284,13 @@ static min::obj_format raw_obj_format =
     NULL,		    // value_format*
 
     NULL,		    // obj_prefix
-    NULL,		    // obj_separator
     NULL,		    // obj_minfix
     NULL,		    // obj_postfix
+
+    NULL,		    // obj_propinit
+    NULL,		    // obj_propsep
+    NULL,		    // obj_propneg
+    NULL,		    // obj_propeq
 
     NULL,		    // implicit_prefix
     NULL,		    // implicit_postfix
@@ -9498,30 +9467,24 @@ min::printer min::print_obj
 	{
 	    min::print_ustring
 	        ( printer, objf->obj_prefix );
-	    printer << min::leading;
 	    if ( type != min::NONE() )
 		min::print_gen
 		    ( printer, type,
 		      objf->name_format );
-	    printer << min::trailing;
 	    min::print_ustring
 		( printer, objf->obj_midfix );
 	}
-	printer << " " << min::save_indent;
+	min::print_spaces ( printer, 1 );
+	printer << min::save_indent;
     }
     else
     {
         min::print_ustring
 	    ( printer, objf->obj_prefix );
-	printer << min::leading;
 	min::print_gen
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
 		       objf->name_format );
-	printer << min::trailing;
-        min::print_ustring
-	    ( printer, objf->obj_propfix );
-	printer << " " << min::save_indent;
 
 	bool first = false;
 	for ( min::unsptr i = 0; i < m; ++ i )
@@ -9544,27 +9507,60 @@ min::printer min::print_obj
 	    else if ( info[i].name == min::dot_position )
 		continue;
 
-	    if ( first ) first = false;
-	    else printer << min::trailing << ", ";
-
-	    printer << min::set_break;
-
-	    bool suppress_value = false;
-	    if (    info[i].value == min::FALSE
-		 && info[i].value_count == 1
-		 && info[i].flag_count == 0
-		 && info[i].reverse_attr_count == 0 )
+	    if ( first )
+	    {
+		first = false;
+		min::print_ustring
+		    ( printer, objf->obj_propinit );
+		min::print_spaces ( printer, 1 );
+		printer << min::save_indent;
+	    }
+	    else
 	    {
 		min::print_ustring
-		    ( printer, objf->lab_negate );
-		suppress_value = true;
+		    ( printer, objf->obj_propsep );
+		min::print_spaces ( printer, 1 );
+		printer << min::set_break;
 	    }
+
+	    bool suppress_value =
+		(    info[i].value_count == 1
+		  && info[i].flag_count == 0
+		  && info[i].reverse_attr_count == 0 );
+	    if ( suppress_value )
+	    {
+	        if ( info[i].value == min::FALSE )
+		    min::print_ustring
+			( printer, objf->obj_propneg );
+		else if ( info[i].value != min::TRUE )
+		    suppress_value = false;
+	    }
+
 	    min::print_gen
 		( printer, info[i].name,
 			   objf->name_format );
 
-	    // TBD
+	    if ( suppress_value ) continue;
+
+	    min::print_ustring
+		( printer, objf->obj_propeq );
+	    min::print_spaces ( printer, 1 );
+	    printer << min::set_break;
+
+	    // TBD handle value sets and reverse labels
+	    //
+	    min::print_gen
+		( printer, info[i].value,
+			   objf->value_format );
 	}
+
+	min::print_ustring
+	    ( printer, objf->obj_midfix );
+	min::print_spaces ( printer, 1 );
+	printer << min::save_indent;
+    }
+
+    // TBD print elements
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
@@ -10216,7 +10212,7 @@ min::printer min::standard_pgen
 		    MINT::print_ustring
 		        ( printer, lf->lab_separator );
 		else
-		    min::print_Uchar ( printer, ' ' );
+		    min::print_spaces ( printer, 1 );
 	    }
 	    (* f->pgen) ( printer, labp[i], f );
 	}
