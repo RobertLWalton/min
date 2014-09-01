@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 30 13:40:40 EDT 2014
+// Date:	Mon Sep  1 03:10:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9250,21 +9250,29 @@ static min::obj_format exp_obj_format =
 
     // USTRING_LEADING  == 0x40
     // USTRING_TRAILING == 0x80
-    (const min::ustring *)
-        "\x01\x41" "{",     // obj_prefix
-    (const min::ustring *)
-        "\x01\xC1" "|",     // obj_midfix
-    (const min::ustring *)
-        "\x01\x81" "}",     // obj_postfix
 
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_propinit
+        "\x02\x02" "{}",     // obj_empty
+
     (const min::ustring *)
-        "\x01\x81" ",",     // obj_propsep
+        "\x01\x41" "{",     // obj_bra
+    (const min::ustring *)
+        "\x01\x81" "|",     // obj_braend
+    (const min::ustring *)
+        "\x01\x01" " ",     // obj_separator
+    (const min::ustring *)
+        "\x01\x41" "|",     // obj_ketbegin
+    (const min::ustring *)
+        "\x01\x81" "}",     // obj_ket
+
+    (const min::ustring *)
+        "\x02\x82" ": ",    // obj_propinit
+    (const min::ustring *)
+        "\x02\x82" ", ",    // obj_propsep
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_propneg
     (const min::ustring *)
-        "\x03\x03" " =",    // obj_propeq
+        "\x03\x03" " = ",   // obj_propeq
 
     (const min::ustring *)
         "\x02\x42" "{|",    // implicit_prefix
@@ -9283,9 +9291,13 @@ static min::obj_format raw_obj_format =
     NULL,		    // element_format*
     NULL,		    // value_format*
 
-    NULL,		    // obj_prefix
-    NULL,		    // obj_minfix
-    NULL,		    // obj_postfix
+    NULL,		    // obj_empty
+
+    NULL,		    // obj_bra
+    NULL,		    // obj_braend
+    NULL,		    // obj_separator
+    NULL,		    // obj_ketbegin
+    NULL,		    // obj_ket
 
     NULL,		    // obj_propinit
     NULL,		    // obj_propsep
@@ -9466,21 +9478,27 @@ min::printer min::print_obj
 	else
 	{
 	    min::print_ustring
-	        ( printer, objf->obj_prefix );
+	        ( printer, objf->obj_bra );
+
 	    if ( type != min::NONE() )
 		min::print_gen
 		    ( printer, type,
 		      objf->name_format );
+
+	    else if ( min::size_of ( vp ) == 0
+	              &&
+		      separator == NONE() )
+	        return min::print_ustring
+		    ( printer, objf->obj_empty );
+
 	    min::print_ustring
-		( printer, objf->obj_midfix );
+		( printer, objf->obj_braend );
 	}
-	min::print_spaces ( printer, 1 );
-	printer << min::save_indent;
     }
     else
     {
         min::print_ustring
-	    ( printer, objf->obj_prefix );
+	    ( printer, objf->obj_bra );
 	min::print_gen
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
@@ -9512,14 +9530,12 @@ min::printer min::print_obj
 		first = false;
 		min::print_ustring
 		    ( printer, objf->obj_propinit );
-		min::print_spaces ( printer, 1 );
 		printer << min::save_indent;
 	    }
 	    else
 	    {
 		min::print_ustring
 		    ( printer, objf->obj_propsep );
-		min::print_spaces ( printer, 1 );
 		printer << min::set_break;
 	    }
 
@@ -9544,7 +9560,6 @@ min::printer min::print_obj
 
 	    min::print_ustring
 		( printer, objf->obj_propeq );
-	    min::print_spaces ( printer, 1 );
 	    printer << min::set_break;
 
 	    // TBD handle value sets and reverse labels
@@ -9555,12 +9570,36 @@ min::printer min::print_obj
 	}
 
 	min::print_ustring
-	    ( printer, objf->obj_midfix );
-	min::print_spaces ( printer, 1 );
-	printer << min::save_indent;
+	    ( printer, objf->obj_braend );
+
+	if ( ! first ) printer << min::restore_indent;
     }
 
-    // TBD print elements
+    bool first = true;
+    for ( min::unsptr i = 0; i < min::size_of ( vp );
+                             ++ i )
+        if ( first ) 
+	{
+	    first = false;
+	    min::print_spaces ( printer, 1 );
+	    printer << min::save_indent;
+	}
+	else
+	{
+	    min::print_ustring
+		( printer, objf->obj_separator );
+	    printer << min::set_break;
+	}
+
+	min::print_gen
+	    ( printer, vp[i], objf->element_format );
+    }
+
+    min::print_ustring ( printer, objf->obj_ketbegin );
+    min::print_ustring ( printer, objf->obj_ket );
+    if ( ! first ) printer << min::restore_indent;
+
+    // TBD print ket
 
     if ( m == 0 && min::size_of ( vp ) == 0 )
     {
