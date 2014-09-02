@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  1 08:33:24 EDT 2014
+// Date:	Tue Sep  2 05:01:24 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11247,15 +11247,6 @@ namespace min {
     	    ( min::printer printer, const char * s,
 	      const min::str_format * sf = NULL );
 
-    inline min::printer print_str
-    	    ( min::printer printer, min::gen str,
-	      const min::str_format * sf = NULL )
-    {
-        min::str_ptr sp ( str );
-	return min::print_chars
-	    ( printer, ! min::begin_ptr_of ( sp ), sf );
-    }
-
     // Rather than have a default NULL str_format,
     // we default to an inline purely to optimize.
     // The effect is the same.
@@ -11335,14 +11326,6 @@ inline min::printer operator <<
 {
     return min::print_chars
         ( printer, ! (min::ptr<const char>) s );
-}
-
-inline min::printer operator <<
-	( min::printer printer,
-	  const min::str_ptr & s )
-{
-    return min::print_chars
-        ( printer, ! min::begin_ptr_of ( s ) );
 }
 
 inline min::printer operator <<
@@ -11578,6 +11561,21 @@ namespace min {
 	      min::gen v,
 	      const min::gen_format * gen_format );
 
+    inline min::printer print_str
+    	    ( min::printer printer, min::gen str,
+	      const min::str_format * sf = NULL )
+    {
+        min::str_ptr sp ( str );
+	return min::print_chars
+	    ( printer, ! min::begin_ptr_of ( sp ), sf );
+    }
+
+    min::printer print_obj
+    	    ( min::printer printer, min::gen obj,
+	      const min::obj_format * objf = NULL,
+	      min::unsptr max_attrs = 1000 );
+	// Max_attrs is hidden and undocumented.
+
     inline min::printer print_gen
             ( min::printer printer, min::gen v,
 	      const min::gen_format * f )
@@ -11650,6 +11648,14 @@ namespace min {
     min::id_map set_id_map
             ( min::printer printer,
 	      min::id_map map = min::NULL_STUB );
+}
+
+inline min::printer operator <<
+	( min::printer printer,
+	  const min::str_ptr & s )
+{
+    return min::print_chars
+        ( printer, ! min::begin_ptr_of ( s ) );
 }
 
 inline min::printer operator <<
