@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep  1 03:10:34 EDT 2014
+// Date:	Tue Sep  2 04:59:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9402,26 +9402,24 @@ min::printer pgen_id
     return printer << "@" << id;
 }
 
-#ifdef NONE_SUCH
-
 min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
-	  const min::obj_format * objf )
+	  const min::obj_format * objf,
+	  min::unsptr max_attrs )
 {
+    if ( objf == NULL )
+        objf = printer->print_format.gen_format
+	              ->obj_format;
+
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
 
-    min::attr_info first_info[1000];
-    min::attr_info * info = first_info;
-    min::unsptr m = min::get_attrs ( info, 1000, ap );
-
-    min::attr_info second_info[m];
-    if ( m > 1000 )
-    {
-	info = second_info;
-        min::get_attrs ( info, m, ap );
-    }
+    min::attr_info info[max_attrs];
+    min::unsptr m =
+        min::get_attrs ( info, max_attrs, ap );
+    if ( m > max_attrs )
+        return min::print_obj ( printer, v, objf, m );
 
     min::gen separator = min::NONE();
     min::gen initiator = min::NONE();
@@ -9429,7 +9427,9 @@ min::printer min::print_obj
     min::gen type = min::NONE();
 
     // Loop until we determine compact_ok is false AND
-    // we have found type.
+    // we have found type.  If compact_ok remains true,
+    // collect any separator, initiator, terminator,
+    // and type.
     //
     bool compact_ok = true;
     for ( min::unsptr i = 0;
@@ -9461,12 +9461,15 @@ min::printer min::print_obj
 	else compact_ok = false;
     }
 
+    // Compact_ok does not allow just one of initiator
+    // and terminator.
+    //
     if ( compact_ok )
     {
 	if ( initiator != min::NONE() )
-	    compact_ok == ( terminator != min::NONE() );
+	    compact_ok = ( terminator != min::NONE() );
 	else if ( terminator != min::NONE() )
-	    compact_ok == false;
+	    compact_ok = false;
     }
 
     printer << min::set_break;
@@ -9475,6 +9478,11 @@ min::printer min::print_obj
     {
         if ( initiator != min::NONE() )
 	    min::print_str ( printer, initiator );
+	else if ( min::size_of ( vp ) == 0
+		  &&
+		  type == NONE() )
+	    return min::print_ustring
+		( printer, objf->obj_empty );
 	else
 	{
 	    min::print_ustring
@@ -9484,12 +9492,6 @@ min::printer min::print_obj
 		min::print_gen
 		    ( printer, type,
 		      objf->name_format );
-
-	    else if ( min::size_of ( vp ) == 0
-	              &&
-		      separator == NONE() )
-	        return min::print_ustring
-		    ( printer, objf->obj_empty );
 
 	    min::print_ustring
 		( printer, objf->obj_braend );
@@ -9520,7 +9522,7 @@ min::printer min::print_obj
 	    }
 	    else if ( info[i].name == min::dot_type
 	              &&
-		      type != min::NONE() )
+		      info[i].value == type )
 		continue;
 	    else if ( info[i].name == min::dot_position )
 		continue;
@@ -9560,13 +9562,23 @@ min::printer min::print_obj
 
 	    min::print_ustring
 		( printer, objf->obj_propeq );
-	    printer << min::set_break;
+	    min::int32 adjust =
+	          (min::int32) printer->column
+	        - (min::int32) printer->line_break.indent;
+	    adjust = ( adjust > 4 ? 4 :
+	               adjust > 2 ? 2 :
+		       0 );
+	    if ( adjust != 0 )
+		printer << min::adjust_indent ( adjust )
+			<< min::set_break;
 
 	    // TBD handle value sets and reverse labels
 	    //
 	    min::print_gen
 		( printer, info[i].value,
 			   objf->value_format );
+
+	    printer << min::adjust_indent ( - adjust );
 	}
 
 	min::print_ustring
@@ -9578,6 +9590,7 @@ min::printer min::print_obj
     bool first = true;
     for ( min::unsptr i = 0; i < min::size_of ( vp );
                              ++ i )
+    {
         if ( first ) 
 	{
 	    first = false;
@@ -9595,19 +9608,23 @@ min::printer min::print_obj
 	    ( printer, vp[i], objf->element_format );
     }
 
-    min::print_ustring ( printer, objf->obj_ketbegin );
-    min::print_ustring ( printer, objf->obj_ket );
+    min::print_spaces ( printer, 1 );
+
+    if ( compact_ok && terminator != min::NONE() )
+	    min::print_str ( printer, terminator );
+    else
+    {
+	min::print_ustring ( printer, objf->obj_ketbegin );
+	min::print_ustring ( printer, objf->obj_ket );
+    }
+
     if ( ! first ) printer << min::restore_indent;
 
-    // TBD print ket
+    return printer;
+}
 
-    if ( m == 0 && min::size_of ( vp ) == 0 )
-    {
-        if ( indent )
-	    return printer << "// <empty object>";
-	else
-	    return printer << "{| |}";
-    }
+
+#ifdef NONE_SUCH
 
     if ( ! indent )
 	printer << "{| " << min::save_indent;
