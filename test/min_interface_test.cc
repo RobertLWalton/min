@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 15 13:39:32 EDT 2014
+// Date:	Wed Sep  3 05:49:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4465,8 +4465,6 @@ void test_object_attribute_level ( void )
 // Object Printing
 // ------ --------
 
-# ifdef NONE_SUCH
-
 void test_object_printing ( void )
 {
     cout << endl;
@@ -4475,7 +4473,8 @@ void test_object_printing ( void )
     min_assert_print = false;
 
     min::gen obj = min::new_obj_gen ( 5, 5 );
-    printer << min::pgen ( obj, 0 ) << min::eol;
+    printer << min::pgen ( obj ) << min::eol;
+
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_push ( vp, 3 );
@@ -4483,43 +4482,22 @@ void test_object_printing ( void )
 	vp[1] = min::new_num_gen ( 2 );
 	vp[2] = min::new_num_gen ( 3 );
     }
-    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen
-                   ( obj,   min::OBJ_EXP_FLAG
-			  + min::BRACKET_IMPLICIT_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
-            << min::eol;
+    printer << min::pgen ( obj ) << min::eol;
 
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator =
-	    min::new_lab_gen ( ".", "initiator" );
-	min::locate ( ap, initiator );
-	min::set ( ap, min::new_str_gen ( "{" ) );
-	min::locatable_gen separator =
-	    min::new_lab_gen ( ".", "separator" );
-	min::locate ( ap, separator );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::new_str_gen ( "{*" ) );
+	min::locate ( ap, min::dot_separator );
 	min::set ( ap, min::new_str_gen ( "," ) );
-	min::locatable_gen terminator =
-	    min::new_lab_gen ( ".", "terminator" );
-	min::locate ( ap, terminator );
-	min::set ( ap, min::new_str_gen ( "}" ) );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::new_str_gen ( "*}" ) );
 	min::attr_push ( vp, 2 );
 	vp[3] = min::new_num_gen ( 4 );
 	vp[4] = min::new_num_gen ( 5 );
     }
-
-    printer << min::pgen ( obj, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj, min::OBJ_ID_FLAG )
-            << min::eol;
+    printer << min::pgen ( obj ) << min::eol;
 
     min::gen obj2 = min::new_obj_gen ( 5, 5 );
     {
@@ -4531,19 +4509,66 @@ void test_object_printing ( void )
 	vp[3] = obj;
 	vp[4] = obj;
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen initiator =
-	    min::new_lab_gen ( ".", "initiator" );
-	min::locate ( ap, initiator );
+	min::locate ( ap, min::dot_initiator );
 	min::set ( ap, min::new_str_gen ( "[" ) );
-	min::locatable_gen separator =
-	    min::new_lab_gen ( ".", "separator" );
-	min::locate ( ap, separator );
+	min::locate ( ap, min::dot_separator );
 	min::set ( ap, min::new_str_gen ( ";" ) );
-	min::locatable_gen terminator =
-	    min::new_lab_gen ( ".", "terminator" );
-	min::locate ( ap, terminator );
+	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::new_str_gen ( "]" ) );
     }
+    printer << min::pgen ( obj2 ) << min::eol;
+
+    min::gen obj3 = min::new_obj_gen ( 5, 5 );
+    {
+	min::obj_vec_insptr vp ( obj3 );
+	min::attr_push ( vp, 3 );
+	vp[0] = min::new_str_gen ( "A" );
+	vp[1] = min::new_str_gen ( "B" );
+	vp[2] = min::new_str_gen ( "C" );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen type =
+	    min::new_lab_gen ( ".", "type" );
+	min::locate ( ap, type );
+	min::set ( ap, min::new_str_gen ( "T" ) );
+    }
+    printer << min::pgen ( obj3 ) << min::eol;
+
+    {
+	min::obj_vec_insptr vp ( obj3 );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen number =
+	    min::new_str_gen ( "number" );
+	min::locate ( ap, number );
+	min::set ( ap, min::new_num_gen ( 123 ) );
+    }
+    printer << min::pgen ( obj3 ) << min::eol;
+
+    {
+	min::obj_vec_insptr vp ( obj3 );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen fraction =
+	    min::new_str_gen ( "fraction" );
+	min::locate ( ap, fraction );
+	min::set ( ap, min::new_str_gen ( "TRUE" ) );
+	min::locatable_gen scientific =
+	    min::new_str_gen ( "scientific" );
+	min::locate ( ap, scientific );
+	min::set ( ap, min::new_str_gen ( "FALSE" ) );
+    }
+    printer << min::pgen ( obj ) << min::eol;
+
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen myprop =
+	    min::new_str_gen ( "myprop" );
+	min::locate ( ap, myprop );
+	min::set ( ap, min::new_lab_gen
+	                   ( "MY", "PROP", "VALUE" ) );
+    }
+    printer << min::pgen ( obj ) << min::eol;
+
+# ifdef NONE_SUCH
 
     printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )
             << min::eol;
@@ -4592,12 +4617,12 @@ void test_object_printing ( void )
 
 
 
+# endif // NONE_SUCH
+
     min_assert_print = true;
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
 }
-
-# endif // NONE_SUCH
 
 
 // Main Program
@@ -4640,11 +4665,7 @@ int main ( int argc, const char * argv[] )
 	test_object_vector_level();
 	test_object_list_level();
 	test_object_attribute_level();
-
-#ifdef NONE_SUCH
-
 	test_object_printing();
-#endif
 
 	// Check that deallocated_body_region is still
 	// zero.

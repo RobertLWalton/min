@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep  2 04:59:37 EDT 2014
+// Date:	Wed Sep  3 05:49:10 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8663,25 +8663,20 @@ static min::printer print_quoted_unicode
 		       postfix_length,
 		       bf.str_postfix_replacement );
 
-	printer << min::pustring ( bf.str_postfix );
+	if ( length == 0 ) break;
 
-
-	if ( length != 0 )
-	{
-	    printer
+	printer << min::pustring ( bf.str_postfix )
 		<< " "
 		<< min::set_break
-		<< min::pustring
-		      ( bf.str_concatenator )
+		<< min::pustring ( bf.str_concatenator )
 		<< " "
-		<< min::pustring
-		      ( bf.str_prefix );
-	}
+		<< min::pustring ( bf.str_prefix );
 
 	width = reduced_width - 1
 	      - min::ustring_columns
 	            ( bf.str_concatenator );
     }
+    printer << min::pustring ( bf.str_postfix );
 
     return printer;
 }
@@ -9369,12 +9364,19 @@ static void init_pgen_formats ( void )
 {
     ::name_special_format.special_names =
         min::standard_special_names;
+
     ::bracket_special_format.special_names =
         min::standard_special_names;
+
+    ::exp_obj_format.element_format =
+        min::top_gen_format;
+    ::exp_obj_format.value_format =
+        min::top_gen_format;
     ::exp_obj_format.exp_ok_attrs =
         min::standard_exp_ok_attrs;
     ::exp_obj_format.flag_names =
         min::standard_flag_names;
+
     ::raw_obj_format.flag_names =
         min::standard_flag_names;
 }
@@ -9506,7 +9508,7 @@ min::printer min::print_obj
 	               type : min::empty_string,
 		       objf->name_format );
 
-	bool first = false;
+	bool first = true;
 	for ( min::unsptr i = 0; i < m; ++ i )
 	{
 	    if ( info[i].name == min::dot_separator )
@@ -9524,7 +9526,8 @@ min::printer min::print_obj
 	              &&
 		      info[i].value == type )
 		continue;
-	    else if ( info[i].name == min::dot_position )
+	    else if (    info[i].name
+	              == min::dot_position )
 		continue;
 
 	    if ( first )
@@ -9564,7 +9567,8 @@ min::printer min::print_obj
 		( printer, objf->obj_propeq );
 	    min::int32 adjust =
 	          (min::int32) printer->column
-	        - (min::int32) printer->line_break.indent;
+	        - (min::int32)
+		      printer->line_break.indent;
 	    adjust = ( adjust > 4 ? 4 :
 	               adjust > 2 ? 2 :
 		       0 );
@@ -9599,8 +9603,14 @@ min::printer min::print_obj
 	}
 	else
 	{
-	    min::print_ustring
-		( printer, objf->obj_separator );
+	    if ( separator == min::NONE() )
+		min::print_ustring
+		    ( printer, objf->obj_separator );
+	    else
+	    {
+		min::print_str ( printer, separator );
+		min::print_spaces ( printer, 1 );
+	    }
 	    printer << min::set_break;
 	}
 
@@ -9614,8 +9624,10 @@ min::printer min::print_obj
 	    min::print_str ( printer, terminator );
     else
     {
-	min::print_ustring ( printer, objf->obj_ketbegin );
-	min::print_ustring ( printer, objf->obj_ket );
+	min::print_ustring
+	    ( printer, objf->obj_ketbegin );
+	min::print_ustring
+	    ( printer, objf->obj_ket );
     }
 
     if ( ! first ) printer << min::restore_indent;
@@ -10314,6 +10326,9 @@ min::printer min::standard_pgen
 		      ( printer, sf->special_postfix );
 	return printer;
     }
+
+    else if ( min::is_obj ( v ) )
+        return min::print_obj ( printer, v );
 
 # ifdef NONE_SUCH
 
