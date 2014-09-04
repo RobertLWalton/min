@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  3 05:49:10 EDT 2014
+// Date:	Thu Sep  4 15:37:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9404,6 +9404,100 @@ min::printer pgen_id
     return printer << "@" << id;
 }
 
+static void print_properties
+	( min::printer printer, 
+	  min::obj_vec_ptr & vp,
+	  min::attr_ptr & ap,
+	  min::attr_info * info,
+	  min::unsptr m,
+	  min::gen & separator,
+	  const min::gen & type,
+	  const min::obj_format * objf,
+	  bool line_format )
+{
+    bool first = true;
+    for ( min::unsptr i = 0; i < m; ++ i )
+    {
+	if ( info[i].name == min::dot_separator )
+	{
+	    if (    info[i].value_count == 1
+		 && info[i].flag_count == 0
+		 && info[i].reverse_attr_count == 0
+		 && min::is_str ( separator ) )
+	    {
+		separator = info[i].value;
+		continue;
+	    }
+	}
+	else if ( info[i].name == min::dot_type
+		  &&
+		  info[i].value == type )
+	    continue;
+	else if (    info[i].name
+		  == min::dot_position )
+	    continue;
+
+	if ( first )
+	{
+	    first = false;
+	    min::print_ustring
+		( printer, objf->obj_propinit );
+	    printer << min::save_indent;
+	}
+	else
+	{
+	    min::print_ustring
+		( printer, objf->obj_propsep );
+	    printer << min::set_break;
+	}
+
+	bool suppress_value =
+	    (    info[i].value_count == 1
+	      && info[i].flag_count == 0
+	      && info[i].reverse_attr_count == 0 );
+	if ( suppress_value )
+	{
+	    if ( info[i].value == min::FALSE )
+		min::print_ustring
+		    ( printer, objf->obj_propneg );
+	    else if ( info[i].value != min::TRUE )
+		suppress_value = false;
+	}
+
+	min::print_gen
+	    ( printer, info[i].name,
+		       objf->name_format );
+
+	if ( suppress_value ) continue;
+
+	min::print_ustring
+	    ( printer, objf->obj_propeq );
+	min::int32 adjust =
+	      (min::int32) printer->column
+	    - (min::int32)
+		  printer->line_break.indent;
+	adjust = ( adjust > 4 ? 4 :
+		   adjust > 2 ? 2 :
+		   0 );
+	if ( adjust != 0 )
+	    printer << min::adjust_indent ( adjust )
+		    << min::set_break;
+
+	// TBD handle value sets and reverse labels
+	//
+	min::print_gen
+	    ( printer, info[i].value,
+		       objf->value_format );
+
+	printer << min::adjust_indent ( - adjust );
+    }
+
+    min::print_ustring
+	( printer, objf->obj_braend );
+
+    if ( ! first ) printer << min::restore_indent;
+}
+
 min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
@@ -9428,16 +9522,21 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    // Loop until we determine compact_ok is false AND
-    // we have found type.  If compact_ok remains true,
-    // collect any separator, initiator, terminator,
-    // and type.
+    bool long_format = ( objf->obj_bra == NULL );
+    bool properties_after_elements =
+        long_format || ( objf->obj_propsep == NULL );
+
+    // If not long_format, loop until we determine
+    // compact_ok is false AND we have found type.
+    // If compact_ok remains true, collect any separa-
+    // tor, initiator, terminator, and type.
     //
-    bool compact_ok = true;
-    for ( min::unsptr i = 0;
-             ( compact_ok || type == min::NONE() )
-	  && i < m;
-	  ++ i )
+    bool compact_ok = ! long_format;
+    if ( ! long_format )
+        for ( min::unsptr i = 0;
+                 ( compact_ok || type == min::NONE() )
+	      && i < m;
+	      ++ i )
     {
         if ( info[i].name == min::dot_position )
 	    continue;
@@ -9499,7 +9598,7 @@ min::printer min::print_obj
 		( printer, objf->obj_braend );
 	}
     }
-    else
+    else if ( ! long_format )
     {
         min::print_ustring
 	    ( printer, objf->obj_bra );
@@ -9507,88 +9606,9 @@ min::printer min::print_obj
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
 		       objf->name_format );
-
-	bool first = true;
-	for ( min::unsptr i = 0; i < m; ++ i )
-	{
-	    if ( info[i].name == min::dot_separator )
-	    {
-	        if (    info[i].value_count == 1
-	             && info[i].flag_count == 0
-	             && info[i].reverse_attr_count == 0
-		     && min::is_str ( separator ) )
-		{
-		    separator = info[i].value;
-		    continue;
-		}
-	    }
-	    else if ( info[i].name == min::dot_type
-	              &&
-		      info[i].value == type )
-		continue;
-	    else if (    info[i].name
-	              == min::dot_position )
-		continue;
-
-	    if ( first )
-	    {
-		first = false;
-		min::print_ustring
-		    ( printer, objf->obj_propinit );
-		printer << min::save_indent;
-	    }
-	    else
-	    {
-		min::print_ustring
-		    ( printer, objf->obj_propsep );
-		printer << min::set_break;
-	    }
-
-	    bool suppress_value =
-		(    info[i].value_count == 1
-		  && info[i].flag_count == 0
-		  && info[i].reverse_attr_count == 0 );
-	    if ( suppress_value )
-	    {
-	        if ( info[i].value == min::FALSE )
-		    min::print_ustring
-			( printer, objf->obj_propneg );
-		else if ( info[i].value != min::TRUE )
-		    suppress_value = false;
-	    }
-
-	    min::print_gen
-		( printer, info[i].name,
-			   objf->name_format );
-
-	    if ( suppress_value ) continue;
-
-	    min::print_ustring
-		( printer, objf->obj_propeq );
-	    min::int32 adjust =
-	          (min::int32) printer->column
-	        - (min::int32)
-		      printer->line_break.indent;
-	    adjust = ( adjust > 4 ? 4 :
-	               adjust > 2 ? 2 :
-		       0 );
-	    if ( adjust != 0 )
-		printer << min::adjust_indent ( adjust )
-			<< min::set_break;
-
-	    // TBD handle value sets and reverse labels
-	    //
-	    min::print_gen
-		( printer, info[i].value,
-			   objf->value_format );
-
-	    printer << min::adjust_indent ( - adjust );
-	}
-
-	min::print_ustring
-	    ( printer, objf->obj_braend );
-
-	if ( ! first ) printer << min::restore_indent;
+        ::print_properties
+	    ( printer, vp, ap, info, m,
+	      separator, type, objf, false );
     }
 
     bool first = true;
