@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep  2 05:01:24 EDT 2014
+// Date:	Fri Sep  5 06:58:56 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11500,6 +11500,7 @@ namespace min {
 	const min::ustring *   	    obj_ket;
 
 	const min::ustring *   	    obj_propinit;
+	const min::ustring *   	    obj_propeol;
 	const min::ustring *   	    obj_propsep;
 	const min::ustring *   	    obj_propneg;
 	const min::ustring *   	    obj_propeq;

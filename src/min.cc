@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  4 15:37:13 EDT 2014
+// Date:	Fri Sep  5 06:59:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9263,6 +9263,8 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x02\x82" ": ",    // obj_propinit
     (const min::ustring *)
+        "\x02\x82" ":",     // obj_propeol
+    (const min::ustring *)
         "\x02\x82" ", ",    // obj_propsep
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_propneg
@@ -9295,6 +9297,7 @@ static min::obj_format raw_obj_format =
     NULL,		    // obj_ket
 
     NULL,		    // obj_propinit
+    NULL,		    // obj_propeol
     NULL,		    // obj_propsep
     NULL,		    // obj_propneg
     NULL,		    // obj_propeq
@@ -9416,6 +9419,10 @@ static void print_properties
 	  bool line_format )
 {
     bool first = true;
+    min::int32 adjust =
+	  (min::int32) printer->line_break.line_length
+	- (min::int32) printer->line_break.indent;
+    adjust = ( adjust > 20 ? 4 : 2 );
     for ( min::unsptr i = 0; i < m; ++ i )
     {
 	if ( info[i].name == min::dot_separator )
@@ -9440,15 +9447,33 @@ static void print_properties
 	if ( first )
 	{
 	    first = false;
-	    min::print_ustring
-		( printer, objf->obj_propinit );
-	    printer << min::save_indent;
+	    if ( line_format )
+	    {
+	        printer << min::pustring
+			       ( objf->obj_propeol )
+			<< min::eol << min::indent
+			<< min::adjust_indent
+			      ( adjust );
+	    }
+	    else
+		printer << min::pustring
+			       ( objf->obj_propinit )
+		        << min::save_indent;
 	}
 	else
 	{
-	    min::print_ustring
-		( printer, objf->obj_propsep );
-	    printer << min::set_break;
+	    if ( line_format )
+	        printer << min::adjust_indent
+			      ( - adjust )
+		        << min::indent
+	                << min::adjust_indent
+			      ( adjust );
+	    else
+	    {
+		min::print_ustring
+		    ( printer, objf->obj_propsep );
+		printer << min::set_break;
+	    }
 	}
 
 	bool suppress_value =
@@ -9472,30 +9497,25 @@ static void print_properties
 
 	min::print_ustring
 	    ( printer, objf->obj_propeq );
-	min::int32 adjust =
-	      (min::int32) printer->column
-	    - (min::int32)
-		  printer->line_break.indent;
-	adjust = ( adjust > 4 ? 4 :
-		   adjust > 2 ? 2 :
-		   0 );
-	if ( adjust != 0 )
-	    printer << min::adjust_indent ( adjust )
-		    << min::set_break;
+	printer << min::set_break;
 
 	// TBD handle value sets and reverse labels
 	//
 	min::print_gen
 	    ( printer, info[i].value,
 		       objf->value_format );
-
-	printer << min::adjust_indent ( - adjust );
     }
 
     min::print_ustring
 	( printer, objf->obj_braend );
 
-    if ( ! first ) printer << min::restore_indent;
+    if ( ! first )
+    {
+	if ( line_format )
+	    printer << min::adjust_indent ( - adjust );
+	else
+	    printer << min::restore_indent;
+    }
 }
 
 min::printer min::print_obj
@@ -9573,7 +9593,9 @@ min::printer min::print_obj
 	    compact_ok = false;
     }
 
-    printer << min::set_break;
+    printer << min::save_print_format
+            << min::no_auto_break
+            << min::set_break;
 
     if ( compact_ok )
     {
@@ -9582,8 +9604,10 @@ min::printer min::print_obj
 	else if ( min::size_of ( vp ) == 0
 		  &&
 		  type == NONE() )
-	    return min::print_ustring
-		( printer, objf->obj_empty );
+	    return
+	        printer << min::pustring
+		               ( objf->obj_empty )
+			<< min::restore_print_format;
 	else
 	{
 	    min::print_ustring
@@ -9652,7 +9676,7 @@ min::printer min::print_obj
 
     if ( ! first ) printer << min::restore_indent;
 
-    return printer;
+    return printer << min::restore_print_format;
 }
 
 
