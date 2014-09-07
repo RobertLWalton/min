@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  5 06:59:59 EDT 2014
+// Date:	Sun Sep  7 11:17:50 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9506,13 +9506,15 @@ static void print_properties
 		       objf->value_format );
     }
 
-    min::print_ustring
-	( printer, objf->obj_braend );
+    if ( ! line_format )
+        min::print_ustring
+	    ( printer, objf->obj_braend );
 
     if ( ! first )
     {
 	if ( line_format )
-	    printer << min::adjust_indent ( - adjust );
+	    printer << min::adjust_indent ( - adjust )
+	            << min::eol;
 	else
 	    printer << min::restore_indent;
     }
@@ -9662,19 +9664,27 @@ min::printer min::print_obj
 	    ( printer, vp[i], objf->element_format );
     }
 
-    min::print_spaces ( printer, 1 );
-
-    if ( compact_ok && terminator != min::NONE() )
-	    min::print_str ( printer, terminator );
-    else
+    if ( ! long_format )
     {
-	min::print_ustring
-	    ( printer, objf->obj_ketbegin );
-	min::print_ustring
-	    ( printer, objf->obj_ket );
+	min::print_spaces ( printer, 1 );
+
+	if ( compact_ok && terminator != min::NONE() )
+		min::print_str ( printer, terminator );
+	else
+	{
+	    min::print_ustring
+		( printer, objf->obj_ketbegin );
+	    min::print_ustring
+		( printer, objf->obj_ket );
+	}
     }
 
     if ( ! first ) printer << min::restore_indent;
+
+    if ( long_format )
+        ::print_properties
+	    ( printer, vp, ap, info, m,
+	      separator, type, objf, true );
 
     return printer << min::restore_print_format;
 }
