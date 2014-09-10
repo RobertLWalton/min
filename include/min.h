@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  5 06:58:56 EDT 2014
+// Date:	Wed Sep 10 07:46:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11505,11 +11505,6 @@ namespace min {
 	const min::ustring *   	    obj_propneg;
 	const min::ustring *   	    obj_propeq;
 
-	const min::ustring *   	    implicit_prefix;
-	const min::ustring *   	    implicit_postfix;
-
-	packed_vec_ptr<min::gen>    exp_ok_attrs;
-
 	packed_vec_ptr<const char *>
 	                   	    flag_names;
     };
@@ -11550,9 +11545,6 @@ namespace min {
 
     extern packed_vec_ptr<const char *>
            standard_special_names;
-
-    extern packed_vec_ptr<min::gen>
-           standard_exp_ok_attrs;
 
     extern packed_vec_ptr<const char *>
            standard_flag_names;

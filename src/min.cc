@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  7 11:17:50 EDT 2014
+// Date:	Wed Sep 10 07:47:04 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -108,12 +108,6 @@ min::packed_vec_ptr<const char *>
 static min::locatable_var
 	< min::packed_vec_ptr<const char *> >
     standard_special_names;
-
-min::packed_vec_ptr<min::gen>
-    min::standard_exp_ok_attrs;
-static min::locatable_var
-	< min::packed_vec_ptr<min::gen> >
-    standard_exp_ok_attrs;
 
 static const unsigned standard_flag_names_length = 256;
 static char const * standard_flag_names_value
@@ -361,24 +355,6 @@ void MINT::initialize ( void )
 	min::standard_special_names = p;
 	min::push ( p, ::standard_special_names_length,
 		       ::standard_special_names_value );
-    }
-
-    {
-	min::packed_vec_insptr<min::gen> p =
-	    min::gen_packed_vec_type.new_stub ( 9 );
-	::standard_exp_ok_attrs = p;
-	min::standard_exp_ok_attrs = p;
-
-	min::push ( p ) = min::dot_initiator;
-	min::push ( p ) = min::dot_separator;
-	min::push ( p ) = min::dot_terminator;
-	min::push ( p ) = min::dot_middle;
-	min::push ( p ) = min::dot_name;
-	min::push ( p ) = min::dot_arguments;
-	min::push ( p ) = min::dot_keys;
-	min::push ( p ) = min::dot_operator;
-	min::push ( p ) = min::dot_position;
-	min::push ( p ) = min::dot_type;
     }
 
     {
@@ -9239,7 +9215,7 @@ const min::special_format *
 
 static min::obj_format exp_obj_format =
 {
-    min::name_gen_format,   // name_format
+    NULL,		    // name_format*
     NULL,		    // element_format*
     NULL,		    // value_format*
 
@@ -9263,7 +9239,7 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x02\x82" ": ",    // obj_propinit
     (const min::ustring *)
-        "\x02\x82" ":",     // obj_propeol
+        "\x01\x81" ":",     // obj_propeol
     (const min::ustring *)
         "\x02\x82" ", ",    // obj_propsep
     (const min::ustring *)
@@ -9271,12 +9247,6 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x03\x03" " = ",   // obj_propeq
 
-    (const min::ustring *)
-        "\x02\x42" "{|",    // implicit_prefix
-    (const min::ustring *)
-        "\x02\x82" "|}",    // implicit_postfix
-
-    min::NULL_STUB,	    // exp_ok_attrs*
     min::NULL_STUB	    // flag_names*
 };
 const min::obj_format * min::exp_obj_format =
@@ -9284,7 +9254,7 @@ const min::obj_format * min::exp_obj_format =
 
 static min::obj_format raw_obj_format =
 {
-    min::name_gen_format,   // name_format
+    NULL,   		    // name_format*
     NULL,		    // element_format*
     NULL,		    // value_format*
 
@@ -9302,10 +9272,6 @@ static min::obj_format raw_obj_format =
     NULL,		    // obj_propneg
     NULL,		    // obj_propeq
 
-    NULL,		    // implicit_prefix
-    NULL,		    // implicit_postfix
-
-    min::NULL_STUB,	    // exp_ok_attrs
     min::NULL_STUB	    // flag_names*
 };
 const min::obj_format * min::raw_obj_format =
@@ -9371,12 +9337,12 @@ static void init_pgen_formats ( void )
     ::bracket_special_format.special_names =
         min::standard_special_names;
 
+    ::exp_obj_format.name_format =
+        min::name_gen_format;
     ::exp_obj_format.element_format =
         min::top_gen_format;
     ::exp_obj_format.value_format =
         min::top_gen_format;
-    ::exp_obj_format.exp_ok_attrs =
-        min::standard_exp_ok_attrs;
     ::exp_obj_format.flag_names =
         min::standard_flag_names;
 
