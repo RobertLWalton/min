@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 10 07:46:37 EDT 2014
+// Date:	Thu Sep 11 06:06:33 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11512,7 +11512,7 @@ namespace min {
     extern const min::obj_format *
         exp_obj_format;
     extern const min::obj_format *
-        raw_obj_format;
+        id_map_obj_format;
 
     struct gen_format
     {

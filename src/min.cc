@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 10 07:47:04 EDT 2014
+// Date:	Thu Sep 11 05:58:39 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9252,30 +9252,37 @@ static min::obj_format exp_obj_format =
 const min::obj_format * min::exp_obj_format =
     & ::exp_obj_format;
 
-static min::obj_format raw_obj_format =
+static min::obj_format id_map_obj_format =
 {
-    NULL,   		    // name_format*
+    NULL,		    // name_format*
     NULL,		    // element_format*
     NULL,		    // value_format*
+
+    // USTRING_LEADING  == 0x40
+    // USTRING_TRAILING == 0x80
 
     NULL,		    // obj_empty
 
     NULL,		    // obj_bra
     NULL,		    // obj_braend
-    NULL,		    // obj_separator
+    (const min::ustring *)
+        "\x01\x01" " ",     // obj_separator
     NULL,		    // obj_ketbegin
     NULL,		    // obj_ket
 
     NULL,		    // obj_propinit
-    NULL,		    // obj_propeol
+    (const min::ustring *)
+        "\x01\x81" ":",     // obj_propeol
     NULL,		    // obj_propsep
-    NULL,		    // obj_propneg
-    NULL,		    // obj_propeq
+    (const min::ustring *)
+        "\x03\x03" "no ",   // obj_propneg
+    (const min::ustring *)
+        "\x03\x03" " = ",   // obj_propeq
 
     min::NULL_STUB	    // flag_names*
 };
-const min::obj_format * min::raw_obj_format =
-    & ::raw_obj_format;
+const min::obj_format * min::id_map_obj_format =
+    & ::id_map_obj_format;
 
 static min::gen_format top_gen_format =
 {
@@ -9346,7 +9353,13 @@ static void init_pgen_formats ( void )
     ::exp_obj_format.flag_names =
         min::standard_flag_names;
 
-    ::raw_obj_format.flag_names =
+    ::id_map_obj_format.name_format =
+        min::name_gen_format;
+    ::id_map_obj_format.element_format =
+        min::top_gen_format;
+    ::id_map_obj_format.value_format =
+        min::top_gen_format;
+    ::id_map_obj_format.flag_names =
         min::standard_flag_names;
 }
 

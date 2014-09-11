@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 10, 2014}
+\date{September 11, 2014}
  
 \maketitle
 
@@ -13561,6 +13561,9 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
 \ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\ARGBREAK
 \verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x81" "|"    // obj_braend$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
@@ -13575,6 +13578,33 @@ The format for printing object \TT{min::gen} values is:
 \ARGBREAK
 \verb|min::standard_flag_names                 // flag_names|\ARGBREAK
 \LABEL{MIN::EXP_OBJ_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{id\_map\_obj\_format}:}\ARGBREAK
+\verb|min::name_gen_format                     // name_format|\ARGBREAK
+\verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::top_gen_format                      // value_format|\ARGBREAK
+\ARGBREAK
+\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\ARGBREAK
+\verb|NULL                                     // obj_empty|\ARGBREAK
+\ARGBREAK
+\verb|NULL                                     // obj_bra|\ARGBREAK
+\verb|NULL                                     // obj_braend|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\verb|NULL                                     // obj_ketbegin|\ARGBREAK
+\verb|NULL                                     // obj_ket|\ARGBREAK
+\ARGBREAK
+\verb|NULL                                     // obj_propinit|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" ":"    // obj_propeol|\ARGBREAK
+\verb|NULL                                     // obj_propsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "no "  // obj_propneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " = "  // obj_propeq|\ARGBREAK
+\ARGBREAK
+\verb|min::standard_flag_names                 // flag_names|\ARGBREAK
+\LABEL{MIN::ID_MAP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
