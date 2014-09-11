@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  3 05:49:00 EDT 2014
+// Date:	Thu Sep 11 06:17:25 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4567,6 +4567,9 @@ void test_object_printing ( void )
 	                   ( "MY", "PROP", "VALUE" ) );
     }
     printer << min::pgen ( obj ) << min::eol;
+    min::print_obj
+        ( printer, obj, min::id_map_obj_format );
+    printer << min::eol;
 
 # ifdef NONE_SUCH
 
