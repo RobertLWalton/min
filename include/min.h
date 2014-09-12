@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 11 06:06:33 EDT 2014
+// Date:	Fri Sep 12 07:42:03 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11568,6 +11568,9 @@ namespace min {
 	      const min::obj_format * objf = NULL,
 	      min::unsptr max_attrs = 1000 );
 	// Max_attrs is hidden and undocumented.
+
+    min::printer print_id
+    	    ( min::printer printer, min::gen v );
 
     inline min::printer print_gen
             ( min::printer printer, min::gen v,

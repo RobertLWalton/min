@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 11 05:58:39 EDT 2014
+// Date:	Fri Sep 12 07:42:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7785,8 +7785,6 @@ min::printer operator <<
 	               << min::eol;
     }
 
-# ifdef NONE_SUCH
-
     case min::op::FLUSH_ONE_ID:
         return ::flush_one_id ( printer );
     case min::op::FLUSH_ID_MAP:
@@ -7797,8 +7795,6 @@ min::printer operator <<
 	    ::flush_one_id ( printer );
 	return printer;
     }
-
-# endif // NONE_SUCH
 
     case min::op::PUNICODE1:
     {
@@ -7950,8 +7946,6 @@ min::printer operator <<
 	     & min::FLUSH_ON_EOL )
 	    min::flush_file ( printer->file );
 
-# ifdef NONE_SUCH
-
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ID_MAP_ON_EOM )
 	{
@@ -7960,8 +7954,6 @@ min::printer operator <<
 	    while ( id_map->next < id_map->length )
 		::flush_one_id ( printer );
 	}
-
-# endif // NONE_SUCH
 
 	goto restore_print_format;
     case min::op::EOL_IF_AFTER_INDENT:
@@ -9369,11 +9361,7 @@ const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
 
-
-// Execute pgen (below) in case OBJ_ID_FLAG is
-// effective.
-//
-min::printer pgen_id
+min::printer min::print_id
 	( min::printer printer,
 	  min::gen v )
 {
@@ -10467,56 +10455,36 @@ min::printer min::standard_pgen
     }
 }
 
-# ifdef NONE_SUCH
-
 static min::printer flush_one_id
 	( min::printer printer,
-	  const min::context_gen_flags *
-	      context_gen_flags,
-	  const min::gen_format * f,
-	  min::printer ( * pgen )
-	      ( min::printer printer,
-	        min::uns32 gen_flags,
-	        min::gen v,
-		const min::context_gen_flags *
-		    context_gen_flags,
-		const min::gen_format * f ),
-	  min::id_map id_map )
+	  min::id_map id_map,
+	  const min::gen_format * f )
 {
     if ( id_map == min::NULL_STUB
          ||
 	 id_map->next >= id_map->length )
         return printer;
 
+    const min::gen_format * id_map_f =
+        f->id_map_format;
+
     min::uns32 id = id_map->next;
     * ( min::uns32 * ) & id_map->next = id + 1;
     min::gen v = min::new_stub_gen ( id_map[id] );
 
     printer << "@" << id << " = ";
-    ::pgen ( printer,
-             (*context_gen_flags)[min::PGEN_INDENT],
-             v,
-	     context_gen_flags, f, pgen );
+
+    (* id_map_f->pgen) ( printer, v, id_map_f );
     return printer << min::eol;
 }
-
-# endif // NONE_SUCH
-
-# ifdef NONE_SUCH
 
 static min::printer flush_one_id
 	( min::printer printer )
 {
     const min::gen_format * f =
 	printer->print_format.gen_format;
-    if  ( f == NULL )
-	f = & min::standard_gen_format;
 
     min::id_map id_map = printer->id_map;
 
-    return ::flush_one_id
-	( printer,
-	  printer->print_format.context_gen_flags,
-          f, f->pgen, id_map );
+    return ::flush_one_id ( printer, id_map, f );
 }
-# endif // NONE_SUCH
