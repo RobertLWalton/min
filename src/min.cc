@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 12 07:42:13 EDT 2014
+// Date:	Sat Sep 13 16:13:57 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9302,6 +9302,45 @@ static min::gen_format name_gen_format =
 const min::gen_format * min::name_gen_format =
     & ::name_gen_format;
 
+static min::gen_format id_map_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::id_map_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::id_map_gen_format =
+    & ::id_map_gen_format;
+
+static min::gen_format value_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::exp_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::value_gen_format =
+    & ::value_gen_format;
+
+static min::gen_format element_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_first_not_letter_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::exp_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::element_gen_format =
+    & ::element_gen_format;
+
 static min::gen_format never_quote_gen_format =
 {
     & min::standard_pgen,
@@ -9353,6 +9392,9 @@ static void init_pgen_formats ( void )
         min::top_gen_format;
     ::id_map_obj_format.flag_names =
         min::standard_flag_names;
+
+    ::top_gen_format.id_map_format =
+        min::id_map_gen_format;
 }
 
 const min::op min::flush_one_id
@@ -10349,7 +10391,8 @@ min::printer min::standard_pgen
     }
 
     else if ( min::is_obj ( v ) )
-        return min::print_obj ( printer, v );
+        return min::print_obj
+	    ( printer, v, f->obj_format );
 
 # ifdef NONE_SUCH
 
