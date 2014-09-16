@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 16 03:50:53 EDT 2014
+// Date:	Tue Sep 16 12:18:58 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9683,7 +9683,8 @@ min::printer min::print_obj
         if ( first ) 
 	{
 	    first = false;
-	    min::print_spaces ( printer, 1 );
+	    if ( ! long_format )
+		min::print_spaces ( printer, 1 );
 	    printer << min::save_indent;
 	}
 	else
@@ -10545,10 +10546,10 @@ static min::printer flush_one_id
     * ( min::uns32 * ) & id_map->next = id + 1;
     min::gen v = min::new_stub_gen ( id_map[id] );
 
-    printer << "@" << id << " = ";
+    printer << "@" << id << " = " << min::save_indent;
 
     (* id_map_f->pgen) ( printer, v, id_map_f );
-    return printer << min::eol;
+    return printer << min::eol << min::restore_indent;
 }
 
 static min::printer flush_one_id
