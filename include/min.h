@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 12 07:42:03 EDT 2014
+// Date:	Tue Sep 16 03:48:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3399,11 +3399,13 @@ namespace min {
 
 	IS_UNSUPPORTED		= ( 1 << 9 ),
 
-	CONDITIONAL_BREAK	= ( 1 << 14 ),
-	QUOTE_SUPPRESS		= ( 1 << 15 ),
+	CONDITIONAL_BREAK	= ( 1 << 15 ),
 
 	IS_ASCII		= ( 1 << 16 ),
 	IS_LATIN1		= ( 1 << 17 ),
+
+	QUOTE_SUPPRESS		= ( 1 << 24 ),
+	QUOTE_SKIP		= ( 1 << 25 ),
 
 	IS_HSPACE = IS_SP + IS_NB_HSPACE
 	          + IS_OTHER_HSPACE,
@@ -11434,6 +11436,7 @@ namespace min {
     struct quote_control
     {
         min::uns32 unquote_if_first;
+        min::uns32 unquote_skip;
 	min::uns32 unquote_if_none_of;
     };
 
@@ -11450,6 +11453,7 @@ namespace min {
         min::quote_control	quote_control;
 	min::bracket_format 	bracket_format;
 	min::display_control	display_control;
+	min::uns32		id_map_if_longer;
     };
 
     extern const min::str_format *
@@ -11629,17 +11633,20 @@ namespace min {
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
-    extern min::locatable_gen dot_middle;
-    extern min::locatable_gen dot_name;
-    extern min::locatable_gen dot_arguments;
-    extern min::locatable_gen dot_keys;
-    extern min::locatable_gen dot_operator;
     extern min::locatable_gen dot_position;
     extern min::locatable_gen dot_type;
     extern min::locatable_gen new_line;
     extern min::locatable_gen empty_string;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen number_sign;
+
+    // Deprecated:
+    //
+    extern min::locatable_gen dot_middle;
+    extern min::locatable_gen dot_name;
+    extern min::locatable_gen dot_arguments;
+    extern min::locatable_gen dot_keys;
+    extern min::locatable_gen dot_operator;
 
     min::id_map set_id_map
             ( min::printer printer,

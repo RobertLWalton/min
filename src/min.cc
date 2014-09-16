@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 13 16:13:57 EDT 2014
+// Date:	Tue Sep 16 03:50:53 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,17 +70,20 @@ min::locatable_gen min::FALSE;
 min::locatable_gen min::dot_initiator;
 min::locatable_gen min::dot_separator;
 min::locatable_gen min::dot_terminator;
-min::locatable_gen min::dot_middle;
-min::locatable_gen min::dot_name;
-min::locatable_gen min::dot_arguments;
-min::locatable_gen min::dot_keys;
-min::locatable_gen min::dot_operator;
 min::locatable_gen min::dot_position;
 min::locatable_gen min::dot_type;
 min::locatable_gen min::new_line;
 min::locatable_gen min::empty_string;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::number_sign;
+
+// Deprecated
+//
+min::locatable_gen min::dot_middle;
+min::locatable_gen min::dot_name;
+min::locatable_gen min::dot_arguments;
+min::locatable_gen min::dot_keys;
+min::locatable_gen min::dot_operator;
 
 static min::uns32 gen_element_disp[2] =
     { 0, min::DISP_END };
@@ -319,25 +322,15 @@ void MINT::initialize ( void )
     min::FALSE =
         min::new_str_gen ( "FALSE" );
     min::dot_initiator =
-        min::new_lab_gen ( ".", "initiator" );
+        min::new_str_gen ( ".initiator" );
     min::dot_separator =
-        min::new_lab_gen ( ".", "separator" );
+        min::new_str_gen ( ".separator" );
     min::dot_terminator =
-        min::new_lab_gen ( ".", "terminator" );
-    min::dot_middle =
-        min::new_lab_gen ( ".", "middle" );
-    min::dot_name =
-        min::new_lab_gen ( ".", "name" );
-    min::dot_arguments =
-        min::new_lab_gen ( ".", "arguments" );
-    min::dot_keys =
-        min::new_lab_gen ( ".", "keys" );
-    min::dot_operator =
-        min::new_lab_gen ( ".", "operator" );
+        min::new_str_gen ( ".terminator" );
     min::dot_position =
-        min::new_lab_gen ( ".", "position" );
+        min::new_str_gen ( ".position" );
     min::dot_type =
-        min::new_lab_gen ( ".", "type" );
+        min::new_str_gen ( ".type" );
     min::new_line =
         min::new_str_gen ( "\n" );
     min::empty_string =
@@ -346,6 +339,19 @@ void MINT::initialize ( void )
         min::new_str_gen ( "\"" );
     min::number_sign =
         min::new_str_gen ( "#" );
+
+    // Deprecated:
+    //
+    min::dot_middle =
+        min::new_str_gen ( ".middle" );
+    min::dot_name =
+        min::new_str_gen ( ".name" );
+    min::dot_arguments =
+        min::new_str_gen ( ".arguments" );
+    min::dot_keys =
+        min::new_str_gen ( ".keys" );
+    min::dot_operator =
+        min::new_str_gen ( ".operator" );
 
     {
 	min::packed_vec_insptr<const char *> p =
@@ -1116,6 +1122,10 @@ static void init_standard_char_flags ( void )
 	    case ';':
 	    case 0xB8:
 	    case 0xB4:	flags = min::IS_TRAILING;
+	    		break;
+
+	    case '.':	flags = min::IS_TRAILING
+	                      + min::QUOTE_SKIP;
 	    		break;
 
 	    case '-':
@@ -8758,6 +8768,14 @@ min::printer min::print_unicode
 		      qc.unquote_if_none_of );
 	    min::uns32 if_none_of =
 		or_flags & qc.unquote_if_none_of;
+	    min::uns32 i = 1;
+	    while ( first_flags & qc.unquote_skip )
+	    {
+	        first_flags = i >= n ? 0 :
+		    ::compute_flags
+		        ( printer->print_format, p[i] );
+		++ i;
+	    }
 	    min::uns32 if_first =
 		first_flags & qc.unquote_if_first;
 	    if ( if_none_of == 0 && if_first != 0 )
@@ -8765,9 +8783,17 @@ min::printer min::print_unicode
 	}
 	else if ( qc.unquote_if_first != 0 )
 	{
-	    uns32 first_flags =
-	        ::compute_flags
-		    ( printer->print_format, p[0] );
+	    min::uns32 i = 0;
+	    uns32 first_flags;
+	    while ( true ) {
+	        first_flags = i >= n ? 0 :
+		    ::compute_flags
+		        ( printer->print_format, p[i] );
+		min::uns32 skip =
+		    first_flags & qc.unquote_skip;
+		if ( skip == 0 ) break;
+		++ i;
+	    }
 
 	    if (   first_flags
 		 & qc.unquote_if_first )
@@ -9122,20 +9148,21 @@ const min::lab_format * min::name_lab_format =
 const min::quote_control
 	min::quote_all_control =
 {
-    0, 0
+    0, 0, 0
 };
 
 const min::quote_control
 	min::quote_first_not_letter_control =
 {
-    min::QUOTE_SUPPRESS, min::IS_NON_GRAPHIC
+    min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
+    min::IS_NON_GRAPHIC
 };
 
 
 const min::quote_control
 	min::quote_non_graphic_control =
 {
-    0, min::IS_NON_GRAPHIC
+    0, 0, min::IS_NON_GRAPHIC
 };
 
 const min::bracket_format min::quote_bracket_format =
@@ -9150,7 +9177,8 @@ static min::str_format quote_all_str_format =
 {
     min::quote_all_control,
     min::quote_bracket_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    0xFFFFFFFF
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -9160,7 +9188,8 @@ static min::str_format
 {
     min::quote_first_not_letter_control,
     min::quote_bracket_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    0xFFFFFFFF
 };
 const min::str_format *
 	min::quote_first_not_letter_str_format =
@@ -9171,7 +9200,8 @@ static min::str_format
 {
     min::quote_non_graphic_control,
     min::quote_bracket_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    0xFFFFFFFF
 };
 const min::str_format *
 	min::quote_non_graphic_str_format =
