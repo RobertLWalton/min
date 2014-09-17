@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 16 03:48:01 EDT 2014
+// Date:	Wed Sep 17 01:14:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11491,8 +11491,8 @@ namespace min {
 
     struct obj_format
     {
-        const min::gen_format *	    name_format;
 	const min::gen_format *     element_format;
+        const min::gen_format *	    label_format;
 	const min::gen_format *     value_format;
 
 	const min::ustring *   	    obj_empty;
@@ -11503,7 +11503,7 @@ namespace min {
 	const min::ustring *   	    obj_ketbegin;
 	const min::ustring *   	    obj_ket;
 
-	const min::ustring *   	    obj_propinit;
+	const min::ustring *   	    obj_propbegin;
 	const min::ustring *   	    obj_propeol;
 	const min::ustring *   	    obj_propsep;
 	const min::ustring *   	    obj_propneg;

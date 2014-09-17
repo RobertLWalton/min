@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 16 12:18:58 EDT 2014
+// Date:	Wed Sep 17 01:16:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9237,8 +9237,8 @@ const min::special_format *
 
 static min::obj_format exp_obj_format =
 {
-    NULL,		    // name_format*
     NULL,		    // element_format*
+    NULL,		    // label_format*
     NULL,		    // value_format*
 
     // USTRING_LEADING  == 0x40
@@ -9259,7 +9259,7 @@ static min::obj_format exp_obj_format =
         "\x01\x81" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x02\x82" ": ",    // obj_propinit
+        "\x02\x82" ": ",    // obj_propbegin
     (const min::ustring *)
         "\x01\x81" ":",     // obj_propeol
     (const min::ustring *)
@@ -9276,8 +9276,8 @@ const min::obj_format * min::exp_obj_format =
 
 static min::obj_format id_map_obj_format =
 {
-    NULL,		    // name_format*
     NULL,		    // element_format*
+    NULL,		    // label_format*
     NULL,		    // value_format*
 
     // USTRING_LEADING  == 0x40
@@ -9292,7 +9292,7 @@ static min::obj_format id_map_obj_format =
     NULL,		    // obj_ketbegin
     NULL,		    // obj_ket
 
-    NULL,		    // obj_propinit
+    NULL,		    // obj_propbegin
     (const min::ustring *)
         "\x01\x81" ":",     // obj_propeol
     NULL,		    // obj_propsep
@@ -9405,19 +9405,19 @@ static void init_pgen_formats ( void )
     ::bracket_special_format.special_names =
         min::standard_special_names;
 
-    ::exp_obj_format.name_format =
-        min::name_gen_format;
     ::exp_obj_format.element_format =
         min::top_gen_format;
+    ::exp_obj_format.label_format =
+        min::name_gen_format;
     ::exp_obj_format.value_format =
         min::top_gen_format;
     ::exp_obj_format.flag_names =
         min::standard_flag_names;
 
-    ::id_map_obj_format.name_format =
-        min::name_gen_format;
     ::id_map_obj_format.element_format =
         min::top_gen_format;
+    ::id_map_obj_format.label_format =
+        min::name_gen_format;
     ::id_map_obj_format.value_format =
         min::top_gen_format;
     ::id_map_obj_format.flag_names =
@@ -9496,7 +9496,7 @@ static void print_properties
 	    }
 	    else
 		printer << min::pustring
-			       ( objf->obj_propinit )
+			       ( objf->obj_propbegin )
 		        << min::save_indent;
 	}
 	else
@@ -9530,7 +9530,7 @@ static void print_properties
 
 	min::print_gen
 	    ( printer, info[i].name,
-		       objf->name_format );
+		       objf->label_format );
 
 	if ( suppress_value ) continue;
 
@@ -9657,7 +9657,7 @@ min::printer min::print_obj
 	    if ( type != min::NONE() )
 		min::print_gen
 		    ( printer, type,
-		      objf->name_format );
+		      objf->label_format );
 
 	    min::print_ustring
 		( printer, objf->obj_braend );
@@ -9670,7 +9670,7 @@ min::printer min::print_obj
 	min::print_gen
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
-		       objf->name_format );
+		       objf->label_format );
         ::print_properties
 	    ( printer, vp, ap, info, m,
 	      separator, type, objf, false );

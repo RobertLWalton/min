@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 11, 2014}
+\date{September 17, 2014}
  
 \maketitle
 
@@ -4241,8 +4241,6 @@ vectors of UNICODE characters:
       \verb|( min::ptr<min::Uchar> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
-
-TBD
 
 The following functions test a \TT{min::gen} value to see if it
 is a string and obtain information from
@@ -9697,8 +9695,21 @@ for general value formats is as follows:
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
-\verb|TBD                                     // id_map_format|
+\verb|min::id_map_gen_format                  // id_map_format|
 \LABEL{MIN::TOP_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_map\_gen\_format}:}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::id_map_obj_format                  // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\LABEL{MIN::ID_MAP_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9710,7 +9721,7 @@ for general value formats is as follows:
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
-\verb|TBD                                     // id_map_format|
+\verb|NULL                                    // id_map_format|
 \LABEL{MIN::NAME_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -9723,7 +9734,7 @@ for general value formats is as follows:
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::name_special_format                // special_format|\ARGBREAK
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK
-\verb|TBD                                     // id_map_format|
+\verb|NULL                                    // id_map_format|
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -10256,7 +10267,13 @@ will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
 \subsubsection{Printing Other General Values}
 \label{PRINTING-OTHER-GENERAL-VALUES}
 
-Printing \TT{min::gen} values that are objects is complex and
+Printing \TT{min::gen} values that are objects
+uses the \TT{obj\_\EOL format} element of a
+a \TT{min::\EOL gen\_\EOL format}.
+The \TT{min::\EOL flush\_\EOL id\_\EOL map} printer operation uses
+the \TT{id\_\EOL map\_\EOL format} element of a \TT{min::\EOL gen\_\EOL format}
+to print an object.
+Printing objects is complex and
 its discussion is deferred until \itemref{PRINTING-OBJECT-GENERAL-VALUES},
 after the description of object general values.
 
@@ -12816,7 +12833,7 @@ are:
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
     \verb|  min::gen    value;|\ARGBREAK
-    \verb|  min::gen    flags;|\ARGBREAK
+    \verb|  min::uns64  flags;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|  min::unsptr flag_count;|\ARGBREAK
     \verb|  min::unsptr reverse_attr_count;|\ARGBREAK
@@ -13510,7 +13527,8 @@ taken, to any depth.
 
 The format for printing object \TT{min::gen} values is:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{obj\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -13520,10 +13538,14 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen_format                      value_format;|%
 \ttmindex{value\_format}{in {\tt min::obj\_format}}\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_empty;|%
 \ttmindex{obj\_empty}{in {\tt min::obj\_format}}\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_bra;|%
 \ttmindex{obj\_bra}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_braend;|%
@@ -13534,7 +13556,9 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{obj\_ketbegin}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_ket;|%
 \ttmindex{obj\_ket}{in {\tt min::obj\_format}}\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_propinit;|%
 \ttmindex{obj\_propinit}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_propeol;|%
@@ -13545,7 +13569,9 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{obj\_propneg}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_propeq;|%
 \ttmindex{obj\_propeq}{in {\tt min::obj\_format}}\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    flag_names;|%
 \ttmindex{flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
@@ -13553,56 +13579,78 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 \end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{exp\_obj\_format}:}\ARGBREAK
 \verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x81" "|"    // obj_braend$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x41" "|"    // obj_ketbegin$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x02\x82" ": "   // obj_propinit|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_propeol|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x82" ", "   // obj_propsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_propneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_propeq|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_flag_names                 // flag_names|\ARGBREAK
 \LABEL{MIN::EXP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{id\_map\_obj\_format}:}\ARGBREAK
 \verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_empty|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_bra|\ARGBREAK
 \verb|NULL                                     // obj_braend|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
 \verb|NULL                                     // obj_ketbegin|\ARGBREAK
 \verb|NULL                                     // obj_ket|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_propinit|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_propeol|\ARGBREAK
 \verb|NULL                                     // obj_propsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_propneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_propeq|\ARGBREAK
-\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_flag_names                 // flag_names|\ARGBREAK
 \LABEL{MIN::ID_MAP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
@@ -13618,39 +13666,108 @@ The format for printing object \TT{min::gen} values is:
 \verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
 \end{tabular}\end{indpar}
 
+Here the \TT{min::ustring}'s (\pagref{USTRING}) are UTF-8 strings
+with two prefix bytes, the first giving the number of UTF-8 characters,
+and the second giving the number of columns these take when printed.
+Only graphic
+characters and single spaces are allowed in the UTF-8 strings.
+The second prefix byte can have either or both of two flags:
+the \TT{min::\EOL USTRING\_\EOL LEADING} flag indicates that when
+printed the UTF-8 string is to be followed by a \TT{min::\EOL leading}
+printer operation, and
+the \TT{min::\EOL USTRING\_\EOL TRAILING} flag indicates that when
+printed the UTF-8 string is to be preceded by a \TT{min::\EOL trailing}
+printer operation.  Note that printing a \TT{NULL} \TT{min::\EOL ustring}
+is a no-operation.
+
+The members of a \TT{min::obj\_format} are:
+
+\begin{itemlist}[0.2in]
+
+\item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+These are the \TT{min::gen\_format}'s used to print the
+object vector elements,
+attribute labels, and attribute values, respectively.
+\underline{None} of these values may be \TT{NULL}.
+
+\item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
+This is the \TT{min::ustring} printed to represent an
+empty object that has no elements and no attributes
+other than \TT{.position}.
+
+\item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+These are the \TT{min::ustring}'s printed to bracket
+object elements and properties in the absence of object
+\TT{.initiator} and \TT{.terminator} attributes.
+In this case \TT{obj\_\EOL bra} followed optionally by the
+object's \TT{.type} and properties followed by
+\TT{obj\_\EOL braend} serves as the opening bracket for
+the object; \TT{obj\_\EOL separator} serves as the
+object element separator in the absence of an object
+\TT{.separator} attribute; and \TT{obj\_\EOL ketbegin}
+followed optionally by the object \TT{.type} and properties
+followed by \TT{obj\_\EOL ket} serves as the closing bracket
+for the object.  See text below for more details.
+
+\item[\ttmkey{obj\_propinit}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{obj\_propeol}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_propsep}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_propneg}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_propeq}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+These are the \TT{min::ustring}'s printed to introduce
+an object property list, separate properties, indicate
+negation of properties whose value is \TT{FALSE}, and
+separator a property label from its value.
+\TT{Obj\_\EOL propbegin} is used to begin a property
+list that is not an indented paragraph, whereas
+\TT{obj\_\EOL propeol} is used just before an end-of-line
+to begin a property list that is an indented
+paragraph.  \TT{Obj\_\EOL propsep} is used to separate
+properties when these are \underline{not} in an indented
+paragraph; \TT{obj\_\EOL propeq} separates a property
+label from the property's value; and \TT{obj\_\EOL propneg}
+is the property label prefix used to indicate a property
+with a \TT{FALSE} value.
+
+\item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\
+This member is only enabled if it
+is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
+\TT{flag\_names[i]} is printed as the representation of
+control flag \TT{1 << i} of an attribute.
+
+WARNING: The \TT{flag\_\EOL names} member of a \TT{min::gen\_format} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+\TT{flag\_\EOL names} will never be garbage collected and
+will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
+\TT{min::\EOL locatable\_\EOL gen} variables.
+
+\end{itemlist}
+
+
 \subsubsection{TBD}
 
 Old stuff to be deleted as it is incorporated elsewhere.
 
-In the above, \ttkey{U"\ldots"} denotes the ASCII character string \TT{"\ldots"}
-converted to a \TT{const min::\EOL Uchar *} vector with initial header
-element: see \pagref{USTRING}.
-
 The {\tt min::gen\_format} members are:
 
 \begin{itemlist}[0.4in]
-
-\item[\ttmkey{pgen}{in {\tt min::gen\_format}}]
-The {\tt pgen} function is called to by {\tt min::pgen} to print
-the general value {\tt v} on the given {\tt printer} using
-the given {\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags}
-and {\tt gen\_\EOL format}.
-The function must return the {\tt printer}.  The description of
-{\tt gen\_\EOL flags}, {\tt context\_\EOL gen\_\EOL flags},
-and {\tt gen\_\EOL format} members in
-this section apply only to {\tt min::\EOL default\_\EOL pgen},
-the default value of this {\tt pgen} member.
-
-\item[\ttmkey{implicit\_prefix}{in {\tt min::gen\_format}}]
-\item[\ttmkey{implicit\_postfix}{in {\tt min::gen\_format}}]\vspace{-2ex}~\\
-These members are only enabled if both the
-{\tt BRACKET\_\EOL IMPLICIT\_\EOL FLAG} and {\tt OBJ\_\EOL EXP\_\EOL FLAG}
-are on and neither of these two members is {\tt NULL}.
-
-The {\tt implicit\_\EOL prefix/postfix} members surround an object being
-printed as an expression per the {\tt OBJ\_\EOL EXP\_\EOL FLAG}, provided that
-the object has \underline{neither}
-an {\tt .initia\-tor} or a {\tt .ter\-min\-ator} attribute.
 
 \item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
 This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
@@ -13658,32 +13775,7 @@ In this case {\tt min::gen} string values that have length greater
 than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
 in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
 
-\item[\ttmkey{exp\_ok\_attrs}{in {\tt min::gen\_format}}]~\\
-This member is only enabled if {\tt OBJ\_\EOL EXP\_\EOL FLAG} is on.
-Then if an object is to be printed that all of whose attributes have
-names that are elements of {\tt exp\_\EOL ok\_\EOL attrs}, that object
-is printed as an expression.  See {\tt OBJ\_\EOL EXP\_\EOL FLAG} below.
 
-WARNING: The {\tt exp\_ok\_attrs} member of a {\tt min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-{\tt exp\_\EOL ok\_\EOL attrs} will never be garbage collected and
-will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
-{\tt min::\EOL locatable\_\EOL gen} variables.
-
-\item[\ttmkey{flag\_names}{in {\tt min::gen\_format}}]
-This member is only enabled if it
-is not {\tt min::\EOL NULL\_\EOL STUB}.
-
-{\tt flag\_names[i]} is printed as the representation of
-control flag {\tt 1 << i} of an attribute.
-
-WARNING: The {\tt flag\_\EOL names} member of a {\tt min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-{\tt flag\_\EOL names} will never be garbage collected and
-will be pointed at by {\tt static min::\EOL locatable\_\EOL var} or
-{\tt min::\EOL locatable\_\EOL gen} variables.
 
 
 
@@ -17580,7 +17672,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
-\verb|TBD                                     // id_map_format|
+\verb|min::id_map_gen_format                  // id_map_format|
 \end{TABULAR}
 
 \bigskip
@@ -17595,7 +17687,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
-\verb|TBD                                     // id_map_format|
+\verb|NULL                                    // id_map_format|
 \end{TABULAR}
 
 \bigskip
@@ -17610,7 +17702,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::name_special_format                // special_format|\ARGBREAK[0in]
 \verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
-\verb|TBD                                     // id_map_format|
+\verb|NULL                                    // id_map_format|
 \end{TABULAR}
 
 \bigskip
@@ -18905,7 +18997,7 @@ These are in \verb|min_parameters.h|.
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
     \verb|  min::gen    value;|\ARGBREAK
-    \verb|  min::gen    flags;|\ARGBREAK
+    \verb|  min::uns64  flags;|\ARGBREAK
     \verb|  min::unsptr value_count;|\ARGBREAK
     \verb|  min::unsptr flag_count;|\ARGBREAK
     \verb|  min::unsptr reverse_attr_count;|\ARGBREAK
