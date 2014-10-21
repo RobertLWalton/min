@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 17, 2014}
+\date{October 21, 2014}
  
 \maketitle
 
@@ -9613,9 +9613,10 @@ prints the \TT{min::gen} value \TT{v} to the
 \TT{printer->\EOL print\_\EOL format.gen\_\EOL format} \\
 \end{center}
 to control the printing.
+
 `\TT{printer\,<<\,v}' can be used as the equivalent of
 `\TT{printer\,<<\,min::pgen(v)}'.
-The following function does the same thing:
+The following function has the same effect:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
@@ -9626,7 +9627,7 @@ The following function does the same thing:
 
 The expression `\TT{printer\,<<\,min::pgen(v,f)}' is similar but
 uses \TT{f} as the \TT{gen\_\EOL format} value.
-The following function does the same thing:
+The following function has the same effect:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
@@ -10272,7 +10273,7 @@ uses the \TT{obj\_\EOL format} element of a
 a \TT{min::\EOL gen\_\EOL format}.
 The \TT{min::\EOL flush\_\EOL id\_\EOL map} printer operation uses
 the \TT{id\_\EOL map\_\EOL format} element of a \TT{min::\EOL gen\_\EOL format}
-to print an object.
+to print a general value, which is most often an object.
 Printing objects is complex and
 its discussion is deferred until \itemref{PRINTING-OBJECT-GENERAL-VALUES},
 after the description of object general values.
@@ -13559,16 +13560,16 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_propinit;|%
-\ttmindex{obj\_propinit}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_propeol;|%
-\ttmindex{obj\_propeol}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_propsep;|%
-\ttmindex{obj\_propsep}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_propneg;|%
-\ttmindex{obj\_propneg}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_propeq;|%
-\ttmindex{obj\_propeq}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attrinit;|%
+\ttmindex{obj\_attrinit}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attreol;|%
+\ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attrsep;|%
+\ttmindex{obj\_attrsep}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attrneg;|%
+\ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attreq;|%
+\ttmindex{obj\_attreq}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13605,11 +13606,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" ": "   // obj_propinit|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" ":"    // obj_propeol|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" ", "   // obj_propsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "no "  // obj_propneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " = "  // obj_propeq|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" ": "   // obj_attrinit|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" ", "   // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13643,11 +13644,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_propinit|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" ":"    // obj_propeol|\ARGBREAK
-\verb|NULL                                     // obj_propsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "no "  // obj_propneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " = "  // obj_propeq|\ARGBREAK
+\verb|NULL                                     // obj_attrinit|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13709,40 +13710,40 @@ other than \TT{.position}.
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]%
 \vspace{-5ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
-object elements and properties in the absence of object
+object elements and attributes in the absence of object
 \TT{.initiator} and \TT{.terminator} attributes.
 In this case \TT{obj\_\EOL bra} followed optionally by the
-object's \TT{.type} and properties followed by
+object's \TT{.type} and attributes followed by
 \TT{obj\_\EOL braend} serves as the opening bracket for
 the object; \TT{obj\_\EOL separator} serves as the
 object element separator in the absence of an object
 \TT{.separator} attribute; and \TT{obj\_\EOL ketbegin}
-followed optionally by the object \TT{.type} and properties
+followed optionally by the object \TT{.type} and attributes
 followed by \TT{obj\_\EOL ket} serves as the closing bracket
 for the object.  See text below for more details.
 
-\item[\ttmkey{obj\_propinit}{in {\tt min::obj\_format}}]~\\
-\item[\ttmkey{obj\_propeol}{in {\tt min::obj\_format}}]%
+\item[\ttmkey{obj\_attrinit}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]%
 \vspace{-5ex}~\\
-\item[\ttmkey{obj\_propsep}{in {\tt min::obj\_format}}]%
+\item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]%
 \vspace{-5ex}~\\
-\item[\ttmkey{obj\_propneg}{in {\tt min::obj\_format}}]%
+\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]%
 \vspace{-5ex}~\\
-\item[\ttmkey{obj\_propeq}{in {\tt min::obj\_format}}]%
+\item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]%
 \vspace{-5ex}~\\
 These are the \TT{min::ustring}'s printed to introduce
-an object property list, separate properties, indicate
-negation of properties whose value is \TT{FALSE}, and
-separator a property label from its value.
-\TT{Obj\_\EOL propbegin} is used to begin a property
+an object attribute list, separate attributes, indicate
+negation of attributes whose value is \TT{FALSE}, and
+separator an attribute label from its value.
+\TT{Obj\_\EOL attrbegin} is used to begin an attribute
 list that is not an indented paragraph, whereas
-\TT{obj\_\EOL propeol} is used just before an end-of-line
-to begin a property list that is an indented
-paragraph.  \TT{Obj\_\EOL propsep} is used to separate
-properties when these are \underline{not} in an indented
-paragraph; \TT{obj\_\EOL propeq} separates a property
-label from the property's value; and \TT{obj\_\EOL propneg}
-is the property label prefix used to indicate a property
+\TT{obj\_\EOL attreol} is used just before an end-of-line
+to begin an attribute list that is an indented
+paragraph.  \TT{Obj\_\EOL attrsep} is used to separate
+attributes when these are \underline{not} in an indented
+paragraph; \TT{obj\_\EOL attreq} separates an attribute
+label from the attribute's value; and \TT{obj\_\EOL attrneg}
+is the attribute label prefix used to indicate an attribute
 with a \TT{FALSE} value.
 
 \item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\

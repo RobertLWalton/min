@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 17 01:14:06 EDT 2014
+// Date:	Tue Oct 21 07:56:42 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11503,11 +11503,11 @@ namespace min {
 	const min::ustring *   	    obj_ketbegin;
 	const min::ustring *   	    obj_ket;
 
-	const min::ustring *   	    obj_propbegin;
-	const min::ustring *   	    obj_propeol;
-	const min::ustring *   	    obj_propsep;
-	const min::ustring *   	    obj_propneg;
-	const min::ustring *   	    obj_propeq;
+	const min::ustring *   	    obj_attrbegin;
+	const min::ustring *   	    obj_attreol;
+	const min::ustring *   	    obj_attrsep;
+	const min::ustring *   	    obj_attrneg;
+	const min::ustring *   	    obj_attreq;
 
 	packed_vec_ptr<const char *>
 	                   	    flag_names;
