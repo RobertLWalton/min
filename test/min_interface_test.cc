@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 13 15:16:14 EDT 2014
+// Date:	Tue Oct 21 07:59:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4526,9 +4526,7 @@ void test_object_printing ( void )
 	vp[1] = min::new_str_gen ( "B" );
 	vp[2] = min::new_str_gen ( "C" );
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen type =
-	    min::new_lab_gen ( ".", "type" );
-	min::locate ( ap, type );
+	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::new_str_gen ( "T" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
@@ -4560,11 +4558,11 @@ void test_object_printing ( void )
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
-	min::locatable_gen myprop =
-	    min::new_str_gen ( "myprop" );
-	min::locate ( ap, myprop );
+	min::locatable_gen myattr =
+	    min::new_str_gen ( "myattr" );
+	min::locate ( ap, myattr );
 	min::set ( ap, min::new_lab_gen
-	                   ( "MY", "PROP", "VALUE" ) );
+	                   ( "MY", "ATTR", "VALUE" ) );
     }
     printer << min::pgen ( obj ) << min::eol;
     min::print_id ( printer, obj );

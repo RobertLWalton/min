@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 17 01:16:29 EDT 2014
+// Date:	Tue Oct 21 07:57:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9259,15 +9259,15 @@ static min::obj_format exp_obj_format =
         "\x01\x81" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x02\x82" ": ",    // obj_propbegin
+        "\x02\x82" ": ",    // obj_attrbegin
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_propeol
+        "\x01\x81" ":",     // obj_attreol
     (const min::ustring *)
-        "\x02\x82" ", ",    // obj_propsep
+        "\x02\x82" ", ",    // obj_attrsep
     (const min::ustring *)
-        "\x03\x03" "no ",   // obj_propneg
+        "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
-        "\x03\x03" " = ",   // obj_propeq
+        "\x03\x03" " = ",   // obj_attreq
 
     min::NULL_STUB	    // flag_names*
 };
@@ -9292,14 +9292,14 @@ static min::obj_format id_map_obj_format =
     NULL,		    // obj_ketbegin
     NULL,		    // obj_ket
 
-    NULL,		    // obj_propbegin
+    NULL,		    // obj_attrbegin
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_propeol
-    NULL,		    // obj_propsep
+        "\x01\x81" ":",     // obj_attreol
+    NULL,		    // obj_attrsep
     (const min::ustring *)
-        "\x03\x03" "no ",   // obj_propneg
+        "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
-        "\x03\x03" " = ",   // obj_propeq
+        "\x03\x03" " = ",   // obj_attreq
 
     min::NULL_STUB	    // flag_names*
 };
@@ -9446,7 +9446,7 @@ min::printer min::print_id
     return printer << "@" << id;
 }
 
-static void print_properties
+static void print_attributes
 	( min::printer printer, 
 	  min::obj_vec_ptr & vp,
 	  min::attr_ptr & ap,
@@ -9489,14 +9489,14 @@ static void print_properties
 	    if ( line_format )
 	    {
 	        printer << min::pustring
-			       ( objf->obj_propeol )
+			       ( objf->obj_attreol )
 			<< min::eol << min::indent
 			<< min::adjust_indent
 			      ( adjust );
 	    }
 	    else
 		printer << min::pustring
-			       ( objf->obj_propbegin )
+			       ( objf->obj_attrbegin )
 		        << min::save_indent;
 	}
 	else
@@ -9510,7 +9510,7 @@ static void print_properties
 	    else
 	    {
 		min::print_ustring
-		    ( printer, objf->obj_propsep );
+		    ( printer, objf->obj_attrsep );
 		printer << min::set_break;
 	    }
 	}
@@ -9523,7 +9523,7 @@ static void print_properties
 	{
 	    if ( info[i].value == min::FALSE )
 		min::print_ustring
-		    ( printer, objf->obj_propneg );
+		    ( printer, objf->obj_attrneg );
 	    else if ( info[i].value != min::TRUE )
 		suppress_value = false;
 	}
@@ -9535,7 +9535,7 @@ static void print_properties
 	if ( suppress_value ) continue;
 
 	min::print_ustring
-	    ( printer, objf->obj_propeq );
+	    ( printer, objf->obj_attreq );
 	printer << min::set_break;
 
 	// TBD handle value sets and reverse labels
@@ -9584,8 +9584,8 @@ min::printer min::print_obj
     min::gen type = min::NONE();
 
     bool long_format = ( objf->obj_bra == NULL );
-    bool properties_after_elements =
-        long_format || ( objf->obj_propsep == NULL );
+    bool attributes_after_elements =
+        long_format || ( objf->obj_attrsep == NULL );
 
     // If not long_format, loop until we determine
     // compact_ok is false AND we have found type.
@@ -9671,7 +9671,7 @@ min::printer min::print_obj
 	    ( printer, type != min::NONE() ?
 	               type : min::empty_string,
 		       objf->label_format );
-        ::print_properties
+        ::print_attributes
 	    ( printer, vp, ap, info, m,
 	      separator, type, objf, false );
     }
@@ -9722,7 +9722,7 @@ min::printer min::print_obj
     if ( ! first ) printer << min::restore_indent;
 
     if ( long_format )
-        ::print_properties
+        ::print_attributes
 	    ( printer, vp, ap, info, m,
 	      separator, type, objf, true );
 
