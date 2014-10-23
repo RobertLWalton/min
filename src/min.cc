@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 22 20:31:01 EDT 2014
+// Date:	Thu Oct 23 08:39:18 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1088,6 +1088,7 @@ static void init_standard_char_flags ( void )
     for ( unsigned i = 0;
           i < min::unicode::index_limit; ++ i )
     { 
+	const char * cat = min::unicode::category[i];
 	min::uns32 flags;
 
 	if ( i <= 0xFF )
@@ -1111,8 +1112,8 @@ static void init_standard_char_flags ( void )
 	    case '[':
 	    case '{':
 	    case '`':
-	    case 0xA8:	flags = min::IS_LEADING;
-	    		break;
+	    case 0xAB:	flags = min::IS_LEADING;
+	    		break; // Left Angle Quote
 	    
 	    case ')':
 	    case ']':
@@ -1120,9 +1121,11 @@ static void init_standard_char_flags ( void )
 	    case '\'':
 	    case ',':
 	    case ';':
-	    case 0xB8:
-	    case 0xB4:	flags = min::IS_TRAILING;
-	    		break;
+	    case ':':
+	    case '!':
+	    case '?':
+	    case 0xBB:	flags = min::IS_TRAILING;
+	    		break; // Right Angle Quote,
 
 	    case '.':	flags = min::IS_TRAILING
 	                      + min::QUOTE_SKIP;
@@ -1149,7 +1152,7 @@ static void init_standard_char_flags ( void )
 	        else if ( 0x7F <= c && c <= 0x9F  )
 		    flags = min::IS_OTHER_CONTROL
 			  + min::IS_NON_SPACING;
-		else if ( isalpha ( c ) )
+		else if ( cat != NULL && cat[0] == 'L' )
 		    flags = min::IS_MIDDLING
 		          + min::QUOTE_SUPPRESS;
 		else
@@ -1158,8 +1161,6 @@ static void init_standard_char_flags ( void )
 	}
 	else
 	{
-	    const char * cat =
-	        min::unicode::category[i];
 	    if ( cat == NULL )
 	        flags = min::IS_UNSUPPORTED;
 	    else if ( cat[0] == 'L' )
@@ -8438,6 +8439,8 @@ min::printer MINT::print_unicode
 		min::uns32 cflags = char_flags[cindex];
 		if ( ( cflags & sc.support_mask ) == 0 )
 		    cflags = sc.unsupported_char_flags;
+		if ( ( cflags & min::IS_GRAPHIC ) == 0 )
+		    break;
 		sflags &= cflags;
 	    }
 	    flags ^= sflags;
@@ -9295,11 +9298,11 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x41" "{",     // obj_bra
     (const min::ustring *)
-        "\x01\x41" "|",     // obj_braend
+        "\x01\x81" "|",     // obj_braend
     (const min::ustring *)
         "\x01\x01" " ",     // obj_separator
     (const min::ustring *)
-        "\x01\x81" "|",     // obj_ketbegin
+        "\x01\x41" "|",     // obj_ketbegin
     (const min::ustring *)
         "\x01\x81" "}",     // obj_ket
 

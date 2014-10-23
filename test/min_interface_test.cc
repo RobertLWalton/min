@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 21 07:59:38 EDT 2014
+// Date:	Thu Oct 23 00:26:06 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4531,6 +4531,10 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( "T" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
+    printer << min::disable_suppress
+            << min::pgen ( obj3 )
+	    << min::nodisable_suppress
+	    << min::eol;
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -4541,6 +4545,10 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_num_gen ( 123 ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
+    printer << min::disable_suppress
+            << min::pgen ( obj3 )
+	    << min::nodisable_suppress
+	    << min::eol;
 
     {
 	min::obj_vec_insptr vp ( obj3 );
