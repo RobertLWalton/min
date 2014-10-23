@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 21 07:56:42 EDT 2014
+// Date:	Wed Oct 22 07:06:17 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10799,10 +10799,19 @@ namespace min {
     //
     enum {
         BREAK_AFTER		= ( 1 << 0 ),
+	    // Set a break before the NEXT character
+	    // (i.e., a break after the last character)
+	    // UNLESS the next character is also a
+	    // break-after character.
+
         LEADING_STATE		= ( 1 << 1 ),
         TRAILING_STATE		= ( 1 << 2 ),
+
         AFTER_LEADING		= ( 1 << 3 ),
         AFTER_TRAILING		= ( 1 << 4 )
+	    // We are immediately after a min::leading
+	    // or min::trailing that did NOT output a
+	    // single space.
     };
 
     struct printer_struct
