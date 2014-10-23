@@ -4473,6 +4473,7 @@ void test_object_printing ( void )
     min_assert_print = false;
 
     min::gen obj = min::new_obj_gen ( 5, 5 );
+
     printer << min::pgen ( obj ) << min::eol;
 
     {

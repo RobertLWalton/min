@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 21 07:57:26 EDT 2014
+// Date:	Wed Oct 22 20:31:01 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8401,6 +8401,51 @@ min::printer MINT::print_unicode
         // This prevents repeated checks for an enabled
 	// line break that does not exist.
 
+    min::uns32 flags = printer->state;
+    if (   flags
+         & ( min::AFTER_LEADING | min::AFTER_TRAILING )
+       )
+    {
+        printer->state &=
+            ~ (   min::AFTER_LEADING
+	        | min::AFTER_TRAILING );
+	flags = ( flags & min::AFTER_LEADING ?
+	          min::IS_LEADING : min::IS_TRAILING );
+
+        min::Uchar c = * p;
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
+
+	if (   printer->print_format.op_flags
+	     & min::DISABLE_SUPPRESS )
+	    flags = 0;
+	else if ( ( cflags & min::IS_GRAPHIC ) == 0 )
+	    flags = 0;
+	else if ( flags & min::IS_LEADING
+	          &&
+	          cflags & min::IS_MIDDLING )
+	    flags = 0;
+	else if ( flags & cflags )
+	{
+	    min::uns32 sflags = flags;
+	    for ( min::unsptr m = 1;
+	          sflags != 0 && m < n; ++ m )
+	    {
+		min::Uchar c = p[m];
+		min::uns16 cindex = min::Uindex ( c );
+		min::uns32 cflags = char_flags[cindex];
+		if ( ( cflags & sc.support_mask ) == 0 )
+		    cflags = sc.unsupported_char_flags;
+		sflags &= cflags;
+	    }
+	    flags ^= sflags;
+	}
+
+	if ( flags ) min::print_spaces ( printer );
+    }
+
     bool rep_is_space;
     printer->and_ed_char_flags = min::IS_LEADING
                                + min::IS_TRAILING;
@@ -9250,11 +9295,11 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x41" "{",     // obj_bra
     (const min::ustring *)
-        "\x01\x81" "|",     // obj_braend
+        "\x01\x41" "|",     // obj_braend
     (const min::ustring *)
         "\x01\x01" " ",     // obj_separator
     (const min::ustring *)
-        "\x01\x41" "|",     // obj_ketbegin
+        "\x01\x81" "|",     // obj_ketbegin
     (const min::ustring *)
         "\x01\x81" "}",     // obj_ket
 
