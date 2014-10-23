@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 21, 2014}
+\date{October 23, 2014}
  
 \maketitle
 
@@ -3720,9 +3720,35 @@ used for some printer functions, like controlling how the character
 displays or breaks are inserted, so flags relevant to these functions
 need to be in the low order 16 bits.
 
+For \TT{min::standard\_char\_flags} graphic characters are given
+the following flags:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_LEADING}: & \TT{\{}~~~\TT{(}~~~\TT{[}~~~\TT{`}%
+			 ~~~\TT{\guillemotleft}%
+                         ~~~\TT{\textexclamdown}%
+                         ~~~\TT{\textquestiondown} \\
+\ttkey{min::IS\_TRAILING}: & \TT{\}}~~~\TT{)}~~~\TT{]}~~~\TT{'}%
+			 ~~~\TT{\guillemotright}%
+			 ~~~\TT{!}~~~\TT{?}%
+			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:} \\
+\ttkey{min::IS\_MIDDLING}: & other graphic characters \\
+\end{tabular}
+\end{indpar}
+
+Other flags give to graphic characters are:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::CONDITIONAL\_BREAK}: & \TT{-}~~~\TT{\_}~~~\TT{\%} \\
+\ttkey{min::QUOTE\_SKIP}: & \TT{.} \\
+\ttkey{min::QUOTE\_SUPPRESS}: & all letters \\
+\end{tabular}
+\end{indpar}
 
 
-\begin{boxedfigure}
+\begin{boxedfigure}[p]
 \begin{tabular}{llll}
 & Hex & Multi-Key \\
 & Code & Sequence
@@ -3796,7 +3822,7 @@ need to be in the low order 16 bits.
 \label{LATIN1-CHARACTERS-I}
 \end{boxedfigure}
 
-\begin{boxedfigure}
+\begin{boxedfigure}[p]
 \begin{tabular}{llll}
 & Hex & Multi-Key \\
 & Code & Sequence
