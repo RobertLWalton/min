@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 24 01:54:58 EDT 2014
+// Date:	Fri Oct 24 03:20:05 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8408,6 +8408,9 @@ min::printer MINT::print_unicode
          & ( min::AFTER_LEADING | min::AFTER_TRAILING )
        )
     {
+        // NOTE: If DISABLE_SUPPRESS is on we should
+	// never come here.
+
         printer->state &=
             ~ (   min::AFTER_LEADING
 	        | min::AFTER_TRAILING );
@@ -8420,10 +8423,7 @@ min::printer MINT::print_unicode
 	if ( ( cflags & sc.support_mask ) == 0 )
 	    cflags = sc.unsupported_char_flags;
 
-	if (   printer->print_format.op_flags
-	     & min::DISABLE_SUPPRESS )
-	    flags = 0;
-	else if ( ( cflags & min::IS_GRAPHIC ) == 0 )
+	if ( cflags & min::IS_NON_GRAPHIC )
 	    flags = 0;
 	else if ( flags & min::IS_LEADING
 	          &&
@@ -8440,7 +8440,7 @@ min::printer MINT::print_unicode
 		min::uns32 cflags = char_flags[cindex];
 		if ( ( cflags & sc.support_mask ) == 0 )
 		    cflags = sc.unsupported_char_flags;
-		if ( ( cflags & min::IS_GRAPHIC ) == 0 )
+		if ( cflags & min::IS_NON_GRAPHIC )
 		    break;
 		sflags &= cflags;
 	    }
@@ -8571,7 +8571,11 @@ min::printer MINT::print_unicode
 	n -= clength;
 	p = p + clength;
 	printer->last_char_flags = cflags;
-	printer->and_ed_char_flags &= cflags;
+	if ( cflags & min::IS_GRAPHIC )
+	    printer->and_ed_char_flags &= cflags;
+	else
+	    printer->and_ed_char_flags = min::IS_LEADING
+				       + min::IS_TRAILING;
 
 	if ( columns > 0 )
 	{
@@ -8627,7 +8631,8 @@ min::printer MINT::print_unicode
 
     }
 
-    if ( rep_is_space )
+    if (   printer->last_char_flags
+         & min::IS_NON_GRAPHIC )
 	printer->state |= min::LEADING_STATE
 			+ min::TRAILING_STATE;
     else if (   printer->last_char_flags

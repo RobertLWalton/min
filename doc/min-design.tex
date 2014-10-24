@@ -9102,7 +9102,7 @@ are removed from the beginning of the proto-lexeme,
 and comma are removed from the end of the proto-lexeme,
 and anything left over of the proto-lexeme is designated to be a
 `\key{middle lexeme}'.  So the proto-lexeme \TT{\$10,000,} translates
-to the three lexemes TT{\$}, \TT{10,000}, and comma (\TT{,}).  Note
+to the three lexemes \TT{\$}, \TT{10,000}, and comma (\TT{,}).  Note
 that the first comma is part of the middle lexeme and the last is
 a trailing separator by itself.
 
@@ -9118,7 +9118,7 @@ may be trailing.  But maybe not.
 
 You can do this with the code
 \begin{center}
-\verb|printer << "$" << min::leading << "10,000" << min::trailing ",";|
+\verb|printer << "$" << min::leading << "10,000" << min::trailing << ",";|
 \end{center}
 
 Here we have used the printer operations:
@@ -9157,14 +9157,16 @@ in which there are \underline{two} spaces.
 
 So how to we compute the context?
 
-First, we classify characters into leading, trailing, middling, or other
+First, we classify graphic characters into leading, trailing, or middling
 using the character flags:
 \begin{center}
 \TT{min::IS\_LEADING ~~~~~ min::IS\_TRAILING ~~~~~ min::IS\_MIDDLING}
 \end{center}
+Characters that have none of these flags are non-graphic.
 See \pagref{LEADING/MIDDLING/TRAILING-CHAR-FLAGS} for details.
 
-Then we classify each string as `\mkey{leading}{string}' if it contains only
+Then we classify a string of graphic characters
+as `\mkey{leading}{string}' if it contains only
 \TT{IS\_\EOL LEADING} characters, `\mkey{trailing}{string}' if it contains
 only \TT{IS\_\EOL TRAILING} characters, and `other'.  Note there
 are no middling strings.
@@ -9173,22 +9175,33 @@ Now the rough idea of \TT{min::leading}
 is that it will output a space \underline{unless}
 it is part of a sequence of leading strings each followed by an
 \TT{min::leading} operation, with the sequence being
-prefaced by whitespace and followed
-by either whitespace or a middling character.
+prefaced by a non-graphic character (e.g., whitespace)
+or line beginning and followed
+by either a non-graphic or middling character, or a line end.
 
 Similarly the rough idea of \TT{min::trailing}
 is that it will output a space \underline{unless}
 it is part of a sequence of trailing strings each preceeded by a
 \TT{min::trailing} operation, with the sequence
-being followed by whitespace and preceded
-by either whitespace or a middling character.
+being followed by a non-graphic character or line end and preceded
+by either a non-graphic or middling character or a line beginning.
 
 In the above examples these ideas succeed because
 \TT{\$} and \TT{(} have the \TT{IS\_\EOL LEADING} flag,
 comma and \TT{)} have the \TT{IS\_\EOL TRAILING} flag,
 while \TT{\#}, \TT{+}, and digits have the \TT{IS\_\EOL MIDDLING} flag.
 
-The precise implementation is as follows.
+To make this precise
+we define a \key{maximal graphic substring} of a string being output to be
+a non-empty substring of graphic characters that cannot be made
+larger; that is, it is proceeded by either the beginning of its
+containing string or by a non-graphic character, and is similarly
+followed by either the end of its containing string or by a
+non-graphic character.  We will refer to maximal graphic substrings
+that either end or begin a string being printed, and to whether
+these are leading or trailing graphic substrings.
+
+Then our precise implementation is as follows.
 
 The printer may or may not be in the leading state according to whether
 the \TT{min::\EOL LEADING\_\EOL STATE} printer operation flag is set or not.
@@ -9196,17 +9209,18 @@ The rules regarding leading state are:
 \begin{enumerate}
 \item The printer is initially in the leading state.
 \item The \TT{min::eol} operation enters the leading state.
-\item Outputting a single space or horizontal tab enters the leading state.
-(This does not apply to outputting a picture or name of these characters.)
-\item Outputting a non-leading string that does not end in
-a single space or horizontal tab leaves the leading state.
+\item Outputting a non-graphic character (e.g., whitespace)
+enters the leading state.
+This also applies to outputting a picture or name of these characters.
+\item Outputting a string that ends with a maximal graphic substring that
+is \underline{not} leading leaves the leading state.
 \item \TT{min::leading} outputs a single space unless the printer
 is in the leading state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
 printer operation flag is off, and the next thing output is one of:
 \begin{enumerate}
-\item a leading string
+\item a string beginning with a maximal leading graphic substring
 \item a string beginning with a middling character
-\item a string beginning with a single space or horizontal tab character
+\item a string beginning with a non-graphic character
 \item the \TT{min::eol} operation or equivalent
 \end{enumerate}
 \end{enumerate}
@@ -9223,18 +9237,20 @@ The rules regarding trailing state are:
 \begin{enumerate}
 \item The printer is initially in the trailing state.
 \item The \TT{min::eol} operation enters the trailing state.
-\item Outputting a single space or horizontal tab enters the trailing state.
-(This does not apply to outputting a picture or name of these characters.)
+\item Outputting a non-graphic character (e.g., whitespace)
+enters the trailing state.
+This also applies to outputting a picture or name of these characters.
 \item Outputting a string that ends in a middling character enters
 the trailing state.
-\item Outputting a non-trailing string that does not end in a middling
-character, single space, or horizontal tab leaves the trailing state.
+\item Outputting a string that ends with a maximal graphic substring that
+is \underline{not} trailing and does not end with a middling
+character leaves the trailing state.
 \item \TT{min::trailing} outputs a single space unless the printer
 is in the trailing state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
 printer operation flag is off, and the next thing output is one of:
 \begin{enumerate}
-\item a trailing string
-\item a string beginning with a single space or horizontal tab character
+\item a string beginning with a maximal trailing graphic substring
+\item a string beginning with a non-graphic character
 \item the \TT{min::eol} operation or equivalent
 \end{enumerate}
 \end{enumerate}
@@ -13640,9 +13656,9 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x81" "|"    // obj_braend$\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x41" "|"    // obj_ketbegin$\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
