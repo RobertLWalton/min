@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 23 20:52:07 EDT 2014
+// Date:	Fri Oct 24 01:54:58 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1112,8 +1112,11 @@ static void init_standard_char_flags ( void )
 	    case '[':
 	    case '{':
 	    case '`':
-	    case 0xAB:	flags = min::IS_LEADING;
-	    		break; // Left Angle Quote
+	    case 0xA1:  // Inverted !
+	    case 0xAB:	// Left Angle Quote <<
+	    case 0xBF:	// Inverted ?
+	    		flags = min::IS_LEADING;
+	    		break;
 	    
 	    case ')':
 	    case ']':
@@ -1124,8 +1127,9 @@ static void init_standard_char_flags ( void )
 	    case ':':
 	    case '!':
 	    case '?':
-	    case 0xBB:	flags = min::IS_TRAILING;
-	    		break; // Right Angle Quote,
+	    case 0xBB:	// Right Angle Quote >>
+	    		flags = min::IS_TRAILING;
+	    		break;  // Inverted ! and ?
 
 	    case '.':	flags = min::IS_TRAILING
 	                      + min::QUOTE_SKIP;
@@ -1137,13 +1141,10 @@ static void init_standard_char_flags ( void )
 	    		      + min::CONDITIONAL_BREAK;
 	    		break;
 
-	    case 0xA1:
-	    case 0xBF:	flags = min::IS_LEADING;
-	    		break;  // Inverted ! and ?
-
-	    case 0xAD:	flags = min::IS_OTHER_CONTROL
+	    case 0xAD:	// Soft Hypen - (SHY)
+	    		flags = min::IS_OTHER_CONTROL
 	                      + min::IS_NON_SPACING;
-	    		break;  // SHY
+	    		break;
 
 	    default:
 	        if ( c <= 0x1F )
