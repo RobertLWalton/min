@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 23, 2014}
+\date{October 24, 2014}
  
 \maketitle
 
@@ -3533,6 +3533,8 @@ The standard character flags are
 \LABEL{MIN::CONDITIONAL_BREAK} \\
 \verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
 \LABEL{MIN::QUOTE_SUPPRESS} \\
+\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SKIP}
+\LABEL{MIN::QUOTE_SKIP} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3635,6 +3637,23 @@ and the trailing separator lexeme \TT{;}, and therefore
 \TT{;} is \TT{IS\_TRAILING}.  See 
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
+The specific assignment of these flags encoded in
+\TT{min::standard\_char\_flags} is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_LEADING}: & \TT{\{}~~~\TT{(}~~~\TT{[}~~~\TT{`}%
+			 ~~~\TT{\guillemotleft}%
+                         ~~~\TT{\textexclamdown}%
+                         ~~~\TT{\textquestiondown} \\
+\ttkey{min::IS\_TRAILING}: & \TT{\}}~~~\TT{)}~~~\TT{]}~~~\TT{'}%
+			 ~~~\TT{\guillemotright}%
+			 ~~~\TT{!}~~~\TT{?}%
+			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:} \\
+\ttkey{min::IS\_MIDDLING}: & other graphic characters \\
+\end{tabular}
+\end{indpar}
+
 Horizontal space characters get one of the
 \TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
 \minindex{IS\_SP}%
@@ -3663,16 +3682,33 @@ All characters not given one of the above flags get the
 is not supported by keyboard input and/or hardware printers,
 and ideally, the character should not be used.
 
-The next two flags are used in conjuction with printer format
+The next three flags are used in conjuction with printer format
 masks to perform special printer functions.
 The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
 can be followed by a line break, such as \TT{-} and \TT{\_}.
 See \pagref{CONDITIONAL-BREAK}.
-The \minkey{QUOTE\_\EOL SUPPRESS} flag marks characters that
-suppress quoting strings if they are the first character of
-the string; currently letters are given this flag.
+The \minkey{QUOTE\_\EOL SUPPRESS}
+and \minkey{QUOTE\_\EOL SKIP} flags mark characters that
+suppress quoting a string if they appear at the beginning
+of the string; specifically, the string is \underline{not}
+quoted if it begins with zero or more \TT{QUOTE\_\EOL SKIP}
+characters (such at `\TT{.}')
+followed by a single \TT{QUOTE\_\EOL SUPPRESS}
+character (such as any letter).
 See \TT{quote\_\EOL control.unquote\_\EOL if\_\EOL first}
+and \TT{quote\_\EOL control.unquote\_\EOL skip}
 on \pagref{UNQUOTE_IF_FIRST}.\label{QUOTE-SUPPRESS}
+
+The specific assignment of these flags encoded in
+\TT{min::standard\_char\_flags} is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::CONDITIONAL\_BREAK}: & \TT{-}~~~\TT{\_}~~~\TT{\%} \\
+\ttkey{min::QUOTE\_SUPPRESS}: & all letters \\
+\ttkey{min::QUOTE\_SKIP}: & \TT{.} \\
+\end{tabular}
+\end{indpar}
 
 The last two flags are used in conjunction with printer format
 masks to dynamically control which characters are supported.
@@ -3719,33 +3755,6 @@ Only the low order 16 bits of a 32 bit character flags value are
 used for some printer functions, like controlling how the character
 displays or breaks are inserted, so flags relevant to these functions
 need to be in the low order 16 bits.
-
-For \TT{min::standard\_char\_flags} graphic characters are given
-the following flags:
-
-\begin{indpar}
-\begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_LEADING}: & \TT{\{}~~~\TT{(}~~~\TT{[}~~~\TT{`}%
-			 ~~~\TT{\guillemotleft}%
-                         ~~~\TT{\textexclamdown}%
-                         ~~~\TT{\textquestiondown} \\
-\ttkey{min::IS\_TRAILING}: & \TT{\}}~~~\TT{)}~~~\TT{]}~~~\TT{'}%
-			 ~~~\TT{\guillemotright}%
-			 ~~~\TT{!}~~~\TT{?}%
-			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:} \\
-\ttkey{min::IS\_MIDDLING}: & other graphic characters \\
-\end{tabular}
-\end{indpar}
-
-Other flags give to graphic characters are:
-
-\begin{indpar}
-\begin{tabular}{l@{~~~~~}l}
-\ttkey{min::CONDITIONAL\_BREAK}: & \TT{-}~~~\TT{\_}~~~\TT{\%} \\
-\ttkey{min::QUOTE\_SKIP}: & \TT{.} \\
-\ttkey{min::QUOTE\_SUPPRESS}: & all letters \\
-\end{tabular}
-\end{indpar}
 
 
 \begin{boxedfigure}[p]
@@ -9972,9 +9981,11 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{quote\_control}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32    unquote_of_first;|%
+    \verb|  min::uns32    unquote_if_first;|%
 \ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_of_none_of;|%
+    \verb|  min::uns32    unquote_skip;|%
+\ttmindex{unquote\_skip}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    unquote_if_none_of;|%
 \ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::QUOTE_CONTROL}
@@ -9985,6 +9996,7 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt const min::quote\_control
                    min::\MINKEY{quote\_all\_control}:}\ARGBREAK
 \verb|0                          // unquote_if_first|\ARGBREAK
+\verb|0                          // unquote_skip|\ARGBREAK
 \verb|0                          // unquote_if_none_of|
 \LABEL{MIN::QUOTE_ALL_CONTROL}
 \end{tabular}\end{indpar}
@@ -9993,6 +10005,7 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt const min::quote\_control
 		   min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
 \verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
+\verb|min::QUOTE_SKIP            // unquote_skip|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}
 \end{tabular}\end{indpar}
@@ -10001,6 +10014,7 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt const min::quote\_control
 		   min::\MINKEY{quote\_non\_graphic\_control}:}\ARGBREAK
 \verb|0                          // unquote_if_first|\ARGBREAK
+\verb|0                          // unquote_skip|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}
 \end{tabular}\end{indpar}
@@ -10063,11 +10077,12 @@ any functions that might allocate or relocate objects, so \TT{str}
 A \TT{min::quote\_control} value \TT{qc} determines whether a string will
 be quoted as follows.  If any character in the string has a character
 flag that is in \TT{qc.unquote\_\EOL if\_\EOL none\_\EOL of}, the
-string is quoted.  Otherwise if the first character of the string
-has a flag that is in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
-is not quoted, and if not, the string is quoted.%
+string is quoted.  Otherwise if string begins with zero or more characters
+each with a flag in \TT{qc.unquote\_\EOL skip}, followed by a single
+character with a flag in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
+is \underline{not} quoted; otherwise the string is quoted.%
 \label{UNQUOTE_IF_FIRST}  See the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
-flag on \pagref{QUOTE-SUPPRESS}.
+and \TT{min::\EOL QUOTE\_\EOL SKIP} flags on \pagref{QUOTE-SUPPRESS}.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
 determines how the string is quoted.  The quoted string is preceeded
@@ -15293,6 +15308,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::CONDITIONAL_BREAK} \\
 \verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
 \LABEL{MIN::QUOTE_SUPPRESS} \\
+\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SKIP}
+\LABEL{MIN::QUOTE_SKIP} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17882,9 +17899,11 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{quote\_control}}
 \LABEL{MIN::QUOTE_CONTROL}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32    unquote_of_first;|%
+    \verb|  min::uns32    unquote_if_first;|%
 \ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_of_none_of;|%
+    \verb|  min::uns32    unquote_skip;|%
+\ttmindex{unquote\_skip}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    unquote_if_none_of;|%
 \ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
@@ -17896,6 +17915,7 @@ These are in \verb|min_parameters.h|.
                    min::~{quote\_all\_control}:}
 \LABEL{MIN::QUOTE_ALL_CONTROL}\ARGBREAK
 \verb|0                          // unquote_if_first|\ARGBREAK
+\verb|0                          // unquote_skip|\ARGBREAK
 \verb|0                          // unquote_if_none_of|
 \end{TABULAR}
 
@@ -17906,6 +17926,7 @@ These are in \verb|min_parameters.h|.
 		   min::~{quote\_first\_not\_letter\_control}:}
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}\ARGBREAK
 \verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
+\verb|min::QUOTE_SKIP            // unquote_skip|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \end{TABULAR}
 
@@ -17916,6 +17937,7 @@ These are in \verb|min_parameters.h|.
 		   min::~{quote\_non\_graphic\_control}:}
 \LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}\ARGBREAK
 \verb|0                          // unquote_if_first|\ARGBREAK
+\verb|0                          // unquote_skip|\ARGBREAK
 \verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
 \end{TABULAR}
 
