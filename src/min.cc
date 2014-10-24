@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 23 08:39:18 EDT 2014
+// Date:	Thu Oct 23 20:52:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9298,11 +9298,11 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x41" "{",     // obj_bra
     (const min::ustring *)
-        "\x01\x81" "|",     // obj_braend
+        "\x01\x01" "|",     // obj_braend
     (const min::ustring *)
         "\x01\x01" " ",     // obj_separator
     (const min::ustring *)
-        "\x01\x41" "|",     // obj_ketbegin
+        "\x01\x01" "|",     // obj_ketbegin
     (const min::ustring *)
         "\x01\x81" "}",     // obj_ket
 
