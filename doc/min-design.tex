@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 24, 2014}
+\date{October 25, 2014}
  
 \maketitle
 
@@ -13630,6 +13630,17 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  const min::ustring *                 obj_valbegin;|%
+\ttmindex{obj\_valbegin}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_valsep;|%
+\ttmindex{obj\_valsep}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_valend;|%
+\ttmindex{obj\_valend}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_valreq;|%
+\ttmindex{obj\_valreq}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    flag_names;|%
 \ttmindex{flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
@@ -13671,6 +13682,13 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_flag_names                 // flag_names|\ARGBREAK
 \LABEL{MIN::EXP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
@@ -13706,6 +13724,13 @@ The format for printing object \TT{min::gen} values is:
 \verb|NULL                                     // obj_attrsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13802,6 +13827,20 @@ paragraph; \TT{obj\_\EOL attreq} separates an attribute
 label from the attribute's value; and \TT{obj\_\EOL attrneg}
 is the attribute label prefix used to indicate an attribute
 with a \TT{FALSE} value.
+
+\item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+\item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]%
+\vspace{-5ex}~\\
+These are the \TT{min::ustring}'s printed to surround and
+separate values of an attribute that has more than one
+value.
+
+\item[\ttmkey{obj\_valreq}{in {\tt min::obj\_format}}]%
+This is a \TT{min::ustring} printed to separate a reverse
+attribute value or list of reverse attribute values from
+their reverse attribute label, which follows this \TT{min::ustring}.
 
 \item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it

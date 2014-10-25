@@ -24,16 +24,6 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -464,7 +454,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 38
+initial stubs allocated = 17
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -4142,6 +4132,30 @@ min_interface_test.cc:XXXX assert:
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
+
+Start Object Printing Test!
+
+{}
+{| 1 2 3 |}
+{* 1, 2, 3, 4, 5 *}
+[ {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *};
+  {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *} ]
+{T| A B C |}
+{ T| A B C | }
+{T: number = 123| A B C |}
+{ T : number = 123| A B C | }
+{T: no scientific, number = 123, fraction| A B C |}
+{"": myattr = [: MY ATTR VALUE :], .initiator = "{*", .terminator =
+     "*}"| 1, 2, 3, 4, 5 |}
+@1
+@1 = 1 2 3 4 5:
+     myattr = [: MY ATTR VALUE :]
+     .initiator = "{*"
+     .separator = ","
+     .terminator = "*}"
+
+
+Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 

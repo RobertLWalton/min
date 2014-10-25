@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 25 03:45:37 EDT 2014
+// Date:	Sat Oct 25 15:22:49 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9330,7 +9330,7 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x02\x82" "*}",    // obj_valend
     (const min::ustring *)
-        "\x05\x05" " <== ", // obj_valreq
+        "\x04\x04" " <= ",  // obj_valreq
 
     min::NULL_STUB	    // flag_names*
 };
@@ -9371,7 +9371,7 @@ static min::obj_format id_map_obj_format =
     (const min::ustring *)
         "\x02\x82" "*}",    // obj_valend
     (const min::ustring *)
-        "\x05\x05" " <== ", // obj_valreq
+        "\x04\x04" " <= ",  // obj_valreq
 
     min::NULL_STUB	    // flag_names*
 };
@@ -9833,7 +9833,11 @@ min::printer min::print_obj
 	{
 	    first = false;
 	    if ( ! long_format )
+	    {
 		min::print_spaces ( printer, 1 );
+		if ( ! compact_ok )
+		    printer << min::set_break;
+	    }
 	    printer << min::save_indent;
 	}
 	else
