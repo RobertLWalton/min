@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 22 07:06:17 EDT 2014
+// Date:	Sat Oct 25 03:24:34 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11517,6 +11517,11 @@ namespace min {
 	const min::ustring *   	    obj_attrsep;
 	const min::ustring *   	    obj_attrneg;
 	const min::ustring *   	    obj_attreq;
+
+	const min::ustring *   	    obj_valbegin;
+	const min::ustring *   	    obj_valsep;
+	const min::ustring *   	    obj_valend;
+	const min::ustring *   	    obj_valreq;
 
 	packed_vec_ptr<const char *>
 	                   	    flag_names;

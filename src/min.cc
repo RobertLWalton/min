@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 24 03:20:05 EDT 2014
+// Date:	Sat Oct 25 03:45:37 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8574,8 +8574,8 @@ min::printer MINT::print_unicode
 	if ( cflags & min::IS_GRAPHIC )
 	    printer->and_ed_char_flags &= cflags;
 	else
-	    printer->and_ed_char_flags = min::IS_LEADING
-				       + min::IS_TRAILING;
+	    printer->and_ed_char_flags =
+	        min::IS_LEADING + min::IS_TRAILING;
 
 	if ( columns > 0 )
 	{
@@ -9323,6 +9323,15 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x03\x03" " = ",   // obj_attreq
 
+    (const min::ustring *)
+        "\x02\x42" "{*",    // obj_valbegin
+    (const min::ustring *)
+        "\x01\x81" ", ",    // obj_valsep
+    (const min::ustring *)
+        "\x02\x82" "*}",    // obj_valend
+    (const min::ustring *)
+        "\x05\x05" " <== ", // obj_valreq
+
     min::NULL_STUB	    // flag_names*
 };
 const min::obj_format * min::exp_obj_format =
@@ -9354,6 +9363,15 @@ static min::obj_format id_map_obj_format =
         "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
         "\x03\x03" " = ",   // obj_attreq
+
+    (const min::ustring *)
+        "\x02\x42" "{*",    // obj_valbegin
+    (const min::ustring *)
+        "\x01\x81" ", ",    // obj_valsep
+    (const min::ustring *)
+        "\x02\x82" "*}",    // obj_valend
+    (const min::ustring *)
+        "\x05\x05" " <== ", // obj_valreq
 
     min::NULL_STUB	    // flag_names*
 };
@@ -9511,7 +9529,7 @@ static void print_attributes
 	  const min::obj_format * objf,
 	  bool line_format )
 {
-    bool first = true;
+    bool first_attr = true;
     min::int32 adjust =
 	  (min::int32) printer->line_break.line_length
 	- (min::int32) printer->line_break.indent;
@@ -9537,9 +9555,9 @@ static void print_attributes
 		  == min::dot_position )
 	    continue;
 
-	if ( first )
+	if ( first_attr )
 	{
-	    first = false;
+	    first_attr = false;
 	    if ( line_format )
 	    {
 	        printer << min::pustring
@@ -9591,19 +9609,96 @@ static void print_attributes
 	min::print_ustring
 	    ( printer, objf->obj_attreq );
 	printer << min::set_break;
+ 
+	min::unsptr vc = info[i].value_count;
+	min::unsptr rc = info[i].reverse_attr_count;
+	min::gen value[vc];
+	min::reverse_attr_info rinfo[rc];
+	if ( vc > 1 || rc > 0 )
+		min::locate ( ap, info[i].name );
+	if ( vc > 1 ) min::get ( value, vc, ap );
+	else if ( vc == 1 ) value[0] = info[i].value;
+	if ( rc > 0 )
+	    min::get_reverse_attrs ( rinfo, rc, ap );
 
-	// TBD handle value sets and reverse labels
-	//
-	min::print_gen
-	    ( printer, info[i].value,
-		       objf->value_format );
+	if ( vc + rc != 1 && ! line_format )
+	    printer << min::pustring
+			   ( objf->obj_valbegin )
+		    << min::save_indent;
+
+	bool first_value = true;
+	for ( min::unsptr j = 0; j < vc; ++ j )
+	{
+	    if ( first_value ) first_value = false;
+	    else
+	        printer << min::pustring
+			       ( objf->obj_valsep )
+			<< min::set_break;
+	    min::print_gen
+		( printer, value[j],
+			   objf->value_format );
+	}
+	for ( min::unsptr j = 0; j < rc; ++ j )
+	{
+	    if ( first_value ) first_value = false;
+	    else
+	        printer << min::pustring
+			       ( objf->obj_valsep )
+			<< min::set_break;
+	    min::unsptr rvc = rinfo[j].value_count;
+	    min::gen rvalue[rvc];
+	    if ( rvc > 1 )
+	    {
+	        min::locate_reverse
+		    ( ap, rinfo[j].name );
+	        min::get ( rvalue, rvc, ap );
+	    }
+	    else
+	    {
+	        assert ( rvc == 1 );
+		rvalue[0] = rinfo[j].value;
+	    }
+
+	    if ( rvc > 1 )
+		printer << min::pustring
+			       ( objf->obj_valbegin )
+			<< min::save_indent;
+
+	    bool first_rvalue = true;
+	    for ( min::unsptr k = 0; k < rvc; ++ k )
+	    {
+		if ( first_rvalue )
+		    first_rvalue = false;
+		else
+		    printer << min::pustring
+				   ( objf->obj_valsep )
+			    << min::set_break;
+		min::print_id ( printer, rvalue[k] );
+	    }
+
+	    if ( rvc > 1 )
+		printer << min::pustring
+			       ( objf->obj_valend )
+			<< min::restore_indent;
+	    printer << min::set_break
+	            << min::pustring
+			   ( objf->obj_valreq );
+	    min::print_gen
+		( printer, rinfo[j].name,
+		           objf->label_format );
+	}
+
+	if ( vc + rc != 1 && ! line_format )
+	    printer << min::pustring
+			   ( objf->obj_valend )
+		    << min::restore_indent;
     }
 
     if ( ! line_format )
         min::print_ustring
 	    ( printer, objf->obj_braend );
 
-    if ( ! first )
+    if ( ! first_attr )
     {
 	if ( line_format )
 	    printer << min::adjust_indent ( - adjust )
