@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 25, 2014}
+\date{October 26, 2014}
  
 \maketitle
 
@@ -10344,6 +10344,78 @@ special\_\EOL format.special\_\EOL prefix/\EOL postfix}
 to surround the value name.
 
 
+\subsubsection{Printing Using An Identifier Map}
+
+General values that have stubs, namely objects, packed structures and vectors,
+and long strings, can be
+output as an identifier of the form \TT{@}{\em <id>} by using
+the printer \key{identifier map} (\itemref{IDENTIFIER-MAPS}).
+
+The function to do this is:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::PRINT_ID} \\
+\end{tabular}\end{indpar}
+
+This function executes
+\TT{min::find\_or\_add} (\pagref{MIN::FIND_OR_ADD_OF_ID_MAP})
+to locate the ID number {\em <id>} of
+\TT{v} in \TT{printer->\EOL id\_\EOL map} and then outputs
+`\TT{@}{\em <id>}'.
+
+A printer's \TT{id\_map} member is initialized automatically when
+needed.  However, it can also be set by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::id_map min::|
+    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
+    \verb|( <min::printer printer,|\ARGBREAK
+    \verb|  min::id_map map = min::NULL_STUB )|
+\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+which permits maps to be shared among printers.  If no second argument
+is given, an identifier map is created for the printer if none previously
+exists.  This can then be shared with other printers.  The final
+\TT{id\_\EOL map} member of the printer is returned, and this
+is never \TT{min::\EOL NULL\_\EOL STUB}.
+
+When a value with a stub is printed as
+`\TT{@}{\em <id>}', it is recorded in \TT{printer->\EOL id\_\EOL map}
+so it may be printed on separate lines.  This may be done by
+the printer operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+The first operation prints the value at \TT{printer->\EOL id\_\EOL map[i]}
+where \TT{i} equals \TT{printer->\EOL id\_\EOL map->\EOL next}, and then
+increments \TT{printer->\EOL id\_\EOL map->\EOL next}.  The second operation
+simply repeats the first operation as long as
+\TT{printer->\EOL id\_\EOL map->\EOL next}
+is less than \TT{printer->\EOL id\_\EOL map->\EOL length}.
+The \TT{min::\EOL flush\_\EOL id\_\EOL map} operation is also
+performed by the \TT{min::\EOL eom} end-of-message operation
+if the print format
+\TT{FLUSH\_\EOL ID\_\EOL MAP\_\EOL ON\_\EOL EOM} printer operation flag is on.
+
+These \TT{id\_map} flushing operations use the \TT{min::gen\_\EOL format}:
+\begin{center}
+\TT{printer->\EOL print\_\EOL format.gen\_\EOL format->\EOL
+id\_\EOL map\_\EOL format}
+\end{center}
+to print the \TT{printer->id\_map[i]} {\em values} in lines of the form:
+\begin{center}
+\TT{@}{\em <id>} \TT{=} {\em value}
+\end{center}
+
 \subsection{Objects}
 \label{OBJECTS}
 
@@ -13767,11 +13839,9 @@ The members of a \TT{min::obj\_format} are:
 
 \begin{itemlist}[0.2in]
 
-\item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]~\\
-\item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
+\item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]
+\item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements,
 attribute labels, and attribute values, respectively.
@@ -13782,15 +13852,11 @@ This is the \TT{min::ustring} printed to represent an
 empty object that has no elements and no attributes
 other than \TT{.position}.
 
-\item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]~\\
-\item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
+\item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
+\item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
 object elements and attributes in the absence of object
 \TT{.initiator} and \TT{.terminator} attributes.
@@ -13804,15 +13870,11 @@ followed optionally by the object \TT{.type} and attributes
 followed by \TT{obj\_\EOL ket} serves as the closing bracket
 for the object.  See text below for more details.
 
-\item[\ttmkey{obj\_attrinit}{in {\tt min::obj\_format}}]~\\
-\item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
+\item[\ttmkey{obj\_attrinit}{in {\tt min::obj\_format}}]
+\item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to introduce
 an object attribute list, separate attributes, indicate
 negation of attributes whose value is \TT{FALSE}, and
@@ -13828,16 +13890,14 @@ label from the attribute's value; and \TT{obj\_\EOL attrneg}
 is the attribute label prefix used to indicate an attribute
 with a \TT{FALSE} value.
 
-\item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]~\\
-\item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
-\item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]%
-\vspace{-5ex}~\\
+\item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]
+\item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to surround and
 separate values of an attribute that has more than one
 value.
 
-\item[\ttmkey{obj\_valreq}{in {\tt min::obj\_format}}]%
+\item[\ttmkey{obj\_valreq}{in {\tt min::obj\_format}}]~\\
 This is a \TT{min::ustring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::ustring}.
@@ -13856,6 +13916,23 @@ will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 \TT{min::\EOL locatable\_\EOL gen} variables.
 
 \end{itemlist}
+
+
+The following function can be used to print object general values:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::obj_format * obj_format = NULL )|
+\LABEL{MIN::PRINT_OBJ} \\
+\end{tabular}\end{indpar}
+
+The expression `\TT{printer~<<~min::pgen(v)}' invokes this
+function if \TT{v} is an object.  If the \TT{obj\_\EOL format}
+argument is \TT{NULL},
+\TT{printer->print\_\EOL format.gen\_\EOL format->obj\_\EOL format}
+is used as the value of this argument.
 
 
 \subsubsection{TBD}
@@ -13877,60 +13954,6 @@ in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
 
 
 \end{itemlist}
-
-Objects, packed structures and vectors, and long strings can be
-output as an identifier of the form \TT{@<}{\em id}\TT{>} by using
-the printer \key{object ID map}.
-
-A printer's \TT{id\_map} member is initialized automatically when
-needed.  However, it can also be set by:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::obj_id_map min::|
-    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
-    \verb|( <min::printer printer,|\ARGBREAK
-    \verb|  min::id_map map = min::NULL_STUB )|
-\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
-\end{tabular}\end{indpar}
-
-which permits maps to be shared among printers.  If no second argument
-is given, an identifier map is created for the printer if none previously
-exists.  This can then be shared with other printers.  The final
-\TT{id\_\EOL map} member of the printer is returned, and this
-is never \TT{min::\EOL NULL\_\EOL STUB}.
-
-When a datum with a stub is printed as
-`{\tt @}i', it is recorded in {\tt printer->\EOL id\_\EOL map}
-so it may be printed on separate lines.  This may be done by
-the printer operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
-\LABEL{MIN::FLUSH_ONE_ID} \\
-\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
-\LABEL{MIN::FLUSH_ID_MAP} \\
-\end{tabular}\end{indpar}
-
-The first operation prints the datum at {\tt printer->\EOL id\_\EOL map[i]}
-where {\tt i} equals {\tt printer->\EOL id\_\EOL map->\EOL next}, and then
-increments {\tt printer->\EOL id\_\EOL map->\EOL next}.  The second operation
-simply repeats the first operation as long as
-{\tt printer->\EOL id\_\EOL map->\EOL next}
-is less than {\tt printer->\EOL id\_\EOL map->\EOL length}.
-The {\tt min::\EOL flush\_\EOL id\_\EOL map} operation is also
-performed by the {\tt min::\EOL eom} end-of-message operation
-if the print format
-{\tt FLUSH\_\EOL ID\_\EOL MAP\_\EOL FLAG} flag is on.
-
-These {\tt id\_map} flushing operations use the
-{\tt context\_\EOL gen\_\EOL flags[PGEN\_INDENT]} gen flags
-(\pagref{PGEN_INDENT}) with {\tt min::\EOL pgen}
-to print the {\em values} in lines of the form:
-\begin{center}
-\TT{@}i \TT{=} {\em value}
-\end{center}
-If a line is too long, it may be broken into multiple lines
-as specified by the printer parameters.
 
 If the {\em value} is an object not being printed as per
 {\tt OBJ\_\EOL EXP\_\EOL FLAG}, then the {\tt OBJ\_\EOL INDENT} flag
