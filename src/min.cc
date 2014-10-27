@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 27 03:51:41 EDT 2014
+// Date:	Mon Oct 27 07:45:22 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9863,15 +9863,27 @@ min::printer min::print_obj
     }
     else if ( ! long_format )
     {
-        min::print_ustring
-	    ( printer, objf->obj_bra );
-	min::print_gen
-	    ( printer, type != min::NONE() ?
-	               type : min::empty_string,
-		       objf->label_format );
-        ::print_attributes
-	    ( printer, vp, ap, info, m,
-	      separator, type, objf, false );
+
+	if ( attributes_after_elements )
+	{
+	    printer << min::indent;
+	    min::print_ustring
+		( printer, objf->obj_bra );
+	    min::print_ustring
+		( printer, objf->obj_braend );
+	}
+	else
+	{
+	    min::print_ustring
+		( printer, objf->obj_bra );
+	    min::print_gen
+		( printer, type != min::NONE() ?
+			   type : min::empty_string,
+			   objf->label_format );
+	    ::print_attributes
+		( printer, vp, ap, info, m,
+		  separator, type, objf, false );
+	}
     }
 
     bool first = true;
@@ -9908,16 +9920,31 @@ min::printer min::print_obj
 
     if ( ! long_format )
     {
-	min::print_spaces ( printer, 1 );
-
-	if ( compact_ok && terminator != min::NONE() )
-		min::print_str ( printer, terminator );
-	else
+	if ( attributes_after_elements )
 	{
+	    ::print_attributes
+		( printer, vp, ap, info, m,
+		  separator, min::NONE(), objf, true );
+	    min::print_spaces ( printer, 1 );
 	    min::print_ustring
 		( printer, objf->obj_ketbegin );
 	    min::print_ustring
 		( printer, objf->obj_ket );
+	}
+	else
+	{
+	    min::print_spaces ( printer, 1 );
+
+	    if (    compact_ok
+	         && terminator != min::NONE() )
+		min::print_str ( printer, terminator );
+	    else
+	    {
+		min::print_ustring
+		    ( printer, objf->obj_ketbegin );
+		min::print_ustring
+		    ( printer, objf->obj_ket );
+	    }
 	}
     }
 
