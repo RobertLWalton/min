@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 26, 2014}
+\date{October 27, 2014}
  
 \maketitle
 
@@ -13689,8 +13689,8 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attrinit;|%
-\ttmindex{obj\_attrinit}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attrbegin;|%
+\ttmindex{obj\_attrbegin}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_attreol;|%
 \ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_attrsep;|%
@@ -13746,7 +13746,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" ": "   // obj_attrinit|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" ": "   // obj_attrbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" ", "   // obj_attrsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
@@ -13791,7 +13791,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrinit|\ARGBREAK
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
 \verb|NULL                                     // obj_attrsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
@@ -13835,7 +13835,29 @@ printed the UTF-8 string is to be preceded by a \TT{min::\EOL trailing}
 printer operation.  Note that printing a \TT{NULL} \TT{min::\EOL ustring}
 is a no-operation.
 
-The members of a \TT{min::obj\_format} are:
+An object is printed in `\mkey{isolated line format}{for printing object}'
+if the \TT{obj\_\EOL bra} member of the object format is \TT{NULL}.
+
+An object is printed in `\mkey{compact format}{for printing object}'
+if it is not being printed in isolated line format, and if
+\begin{indpar}
+It has \TT{.initiator} and \TT{.terminator} attributes,
+but no other attributes except possibly \TT{.separator} and/or
+\TT{.position}.
+\end{indpar}
+or
+\begin{indpar}
+It a \TT{.type} attribute,
+but no other attributes except possibly \TT{.separator} and/or
+\TT{.position}.
+\end{indpar}
+
+An object is printed in `\mkey{embedded line format}{for printing object}'
+if it is not being printed in isolated line or compact format and
+if the \TT{obj\_\EOL attreol} member of the object format is not \TT{NULL}.
+
+
+Keeping these formats in mind, the members of a \TT{min::obj\_format} are:
 
 \begin{itemlist}[0.2in]
 
@@ -13850,11 +13872,13 @@ attribute labels, and attribute values, respectively.
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::ustring} printed to represent an
 empty object that has no elements and no attributes
-other than \TT{.position}.
+other than \TT{.position}.  If \TT{NULL}, it prints
+as the empty string of characters, but its not a good
+idea for this member to have a \TT{NULL} value unless
+objects are being printed in line format.
 
 \item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
@@ -13863,14 +13887,33 @@ object elements and attributes in the absence of object
 In this case \TT{obj\_\EOL bra} followed optionally by the
 object's \TT{.type} and attributes followed by
 \TT{obj\_\EOL braend} serves as the opening bracket for
-the object; \TT{obj\_\EOL separator} serves as the
-object element separator in the absence of an object
-\TT{.separator} attribute; and \TT{obj\_\EOL ketbegin}
+the object's list of elements,
+and \TT{obj\_\EOL ketbegin}
 followed optionally by the object \TT{.type} and attributes
 followed by \TT{obj\_\EOL ket} serves as the closing bracket
-for the object.  See text below for more details.
+for the object.
 
-\item[\ttmkey{obj\_attrinit}{in {\tt min::obj\_format}}]
+If \TT{obj\_bra} is \TT{NULL}, the object is printed
+in `\key{line format}'.  None of these members are used,
+and the object is printed as a list
+of element values, with the last line ending with \TT{obj\_\EOL attreol}
+if there are attributes, and each attribute is printed on its own indented
+line.  Special attributes
+such as \TT{.type}, \TT{.initiator}, and \TT{.separator}
+are not given any special
+treatment.  This format is usually used by \TT{flush\_\EOL id\_\EOL map}
+to print objects.
+
+Otherwise, if any of these members other than
+\TT{obj\_\EOL ket} are \TT{NULL}, they just print as the
+empty string of characters.
+
+\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]~\\
+This member serves as the object element separator
+when the object is not printed in line format or the object does
+not have a \TT{.separator} attribute.
+
+\item[\ttmkey{obj\_attrbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]\vspace{-2ex}

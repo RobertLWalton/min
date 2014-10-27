@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 25 03:24:34 EDT 2014
+// Date:	Mon Oct 27 15:37:15 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11508,12 +11508,14 @@ namespace min {
 
 	const min::ustring *   	    obj_bra;
 	const min::ustring *   	    obj_braend;
-	const min::ustring *   	    obj_separator;
 	const min::ustring *   	    obj_ketbegin;
 	const min::ustring *   	    obj_ket;
 
+	const min::ustring *   	    obj_separator;
+
 	const min::ustring *   	    obj_attrbegin;
 	const min::ustring *   	    obj_attreol;
+
 	const min::ustring *   	    obj_attrsep;
 	const min::ustring *   	    obj_attrneg;
 	const min::ustring *   	    obj_attreq;

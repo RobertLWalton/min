@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 27 07:45:22 EDT 2014
+// Date:	Mon Oct 27 15:38:04 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9306,16 +9306,18 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x01" "|",     // obj_braend
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_separator
-    (const min::ustring *)
         "\x01\x01" "|",     // obj_ketbegin
     (const min::ustring *)
         "\x01\x81" "}",     // obj_ket
 
     (const min::ustring *)
+        "\x01\x01" " ",     // obj_separator
+
+    (const min::ustring *)
         "\x02\x82" ": ",    // obj_attrbegin
     (const min::ustring *)
         "\x01\x81" ":",     // obj_attreol
+
     (const min::ustring *)
         "\x02\x02" ", ",    // obj_attrsep
     (const min::ustring *)
@@ -9350,14 +9352,16 @@ static min::obj_format id_map_obj_format =
 
     NULL,		    // obj_bra
     NULL,		    // obj_braend
-    (const min::ustring *)
-        "\x01\x01" " ",     // obj_separator
     NULL,		    // obj_ketbegin
     NULL,		    // obj_ket
+
+    (const min::ustring *)
+        "\x01\x01" " ",     // obj_separator
 
     NULL,		    // obj_attrbegin
     (const min::ustring *)
         "\x01\x81" ":",     // obj_attreol
+
     NULL,		    // obj_attrsep
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_attrneg
@@ -9781,17 +9785,17 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    bool long_format = ( objf->obj_bra == NULL );
+    bool line_format = ( objf->obj_bra == NULL );
     bool attributes_after_elements =
-        long_format || ( objf->obj_attrsep == NULL );
+        line_format || ( objf->obj_attrsep == NULL );
 
-    // If not long_format, loop until we determine
+    // If not line_format, loop until we determine
     // compact_ok is false AND we have found type.
     // If compact_ok remains true, collect any separa-
     // tor, initiator, terminator, and type.
     //
-    bool compact_ok = ! long_format;
-    if ( ! long_format )
+    bool compact_ok = ! line_format;
+    if ( compact_ok )
         for ( min::unsptr i = 0;
                  ( compact_ok || type == min::NONE() )
 	      && i < m;
@@ -9861,7 +9865,7 @@ min::printer min::print_obj
 		( printer, objf->obj_braend );
 	}
     }
-    else if ( ! long_format )
+    else if ( ! line_format )
     {
 
 	if ( attributes_after_elements )
@@ -9893,7 +9897,7 @@ min::printer min::print_obj
         if ( first ) 
 	{
 	    first = false;
-	    if ( ! long_format )
+	    if ( ! line_format )
 	    {
 		min::print_spaces ( printer, 1 );
 		if ( ! compact_ok )
@@ -9918,7 +9922,7 @@ min::printer min::print_obj
 	    ( printer, vp[i], objf->element_format );
     }
 
-    if ( ! long_format )
+    if ( ! line_format )
     {
 	if ( attributes_after_elements )
 	{
@@ -9950,7 +9954,7 @@ min::printer min::print_obj
 
     if ( ! first ) printer << min::restore_indent;
 
-    if ( long_format )
+    if ( line_format )
         ::print_attributes
 	    ( printer, vp, ap, info, m,
 	      separator, type, objf, true );
