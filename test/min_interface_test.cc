@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 25 15:16:22 EDT 2014
+// Date:	Mon Oct 27 04:33:27 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4604,6 +4604,30 @@ void test_object_printing ( void )
     printer << min::pgen ( obj ) << min::eol;
     printer << min::eol << min::flush_one_id;
 
+    {
+	min::obj_vec_insptr vp ( obj3 );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen myforward =
+	    min::new_str_gen ( "myforward" );
+	min::locate ( ap, myforward );
+	min::set_flag ( ap, 5 );
+	min::set_flag ( ap, 12 );
+	min::set_flag ( ap, 63 );
+    }
+    printer << min::pgen ( obj3 ) << min::eol;
+
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	min::locatable_gen myattr =
+	    min::new_str_gen ( "myattr" );
+	min::locate ( ap, myattr );
+	min::set_flag ( ap, 64+5 );
+	min::set_flag ( ap, 64+63 );
+	min::set_flag ( ap, 256 );
+	min::set_flag ( ap, 512 );
+    }
+    printer << min::pgen ( obj ) << min::eol;
 # ifdef NONE_SUCH
 
     printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )

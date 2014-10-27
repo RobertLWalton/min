@@ -4145,15 +4145,36 @@ Start Object Printing Test!
 {T: number = 123| A B C |}
 { T : number = 123| A B C | }
 {T: no scientific, number = 123, fraction| A B C |}
-{"": myattr = [: MY ATTR VALUE :], .initiator = "{*", .terminator =
-     "*}"| 1, 2, 3, 4, 5 |}
+{"": myattr = [: MYATTR VALUE :], .initiator = "{*", .terminator = "*}"|
+    1, 2, 3, 4, 5 |}
 @1
 @1 = 1 2 3 4 5:
-     myattr = [: MY ATTR VALUE :]
+     myattr = [: MYATTR VALUE :]
      .initiator = "{*"
      .separator = ","
      .terminator = "*}"
 
+{"": myattr = {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *},
+     .initiator = "{*", .terminator = "*}"| 1, 2, 3, 4, 5 |}
+{T: no scientific, number = 123, myforward = @1 <= myreverse, fraction|
+    A B C |}
+{"": myattr = {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *},
+     .initiator = "{*", myreverse = @2 <= myforward, .terminator = "*}"|
+    1, 2, 3, 4, 5 |}
+
+@2 = A B C:
+     no scientific
+     number = 123
+     myforward = @1 <= myreverse
+     fraction
+     .type = T
+
+{T: no scientific, number = 123, myforward[*aZ] = @1 <= myreverse,
+    fraction| A B C |}
+{"": myattr[~*~Z,256,512] =
+     {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *}, .initiator =
+     "{*", myreverse = @2 <= myforward, .terminator = "*}"|
+    1, 2, 3, 4, 5 |}
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
