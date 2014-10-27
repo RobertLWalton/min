@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 25 15:22:49 EDT 2014
+// Date:	Mon Oct 27 03:51:41 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7464,7 +7464,7 @@ bool MINT::set_flag
 	if ( n < next )
 	{
 	    elements[j++] = new_control_code_gen
-	        ( 1 << ( n - base ) );
+	        ( (unsgen) 1 << ( n - base ) );
 	    break;
 	}
 	else
@@ -9317,7 +9317,7 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x01\x81" ":",     // obj_attreol
     (const min::ustring *)
-        "\x02\x82" ", ",    // obj_attrsep
+        "\x02\x02" ", ",    // obj_attrsep
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
@@ -9326,7 +9326,7 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x02\x42" "{*",    // obj_valbegin
     (const min::ustring *)
-        "\x01\x81" ", ",    // obj_valsep
+        "\x02\x02" ", ",    // obj_valsep
     (const min::ustring *)
         "\x02\x82" "*}",    // obj_valend
     (const min::ustring *)
@@ -9367,7 +9367,7 @@ static min::obj_format id_map_obj_format =
     (const min::ustring *)
         "\x02\x42" "{*",    // obj_valbegin
     (const min::ustring *)
-        "\x01\x81" ", ",    // obj_valsep
+        "\x02\x02" ", ",    // obj_valsep
     (const min::ustring *)
         "\x02\x82" "*}",    // obj_valend
     (const min::ustring *)
@@ -9606,20 +9606,69 @@ static void print_attributes
 
 	if ( suppress_value ) continue;
 
-	min::print_ustring
-	    ( printer, objf->obj_attreq );
-	printer << min::set_break;
  
 	min::unsptr vc = info[i].value_count;
 	min::unsptr rc = info[i].reverse_attr_count;
+	min::unsptr fc = info[i].flag_count;
 	min::gen value[vc];
 	min::reverse_attr_info rinfo[rc];
-	if ( vc > 1 || rc > 0 )
+	if ( vc > 1 || rc > 0 || fc * min::VSIZE > 64 )
 		min::locate ( ap, info[i].name );
 	if ( vc > 1 ) min::get ( value, vc, ap );
 	else if ( vc == 1 ) value[0] = info[i].value;
 	if ( rc > 0 )
 	    min::get_reverse_attrs ( rinfo, rc, ap );
+
+	if ( fc > 0 )
+	{
+	    min::packed_vec_ptr<const char *>
+		names = objf->flag_names;
+	    min::unsptr length =
+	        ( names == min::NULL_STUB ?
+		  0 : names->length );
+	    printer << "[";
+	    if ( fc * min::VSIZE <= 64 && length >= 64 )
+	    {
+		min::uns64 f = info[i].flags;
+		for ( unsigned j = 0; j < 64; ++ j )
+		{
+		    if ( f & 1 )
+			printer << names[j];
+		    f >>= 1;
+		}
+	    }
+	    else
+	    {
+		min::gen flags[fc];
+		min::get_flags ( flags, fc, ap );
+		min::unsptr n = 0;
+		for ( min::unsptr j = 0;
+		      j < fc; ++ j )
+		{
+		    min::unsgen flags2 =
+			MUP::control_code_of
+			    ( flags[j] );
+		    for ( unsigned k = 0;
+			  k < min::VSIZE; ++ k )
+		    {
+			if ( flags2 & 1 )
+			{
+			    if ( n < length )
+				printer << names[n];
+			    else
+				printer << "," << n;
+			}
+			flags2 >>= 1;
+			++ n;
+		    }
+		}
+	    }
+	    printer << "]";
+	}
+
+	min::print_ustring
+	    ( printer, objf->obj_attreq );
+	printer << min::set_break;
 
 	if ( vc + rc != 1 && ! line_format )
 	    printer << min::pustring
