@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 27 15:38:04 EDT 2014
+// Date:	Tue Oct 28 05:59:02 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8805,13 +8805,13 @@ min::printer min::print_unicode
 	    return ::print_quoted_unicode
 	        ( printer, n, p, sf );
 
-	min::quote_control qc = sf->quote_control;
+	min::str_classifier qc = sf->quote_control;
 
 	// Divide into the case where we need to call
 	// compute_or_flags and the case where we do not
 	// need to.
 	//
-	if ( qc.unquote_if_none_of != 0 )
+	if ( qc.in_class_if_none_of != 0 )
 	{
 	    min::uns32 first_flags;
 	    min::uns32 or_flags =
@@ -8819,11 +8819,11 @@ min::printer min::print_unicode
 		    ( printer->print_format,
 		      n, p,
 		      first_flags,
-		      qc.unquote_if_none_of );
+		      qc.in_class_if_none_of );
 	    min::uns32 if_none_of =
-		or_flags & qc.unquote_if_none_of;
+		or_flags & qc.in_class_if_none_of;
 	    min::uns32 i = 1;
-	    while ( first_flags & qc.unquote_skip )
+	    while ( first_flags & qc.in_class_skip )
 	    {
 	        first_flags = i >= n ? 0 :
 		    ::compute_flags
@@ -8831,11 +8831,11 @@ min::printer min::print_unicode
 		++ i;
 	    }
 	    min::uns32 if_first =
-		first_flags & qc.unquote_if_first;
+		first_flags & qc.in_class_if_first;
 	    if ( if_none_of == 0 && if_first != 0 )
 		sf = NULL;
 	}
-	else if ( qc.unquote_if_first != 0 )
+	else if ( qc.in_class_if_first != 0 )
 	{
 	    min::uns32 i = 0;
 	    uns32 first_flags;
@@ -8844,13 +8844,13 @@ min::printer min::print_unicode
 		    ::compute_flags
 		        ( printer->print_format, p[i] );
 		min::uns32 skip =
-		    first_flags & qc.unquote_skip;
+		    first_flags & qc.in_class_skip;
 		if ( skip == 0 ) break;
 		++ i;
 	    }
 
 	    if (   first_flags
-		 & qc.unquote_if_first )
+		 & qc.in_class_if_first )
 		sf = NULL;
 	}
 
@@ -9199,13 +9199,13 @@ static min::lab_format name_lab_format =
 const min::lab_format * min::name_lab_format =
     & ::name_lab_format;
 
-const min::quote_control
+const min::str_classifier
 	min::quote_all_control =
 {
     0, 0, 0
 };
 
-const min::quote_control
+const min::str_classifier
 	min::quote_first_not_letter_control =
 {
     min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
@@ -9213,7 +9213,7 @@ const min::quote_control
 };
 
 
-const min::quote_control
+const min::str_classifier
 	min::quote_non_graphic_control =
 {
     0, 0, min::IS_NON_GRAPHIC
@@ -9831,7 +9831,8 @@ min::printer min::print_obj
     if ( compact_ok )
     {
 	if ( initiator != min::NONE() )
-	    compact_ok = ( terminator != min::NONE() );
+	    compact_ok = ( terminator != min::NONE() )
+	              && ( type == min::NONE() );
 	else if ( terminator != min::NONE() )
 	    compact_ok = false;
     }

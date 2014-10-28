@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 27, 2014}
+\date{October 28, 2014}
  
 \maketitle
 
@@ -3695,9 +3695,9 @@ quoted if it begins with zero or more \TT{QUOTE\_\EOL SKIP}
 characters (such at `\TT{.}')
 followed by a single \TT{QUOTE\_\EOL SUPPRESS}
 character (such as any letter).
-See \TT{quote\_\EOL control.unquote\_\EOL if\_\EOL first}
-and \TT{quote\_\EOL control.unquote\_\EOL skip}
-on \pagref{UNQUOTE_IF_FIRST}.\label{QUOTE-SUPPRESS}
+See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
+and \TT{quote\_\EOL control.in\_\EOL class\_\EOL skip}
+on \pagref{IN_CLASS_IF_FIRST}.\label{QUOTE-SUPPRESS}
 
 The specific assignment of these flags encoded in
 \TT{min::standard\_char\_flags} is:
@@ -9956,7 +9956,7 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{str\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::quote_control    quote_control;|%
+    \verb|  min::str_classifier   quote_control;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::bracket_format   bracket_format;|%
 \ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
@@ -9995,43 +9995,43 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{quote\_control}}\ARGBREAK
+                       min::\MINKEY{str\_classifier}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32    unquote_if_first;|%
-\ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_skip;|%
-\ttmindex{unquote\_skip}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_if_none_of;|%
-\ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    in_class_if_first;|%
+\ttmindex{in\_class\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
+    \verb|  min::uns32    in_class_skip;|%
+\ttmindex{in\_class\_skip}{in {\tt min::str\_classifier}}\ARGBREAK
+    \verb|  min::uns32    in_class_if_none_of;|%
+\ttmindex{in\_class\_if\_none\_of}{in {\tt min::str\_classifier}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::QUOTE_CONTROL}
 \end{tabular}
 \end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
                    min::\MINKEY{quote\_all\_control}:}\ARGBREAK
-\verb|0                          // unquote_if_first|\ARGBREAK
-\verb|0                          // unquote_skip|\ARGBREAK
-\verb|0                          // unquote_if_none_of|
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // in_class_skip|\ARGBREAK
+\verb|0                          // in_class_if_none_of|
 \LABEL{MIN::QUOTE_ALL_CONTROL}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
 		   min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
-\verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
-\verb|min::QUOTE_SKIP            // unquote_skip|\ARGBREAK
-\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
+\verb|min::QUOTE_SKIP            // in_class_skip|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // in_class_if_none_of|
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
 		   min::\MINKEY{quote\_non\_graphic\_control}:}\ARGBREAK
-\verb|0                          // unquote_if_first|\ARGBREAK
-\verb|0                          // unquote_skip|\ARGBREAK
-\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // in_class_skip|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // in_class_if_none_of|
 \LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}
 \end{tabular}\end{indpar}
 
@@ -10090,14 +10090,16 @@ UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
 any functions that might allocate or relocate objects, so \TT{str}
 \underline{can} be a relocatable address.
 
-A \TT{min::quote\_control} value \TT{qc} determines whether a string will
-be quoted as follows.  If any character in the string has a character
-flag that is in \TT{qc.unquote\_\EOL if\_\EOL none\_\EOL of}, the
+A \TT{min::quote\_control} value \TT{qc} is
+a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
+\underline{unless} the string is in the specified class.  Specifically,
+if any character in the string has a character
+flag that is in \TT{qc.in\_\EOL class\_\EOL if\_\EOL none\_\EOL of}, the
 string is quoted.  Otherwise if string begins with zero or more characters
-each with a flag in \TT{qc.unquote\_\EOL skip}, followed by a single
-character with a flag in \TT{qc.unquote\_\EOL if\_\EOL first}, the string
+each with a flag in \TT{qc.in\_\EOL class\_\EOL skip}, followed by a single
+character with a flag in \TT{qc.in\_\EOL class\_\EOL if\_\EOL first}, the string
 is \underline{not} quoted; otherwise the string is quoted.%
-\label{UNQUOTE_IF_FIRST}  See the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
+\label{IN_CLASS_IF_FIRST}  See the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
 and \TT{min::\EOL QUOTE\_\EOL SKIP} flags on \pagref{QUOTE-SUPPRESS}.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
@@ -13839,7 +13841,9 @@ An object is printed in `\mkey{isolated line format}{for printing object}'
 if the \TT{obj\_\EOL bra} member of the object format is \TT{NULL}.
 
 An object is printed in `\mkey{compact format}{for printing object}'
-if it is not being printed in isolated line format, and if
+if it is not being printed in isolated line format, if it does not
+have any attributes other than \TT{.position} that have multiple
+values or flags or reverse attributes (double arrows), and if
 \begin{indpar}
 It has \TT{.initiator} and \TT{.terminator} attributes,
 but no other attributes except possibly \TT{.separator} and/or
@@ -17971,7 +17975,7 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{str\_format}}
 \LABEL{MIN::STR_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::quote_control    quote_control;|%
+    \verb|  min::str_classifier   quote_control;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::bracket_format   bracket_format;|%
 \ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
@@ -18017,49 +18021,49 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{quote\_control}}
+                       min::\MINKEY{str\_classifier}}
 \LABEL{MIN::QUOTE_CONTROL}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32    unquote_if_first;|%
-\ttmindex{unquote\_if\_first}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_skip;|%
-\ttmindex{unquote\_skip}{in {\tt min::quote\_control}}\ARGBREAK
-    \verb|  min::uns32    unquote_if_none_of;|%
-\ttmindex{unquote\_if\_none\_of}{in {\tt min::quote\_control}}\ARGBREAK
+    \verb|  min::uns32    in_class_if_first;|%
+\ttmindex{in\_class\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
+    \verb|  min::uns32    in_class_skip;|%
+\ttmindex{in\_class\_skip}{in {\tt min::str\_classifier}}\ARGBREAK
+    \verb|  min::uns32    in_class_if_none_of;|%
+\ttmindex{in\_class\_if\_none\_of}{in {\tt min::str\_classifier}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
                    min::~{quote\_all\_control}:}
 \LABEL{MIN::QUOTE_ALL_CONTROL}\ARGBREAK
-\verb|0                          // unquote_if_first|\ARGBREAK
-\verb|0                          // unquote_skip|\ARGBREAK
-\verb|0                          // unquote_if_none_of|
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // in_class_skip|\ARGBREAK
+\verb|0                          // in_class_if_none_of|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
 		   min::~{quote\_first\_not\_letter\_control}:}
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}\ARGBREAK
-\verb|min::QUOTE_SUPPRESS        // unquote_if_first|\ARGBREAK
-\verb|min::QUOTE_SKIP            // unquote_skip|\ARGBREAK
-\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
+\verb|min::QUOTE_SKIP            // in_class_skip|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // in_class_if_none_of|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::quote\_control
+\multicolumn{2}{l}{\tt const min::str\_classifier
 		   min::~{quote\_non\_graphic\_control}:}
 \LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}\ARGBREAK
-\verb|0                          // unquote_if_first|\ARGBREAK
-\verb|0                          // unquote_skip|\ARGBREAK
-\verb|min::IS_NON_GRAPHIC        // unquote_if_none_of|
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // in_class_skip|\ARGBREAK
+\verb|min::IS_NON_GRAPHIC        // in_class_if_none_of|
 \end{TABULAR}
 
 \bigskip
