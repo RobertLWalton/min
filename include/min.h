@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 27 15:37:15 EDT 2014
+// Date:	Tue Oct 28 06:02:29 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11442,24 +11442,24 @@ namespace min {
     extern const min::bracket_format
         quote_bracket_format;
 
-    struct quote_control
+    struct str_classifier
     {
-        min::uns32 unquote_if_first;
-        min::uns32 unquote_skip;
-	min::uns32 unquote_if_none_of;
+        min::uns32 in_class_if_first;
+        min::uns32 in_class_skip;
+	min::uns32 in_class_if_none_of;
     };
 
-    extern const min::quote_control
+    extern const min::str_classifier
         quote_all_control;
-    extern const min::quote_control
+    extern const min::str_classifier
         quote_first_not_letter_control;
-    extern const min::quote_control
+    extern const min::str_classifier
         quote_non_graphic_control;
 
     struct str_format
     {
 
-        min::quote_control	quote_control;
+        min::str_classifier	quote_control;
 	min::bracket_format 	bracket_format;
 	min::display_control	display_control;
 	min::uns32		id_map_if_longer;
