@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 27 04:33:27 EDT 2014
+// Date:	Wed Oct 29 01:03:26 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2711,6 +2711,34 @@ void test_printer ( void )
     min::print_num ( printer, -1.333333334,
 		     min::fraction_num_format )
             << min::eol;
+
+    min::print_chars
+        ( printer, "this is a string" )
+	<< min::eol;
+    min::print_chars
+        ( printer, "this is a string",
+	  min::quote_non_graphic_str_format )
+	<< min::eol;
+    min::print_chars
+        ( printer, "a_name",
+          min::quote_first_not_letter_str_format )
+	<< min::eol;
+    min::print_chars
+        ( printer, "a_name",
+          min::quote_non_graphic_str_format )
+	<< min::eol;
+    min::print_chars
+        ( printer, "a_name",
+          min::quote_all_str_format )
+	<< min::eol;
+    min::print_chars
+        ( printer, "..a_name",
+          min::quote_first_not_letter_str_format )
+	<< min::eol;
+    min::print_chars
+        ( printer, "...",
+          min::quote_first_not_letter_str_format )
+	<< min::eol;
 
     printer << min::bom;
 

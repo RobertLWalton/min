@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 28 05:59:02 EDT 2014
+// Date:	Wed Oct 29 02:11:07 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8729,12 +8729,12 @@ inline min::uns32 compute_flags
     return cflags;
 }
 
-inline min::uns32 compute_or_flags
+inline bool compute_if_all
 	( const min::print_format & print_format,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
 	  min::uns32 & first_flags,
-	  min::uns32 mask = 0 )
+	  min::uns32 mask )
 {
     min::support_control sc =
         print_format.support_control;
@@ -8742,8 +8742,7 @@ inline min::uns32 compute_or_flags
 	print_format.char_flags;
 
     bool first = true;
-    min::uns32 or_flags = 0;
-    while ( ( or_flags & mask ) == 0 && n -- )
+    while ( n -- )
     {
         min::Uchar c = * p ++;
 	min::uns16 cindex = min::Uindex ( c );
@@ -8756,41 +8755,9 @@ inline min::uns32 compute_or_flags
 	    first_flags = cflags;
 	    first = false;
 	}
-	or_flags |= cflags;
+	if ( ( cflags & mask ) == 0 ) return false;
     }
-    return or_flags;
-}
-
-inline min::uns32 compute_and_flags
-	( const min::print_format & print_format,
-	  min::unsptr n,
-	  min::ptr<const min::Uchar> p,
-	  min::uns32 & first_flags,
-	  min::uns32 mask = 0xFFFFFFFF )
-{
-    min::support_control sc =
-        print_format.support_control;
-    const min::uns32 * char_flags =
-	print_format.char_flags;
-
-    bool first = true;
-    min::uns32 and_flags = mask;
-    while ( and_flags != 0 && n -- )
-    {
-        min::Uchar c = * p ++;
-	min::uns16 cindex = min::Uindex ( c );
-	min::uns32 cflags = char_flags[cindex];
-	if ( ( cflags & sc.support_mask ) == 0 )
-	    cflags = sc.unsupported_char_flags;
-
-	if ( first )
-	{
-	    first_flags = cflags;
-	    first = false;
-	}
-	and_flags &= cflags;
-    }
-    return and_flags;
+    return true;
 }
 
 min::printer min::print_unicode
@@ -8808,44 +8775,44 @@ min::printer min::print_unicode
 	min::str_classifier qc = sf->quote_control;
 
 	// Divide into the case where we need to call
-	// compute_or_flags and the case where we do not
+	// compute_if_all and the case where we do not
 	// need to.
 	//
-	if ( qc.in_class_if_none_of != 0 )
+	if ( qc.in_class_if_all != min::ALL_CHARS )
 	{
 	    min::uns32 first_flags;
-	    min::uns32 or_flags =
-		::compute_or_flags
-		    ( printer->print_format,
-		      n, p,
-		      first_flags,
-		      qc.in_class_if_none_of );
-	    min::uns32 if_none_of =
-		or_flags & qc.in_class_if_none_of;
-	    min::uns32 i = 1;
-	    while ( first_flags & qc.in_class_skip )
+	    if ( ::compute_if_all
+		     ( printer->print_format,
+		       n, p,
+		       first_flags,
+		       qc.in_class_if_all ) )
 	    {
-	        first_flags = i >= n ? 0 :
-		    ::compute_flags
-		        ( printer->print_format, p[i] );
-		++ i;
+		min::uns32 i = 0;
+		while ( first_flags & qc.skip_if_first )
+		{
+		    if ( i == n - 1 ) break;
+		    ++ i;
+		    first_flags =
+			::compute_flags
+			    ( printer->print_format,
+			      p[i] );
+		}
+		if ( first_flags & qc.in_class_if_first )
+		    sf = NULL;
 	    }
-	    min::uns32 if_first =
-		first_flags & qc.in_class_if_first;
-	    if ( if_none_of == 0 && if_first != 0 )
-		sf = NULL;
 	}
-	else if ( qc.in_class_if_first != 0 )
+	else if (    qc.in_class_if_first
+	          != min::ALL_CHARS )
 	{
 	    min::uns32 i = 0;
 	    uns32 first_flags;
 	    while ( true ) {
-	        first_flags = i >= n ? 0 :
+	        first_flags =
 		    ::compute_flags
 		        ( printer->print_format, p[i] );
 		min::uns32 skip =
-		    first_flags & qc.in_class_skip;
-		if ( skip == 0 ) break;
+		    first_flags & qc.skip_if_first;
+		if ( skip == 0 || i == n - 1 ) break;
 		++ i;
 	    }
 
@@ -8853,6 +8820,8 @@ min::printer min::print_unicode
 		 & qc.in_class_if_first )
 		sf = NULL;
 	}
+	else
+	    sf = NULL;
 
 	if ( sf != NULL )
 	    return ::print_quoted_unicode
@@ -9209,14 +9178,14 @@ const min::str_classifier
 	min::quote_first_not_letter_control =
 {
     min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
-    min::IS_NON_GRAPHIC
+    min::IS_GRAPHIC
 };
 
 
 const min::str_classifier
 	min::quote_non_graphic_control =
 {
-    0, 0, min::IS_NON_GRAPHIC
+    min::ALL_CHARS, 0, min::IS_GRAPHIC
 };
 
 const min::bracket_format min::quote_bracket_format =
@@ -9334,6 +9303,8 @@ static min::obj_format exp_obj_format =
     (const min::ustring *)
         "\x04\x04" " <= ",  // obj_valreq
 
+    min::quote_all_control, // marking_type
+
     min::NULL_STUB	    // flag_names*
 };
 const min::obj_format * min::exp_obj_format =
@@ -9376,6 +9347,8 @@ static min::obj_format id_map_obj_format =
         "\x02\x82" "*}",    // obj_valend
     (const min::ustring *)
         "\x04\x04" " <= ",  // obj_valreq
+
+    min::quote_all_control, // marking_type
 
     min::NULL_STUB	    // flag_names*
 };

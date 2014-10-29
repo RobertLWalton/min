@@ -1777,6 +1777,13 @@ pint ( -3, "%05d" ) = -0003
 1 1/3
 -1/3
 -1 1/3
+this is a string
+"this<SP>is<SP>a<SP>string"
+a_name
+a_name
+"a_name"
+..a_name
+"..."
 "this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")

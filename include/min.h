@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 28 06:02:29 EDT 2014
+// Date:	Tue Oct 28 20:00:59 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11445,9 +11445,10 @@ namespace min {
     struct str_classifier
     {
         min::uns32 in_class_if_first;
-        min::uns32 in_class_skip;
-	min::uns32 in_class_if_none_of;
+        min::uns32 skip_if_first;
+	min::uns32 in_class_if_all;
     };
+    const min::uns32 ALL_CHARS = 0xFFFFFFFF;
 
     extern const min::str_classifier
         quote_all_control;
@@ -11524,6 +11525,8 @@ namespace min {
 	const min::ustring *   	    obj_valsep;
 	const min::ustring *   	    obj_valend;
 	const min::ustring *   	    obj_valreq;
+
+	min::str_classifier	    marking_type;
 
 	packed_vec_ptr<const char *>
 	                   	    flag_names;
