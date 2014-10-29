@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 29 02:11:07 EDT 2014
+// Date:	Wed Oct 29 08:19:45 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8797,7 +8797,8 @@ min::printer min::print_unicode
 			    ( printer->print_format,
 			      p[i] );
 		}
-		if ( first_flags & qc.in_class_if_first )
+		if (   first_flags
+		     & qc.in_class_if_first )
 		    sf = NULL;
 	    }
 	}
@@ -9268,7 +9269,7 @@ static min::obj_format exp_obj_format =
     // USTRING_TRAILING == 0x80
 
     (const min::ustring *)
-        "\x02\x02" "{}",     // obj_empty
+        "\x02\x02" "{}",    // obj_empty
 
     (const min::ustring *)
         "\x01\x41" "{",     // obj_bra
@@ -9758,16 +9759,15 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    bool line_format = ( objf->obj_bra == NULL );
-    bool attributes_after_elements =
-        line_format || ( objf->obj_attrsep == NULL );
+    bool isolated_line_format =
+        ( objf->obj_bra == NULL );
 
-    // If not line_format, loop until we determine
-    // compact_ok is false AND we have found type.
-    // If compact_ok remains true, collect any separa-
-    // tor, initiator, terminator, and type.
+    // If not isolated_line_format, loop until we
+    // determine compact_ok is false AND we have found
+    // type.  If compact_ok remains true, collect any
+    // separator, initiator, terminator, and type.
     //
-    bool compact_ok = ! line_format;
+    bool compact_ok = ! isolated_line_format;
     if ( compact_ok )
         for ( min::unsptr i = 0;
                  ( compact_ok || type == min::NONE() )
@@ -9810,6 +9810,10 @@ min::printer min::print_obj
 	    compact_ok = false;
     }
 
+    bool embedded_line_format =
+           ! isolated_line_format && ! compact_ok 
+        && ( objf->obj_attrbegin == NULL );
+
     printer << min::save_print_format
             << min::no_auto_break
             << min::set_break;
@@ -9839,10 +9843,10 @@ min::printer min::print_obj
 		( printer, objf->obj_braend );
 	}
     }
-    else if ( ! line_format )
+    else if ( ! isolated_line_format )
     {
 
-	if ( attributes_after_elements )
+	if ( embedded_line_format )
 	{
 	    printer << min::indent;
 	    min::print_ustring
@@ -9871,7 +9875,7 @@ min::printer min::print_obj
         if ( first ) 
 	{
 	    first = false;
-	    if ( ! line_format )
+	    if ( ! isolated_line_format )
 	    {
 		min::print_spaces ( printer, 1 );
 		if ( ! compact_ok )
@@ -9896,9 +9900,9 @@ min::printer min::print_obj
 	    ( printer, vp[i], objf->element_format );
     }
 
-    if ( ! line_format )
+    if ( ! isolated_line_format )
     {
-	if ( attributes_after_elements )
+	if ( embedded_line_format )
 	{
 	    ::print_attributes
 		( printer, vp, ap, info, m,
@@ -9928,7 +9932,7 @@ min::printer min::print_obj
 
     if ( ! first ) printer << min::restore_indent;
 
-    if ( line_format )
+    if ( isolated_line_format )
         ::print_attributes
 	    ( printer, vp, ap, info, m,
 	      separator, type, objf, true );

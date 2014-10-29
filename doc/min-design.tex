@@ -161,7 +161,7 @@
 \newcommand{\minmindex}[2]{\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
-\newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -10359,6 +10359,7 @@ to surround the value name.
 
 
 \subsubsection{Printing Using An Identifier Map}
+\label{PRINTING-USING-AN-IDENTIFIER-MAP}
 
 General values that have stubs, namely objects, packed structures and vectors,
 and long strings, can be
@@ -13851,26 +13852,32 @@ is a no-operation.
 
 An object is printed in `\mkey{isolated line format}{for printing object}'
 if the \TT{obj\_\EOL bra} member of the object format is \TT{NULL}.
+This format is usually used by \TT{flush\_\EOL id\_\EOL map}:
+see \itemref{PRINTING-USING-AN-IDENTIFIER-MAP}.
 
 An object is printed in `\mkey{compact format}{for printing object}'
 if it is not being printed in isolated line format, if it does not
 have any attributes other than \TT{.position} that have multiple
 values or flags or reverse attributes (double arrows), and if
 \begin{indpar}
-It has \TT{.initiator} and \TT{.terminator} attributes,
-but no other attributes except possibly \TT{.separator} and/or
-\TT{.position}.
+It has both \TT{.initiator} and \TT{.terminator} attributes that
+are both strings, but no other attributes except possibly a \TT{.separator}
+attribute that must be a string and a \TT{.position} attribute that is
+unrestricted.
 \end{indpar}
 or
 \begin{indpar}
-It a \TT{.type} attribute,
-but no other attributes except possibly \TT{.separator} and/or
-\TT{.position}.
+It has a \TT{.type} attribute that is a name,
+but no other attributes except possibly a \TT{.separator} attribute
+that must be a string and a \TT{.position} attribute that is unrestricted.
 \end{indpar}
 
 An object is printed in `\mkey{embedded line format}{for printing object}'
 if it is not being printed in isolated line or compact format and
-if the \TT{obj\_\EOL attreol} member of the object format is not \TT{NULL}.
+if the \TT{obj\_\EOL attrbegin} member of the object format is \TT{NULL}.
+
+If none of the above apply, the object is printed in
+`\mkey{normal format}{for printing object}'.
 
 
 Keeping these formats in mind, the members of a \TT{min::obj\_format} are:
@@ -13891,37 +13898,29 @@ empty object that has no elements and no attributes
 other than \TT{.position}.  If \TT{NULL}, it prints
 as the empty string of characters, but its not a good
 idea for this member to have a \TT{NULL} value unless
-objects are being printed in line format.
+perhaps objects are being printed in isolated line format.
 
 \item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
-object elements and attributes in the absence of object
-\TT{.initiator} and \TT{.terminator} attributes.
+object elements and attributes in normal format.
 In this case \TT{obj\_\EOL bra} followed optionally by the
 object's \TT{.type} and attributes followed by
 \TT{obj\_\EOL braend} serves as the opening bracket for
 the object's list of elements,
 and \TT{obj\_\EOL ketbegin}
-followed optionally by the object \TT{.type} and attributes
+followed by the object \TT{.type}
 followed by \TT{obj\_\EOL ket} serves as the closing bracket
-for the object.
+for the object.  If the \TT{.type} is the empty string and there
+it is omitted from its beginning position if there are no attributes
+and is omitted from its ending position in any case.
 
 If \TT{obj\_bra} is \TT{NULL}, the object is printed
-in `\key{line format}'.  None of these members are used,
-and the object is printed as a list
-of element values, with the last line ending with \TT{obj\_\EOL attreol}
-if there are attributes, and each attribute is printed on its own indented
-line.  Special attributes
-such as \TT{.type}, \TT{.initiator}, and \TT{.separator}
-are not given any special
-treatment.  This format is usually used by \TT{flush\_\EOL id\_\EOL map}
-to print objects.
-
+in isolated line format, and not in normal format.
 Otherwise, if any of these members other than
-\TT{obj\_\EOL ket} are \TT{NULL}, they just print as the
+\TT{obj\_\EOL bra} are \TT{NULL}, they just print as the
 empty string of characters.
 
 \item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]~\\
