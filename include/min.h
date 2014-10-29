@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 28 20:00:59 EDT 2014
+// Date:	Wed Oct 29 14:29:47 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3383,43 +3383,43 @@ namespace min {
 		       [unicode::index_size - 1];
     }
 
-    enum {
-	IS_NON_SPACING		= ( 1 << 0 ),
+    const min::uns32 IS_NON_SPACING	= ( 1 << 0 );
 
-	IS_LEADING		= ( 1 << 1 ),
-	IS_MIDDLING		= ( 1 << 2 ),
-	IS_TRAILING		= ( 1 << 3 ),
+    const min::uns32 IS_LEADING		= ( 1 << 1 );
+    const min::uns32 IS_MIDDLING	= ( 1 << 2 );
+    const min::uns32 IS_TRAILING	= ( 1 << 3 );
 
-        IS_SP			= ( 1 << 4 ),
-        IS_NB_HSPACE		= ( 1 << 5 ),
-        IS_OTHER_HSPACE		= ( 1 << 6 ),
+    const min::uns32 IS_SP		= ( 1 << 4 );
+    const min::uns32 IS_NB_HSPACE	= ( 1 << 5 );
+    const min::uns32 IS_OTHER_HSPACE	= ( 1 << 6 );
 
-	IS_VSPACE		= ( 1 << 7 ),
-	IS_OTHER_CONTROL	= ( 1 << 8 ),
+    const min::uns32 IS_VSPACE		= ( 1 << 7 );
+    const min::uns32 IS_OTHER_CONTROL	= ( 1 << 8 );
 
-	IS_UNSUPPORTED		= ( 1 << 9 ),
+    const min::uns32 IS_UNSUPPORTED	= ( 1 << 9 );
 
-	CONDITIONAL_BREAK	= ( 1 << 15 ),
+    const min::uns32 CONDITIONAL_BREAK	= ( 1 << 15 );
 
-	IS_ASCII		= ( 1 << 16 ),
-	IS_LATIN1		= ( 1 << 17 ),
+    const min::uns32 IS_ASCII		= ( 1 << 16 );
+    const min::uns32 IS_LATIN1		= ( 1 << 17 );
 
-	QUOTE_SUPPRESS		= ( 1 << 24 ),
-	QUOTE_SKIP		= ( 1 << 25 ),
+    const min::uns32 QUOTE_SUPPRESS	= ( 1 << 24 );
+    const min::uns32 QUOTE_SKIP		= ( 1 << 25 );
 
-	IS_HSPACE = IS_SP + IS_NB_HSPACE
-	          + IS_OTHER_HSPACE,
-	IS_GRAPHIC = IS_LEADING + IS_MIDDLING
-		   + IS_TRAILING,
-	IS_CONTROL = IS_HSPACE
-		   + IS_VSPACE + IS_OTHER_CONTROL,
-	IS_NON_HSPACE = IS_GRAPHIC
-	              + IS_VSPACE + IS_OTHER_CONTROL
-	              + IS_UNSUPPORTED,
-	IS_NON_GRAPHIC = IS_CONTROL
-	               + IS_UNSUPPORTED
-	          
-    };
+    const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
+			      	+ IS_OTHER_HSPACE;
+    const min::uns32 IS_GRAPHIC = IS_LEADING
+    				+ IS_MIDDLING
+				+ IS_TRAILING;
+    const min::uns32 IS_CONTROL = IS_HSPACE
+				+ IS_VSPACE
+				+ IS_OTHER_CONTROL;
+    const min::uns32 IS_NON_HSPACE = IS_GRAPHIC
+				   + IS_VSPACE
+				   + IS_OTHER_CONTROL
+				   + IS_UNSUPPORTED;
+    const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
+				    + IS_UNSUPPORTED;
 
     extern const min::uns32 * standard_char_flags;
 
@@ -10698,14 +10698,12 @@ namespace min {
 
 namespace min {
 
-    enum {
-	EXPAND_HT		= ( 1 << 0 ),
-        DISPLAY_EOL		= ( 1 << 1 ),
-	DISPLAY_PICTURE		= ( 1 << 2 ),
-	FLUSH_ON_EOL		= ( 1 << 3 ),
-        FLUSH_ID_MAP_ON_EOM	= ( 1 << 4 ),
-	DISABLE_SUPPRESS	= ( 1 << 5 ),
-    };
+    const min::uns32 EXPAND_HT		  = ( 1 << 0 );
+    const min::uns32 DISPLAY_EOL	  = ( 1 << 1 );
+    const min::uns32 DISPLAY_PICTURE	  = ( 1 << 2 );
+    const min::uns32 FLUSH_ON_EOL	  = ( 1 << 3 );
+    const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 4 );
+    const min::uns32 DISABLE_SUPPRESS	  = ( 1 << 5 );
 
     extern const min::uns32 standard_op_flags;
 
