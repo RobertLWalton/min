@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 29 14:29:47 EDT 2014
+// Date:	Thu Oct 30 01:30:14 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11397,14 +11397,6 @@ std::ostream & operator <<
 
 namespace min {
 
-    struct str_format;
-    struct bracket_format;
-    struct num_format;
-    struct lab_format;
-    struct special_format;
-    struct obj_format;
-    struct gen_format;
-
     struct num_format
     {
         const char * 		int_printf_format;
@@ -11497,8 +11489,11 @@ namespace min {
     extern const min::special_format *
         bracket_special_format;
 
+    struct gen_format;
     struct obj_format
     {
+        min::uns32		    obj_op_flags;
+
 	const min::gen_format *     element_format;
         const min::gen_format *	    label_format;
 	const min::gen_format *     value_format;
@@ -11527,8 +11522,11 @@ namespace min {
 	min::str_classifier	    marking_type;
 
 	packed_vec_ptr<const char *>
-	                   	    flag_names;
+	                   	    attr_flag_names;
     };
+    const min::uns32 ISOLATED_LINE	= ( 1 << 0 );
+    const min::uns32 ENABLE_COMPACT	= ( 1 << 1 );
+    const min::uns32 EMBEDDED_LINE	= ( 1 << 2 );
 
     extern const min::obj_format *
         exp_obj_format;
@@ -11568,7 +11566,7 @@ namespace min {
            standard_special_names;
 
     extern packed_vec_ptr<const char *>
-           standard_flag_names;
+           standard_attr_flag_names;
 
     min::printer standard_pgen
 	    ( min::printer printer,

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 29 08:19:45 EDT 2014
+// Date:	Thu Oct 30 01:33:38 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,9 +112,11 @@ static min::locatable_var
 	< min::packed_vec_ptr<const char *> >
     standard_special_names;
 
-static const unsigned standard_flag_names_length = 256;
-static char const * standard_flag_names_value
-		  [::standard_flag_names_length] =
+static const unsigned
+    standard_attr_flag_names_length = 256;
+static char const *
+    standard_attr_flag_names_value
+	[::standard_attr_flag_names_length] =
     { "!", "#", "$", "%", "&", "*",
       "+", "-", "/", "=", "?", "@",
 
@@ -168,10 +170,10 @@ static char const * standard_flag_names_value
       "\\U", "\\V", "\\W", "\\X", "\\Y", "\\Z"
     };
 min::packed_vec_ptr<const char *>
-    min::standard_flag_names;
+    min::standard_attr_flag_names;
 static min::locatable_var
 	< min::packed_vec_ptr<const char *> >
-    standard_flag_names;
+    standard_attr_flag_names;
 
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
@@ -366,12 +368,13 @@ void MINT::initialize ( void )
     {
 	min::packed_vec_insptr<const char *> p =
 	    min::const_char_ptr_packed_vec_type.new_stub
-		( ::standard_flag_names_length );
-	::standard_flag_names = p;
-	min::standard_flag_names = p;
+		( ::standard_attr_flag_names_length );
+	::standard_attr_flag_names = p;
+	min::standard_attr_flag_names = p;
 
-	min::push ( p, ::standard_flag_names_length,
-		       ::standard_flag_names_value );
+	min::push ( p,
+	            ::standard_attr_flag_names_length,
+		    ::standard_attr_flag_names_value );
     }
 
     init_standard_char_flags();
@@ -9261,6 +9264,8 @@ const min::special_format *
 
 static min::obj_format exp_obj_format =
 {
+    min::ENABLE_COMPACT,    // obj_op_flags
+
     NULL,		    // element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
@@ -9306,13 +9311,15 @@ static min::obj_format exp_obj_format =
 
     min::quote_all_control, // marking_type
 
-    min::NULL_STUB	    // flag_names*
+    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::exp_obj_format =
     & ::exp_obj_format;
 
 static min::obj_format id_map_obj_format =
 {
+    min::ISOLATED_LINE,	    // obj_op_flags
+
     NULL,		    // element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
@@ -9351,7 +9358,7 @@ static min::obj_format id_map_obj_format =
 
     min::quote_all_control, // marking_type
 
-    min::NULL_STUB	    // flag_names*
+    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::id_map_obj_format =
     & ::id_map_obj_format;
@@ -9461,8 +9468,8 @@ static void init_pgen_formats ( void )
         min::name_gen_format;
     ::exp_obj_format.value_format =
         min::top_gen_format;
-    ::exp_obj_format.flag_names =
-        min::standard_flag_names;
+    ::exp_obj_format.attr_flag_names =
+        min::standard_attr_flag_names;
 
     ::id_map_obj_format.element_format =
         min::top_gen_format;
@@ -9470,8 +9477,8 @@ static void init_pgen_formats ( void )
         min::name_gen_format;
     ::id_map_obj_format.value_format =
         min::top_gen_format;
-    ::id_map_obj_format.flag_names =
-        min::standard_flag_names;
+    ::id_map_obj_format.attr_flag_names =
+        min::standard_attr_flag_names;
 
     ::top_gen_format.id_map_format =
         min::id_map_gen_format;
@@ -9502,7 +9509,7 @@ static void print_attributes
 	  min::attr_ptr & ap,
 	  min::attr_info * info,
 	  min::unsptr m,
-	  min::gen & separator,
+	  const min::gen & separator,
 	  const min::gen & type,
 	  const min::obj_format * objf,
 	  bool line_format )
@@ -9514,23 +9521,15 @@ static void print_attributes
     adjust = ( adjust > 20 ? 4 : 2 );
     for ( min::unsptr i = 0; i < m; ++ i )
     {
-	if ( info[i].name == min::dot_separator )
-	{
-	    if (    info[i].value_count == 1
-		 && info[i].flag_count == 0
-		 && info[i].reverse_attr_count == 0
-		 && min::is_str ( separator ) )
-	    {
-		separator = info[i].value;
-		continue;
-	    }
-	}
+	if ( info[i].name == min::dot_position )
+	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
 		  info[i].value == type )
 	    continue;
-	else if (    info[i].name
-		  == min::dot_position )
+	else if ( info[i].name == min::dot_separator
+	          &&
+	          info[i].value == separator )
 	    continue;
 
 	if ( first_attr )
@@ -9600,7 +9599,7 @@ static void print_attributes
 	if ( fc > 0 )
 	{
 	    min::packed_vec_ptr<const char *>
-		names = objf->flag_names;
+		names = objf->attr_flag_names;
 	    min::unsptr length =
 	        ( names == min::NULL_STUB ?
 		  0 : names->length );
@@ -9759,20 +9758,17 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    bool isolated_line_format =
-        ( objf->obj_bra == NULL );
-
-    // If not isolated_line_format, loop until we
-    // determine compact_ok is false AND we have found
-    // type.  If compact_ok remains true, collect any
-    // separator, initiator, terminator, and type.
+    // Loop until we determine compact_format is false
+    // AND we have found type.  If compact_format
+    // remains true, collect any separator, initiator,
+    // terminator, and type.
     //
-    bool compact_ok = ! isolated_line_format;
-    if ( compact_ok )
-        for ( min::unsptr i = 0;
-                 ( compact_ok || type == min::NONE() )
-	      && i < m;
-	      ++ i )
+    bool compact_format = true;
+
+    for ( min::unsptr i = 0;
+	     ( compact_format || type == min::NONE() )
+	  && i < m;
+	  ++ i )
     {
         if ( info[i].name == min::dot_position )
 	    continue;
@@ -9780,45 +9776,64 @@ min::printer min::print_obj
 	if (    info[i].value_count != 1
 	     || info[i].flag_count != 0
 	     || info[i].reverse_attr_count != 0 )
-	    compact_ok = false;
+	    compact_format = false;
         else if ( info[i].name == min::dot_type )
 	{
-	    if ( min::is_name ( info[i].value ) )
+	    if ( min::is_name ( info[i].value )
+	         &&
+                 (   objf->obj_op_flags
+		   & min::ENABLE_COMPACT ) )
 		type = info[i].value;
-	    else compact_ok = false;
+	    else compact_format = false;
 	}
 	else if ( ! min::is_str ( info[i].value ) )
-	    compact_ok = false;
+	    compact_format = false;
         else if ( info[i].name == min::dot_separator )
 	    separator = info[i].value;
         else if ( info[i].name == min::dot_initiator )
 	    initiator = info[i].value;
         else if ( info[i].name == min::dot_terminator )
 	    terminator = info[i].value;
-	else compact_ok = false;
+	else compact_format = false;
     }
+
+    compact_format =
+        compact_format
+	&&
+	( objf->obj_op_flags & min::ENABLE_COMPACT );
 
     // Compact_ok does not allow just one of initiator
     // and terminator.
     //
-    if ( compact_ok )
+    if ( compact_format )
     {
 	if ( initiator != min::NONE() )
-	    compact_ok = ( terminator != min::NONE() )
+	    compact_format = ( terminator != min::NONE() )
 	              && ( type == min::NONE() );
 	else if ( terminator != min::NONE() )
-	    compact_ok = false;
+	    compact_format = false;
     }
 
+    bool isolated_line_format =
+        ! compact_format
+	&&
+        ( objf->obj_op_flags & min::ISOLATED_LINE );
+
     bool embedded_line_format =
-           ! isolated_line_format && ! compact_ok 
-        && ( objf->obj_attrbegin == NULL );
+           ! isolated_line_format && ! compact_format 
+        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
+
+    // For line formats, move separator to
+    // print_attributes output.
+    //
+    if ( isolated_line_format || embedded_line_format )
+        separator = min::NONE();
 
     printer << min::save_print_format
             << min::no_auto_break
             << min::set_break;
 
-    if ( compact_ok )
+    if ( compact_format )
     {
         if ( initiator != min::NONE() )
 	    min::print_str ( printer, initiator );
@@ -9878,7 +9893,7 @@ min::printer min::print_obj
 	    if ( ! isolated_line_format )
 	    {
 		min::print_spaces ( printer, 1 );
-		if ( ! compact_ok )
+		if ( ! compact_format )
 		    printer << min::set_break;
 	    }
 	    printer << min::save_indent;
@@ -9906,7 +9921,8 @@ min::printer min::print_obj
 	{
 	    ::print_attributes
 		( printer, vp, ap, info, m,
-		  separator, min::NONE(), objf, true );
+		  min::NONE(), min::NONE(), objf,
+		  true );
 	    min::print_spaces ( printer, 1 );
 	    min::print_ustring
 		( printer, objf->obj_ketbegin );
@@ -9917,7 +9933,7 @@ min::printer min::print_obj
 	{
 	    min::print_spaces ( printer, 1 );
 
-	    if (    compact_ok
+	    if (    compact_format
 	         && terminator != min::NONE() )
 		min::print_str ( printer, terminator );
 	    else
@@ -9998,7 +10014,7 @@ min::printer min::print_obj
 	    if ( fc > 0 )
 	    {
 		min::packed_vec_ptr<const char *>
-		    names = f->flag_names;
+		    names = f->attr_flag_names;
 		printer << "[";
 		if ( fc * min::VSIZE <= 64 )
 		{

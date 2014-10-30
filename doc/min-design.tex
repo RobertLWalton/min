@@ -13677,6 +13677,11 @@ The format for printing object \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{obj\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
+    \verb|  min::uns32                           obj_op_flags;|%
+\ttmindex{obj\_op\_flags}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen_format                      name_format;|%
 \ttmindex{name\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen_format                      element_format;|%
@@ -13728,17 +13733,32 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>    flag_names;|%
-\ttmindex{flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<const char *>    attr_flag_names;|%
+\ttmindex{attr\_flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::OBJ_FORMAT}
 \end{tabular}
 \end{indpar}
 
+\TT{obj\_format.obj\_op\_flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{ISOLATED\_LINE}
+\LABEL{MIN::ISOLATED_LINE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{COMPACT}
+\LABEL{MIN::COMPACT_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
+\LABEL{MIN::EMBEDDED_LINE_FLAG} \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{exp\_obj\_format}:}\ARGBREAK
+\verb|min::COMPACT                             // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
@@ -13776,7 +13796,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_flag_names                 // flag_names|\ARGBREAK
+\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \LABEL{MIN::EXP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -13784,6 +13804,10 @@ The format for printing object \TT{min::gen} values is:
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{id\_map\_obj\_format}:}\ARGBREAK
+\verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
@@ -13821,14 +13845,14 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_flag_names                 // flag_names|\ARGBREAK
+\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \LABEL{MIN::ID_MAP_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<const char *> min::|%
-    \MINKEY{standard\_\EOL flag\_\EOL names}
-\LABEL{MIN::STANDARD_FLAG_NAMES} \\
+    \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
+\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES} \\
 \verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
 \verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
 \verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
@@ -13960,16 +13984,17 @@ This is a \TT{min::ustring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::ustring}.
 
-\item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it
 is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
-\TT{flag\_names[i]} is printed as the representation of
+\TT{attr\_\EOL flag\_\EOL names[i]} is printed as the representation of
 control flag \TT{1 << i} of an attribute.
 
-WARNING: The \TT{flag\_\EOL names} member of a \TT{min::gen\_format} is
+WARNING: The \TT{attr\_\EOL flag\_\EOL names}
+member of a \TT{min::gen\_format} is
 \underline{not} locatable by the ACC, and its value must therefore be
 stored elsewhere in a locatable variable.  It is expected that values of
-\TT{flag\_\EOL names} will never be garbage collected and
+\TT{attr\_\EOL flag\_\EOL names} will never be garbage collected and
 will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 \TT{min::\EOL locatable\_\EOL gen} variables.
 
@@ -14098,9 +14123,9 @@ where the default correspondence is
 \TTBS{!} \ldots{} \TTBS{Z} & \TT{192} \ldots{} \TT{255} \\
 \end{tabular}
 \end{center}
-The {\tt flag\_names} member of the effective {\tt gen\_format}
-is used to produce flag names, and the correspondence just
-given is that of {\tt min::\EOL default\_\EOL flag\_\EOL names}.
+The {\tt attr\_flag\_names} member of the effective {\tt gen\_format}
+is used to produce attribute flag names, and the correspondence just
+given is that of {\tt min::\EOL staandard\_\EOL attr\_\EOL flag\_\EOL names}.
 
 The {\tt context\_gen\_flags} or {\tt gen\_format} of a printer
 may be changed by the printer operations:
@@ -19518,8 +19543,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.0in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
-\verb|min::| & \MINKEY{default\_\EOL flag\_\EOL names}
-\LABEL{MIN::STANDARD_FLAG_NAMES}
+\verb|min::| & \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
+\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES}
 \end{TABULAR}
 
 \bigskip
