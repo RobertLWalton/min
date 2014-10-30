@@ -9746,7 +9746,7 @@ for general value formats is as follows:
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|min::id_map_gen_format                  // id_map_format|
 \LABEL{MIN::TOP_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -9759,7 +9759,7 @@ for general value formats is as follows:
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
-\verb|min::id_map_obj_format                  // obj_format|\ARGBREAK
+\verb|min::isolated_line_obj_format           // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
 \LABEL{MIN::ID_MAP_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -9772,7 +9772,7 @@ for general value formats is as follows:
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
 \LABEL{MIN::NAME_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -9785,7 +9785,7 @@ for general value formats is as follows:
 \verb|NULL                                    // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::name_special_format                // special_format|\ARGBREAK
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
@@ -13754,7 +13754,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{exp\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{compact\_obj\_format}:}\ARGBREAK
 \verb|min::COMPACT                             // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -13775,14 +13775,20 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x02\x82" ": "   // obj_attrbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" ", "   // obj_attrsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
@@ -13797,13 +13803,13 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\LABEL{MIN::EXP_OBJ_FORMAT}
+\LABEL{MIN::COMPACT_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{id\_map\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{isolated\_line\_obj\_format}:}\ARGBREAK
 \verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -13824,14 +13830,20 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_bra|\ARGBREAK
 \verb|NULL                                     // obj_braend|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
 \verb|NULL                                     // obj_ketbegin|\ARGBREAK
 \verb|NULL                                     // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrsep|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
@@ -13846,7 +13858,62 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\LABEL{MIN::ID_MAP_OBJ_FORMAT}
+\LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{embedded\_line\_obj\_format}:}\ARGBREAK
+\verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::name_gen_format                     // name_format|\ARGBREAK
+\verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::top_gen_format                      // value_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb$(const min::ustring *) "\x04\x04" "{||}" // obj_empty$\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
+\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -17876,7 +17943,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
 \verb|min::id_map_gen_format                  // id_map_format|
 \end{TABULAR}
 
@@ -17891,7 +17958,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
 \verb|NULL                                    // id_map_format|
 \end{TABULAR}
 
@@ -17906,7 +17973,7 @@ These are in \verb|min_parameters.h|.
 \verb|NULL                                    // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::name_special_format                // special_format|\ARGBREAK[0in]
-\verb|min::exp_obj_format                     // obj_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
 \verb|NULL                                    // id_map_format|
 \end{TABULAR}
 

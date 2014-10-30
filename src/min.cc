@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 30 01:33:38 EDT 2014
+// Date:	Thu Oct 30 04:03:10 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9262,7 +9262,7 @@ const min::special_format *
 	min::bracket_special_format =
     & ::bracket_special_format;
 
-static min::obj_format exp_obj_format =
+static min::obj_format compact_obj_format =
 {
     min::ENABLE_COMPACT,    // obj_op_flags
 
@@ -9313,10 +9313,10 @@ static min::obj_format exp_obj_format =
 
     min::NULL_STUB	    // attr_flag_names*
 };
-const min::obj_format * min::exp_obj_format =
-    & ::exp_obj_format;
+const min::obj_format * min::compact_obj_format =
+    & ::compact_obj_format;
 
-static min::obj_format id_map_obj_format =
+static min::obj_format isolated_line_obj_format =
 {
     min::ISOLATED_LINE,	    // obj_op_flags
 
@@ -9360,8 +9360,60 @@ static min::obj_format id_map_obj_format =
 
     min::NULL_STUB	    // attr_flag_names*
 };
-const min::obj_format * min::id_map_obj_format =
-    & ::id_map_obj_format;
+const min::obj_format * min::isolated_line_obj_format =
+    & ::isolated_line_obj_format;
+
+static min::obj_format embedded_line_obj_format =
+{
+    min::EMBEDDED_LINE,	    // obj_op_flags
+
+    NULL,		    // element_format*
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    // USTRING_LEADING  == 0x40
+    // USTRING_TRAILING == 0x80
+
+    (const min::ustring *)
+        "\x04\x04" "{||}",  // obj_empty
+
+    (const min::ustring *)
+        "\x01\x41" "{",     // obj_bra
+    (const min::ustring *)
+        "\x01\x01" "|",     // obj_braend
+    (const min::ustring *)
+        "\x01\x01" "|",     // obj_ketbegin
+    (const min::ustring *)
+        "\x01\x81" "}",     // obj_ket
+
+    (const min::ustring *)
+        "\x01\x01" " ",     // obj_separator
+
+    NULL,		    // obj_attrbegin
+    (const min::ustring *)
+        "\x01\x81" ":",     // obj_attreol
+
+    NULL,		    // obj_attrsep
+    (const min::ustring *)
+        "\x03\x03" "no ",   // obj_attrneg
+    (const min::ustring *)
+        "\x03\x03" " = ",   // obj_attreq
+
+    (const min::ustring *)
+        "\x02\x42" "{*",    // obj_valbegin
+    (const min::ustring *)
+        "\x02\x02" ", ",    // obj_valsep
+    (const min::ustring *)
+        "\x02\x82" "*}",    // obj_valend
+    (const min::ustring *)
+        "\x04\x04" " <= ",  // obj_valreq
+
+    min::quote_all_control, // marking_type
+
+    min::NULL_STUB	    // attr_flag_names*
+};
+const min::obj_format * min::embedded_line_obj_format =
+    & ::embedded_line_obj_format;
 
 static min::gen_format top_gen_format =
 {
@@ -9370,7 +9422,7 @@ static min::gen_format top_gen_format =
     & ::quote_first_not_letter_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::exp_obj_format,
+    & ::compact_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::top_gen_format =
@@ -9383,7 +9435,7 @@ static min::gen_format name_gen_format =
     & ::quote_first_not_letter_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
-    & ::exp_obj_format,
+    & ::compact_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::name_gen_format =
@@ -9396,7 +9448,7 @@ static min::gen_format id_map_gen_format =
     & ::quote_first_not_letter_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::id_map_obj_format,
+    & ::isolated_line_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::id_map_gen_format =
@@ -9409,7 +9461,7 @@ static min::gen_format value_gen_format =
     & ::quote_first_not_letter_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::exp_obj_format,
+    & ::compact_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::value_gen_format =
@@ -9422,7 +9474,7 @@ static min::gen_format element_gen_format =
     & ::quote_first_not_letter_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::exp_obj_format,
+    & ::compact_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::element_gen_format =
@@ -9435,7 +9487,7 @@ static min::gen_format never_quote_gen_format =
     NULL,
     & ::name_lab_format,
     & ::name_special_format,
-    & ::exp_obj_format,
+    & ::compact_obj_format,
     NULL,			    // id_map_format
 };
 const min::gen_format * min::never_quote_gen_format =
@@ -9462,22 +9514,31 @@ static void init_pgen_formats ( void )
     ::bracket_special_format.special_names =
         min::standard_special_names;
 
-    ::exp_obj_format.element_format =
+    ::compact_obj_format.element_format =
         min::top_gen_format;
-    ::exp_obj_format.label_format =
+    ::compact_obj_format.label_format =
         min::name_gen_format;
-    ::exp_obj_format.value_format =
+    ::compact_obj_format.value_format =
         min::top_gen_format;
-    ::exp_obj_format.attr_flag_names =
+    ::compact_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
-    ::id_map_obj_format.element_format =
+    ::isolated_line_obj_format.element_format =
         min::top_gen_format;
-    ::id_map_obj_format.label_format =
+    ::isolated_line_obj_format.label_format =
         min::name_gen_format;
-    ::id_map_obj_format.value_format =
+    ::isolated_line_obj_format.value_format =
         min::top_gen_format;
-    ::id_map_obj_format.attr_flag_names =
+    ::isolated_line_obj_format.attr_flag_names =
+        min::standard_attr_flag_names;
+
+    ::embedded_line_obj_format.element_format =
+        min::top_gen_format;
+    ::embedded_line_obj_format.label_format =
+        min::name_gen_format;
+    ::embedded_line_obj_format.value_format =
+        min::top_gen_format;
+    ::embedded_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
     ::top_gen_format.id_map_format =
@@ -9505,13 +9566,11 @@ min::printer min::print_id
 
 static void print_attributes
 	( min::printer printer, 
+	  const min::obj_format * objf,
 	  min::obj_vec_ptr & vp,
 	  min::attr_ptr & ap,
 	  min::attr_info * info,
 	  min::unsptr m,
-	  const min::gen & separator,
-	  const min::gen & type,
-	  const min::obj_format * objf,
 	  bool line_format )
 {
     bool first_attr = true;
@@ -9525,11 +9584,7 @@ static void print_attributes
 	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
-		  info[i].value == type )
-	    continue;
-	else if ( info[i].name == min::dot_separator
-	          &&
-	          info[i].value == separator )
+		  ! line_format )
 	    continue;
 
 	if ( first_attr )
@@ -9727,8 +9782,7 @@ static void print_attributes
     if ( ! first_attr )
     {
 	if ( line_format )
-	    printer << min::adjust_indent ( - adjust )
-	            << min::eol;
+	    printer << min::adjust_indent ( - adjust );
 	else
 	    printer << min::restore_indent;
     }
@@ -9758,15 +9812,26 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
+    bool isolated_line_format =
+        ( objf->obj_op_flags & min::ISOLATED_LINE );
+
+    bool embedded_line_format =
+           ! isolated_line_format
+        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
+
+    bool line_format = isolated_line_format
+                    || embedded_line_format;
+
     // Loop until we determine compact_format is false
-    // AND we have found type.  If compact_format
-    // remains true, collect any separator, initiator,
-    // terminator, and type.
+    // AND we have found the type.
     //
-    bool compact_format = true;
+    // If compact_format remains true, collect any
+    // separator, initiator, terminator, and type.
+    //
+    bool compact_format = ! line_format;
 
     for ( min::unsptr i = 0;
-	     ( compact_format || type == min::NONE() )
+             ( compact_format || type == min::NONE() )
 	  && i < m;
 	  ++ i )
     {
@@ -9779,10 +9844,7 @@ min::printer min::print_obj
 	    compact_format = false;
         else if ( info[i].name == min::dot_type )
 	{
-	    if ( min::is_name ( info[i].value )
-	         &&
-                 (   objf->obj_op_flags
-		   & min::ENABLE_COMPACT ) )
+	    if ( min::is_name ( info[i].value ) )
 		type = info[i].value;
 	    else compact_format = false;
 	}
@@ -9808,26 +9870,11 @@ min::printer min::print_obj
     if ( compact_format )
     {
 	if ( initiator != min::NONE() )
-	    compact_format = ( terminator != min::NONE() )
-	              && ( type == min::NONE() );
+	    compact_format =
+	        ( terminator != min::NONE() );
 	else if ( terminator != min::NONE() )
 	    compact_format = false;
     }
-
-    bool isolated_line_format =
-        ! compact_format
-	&&
-        ( objf->obj_op_flags & min::ISOLATED_LINE );
-
-    bool embedded_line_format =
-           ! isolated_line_format && ! compact_format 
-        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
-
-    // For line formats, move separator to
-    // print_attributes output.
-    //
-    if ( isolated_line_format || embedded_line_format )
-        separator = min::NONE();
 
     printer << min::save_print_format
             << min::no_auto_break
@@ -9858,29 +9905,25 @@ min::printer min::print_obj
 		( printer, objf->obj_braend );
 	}
     }
+    else if ( embedded_line_format )
+    {
+	printer << min::indent;
+	min::print_ustring
+	    ( printer, objf->obj_bra );
+	min::print_ustring
+	    ( printer, objf->obj_braend );
+    }
     else if ( ! isolated_line_format )
     {
-
-	if ( embedded_line_format )
-	{
-	    printer << min::indent;
-	    min::print_ustring
-		( printer, objf->obj_bra );
-	    min::print_ustring
-		( printer, objf->obj_braend );
-	}
-	else
-	{
-	    min::print_ustring
-		( printer, objf->obj_bra );
-	    min::print_gen
-		( printer, type != min::NONE() ?
-			   type : min::empty_string,
-			   objf->label_format );
-	    ::print_attributes
-		( printer, vp, ap, info, m,
-		  separator, type, objf, false );
-	}
+	min::print_ustring
+	    ( printer, objf->obj_bra );
+	min::print_gen
+	    ( printer, type != min::NONE() ?
+		       type : min::empty_string,
+		       objf->label_format );
+	::print_attributes
+	    ( printer, objf, vp, ap, info, m,
+	      false );
     }
 
     bool first = true;
@@ -9900,7 +9943,8 @@ min::printer min::print_obj
 	}
 	else
 	{
-	    if ( separator == min::NONE() )
+	    if (    ! compact_format
+	         || separator == min::NONE() )
 		min::print_ustring
 		    ( printer, objf->obj_separator );
 	    else
@@ -9915,43 +9959,42 @@ min::printer min::print_obj
 	    ( printer, vp[i], objf->element_format );
     }
 
-    if ( ! isolated_line_format )
+    if ( embedded_line_format )
     {
-	if ( embedded_line_format )
+	::print_attributes
+	    ( printer, objf, vp, ap, info, m,
+	      true );
+	min::print_spaces ( printer, 1 );
+	min::print_ustring
+	    ( printer, objf->obj_ketbegin );
+	min::print_ustring
+	    ( printer, objf->obj_ket );
+	printer << min::eol;
+    }
+    else if ( ! isolated_line_format )
+    {
+	min::print_spaces ( printer, 1 );
+
+	if (    compact_format
+	     && terminator != min::NONE() )
+	    min::print_str ( printer, terminator );
+	else
 	{
-	    ::print_attributes
-		( printer, vp, ap, info, m,
-		  min::NONE(), min::NONE(), objf,
-		  true );
-	    min::print_spaces ( printer, 1 );
 	    min::print_ustring
 		( printer, objf->obj_ketbegin );
 	    min::print_ustring
 		( printer, objf->obj_ket );
-	}
-	else
-	{
-	    min::print_spaces ( printer, 1 );
-
-	    if (    compact_format
-	         && terminator != min::NONE() )
-		min::print_str ( printer, terminator );
-	    else
-	    {
-		min::print_ustring
-		    ( printer, objf->obj_ketbegin );
-		min::print_ustring
-		    ( printer, objf->obj_ket );
-	    }
 	}
     }
 
     if ( ! first ) printer << min::restore_indent;
 
     if ( isolated_line_format )
+    {
         ::print_attributes
-	    ( printer, vp, ap, info, m,
-	      separator, type, objf, true );
+	    ( printer, objf, vp, ap, info, m, true );
+	printer << min::eol;
+    }
 
     return printer << min::restore_print_format;
 }
