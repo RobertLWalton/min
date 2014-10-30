@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 29 01:03:26 EDT 2014
+// Date:	Thu Oct 30 04:23:32 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10,6 +10,7 @@
 
 // Table of Contents:
 //
+//	Notes
 //	Setup
 //	Run-Time System for Interface Tests
 //	C++ Number Types
@@ -36,6 +37,14 @@
 //	Object Attribute Level
 //	Object Printing
 //	Main Program
+
+// Notes
+// -----
+
+// 1. This program does not use the garbage collector
+//    and therefore does not follow the normal rules
+//    for making stubs locatable.
+
 
 // Setup
 // -----
@@ -4563,6 +4572,20 @@ void test_object_printing ( void )
             << min::pgen ( obj3 )
 	    << min::nodisable_suppress
 	    << min::eol;
+    min::print_obj ( printer, obj3,
+                     min::embedded_line_obj_format );
+
+    {
+	min::obj_vec_insptr vp ( obj3 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_separator );
+	min::set ( ap, min::new_str_gen ( ";" ) );
+    }
+    printer << min::pgen ( obj3 ) << min::eol;
+    printer << min::disable_suppress
+            << min::pgen ( obj3 )
+	    << min::nodisable_suppress
+	    << min::eol;
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -4577,6 +4600,8 @@ void test_object_printing ( void )
             << min::pgen ( obj3 )
 	    << min::nodisable_suppress
 	    << min::eol;
+    min::print_obj ( printer, obj3,
+                     min::embedded_line_obj_format );
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -4656,6 +4681,8 @@ void test_object_printing ( void )
 	min::set_flag ( ap, 512 );
     }
     printer << min::pgen ( obj ) << min::eol;
+    min::print_obj ( printer, obj,
+                     min::embedded_line_obj_format );
 # ifdef NONE_SUCH
 
     printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )

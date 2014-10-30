@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 30 01:30:14 EDT 2014
+// Date:	Thu Oct 30 04:02:48 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11529,9 +11529,11 @@ namespace min {
     const min::uns32 EMBEDDED_LINE	= ( 1 << 2 );
 
     extern const min::obj_format *
-        exp_obj_format;
+        compact_obj_format;
     extern const min::obj_format *
-        id_map_obj_format;
+        isolated_line_obj_format;
+    extern const min::obj_format *
+        embedded_line_obj_format;
 
     struct gen_format
     {
