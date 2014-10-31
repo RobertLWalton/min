@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 30 04:03:10 EDT 2014
+// Date:	Fri Oct 31 05:58:13 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9584,6 +9584,8 @@ static void print_attributes
 	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
+		  min::is_name ( info[i].value )
+		  &&
 		  ! line_format )
 	    continue;
 
@@ -9812,26 +9814,22 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    bool isolated_line_format =
-        ( objf->obj_op_flags & min::ISOLATED_LINE );
-
-    bool embedded_line_format =
-           ! isolated_line_format
-        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
-
-    bool line_format = isolated_line_format
-                    || embedded_line_format;
-
-    // Loop until we determine compact_format is false
-    // AND we have found the type.
+    // Figure out if type is needed for normal format.
     //
-    // If compact_format remains true, collect any
-    // separator, initiator, terminator, and type.
+    const min::uns32 NOT_NORMAL =
+        ( min::PRINT_ID + min::ISOLATED_LINE
+	                + min::EMBEDDED_LINE );
+    bool need_type =
+        ( ( objf->obj_op_flags & NOT_NORMAL ) == 0 );
+
+    // Loop until we determine compact_format and
+    // need_type are BOTH false.
     //
-    bool compact_format = ! line_format;
+    bool compact_format =
+	( objf->obj_op_flags & min::ENABLE_COMPACT );
 
     for ( min::unsptr i = 0;
-             ( compact_format || type == min::NONE() )
+             ( compact_format || need_type )
 	  && i < m;
 	  ++ i )
     {
@@ -9847,6 +9845,8 @@ min::printer min::print_obj
 	    if ( min::is_name ( info[i].value ) )
 		type = info[i].value;
 	    else compact_format = false;
+
+	    need_type = false;
 	}
 	else if ( ! min::is_str ( info[i].value ) )
 	    compact_format = false;
@@ -9859,11 +9859,6 @@ min::printer min::print_obj
 	else compact_format = false;
     }
 
-    compact_format =
-        compact_format
-	&&
-	( objf->obj_op_flags & min::ENABLE_COMPACT );
-
     // Compact_ok does not allow just one of initiator
     // and terminator.
     //
@@ -9875,6 +9870,19 @@ min::printer min::print_obj
 	else if ( terminator != min::NONE() )
 	    compact_format = false;
     }
+
+    if (    ! compact_format
+         && ( objf->obj_op_flags & min::PRINT_ID ) )
+        return print_id ( printer, v );
+
+    bool isolated_line_format =
+           ! compact_format
+        && ( objf->obj_op_flags & min::ISOLATED_LINE );
+
+    bool embedded_line_format =
+           ! compact_format
+        && ! isolated_line_format
+        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
 
     printer << min::save_print_format
             << min::no_auto_break

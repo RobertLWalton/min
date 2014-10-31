@@ -247,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 29, 2014}
+\date{October 31, 2014}
  
 \maketitle
 
@@ -13743,10 +13743,12 @@ The format for printing object \TT{min::gen} values is:
 \TT{obj\_format.obj\_op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
+\LABEL{MIN::ENABLE_COMPACT_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
+\LABEL{MIN::PRINT_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ISOLATED\_LINE}
 \LABEL{MIN::ISOLATED_LINE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{COMPACT}
-\LABEL{MIN::COMPACT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
 \LABEL{MIN::EMBEDDED_LINE_FLAG} \\
 \end{tabular}\end{indpar}
@@ -13755,7 +13757,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{compact\_obj\_format}:}\ARGBREAK
-\verb|min::COMPACT                             // obj_op_flags|\ARGBREAK
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13941,31 +13943,36 @@ printed the UTF-8 string is to be preceded by a \TT{min::\EOL trailing}
 printer operation.  Note that printing a \TT{NULL} \TT{min::\EOL ustring}
 is a no-operation.
 
-An object is printed in `\mkey{isolated line format}{for printing object}'
-if the \TT{obj\_\EOL bra} member of the object format is \TT{NULL}.
-This format is usually used by \TT{flush\_\EOL id\_\EOL map}:
-see \itemref{PRINTING-USING-AN-IDENTIFIER-MAP}.
-
 An object is printed in `\mkey{compact format}{for printing object}'
-if it is not being printed in isolated line format, if it does not
-have any attributes other than \TT{.position} that have multiple
-values or flags or reverse attributes (double arrows), and if
-\begin{indpar}
-It has both \TT{.initiator} and \TT{.terminator} attributes that
-are both strings, but no other attributes except possibly a \TT{.separator}
-attribute that must be a string and a \TT{.position} attribute that is
-unrestricted.
-\end{indpar}
-or
-\begin{indpar}
-It has a \TT{.type} attribute that is a name,
-but no other attributes except possibly a \TT{.separator} attribute
-that must be a string and a \TT{.position} attribute that is unrestricted.
-\end{indpar}
+if all of the following are true:
+\begin{enumerate}
+\item The \ttkey{ENABLE\_\EOL COMPACT} object format operation flag is on.
+\item The object has no attributes other than \TT{.position}, \TT{.type},
+\TT{.initiator}, \TT{.ter\-min\-ator}, and \TT{.separator}.
+\item The object does not have any attributes other than \TT{.position}
+that have multiple values, flags, or reverse attributes (double arrows).
+\item If the object has a \TT{.type} attribute, the value of that
+attribute is a name (as per \TT{min::\EOL is\_\EOL name}:
+\pagref{MIN::IS_NAME}).
+\item The value of any attribute besides \TT{.position} and \TT{.type}
+is a string.
+\item If the object has an \TT{.initiator} or \TT{.terminator}
+attribute, it has \underline{both}.
+\end{enumerate}
+
+An object is printed as the ID `\TT{@}{\em <object-id>}' by
+\TT{min::print\_id} (\pagref{MIN::PRINT_ID})
+if the \ttkey{PRINT\_\EOL ID} object format operation flag is on
+and the object is not being printed in compact format.
+
+An object is printed in `\mkey{isolated line format}{for printing object}'
+if the \ttkey{ISOLATED\_\EOL LINE} object format operation flag is on
+and the object is not being printed in compact format or as an ID.
 
 An object is printed in `\mkey{embedded line format}{for printing object}'
-if it is not being printed in isolated line or compact format and
-if the \TT{obj\_\EOL attrbegin} member of the object format is \TT{NULL}.
+if the \ttkey{EMBEDDED\_\EOL LINE} object format operation flag is on
+and the object is not being printed in compact format or as an ID or
+in isolated line format.
 
 If none of the above apply, the object is printed in
 `\mkey{normal format}{for printing object}'.
@@ -13996,23 +14003,18 @@ perhaps objects are being printed in isolated line format.
 \item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
-object elements and attributes in normal format.
-In this case \TT{obj\_\EOL bra} followed optionally by the
+object elements and attributes in normal and embedded line format.
+In normal format \TT{obj\_\EOL bra} is followed by the
 object's \TT{.type} and attributes followed by
-\TT{obj\_\EOL braend} serves as the opening bracket for
-the object's list of elements,
-and \TT{obj\_\EOL ketbegin}
-followed by the object \TT{.type}
-followed by \TT{obj\_\EOL ket} serves as the closing bracket
-for the object.  If the \TT{.type} is the empty string and there
-it is omitted from its beginning position if there are no attributes
-and is omitted from its ending position in any case.
-
-If \TT{obj\_bra} is \TT{NULL}, the object is printed
-in isolated line format, and not in normal format.
-Otherwise, if any of these members other than
-\TT{obj\_\EOL bra} are \TT{NULL}, they just print as the
-empty string of characters.
+\TT{obj\_\EOL braend}, and all this serves as the opening bracket for
+the object's list of elements.
+The closing bracket for the object's list of elements consists of
+\TT{obj\_\EOL ketbegin}, optionally followed by the 
+the object \TT{.type} if the \TT{TRAILING\_\EOL TYPE} object format
+operation flag is on, followed by \TT{obj\_\EOL ket}.
+If the type is missing, it is omitted, unless there are other attributes,
+in which case the type is printed as the empty string \TT{""} right
+after \TT{obj\_EOL bra}.
 
 \item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]~\\
 This member serves as the object element separator
