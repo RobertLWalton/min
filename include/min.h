@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 30 04:02:48 EDT 2014
+// Date:	Fri Oct 31 05:58:00 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11524,9 +11524,10 @@ namespace min {
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;
     };
-    const min::uns32 ISOLATED_LINE	= ( 1 << 0 );
-    const min::uns32 ENABLE_COMPACT	= ( 1 << 1 );
-    const min::uns32 EMBEDDED_LINE	= ( 1 << 2 );
+    const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
+    const min::uns32 PRINT_ID		= ( 1 << 1 );
+    const min::uns32 ISOLATED_LINE	= ( 1 << 2 );
+    const min::uns32 EMBEDDED_LINE	= ( 1 << 3 );
 
     extern const min::obj_format *
         compact_obj_format;
