@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 31 05:58:13 EDT 2014
+// Date:	Sat Nov  1 04:25:58 EDT 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9286,7 +9286,7 @@ static min::obj_format compact_obj_format =
         "\x01\x81" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_separator
+        "\x01\x01" " ",     // obj_sep
 
     (const min::ustring *)
         "\x02\x82" ": ",    // obj_attrbegin
@@ -9335,7 +9335,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_separator
+        "\x01\x01" " ",     // obj_sep
 
     NULL,		    // obj_attrbegin
     (const min::ustring *)
@@ -9387,7 +9387,7 @@ static min::obj_format embedded_line_obj_format =
         "\x01\x81" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_separator
+        "\x01\x01" " ",     // obj_sep
 
     NULL,		    // obj_attrbegin
     (const min::ustring *)
@@ -9865,8 +9865,18 @@ min::printer min::print_obj
     if ( compact_format )
     {
 	if ( initiator != min::NONE() )
-	    compact_format =
-	        ( terminator != min::NONE() );
+	{
+	    if ( terminator == min::NONE() )
+	        compact_format = false;
+	    else if ( type != min::NONE() )
+	    {
+	        min::lab_ptr labp ( type );
+		if (    min::lablen ( labp ) != 2
+		     || labp[0] != initiator
+		     || labp[1] != terminator )
+		    compact_format = false;
+	    }
+	}
 	else if ( terminator != min::NONE() )
 	    compact_format = false;
     }
@@ -9954,7 +9964,7 @@ min::printer min::print_obj
 	    if (    ! compact_format
 	         || separator == min::NONE() )
 		min::print_ustring
-		    ( printer, objf->obj_separator );
+		    ( printer, objf->obj_sep );
 	    else
 	    {
 		min::print_str ( printer, separator );

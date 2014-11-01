@@ -95,6 +95,12 @@
 
 \newcommand{\TT}[1]{{\tt \bfseries #1}}
 
+\newcommand{\STAR}{{\Large $^\star$}}
+\newcommand{\PLUS}[1][]{{$^{+#1}$}}
+\newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
+\newcommand{\OPEN}{{$\{$}}
+\newcommand{\CLOSE}{{$\}$}}
+
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
 \newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
@@ -288,11 +294,13 @@ and the corresponding code:
 			          (\itemref{ACC-INTERFACE},\itemref{ACC}) \\
 \ttmkey{aux}{abbreviation}	& auxiliary (\itemref{AUXILIARY}) \\
 \ttmkey{attr}{abbreviation}	& attribute (\itemref{OBJECT-VECTOR-LEVEL}) \\
+\ttmkey{bra}{abbreviation}	& opening bracket (\pagref{OBJ_BRA}) \\
 \ttmkey{DISP}{abbreviation}	& displacement (\pagref{MIN::DISP}) \\
 \ttmkey{gen}{abbreviation}	& general value (\itemref{GENERAL-VALUES}) \\
 \ttmkey{insptr}{abbreviation}	& insertable pointer
 				  (read-write, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
+\ttmkey{ket}{abbreviation}	& closing bracket (\pagref{OBJ_KET}) \\
 \ttmkey{lab}{abbreviation}	& label (\itemref{LABELS}) \\
 \ttmkey{min}{abbreviation}	& the `\TT{min}' namespace (\pagref{min::}) \\
 \ttmkey{MACC}{abbreviation}	& \TT{min::acc} (\pagref{MACC}) \\
@@ -307,6 +315,7 @@ and the corresponding code:
                                   insptr) \\
 \ttmkey{ref}{abbreviation}	& reference 
     (\pagref{BODY-REFERENCES-AND-POINTERS}) \\
+\ttmkey{sep}{abbreviation}	& separator (\pagref{OBJ_SEP}) \\
 \ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \ttmkey{updptr}{abbreviation}	& updatable pointer
@@ -13697,14 +13706,17 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_bra;|%
+\label{OBJ_BRA}%
 \ttmindex{obj\_bra}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_braend;|%
 \ttmindex{obj\_braend}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_separator;|%
-\ttmindex{obj\_separator}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::ustring *                 obj_sep;|%
+\ttmindex{obj\_sep}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_ketbegin;|%
+\label{OBJ_SEP}%
 \ttmindex{obj\_ketbegin}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_ket;|%
+\label{OBJ_KET}%
 \ttmindex{obj\_ket}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
@@ -13782,7 +13794,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13837,7 +13849,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13892,7 +13904,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13958,6 +13970,9 @@ attribute is a name (as per \TT{min::\EOL is\_\EOL name}:
 is a string.
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}.
+\item If the object has an \TT{.initiator}, \TT{.terminator}, and \TT{.type},
+the \TT{.type} is a 2-element label whose elements are the \TT{.initiator}
+and \TT{.terminator} in that order.
 \end{enumerate}
 
 An object is printed as the ID `\TT{@}{\em <object-id>}' by
@@ -14003,20 +14018,9 @@ perhaps objects are being printed in isolated line format.
 \item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::ustring}'s printed to bracket
-object elements and attributes in normal and embedded line format.
-In normal format \TT{obj\_\EOL bra} is followed by the
-object's \TT{.type} and attributes followed by
-\TT{obj\_\EOL braend}, and all this serves as the opening bracket for
-the object's list of elements.
-The closing bracket for the object's list of elements consists of
-\TT{obj\_\EOL ketbegin}, optionally followed by the 
-the object \TT{.type} if the \TT{TRAILING\_\EOL TYPE} object format
-operation flag is on, followed by \TT{obj\_\EOL ket}.
-If the type is missing, it is omitted, unless there are other attributes,
-in which case the type is printed as the empty string \TT{""} right
-after \TT{obj\_EOL bra}.
+object elements and attributes in compact, normal, and embedded line format.
 
-\item[\ttmkey{obj\_separator}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]~\\
 This member serves as the object element separator
 when the object is not printed in line format or the object does
 not have a \TT{.separator} attribute.
@@ -14068,6 +14072,103 @@ will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 \TT{min::\EOL locatable\_\EOL gen} variables.
 
 \end{itemlist}
+
+In compact format with an \TT{.initiator} attribute, the only one of the
+above \TT{ustring}'s that might be used is \TT{obj\_sep}, which is
+used if there is no \TT{.separator} attribute.
+If
+\begin{center}
+\begin{tabular}{lcl}
+\TT{.initiator}		& is	& \TT{[} \\
+\TT{.separator}		& is	& \TT{,} \\
+\TT{.terminator}	& is	& \TT{]} \\
+\end{tabular}
+\end{center}
+then the object is printed in the format:
+\begin{center}
+\TT{[} {\em L} {\em <element>}
+    \OPEN{} {\em T2} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    {\em T} \TT{]}
+\end{center}
+where
+\begin{center}
+\begin{tabular}{lcl}
+{\em L}			& is	& \TT{min::leading} \\
+{\em T2}		& is	& \TT{min::trailing2} \\
+\TT{\textvisiblespace}	& is	& a single space character \\
+{\em T}			& is	& \TT{min::trailing} \\
+\end{tabular}
+\end{center}
+
+If the \TT{.separator} attribute is missing, then
+`{\em T2} \TT{,} \TT{\textvisiblespace}' is replaced by what
+is printed by \TT{obj\_sep}, which would be a single space
+character if \TT{ob\_sep}'s  value were
+\TT{"\textbackslash x01\textbackslash x01" " "}.
+
+Any \TT{.type} present in compact format with an \TT{.initiator}
+attribute is not printed, as it must be a label formed from the
+\TT{.initiator} and \TT{.terminator}.
+
+In compact format \underline{without} an \TT{.initiator} attribute but
+with a \TT{.type}, then if
+\begin{center}
+\begin{tabular}{lcl}
+\TT{obj\_bra}		& is	& \TT{\{} \\
+\TT{obj\_braend}	& is	& \TT{|} \\
+\TT{obj\_ketbegin}	& is	& \TT{|} \\
+\TT{obj\_ket}		& is	& \TT{\}} \\
+\TT{.type}		& is	& \TT{T} \\
+\end{tabular}
+\end{center}
+the format is
+\begin{center}
+\TT{\{} \TT{T} \TT{|} {\em <element>}
+    \OPEN{} {\em T2} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \TT{|\}}
+\end{center}
+
+which is as before except that `\TT{[} {\em L}' has been replaced
+by `\TT{\{~T~|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
+`\TT{|}' is what \TT{obj\_\EOL braend} prints, and
+`{\em T} \TT{]}' has been replaced
+by `\TT{|\}}' where `\TT{|}' is what \TT{obj\_\EOL ketend} prints and
+`\TT{\}}' is what \TT{obj\_\EOL ket} prints.
+If any explicit
+spaces, leading spaces, or trailing spaces
+are to be printed, these must be encoded in
+the \TT{obj\_}\ldots{} \TT{ustring}'s.
+
+In compact format without any \TT{.initiator} or \TT{.type} the format
+is as before with the type omitted.  If there is a \TT{.type} and
+the \TT{TRAILING\_TYPE} object format operation flag is on, then
+`\TT{|\}}' is replaced by `\TT{|~T~\}}'.
+
+TBD
+
+
+\begin{center}
+\begin{tabular}{lcl}
+\TT{obj\_bra}		& is	& \TT{\{} \\
+\TT{obj\_braend}	& is	& \TT{|} \\
+\TT{obj\_ketbegin}	& is	& \TT{|} \\
+\TT{obj\_ket}		& is	& \TT{\}} \\
+\TT{obj\_attrbegin}	& is	& \TT{:} \\
+\TT{obj\_attrsep}	& is	& \TT{,} \\
+\TT{obj\_attreol}	& is	& \TT{:} \\
+\end{tabular}
+\end{center}
+In normal format \TT{obj\_\EOL bra} is followed by the
+object's \TT{.type} and attributes followed by
+\TT{obj\_\EOL braend}, and all this serves as the opening bracket for
+the object's list of elements.
+The closing bracket for the object's list of elements consists of
+\TT{obj\_\EOL ketbegin}, optionally followed by the 
+the object \TT{.type} if the \TT{TRAILING\_\EOL TYPE} object format
+operation flag is on, followed by \TT{obj\_\EOL ket}.
+If the type is missing, it is omitted, unless there are other attributes,
+in which case the type is printed as the empty string \TT{""} right
+after \TT{obj\_EOL bra}.
 
 
 The following function can be used to print object general values:
