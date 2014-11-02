@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  1 04:25:58 EDT 2014
+// Date:	Sun Nov  2 02:34:13 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7673,8 +7673,7 @@ min::printer min::init
     printer->column = 0;
     printer->line_break = min::default_line_break;
     printer->print_format = min::default_print_format;
-    printer->state = min::LEADING_STATE
-                   + min::TRAILING_STATE;
+    printer->state = min::NON_GRAPHIC_STATE;
 
     return printer;
 }
@@ -7750,8 +7749,7 @@ static void end_line ( min::printer printer )
     printer->column = 0;
     printer->line_break.offset = buffer->length;
     printer->line_break.column = 0;
-    printer->state = min::LEADING_STATE
-                   + min::TRAILING_STATE;
+    printer->state = min::NON_GRAPHIC_STATE;
 }
 
 static bool insert_line_break
@@ -8090,21 +8088,17 @@ min::printer operator <<
 	    min::print_spaces ( printer, 1 );
 	return printer;
     case min::op::LEADING:
-        if ( ! ( printer->state & min::LEADING_STATE )
-	     ||
-	     (   printer->print_format.op_flags
-	       & min::DISABLE_SUPPRESS ) )
-	    return min::print_spaces ( printer, 1 );
-
+        if ( printer->state & min::NON_GRAPHIC_STATE )
+	    return printer;
+        if ( printer->state & min::AFTER_TRAILING )
+	    return min::print_spaces ( printer );
 	printer->state |= min::AFTER_LEADING;
 	return printer;
     case min::op::TRAILING:
-        if ( ! ( printer->state & min::TRAILING_STATE )
-	     ||
-	     (   printer->print_format.op_flags
-	       & min::DISABLE_SUPPRESS ) )
-	    return min::print_spaces ( printer, 1 );
-
+        if ( printer->state & min::NON_GRAPHIC_STATE )
+	    return printer;
+        if ( printer->state & min::AFTER_LEADING )
+	    return min::print_spaces ( printer );
 	printer->state |= min::AFTER_TRAILING;
 	return printer;
     case min::op::PRINT_ASSERT:
@@ -8185,12 +8179,12 @@ const min::op min::noflush_id_map_on_eom
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FLUSH_ID_MAP_ON_EOM );
 
-const min::op min::disable_suppress
+const min::op min::force_space
     ( min::op::SET_PRINT_OP_FLAGS,
-      min::DISABLE_SUPPRESS );
-const min::op min::nodisable_suppress
+      min::FORCE_SPACE );
+const min::op min::noforce_space
     ( min::op::CLEAR_PRINT_OP_FLAGS,
-      min::DISABLE_SUPPRESS );
+      min::FORCE_SPACE );
 
 const min::op min::leading
     ( min::op::LEADING );
@@ -8411,9 +8405,6 @@ min::printer MINT::print_unicode
          & ( min::AFTER_LEADING | min::AFTER_TRAILING )
        )
     {
-        // NOTE: If DISABLE_SUPPRESS is on we should
-	// never come here.
-
         printer->state &=
             ~ (   min::AFTER_LEADING
 	        | min::AFTER_TRAILING );
@@ -8428,6 +8419,19 @@ min::printer MINT::print_unicode
 
 	if ( cflags & min::IS_NON_GRAPHIC )
 	    flags = 0;
+	else if (   printer->print_format.op_flags
+	          & min::FORCE_SPACE )
+	    /* Do nothing */;
+	else if ( flags & min::IS_LEADING
+		  &&
+		  ! (   printer->state
+		      & min::LEADING_STATE ) )
+	    /* Do nothing */;
+	else if ( flags & min::IS_TRAILING
+		  &&
+		  ! (   printer->state
+		      & min::TRAILING_STATE ) )
+	    /* Do nothing */;
 	else if ( flags & min::IS_LEADING
 	          &&
 	          cflags & min::IS_MIDDLING )
@@ -8577,8 +8581,14 @@ min::printer MINT::print_unicode
 	if ( cflags & min::IS_GRAPHIC )
 	    printer->and_ed_char_flags &= cflags;
 	else
+	{
 	    printer->and_ed_char_flags =
 	        min::IS_LEADING + min::IS_TRAILING;
+	    printer->state |= min::NON_GRAPHIC_STATE;
+	    printer->state &=
+	        ~ (   min::LEADING_STATE
+		    + min::TRAILING_STATE );
+	}
 
 	if ( columns > 0 )
 	{
@@ -8634,25 +8644,47 @@ min::printer MINT::print_unicode
 
     }
 
-    if (   printer->last_char_flags
-         & min::IS_NON_GRAPHIC )
-	printer->state |= min::LEADING_STATE
-			+ min::TRAILING_STATE;
+    if ( ( printer->last_char_flags & min::IS_GRAPHIC )
+         == 0 )
+    {
+	printer->state |= min::NON_GRAPHIC_STATE;
+	printer->state &= ~ (   min::LEADING_STATE
+	                      + min::TRAILING_STATE );
+    }
     else if (   printer->last_char_flags
               & min::IS_MIDDLING )
     {
-	printer->state &= ~ min::LEADING_STATE;
+	printer->state &=
+	    ~ (   min::LEADING_STATE
+	        + min::NON_GRAPHIC_STATE );
 	printer->state |= min::TRAILING_STATE;
     }
     else if (   printer->and_ed_char_flags
               & min::IS_LEADING )
-	printer->state &= ~ min::TRAILING_STATE;
+    {
+        if (   printer->state
+             & min::NON_GRAPHIC_STATE )
+	    printer->state |= min::LEADING_STATE;
+	printer->state &=
+	    ~ (   min::TRAILING_STATE
+	        + min::NON_GRAPHIC_STATE );
+    }
     else if (   printer->and_ed_char_flags
               & min::IS_TRAILING )
-	printer->state &= ~ min::LEADING_STATE;
+    {
+        if (   printer->state
+             & min::NON_GRAPHIC_STATE )
+	    printer->state |= min::TRAILING_STATE;
+	printer->state &=
+	    ~ (   min::LEADING_STATE
+	        + min::NON_GRAPHIC_STATE );
+    }
     else
-	printer->state &= ~ (   min::LEADING_STATE
-	                      + min::TRAILING_STATE );
+	printer->state &=
+	    ~ (   min::LEADING_STATE
+	        + min::TRAILING_STATE
+	        + min::NON_GRAPHIC_STATE );
+
     return printer;
 }
 
