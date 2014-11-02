@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 31, 2014}
+\date{November 2, 2014}
  
 \maketitle
 
@@ -7743,8 +7743,8 @@ following printer parameters:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
-\LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
+\LABEL{MIN::FORCE_SPACE_FLAG} \\
 \end{tabular}\end{indpar}
 
 \TT{print\_format.support\_control}:
@@ -8110,7 +8110,7 @@ These flags are set by the \TT{min::\EOL leading} and
 a single space is to be printed before the next character
 representative provided certain conditions are met.
 
-\item[\ttmkey{DISABLE\_SUPPRESS}%
+\item[\ttmkey{FORCE\_SPACE}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, \TT{min::leading} and \TT{min::trailing}
 operations are disabled from their normal function and instead
@@ -8566,10 +8566,10 @@ following printer operations:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{disable\_suppress}
-\LABEL{MIN::DISABLE_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
-\LABEL{MIN::NODISABLE_SUPPRESS} \\
+\verb|const min::op min::| & \MINKEY{force\_space}
+\LABEL{MIN::FORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{noforce\_space}
+\LABEL{MIN::NOFORCE_SPACE} \\
 \end{tabular}\end{indpar}
 
 Here \TT{printer << min::display\_picture} sets the
@@ -9212,24 +9212,38 @@ these are leading or trailing graphic substrings.
 
 Then our precise implementation is as follows.
 
-The printer may or may not be in the leading state according to whether
-the \TT{min::\EOL LEADING\_\EOL STATE} printer operation flag is set or not.
+The printer may be in any or none of the following states:
+\begin{center}
+\begin{tabular}{l}
+\mkey{non-graphic state}{of printer} \\
+\mkey{leading state}{of printer} \\
+\mkey{trailing state}{of printer} \\
+\end{tabular}
+\end{center}
+
+A printer is put into the non-graphic state when a non-graphic
+character is output, or the printer is initialized, or a line
+end is output.  This also applies when a picture is output to
+represent the non-graphic character, and when the non-graphic
+character is inside a string being printed.
+
 The rules regarding leading state are:
 \begin{enumerate}
-\item The printer is initially in the leading state.
-\item The \TT{min::eol} operation enters the leading state.
-\item Outputting a non-graphic character (e.g., whitespace)
-enters the leading state.
-This also applies to outputting a picture or name of these characters.
+\item The printer leaves the leading state when it is put into
+the non-graphic state.
 \item Outputting a string that ends with a maximal graphic substring that
 is \underline{not} leading leaves the leading state.
-\item \TT{min::leading} outputs a single space unless the printer
-is in the leading state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
+\item Outputting a string that ends with a maximal graphic substring that
+\underline{is} leading enters the leading state if the substring was
+output in the non-graphic state.
+\item \TT{min::leading} outputs a single space unless that space
+would be preceeded or followed by a non-graphic character or line
+end, or unless the printer
+is in the leading state, the \TT{min::\EOL FORCE\_\EOL SPACE}
 printer operation flag is off, and the next thing output is one of:
 \begin{enumerate}
 \item a string beginning with a maximal leading graphic substring
 \item a string beginning with a middling character
-\item a string beginning with a non-graphic character
 \item the \TT{min::eol} operation or equivalent
 \end{enumerate}
 \end{enumerate}
@@ -9255,7 +9269,7 @@ the trailing state.
 is \underline{not} trailing and does not end with a middling
 character leaves the trailing state.
 \item \TT{min::trailing} outputs a single space unless the printer
-is in the trailing state, the \TT{min::\EOL DISABLE\_\EOL SUPPRESS}
+is in the trailing state, the \TT{min::\EOL FORCE\_\EOL SPACE}
 printer operation flag is off, and the next thing output is one of:
 \begin{enumerate}
 \item a string beginning with a maximal trailing graphic substring
@@ -17274,8 +17288,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{DISABLE\_SUPPRESS}
-\LABEL{MIN::DISABLE_SUPPRESS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
+\LABEL{MIN::FORCE_SPACE_FLAG} \\
 \end{TABULAR}
 
 \bigskip
@@ -17640,10 +17654,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{disable\_suppress}
-\LABEL{MIN::DISABLE_SUPPRESS} \\
-\verb|const min::op min::| & \MINKEY{nodisable\_suppress}
-\LABEL{MIN::NODISABLE_SUPPRESS}
+\verb|const min::op min::| & \MINKEY{force\_space}
+\LABEL{MIN::FORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{noforce\_space}
+\LABEL{MIN::NOFORCE_SPACE}
 \end{TABULAR}
 
 \bigskip

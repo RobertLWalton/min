@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  1 04:25:34 EDT 2014
+// Date:	Sun Nov  2 03:12:55 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10703,7 +10703,7 @@ namespace min {
     const min::uns32 DISPLAY_PICTURE	  = ( 1 << 2 );
     const min::uns32 FLUSH_ON_EOL	  = ( 1 << 3 );
     const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 4 );
-    const min::uns32 DISABLE_SUPPRESS	  = ( 1 << 5 );
+    const min::uns32 FORCE_SPACE	  = ( 1 << 5 );
 
     extern const min::uns32 standard_op_flags;
 
@@ -10804,9 +10804,10 @@ namespace min {
 
         LEADING_STATE		= ( 1 << 1 ),
         TRAILING_STATE		= ( 1 << 2 ),
+        NON_GRAPHIC_STATE	= ( 1 << 3 ),
 
-        AFTER_LEADING		= ( 1 << 3 ),
-        AFTER_TRAILING		= ( 1 << 4 )
+        AFTER_LEADING		= ( 1 << 4 ),
+        AFTER_TRAILING		= ( 1 << 5 )
 	    // We are immediately after a min::leading
 	    // or min::trailing that did NOT output a
 	    // single space.
@@ -11183,8 +11184,8 @@ namespace min {
     extern const op flush_id_map_on_eom;
     extern const op noflush_id_map_on_eom;
 
-    extern const op disable_suppress;
-    extern const op nodisable_suppress;
+    extern const op force_space;
+    extern const op noforce_space;
 
     extern const op verbatim;
 
