@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  2 02:34:13 EST 2014
+// Date:	Mon Nov  3 02:27:59 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8092,14 +8092,16 @@ min::printer operator <<
 	    return printer;
         if ( printer->state & min::AFTER_TRAILING )
 	    return min::print_spaces ( printer );
-	printer->state |= min::AFTER_LEADING;
+	printer->state |= min::AFTER_LEADING
+	                + min::FORCE_SPACE_OK;
 	return printer;
     case min::op::TRAILING:
         if ( printer->state & min::NON_GRAPHIC_STATE )
 	    return printer;
         if ( printer->state & min::AFTER_LEADING )
 	    return min::print_spaces ( printer );
-	printer->state |= min::AFTER_TRAILING;
+	printer->state |= min::AFTER_TRAILING
+	                + min::FORCE_SPACE_OK;
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
@@ -8400,16 +8402,13 @@ min::printer MINT::print_unicode
         // This prevents repeated checks for an enabled
 	// line break that does not exist.
 
-    min::uns32 flags = printer->state;
-    if (   flags
-         & ( min::AFTER_LEADING | min::AFTER_TRAILING )
-       )
+    min::uns32 flags = printer->state
+                     & (   min::AFTER_LEADING
+		         + min::AFTER_TRAILING
+			 + min::FORCE_SPACE_OK );
+    if ( flags )
     {
-        printer->state &=
-            ~ (   min::AFTER_LEADING
-	        | min::AFTER_TRAILING );
-	flags = ( flags & min::AFTER_LEADING ?
-	          min::IS_LEADING : min::IS_TRAILING );
+        printer->state &= ~ flags;
 
         min::Uchar c = * p;
 	min::uns16 cindex = min::Uindex ( c );
@@ -8418,38 +8417,56 @@ min::printer MINT::print_unicode
 	    cflags = sc.unsupported_char_flags;
 
 	if ( cflags & min::IS_NON_GRAPHIC )
-	    flags = 0;
-	else if (   printer->print_format.op_flags
-	          & min::FORCE_SPACE )
-	    /* Do nothing */;
+	    flags = 0; // Do NOT print space.
+	else if ( ( flags & (   min::AFTER_LEADING
+	                      + min::AFTER_TRAILING ) )
+		  == (   min::AFTER_LEADING
+		       + min::AFTER_TRAILING ) )
+	    /* Do nothing, i.e., print space. */;
+	else if ( (   printer->print_format.op_flags
+	            & min::FORCE_SPACE )
+		  &&
+		  ( flags & min::FORCE_SPACE_OK ) )
+	    /* Do nothing, i.e., print space. */;
 	else if ( flags & min::IS_LEADING
 		  &&
 		  ! (   printer->state
 		      & min::LEADING_STATE ) )
-	    /* Do nothing */;
+	    /* Do nothing; i.e. print space. */;
 	else if ( flags & min::IS_TRAILING
 		  &&
 		  ! (   printer->state
 		      & min::TRAILING_STATE ) )
-	    /* Do nothing */;
+	    /* Do nothing; i.e. print space. */;
 	else if ( flags & min::IS_LEADING
 	          &&
 	          cflags & min::IS_MIDDLING )
-	    flags = 0;
+	    flags = 0; // Do NOT print space.
 	else if ( flags & cflags )
 	{
+	    assert (    min::IS_LEADING
+	             == min::AFTER_LEADING );
+	    assert (    min::IS_TRAILING
+	             == min::AFTER_TRAILING );
+
+	    flags &= (   min::IS_LEADING
+		       + min::IS_TRAILING );
 	    min::uns32 sflags = flags;
-	    for ( min::unsptr m = 1;
-	          sflags != 0 && m < n; ++ m )
+
+	    min::unsptr m = 0;
+	    while ( true )
 	    {
-		min::Uchar c = p[m];
-		min::uns16 cindex = min::Uindex ( c );
-		min::uns32 cflags = char_flags[cindex];
-		if ( ( cflags & sc.support_mask ) == 0 )
-		    cflags = sc.unsupported_char_flags;
 		if ( cflags & min::IS_NON_GRAPHIC )
 		    break;
 		sflags &= cflags;
+
+		if ( sflags == 0 || ++ m >= n ) break;
+
+		c = p[m];
+		cindex = min::Uindex ( c );
+		cflags = char_flags[cindex];
+		if ( ( cflags & sc.support_mask ) == 0 )
+		    cflags = sc.unsupported_char_flags;
 	    }
 	    flags ^= sflags;
 	}

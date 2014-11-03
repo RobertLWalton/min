@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 2, 2014}
+\date{November 3, 2014}
  
 \maketitle
 
@@ -9232,56 +9232,71 @@ The rules regarding leading state are:
 \item The printer leaves the leading state when it is put into
 the non-graphic state.
 \item Outputting a string that ends with a maximal graphic substring that
-is \underline{not} leading leaves the leading state.
-\item Outputting a string that ends with a maximal graphic substring that
 \underline{is} leading enters the leading state if the substring was
-output in the non-graphic state.
-\item \TT{min::leading} outputs a single space unless that space
-would be preceeded or followed by a non-graphic character or line
-end, or unless the printer
-is in the leading state, the \TT{min::\EOL FORCE\_\EOL SPACE}
-printer operation flag is off, and the next thing output is one of:
+output in the non-graphic state.  This includes the case where the
+substring is preceeded within the string being output by a non-graphic
+character.
+\item Outputting a string that ends with a maximal graphic substring that
+is \underline{not} leading leaves the leading state.
+\item \TT{min::leading} and \TT{min::leading\_\EOL always}
+do \underline{not} output a space if
+that space would be preceeded or followed by a non-graphic character,
+line beginning, or line end.
+\item Otherwise \TT{min::leading} outputs a single space character
+if \TT{min::\EOL FORCE\_\EOL SPACE} is on.  However,
+\TT{min::leading\_always} is not affected by \TT{min::\EOL FORCE\_\EOL SPACE}.
+\item Otherwise \TT{min::leading} or \TT{min::leading\_\EOL always}
+outputs a single space character
+\underline{unless} the printer is in the leading state and the next thing to be
+printeed is \underline{not}
 \begin{enumerate}
 \item a string beginning with a maximal leading graphic substring
 \item a string beginning with a middling character
-\item the \TT{min::eol} operation or equivalent
 \end{enumerate}
 \end{enumerate}
 
-This works provided every leading string output in the leading state
-is followed by a \TT{min::\EOL leading} operation.
+This works provided every leading string output in the leading or
+non-graphic state is followed by a \TT{min::\EOL leading}
+or \TT{min::\EOL leading\_\EOL always} operation.
 
 Note that the leading state only affects whether \TT{min::\EOL leading}
+and \TT{min::\EOL leading\_\EOL always}
 operations output spaces.
 
-The printer may or may not be in the trailing state according to whether
-the \TT{min::\EOL TRAILING\_\EOL STATE} printer operation flag is set or not.
 The rules regarding trailing state are:
 \begin{enumerate}
-\item The printer is initially in the trailing state.
-\item The \TT{min::eol} operation enters the trailing state.
-\item Outputting a non-graphic character (e.g., whitespace)
-enters the trailing state.
-This also applies to outputting a picture or name of these characters.
+\item The printer leaves the trailing state when it is put into
+the non-graphic state.
 \item Outputting a string that ends in a middling character enters
 the trailing state.
 \item Outputting a string that ends with a maximal graphic substring that
+\underline{is} trailing enters the trailing state if the substring was
+output in the non-graphic state.  This includes the case where the
+substring is preceeded within the string being output by a non-graphic
+character.
+\item Outputting a string that ends with a maximal graphic substring that
 is \underline{not} trailing and does not end with a middling
 character leaves the trailing state.
-\item \TT{min::trailing} outputs a single space unless the printer
-is in the trailing state, the \TT{min::\EOL FORCE\_\EOL SPACE}
-printer operation flag is off, and the next thing output is one of:
-\begin{enumerate}
-\item a string beginning with a maximal trailing graphic substring
-\item a string beginning with a non-graphic character
-\item the \TT{min::eol} operation or equivalent
-\end{enumerate}
+\item \TT{min::trailing} and \TT{min::trailing\_\EOL always} do
+\underline{not} output a space if
+that space would be preceeded or followed by a non-graphic character,
+line beginning, or line end.
+\item Otherwise \TT{min::trailing} outputs a single space character
+if \TT{min::\EOL FORCE\_\EOL SPACE} is on.  However,
+\TT{min::trailing\_always} is not affected by \TT{min::\EOL FORCE\_\EOL SPACE}.
+\item Otherwise \TT{min::trailing} or \TT{min::trailing\_\EOL always}
+outputs a single space character
+\underline{unless} the printer is in the trailing state and the next thing to be
+printeed is \underline{not}
+a string beginning with a maximal trailing graphic substring
 \end{enumerate}
 
-This works provided every trailing string output in the trailing state
-is preceded by a \TT{min::\EOL trailing} operation.
+This works provided every trailing string output in the trailing or
+non-graphic state is preceded by a \TT{min::\EOL trailing}
+or \TT{min::\EOL trailing\_\EOL always} operation.
 
 Note that the trailing state only affects whether \TT{min::\EOL trailing}
+and \TT{min::\EOL trailing\_\EOL always}
 operations output spaces.
 
 
