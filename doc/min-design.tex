@@ -94,6 +94,7 @@
     % Change notice.
 
 \newcommand{\TT}[1]{{\tt \bfseries #1}}
+\newcommand{\TTALL}{\tt \bfseries}
 
 \newcommand{\STAR}{{\Large $^\star$}}
 \newcommand{\PLUS}[1][]{{$^{+#1}$}}
@@ -9200,7 +9201,30 @@ In the above examples these ideas succeed because
 comma and \TT{)} have the \TT{IS\_\EOL TRAILING} flag,
 while \TT{\#}, \TT{+}, and digits have the \TT{IS\_\EOL MIDDLING} flag.
 
-To make this precise
+The \TT{min::leading/trailing} operations have variants:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::| & \MINKEY{leading\_always}
+\LABEL{MIN::LEADING_ALWAYS} \\
+\verb|min::op min::| & \MINKEY{trailing\_always}
+\LABEL{MIN::TRAILING_ALWAYS} \\
+\end{tabular}\end{indpar}
+
+The difference is that the \minkey{FORCE\_SPACE} printer operation
+flag causes \TT{min::\EOL leading} or \TT{min::\EOL trailing} to output a single
+space, but has no effect on \TT{min::\EOL leading\_\EOL always} or
+\TT{min::\EOL trailing\_\EOL always}.  So
+\begin{indpar}\begin{verbatim}
+printer << "(" << min::leading
+        << "100" << min::trailing_always << ", " << "200"
+        << min::trailing << ")";
+\end{verbatim}\end{indpar}
+prints `\TT{(100, 200)}' if \TT{min::\EOL FORCE\_\EOL SPACE} is off, and
+prints `\TT{( 100, 200 )}' if \TT{min::\EOL FORCE\_\EOL SPACE} is on.
+Some people prefer extra spacing next to parentheses, and
+\TT{min::\EOL FORCE\_\EOL SPACE} accommodates this.
+
+To make all this precise
 we define a \key{maximal graphic substring} of a string being output to be
 a non-empty substring of graphic characters that cannot be made
 larger; that is, it is proceeded by either the beginning of its
@@ -9299,6 +9323,40 @@ Note that the trailing state only affects whether \TT{min::\EOL trailing}
 and \TT{min::\EOL trailing\_\EOL always}
 operations output spaces.
 
+Consecutive sequences of \underline{more than one} of the operations
+\begin{center}
+\TTALL
+\begin{tabular}{l}
+min::leading \\
+min::leading\_always \\
+min::trailing \\
+min::trailing\_always \\
+\end{tabular}
+\end{center}
+are treated specially according to the following rules:
+\begin{enumerate}
+\item If the sequence contains both
+a \TT{min::\EOL leading} or \TT{min::\EOL leading\_\EOL always}
+\underline{and}
+a \TT{min::\EOL trailing} or \TT{min::\EOL trailing\_\EOL always}
+then the sequence outputs a single space character unless that would
+be preceeded or followed by a non-graphic character, and has no other
+effect.
+\item Otherwise if the sequence contains a \TT{min::leading} operation
+it is equivalent to a single \TT{min::\EOL leading} operation (the
+only other operation the sequence might contain is
+\TT{min::\EOL leading\_\EOL always}).
+\item Otherwise if the sequence contains only
+\TT{min::\EOL leading\_\EOL always} operations it is equivalent
+to a single \TT{min::\EOL leading\_\EOL always} operation.
+\item Otherwise if the sequence contains a \TT{min::trailing} operation
+it is equivalent to a single \TT{min::\EOL trailing} operation (the
+only other operation the sequence might contain is
+\TT{min::\EOL trailing\_\EOL always}).
+\item Otherwise if the sequence contains only
+\TT{min::\EOL trailing\_\EOL always} operations it is equivalent
+to a single \TT{min::\EOL trailing\_\EOL always} operation.
+\end{enumerate}
 
 
 \subsubsection{Printing File Lines and Phrases}

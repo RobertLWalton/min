@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  2 03:36:02 EST 2014
+// Date:	Mon Nov  3 06:21:45 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3052,16 +3052,24 @@ void test_printer ( void )
 
     // Tests of min::leading/trailing.
     //
-    printer << "|" << " " << min::trailing << "|"
+    printer << "(" << min::leading
+            << "100" << min::trailing_always << ", "
+	    << "200" << min::trailing << ")"
             << min::eol;
     printer << min::force_space
-            << "|" << " " << min::trailing << "|"
+            << "(" << min::leading
+            << "100" << min::trailing_always << ", "
+	    << "200" << min::trailing << ")"
 	    << min::noforce_space
 	    << min::eol;
-    printer << "|" << min::trailing << " " << "|"
+    printer << "(" << min::leading
+            << "100" << min::trailing_always << ", "
+	    << min::trailing << ")"
             << min::eol;
     printer << min::force_space
-            << "|" << min::trailing << " " << "|"
+            << "(" << min::leading
+            << "100" << min::trailing_always << ", "
+	    << min::trailing << ")"
 	    << min::noforce_space
 	    << min::eol;
 

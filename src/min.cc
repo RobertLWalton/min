@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  3 02:27:59 EST 2014
+// Date:	Mon Nov  3 05:43:42 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8090,18 +8090,24 @@ min::printer operator <<
     case min::op::LEADING:
         if ( printer->state & min::NON_GRAPHIC_STATE )
 	    return printer;
-        if ( printer->state & min::AFTER_TRAILING )
-	    return min::print_spaces ( printer );
 	printer->state |= min::AFTER_LEADING
 	                + min::FORCE_SPACE_OK;
 	return printer;
     case min::op::TRAILING:
         if ( printer->state & min::NON_GRAPHIC_STATE )
 	    return printer;
-        if ( printer->state & min::AFTER_LEADING )
-	    return min::print_spaces ( printer );
 	printer->state |= min::AFTER_TRAILING
 	                + min::FORCE_SPACE_OK;
+	return printer;
+    case min::op::LEADING_ALWAYS:
+        if ( printer->state & min::NON_GRAPHIC_STATE )
+	    return printer;
+	printer->state |= min::AFTER_LEADING;
+	return printer;
+    case min::op::TRAILING_ALWAYS:
+        if ( printer->state & min::NON_GRAPHIC_STATE )
+	    return printer;
+	printer->state |= min::AFTER_TRAILING;
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
@@ -8192,6 +8198,10 @@ const min::op min::leading
     ( min::op::LEADING );
 const min::op min::trailing
     ( min::op::TRAILING );
+const min::op min::leading_always
+    ( min::op::LEADING_ALWAYS );
+const min::op min::trailing_always
+    ( min::op::TRAILING_ALWAYS );
 
 const min::op min::verbatim
     ( min::op::VERBATIM );

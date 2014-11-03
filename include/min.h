@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  3 02:28:56 EST 2014
+// Date:	Mon Nov  3 05:36:59 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10930,6 +10930,8 @@ namespace min {
 
 	    LEADING,
 	    TRAILING,
+	    LEADING_ALWAYS,
+	    TRAILING_ALWAYS,
 	    SPACE,
 
 	    FLUSH_ONE_ID,
@@ -11201,6 +11203,8 @@ namespace min {
 
     extern const op leading;
     extern const op trailing;
+    extern const op leading_always;
+    extern const op trailing_always;
     extern const op space;
 
     extern const op ascii;
