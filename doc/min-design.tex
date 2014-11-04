@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 3, 2014}
+\date{November 4, 2014}
  
 \maketitle
 
@@ -4032,11 +4032,19 @@ The following are for programming with \TT{ustring}'s:
 
 where the possible \skey{ustring flag}s are:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~}l}
 \verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING}
+			      & \TT{0x40} in second byte
 \LABEL{MIN::USTRING_LEADING} \\
 \verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
+			      & \TT{0x80} in second byte
 \LABEL{MIN::USTRING_TRAILING} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING\_ALWAYS}
+			      & \TT{0x40} in first byte
+\LABEL{MIN::USTRING_LEADING_ALWAYS} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING\_ALWAYS}
+			      & \TT{0x80} in first byte
+\LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
 The \TT{min::unicode\_\EOL length} function returns the number
@@ -4046,8 +4054,15 @@ The \TT{min::unicode\_\EOL columns} function returns the number
 of print columns these take; the maximum is 31, and it is assumed
 there are control characters aside from single spaces in the \TT{ustring}.
 The \TT{min::\EOL unicode\_\EOL flags} function returns the flags,
-which can be tested by anding the unsigned flags value with
-the \TT{min::USTRING\_LEADING/TRAILING} flags.
+which can be tested by AND'ing the unsigned flags value with
+the \TT{min::USTRING\_LEADING/TRAILING} or
+\TT{min::USTRING\_LEADING/TRAILING\_\EOL ALWAYS} flags.
+The flags can be set into a \TT{ustring} by adding them to the first
+or second byte, as in \TT{"\textbackslash x81\textbackslash x41"~","}
+which prints as
+\begin{center}
+\TT{printer << min::trailing\_always << "," << min::leading}
+\end{center}
 The \TT{min::unicode\_\EOL string} function returns a pointer
 to the \TT{const char *} string in the \TT{ustring}.
 
@@ -7737,13 +7752,6 @@ following printer parameters:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{LEADING}
-\LABEL{MIN::LEADING_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{TRAILING}
-\LABEL{MIN::TRAILING_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
 \end{tabular}\end{indpar}
@@ -8113,9 +8121,9 @@ representative provided certain conditions are met.
 
 \item[\ttmkey{FORCE\_SPACE}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, \TT{min::leading} and \TT{min::trailing}
-operations are disabled from their normal function and instead
-simply output a single space character.
+This flag forces the \TT{min::leading} and \TT{min::trailing}
+printer operations to output a single space character.
+See \pagref{FORCE_SPACE}.
 
 \end{itemlist}\end{indpar}
 
@@ -9210,7 +9218,8 @@ The \TT{min::leading/trailing} operations have variants:
 \LABEL{MIN::TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
-The difference is that the \minkey{FORCE\_SPACE} printer operation
+The difference is that the \minkey{FORCE\_SPACE}\label{FORCE_SPACE}
+printer operation
 flag causes \TT{min::\EOL leading} or \TT{min::\EOL trailing} to output a single
 space, but has no effect on \TT{min::\EOL leading\_\EOL always} or
 \TT{min::\EOL trailing\_\EOL always}.  So
@@ -9250,6 +9259,8 @@ character is output, or the printer is initialized, or a line
 end is output.  This also applies when a picture is output to
 represent the non-graphic character, and when the non-graphic
 character is inside a string being printed.
+The printer leaves the non-graphic state after printing a
+character string whose last character is graphic.
 
 The rules regarding leading state are:
 \begin{enumerate}
@@ -10314,9 +10325,9 @@ The format for printing label \TT{min::gen} values is:
     \verb|{|\ARGBREAK
     \verb|  const min::ustring *    lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_concatenator;|%
-\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|  const min::ustring *    lab_separator;|%
+\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::LAB_FORMAT}
@@ -10325,9 +10336,9 @@ The format for printing label \TT{min::gen} values is:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{name\_lab\_format}:}\ARGBREAK
-\verb|NULL                                  // lab_prefix|\ARGBREAK
-\verb|NULL                                  // lab_separator|\ARGBREAK
-\verb|NULL                                  // lab_postfix|\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
 \LABEL{MIN::NAME_LAB_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -10335,7 +10346,7 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
-\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
 \LABEL{MIN::BRACKET_LAB_FORMAT}
 \end{tabular}\end{indpar}
@@ -10349,9 +10360,7 @@ Given a label format \TT{lf}, a \TT{min::gen} label value is printed as
 \TT{lf->\EOL lab\_\EOL postfix}.  Note that \TT{NULL} values for
 \TT{lf->\EOL lab\_\EOL prefix/separator/postfix} act like empty strings
 that print nothing, and a \TT{NULL} value for \TT{lf} acts like
-a label format with all \TT{NULL} parts.  However, if
-\TT{lf->\EOL lab\_\EOL separator} is \TT{NULL}, it is replaced by
-a single space character.
+\TT{min::\EOL name\_\EOL lab\_\EOL format}.
 
 \subsubsection{Printing Special General Values}
 \label{PRINTING-SPECIAL-GENERAL-VALUES}
@@ -15800,6 +15809,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::USTRING_LEADING} \\
 \verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
 \LABEL{MIN::USTRING_TRAILING} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING\_ALWAYS}
+\LABEL{MIN::USTRING_LEADING_ALWAYS} \\
+\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING\_ALWAYS}
+\LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17354,13 +17367,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{LEADING}
-\LABEL{MIN::LEADING_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{TRAILING}
-\LABEL{MIN::TRAILING_FLAG} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
 \end{TABULAR}
@@ -18451,9 +18457,9 @@ These are in \verb|min_parameters.h|.
     \verb|{|\ARGBREAK
     \verb|  const min::ustring *    lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_concatenator;|%
-\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|  const min::ustring *    lab_separator;|%
+\ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  const min::ustring *    lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
@@ -18465,7 +18471,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
@@ -18476,7 +18482,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
-\verb|NULL                                     // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
 \end{TABULAR}
 

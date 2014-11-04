@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  3 05:43:42 EST 2014
+// Date:	Tue Nov  4 03:41:58 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8942,16 +8942,20 @@ min::printer MINT::print_ustring
 	( min::printer printer,
 	  const min::ustring * s )
 {
-    min::uns32 flags   = ustring_flags ( s );
+    min::uns32 flags = ustring_flags ( s );
 
     if ( flags & USTRING_TRAILING )
         printer << min::trailing;
+    else if ( flags & USTRING_TRAILING_ALWAYS )
+        printer << min::trailing_always;
 
     min::print_chars
 	( printer, ustring_chars ( s ) );
 
     if ( flags & USTRING_LEADING )
         printer << min::leading;
+    else if ( flags & USTRING_LEADING_ALWAYS )
+        printer << min::leading_always;
 
     return printer;
 }
@@ -9224,13 +9228,6 @@ min::printer min::print_num
     return printer << buffer;
 }
 
-static min::lab_format name_lab_format =
-{
-    NULL, NULL, NULL
-};
-const min::lab_format * min::name_lab_format =
-    & ::name_lab_format;
-
 const min::str_classifier
 	min::quote_all_control =
 {
@@ -9243,7 +9240,6 @@ const min::str_classifier
     min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
     min::IS_GRAPHIC
 };
-
 
 const min::str_classifier
 	min::quote_non_graphic_control =
@@ -9293,11 +9289,19 @@ const min::str_format *
 	min::quote_non_graphic_str_format =
     & ::quote_non_graphic_str_format;
 
+static min::lab_format name_lab_format =
+{
+    NULL,
+    (const min::ustring *) "\x01\x01" " ",
+    NULL
+};
+const min::lab_format * min::name_lab_format =
+    & ::name_lab_format;
 
 static min::lab_format bracket_lab_format =
 {
     (const min::ustring *) "\x03\x03" "[: ",
-    NULL,
+    (const min::ustring *) "\x01\x01" " ",
     (const min::ustring *) "\x03\x03" " :]"
 };
 const min::lab_format * min::bracket_lab_format =
@@ -10706,6 +10710,7 @@ min::printer min::standard_pgen
     else if ( min::is_lab ( v ) )
     {
         const min::lab_format * lf = f->lab_format;
+	if ( lf == NULL ) lf = min::name_lab_format;
 
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
@@ -10716,13 +10721,8 @@ min::printer min::standard_pgen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 )
-	    {
-		if ( lf && lf->lab_separator )
-		    MINT::print_ustring
-		        ( printer, lf->lab_separator );
-		else
-		    min::print_spaces ( printer, 1 );
-	    }
+		min::print_ustring
+		    ( printer, lf->lab_separator );
 	    (* f->pgen) ( printer, labp[i], f );
 	}
 
