@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  3 05:36:59 EST 2014
+// Date:	Tue Nov  4 03:38:20 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3363,6 +3363,23 @@ bool operator != \
 // ------- ----------
 
 namespace min {
+
+    // Ustring flags
+
+    const min::uns32
+    	USTRING_LEADING		= ( 1 << 6 );
+    const min::uns32
+    	USTRING_TRAILING	= ( 1 << 7 );
+    const min::uns32
+    	USTRING_LEADING_ALWAYS	= ( 1 << 14 );
+    const min::uns32
+    	USTRING_TRAILING_ALWAYS	= ( 1 << 15 );
+
+    inline min::uns32 ustring_flags
+        ( const min::ustring * str )
+    {
+        return ( str[0] << 8 ) + str[1];
+    }
 
     // UTF-8 Conversion Functions
 
