@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 4, 2014}
+\date{November 5, 2014}
  
 \maketitle
 
@@ -9847,7 +9847,8 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{top\_gen\_format}:}\ARGBREAK
+                   min::\MINKEY{top\_gen\_format}:}
+\LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
@@ -9855,12 +9856,12 @@ for general value formats is as follows:
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|min::id_map_gen_format                  // id_map_format|
-\LABEL{MIN::TOP_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{id\_map\_gen\_format}:}\ARGBREAK
+                   min::\MINKEY{id\_map\_gen\_format}:}
+\LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
@@ -9868,12 +9869,12 @@ for general value formats is as follows:
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::isolated_line_obj_format           // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
-\LABEL{MIN::ID_MAP_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{name\_gen\_format}:}\ARGBREAK
+                   min::\MINKEY{name\_gen\_format}:}
+\LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
@@ -9881,12 +9882,38 @@ for general value formats is as follows:
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
-\LABEL{MIN::NAME_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{never\_quote\_gen\_format}:}\ARGBREAK
+                   min::\MINKEY{leading\_always\_gen\_format}:}
+\LABEL{MIN::LEADING_ALWAYS_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|NULL                                    // str_format|\ARGBREAK
+\verb|min::leading_always_lab_format          // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{trailing\_always\_gen\_format}:}
+\LABEL{MIN::TRAILING_ALWAYS_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|NULL                                    // str_format|\ARGBREAK
+\verb|min::trailing_always_lab_format         // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{never\_quote\_gen\_format}:}
+\LABEL{MIN::NEVER_QUOTE_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|NULL                                    // str_format|\ARGBREAK
@@ -9894,7 +9921,6 @@ for general value formats is as follows:
 \verb|min::name_special_format                // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
-\LABEL{MIN::NEVER_QUOTE_GEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 A general value format can be any structure whose first member
@@ -10321,7 +10347,8 @@ The format for printing label \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{lab\_format}}\ARGBREAK
+                       min::\MINKEY{lab\_format}}
+\LABEL{MIN::LAB_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::ustring *    lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
@@ -10330,25 +10357,42 @@ The format for printing label \TT{min::gen} values is:
     \verb|  const min::ustring *    lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::LAB_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::lab\_format
-                   min::\MINKEY{name\_lab\_format}:}\ARGBREAK
+                   min::\MINKEY{name\_lab\_format}:}
+\LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
-\LABEL{MIN::NAME_LAB_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::lab\_format
-                   min::\MINKEY{bracket\_lab\_format}:}\ARGBREAK
+                   min::\MINKEY{leading\_always\_lab\_format}:}
+\LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x40\x00" ""     // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{trailing\_always\_lab\_format}:}
+\LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x80\x00" ""     // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{bracket\_lab\_format}:}
+\LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
-\LABEL{MIN::BRACKET_LAB_FORMAT}
 \end{tabular}\end{indpar}
 
 A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
@@ -13796,6 +13840,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::gen_format                      initiator_format;|%
+\ttmindex{initiator\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format                      separator_format;|%
+\ttmindex{separator\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format                      terminator_format;|%
+\ttmindex{terminator\_format}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_empty;|%
 \ttmindex{obj\_empty}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
@@ -13875,6 +13928,12 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
 \end{tabular}
 
@@ -13930,6 +13989,12 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
 \end{tabular}
 
@@ -13982,6 +14047,12 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14057,13 +14128,10 @@ if all of the following are true:
 \item The \ttkey{ENABLE\_\EOL COMPACT} object format operation flag is on.
 \item The object has no attributes other than \TT{.position}, \TT{.type},
 \TT{.initiator}, \TT{.ter\-min\-ator}, and \TT{.separator}.
-\item The object does not have any attributes other than \TT{.position}
-that have multiple values, flags, or reverse attributes (double arrows).
-\item If the object has a \TT{.type} attribute, the value of that
-attribute is a name (as per \TT{min::\EOL is\_\EOL name}:
-\pagref{MIN::IS_NAME}).
-\item The value of any attribute besides \TT{.position} and \TT{.type}
-is a string.
+\item No attribute other than \TT{.position}
+has multiple values, flags, or reverse attributes (double arrows).
+\item The value of any attribute besides \TT{.position}
+is a string or label.
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}.
 \item If the object has an \TT{.initiator}, \TT{.terminator}, and \TT{.type},
@@ -14101,13 +14169,20 @@ object vector elements,
 attribute labels, and attribute values, respectively.
 \underline{None} of these values may be \TT{NULL}.
 
+\item[\ttmkey{initiator\_format}{in {\tt min::obj\_format}}]
+\item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{terminator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+These are the \TT{min::gen\_format}'s used to print the
+\TT{.initiator}, \TT{.separator}, and \TT{.terminator} in compact
+format, and the \TT{.separator} in normal format.
+\TT{Separator\_\EOL format} must never be \TT{NULL}, and the
+other values may be not be \TT{NULL} if compact
+format is enabled.
+
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
-This is the \TT{min::ustring} printed to represent an
-empty object that has no elements and no attributes
-other than \TT{.position}.  If \TT{NULL}, it prints
-as the empty string of characters, but its not a good
-idea for this member to have a \TT{NULL} value unless
-perhaps objects are being printed in isolated line format.
+This is the \TT{min::ustring} printed in compact format
+to represent an empty object that has no elements and no attributes
+other than \TT{.position}.
 
 \item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -14117,29 +14192,29 @@ These are the \TT{min::ustring}'s printed to bracket
 object elements and attributes in compact, normal, and embedded line format.
 
 \item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]~\\
-This member serves as the object element separator
-when the object is not printed in line format or the object does
+This member serves as the object element separator in compact
+or normal format when the object does
 not have a \TT{.separator} attribute.
 
 \item[\ttmkey{obj\_attrbegin}{in {\tt min::obj\_format}}]
-\item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+These are the \TT{min::ustring}'s printed in normal format to introduce
+an object attribute list and separate attributes in that list.
+
+\item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]~\\
+This is the \TT{min::ustring} printed in line formats at the end of a line
+to introduce the indented paragraph containing the object attributes.
+
+\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::ustring}'s printed to introduce
-an object attribute list, separate attributes, indicate
+These are the \TT{min::ustring}'s printed to indicate
 negation of attributes whose value is \TT{FALSE}, and
-separator an attribute label from its value.
-\TT{Obj\_\EOL attrbegin} is used to begin an attribute
-list that is not an indented paragraph, whereas
-\TT{obj\_\EOL attreol} is used just before an end-of-line
-to begin an attribute list that is an indented
-paragraph.  \TT{Obj\_\EOL attrsep} is used to separate
-attributes when these are \underline{not} in an indented
-paragraph; \TT{obj\_\EOL attreq} separates an attribute
-label from the attribute's value; and \TT{obj\_\EOL attrneg}
-is the attribute label prefix used to indicate an attribute
-with a \TT{FALSE} value.
+separate an attribute label from its value.
+Attributes with value \TT{TRUE} are printed as just
+the attribute label with no following \TT{obj\_\EOL attreq} or value.
+Attributes with value \TT{FALSE} are printed as just
+\TT{obj\_\EOL attrneg} followed by
+the attribute label with no following \TT{obj\_\EOL attreq} or value.
 
 \item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -14183,21 +14258,21 @@ If
 then the object is printed in the format:
 \begin{center}
 \TT{[} {\em L} {\em <element>}
-    \OPEN{} {\em T2} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \OPEN{} {\em TA} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
     {\em T} \TT{]}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{lcl}
 {\em L}			& is	& \TT{min::leading} \\
-{\em T2}		& is	& \TT{min::trailing2} \\
+{\em TA}		& is	& \TT{min::trailing\_always} \\
 \TT{\textvisiblespace}	& is	& a single space character \\
 {\em T}			& is	& \TT{min::trailing} \\
 \end{tabular}
 \end{center}
 
 If the \TT{.separator} attribute is missing, then
-`{\em T2} \TT{,} \TT{\textvisiblespace}' is replaced by what
+`{\em TA} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
 character if \TT{ob\_sep}'s  value were
 \TT{"\textbackslash x01\textbackslash x01" " "}.
@@ -14220,7 +14295,7 @@ with a \TT{.type}, then if
 the format is
 \begin{center}
 \TT{\{} \TT{T} \TT{|} {\em <element>}
-    \OPEN{} {\em T2} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \OPEN{} {\em TA} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
     \TT{|\}}
 \end{center}
 
@@ -14236,8 +14311,9 @@ are to be printed, these must be encoded in
 the \TT{obj\_}\ldots{} \TT{ustring}'s.
 
 In compact format without any \TT{.initiator} or \TT{.type} the format
-is as before with the type omitted.  If there is a \TT{.type} and
-the \TT{TRAILING\_TYPE} object format operation flag is on, then
+is as before with the type omitted.  In compact format with a \TT{.type} but
+no \TT{.initiator} and
+with the \TT{TRAILING\_TYPE} object format operation flag on, 
 `\TT{|\}}' is replaced by `\TT{|~T~\}}'.
 
 TBD
@@ -18162,6 +18238,36 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{leading\_always\_gen\_format}:}
+\LABEL{MIN::LEADING_ALWAYS_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::leading_always_lab_format          // lab_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{trailing\_always\_gen\_format}:}
+\LABEL{MIN::TRAILING_ALWAYS_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::trailing_always_lab_format         // lab_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{never\_quote\_gen\_format}:}
 \LABEL{MIN::NEVER_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
@@ -18472,6 +18578,28 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{leading\_always\_lab\_format}:}
+\LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x40\x00" ""     // lab_separator|\ARGBREAK
+\verb|NULL                                     // lab_postfix|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.5in}
+\multicolumn{2}{l}{\tt const min::lab\_format
+                   min::\MINKEY{trailing\_always\_lab\_format}:}
+\LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x80\x00" ""     // lab_separator|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
