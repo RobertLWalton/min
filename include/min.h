@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  4 03:38:20 EST 2014
+// Date:	Wed Nov  5 01:02:15 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11506,6 +11506,10 @@ namespace min {
         name_lab_format;
     extern const min::lab_format *
         bracket_lab_format;
+    extern const min::lab_format *
+        leading_always_lab_format;
+    extern const min::lab_format *
+        trailing_always_lab_format;
 
 
     struct special_format
@@ -11530,6 +11534,10 @@ namespace min {
         const min::gen_format *	    label_format;
 	const min::gen_format *     value_format;
 
+	const min::gen_format *     initiator_format;
+        const min::gen_format *	    separator_format;
+	const min::gen_format *     terminator_format;
+
 	const min::ustring *   	    obj_empty;
 
 	const min::ustring *   	    obj_bra;
@@ -11540,9 +11548,10 @@ namespace min {
 	const min::ustring *   	    obj_sep;
 
 	const min::ustring *   	    obj_attrbegin;
+	const min::ustring *   	    obj_attrsep;
+
 	const min::ustring *   	    obj_attreol;
 
-	const min::ustring *   	    obj_attrsep;
 	const min::ustring *   	    obj_attrneg;
 	const min::ustring *   	    obj_attreq;
 
@@ -11588,6 +11597,10 @@ namespace min {
         top_gen_format;
     extern const gen_format *
         name_gen_format;
+    extern const gen_format *
+        leading_always_gen_format;
+    extern const gen_format *
+        trailing_always_gen_format;
     extern const min::gen_format *
         id_map_gen_format;
     extern const min::gen_format *
@@ -11630,6 +11643,7 @@ namespace min {
             ( min::printer printer, min::gen v,
 	      const min::gen_format * f )
     {
+        assert ( f != NULL );
         return ( * f->pgen ) ( printer, v, f );
     }
 
