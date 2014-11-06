@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  5 01:03:23 EST 2014
+// Date:	Wed Nov  5 18:25:47 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9364,24 +9364,25 @@ static min::obj_format compact_obj_format =
         "\x02\x02" "{}",    // obj_empty
 
     (const min::ustring *)
-        "\x01\x41" "{",     // obj_bra
+        "\x01\x01" "{",     // obj_bra
     (const min::ustring *)
         "\x01\x01" "|",     // obj_braend
     (const min::ustring *)
         "\x01\x01" "|",     // obj_ketbegin
     (const min::ustring *)
-        "\x01\x81" "}",     // obj_ket
+        "\x01\x01" "}",     // obj_ket
 
     (const min::ustring *)
         "\x01\x01" " ",     // obj_sep
 
     (const min::ustring *)
-        "\x02\x82" ": ",    // obj_attrbegin
+        "\x82\x02" ": ",    // obj_attrbegin
     (const min::ustring *)
         "\x02\x02" ", ",    // obj_attrsep
 
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_attreol
+        "\x81\x01" ":",     // obj_attreol
+
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
@@ -9432,7 +9433,8 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_attrsep
 
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_attreol
+        "\x81\x01" ":",     // obj_attreol
+
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
@@ -9473,13 +9475,13 @@ static min::obj_format embedded_line_obj_format =
         "\x04\x04" "{||}",  // obj_empty
 
     (const min::ustring *)
-        "\x01\x41" "{",     // obj_bra
+        "\x01\x01" "{",     // obj_bra
     (const min::ustring *)
         "\x01\x01" "|",     // obj_braend
     (const min::ustring *)
         "\x01\x01" "|",     // obj_ketbegin
     (const min::ustring *)
-        "\x01\x81" "}",     // obj_ket
+        "\x01\x01" "}",     // obj_ket
 
     (const min::ustring *)
         "\x01\x01" " ",     // obj_sep
@@ -9488,7 +9490,8 @@ static min::obj_format embedded_line_obj_format =
     NULL,		    // obj_attrsep
 
     (const min::ustring *)
-        "\x01\x81" ":",     // obj_attreol
+        "\x81\x01" ":",     // obj_attreol
+
     (const min::ustring *)
         "\x03\x03" "no ",   // obj_attrneg
     (const min::ustring *)
@@ -9712,7 +9715,8 @@ static void print_attributes
 	  min::attr_ptr & ap,
 	  min::attr_info * info,
 	  min::unsptr m,
-	  bool line_format )
+	  bool line_format,
+	  min::gen type = min::NONE() )
 {
     bool first_attr = true;
     min::int32 adjust =
@@ -9725,9 +9729,9 @@ static void print_attributes
 	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
-		  min::is_name ( info[i].value )
+		  info[i].value_count == 1
 		  &&
-		  ! line_format )
+		  info[i].value == type )
 	    continue;
 
 	if ( first_attr )
@@ -9955,13 +9959,14 @@ min::printer min::print_obj
     min::gen terminator = min::NONE();
     min::gen type = min::NONE();
 
-    // Figure out if type is needed for normal format.
+    // Figure out if type is needed for normal format
+    // or embedded line format.
     //
-    const min::uns32 NOT_NORMAL =
-        ( min::PRINT_ID + min::ISOLATED_LINE
-	                + min::EMBEDDED_LINE );
     bool need_type =
-        ( ( objf->obj_op_flags & NOT_NORMAL ) == 0 );
+        (    ( objf->obj_op_flags
+	       &
+	       ( min::PRINT_ID + min::ISOLATED_LINE ) )
+	  == 0 );
 
     // Loop until we determine compact_format and
     // need_type are BOTH false.
@@ -10070,6 +10075,9 @@ min::printer min::print_obj
 	printer << min::indent;
 	min::print_ustring
 	    ( printer, objf->obj_bra );
+	if ( type != min::NONE() )
+	    min::print_gen
+		( printer, type, objf->label_format );
 	min::print_ustring
 	    ( printer, objf->obj_braend );
     }
@@ -10083,7 +10091,7 @@ min::printer min::print_obj
 		       objf->label_format );
 	::print_attributes
 	    ( printer, objf, vp, ap, info, m,
-	      false );
+	      false, type );
     }
 
     bool first = true;
@@ -10125,10 +10133,17 @@ min::printer min::print_obj
     {
 	::print_attributes
 	    ( printer, objf, vp, ap, info, m,
-	      true );
+	      true, type );
 	min::print_spaces ( printer, 1 );
 	min::print_ustring
 	    ( printer, objf->obj_ketbegin );
+	if (    (   objf->obj_op_flags
+		  & min::NO_TRAILING_TYPE )
+	     == 0
+	     &&
+	     type != min::NONE() )
+	    min::print_gen
+		( printer, type, objf->label_format );
 	min::print_ustring
 	    ( printer, objf->obj_ket );
 	printer << min::eol;
@@ -10146,6 +10161,14 @@ min::printer min::print_obj
 	{
 	    min::print_ustring
 		( printer, objf->obj_ketbegin );
+	    if (    (   objf->obj_op_flags
+	              & min::NO_TRAILING_TYPE )
+		 == 0
+		 &&
+		 type != min::NONE() )
+		min::print_gen
+		    ( printer, type,
+		      objf->label_format );
 	    min::print_ustring
 		( printer, objf->obj_ket );
 	}

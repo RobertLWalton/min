@@ -1834,6 +1834,10 @@ a␁␣␉␡<2400>␥
 { aaa, bbb,
   [ ccc, ddd, eee, ( fff, ggg ),
     hhh ], iii, jjj }
+(100, 200)
+( 100, 200 )
+(100, )
+( 100, )
 The file has lines: test_file: lines 1-4
 The last line is: test_file: line 4
 Line 1
@@ -4147,19 +4151,14 @@ Start Object Printing Test!
 {* 1, 2, 3, 4, 5 *}
 [ {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *};
   {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *} ]
-{T| A B C |}
-{ T| A B C | }
-    {| A B C:
-       .type = T |}
-{T| A; B; C |}
-{ T| A; B; C | }
-{T: number = 123, .separator = ";"| A B C |}
-{ T : number = 123, .separator = ";"| A B C | }
-    {| A B C:
-       number = 123
-       .separator = ";"
-       .type = T |}
-{T: no scientific, number = 123, .separator = ";", fraction| A B C |}
+{T| A B C |T}
+    {T| A B C |T}
+{T| A; B; C |T}
+{T: number = 123, .separator = ";"| A B C |T}
+    {T| A B C:
+        number = 123
+        .separator = ";" |T}
+{T: no scientific, number = 123, .separator = ";", fraction| A B C |T}
 {"": myattr = [: MYATTR VALUE :], .initiator = "{*", .separator = ",",
      .terminator = "*}"| 1 2 3 4 5 |}
 @1
@@ -4173,7 +4172,7 @@ Start Object Printing Test!
      .initiator = "{*", .separator = ",", .terminator = "*}"|
     1 2 3 4 5 |}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
-     <= myreverse, fraction| A B C |}
+     <= myreverse, fraction| A B C |T}
 {"": myattr = {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *},
      .initiator = "{*", myreverse = @2 <= myforward, .separator = ",",
      .terminator = "*}"| 1 2 3 4 5 |}
@@ -4187,7 +4186,7 @@ Start Object Printing Test!
      .type = T
 
 {T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
-     <= myreverse, fraction| A B C |}
+     <= myreverse, fraction| A B C |T}
 {"": myattr[~*~Z,256,512] =
      {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *}, .initiator =
      "{*", myreverse = @2 <= myforward, .separator = ",", .terminator =

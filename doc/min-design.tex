@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 5, 2014}
+\date{November 6, 2014}
  
 \maketitle
 
@@ -13872,10 +13872,16 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_attrbegin;|%
 \ttmindex{obj\_attrbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attreol;|%
-\ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_attrsep;|%
 \ttmindex{obj\_attrsep}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  const min::ustring *                 obj_attreol;|%
+\ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::ustring *                 obj_attrneg;|%
 \ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::ustring *                 obj_attreq;|%
@@ -13912,6 +13918,8 @@ The format for printing object \TT{min::gen} values is:
 \LABEL{MIN::ISOLATED_LINE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
 \LABEL{MIN::EMBEDDED_LINE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NO\_TRAILING\_TYPE}
+\LABEL{MIN::NO_TRAILING_TYPE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
@@ -13935,6 +13943,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13942,10 +13951,10 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -13953,12 +13962,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\verb|(const min::ustring *) "\x82\x02" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" ", "   // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
@@ -13996,6 +14008,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14015,11 +14028,14 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
@@ -14057,6 +14073,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14064,10 +14081,10 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x41" "{"    // obj_bra|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
 \verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" "}"    // obj_ket|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14076,11 +14093,14 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x81" ":"    // obj_attreol|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
@@ -14160,6 +14180,31 @@ If none of the above apply, the object is printed in
 Keeping these formats in mind, the members of a \TT{min::obj\_format} are:
 
 \begin{itemlist}[0.2in]
+
+\item[\ttmkey{obj\_op\_flags}{in {\tt min::obj\_format}}]~\\
+This is the logical OR of any of the following flags:
+
+\begin{indpar}[0.2in]\begin{itemlist}[0.2in]
+
+\item[\ttmkey{ENABLE\_COMPACT}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]
+\item[\ttmkey{PRINT\_ID}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
+\item[\ttmkey{ISOLATED\_LINE}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
+\item[\ttmkey{EMBEDDED\_LINE}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}~\\
+These flags determine the format the object is printed in.
+See text above.
+
+\item[\ttmkey{NO\_TRAILING\_TYPE}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]~\\
+This flag suppressed printing the type in the closing bracket
+of a non-\TT{.ini\-ti\-ator} compact format object and an embedded line
+format object.  That is, if the type is \TT{T}, this flag
+replaces \TT{|T\}} with \TT{|\}}.
+
+\end{itemlist}\end{indpar}
 
 \item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]
 \item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -14257,22 +14302,22 @@ If
 \end{center}
 then the object is printed in the format:
 \begin{center}
-\TT{[} {\em L} {\em <element>}
-    \OPEN{} {\em TA} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
-    {\em T} \TT{]}
+\TT{[} $\ell$ {\em <element>}
+    \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    {\em t} \TT{]}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{lcl}
-{\em L}			& is	& \TT{min::leading} \\
-{\em TA}		& is	& \TT{min::trailing\_always} \\
+$\ell$			& is	& \TT{min::leading} \\
+{\em ta}		& is	& \TT{min::trailing\_always} \\
 \TT{\textvisiblespace}	& is	& a single space character \\
-{\em T}			& is	& \TT{min::trailing} \\
+{\em t}			& is	& \TT{min::trailing} \\
 \end{tabular}
 \end{center}
 
 If the \TT{.separator} attribute is missing, then
-`{\em TA} \TT{,} \TT{\textvisiblespace}' is replaced by what
+`{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
 character if \TT{ob\_sep}'s  value were
 \TT{"\textbackslash x01\textbackslash x01" " "}.
@@ -14294,16 +14339,16 @@ with a \TT{.type}, then if
 \end{center}
 the format is
 \begin{center}
-\TT{\{} \TT{T} \TT{|} {\em <element>}
-    \OPEN{} {\em TA} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
-    \TT{|\}}
+\TT{\{}\TT{T}\TT{|} {\em <element>}
+    \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \TT{|}\TT{T}\TT{\}}
 \end{center}
 
-which is as before except that `\TT{[} {\em L}' has been replaced
-by `\TT{\{~T~|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
+which is as before except that `\TT{[} $\ell$' has been replaced
+by `\TT{\{T|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
 `\TT{|}' is what \TT{obj\_\EOL braend} prints, and
-`{\em T} \TT{]}' has been replaced
-by `\TT{|\}}' where `\TT{|}' is what \TT{obj\_\EOL ketend} prints and
+`{\em t} \TT{]}' has been replaced
+by `\TT{|T\}}' where `\TT{|}' is what \TT{obj\_\EOL ketend} prints and
 `\TT{\}}' is what \TT{obj\_\EOL ket} prints.
 If any explicit
 spaces, leading spaces, or trailing spaces
@@ -14313,8 +14358,8 @@ the \TT{obj\_}\ldots{} \TT{ustring}'s.
 In compact format without any \TT{.initiator} or \TT{.type} the format
 is as before with the type omitted.  In compact format with a \TT{.type} but
 no \TT{.initiator} and
-with the \TT{TRAILING\_TYPE} object format operation flag on, 
-`\TT{|\}}' is replaced by `\TT{|~T~\}}'.
+with the \TT{NO\_\EOL TRAILING\_\EOL TYPE} object format operation flag on, 
+`\TT{|T\}}' is replaced by `\TT{|\}}'.
 
 TBD
 
@@ -14340,7 +14385,7 @@ the object \TT{.type} if the \TT{TRAILING\_\EOL TYPE} object format
 operation flag is on, followed by \TT{obj\_\EOL ket}.
 If the type is missing, it is omitted, unless there are other attributes,
 in which case the type is printed as the empty string \TT{""} right
-after \TT{obj\_EOL bra}.
+after \TT{obj\_\EOL bra}.
 
 
 The following function can be used to print object general values:
