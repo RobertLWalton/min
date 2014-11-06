@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  3 06:21:45 EST 2014
+// Date:	Thu Nov  6 02:21:54 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4591,10 +4591,6 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( "T" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    printer << min::force_space
-            << min::pgen ( obj3 )
-	    << min::noforce_space
-	    << min::eol;
     min::print_obj ( printer, obj3,
                      min::embedded_line_obj_format );
 
@@ -4605,10 +4601,6 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( ";" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    printer << min::force_space
-            << min::pgen ( obj3 )
-	    << min::noforce_space
-	    << min::eol;
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -4619,10 +4611,6 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_num_gen ( 123 ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    printer << min::force_space
-            << min::pgen ( obj3 )
-	    << min::noforce_space
-	    << min::eol;
     min::print_obj ( printer, obj3,
                      min::embedded_line_obj_format );
 
