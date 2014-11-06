@@ -14361,6 +14361,29 @@ no \TT{.initiator} and
 with the \TT{NO\_\EOL TRAILING\_\EOL TYPE} object format operation flag on, 
 `\TT{|T\}}' is replaced by `\TT{|\}}'.
 
+Normal format is like compact format with no \TT{.initiator} except that if:
+\begin{center}
+\begin{tabular}{lcl}
+\TT{obj\_attrbegin}	& is	& \TT{":"} \\
+\TT{obj\_attrsep}	& is	& \TT{","} \\
+\TT{obj\_attreq}	& is	& \TT{" = "} \\
+\TT{obj\_attrneg}	& is	& \TT{"no "} \\
+\end{tabular}
+\end{center}
+then `\TT{\{T|}' is replace by
+\begin{center}
+\TT{\{}\TT{T}\TT{:} {\em <attribute>}
+    \OPEN{} \TT{,} {\em attribute} \CLOSE\STAR{} \TT{|}
+\end{center}
+where
+\begin{center}
+\begin{tabular}{rcl}
+{\em attribute} & ::= & {\em attribute-label} \TT{=} {\em attribute-value} \\
+		& $|$ & {\em attribute-label} \\
+		& $|$ & \TT{no} {\em attribute-label} \\
+\end{tabular}
+\end{center}
+
 TBD
 
 

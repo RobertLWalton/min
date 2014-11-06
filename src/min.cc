@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  5 18:25:47 EST 2014
+// Date:	Thu Nov  6 07:56:33 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9939,12 +9939,9 @@ min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
 	  const min::obj_format * objf,
+	  min::uns32 obj_op_flags,
 	  min::unsptr max_attrs )
 {
-    if ( objf == NULL )
-        objf = printer->print_format.gen_format
-	              ->obj_format;
-
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
 
@@ -9963,7 +9960,7 @@ min::printer min::print_obj
     // or embedded line format.
     //
     bool need_type =
-        (    ( objf->obj_op_flags
+        (    ( obj_op_flags
 	       &
 	       ( min::PRINT_ID + min::ISOLATED_LINE ) )
 	  == 0 );
@@ -9972,7 +9969,7 @@ min::printer min::print_obj
     // need_type are BOTH false.
     //
     bool compact_format =
-	( objf->obj_op_flags & min::ENABLE_COMPACT );
+	( obj_op_flags & min::ENABLE_COMPACT );
 
     for ( min::unsptr i = 0;
              ( compact_format || need_type )
@@ -10027,17 +10024,17 @@ min::printer min::print_obj
     }
 
     if (    ! compact_format
-         && ( objf->obj_op_flags & min::PRINT_ID ) )
+         && ( obj_op_flags & min::PRINT_ID ) )
         return print_id ( printer, v );
 
     bool isolated_line_format =
            ! compact_format
-        && ( objf->obj_op_flags & min::ISOLATED_LINE );
+        && ( obj_op_flags & min::ISOLATED_LINE );
 
     bool embedded_line_format =
            ! compact_format
         && ! isolated_line_format
-        && ( objf->obj_op_flags & min::EMBEDDED_LINE );
+        && ( obj_op_flags & min::EMBEDDED_LINE );
 
     printer << min::save_print_format
             << min::no_auto_break
@@ -10137,7 +10134,7 @@ min::printer min::print_obj
 	min::print_spaces ( printer, 1 );
 	min::print_ustring
 	    ( printer, objf->obj_ketbegin );
-	if (    (   objf->obj_op_flags
+	if (    (   obj_op_flags
 		  & min::NO_TRAILING_TYPE )
 	     == 0
 	     &&
@@ -10161,7 +10158,7 @@ min::printer min::print_obj
 	{
 	    min::print_ustring
 		( printer, objf->obj_ketbegin );
-	    if (    (   objf->obj_op_flags
+	    if (    (   obj_op_flags
 	              & min::NO_TRAILING_TYPE )
 		 == 0
 		 &&

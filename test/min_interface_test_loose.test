@@ -4152,7 +4152,9 @@ Start Object Printing Test!
 [ {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *};
   {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *} ]
 {T| A B C |T}
+{T| A B C |}
     {T| A B C |T}
+    {T| A B C |}
 {T| A; B; C |T}
 {T: number = 123, .separator = ";"| A B C |T}
     {T| A B C:
