@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  5 18:25:22 EST 2014
+// Date:	Thu Nov  6 07:53:41 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11632,10 +11632,40 @@ namespace min {
     }
 
     min::printer print_obj
-    	    ( min::printer printer, min::gen obj,
-	      const min::obj_format * objf = NULL,
+	    ( min::printer printer, min::gen obj,
+	      const min::obj_format * objf,
+	      min::uns32 obj_op_flags,
 	      min::unsptr max_attrs = 1000 );
 	// Max_attrs is hidden and undocumented.
+
+    inline min::printer print_obj
+	    ( min::printer printer, min::gen obj,
+	      const min::obj_format * objf )
+    {
+        return min::print_obj
+	    ( printer, obj, objf, objf->obj_op_flags );
+    }
+
+    inline min::printer print_obj
+	    ( min::printer printer, min::gen obj,
+	      min::uns32 obj_op_flags )
+    {
+	const min::obj_format * objf =
+	    printer->print_format.gen_format
+	           ->obj_format;
+        return min::print_obj
+	    ( printer, obj, objf, obj_op_flags );
+    }
+
+    inline min::printer print_obj
+	    ( min::printer printer, min::gen obj )
+    {
+	const min::obj_format * objf =
+	    printer->print_format.gen_format
+	           ->obj_format;
+        return min::print_obj
+	    ( printer, obj, objf, objf->obj_op_flags );
+    }
 
     min::printer print_id
     	    ( min::printer printer, min::gen v );
