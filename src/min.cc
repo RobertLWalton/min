@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  6 07:56:33 EST 2014
+// Date:	Fri Nov  7 02:18:43 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9389,11 +9389,11 @@ static min::obj_format compact_obj_format =
         "\x03\x03" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x02\x42" "{*",    // obj_valbegin
+        "\x03\x03" "{* ",   // obj_valbegin
     (const min::ustring *)
         "\x02\x02" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x02\x82" "*}",    // obj_valend
+        "\x03\x03" " *}",   // obj_valend
     (const min::ustring *)
         "\x04\x04" " <= ",  // obj_valreq
 
@@ -9441,11 +9441,11 @@ static min::obj_format isolated_line_obj_format =
         "\x03\x03" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x02\x42" "{*",    // obj_valbegin
+        "\x03\x03" "{* ",   // obj_valbegin
     (const min::ustring *)
         "\x02\x02" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x02\x82" "*}",    // obj_valend
+        "\x03\x03" " *}",   // obj_valend
     (const min::ustring *)
         "\x04\x04" " <= ",  // obj_valreq
 
@@ -9498,11 +9498,11 @@ static min::obj_format embedded_line_obj_format =
         "\x03\x03" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x02\x42" "{*",    // obj_valbegin
+        "\x03\x03" "{* ",   // obj_valbegin
     (const min::ustring *)
         "\x02\x02" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x02\x82" "*}",    // obj_valend
+        "\x03\x03" " *}",   // obj_valend
     (const min::ustring *)
         "\x04\x04" " <= ",  // obj_valreq
 
@@ -9708,7 +9708,10 @@ min::printer min::print_id
     return printer << "@" << id;
 }
 
-static void print_attributes
+// Return true if attributes printed and false if
+// nothing printed.
+//
+static bool print_attributes
 	( min::printer printer, 
 	  const min::obj_format * objf,
 	  min::obj_vec_ptr & vp,
@@ -9753,10 +9756,10 @@ static void print_attributes
 	else
 	{
 	    if ( line_format )
-	        printer << min::adjust_indent
+		printer << min::adjust_indent
 			      ( - adjust )
-		        << min::indent
-	                << min::adjust_indent
+	                << min::indent
+			<< min::adjust_indent
 			      ( adjust );
 	    else
 	    {
@@ -9933,6 +9936,7 @@ static void print_attributes
 	else
 	    printer << min::restore_indent;
     }
+    return ! first_attr;
 }
 
 min::printer min::print_obj
@@ -10128,10 +10132,17 @@ min::printer min::print_obj
 
     if ( embedded_line_format )
     {
-	::print_attributes
-	    ( printer, objf, vp, ap, info, m,
-	      true, type );
-	min::print_spaces ( printer, 1 );
+	if ( first ) printer << min::save_line_break
+	                     << min::adjust_indent ( 4 );
+
+	bool attributes_printed = ::print_attributes
+		( printer, objf, vp, ap, info, m,
+		  true, type );
+	if ( attributes_printed )
+	    printer << min::restore_indent
+	            << min::indent;
+	else
+	    min::print_spaces ( printer, 1 );
 	min::print_ustring
 	    ( printer, objf->obj_ketbegin );
 	if (    (   obj_op_flags
@@ -10143,9 +10154,21 @@ min::printer min::print_obj
 		( printer, type, objf->label_format );
 	min::print_ustring
 	    ( printer, objf->obj_ket );
+	if ( ! attributes_printed )
+	    printer << min::restore_indent;
 	printer << min::eol;
     }
-    else if ( ! isolated_line_format )
+    else if ( isolated_line_format )
+    {
+	if ( ! first ) printer << min::restore_indent;
+
+	printer << min::adjust_indent ( 4 );
+        ::print_attributes
+	    ( printer, objf, vp, ap, info, m, true );
+	printer << min::adjust_indent ( -4 );
+	printer << min::eol;
+    }
+    else
     {
 	min::print_spaces ( printer, 1 );
 
@@ -10169,15 +10192,8 @@ min::printer min::print_obj
 	    min::print_ustring
 		( printer, objf->obj_ket );
 	}
-    }
 
-    if ( ! first ) printer << min::restore_indent;
-
-    if ( isolated_line_format )
-    {
-        ::print_attributes
-	    ( printer, objf, vp, ap, info, m, true );
-	printer << min::eol;
+	if ( ! first ) printer << min::restore_indent;
     }
 
     return printer << min::restore_print_format;
@@ -10996,7 +11012,7 @@ static min::printer flush_one_id
     * ( min::uns32 * ) & id_map->next = id + 1;
     min::gen v = min::new_stub_gen ( id_map[id] );
 
-    printer << "@" << id << " = " << min::save_indent;
+    printer << min::save_indent << "@" << id << " = ";
 
     (* id_map_f->pgen) ( printer, v, id_map_f );
     return printer << min::eol << min::restore_indent;
