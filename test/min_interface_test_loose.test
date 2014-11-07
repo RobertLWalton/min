@@ -4159,46 +4159,50 @@ Start Object Printing Test!
 {T: number = 123, .separator = ";"| A B C |T}
     {T| A B C:
         number = 123
-        .separator = ";" |T}
+        .separator = ";"
+    |T}
 {T: no scientific, number = 123, .separator = ";", fraction| A B C |T}
 {"": myattr = [: MYATTR VALUE :], .initiator = "{*", .separator = ",",
      .terminator = "*}"| 1 2 3 4 5 |}
 @1
 @1 = 1 2 3 4 5:
-     myattr = [: MYATTR VALUE :]
-     .initiator = "{*"
-     .separator = ","
-     .terminator = "*}"
+    myattr = [: MYATTR VALUE :]
+    .initiator = "{*"
+    .separator = ","
+    .terminator = "*}"
 
-{"": myattr = {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *},
-     .initiator = "{*", .separator = ",", .terminator = "*}"|
-    1 2 3 4 5 |}
+{"": myattr =
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", .separator =
+     ",", .terminator = "*}"| 1 2 3 4 5 |}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
      <= myreverse, fraction| A B C |T}
-{"": myattr = {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *},
-     .initiator = "{*", myreverse = @2 <= myforward, .separator = ",",
-     .terminator = "*}"| 1 2 3 4 5 |}
+{"": myattr =
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", myreverse = @2
+      <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
 
 @2 = A B C:
-     no scientific
-     number = 123
-     .separator = ";"
-     myforward = @1 <= myreverse
-     fraction
-     .type = T
+    no scientific
+    number = 123
+    .separator = ";"
+    myforward = @1 <= myreverse
+    fraction
+    .type = T
 
 {T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr[~*~Z,256,512] =
-     {* [: MYATTR VALUE :], [: MYATTR OTHER VALUE :] *}, .initiator =
-     "{*", myreverse = @2 <= myforward, .separator = ",", .terminator =
-     "*}"| 1 2 3 4 5 |}
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", myreverse = @2
+      <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
     {| 1 2 3 4 5:
-       myattr[~*~Z,256,512] = [: MYATTR VALUE :], [: MYATTR OTHER VALUE :]
+       myattr[~*~Z,256,512] = [: MYATTR THIRD VALUE :], [: MYATTR VALUE :], [: MYATTR SECOND VALUE :]
        .initiator = "{*"
        myreverse = @2 <= myforward
        .separator = ","
-       .terminator = "*}" |}
+       .terminator = "*}"
+    |}
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:

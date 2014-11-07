@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  6 07:27:13 EST 2014
+// Date:	Fri Nov  7 02:23:49 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4656,7 +4656,10 @@ void test_object_printing ( void )
 	min::locate ( ap, myattr );
 	min::add_to_set
 	    ( ap, min::new_lab_gen
-		      ( "MYATTR", "OTHER", "VALUE" ) );
+		      ( "MYATTR", "SECOND", "VALUE" ) );
+	min::add_to_set
+	    ( ap, min::new_lab_gen
+		      ( "MYATTR", "THIRD", "VALUE" ) );
     }
     printer << min::pgen ( obj ) << min::eol;
 

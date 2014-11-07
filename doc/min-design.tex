@@ -13976,9 +13976,9 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
 \verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
@@ -14041,9 +14041,9 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
 \verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
@@ -14106,9 +14106,9 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x42" "{*"   // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
 \verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x82" "*}"   // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
 \verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
@@ -14212,6 +14212,9 @@ replaces \TT{|T\}} with \TT{|\}}.
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements,
 attribute labels, and attribute values, respectively.
+\TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
+printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
+and not as attribute values.
 \underline{None} of these values may be \TT{NULL}.
 
 \item[\ttmkey{initiator\_format}{in {\tt min::obj\_format}}]
@@ -14220,7 +14223,7 @@ attribute labels, and attribute values, respectively.
 These are the \TT{min::gen\_format}'s used to print the
 \TT{.initiator}, \TT{.separator}, and \TT{.terminator} in compact
 format, and the \TT{.separator} in normal format.
-\TT{Separator\_\EOL format} must never be \TT{NULL}, and the
+\TT{Separator\_\EOL format} should never be \TT{NULL}, and the
 other values may be not be \TT{NULL} if compact
 format is enabled.
 
@@ -14289,15 +14292,16 @@ will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 
 \end{itemlist}
 
-In compact format with an \TT{.initiator} attribute, the only one of the
+In \mkey{compact format}{of printed object}
+with an \TT{.initiator} attribute, the only one of the
 above \TT{ustring}'s that might be used is \TT{obj\_sep}, which is
 used if there is no \TT{.separator} attribute.
 If
 \begin{center}
 \begin{tabular}{lcl}
-\TT{.initiator}		& is	& \TT{[} \\
-\TT{.separator}		& is	& \TT{,} \\
-\TT{.terminator}	& is	& \TT{]} \\
+\TT{.initiator}		& is	& \TT{"["} \\
+\TT{.separator}		& is	& \TT{","} \\
+\TT{.terminator}	& is	& \TT{"]"} \\
 \end{tabular}
 \end{center}
 then the object is printed in the format:
@@ -14330,11 +14334,11 @@ In compact format \underline{without} an \TT{.initiator} attribute but
 with a \TT{.type}, then if
 \begin{center}
 \begin{tabular}{lcl}
-\TT{obj\_bra}		& is	& \TT{\{} \\
-\TT{obj\_braend}	& is	& \TT{|} \\
-\TT{obj\_ketbegin}	& is	& \TT{|} \\
-\TT{obj\_ket}		& is	& \TT{\}} \\
-\TT{.type}		& is	& \TT{T} \\
+\TT{obj\_bra}		& is	& \TT{"\{"} \\
+\TT{obj\_braend}	& is	& \TT{"|"} \\
+\TT{obj\_ketbegin}	& is	& \TT{"|"} \\
+\TT{obj\_ket}		& is	& \TT{"\}"} \\
+\TT{.type}		& is	& \TT{"T"} \\
 \end{tabular}
 \end{center}
 the format is
@@ -14361,11 +14365,12 @@ no \TT{.initiator} and
 with the \TT{NO\_\EOL TRAILING\_\EOL TYPE} object format operation flag on, 
 `\TT{|T\}}' is replaced by `\TT{|\}}'.
 
-Normal format is like compact format with no \TT{.initiator} except that if:
+\ikey{Normal format}{normal format!of printed object}
+is like compact format with no \TT{.initiator} except that if:
 \begin{center}
 \begin{tabular}{lcl}
-\TT{obj\_attrbegin}	& is	& \TT{":"} \\
-\TT{obj\_attrsep}	& is	& \TT{","} \\
+\TT{obj\_attrbegin}	& is	& \TT{": "} \\
+\TT{obj\_attrsep}	& is	& \TT{", "} \\
 \TT{obj\_attreq}	& is	& \TT{" = "} \\
 \TT{obj\_attrneg}	& is	& \TT{"no "} \\
 \end{tabular}
@@ -14384,31 +14389,85 @@ where
 \end{tabular}
 \end{center}
 
-TBD
+Here what would be `{\em attribute-label} \TT{= TRUE}' is replaced by
+just `{\em attribute-label}\,', and what
+would be `{\em attribute-label} \TT{= FALSE}' is replaced by
+just `\TT{no }{\em attribute-label}\,'.
 
-
+The \mkey{embedded line format}{of printed object} prints that object
+on separate lines, but is indended for use where the object is an
+element of some list.  If
 \begin{center}
 \begin{tabular}{lcl}
-\TT{obj\_bra}		& is	& \TT{\{} \\
-\TT{obj\_braend}	& is	& \TT{|} \\
-\TT{obj\_ketbegin}	& is	& \TT{|} \\
-\TT{obj\_ket}		& is	& \TT{\}} \\
-\TT{obj\_attrbegin}	& is	& \TT{:} \\
-\TT{obj\_attrsep}	& is	& \TT{,} \\
-\TT{obj\_attreol}	& is	& \TT{:} \\
+\TT{obj\_bra}		& is	& \TT{"\{"} \\
+\TT{obj\_braend}	& is	& \TT{"|"} \\
+\TT{obj\_sep}		& is	& \TT{" "} \\
+\TT{obj\_ketbegin}	& is	& \TT{"|"} \\
+\TT{obj\_ket}		& is	& \TT{"\}"} \\
+\TT{.type}		& is	& \TT{"T"} \\
+\TT{obj\_attreol}	& is	& \TT{":"} \\
+\TT{obj\_attreq}	& is	& \TT{" = "} \\
+\TT{obj\_attrneg}	& is	& \TT{"no "} \\
 \end{tabular}
 \end{center}
-In normal format \TT{obj\_\EOL bra} is followed by the
-object's \TT{.type} and attributes followed by
-\TT{obj\_\EOL braend}, and all this serves as the opening bracket for
-the object's list of elements.
-The closing bracket for the object's list of elements consists of
-\TT{obj\_\EOL ketbegin}, optionally followed by the 
-the object \TT{.type} if the \TT{TRAILING\_\EOL TYPE} object format
-operation flag is on, followed by \TT{obj\_\EOL ket}.
-If the type is missing, it is omitted, unless there are other attributes,
-in which case the type is printed as the empty string \TT{""} right
-after \TT{obj\_\EOL bra}.
+then the object in embedded line format has the form:
+\begin{center}
+\begin{tabular}{l}
+\TT{\{T|} {\em element}
+          \OPEN{} \textvisiblespace {\em element} \CLOSE\STAR{}\TT{:} \\
+~~~~{\em attribute} \\
+~~~~\ldots\ldots\ldots \\
+~~~~{\em attribute} \\
+\TT{|T\}} \\
+\end{tabular}
+\end{center}
+
+The object begins as if it were in normal format, but
+any \TT{.separator} attribute is \underline{not} used
+to separate elements (\TT{obj\_\EOL sep} is used), and the
+list of elements is terminated by \TT{obj\_\EOL attreol} (\TT{:} here)
+which introduces an indented paragraph with one attribute per line,
+so that \TT{obj\_\EOL attrsep} is \underline{not} used.
+The printout begins with a \TT{min::\EOL indent} operation and
+ends with a \TT{min::\EOL eol} operation.
+If there are no attributes other than \TT{.type},
+in particular no \TT{.separator} attribute,
+embedded line format is identical to normal format except for
+the \TT{min::\EOL indent} and \TT{min::\EOL eol} operations.
+
+The \mkey{isolated line format}{of printed object} prints that object
+on separate lines, and is indended for use when the object is
+isoloated and \underline{not} part of a larger list,
+as when the object is output when flushing an identifier map
+(\itemref{PRINTING-USING-AN-IDENTIFIER-MAP}).  If
+\begin{center}
+\begin{tabular}{lcl}
+\TT{obj\_sep}		& is	& \TT{" "} \\
+\TT{obj\_attreol}	& is	& \TT{":"} \\
+\TT{obj\_attreq}	& is	& \TT{" = "} \\
+\TT{obj\_attrneg}	& is	& \TT{"no "} \\
+\end{tabular}
+\end{center}
+then the object in isolated line format has the form:
+\begin{center}
+\begin{tabular}{l}
+{\em element}
+          \OPEN{} \textvisiblespace {\em element} \CLOSE\STAR{}\TT{:} \\
+~~~~{\em attribute} \\
+~~~~\ldots\ldots\ldots \\
+~~~~{\em attribute} \\
+\end{tabular}
+\end{center}
+
+Here \underline{every} attribute, including \TT{.type} and \TT{.separator},
+is output on its own indended subparagraph line.
+The output ends with a \TT{min::\EOL eol} operation,
+but does \underline{not} begin with any special printer operation.  If
+there are no attributes, the indented paragraph and its introducing
+`\TT{:}' are omitted, but the output ends with \TT{min::\EOL eol}.
+If there are no attributes and no elements, nothing is output but the
+\TT{min::\EOL eol}.
+
 
 
 The following function can be used to print object general values:
@@ -14417,15 +14476,52 @@ The following function can be used to print object general values:
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK
-    \verb|  const min::obj_format * obj_format = NULL )|
+    \verb|  const min::obj_format * obj_format,|
+    \verb|  min::uns32 obj_op_flags )|
 \LABEL{MIN::PRINT_OBJ} \\
 \end{tabular}\end{indpar}
 
-The expression `\TT{printer~<<~min::pgen(v)}' invokes this
-function if \TT{v} is an object.  If the \TT{obj\_\EOL format}
-argument is \TT{NULL},
-\TT{printer->print\_\EOL format.gen\_\EOL format->obj\_\EOL format}
-is used as the value of this argument.
+This function prints the object using the given \TT{obj\_\EOL format}
+with \TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} replaced by
+the \TT{obj\_\EOL op\_\EOL flags} argument.  Either or both of the
+last two arguments may be omitted as in
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::obj_format * obj_format )|
+\LABEL{MIN::PRINT_OBJ_WITHOUT_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  min::uns32 obj_op_flags )|
+\LABEL{MIN::PRINT_OBJ_WITHOUT_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj )|\ARGBREAK
+\LABEL{MIN::PRINT_OBJ_BARE} \\
+\end{tabular}\end{indpar}
+
+If \TT{obj\_format} is omitted,
+\begin{center}
+\TT{printer->print\_format.gen\_format->obj\_format}
+\end{center}
+is used in its place.  If \TT{obj\_op\_flags} is omitted,
+`\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} is used
+in its place.
+
+The expression `\TT{printer~<<~min::pgen(v)}' is equivalent to
+\begin{center}
+\TT{min::print\_obj(printer,v)}
+\end{center}
+if \TT{v} is an object.
 
 
 \subsubsection{TBD}
