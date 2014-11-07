@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 02:18:43 EST 2014
+// Date:	Fri Nov  7 06:37:36 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8273,8 +8273,11 @@ static bool insert_line_break ( min::printer printer )
 	// back.
     for ( i = 0; i < line_break_stack->length; ++ i )
     {
-        if ( (&line_break_stack[i])->column
-	     > (&line_break_stack[i])->indent )
+        if (   (&line_break_stack[i])->column
+	     > (&line_break_stack[i])->indent
+	     &&
+                (&line_break_stack[i])->offset
+	     >= printer->file->end_offset )
 	{
 	    line_break = line_break_stack[i];
 	    break;

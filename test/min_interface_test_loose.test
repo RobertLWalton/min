@@ -4197,7 +4197,8 @@ Start Object Printing Test!
         [: MYATTR SECOND VALUE :] *}, .initiator = "{*", myreverse = @2
       <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
     {| 1 2 3 4 5:
-       myattr[~*~Z,256,512] = [: MYATTR THIRD VALUE :], [: MYATTR VALUE :], [: MYATTR SECOND VALUE :]
+       myattr[~*~Z,256,512] = [: MYATTR THIRD VALUE :],
+           [: MYATTR VALUE :], [: MYATTR SECOND VALUE :]
        .initiator = "{*"
        myreverse = @2 <= myforward
        .separator = ","
