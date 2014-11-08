@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 6, 2014}
+\date{November 8, 2014}
  
 \maketitle
 
@@ -7808,7 +7808,7 @@ following printer parameters:
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_only}{\_display\_control} =}\ARGBREAK[1.0in]
-	\verb|{ HT + min::IS_GRAPHIC, 0 };|
+	\verb|{ min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_and\_vspace}{\_display\_control} =}\ARGBREAK[1.0in]
@@ -9583,17 +9583,28 @@ An example using a \TT{phrase\_position} is
 \end{verbatim}\end{indpar}
 
 Internally \TT{min::\EOL print\_\EOL phrase\_\EOL lines}
-uses the function:
+makes the call:
+
+\begin{indpar}\begin{verbatim}
+    min::print_line_column
+        ( file, position, file->line_display,
+          printer->print_format );
+\end{verbatim}\end{indpar}
+
+which uses the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  min::uns32 printer_op_flags,|\ARGBREAK
+      \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
 
-which, given a file and a position within that file, returns the number of
+that, given a file, a position within that file, a line display,
+and the print format, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line specified by the position.
 
@@ -9653,15 +9664,6 @@ an extra \TT{line\_\EOL display} argument and use that in place of
       \verb|  const char * unavailable_line =|\ARGBREAK
       \verb|      "<UNAVAILABLE-LINE>" )|
 \LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::uns32 line_display,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
 \end{tabular}\end{indpar}
 
 There is a type of packed vector, the `\key{phrase position vector}\,',
@@ -14476,7 +14478,7 @@ The following function can be used to print object general values:
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK
-    \verb|  const min::obj_format * obj_format,|
+    \verb|  const min::obj_format * obj_format,|\ARGBREAK
     \verb|  min::uns32 obj_op_flags )|
 \LABEL{MIN::PRINT_OBJ} \\
 \end{tabular}\end{indpar}
@@ -17671,7 +17673,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{graphic\_only\_display\_control} =}\ARGBREAK[0.5in]
-	\verb|{ HT + min::IS_GRAPHIC, 0 };|
+	\verb|{ min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{graphic\_and\_vspace\_display\_control} =}\ARGBREAK[0.5in]
@@ -18200,8 +18202,9 @@ These are in \verb|min_parameters.h|.
 \verb|min::uns32 min::|
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
-      \verb|  const min::phrase_position|\ARGBREAK
-      \verb|        & position )|
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  min::uns32 printer_op_flags,|\ARGBREAK
+      \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{TABULAR}
 
@@ -18236,15 +18239,6 @@ These are in \verb|min_parameters.h|.
       \verb|  const char * unavailable_line =|\ARGBREAK
       \verb|      "<UNAVAILABLE-LINE>" )|
 \LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::uns32 line_display,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position )|
-\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
 \end{TABULAR}
 
 \bigskip
