@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 02:23:49 EST 2014
+// Date:	Sat Nov  8 18:19:00 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2884,7 +2884,6 @@ void test_printer ( void )
 	* ctp = 0; \
 	min::pwidth \
 	    ( column, ctemp, strlen ( ctemp ), \
-	      printer->print_format.op_flags, \
 	      printer->print_format ); \
 	MIN_ASSERT ( printer->column == column );
 

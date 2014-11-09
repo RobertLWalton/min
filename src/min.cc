@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  7 06:37:36 EST 2014
+// Date:	Sat Nov  8 18:17:48 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2459,10 +2459,20 @@ min::uns32 min::print_line_column
         length =
 	    ::strlen ( ! ( file->buffer + offset ) );
 
+    min::print_format pf = print_format;
+    min::uns32 flags =
+        min::DISPLAY_EOL + min::DISPLAY_PICTURE;
+    pf.op_flags &= ~ flags;
+    pf.op_flags |= ( flags & line_display);
+    pf.op_flags |= min::EXPAND_HT;
+    pf.display_control =
+        ( line_display & min::DISPLAY_PICTURE ?
+	  min::graphic_only_display_control :
+	  min::graphic_and_space_display_control );
+    pf.break_control = min::no_auto_break_break_control;
     min::pwidth ( column, ! ( file->buffer + offset ),
     		  position.offset <= length ?
-		      position.offset : length,
-                  line_display, print_format );
+		      position.offset : length, pf );
     return column;
 }
 
@@ -8990,7 +9000,6 @@ min::printer operator <<
 
 void min::pwidth ( min::uns32 & column,
                    const char * s, min::unsptr n,
-		   min::uns32 print_op_flags,
 		   const min::print_format &
 		       print_format )
 {
