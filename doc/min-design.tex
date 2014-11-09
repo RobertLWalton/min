@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 8, 2014}
+\date{November 9, 2014}
  
 \maketitle
 
@@ -6667,6 +6667,7 @@ The flags involved are:
 \begin{tabular}{l}
 min::DISPLAY\_EOL \\
 min::DISPLAY\_PICTURE \\
+min::DISPLAY\_NON\_GRAPHIC \\
 \end{tabular}
 \end{indpar}
 
@@ -7742,6 +7743,8 @@ following printer parameters:
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_PICTURE}
 \LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_NON\_GRAPHIC}
+\LABEL{MIN::DISPLAY_NON_GRAPHIC_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7908,6 +7911,8 @@ if ( ( cflags & sc.support_mask ) == 0 )
 \label{COMPUTE-PRINTED-REPRESENTATION}
 \begin{indpar}\begin{verbatim}
 min::display_control dc = printer->print_format.display_control;
+if ( printer->print_format.op_flags & min::DISPLAY_NON_GRAPHIC )
+    dc.display_char &= ~ min::IS_NON_GRAPHIC;
 if ( cflags & dc.display_char )
     // Character represents itself, but if c == '\t', c is
     // represented by a sequence of 8 - printer->column % 8
@@ -8096,6 +8101,12 @@ using \TT{min::\EOL unicode::\EOL picture[cindex]} if this is not
 \TT{NULL}, as per \pagref{COMPUTE-PRINTED-REPRESENTATION}.
 Otherwise they are displayed using their name if that exists, or
 using their hex code if no name exists.
+
+\item[\ttmkey{DISPLAY\_NON\_GRAPHIC}%
+               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
+If this flag is on, non-graphic characters (including single spaces and
+horizontal tabs) are \underline{not} displayed
+as themselves, regardless of the setting of the display control.
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
 {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -8558,6 +8569,10 @@ following printer operations:
 \LABEL{MIN::DISPLAY_PICTURE} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_picture}
 \LABEL{MIN::NODISPLAY_PICTURE} \\
+\verb|const min::op min::| & \MINKEY{display\_non\_graphic}
+\LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
+\LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -17605,6 +17620,12 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_PICTURE}
 \LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_NON\_GRAPHIC}
+\LABEL{MIN::DISPLAY_NON_GRAPHIC_FLAG} \\
+\verb|const min::op min::| & \MINKEY{display\_non\_graphic}
+\LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
+\LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
