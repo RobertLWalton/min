@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  8 18:17:48 EST 2014
+// Date:	Sun Nov  9 07:40:15 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2375,11 +2375,15 @@ min::uns32 min::print_line
     {
 	const char * p = & buffer[0];
 	min::uns16 name_or_picture_flags =
-	   ( ! printer->print_format.display_control
-				    .display_char
-	     &
+	    ! printer->print_format.display_control
+				   .display_char;
+	if (   printer->print_format.op_flags
+	     & min::DISPLAY_NON_GRAPHIC )
+	    name_or_picture_flags |=
+	        min::IS_NON_GRAPHIC;
+	name_or_picture_flags &=
 	     ! printer->print_format.display_control
-				    .display_suppress );
+				    .display_suppress;
 
 	while ( * p && (unsigned) * p < 256 )
 	{
@@ -2466,7 +2470,9 @@ min::uns32 min::print_line_column
     pf.op_flags |= ( flags & line_display);
     pf.op_flags |= min::EXPAND_HT;
     pf.display_control =
-        ( line_display & min::DISPLAY_PICTURE ?
+        (   line_display
+	  & (   min::DISPLAY_PICTURE
+	      | min::DISPLAY_NON_GRAPHIC ) ?
 	  min::graphic_only_display_control :
 	  min::graphic_and_space_display_control );
     pf.break_control = min::no_auto_break_break_control;
@@ -7893,15 +7899,18 @@ min::printer operator <<
     {
         min::uns32 flags = op.v1.u32;
 	flags &= min::DISPLAY_EOL
-	       + min::DISPLAY_PICTURE;
+	       + min::DISPLAY_PICTURE
+	       + min::DISPLAY_NON_GRAPHIC;
 	printer->print_format.op_flags &=
 	    ~ (   min::DISPLAY_EOL
-	        + min::DISPLAY_PICTURE );
+	        + min::DISPLAY_PICTURE
+		+ min::DISPLAY_NON_GRAPHIC );
 	printer->print_format.op_flags |= flags;
 	printer->print_format.op_flags |=
 	    min::EXPAND_HT;
 	printer->print_format.display_control =
-	    flags & min::DISPLAY_PICTURE ?
+	    flags & (   min::DISPLAY_PICTURE
+	              | min::DISPLAY_NON_GRAPHIC ) ?
 	    min::graphic_only_display_control :
 	    min::graphic_and_space_display_control;
 	printer->print_format.break_control =
@@ -8183,6 +8192,13 @@ const min::op min::nodisplay_picture
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_PICTURE );
 
+const min::op min::display_non_graphic
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::DISPLAY_NON_GRAPHIC );
+const min::op min::nodisplay_non_graphic
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::DISPLAY_NON_GRAPHIC );
+
 const min::op min::flush_on_eol
     ( min::op::SET_PRINT_OP_FLAGS,
       min::FLUSH_ON_EOL );
@@ -8407,6 +8423,9 @@ min::printer MINT::print_unicode
     min::display_control dc =
         display_control != NULL ? * display_control :
         printer->print_format.display_control;
+    if (   printer->print_format.op_flags
+         & min::DISPLAY_NON_GRAPHIC )
+        dc.display_char &= ~ min::IS_NON_GRAPHIC;
     min::break_control bc =
         printer->print_format.break_control;
     const min::uns32 * char_flags =
@@ -9007,6 +9026,9 @@ void min::pwidth ( min::uns32 & column,
         print_format.support_control;
     min::display_control dc =
         print_format.display_control;
+    if (   print_format.op_flags
+         & min::DISPLAY_NON_GRAPHIC )
+        dc.display_char &= ~ min::IS_NON_GRAPHIC;
     const min::uns32 * char_flags =
 	print_format.char_flags;
 
@@ -10144,8 +10166,9 @@ min::printer min::print_obj
 
     if ( embedded_line_format )
     {
-	if ( first ) printer << min::save_line_break
-	                     << min::adjust_indent ( 4 );
+	if ( first )
+	    printer << min::save_line_break
+	            << min::adjust_indent ( 4 );
 
 	bool attributes_printed = ::print_attributes
 		( printer, objf, vp, ap, info, m,

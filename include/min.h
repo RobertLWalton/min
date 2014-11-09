@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  8 18:11:56 EST 2014
+// Date:	Sun Nov  9 07:38:47 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10721,9 +10721,10 @@ namespace min {
     const min::uns32 EXPAND_HT		  = ( 1 << 0 );
     const min::uns32 DISPLAY_EOL	  = ( 1 << 1 );
     const min::uns32 DISPLAY_PICTURE	  = ( 1 << 2 );
-    const min::uns32 FLUSH_ON_EOL	  = ( 1 << 3 );
-    const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 4 );
-    const min::uns32 FORCE_SPACE	  = ( 1 << 5 );
+    const min::uns32 DISPLAY_NON_GRAPHIC  = ( 1 << 3 );
+    const min::uns32 FLUSH_ON_EOL	  = ( 1 << 4 );
+    const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 5 );
+    const min::uns32 FORCE_SPACE	  = ( 1 << 6 );
 
     extern const min::uns32 standard_op_flags;
 
@@ -11207,6 +11208,8 @@ namespace min {
     extern const op nodisplay_eol;
     extern const op display_picture;
     extern const op nodisplay_picture;
+    extern const op display_non_graphic;
+    extern const op nodisplay_non_graphic;
 
     extern const op flush_on_eol;
     extern const op noflush_on_eol;
