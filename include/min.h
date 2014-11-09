@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  6 07:53:41 EST 2014
+// Date:	Sat Nov  8 18:11:56 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6144,7 +6144,7 @@ namespace min {
     min::uns32 print_line_column
 	    ( min::file file,
 	      const min::position & position,
-	      min::uns32 print_op_flags,
+	      min::uns32 line_display,
 	      const min::print_format & print_format );
 
     void print_phrase_lines
@@ -11339,7 +11339,6 @@ namespace min {
     void pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
-	  min::uns32 printer_op_flags,
 	  const min::print_format & print_format );
 }
 

@@ -8472,16 +8472,13 @@ after the string is printed.
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  min::uns32 print_op_flags,|\ARGBREAK
          \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{tabular}\end{indpar}
 
 This function updates `\TT{column}' to what it would be if
 the \TT{n} byte string \TT{s} were printed with the given
-\TT{print\_\EOL format} modified by replacing
-\TT{print\_\EOL format.op\_\EOL flags}
-by the \TT{print\_\EOL op\_\EOL flags} argument value.
+\TT{print\_\EOL format}.
 Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
 function does not allocate or resize objects.
 
@@ -9392,9 +9389,13 @@ an error message:
 \end{tabular}\end{indpar}
 
 The \TT{file} line with the given \TT{line\_number}
-is printed on a single \TT{printer} line.  \TT{file->\EOL line\_\EOL display}
-(\pagref{FILE_LINE_DISPLAY})
-is used to print this line, and the number of columns in the result,
+is printed on a single \TT{printer} line.
+\begin{center}
+\TT{printer << min::set\_line\_display ( file->line\_display )}
+\end{center}
+is used to print this line
+(see \pagref{FILE_LINE_DISPLAY} and \pagref{MIN::SET_LINE_DISPLAY}),
+and the number of columns in the result,
 including any end of line representation printed by the
 \TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
@@ -9598,7 +9599,7 @@ which uses the function:
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  min::uns32 printer_op_flags,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
@@ -9606,7 +9607,12 @@ which uses the function:
 that, given a file, a position within that file, a line display,
 and the print format, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
-printout of the line specified by the position.
+printout of the line.  To do this, \TT{min::\EOL print\_\EOL line\_\EOL column}
+calls \TT{min::\EOL pwidth} with its \TT{print\_\EOL format} argument modified
+as per
+\begin{center}
+\TT{min::set\_line\_display ( line\_display )}
+\end{center}
 
 Some of the above functions use \TT{file->line\_display}
 to control how lines are printed and therefore which column
@@ -17902,7 +17908,6 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  min::uns32 print_op_flags,|\ARGBREAK
          \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PWIDTH_OF_STRING}
 \end{TABULAR}
@@ -18203,7 +18208,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  min::uns32 printer_op_flags,|\ARGBREAK
+      \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{TABULAR}
