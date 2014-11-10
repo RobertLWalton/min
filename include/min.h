@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  9 07:38:47 EST 2014
+// Date:	Mon Nov 10 01:10:35 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11611,6 +11611,8 @@ namespace min {
     extern const min::gen_format *
         element_gen_format;
     extern const gen_format *
+        always_quote_gen_format;
+    extern const gen_format *
         never_quote_gen_format;
 
     extern packed_vec_ptr<const char *>
@@ -11703,6 +11705,12 @@ namespace min {
     {
         return op ( op::PGEN_FORMAT, v,
 	            min::name_gen_format );
+    }
+
+    inline op pgen_quote ( min::gen v )
+    {
+        return op ( op::PGEN_FORMAT, v,
+	            min::always_quote_gen_format );
     }
 
     inline op pgen_never_quote ( min::gen v )

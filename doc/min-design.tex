@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 9, 2014}
+\date{November 10, 2014}
  
 \maketitle
 
@@ -9775,6 +9775,10 @@ operations:
 \LABEL{MIN::PGEN} \\
 \verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NAME} \\
+\verb|min::op min::| & \MINKEY{pgen\_quote} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_QUOTE} \\
+\verb|min::op min::| & \MINKEY{pgen\_never\_quote} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_NEVER_QUOTE} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
@@ -9819,9 +9823,17 @@ The following function has the same effect:
 \end{tabular}\end{indpar}
 
 
-\TT{min::\EOL pgen\_\EOL name(v)} is shorthand for
+\TT{min::\EOL pgen\_\EOL name(v)},
+\TT{min::\EOL pgen\_\EOL quote(v)}, and
+\TT{min::\EOL pgen\_\EOL never\_\EOL quote(v)} are respectively
+shorthand for
 \begin{center}
-\tt min::pgen ( v, min::name\_gen\_format )
+\tt
+\begin{tabular}{l}
+min::pgen ( v, min::name\_gen\_format ) \\
+min::pgen ( v, min::always\_quote\_gen\_format ) \\
+min::pgen ( v, min::never\_quote\_gen\_format ) \\
+\end{tabular}
 \end{center}
 
 
@@ -9931,6 +9943,19 @@ for general value formats is as follows:
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{always\_quote\_gen\_format}:}
+\LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_all_str_format               // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|min::id_map_gen_format                  // id_map_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -18332,6 +18357,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PGEN} \\
 \verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NAME} \\
+\verb|min::op min::| & \MINKEY{pgen\_quote} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_QUOTE} \\
+\verb|min::op min::| & \MINKEY{pgen\_never\_quote} \verb|( min::gen v )|
+\LABEL{MIN::PGEN_NEVER_QUOTE} \\
 \verb|min::op min::|
     & \MINKEY{pgen}\ARGBREAK
 	  \verb|( min::gen v,|\ARGBREAK
@@ -18446,6 +18475,21 @@ These are in \verb|min_parameters.h|.
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
 \verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{always\_quote\_gen\_format}:}
+\LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|min::quote_all_str_format               // str_format|\ARGBREAK[0in]
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|min::id_map_gen_format                  // id_map_format|
 \end{TABULAR}
 
 \bigskip
