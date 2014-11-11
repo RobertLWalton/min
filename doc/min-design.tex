@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 10, 2014}
+\date{November 11, 2014}
  
 \maketitle
 
@@ -7912,7 +7912,10 @@ if ( ( cflags & sc.support_mask ) == 0 )
 \begin{indpar}\begin{verbatim}
 min::display_control dc = printer->print_format.display_control;
 if ( printer->print_format.op_flags & min::DISPLAY_NON_GRAPHIC )
+{
     dc.display_char &= ~ min::IS_NON_GRAPHIC;
+    dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
+}
 if ( cflags & dc.display_char )
     // Character represents itself, but if c == '\t', c is
     // represented by a sequence of 8 - printer->column % 8
@@ -8106,7 +8109,8 @@ using their hex code if no name exists.
                {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
 If this flag is on, non-graphic characters (including single spaces and
 horizontal tabs) are \underline{not} displayed
-as themselves, regardless of the setting of the display control.
+as themselves or suppressed,
+regardless of the setting of the display control.
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
 {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -8716,13 +8720,15 @@ error message, and is used, for example, by the
 is equivalent to:
 
 \begin{indpar}\begin{verbatim}
-min::uns32 flags = ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
+min::uns32 flags = min::DISPLAY_EOL
+                 + min::DISPLAY_PICTURE
+                 + min::DISPLAY_NON_GRAPHIC;
 
 printer << min::clear_op_flags ( flags )
         << min::set_op_flags ( flags & line_display )
         << min::expand_ht
         << min::set_display_control
-               ( line_display & min::DISPLAY_PICTURE ?
+               ( line_display & min::DISPLAY_NON_GRAPHIC ?
                  min::graphic_only_display_control :
                  min::graphic_and_space_display_control )
         << min::no_auto_break
@@ -9636,19 +9642,18 @@ is on in \TT{file->line\_display}, \TT{<NL>}
 will print at the end of a line if
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} is off, and
 {\tiny $\stackrel{\textstyle N~}{~L}$} will print if
-\TT{min::\EOL DISPLAY\_\EOL PICTURE} is on.  Also, if
-\TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, ASCII control
-characters and single spaces will print as UNICODE picture characters
-(e.g., {\tiny $\stackrel{\textstyle H~}{~T}$}
-and {\tiny $\stackrel{\textstyle F~}{~F}$}),
-but if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is off,
-ASCII control characters except horizontal tab will
-print as their names with prefix and postfix determined by
+\TT{min::\EOL DISPLAY\_\EOL PICTURE} is on.  Also,
+non-graphic, non-horizontal-space characters always print as pictures
+(e.g., {\tiny $\stackrel{\textstyle F~}{~F}$})
+if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, and otherwise as
+as their names with prefix and postfix determined by
 \TT{printer->\EOL print\_\EOL format.char\_\EOL name\_\EOL format}
-(e.g., \TT{<FF>}),
-horizontal tab will
-be expanded to a sequence of single spaces, and single space will
-print as itself.
+(e.g., \TT{<FF>}).
+If in addition \TT{min::\EOL DISPLAY\_\EOL NON\_\EOL GRAPHIC} is on,
+horizontal space characters will also print as pictures
+(e.g., \TT{\textvisiblespace} and {\tiny $\stackrel{\textstyle H~}{~T}$}),
+if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, and otherwise as
+as their names (e.g., \TT{<SP>} and \TT{<HT>}).
 
 The following are alternatives to the above functions that take
 an extra \TT{line\_\EOL display} argument and use that in place of

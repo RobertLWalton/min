@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 01:11:05 EST 2014
+// Date:	Tue Nov 11 02:33:45 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2376,14 +2376,14 @@ min::uns32 min::print_line
 	const char * p = & buffer[0];
 	min::uns16 name_or_picture_flags =
 	    ! printer->print_format.display_control
-				   .display_char;
+				   .display_char
+	    &
+	    ! printer->print_format.display_control
+				   .display_suppress;
 	if (   printer->print_format.op_flags
 	     & min::DISPLAY_NON_GRAPHIC )
 	    name_or_picture_flags |=
 	        min::IS_NON_GRAPHIC;
-	name_or_picture_flags &=
-	     ! printer->print_format.display_control
-				    .display_suppress;
 
 	while ( * p && (unsigned) * p < 256 )
 	{
@@ -2464,15 +2464,14 @@ min::uns32 min::print_line_column
 	    ::strlen ( ! ( file->buffer + offset ) );
 
     min::print_format pf = print_format;
-    min::uns32 flags =
-        min::DISPLAY_EOL + min::DISPLAY_PICTURE;
+    min::uns32 flags = min::DISPLAY_EOL
+                     + min::DISPLAY_PICTURE
+		     + min::DISPLAY_NON_GRAPHIC;
     pf.op_flags &= ~ flags;
     pf.op_flags |= ( flags & line_display);
     pf.op_flags |= min::EXPAND_HT;
     pf.display_control =
-        (   line_display
-	  & (   min::DISPLAY_PICTURE
-	      | min::DISPLAY_NON_GRAPHIC ) ?
+        ( line_display & min::DISPLAY_NON_GRAPHIC ?
 	  min::graphic_only_display_control :
 	  min::graphic_and_space_display_control );
     pf.break_control = min::no_auto_break_break_control;
@@ -7909,8 +7908,7 @@ min::printer operator <<
 	printer->print_format.op_flags |=
 	    min::EXPAND_HT;
 	printer->print_format.display_control =
-	    flags & (   min::DISPLAY_PICTURE
-	              | min::DISPLAY_NON_GRAPHIC ) ?
+	    flags & min::DISPLAY_NON_GRAPHIC ?
 	    min::graphic_only_display_control :
 	    min::graphic_and_space_display_control;
 	printer->print_format.break_control =
@@ -8425,7 +8423,10 @@ min::printer MINT::print_unicode
         printer->print_format.display_control;
     if (   printer->print_format.op_flags
          & min::DISPLAY_NON_GRAPHIC )
+    {
         dc.display_char &= ~ min::IS_NON_GRAPHIC;
+        dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
+    }
     min::break_control bc =
         printer->print_format.break_control;
     const min::uns32 * char_flags =
@@ -9028,7 +9029,10 @@ void min::pwidth ( min::uns32 & column,
         print_format.display_control;
     if (   print_format.op_flags
          & min::DISPLAY_NON_GRAPHIC )
+    {
         dc.display_char &= ~ min::IS_NON_GRAPHIC;
+        dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
+    }
     const min::uns32 * char_flags =
 	print_format.char_flags;
 
