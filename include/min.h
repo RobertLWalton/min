@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 10 01:10:35 EST 2014
+// Date:	Wed Nov 12 06:05:33 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10828,12 +10828,15 @@ namespace min {
 	    // If min::leading/trailing (not _always)
 	    // then FORCE_SPACE_OK is also set.
         FORCE_SPACE_OK		= ( 1 << 2 ),
+	AFTER_SAVE_INDENT	= ( 1 << 3 ),
+	    // A min::save_indent was in a sequence
+	    // of min::leading/trailing{,_always}.
 
-        LEADING_STATE		= ( 1 << 3 ),
-        TRAILING_STATE		= ( 1 << 4 ),
-        NON_GRAPHIC_STATE	= ( 1 << 5 ),
+        LEADING_STATE		= ( 1 << 4 ),
+        TRAILING_STATE		= ( 1 << 5 ),
+        NON_GRAPHIC_STATE	= ( 1 << 6 ),
 
-        BREAK_AFTER		= ( 1 << 6 )
+        BREAK_AFTER		= ( 1 << 7 )
 	    // Set a break before the NEXT character
 	    // (i.e., a break after the last character)
 	    // UNLESS the next character is also a
@@ -11579,6 +11582,8 @@ namespace min {
         isolated_line_obj_format;
     extern const min::obj_format *
         embedded_line_obj_format;
+    extern const min::obj_format *
+        id_obj_format;
 
     struct gen_format
     {
@@ -11598,6 +11603,8 @@ namespace min {
 
     extern const min::gen_format *
         top_gen_format;
+    extern const min::gen_format *
+        id_map_gen_format;
     extern const gen_format *
         name_gen_format;
     extern const gen_format *
@@ -11605,11 +11612,11 @@ namespace min {
     extern const gen_format *
         trailing_always_gen_format;
     extern const min::gen_format *
-        id_map_gen_format;
-    extern const min::gen_format *
         value_gen_format;
     extern const min::gen_format *
         element_gen_format;
+    extern const min::gen_format *
+        id_gen_format;
     extern const gen_format *
         always_quote_gen_format;
     extern const gen_format *
