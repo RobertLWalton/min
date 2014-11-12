@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 11, 2014}
+\date{November 12, 2014}
  
 \maketitle
 
@@ -9952,6 +9952,45 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{value\_gen\_format}:}
+\LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{element\_gen\_format}:}
+\LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_gen\_format}:}
+\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::id_obj_format                      // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{always\_quote\_gen\_format}:}
 \LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
@@ -9960,7 +9999,7 @@ for general value formats is as follows:
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|NULL                                    // id_map_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -13884,10 +13923,10 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::gen_format                      name_format;|%
-\ttmindex{name\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen_format                      element_format;|%
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format                      label_format;|%
+\ttmindex{label\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen_format                      value_format;|%
 \ttmindex{value\_format}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
@@ -13983,15 +14022,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::name_gen_format                     // label_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
+\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14048,15 +14087,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::name_gen_format                     // name_format|\ARGBREAK
-\verb|min::top_gen_format                      // element_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
+\verb|min::id_gen_format                       // element_format|\ARGBREAK
+\verb|min::name_gen_format                     // label_format|\ARGBREAK
+\verb|min::id_gen_format                       // value_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
+\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14113,15 +14152,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::name_gen_format                     // name_format|\ARGBREAK
 \verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::name_gen_format                     // label_format|\ARGBREAK
 \verb|min::top_gen_format                      // value_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format          // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format         // terminator_format|\ARGBREAK
+\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14168,6 +14207,66 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{id\_obj\_format}:}\ARGBREAK
+\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
+\verb|NULL                                     // label_format|\ARGBREAK
+\verb|NULL                                     // value_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // initiator_format|\ARGBREAK
+\verb|NULL                                     // separator_format|\ARGBREAK
+\verb|NULL                                     // terminator_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_empty|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_bra|\ARGBREAK
+\verb$NULL                                     // obj_braend$\ARGBREAK
+\verb$NULL                                     // obj_ketbegin$\ARGBREAK
+\verb|NULL                                     // obj_ket|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_sep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attrneg|\ARGBREAK
+\verb|NULL                                     // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_valbegin|\ARGBREAK
+\verb|NULL                                     // obj_valsep|\ARGBREAK
+\verb|NULL                                     // obj_valend|\ARGBREAK
+\verb|NULL                                     // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // attr_flag_names|\ARGBREAK
+\LABEL{MIN::ID_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -18441,6 +18540,21 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_map\_gen\_format}:}
+\LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::isolated_line_obj_format           // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
@@ -18479,6 +18593,51 @@ These are in \verb|min_parameters.h|.
 \verb|min::trailing_always_lab_format         // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{value\_gen\_format}:}
+\LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{element\_gen\_format}:}
+\LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_gen\_format}:}
+\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::id_obj_format                      // obj_format|\ARGBREAK
 \verb|NULL                                    // id_map_format|
 \end{TABULAR}
 
