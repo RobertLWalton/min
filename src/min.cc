@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 12 06:05:25 EST 2014
+// Date:	Sat Nov 15 01:55:46 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8297,7 +8297,7 @@ static bool insert_line_break ( min::printer printer )
 
     min::line_break line_break = printer->line_break;
         // We copy this from its relocatable position
-	// to the stack so we do not have to use a
+	// in the stack so we do not have to use a
 	// min::ptr to access it.
     min::uns32 i;
         // i is also needed at end to copy line_break
@@ -8768,10 +8768,30 @@ static min::printer print_quoted_unicode
 	  const min::str_format * sf )
 {
     min::bracket_format bf = sf->bracket_format;
+    min::line_break_stack line_break_stack =
+        printer->line_break_stack;
+
+    min::line_break line_break = printer->line_break;
+        // We copy this from its relocatable position
+	// in the stack so we do not have to use a
+	// min::ptr to access it.
+    for ( min::uns32 i = 0;
+          i < line_break_stack->length; ++ i )
+    {
+        if (   (&line_break_stack[i])->column
+	     > (&line_break_stack[i])->indent
+	     &&
+                (&line_break_stack[i])->offset
+	     >= printer->file->end_offset )
+	{
+	    line_break = line_break_stack[i];
+	    break;
+	}
+    }
 
     min::uns32 reduced_width =
           printer->line_break.line_length
-        - printer->line_break.indent
+        - line_break.indent
 	- min::ustring_columns ( bf.str_prefix )
         - min::ustring_columns ( bf.str_postfix );
     if ( reduced_width < 10 ) reduced_width = 10;
