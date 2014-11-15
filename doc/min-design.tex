@@ -9066,7 +9066,16 @@ break point before the first `\TT{h}' is used.  At this point the
 current \TT{indent} is that which was saved in and restore from the
 second element, and this indent is just after `{\tt[~}'.
 
-The \key{begin message} and \TT{end message} operations can be used
+If a \TT{min::save\_indent} operation is executed as a non-initial
+member of a sequence of
+\TT{min::\EOL leading\ldots},
+\TT{min::\EOL trailing\ldots},
+and \TT{min::\EOL save\_\EOL indent} operations, then the
+\TT{min::\EOL save\_\EOL indent} operation is delayed until
+after the other operations in the sequence have executed.  See
+\pagref{SPECIAL-LEADING-TRAILING-RULES} for details.
+
+The \key{begin message} and \key{end message} operations can be used
 to surround the body of an error message or other message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9353,6 +9362,7 @@ and \TT{min::\EOL trailing\_\EOL always}
 operations output spaces.
 
 Consecutive sequences of \underline{more than one} of the operations
+\label{SPECIAL-LEADING-TRAILING-RULES}:
 \begin{center}
 \TTALL
 \begin{tabular}{l}
@@ -9360,6 +9370,7 @@ min::leading \\
 min::leading\_always \\
 min::trailing \\
 min::trailing\_always \\
+min::save\_indent \\
 \end{tabular}
 \end{center}
 are treated specially according to the following rules:
@@ -9385,6 +9396,12 @@ only other operation the sequence might contain is
 \item Otherwise if the sequence contains only
 \TT{min::\EOL trailing\_\EOL always} operations it is equivalent
 to a single \TT{min::\EOL trailing\_\EOL always} operation.
+\item If the sequence contains a \TT{min::save\_indent} that is
+\underline{not} the first member of the sequence, this operation
+is delayed until the other operations have been performed.
+\item The sequence must not contain more than one
+\TT{min::save\_indent} operation, not counting the first
+operation in the sequence, due to implementation limitations.
 \end{enumerate}
 
 
