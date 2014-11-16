@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 15 01:55:46 EST 2014
+// Date:	Sun Nov 16 06:46:10 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8857,33 +8857,38 @@ inline min::uns32 compute_flags
     return cflags;
 }
 
-inline bool compute_if_all
-	( const min::print_format & print_format,
+bool min::in_str_class
+	( const min::uns32 * char_flags,
+	  min::support_control sc,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::uns32 & first_flags,
-	  min::uns32 mask )
+	  min::str_classifier strc )
 {
-    min::support_control sc =
-        print_format.support_control;
-    const min::uns32 * char_flags =
-	print_format.char_flags;
+    if ( n == 0 ) return false;
 
     bool first = true;
     while ( n -- )
     {
         min::Uchar c = * p ++;
-	min::uns16 cindex = min::Uindex ( c );
-	min::uns32 cflags = char_flags[cindex];
-	if ( ( cflags & sc.support_mask ) == 0 )
-	    cflags = sc.unsupported_char_flags;
+	min::uns32 cflags =
+	    min::char_flags ( char_flags, sc, c );
 
-	if ( first )
+	if ( ( cflags & strc.in_class_if_all ) == 0 )
+	    return false;
+	if ( first
+	     &&
+	     (    ( cflags & strc.skip_if_first ) == 0
+	       || n == 0 ) )
 	{
-	    first_flags = cflags;
-	    first = false;
+	    if ( ( cflags & strc.in_class_if_first )
+		 == 0 )
+	        return false;
+	    else if (    strc.in_class_if_all
+	              == min::ALL_CHARS )
+	        return true;
+	    else
+		first = false;
 	}
-	if ( ( cflags & mask ) == 0 ) return false;
     }
     return true;
 }
@@ -8894,68 +8899,15 @@ min::printer min::print_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
-    if ( sf != NULL )
-    {
-        if ( n == 0 )
-	    return ::print_quoted_unicode
-	        ( printer, n, p, sf );
-
-	min::str_classifier qc = sf->quote_control;
-
-	// Divide into the case where we need to call
-	// compute_if_all and the case where we do not
-	// need to.
-	//
-	if ( qc.in_class_if_all != min::ALL_CHARS )
-	{
-	    min::uns32 first_flags;
-	    if ( ::compute_if_all
-		     ( printer->print_format,
-		       n, p,
-		       first_flags,
-		       qc.in_class_if_all ) )
-	    {
-		min::uns32 i = 0;
-		while ( first_flags & qc.skip_if_first )
-		{
-		    if ( i == n - 1 ) break;
-		    ++ i;
-		    first_flags =
-			::compute_flags
-			    ( printer->print_format,
-			      p[i] );
-		}
-		if (   first_flags
-		     & qc.in_class_if_first )
-		    sf = NULL;
-	    }
-	}
-	else if (    qc.in_class_if_first
-	          != min::ALL_CHARS )
-	{
-	    min::uns32 i = 0;
-	    uns32 first_flags;
-	    while ( true ) {
-	        first_flags =
-		    ::compute_flags
-		        ( printer->print_format, p[i] );
-		min::uns32 skip =
-		    first_flags & qc.skip_if_first;
-		if ( skip == 0 || i == n - 1 ) break;
-		++ i;
-	    }
-
-	    if (   first_flags
-		 & qc.in_class_if_first )
-		sf = NULL;
-	}
-	else
-	    sf = NULL;
-
-	if ( sf != NULL )
-	    return ::print_quoted_unicode
-	        ( printer, n, p, sf );
-    }
+    if ( sf != NULL
+         &&
+         ! min::in_str_class
+	       ( printer->print_format.char_flags,
+	         printer->print_format
+		         .support_control,
+	         n, p, sf->quote_control ) )
+	return ::print_quoted_unicode
+	    ( printer, n, p, sf );
 
     min::uns32 width = 0xFFFFFFFF;
 

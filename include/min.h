@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 12 06:05:33 EST 2014
+// Date:	Sun Nov 16 06:46:20 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11627,6 +11627,25 @@ namespace min {
 
     extern packed_vec_ptr<const char *>
            standard_attr_flag_names;
+
+    inline min::uns32 char_flags
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::Uchar c )
+    {
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
+	return cflags;
+    }
+
+    bool in_str_class
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      min::str_classifier strc );
 
     min::printer standard_pgen
 	    ( min::printer printer,

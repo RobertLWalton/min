@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 15, 2014}
+\date{November 16, 2014}
  
 \maketitle
 
@@ -10335,9 +10335,9 @@ any functions that might allocate or relocate objects, so \TT{str}
 A \TT{min::quote\_control} value \TT{qc} is
 a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
 \underline{unless} the string is in the specified class.  Specifically,
-a string is in the specified class and is \underline{not} quoted if
+a string is in the specified class if:
 \begin{indpar}
-(1) \underline{Every} character in the string has some
+(1) \label{STR_CLASSIFIER} \underline{Every} character in the string has some
 flag in common with \TT{qc.in\_\EOL class\_\EOL if\_\EOL all}.
 If \TT{qc.in\_\EOL class\_\EOL if\_\EOL all} equals
 \TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
@@ -10351,9 +10351,10 @@ followed by a single character with a flag in
 \TT{qc.in\_\EOL class\_\EOL if\_\EOL first}.\label{IN_CLASS_IF_FIRST}
 If \TT{qc.in\_\EOL class\_\EOL if\_\EOL first} equals
 \TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true.
+true unless \TT{n == 0}.
 \end{indpar}
-See the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
+Note that the empty string is never in the specified class.
+Also see the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
 and \TT{min::\EOL QUOTE\_\EOL SKIP} flags on \pagref{QUOTE-SUPPRESS}.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
@@ -14510,13 +14511,15 @@ with a \TT{.type}, then if
 \TT{.type}		& is	& \TT{"T"} \\
 \end{tabular}
 \end{center}
-the format is
+where \TT{T} is a string \underline{not} in the string
+class (\pagref{STR_CLASSIFIER})
+defined by the \TT{marking\_\EOL type} member of the object
+format, then the format is
 \begin{center}
 \TT{\{}\TT{T}\TT{|} {\em <element>}
     \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
     \TT{|}\TT{T}\TT{\}}
 \end{center}
-
 which is as before except that `\TT{[} $\ell$' has been replaced
 by `\TT{\{T|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
 `\TT{|}' is what \TT{obj\_\EOL braend} prints, and
@@ -14528,11 +14531,36 @@ spaces, leading spaces, or trailing spaces
 are to be printed, these must be encoded in
 the \TT{obj\_}\ldots{} \TT{ustring}'s.
 
-In compact format without any \TT{.initiator} or \TT{.type} the format
+If instead \TT{T} \underline{is} in the string
+class defined by the \TT{marking\_\EOL type} member of the object
+format, then the format is
+\begin{center}
+\TT{\{}\TT{T} {\em <element>}
+    \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \TT{T}\TT{\}}
+\end{center}
+which is the same as before but with the \TT{|}'s omitted.
+
+If instead the \TT{.type} is a two element label created by
+\TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
+\TT{T1} and \TT{T2} are strings in the string
+class defined by the \TT{marking\_\EOL type} member of the object
+format, then the format is
+\begin{center}
+\TT{\{}\TT{T1} {\em <element>}
+    \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
+    \TT{T2}\TT{\}}
+\end{center}
+in which \TT{T1} is used with the opening bracket and \TT{T2} is used
+with the closing bracket.
+
+In compact format \underline{without}
+any \TT{.initiator} \underline{or} \TT{.type}, the format
 is as before with the type omitted.  In compact format with a \TT{.type} but
 no \TT{.initiator} and
 with the \TT{NO\_\EOL TRAILING\_\EOL TYPE} object format operation flag on, 
-`\TT{|T\}}' is replaced by `\TT{|\}}'.
+then \TT{T} is omitted when it appears between a \TT{|} and a \TT{\}}:
+that is, `\TT{|T\}}' is replaced by `\TT{|\}}'.
 
 \ikey{Normal format}{normal format!of printed object}
 is like compact format with no \TT{.initiator} except that if:
