@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 16, 2014}
+\date{November 17, 2014}
  
 \maketitle
 
@@ -3468,19 +3468,19 @@ indicate a missing value; see \itemref{UNICODE-STRINGS} for details.
 The \mkey{name}{of UNICODE character}
 is non-missing only for common control characters; examples
 are the name
-\TT{CR} for the ASCII carriage return character with code \TT{0D},
-\TT{SP} for the ASCII single space character with code \TT{20} (hex),
+\TT{CR} for the ASCII carriage return character with (hex) code \TT{0D},
+\TT{SP} for the ASCII single space character with (hex) code \TT{20},
 and \TT{NBSP} for the LATIN1 non-breaking single space character
-with code \TT{A0}.
+with (hex) code \TT{A0}.
 For ASCII graphic characters (which produce marks on paper) the
 name is \TT{NULL}.
 
 The \mkey{picture}{of UNICODE character} is non-missing for
 ASCII control characters, and for these is the UNICODE control picture
 character corresponding to the ASCII control character name.
-For example, the carriage return picture is
-{\tiny $\stackrel{\textstyle C~}{\textstyle ~R}$},
-which is the single UNICODE character with code \TT{240D}.
+For example, the line feed picture is
+{\tiny $\stackrel{\textstyle L~}{\textstyle ~F}$},
+which is the single UNICODE character with code \TT{240A}.
 As a special case, single space has the picture \TT{\textvisiblespace} and
 the non-breaking single space (\TT{NBSP}) has the picture
 \TT{\textblank}.
@@ -3491,7 +3491,8 @@ has name \TT{UUC} and picture $/\!\!/\!\!/$, and the
 \TT{NL} and picture {\tiny $\stackrel{\textstyle N~}{\textstyle ~L}$}.
 
 The most important attributes of a character are its
-\smkey{flag}s{of UNICODE character}\index{character flag}.
+\smkey{flag}s{of UNICODE character}\index{character flag}%
+\label{CHARACTER-FLAGS}.
 These are obtained from
 the \TT{char\_\EOL flags} member of the \TT{print\_\EOL format} member of
 the \TT{printer} being used to print the character, and this
@@ -3799,7 +3800,7 @@ need to be in the low order 16 bits.
 \TT{\textlnot}
   & \TT{AC} & \TT{-,} & Not Sign \\
 \TT{~}
-  & \TT{AD} & \TT{--<space>} & Soft Hypen \\
+  & \TT{AD} & \TT{--<space>} & Soft Hypen (\TT{SHY}) \\
 \TT{\textregistered}
   & \TT{AE} & \TT{or} & Registered Sign \\
 \TT{\={~}}
@@ -3992,6 +3993,64 @@ need to be in the low order 16 bits.
 \newpage
 
 
+\subsubsection{Classifying Characters and Strings}
+\label{CLASSIFYING-CHARACTERS-AND-STRINGS}
+
+The inline function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
+      \verb|( const min::char_flags * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::Uchar c )|
+\LABEL{MIN::CHAR_FLAGS} \\
+\end{tabular}\end{indpar}
+
+returns the character flags \TT{cflags} of the UNICODE character
+\TT{c} according to the algorithm:
+
+\begin{indpar}\begin{verbatim}
+min::uns16 cindex = min::Uindex ( c );
+min::uns32 cflags = char_flags[cindex];
+if ( ( cflags & sc.support_mask ) == 0 )
+    cflags = sc.unsupported_char_flags;
+return cflags;
+\end{verbatim}\end{indpar}
+
+The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
+and a support control structure \TT{sc} with the format:
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct              min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{                        | \\
+\verb|            min::uns32   |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
+\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
+\verb|            min::uns32   |
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
+\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
+\verb|}                        | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Both \TT{char\_flags} and \TT{sc} are typically elements of
+\TT{printer->\EOL print\_\EOL format} for the printer being used.
+
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
 
@@ -4000,9 +4059,9 @@ Constant \skey{UNICODE string}s can be represented
 as \TT{const min::\EOL ustring *}\ttindex{ustring}\label{USTRING} values
 which are sequences of 8 bit bytes.  The first two bytes,
 called the \mkey{header}{of {\tt ustring}},
-holds the length of the string (not counting the header) in the first
-bytes, and the number of print columns the string will take,
-plus some flags, in its second byte.  The remainder of the bytes
+hold the length of the string (not counting the header) plus some flags
+in the first byte, and the number of print columns the string will take
+plus some flags in the second byte.  The remainder of the bytes
 constitute a `\TT{const char *}' value that is the Modified UTF-8 encoded,
 NUL-terminated, string itself.
 
@@ -4049,10 +4108,13 @@ where the possible \skey{ustring flag}s are:
 
 The \TT{min::unicode\_\EOL length} function returns the number
 of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
-(not including the terminating \TT{NUL}).
+(not including the terminating \TT{NUL}); the maximum is 63.
 The \TT{min::unicode\_\EOL columns} function returns the number
-of print columns these take; the maximum is 31, and it is assumed
-there are control characters aside from single spaces in the \TT{ustring}.
+of print columns these take; the maximum is 15.  If this is non-zero,
+the string must consist of only graphics characters and must take
+the returned number of columns; but if it is
+zero, the string may contain other characters, such as single spaces,
+and may take any number of columns.
 The \TT{min::\EOL unicode\_\EOL flags} function returns the flags,
 which can be tested by AND'ing the unsigned flags value with
 the \TT{min::USTRING\_LEADING/TRAILING} or
@@ -7760,34 +7822,7 @@ following printer parameters:
 \end{tabular}\end{indpar}
 
 \TT{print\_format.support\_control}:
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct              min::| & \MINKEY{support\_\EOL control}
-\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns32   |
-	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
-\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
-\verb|            min::uns32   |
-	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
-\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
-\verb|}                        | \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
-\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
-\end{tabular}\end{indpar}
+See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 
 \TT{print\_format.display\_control}:
 
@@ -9450,8 +9485,8 @@ If a line would print as blank, and if
 \TT{blank\_\EOL line} is not \TT{NULL},
 \TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
-ASCII and LATIN1 control characters (including horizontal tabs and
-single spaces, see \pagref{MIN::IS_CONTROL})
+ASCII and LATIN1 non-graphic characters (including horizontal tabs and
+single spaces, see \pagref{MIN::IS_GRAPHIC})
 which when printed represent themselves or are suppressed.
 
 If there is no line

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 16 06:46:10 EST 2014
+// Date:	Mon Nov 17 07:18:00 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2389,7 +2389,7 @@ min::uns32 min::print_line
 	{
 	    min::uns32 cflags =
 		 char_flags[(unsigned char) *p];
-	    if ( ( cflags & min::IS_CONTROL ) == 0 )
+	    if ( cflags & min::IS_GRAPHIC )
 	        break;
 	    if ( name_or_picture_flags & cflags )
 	        break;
@@ -2419,20 +2419,26 @@ min::uns32 min::print_line
 	printer << min::eol
 	        << min::restore_print_format;
 	if ( line_display & min::DISPLAY_EOL )
+	{
+	    min::uns32 prefix_columns =
+		min::ustring_columns
+		    ( printer->print_format
+		              .char_name_format
+			     ->char_name_prefix );
+	    assert ( prefix_columns > 0 );
+	    min::uns32 postfix_columns =
+		min::ustring_columns
+		    ( printer->print_format
+		              .char_name_format
+			     ->char_name_postfix );
+	    assert ( postfix_columns > 0 );
 	    width +=
 	        (   line_display
 		  & min::DISPLAY_PICTURE ?  1 :
-		  ustring_columns
-		      ( printer->print_format
-		                .char_name_format
-			       ->char_name_prefix )
-		  +
-		  2 // width of `NL'
-		  +
-		  ustring_columns
-		      ( printer->print_format
-		                .char_name_format
-			       ->char_name_postfix ) );
+		  prefix_columns + 2
+		                 + postfix_columns );
+		      // 2 is width of "NL"
+        }
     }
     return width;
 }
@@ -8563,6 +8569,7 @@ min::printer MINT::print_unicode
 	    //
 	    columns = min::ustring_columns
 		         ( replacement );
+	    assert ( columns > 0 );
 	    length = 0;
 	    prefix = replacement;
 	    clength = substring_length;
@@ -8615,6 +8622,7 @@ min::printer MINT::print_unicode
 	        min::unicode::picture[cindex];
 	    length = min::ustring_length ( picture );
 	    columns = min::ustring_columns ( picture );
+	    assert ( columns > 0 );
 	    rep = min::ustring_chars ( picture );
 	}
 	else
@@ -8625,6 +8633,7 @@ min::printer MINT::print_unicode
 		    min::unicode::name[cindex];
 		length = min::ustring_length ( name );
 		columns = min::ustring_columns ( name );
+		assert ( columns > 0 );
 		rep = min::ustring_chars ( name );
 	    }
 	    else
@@ -8641,8 +8650,13 @@ min::printer MINT::print_unicode
 	    postfix = printer->print_format
 		     	     .char_name_format
 			    ->char_name_postfix;
-	    columns += min::ustring_columns ( prefix );
-	    columns += min::ustring_columns ( postfix );
+	    min::uns32 prefix_columns =
+	        min::ustring_columns ( prefix );
+	    assert ( prefix_columns > 0 );
+	    min::uns32 postfix_columns =
+	        min::ustring_columns ( postfix );
+	    assert ( postfix_columns > 0 );
+	    columns += prefix_columns + postfix_columns;
 	}
 
 	if ( columns > width )
@@ -8789,11 +8803,18 @@ static min::printer print_quoted_unicode
 	}
     }
 
+    min::uns32 prefix_columns =
+        min::ustring_columns ( bf.str_prefix );
+    assert ( prefix_columns > 0 );
+    min::uns32 postfix_columns =
+        min::ustring_columns ( bf.str_postfix );
+    assert ( postfix_columns > 0 );
+
     min::uns32 reduced_width =
           printer->line_break.line_length
         - line_break.indent
-	- min::ustring_columns ( bf.str_prefix )
-        - min::ustring_columns ( bf.str_postfix );
+	- prefix_columns
+        - postfix_columns;
     if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 postfix_length =
@@ -8832,9 +8853,11 @@ static min::printer print_quoted_unicode
 		<< " "
 		<< min::pustring ( bf.str_prefix );
 
-	width = reduced_width - 1
-	      - min::ustring_columns
-	            ( bf.str_concatenator );
+	min::uns32 cat_columns =
+	      min::ustring_columns
+		  ( bf.str_concatenator );
+	assert ( cat_columns > 0 );
+	width = reduced_width - 1 - cat_columns;
     }
     printer << min::pustring ( bf.str_postfix );
 
@@ -9051,7 +9074,10 @@ void min::pwidth ( min::uns32 & column,
 	{
 	    const ustring * picture =
 	        unicode::picture[cindex];
-	    column += ustring_columns ( picture );
+	    min::uns32 picture_columns =
+	        ustring_columns ( picture );
+	    assert ( picture_columns > 0 );
+	    column += picture_columns;
 	}
 	else
 	{
@@ -9059,7 +9085,10 @@ void min::pwidth ( min::uns32 & column,
 	    {
 		const ustring * name =
 		    unicode::name[cindex];
-		column += ustring_columns ( name );
+		min::uns32 name_columns =
+		    ustring_columns ( name );
+		assert ( name_columns > 0 );
+		column += name_columns;
 	    }
 	    else
 	    {
@@ -9067,12 +9096,18 @@ void min::pwidth ( min::uns32 & column,
 		if ( ! isdigit ( temp[0] ) ) ++ column;
 	    }
 
-	    column += ustring_columns 
-		( print_format.char_name_format
-			     ->char_name_prefix );
-	    column += ustring_columns 
-		( print_format.char_name_format
-			     ->char_name_postfix );
+	    min::uns32 prefix_columns =
+		min::ustring_columns
+		    ( print_format.char_name_format
+				 ->char_name_prefix );
+	    assert ( prefix_columns > 0 );
+	    min::uns32 postfix_columns =
+		min::ustring_columns
+		    ( print_format.char_name_format
+				 ->char_name_postfix );
+	    assert ( postfix_columns > 0 );
+
+	    column += prefix_columns + postfix_columns;
 	}
     }
 }
