@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug  8 15:02:14 EDT 2014
+# Date:		Mon Nov 17 01:10:06 EST 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -19,7 +19,8 @@ FROM = http://www.unicode.org/Public/UCD/latest/ucd
 
 DATA = NameAliases.txt \
        PropList.txt \
-       UnicodeData.txt
+       UnicodeData.txt \
+       BidiMirroring.txt
 
 LOCAL_DATA = CompositeCharacters.txt \
              SupportSets.txt
