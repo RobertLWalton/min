@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 17 07:18:00 EST 2014
+// Date:	Tue Nov 18 06:56:44 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7568,7 +7568,7 @@ const min::support_control
 const min::support_control
         min::support_all_support_control =
 {
-    0xFFFF, min::IS_UNSUPPORTED
+    0xFFFFFFFF, min::IS_UNSUPPORTED
 };
 
 const min::display_control
