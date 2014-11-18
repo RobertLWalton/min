@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 18 06:56:44 EST 2014
+// Date:	Tue Nov 18 07:09:45 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10169,6 +10169,7 @@ min::printer min::print_obj
             << min::no_auto_break
             << min::set_break;
 
+    min::gen marking_end_type = min::NONE();
     if ( compact_format )
     {
         if ( initiator != min::NONE() )
@@ -10187,13 +10188,61 @@ min::printer min::print_obj
 	    min::print_ustring
 	        ( printer, objf->obj_bra );
 
-	    if ( type != min::NONE() )
-		min::print_gen
-		    ( printer, type,
-		      objf->label_format );
+	    const min::print_format & pf =
+	        printer->print_format;
+	    min::gen marking_begin_type = min::NONE();
+	    if ( min::is_str ( type ) )
+	    {
+	        if ( min::in_str_class
+			 ( pf.char_flags,
+			   pf.support_control, 
+			   type,
+			   objf->marking_type ) )
+		{
+		    marking_begin_type = type;
+		    marking_end_type = type;
+		}
+	    }
+	    else if ( min::is_lab ( type ) )
+	    {
+	        min::lab_ptr lab = type;
+		if ( lablen ( lab ) == 2
+		     &&
+		     min::is_str ( lab[0] )
+		     &&
+		     min::in_str_class
+			 ( pf.char_flags,
+			   pf.support_control, 
+			   lab[0],
+			   objf->marking_type )
+		     &&
+		     min::is_str ( lab[1] )
+		     &&
+		     min::in_str_class
+			 ( pf.char_flags,
+			   pf.support_control, 
+			   lab[1],
+			   objf->marking_type ) )
+		{
+		    marking_begin_type = lab[0];
+		    marking_end_type = lab[1];
+		}
+	    }
+	        
 
-	    min::print_ustring
-		( printer, objf->obj_braend );
+	    if ( marking_begin_type != min::NONE() )
+		min::print_gen
+		    ( printer, marking_begin_type,
+		      objf->label_format );
+	    else
+	    {
+	        if ( type != min::NONE() )
+		    min::print_gen
+			( printer, type,
+			  objf->label_format );
+		min::print_ustring
+		    ( printer, objf->obj_braend );
+	    }
 	}
     }
     else if ( embedded_line_format )
@@ -10303,6 +10352,14 @@ min::printer min::print_obj
 	    min::print_gen
 	        ( printer, terminator,
 		  objf->terminator_format );
+	else if ( marking_end_type != min::NONE() )
+	{
+	    min::print_gen
+		( printer, marking_end_type,
+		  objf->label_format );
+	    min::print_ustring
+		( printer, objf->obj_ket );
+	}
 	else
 	{
 	    min::print_ustring

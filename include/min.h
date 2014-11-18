@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 16 06:46:20 EST 2014
+// Date:	Tue Nov 18 07:46:56 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11646,6 +11646,26 @@ namespace min {
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
 	      min::str_classifier strc );
+
+    inline bool in_str_class
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::gen v,
+	      min::str_classifier strc )
+    {
+        if ( ! min::is_str ( v ) ) return false;
+	min::str_ptr sp ( v );
+	min::unsptr len = min::strlen ( sp );
+	min::Uchar s[len];
+	min::Uchar * p = s;
+	const char * q = ! min::begin_ptr_of ( sp );
+	min::utf8_to_unicode 
+	    ( p, p + len, q, q + len );
+	return min::in_str_class
+	    ( char_flags, sc, p - s,
+	      min::new_ptr<const min::Uchar> ( s ),
+	      strc );
+    }
 
     min::printer standard_pgen
 	    ( min::printer printer,
