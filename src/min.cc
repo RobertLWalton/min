@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 18 07:09:45 EST 2014
+// Date:	Tue Nov 18 14:28:37 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1118,7 +1118,8 @@ static void init_standard_char_flags ( void )
 	    case 0xA1:  // Inverted !
 	    case 0xAB:	// Left Angle Quote <<
 	    case 0xBF:	// Inverted ?
-	    		flags = min::IS_LEADING;
+	    		flags = min::IS_LEADING
+			      + min::IS_MARK;
 	    		break;
 	    
 	    case ')':
@@ -1131,17 +1132,20 @@ static void init_standard_char_flags ( void )
 	    case '!':
 	    case '?':
 	    case 0xBB:	// Right Angle Quote >>
-	    		flags = min::IS_TRAILING;
+	    		flags = min::IS_TRAILING
+			      + min::IS_MARK;
 	    		break;  // Inverted ! and ?
 
 	    case '.':	flags = min::IS_TRAILING
-	                      + min::QUOTE_SKIP;
+	                      + min::QUOTE_SKIP
+			      + min::IS_MARK;
 	    		break;
 
 	    case '-':
 	    case '_':
 	    case '%':	flags = min::IS_MIDDLING
-	    		      + min::CONDITIONAL_BREAK;
+	    		      + min::CONDITIONAL_BREAK
+			      + min::IS_MARK;
 	    		break;
 
 	    case 0xAD:	// Soft Hypen - (SHY)
@@ -1156,9 +1160,17 @@ static void init_standard_char_flags ( void )
 	        else if ( 0x7F <= c && c <= 0x9F  )
 		    flags = min::IS_OTHER_CONTROL
 			  + min::IS_NON_SPACING;
-		else if ( cat != NULL && cat[0] == 'L' )
+		else if ( cat == NULL )
+		    flags = min::IS_UNSUPPORTED;
+		else if ( cat[0] == 'L' )
 		    flags = min::IS_MIDDLING
 		          + min::QUOTE_SUPPRESS;
+		else if ( cat[0] == 'P' )
+		    flags = min::IS_MIDDLING
+			  + min::IS_MARK;
+		else if ( cat[0] == 'S' )
+		    flags = min::IS_MIDDLING
+			  + min::IS_MARK;
 		else
 		    flags = min::IS_MIDDLING;
 	    }
@@ -1170,6 +1182,27 @@ static void init_standard_char_flags ( void )
 	    else if ( cat[0] == 'L' )
 		flags = min::IS_MIDDLING
 		      + min::QUOTE_SUPPRESS;
+	    else if ( cat[0] == 'P' )
+	    {
+	        if ( cat[1] == 'i' )
+		    flags = min::IS_LEADING
+			  + min::IS_MARK;
+	        else if ( cat[1] == 's' )
+		    flags = min::IS_LEADING
+			  + min::IS_MARK;
+	        else if ( cat[1] == 'f' )
+		    flags = min::IS_TRAILING
+			  + min::IS_MARK;
+	        else if ( cat[1] == 'e' )
+		    flags = min::IS_TRAILING
+			  + min::IS_MARK;
+		else
+		    flags = min::IS_MIDDLING
+			  + min::IS_MARK;
+	    }
+	    else if ( cat[0] == 'S' )
+		flags = min::IS_MIDDLING
+		      + min::IS_MARK;
 	    else if ( strcmp ( cat, "Mn" ) == 0 )
 		flags = min::IS_NON_SPACING
 		      + min::QUOTE_SUPPRESS;
@@ -8885,7 +8918,7 @@ bool min::in_str_class
 	  min::support_control sc,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::str_classifier strc )
+	  min::str_classifier strcl )
 {
     if ( n == 0 ) return false;
 
@@ -8896,17 +8929,17 @@ bool min::in_str_class
 	min::uns32 cflags =
 	    min::char_flags ( char_flags, sc, c );
 
-	if ( ( cflags & strc.in_class_if_all ) == 0 )
+	if ( ( cflags & strcl.in_class_if_all ) == 0 )
 	    return false;
 	if ( first
 	     &&
-	     (    ( cflags & strc.skip_if_first ) == 0
+	     (    ( cflags & strcl.skip_if_first ) == 0
 	       || n == 0 ) )
 	{
-	    if ( ( cflags & strc.in_class_if_first )
+	    if ( ( cflags & strcl.in_class_if_first )
 		 == 0 )
 	        return false;
-	    else if (    strc.in_class_if_all
+	    else if (    strcl.in_class_if_all
 	              == min::ALL_CHARS )
 	        return true;
 	    else
