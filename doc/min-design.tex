@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 17, 2014}
+\date{November 18, 2014}
  
 \maketitle
 
@@ -3993,20 +3993,20 @@ need to be in the low order 16 bits.
 \newpage
 
 
-\subsubsection{Classifying Characters and Strings}
-\label{CLASSIFYING-CHARACTERS-AND-STRINGS}
+\subsubsection{Classifying UNICODE Characters and Strings}
+\label{CLASSIFYING-UNICODE-CHARACTERS-AND-STRINGS}
 
 The inline function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
-      \verb|( const min::char_flags * char_flags,|\ARGBREAK
+\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
       \verb|  min::support_control sc,|\ARGBREAK
       \verb|  min::Uchar c )|
 \LABEL{MIN::CHAR_FLAGS} \\
 \end{tabular}\end{indpar}
 
-returns the character flags \TT{cflags} of the UNICODE character
+returns the \skey{character flag}s \TT{cflags} of the UNICODE character
 \TT{c} according to the algorithm:
 
 \begin{indpar}\begin{verbatim}
@@ -4021,16 +4021,14 @@ The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
 and a support control structure \TT{sc} with the format:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct              min::| & \MINKEY{support\_\EOL control}
+\verb|struct     min::| & \MINKEY{support\_\EOL control}
 \LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns32   |
-	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
-\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
-\verb|            min::uns32   |
-	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
-\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
-\verb|}                        | \\
+\verb|{               | \\
+\verb|     min::uns32 |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
+\verb|}               | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -4044,12 +4042,66 @@ and a support control structure \TT{sc} with the format:
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
+	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{tabular}\end{indpar}
 
 Both \TT{char\_flags} and \TT{sc} are typically elements of
 \TT{printer->\EOL print\_\EOL format} for the printer being used.
+
+It is also necessary to define \skey{character string class}{es}
+such as the class of all strings that do \underline{not} need
+to be quoted in a certain context.  This is done with a
+\key{string classifier} that has the format:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct     min::| & \MINKEY{str\_classifier}%
+\LABEL{MIN::STR_CLASSIFIER} \\
+\verb|{               | \\
+\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_first}
+                                {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{skip\_if\_first}
+                                {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
+                                {in {\tt min::str\_classifier}} \\
+\verb|};              | \\
+\end{tabular}\end{indpar}
+
+A string is in the string class defined by
+a \TT{min::\EOL str\_\EOL classifier}\label{STRING-CLASSIFIER}
+\TT{sc} if and only if
+
+\begin{itemize}
+\item[(1)] \underline{Every} character in the string has some
+flag in common with \TT{sc.in\_\EOL class\_\EOL if\_\EOL all}.
+If \TT{sc.in\_\EOL class\_\EOL if\_\EOL all} equals
+\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
+true (and the code, being optimized, does not have to read the entire
+string).
+\end{itemize}
+\underline{and}
+\begin{itemize}
+\item[(2)] The string is of length \TT{n} and begins with \TT{0} to \TT{n-1}
+characters each with a flag in \TT{sc.skip\_\EOL if\_\EOL first},
+followed by a single character with a flag in
+\TT{sc.in\_\EOL class\_\EOL if\_\EOL first}.\label{IN_CLASS_IF_FIRST}
+If \TT{sc.in\_\EOL class\_\EOL if\_\EOL first} equals
+\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
+true unless \TT{n == 0}.
+
+Note that the empty string never satisfies this condition and therefore
+is never in the specified class.
+\end{itemize}
+
+Two uses of string classifiers are:
+\begin{center}
+\begin{tabular}{ll}
+the \TT{quote\_control} member of a \TT{min::str\_format}:
+    & \pagref{QUOTE_CONTROL} \\
+the \TT{marking\_type} member of a \TT{min::obj\_format}:
+    & \pagref{MARKING_TYPE} \\
+\end{tabular}
+\end{center}
 
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
@@ -7701,17 +7753,13 @@ following printer parameters:
 \LABEL{MIN::LINE_BREAK_STRUCT} \\
 \verb|{              | \\
 \verb|    min::uns32 | & \TTMKEY{offset}{in {\tt min::line\_break}}
-			   & \verb|// Default 0|
-\LABEL{MIN::OFFSET_IN_LINE_BREAK} \\
+			   & \verb|// Default 0| \\
 \verb|    min::uns32 | & \TTMKEY{column}{in {\tt min::line\_break}}
-			   & \verb|// Default 0|
-\LABEL{MIN::COLUMN_IN_LINE_BREAK} \\
+			   & \verb|// Default 0| \\
 \verb|    min::uns32 | & \TTMKEY{line\_length}{in {\tt min::line\_break}}
-			   & \verb|// Default 72|
-\LABEL{MIN::LINE_LENGTH_IN_LINE_BREAK} \\
+			   & \verb|// Default 72| \\
 \verb|    min::uns32 | & \TTMKEY{indent}{in {\tt min::line\_break}}
-			   & \verb|// Default 4|
-\LABEL{MIN::INDENT_IN_LINE_BREAK} \\
+			   & \verb|// Default 4| \\
 \verb|}              | \\
 \end{tabular}\end{indpar}
 
@@ -7737,37 +7785,30 @@ following printer parameters:
 \verb|{                        | \\
 \verb|            min::uns32   |
 	& \TTMKEY{op\_flags}{in {\tt min::print\_format}}
-	& \verb|// min::EXPAND_HT|
-\LABEL{MIN::OP_FLAGS_IN_PRINT_FORMAT} \\
+	& \verb|// min::EXPAND_HT| \\
 \verb|            min::uns32 * |
 	& \TTMKEY{char\_flags}{in {\tt min::print\_format}}
 	& \verb|// min::standard_| \\
-      & & \verb|//   char_flags|
-\LABEL{MIN::CHAR_FLAGS_IN_PRINT_FORMAT} \\
+      & & \verb|//   char_flags| \\
 \verb|     min::support_control|
 	& \TTMKEY{support\_control}{in {\tt min::print\_format}}
         & \verb|// min::latin1_| \\
-      & & \verb|//   support_control|
-\LABEL{MIN::SUPPORT_CONTROL_IN_PRINT_FORMAT} \\
+      & & \verb|//   support_control| \\
 \verb|     min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
         & \verb|// min::graphic_and_space_| \\
-      & & \verb|//   display_control|
-\LABEL{MIN::DISPLAY_CONTROL_IN_PRINT_FORMAT} \\
+      & & \verb|//   display_control| \\
 \verb|       min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
         & \verb|// min::break_after_space_| \\
-      & & \verb|//   break_control|
-\LABEL{MIN::BREAK_CONTROL_IN_PRINT_FORMAT} \\
+      & & \verb|//   break_control| \\
 \verb|  min::char_name_format *|
 	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
         & \verb|// min::standard_| \\
-      & & \verb|//   char_name_format|
-\LABEL{MIN::CHAR_NAME_FORMAT_IN_PRINT_FORMAT} \\
+      & & \verb|//   char_name_format| \\
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
-        & \verb|// min::top_gen_format|
-\LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
+        & \verb|// min::top_gen_format| \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
@@ -7827,16 +7868,14 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \TT{print\_format.display\_control}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct              min::| & \MINKEY{display\_\EOL control}
+\verb|struct     min::| & \MINKEY{display\_\EOL control}
 \LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns16   |
-	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
-\LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}}
-\LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
-\verb|}                        | \\
+\verb|{               | \\
+\verb|     min::uns16 |
+	& \TTMKEY{display\_char}{in {\tt min::display\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}} \\
+\verb|}               | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7862,22 +7901,18 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \TT{print\_format.break\_control}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct              min::| & \MINKEY{break\_\EOL control}
+\verb|struct     min::| & \MINKEY{break\_\EOL control}
 \LABEL{MIN::BREAK_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns16   |
-	& \TTMKEY{break\_after}{in {\tt min::break\_control}}
-\LABEL{MIN::BREAK_AFTER_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
-\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}}
-\LABEL{MIN::CONDITIONAL_BREAK_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}}
-\LABEL{MIN::CONDITIONAL_COLUMNS_IN_BREAK_CONTROL} \\
-\verb|}                        | \\
+\verb|{               | \\
+\verb|     min::uns16 |
+	& \TTMKEY{break\_before}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{break\_after}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}} \\
+\verb|}               | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -7902,17 +7937,15 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \TT{print\_format.char\_name\_format}:
 
 \begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct              min::|
+\verb|struct               min::|
     & \MINKEY{char\_\EOL name\_\EOL format}
 \LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
-\verb|{                        | \\
-\verb|  const min::ustring *   |
-	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}}
-\LABEL{MIN::CHAR_NAME_PREFIX_IN_CHAR_NAME_FORMAT} \\
-\verb|  const min::ustring *   |
-	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}}
-\LABEL{MIN::CHAR_NAME_POSTFIX_IN_CHAR_NAME_FORMAT} \\
-\verb|}                        | \\
+\verb|{                         | \\
+\verb|     const min::ustring * |
+	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}} \\
+\verb|     const min::ustring * |
+	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}} \\
+\verb|}                         | \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
@@ -10272,16 +10305,8 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{str\_classifier}}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32    in_class_if_first;|%
-\ttmindex{in\_class\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
-    \verb|  min::uns32    skip_if_first;|%
-\ttmindex{skip\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
-    \verb|  min::uns32    in_class_if_all;|%
-\ttmindex{in\_class\_if\_all}{in {\tt min::str\_classifier}}\ARGBREAK
-    \verb|};|
-\LABEL{MIN::QUOTE_CONTROL}
+                       min::\MINKEY{str\_classifier}:
+		       See \pagref{MIN::STR_CLASSIFIER}}
 \end{tabular}
 \end{indpar}
 
@@ -10367,28 +10392,10 @@ UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
 any functions that might allocate or relocate objects, so \TT{str}
 \underline{can} be a relocatable address.
 
-A \TT{min::quote\_control} value \TT{qc} is
+A \TT{min::quote\_control}\label{QUOTE_CONTROL} value is
 a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
-\underline{unless} the string is in the specified class.  Specifically,
-a string is in the specified class if:
-\begin{indpar}
-(1) \label{STR_CLASSIFIER} \underline{Every} character in the string has some
-flag in common with \TT{qc.in\_\EOL class\_\EOL if\_\EOL all}.
-If \TT{qc.in\_\EOL class\_\EOL if\_\EOL all} equals
-\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true.
-\end{indpar}
-\underline{and}
-\begin{indpar}
-(2) The string is of length \TT{n} and begins with \TT{0} to \TT{n-1}
-characters each with a flag in \TT{qc.skip\_\EOL if\_\EOL first},
-followed by a single character with a flag in
-\TT{qc.in\_\EOL class\_\EOL if\_\EOL first}.\label{IN_CLASS_IF_FIRST}
-If \TT{qc.in\_\EOL class\_\EOL if\_\EOL first} equals
-\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true unless \TT{n == 0}.
-\end{indpar}
-Note that the empty string is never in the specified class.
+\underline{unless} the string is in the specified class.  See
+\pagref{STRING-CLASSIFIER} for details on string classifiers.
 Also see the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
 and \TT{min::\EOL QUOTE\_\EOL SKIP} flags on \pagref{QUOTE-SUPPRESS}.
 
@@ -13969,7 +13976,8 @@ The format for printing object \TT{min::gen} values is:
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{obj\_format}}\ARGBREAK
+                       min::\MINKEY{obj\_format}}%
+\LABEL{MIN::OBJ_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::uns32                           obj_op_flags;|%
 \ttmindex{obj\_op\_flags}{in {\tt min::obj\_format}}\ARGBREAK
@@ -14045,10 +14053,14 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::str_classifier                  marking_type;|%
+\ttmindex{marking\_type}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    attr_flag_names;|%
 \ttmindex{attr\_flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::OBJ_FORMAT}
 \end{tabular}
 \end{indpar}
 
@@ -14070,7 +14082,8 @@ The format for printing object \TT{min::gen} values is:
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{compact\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{compact\_obj\_format}:}%
+\LABEL{MIN::COMPACT_OBJ_FORMAT}\ARGBREAK
 \verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -14128,14 +14141,18 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\LABEL{MIN::COMPACT_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{isolated\_line\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{isolated\_line\_obj\_format}:}%
+\LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK
 \verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -14193,14 +14210,18 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{embedded\_line\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{embedded\_line\_obj\_format}:}%
+\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK
 \verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -14258,14 +14279,18 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{id\_obj\_format}:}\ARGBREAK
+                   min::\MINKEY{id\_obj\_format}:}%
+\LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
 \verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
 \end{tabular}
 
@@ -14318,8 +14343,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // attr_flag_names|\ARGBREAK
-\LABEL{MIN::ID_OBJ_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -14481,6 +14509,12 @@ This is a \TT{min::ustring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::ustring}.
 
+\item[\ttmkey{marking\_type}{in {\tt min::obj\_format}}]~\\
+This is a \TT{min::str\_classifier} that specifies a class of
+\TT{.type} values \TT{"T"} for which a compact object printout of the
+form `\TT{\{"T"|}\ldots\TT{|\}}' is replaced by `\TT{\{T}\ldots\TT{T\}}'.
+See \pagref{MARKING_TYPE}.
+
 \item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it
 is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
@@ -14547,8 +14581,8 @@ with a \TT{.type}, then if
 \end{tabular}
 \end{center}
 where \TT{T} is a string \underline{not} in the string
-class (\pagref{STR_CLASSIFIER})
-defined by the \TT{marking\_\EOL type} member of the object
+class (\pagref{STRING-CLASSIFIER})
+defined by the \TT{marking\_\EOL type}\label{MARKING_TYPE} member of the object
 format, then the format is
 \begin{center}
 \TT{\{}\TT{T}\TT{|} {\em <element>}
@@ -14575,6 +14609,8 @@ format, then the format is
     \TT{T}\TT{\}}
 \end{center}
 which is the same as before but with the \TT{|}'s omitted.
+E.g., if \TT{"+"} is a \TT{.type} value in the \TT{marking\_\EOL type} class,
+the format is `\TT{\{+}\ldots\TT{+\}}'.
 
 If instead the \TT{.type} is a two element label created by
 \TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
@@ -14588,6 +14624,10 @@ format, then the format is
 \end{center}
 in which \TT{T1} is used with the opening bracket and \TT{T2} is used
 with the closing bracket.
+E.g., if \TT{min::\EOL new\_\EOL lab\_\EOL gen("<",">")} is a \TT{.type}
+value with both \TT{"<"} and \TT{">"} being strings in
+the \TT{marking\_\EOL type} class,
+the format is `\TT{\{<}\ldots\TT{>\}}'.
 
 In compact format \underline{without}
 any \TT{.initiator} \underline{or} \TT{.type}, the format
@@ -16086,6 +16126,59 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{TABULAR}
 
+\INDEXHEADER{Classifying UNICODE Characters and Strings}
+
+\begin{TABULAR}{2.4in}
+\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::Uchar c )|
+\LABEL{MIN::CHAR_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|struct     min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{               | \\
+\verb|     min::uns32 |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
+\verb|}               | \\
+\end{TABULAR}
+
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[0.5in]
+	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|struct     min::| & \MINKEY{str\_classifier}%
+\LABEL{MIN::STR_CLASSIFIER} \\
+\verb|{               | \\
+\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_first}
+                                {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{skip\_if\_first}
+                                {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
+                                {in {\tt min::str\_classifier}} \\
+\verb|};              | \\
+\end{TABULAR}
+
 \INDEXHEADER{UNICODE Strings}
 
 \begin{TABULAR}{2.4in}
@@ -17557,14 +17650,10 @@ These are in \verb|min_parameters.h|.
 \verb|struct    min::| & \MINKEY{line\_\EOL break}
 \LABEL{MIN::LINE_BREAK_STRUCT} \\
 \verb|{              | \\
-\verb|    min::uns32 | & \TTMKEY{offset}{in {\tt min::line\_break}}
-\LABEL{MIN::OFFSET_IN_LINE_BREAK} \\
-\verb|    min::uns32 | & \TTMKEY{column}{in {\tt min::line\_break}}
-\LABEL{MIN::COLUMN_IN_LINE_BREAK} \\
-\verb|    min::uns32 | & \TTMKEY{line\_length}{in {\tt min::line\_break}}
-\LABEL{MIN::LINE_LENGTH_IN_LINE_BREAK} \\
-\verb|    min::uns32 | & \TTMKEY{indent}{in {\tt min::line\_break}}
-\LABEL{MIN::INDENT_IN_LINE_BREAK} \\
+\verb|    min::uns32 | & \TTMKEY{offset}{in {\tt min::line\_break}} \\
+\verb|    min::uns32 | & \TTMKEY{column}{in {\tt min::line\_break}} \\
+\verb|    min::uns32 | & \TTMKEY{line\_length}{in {\tt min::line\_break}} \\
+\verb|    min::uns32 | & \TTMKEY{indent}{in {\tt min::line\_break}} \\
 \verb|}              | \\
 \end{TABULAR}
 
@@ -17597,26 +17686,19 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
 \verb|{                           | \\
 \verb|               min::uns32   |
-	& \TTMKEY{op\_flags}{in {\tt min::print\_format}}
-\LABEL{MIN::OP_FLAGS_IN_PRINT_FORMAT} \\
+	& \TTMKEY{op\_flags}{in {\tt min::print\_format}} \\
 \verb|               min::uns32 * |
-	& \TTMKEY{char\_flags}{in {\tt min::print\_format}}
-\LABEL{MIN::CHAR_FLAGS_IN_PRINT_FORMAT} \\
+	& \TTMKEY{char\_flags}{in {\tt min::print\_format}} \\
 \verb|       min::support_control|
-	& \TTMKEY{support\_control}{in {\tt min::print\_format}}
-\LABEL{MIN::SUPPORT_CONTROL_IN_PRINT_FORMAT} \\
+	& \TTMKEY{support\_control}{in {\tt min::print\_format}} \\
 \verb|       min::display_control|
-	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
-\LABEL{MIN::DISPLAY_CONTROL_IN_PRINT_FORMAT} \\
+	& \TTMKEY{display\_control}{in {\tt min::print\_format}} \\
 \verb|         min::break_control|
-	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
-\LABEL{MIN::BREAK_CONTROL_IN_PRINT_FORMAT} \\
+	& \TTMKEY{break\_control}{in {\tt min::print\_format}} \\
 \verb|   min::char_name_format *|
-	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
-\LABEL{MIN::CHAR_NAME_FORMAT_IN_PRINT_FORMAT} \\
+	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}} \\
 \verb|          min::gen_format *|
-	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
-\LABEL{MIN::GEN_FORMAT_IN_PRINT_FORMAT} \\
+	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
 \verb|}                           | \\
 \end{TABULAR}
 
@@ -17688,21 +17770,7 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \TT{print\_format.support\_control}:
-
-\medskip
-
-\begin{TABULAR}{2.8in}
-\verb|struct              min::| & \MINKEY{support\_\EOL control}
-\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns32   |
-	& \TTMKEY{support\_mask}{in {\tt min::support\_control}}
-\LABEL{MIN::SUPPORT_MASK_IN_SUPPORT_CONTROL} \\
-\verb|            min::uns32   |
-	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}}
-\LABEL{MIN::UNSUPPORT_CHAR_FLAGS_IN_SUPPORT_CONTROL} \\
-\verb|}                        | \\
-\end{TABULAR}
+\dotfill \pagref{MIN::SUPPORT_CONTROL_STRUCT}
 
 \begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::support\_control
@@ -17715,7 +17783,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[0.5in]
-	\verb|{ 0xFFFF, min::IS_UNSUPPORTED };|
+	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{TABULAR}
 
@@ -17726,16 +17794,14 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{2.8in}
-\verb|struct              min::| & \MINKEY{display\_\EOL control}
+\verb|struct     min::| & \MINKEY{display\_\EOL control}
 \LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns16   |
-	& \TTMKEY{display\_char}{in {\tt min::display\_control}}
-\LABEL{MIN::DISPLAY_CHAR_IN_DISPLAY_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}}
-\LABEL{MIN::DISPLAY_SUPPRESS_IN_DISPLAY_CONTROL} \\
-\verb|}                        | \\
+\verb|{               | \\
+\verb|     min::uns16 |
+	& \TTMKEY{display\_char}{in {\tt min::display\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}} \\
+\verb|}               | \\
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}
@@ -17764,23 +17830,19 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
-\begin{TABULAR}{2.8in}
-\verb|struct              min::| & \MINKEY{break\_\EOL control}
+\begin{TABULAR}{2.4in}
+\verb|struct     min::| & \MINKEY{break\_\EOL control}
 \LABEL{MIN::BREAK_CONTROL_STRUCT} \\
-\verb|{                        | \\
-\verb|            min::uns16   |
-	& \TTMKEY{break\_before}{in {\tt min::break\_control}}
-\LABEL{MIN::BREAK_BEFORE_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{break\_after}{in {\tt min::break\_control}}
-\LABEL{MIN::BREAK_AFTER_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}}
-\LABEL{MIN::CONDITIONAL_BREAK_IN_BREAK_CONTROL} \\
-\verb|            min::uns16   |
-	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}}
-\LABEL{MIN::CONDITIONAL_COLUMNS_IN_BREAK_CONTROL} \\
-\verb|}                        | \\
+\verb|{               | \\
+\verb|     min::uns16 |
+	& \TTMKEY{break\_before}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{break\_after}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}} \\
+\verb|     min::uns16 |
+	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}} \\
+\verb|}               | \\
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}
@@ -17809,17 +17871,15 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{2.8in}
-\verb|struct              min::|
+\verb|struct               min::|
     & \MINKEY{char\_\EOL name\_\EOL format}
 \LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
-\verb|{                        | \\
-\verb|  const min::ustring *   |
-	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}}
-\LABEL{MIN::CHAR_NAME_PREFIX_IN_CHAR_NAME_FORMAT} \\
-\verb|  const min::ustring *   |
-	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}}
-\LABEL{MIN::CHAR_NAME_POSTFIX_IN_CHAR_NAME_FORMAT} \\
-\verb|}                        | \\
+\verb|{                         | \\
+\verb|     const min::ustring * |
+	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}} \\
+\verb|     const min::ustring * |
+	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}} \\
+\verb|}                         | \\
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}
@@ -18735,7 +18795,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{str\_classifier}}
-\LABEL{MIN::QUOTE_CONTROL}\ARGBREAK
+\LABEL{MIN::STR_CLASSIFIER}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::uns32    in_class_if_first;|%
 \ttmindex{in\_class\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
