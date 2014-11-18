@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 18 07:46:56 EST 2014
+// Date:	Tue Nov 18 14:28:47 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3425,6 +3425,7 @@ namespace min {
 
     const min::uns32 QUOTE_SUPPRESS	= ( 1 << 24 );
     const min::uns32 QUOTE_SKIP		= ( 1 << 25 );
+    const min::uns32 IS_MARK		= ( 1 << 26 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -11645,13 +11646,13 @@ namespace min {
 	      min::support_control sc,
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
-	      min::str_classifier strc );
+	      min::str_classifier strcl );
 
     inline bool in_str_class
 	    ( const min::uns32 * char_flags,
 	      min::support_control sc,
 	      min::gen v,
-	      min::str_classifier strc )
+	      min::str_classifier strcl )
     {
         if ( ! min::is_str ( v ) ) return false;
 	min::str_ptr sp ( v );
@@ -11664,7 +11665,7 @@ namespace min {
 	return min::in_str_class
 	    ( char_flags, sc, p - s,
 	      min::new_ptr<const min::Uchar> ( s ),
-	      strc );
+	      strcl );
     }
 
     min::printer standard_pgen
