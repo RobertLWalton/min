@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 18, 2014}
+\date{November 19, 2014}
  
 \maketitle
 
@@ -3651,19 +3651,108 @@ and the trailing separator lexeme \TT{;}, and therefore
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
 The specific assignment of these flags encoded in
-\TT{min::standard\_char\_flags} is:
+\TT{min::standard\_char\_flags} is according to their
+UNICODE `\key{General Category}' with some exceptions.
+The following are the possible General Category values.
+These have the form \TT{Xy} where \TT{X} denotes the category
+and \TT{y} denotes the subcategory.  We use the notation
+\TT{X} to represent the category \TT{X} including all its
+subcategories, and we give here only \underline{some} of the
+subcategories of each category.  We also give the LATIN1 characters
+in each subcategory except where these are obvious (e.g, letters
+and digits).
+\begin{center}
+\begin{tabular}{ll}
+\TT{L}		& letters \\
+~~~\TT{Ll}	& lower case letters \\
+~~~\TT{Lu}	& upper case letters \\
+~~~\TT{Lo}	& other letter, includes
+                  \TT{\textordmasculine} and \TT{\textordfeminine} \\
+\TT{M}		& combining marks \\
+~~~\TT{Mn}	& non-spacing combining marks \\
+\TT{N}		& number \\
+~~~\TT{Nd}	& digit \\
+~~~\TT{No}	& other number, includes
+                  \TT{\textsuperscript{1}}
+                  \TT{\textsuperscript{2}}
+		  \TT{\textsuperscript{3}}
+		  \TT{\textonequarter}
+		  \TT{\textonehalf}
+		  \TT{\textthreequarters} \\
+\TT{P}		& punctuation \\
+~~~\TT{Pc}	& connector punctuation, includes \TT{\_} \\
+~~~\TT{Pd}	& dash punctuation, includes \TT{-} \\
+~~~\TT{Ps}	& open punctuation, includes \TT{\{} \TT{[} \TT{(} \\
+~~~\TT{Pe}	& close punctuation, includes \TT{\}} \TT{]} \TT{)} \\
+~~~\TT{Pi}	& initial punctuation, includes \TT{\guillemotleft} \\
+~~~\TT{Pf}	& final punctuation, includes \TT{\guillemotright} \\
+~~~\TT{Po}	& other punctuation, includes
+                  \TT{!} \TT{"} \TT{\#} \TT{\%} \TT{\&} \TT{'} \TT{*}
+		  \TT{,} \TT{.} \TT{/} \TT{:} \TT{;} \TT{?} \TT{@}
+		  \TT{\textbackslash}
+		  \TT{\textexclamdown}
+		  \TT{\textsection}
+		  \TT{\textpilcrow}
+		  \TT{\textperiodcentered}
+		  \TT{\textquestiondown} \\
+\TT{S}		& symbol \\
+~~~\TT{Sm}	& math symbol, includes \TT{+} \TT{<} \TT{=} \TT{>} \TT{|}
+                  \TT{\textasciitilde}
+		  \TT{\textlnot}
+		  \TT{\textpm}
+		  \TT{\texttimes}
+		  \TT{\textdiv}
+		  \\
+~~~\TT{Sc}	& currency symbol, includes
+		  \TT{\textcent}
+		  \TT{\textsterling}
+		  \TT{\textcurrency}
+		  \TT{\textyen}
+		  \\
+~~~\TT{Sk}	& modifier symbol, includes
+		  \TT{\textasciicircum}
+		  \TT{\`{ }}
+		  \TT{\"{~}}
+		  \TT{\={~}}
+		  \TT{\'{~}}
+		  \TT{\c{~}}
+		  \\
+~~~\TT{So}	& other symbol, includes
+		  \TT{\textbrokenbar}
+		  \TT{\textcopyright}
+		  \TT{\textregistered}
+		  \TT{\textdegree}
+		  \\
+\TT{Z}		& space characters \\
+~~~\TT{Zs}	& non-zero width horizontal space,
+                  includes single space and \TT{NBSP} \\
+\TT{C}		& control characters, includes \TT{SHY} and characters
+                  with codes \\
+		& in ranges [\TT{00}\ldots\TT{1F}]
+		  and [\TT{7F}\ldots\TT{9F}] \\
+\end{tabular}
+\end{center}
+
+Given this the assignment of flags in
+\TT{min::standard\_char\_flags} is as follows:
 
 \begin{indpar}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_LEADING}: & \TT{\{}~~~\TT{(}~~~\TT{[}~~~\TT{`}%
-			 ~~~\TT{\guillemotleft}%
+\ttkey{min::IS\_LEADING}: & \TT{`}%
                          ~~~\TT{\textexclamdown}%
-                         ~~~\TT{\textquestiondown} \\
-\ttkey{min::IS\_TRAILING}: & \TT{\}}~~~\TT{)}~~~\TT{]}~~~\TT{'}%
-			 ~~~\TT{\guillemotright}%
+                         ~~~\TT{\textquestiondown}%
+			 ~~~plus categories \TT{Ps} and \TT{Pi}
+			 (includes \TT{\{} \TT{(} \TT{[}
+			  \TT{\guillemotleft}) \\
+\ttkey{min::IS\_TRAILING}: & \TT{'}%
 			 ~~~\TT{!}~~~\TT{?}%
 			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:} \\
-\ttkey{min::IS\_MIDDLING}: & other graphic characters \\
+			   & plus categories \TT{Pe} and \TT{Pf}
+			     (includes \TT{\}} \TT{)} \TT{]}
+			      \TT{\guillemotright}) \\
+\ttkey{min::IS\_MIDDLING}: & all other characters in categories
+			     \TT{L}, \TT{M}, \TT{N}, \TT{P}, \TT{S} \\
+			   & (all other graphic characters) \\
 \end{tabular}
 \end{indpar}
 
@@ -3675,8 +3764,9 @@ Horizontal space characters get one of the
 flags.  \TT{IS\_SP} is just for the single space character,
 \TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
 (such as LATIN1 \TT{NBSP}),
-and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for other horizontal
-space characters that are breaking, like horizontal tab.
+and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for horizontal tab and
+for characters other than single space and \TT{NBSP} that
+have subcategory \TT{Zs}.
 The printer does some special processing on single space
 and horizontal tab characters \underline{independently} of the flags
 of these characters.
@@ -3687,10 +3777,13 @@ form feed \TT{FF}, vertical tab \TT{VT}, line feed \TT{LF},
 and carriage return \TT{CR}.  The last is included because
 it is associated with line feeds.
 
-All other control characters get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
+All other control characters, i.e., other characters in categories
+\TT{C} and \TT{Z}, get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
 flag.  These are often suppressed in printed output.
 
-All characters not given one of the above flags get the
+
+All characters not given one of the above flags (i.e., characters
+with \underline{no} UNICODE General Category) get the
 \minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
 is not supported by keyboard input and/or hardware printers,
 and ideally, the character should not be used.
@@ -3712,16 +3805,26 @@ See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
 and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
 on \pagref{IN_CLASS_IF_FIRST}.\label{QUOTE-SUPPRESS}
 
-The specific assignment of these flags encoded in
+The next flag, the 
+\minkey{IS\_\EOL MARK} flag, is given to all punctuation and symbols
+(i.e., to non-letter, non-combining-mark, non-number characters)
+and is used to define the \TT{marking\_\EOL type} string category:
+see \pagref{MARKING_TYPE}.
+
+The specific assignment of these last four flags encoded in
 \TT{min::standard\_char\_flags} is:
 
-\begin{indpar}
+\begin{center}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::CONDITIONAL\_BREAK}: & \TT{-}~~~\TT{\_}~~~\TT{\%} \\
-\ttkey{min::QUOTE\_SUPPRESS}: & all letters \\
-\ttkey{min::QUOTE\_SKIP}: & \TT{.} \\
+\ttkey{min::CONDITIONAL\_BREAK}: & \TT{\%} plus categories \TT{Pc} and \TT{Pd}
+				   (includes \TT{-} and \TT{\_}) \\
+\ttkey{min::QUOTE\_SUPPRESS}: & categories \TT{L} and \TT{M}
+				(letters and combining marks) \\
+\ttkey{min::QUOTE\_SKIP}: & \TT{.} (period) \\
+\ttkey{min::IS\_MARK}: & categories \TT{P} and \TT{S}
+                         (punctuation and symbols)
 \end{tabular}
-\end{indpar}
+\end{center}
 
 The last two flags are used in conjunction with printer format
 masks to dynamically control which characters are supported.

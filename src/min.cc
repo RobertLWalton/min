@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 18 14:28:37 EST 2014
+// Date:	Wed Nov 19 04:49:33 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1094,126 +1094,107 @@ static void init_standard_char_flags ( void )
 	const char * cat = min::unicode::category[i];
 	min::uns32 flags;
 
-	if ( i <= 0xFF )
+	// Set flags by category.
+	//
+	if ( cat == NULL )
+	    flags = min::IS_UNSUPPORTED;
+	else if ( cat[0] == 'L' )
+	    flags = min::IS_MIDDLING
+		  + min::QUOTE_SUPPRESS;
+	else if ( cat[0] == 'P' )
 	{
-	    unsigned char c = (unsigned char) i;
-
-	    switch ( c )
+	    switch ( cat[1] )
 	    {
-	    case ' ':	flags = min::IS_SP; break;	
-	    case '\t':	flags = min::IS_OTHER_HSPACE;
-	                break;
-	    case 0xA0:	flags = min::IS_NB_HSPACE;
-	                break;  // NBSP
-	    case '\f':
-	    case '\v':
-	    case '\r': flags = min::IS_VSPACE
-	                     + min::IS_NON_SPACING;
-	    	       break;
+	    case 'i':
+	    case 's':
+		flags = min::IS_LEADING
+		      + min::IS_MARK;
+		break;
 
-	    case '(':
-	    case '[':
-	    case '{':
-	    case '`':
-	    case 0xA1:  // Inverted !
-	    case 0xAB:	// Left Angle Quote <<
-	    case 0xBF:	// Inverted ?
-	    		flags = min::IS_LEADING
-			      + min::IS_MARK;
-	    		break;
-	    
-	    case ')':
-	    case ']':
-	    case '}':
-	    case '\'':
-	    case ',':
-	    case ';':
-	    case ':':
-	    case '!':
-	    case '?':
-	    case 0xBB:	// Right Angle Quote >>
-	    		flags = min::IS_TRAILING
-			      + min::IS_MARK;
-	    		break;  // Inverted ! and ?
+	    case 'f':
+	    case 'e':
+		flags = min::IS_TRAILING
+		      + min::IS_MARK;
+		break;
 
-	    case '.':	flags = min::IS_TRAILING
-	                      + min::QUOTE_SKIP
-			      + min::IS_MARK;
-	    		break;
-
-	    case '-':
-	    case '_':
-	    case '%':	flags = min::IS_MIDDLING
-	    		      + min::CONDITIONAL_BREAK
-			      + min::IS_MARK;
-	    		break;
-
-	    case 0xAD:	// Soft Hypen - (SHY)
-	    		flags = min::IS_OTHER_CONTROL
-	                      + min::IS_NON_SPACING;
-	    		break;
+	    case 'c':
+	    case 'd':
+	        flags = min::IS_MIDDLING
+		      + min::CONDITIONAL_BREAK
+		      + min::IS_MARK;
+		break;
 
 	    default:
-	        if ( c <= 0x1F )
-		    flags = min::IS_OTHER_CONTROL
-			  + min::IS_NON_SPACING;
-	        else if ( 0x7F <= c && c <= 0x9F  )
-		    flags = min::IS_OTHER_CONTROL
-			  + min::IS_NON_SPACING;
-		else if ( cat == NULL )
-		    flags = min::IS_UNSUPPORTED;
-		else if ( cat[0] == 'L' )
-		    flags = min::IS_MIDDLING
-		          + min::QUOTE_SUPPRESS;
-		else if ( cat[0] == 'P' )
-		    flags = min::IS_MIDDLING
-			  + min::IS_MARK;
-		else if ( cat[0] == 'S' )
-		    flags = min::IS_MIDDLING
-			  + min::IS_MARK;
-		else
-		    flags = min::IS_MIDDLING;
-	    }
-	}
-	else
-	{
-	    if ( cat == NULL )
-	        flags = min::IS_UNSUPPORTED;
-	    else if ( cat[0] == 'L' )
-		flags = min::IS_MIDDLING
-		      + min::QUOTE_SUPPRESS;
-	    else if ( cat[0] == 'P' )
-	    {
-	        if ( cat[1] == 'i' )
-		    flags = min::IS_LEADING
-			  + min::IS_MARK;
-	        else if ( cat[1] == 's' )
-		    flags = min::IS_LEADING
-			  + min::IS_MARK;
-	        else if ( cat[1] == 'f' )
-		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
-	        else if ( cat[1] == 'e' )
-		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
-		else
-		    flags = min::IS_MIDDLING
-			  + min::IS_MARK;
-	    }
-	    else if ( cat[0] == 'S' )
 		flags = min::IS_MIDDLING
 		      + min::IS_MARK;
-	    else if ( strcmp ( cat, "Mn" ) == 0 )
-		flags = min::IS_NON_SPACING
-		      + min::QUOTE_SUPPRESS;
-	    else if ( strcmp ( cat, "Zs" ) == 0 )
-		flags = min::IS_OTHER_HSPACE;
-	    else if ( cat[0] == 'Z' )
-		flags = min::IS_OTHER_CONTROL
-		      + min::IS_NON_SPACING;
-	    else if ( cat[0] == 'C' )
-		flags = min::IS_OTHER_CONTROL
-		      + min::IS_NON_SPACING;
+	    }
+	}
+	else if ( cat[0] == 'S' )
+	    flags = min::IS_MIDDLING
+		  + min::IS_MARK;
+	else if ( strcmp ( cat, "Mn" ) == 0 )
+	    flags = min::IS_MIDDLING
+	          + min::IS_NON_SPACING
+		  + min::QUOTE_SUPPRESS;
+	else if ( cat[0] == 'M' )
+	    flags = min::IS_MIDDLING
+		  + min::QUOTE_SUPPRESS;
+	else if ( cat[0] == 'N' )
+	    flags = min::IS_MIDDLING;
+	else if ( strcmp ( cat, "Zs" ) == 0 )
+	    flags = min::IS_OTHER_HSPACE;
+	else if ( cat[0] == 'Z' )
+	    flags = min::IS_OTHER_CONTROL
+		  + min::IS_NON_SPACING;
+	else if ( cat[0] == 'C' )
+	    flags = min::IS_OTHER_CONTROL
+		  + min::IS_NON_SPACING;
+	else
+	    flags = min::IS_UNSUPPORTED;
+
+	// Fixup flags in special cases.
+	//
+	switch ( i )
+	{
+	case ' ':	flags = min::IS_SP; break;	
+	case '\t':	flags = min::IS_OTHER_HSPACE;
+		    break;
+	case 0xA0:	flags = min::IS_NB_HSPACE;
+		    break;  // NBSP
+	case '\f':
+	case '\v':
+	case '\r': flags = min::IS_VSPACE
+			 + min::IS_NON_SPACING;
+		   break;
+
+	case '`':
+	case 0xA1:  // Inverted !
+	case 0xBF:	// Inverted ?
+		    flags = min::IS_LEADING
+			  + min::IS_MARK;
+		    break;
+	
+	case '\'':
+	case ',':
+	case ';':
+	case ':':
+	case '!':
+	case '?':
+		    flags = min::IS_TRAILING
+			  + min::IS_MARK;
+		    break;
+
+	case '.':	flags = min::IS_TRAILING
+			  + min::QUOTE_SKIP
+			  + min::IS_MARK;
+		    break;
+
+	case '-':
+	case '_':
+	case '%':	flags = min::IS_MIDDLING
+			  + min::CONDITIONAL_BREAK
+			  + min::IS_MARK;
+		    break;
 	}
 
 	::standard_char_flags[i] =
