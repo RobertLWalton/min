@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 18 14:28:47 EST 2014
+// Date:	Thu Nov 20 06:30:09 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10744,8 +10744,8 @@ namespace min {
 
     struct display_control
     {
-        min::uns16 display_char;
-	min::uns16 display_suppress;
+        min::uns32 display_char;
+	min::uns32 display_suppress;
     };
 
     extern const min::display_control
@@ -10759,10 +10759,10 @@ namespace min {
 
     struct break_control
     {
-        min::uns16 break_after;
-	min::uns16 break_before;
-	min::uns16 conditional_break;
-	min::uns16 conditional_columns;
+        min::uns32 break_after;
+	min::uns32 break_before;
+	min::uns32 conditional_break;
+	min::uns32 conditional_columns;
     };
 
     extern const min::break_control

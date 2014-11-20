@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 19 04:49:33 EST 2014
+// Date:	Thu Nov 20 06:31:02 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2388,7 +2388,7 @@ min::uns32 min::print_line
     else
     {
 	const char * p = & buffer[0];
-	min::uns16 name_or_picture_flags =
+	min::uns32 name_or_picture_flags =
 	    ! printer->print_format.display_control
 				   .display_char
 	    &
