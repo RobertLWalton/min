@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 19, 2014}
+\date{November 20, 2014}
  
 \maketitle
 
@@ -3605,6 +3605,90 @@ columns, instead of 1 column.  \TT{min::IS\_LEADING/MIDDLING/TRAILING}
 are used by the single space suppression feature of MIN printers;
 see below.
 
+The specific assignment of these flags encoded in
+\TT{min::standard\_char\_flags} is according to their
+UNICODE `\key{General Category}' with some exceptions.
+The following are the possible General Category values.
+These have the form \TT{Xy} where \TT{X} denotes the category
+and \TT{y} denotes the subcategory.  We use the notation
+\TT{X} to represent the category \TT{X} including all its
+subcategories, and we give here only \underline{some} of the
+subcategories of each category.  We also give the LATIN1 characters
+in each subcategory except where these are obvious (e.g, letters
+and digits).
+\begin{center}
+\begin{tabular}{ll}
+\TT{L}		& letters \\
+~~~\TT{Ll}	& lower case letters, including \TT{\textmu} \\
+~~~\TT{Lu}	& upper case letters \\
+~~~\TT{Lo}	& other letters, includes
+                  \TT{\textordmasculine} and \TT{\textordfeminine} \\
+\TT{M}		& combining marks \\
+~~~\TT{Mn}	& non-spacing combining marks \\
+\TT{N}		& number \\
+~~~\TT{Nd}	& decimal numbers, includes digits \\
+~~~\TT{No}	& other number, includes
+                  \TT{\textsuperscript{1}}
+                  \TT{\textsuperscript{2}}
+		  \TT{\textsuperscript{3}}
+		  \TT{\textonequarter}
+		  \TT{\textonehalf}
+		  \TT{\textthreequarters} \\
+\TT{P}		& punctuation \\
+~~~\TT{Pc}	& connector punctuation, includes \TT{\_} \\
+~~~\TT{Pd}	& dash punctuation, includes \TT{-} \\
+~~~\TT{Ps}	& open punctuation, includes \TT{\{} \TT{[} \TT{(} \\
+~~~\TT{Pe}	& close punctuation, includes \TT{\}} \TT{]} \TT{)} \\
+~~~\TT{Pi}	& initial punctuation, includes \TT{\guillemotleft} \\
+~~~\TT{Pf}	& final punctuation, includes \TT{\guillemotright} \\
+~~~\TT{Po}	& other punctuation, includes
+                  \TT{!} \TT{"} \TT{\#} \TT{\%} \TT{\&} \TT{'} \TT{*}
+		  \TT{,} \TT{.} \TT{/} \TT{:} \TT{;} \TT{?} \TT{@}
+		  \TT{\textbackslash}
+		  \TT{\textexclamdown}
+		  \TT{\textsection}
+		  \TT{\textpilcrow}
+		  \TT{\textperiodcentered}
+		  \TT{\textquestiondown} \\
+\TT{S}		& symbol \\
+~~~\TT{Sm}	& math symbol, includes \TT{+} \TT{<} \TT{=} \TT{>} \TT{|}
+                  \TT{\textasciitilde}
+		  \TT{\textlnot}
+		  \TT{\textpm}
+		  \TT{\texttimes}
+		  \TT{\textdiv}
+		  \\
+~~~\TT{Sc}	& currency symbol, includes \TT{\$}
+		  \TT{\textcent}
+		  \TT{\textsterling}
+		  \TT{\textcurrency}
+		  \TT{\textyen}
+		  \\
+~~~\TT{Sk}	& modifier symbol, includes
+		  \TT{\textasciicircum}
+		  \TT{\`{ }}
+		  \TT{\"{~}}
+		  \TT{\={~}}
+		  \TT{\'{~}}
+		  \TT{\c{~}}
+		  \\
+~~~\TT{So}	& other symbol, includes
+		  \TT{\textbrokenbar}
+		  \TT{\textcopyright}
+		  \TT{\textregistered}
+		  \TT{\textdegree}
+		  \\
+\TT{Z}		& space characters \\
+~~~\TT{Zs}	& non-zero width horizontal space,
+                  includes single space and \TT{NBSP} \\
+		& (but \underline{not} horizontal tab) \\
+\TT{C}		& control characters \\
+~~~\TT{Cc}	& LATIN1 control codes in ranges [\TT{00}\ldots\TT{1F}]
+		  and [\TT{7F}\ldots\TT{9F}] \\
+~~~\TT{Cf}	& format control character, includes \TT{SHY} (soft hyphen)
+\end{tabular}
+\end{center}
+
 For \TT{min::standard\_char\_flags}, the non-spacing mark characters
 and all control characters except single space, horizontal tab,
 and non-break space
@@ -3650,91 +3734,8 @@ and the trailing separator lexeme \TT{;}, and therefore
 \TT{;} is \TT{IS\_TRAILING}.  See 
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
-The specific assignment of these flags encoded in
-\TT{min::standard\_char\_flags} is according to their
-UNICODE `\key{General Category}' with some exceptions.
-The following are the possible General Category values.
-These have the form \TT{Xy} where \TT{X} denotes the category
-and \TT{y} denotes the subcategory.  We use the notation
-\TT{X} to represent the category \TT{X} including all its
-subcategories, and we give here only \underline{some} of the
-subcategories of each category.  We also give the LATIN1 characters
-in each subcategory except where these are obvious (e.g, letters
-and digits).
-\begin{center}
-\begin{tabular}{ll}
-\TT{L}		& letters \\
-~~~\TT{Ll}	& lower case letters \\
-~~~\TT{Lu}	& upper case letters \\
-~~~\TT{Lo}	& other letter, includes
-                  \TT{\textordmasculine} and \TT{\textordfeminine} \\
-\TT{M}		& combining marks \\
-~~~\TT{Mn}	& non-spacing combining marks \\
-\TT{N}		& number \\
-~~~\TT{Nd}	& digit \\
-~~~\TT{No}	& other number, includes
-                  \TT{\textsuperscript{1}}
-                  \TT{\textsuperscript{2}}
-		  \TT{\textsuperscript{3}}
-		  \TT{\textonequarter}
-		  \TT{\textonehalf}
-		  \TT{\textthreequarters} \\
-\TT{P}		& punctuation \\
-~~~\TT{Pc}	& connector punctuation, includes \TT{\_} \\
-~~~\TT{Pd}	& dash punctuation, includes \TT{-} \\
-~~~\TT{Ps}	& open punctuation, includes \TT{\{} \TT{[} \TT{(} \\
-~~~\TT{Pe}	& close punctuation, includes \TT{\}} \TT{]} \TT{)} \\
-~~~\TT{Pi}	& initial punctuation, includes \TT{\guillemotleft} \\
-~~~\TT{Pf}	& final punctuation, includes \TT{\guillemotright} \\
-~~~\TT{Po}	& other punctuation, includes
-                  \TT{!} \TT{"} \TT{\#} \TT{\%} \TT{\&} \TT{'} \TT{*}
-		  \TT{,} \TT{.} \TT{/} \TT{:} \TT{;} \TT{?} \TT{@}
-		  \TT{\textbackslash}
-		  \TT{\textexclamdown}
-		  \TT{\textsection}
-		  \TT{\textpilcrow}
-		  \TT{\textperiodcentered}
-		  \TT{\textquestiondown} \\
-\TT{S}		& symbol \\
-~~~\TT{Sm}	& math symbol, includes \TT{+} \TT{<} \TT{=} \TT{>} \TT{|}
-                  \TT{\textasciitilde}
-		  \TT{\textlnot}
-		  \TT{\textpm}
-		  \TT{\texttimes}
-		  \TT{\textdiv}
-		  \\
-~~~\TT{Sc}	& currency symbol, includes
-		  \TT{\textcent}
-		  \TT{\textsterling}
-		  \TT{\textcurrency}
-		  \TT{\textyen}
-		  \\
-~~~\TT{Sk}	& modifier symbol, includes
-		  \TT{\textasciicircum}
-		  \TT{\`{ }}
-		  \TT{\"{~}}
-		  \TT{\={~}}
-		  \TT{\'{~}}
-		  \TT{\c{~}}
-		  \\
-~~~\TT{So}	& other symbol, includes
-		  \TT{\textbrokenbar}
-		  \TT{\textcopyright}
-		  \TT{\textregistered}
-		  \TT{\textdegree}
-		  \\
-\TT{Z}		& space characters \\
-~~~\TT{Zs}	& non-zero width horizontal space,
-                  includes single space and \TT{NBSP} \\
-\TT{C}		& control characters, includes \TT{SHY} and characters
-                  with codes \\
-		& in ranges [\TT{00}\ldots\TT{1F}]
-		  and [\TT{7F}\ldots\TT{9F}] \\
-\end{tabular}
-\end{center}
-
-Given this the assignment of flags in
-\TT{min::standard\_char\_flags} is as follows:
+The assignment of these first three flags for \TT{min::standard\_char\_flags}
+is as follows:
 
 \begin{indpar}
 \begin{tabular}{l@{~~~~~}l}
@@ -3763,13 +3764,25 @@ Horizontal space characters get one of the
 \minindex{IS\_OTHER\_HSPACE}
 flags.  \TT{IS\_SP} is just for the single space character,
 \TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
-(such as LATIN1 \TT{NBSP}),
+(such as LATIN1 \TT{NBSP}, no-break space),
 and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for horizontal tab and
 for characters other than single space and \TT{NBSP} that
 have subcategory \TT{Zs}.
 The printer does some special processing on single space
 and horizontal tab characters \underline{independently} of the flags
 of these characters.
+
+So the assignment of these next three flags for \TT{min::standard\_char\_flags}
+is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_SP}: & single space character \\
+\ttkey{min::IS\_NB\_HSPACE}: & \TT{NBSP} (no-break space) \\
+\ttkey{min::IS\_OTHER\_HSPACE}: & horizontal tab plus
+                                  other characters in subcategory \TT{Zs} \\
+\end{tabular}
+\end{indpar}
 
 Vertical space characters that standardly appear in printed output
 get the \minkey{IS\_VSPACE} flag.  There are four such characters:
@@ -3781,14 +3794,30 @@ All other control characters, i.e., other characters in categories
 \TT{C} and \TT{Z}, get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
 flag.  These are often suppressed in printed output.
 
+So the assignment of these next two flags for \TT{min::standard\_char\_flags}
+is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_VSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR} \\
+\ttkey{min::IS\_OTHER\_CONTROL}: & other characters in categories
+                                   \TT{C} and \TT{Z} \\
+\end{tabular}
+\end{indpar}
+
 
 All characters not given one of the above flags (i.e., characters
 with \underline{no} UNICODE General Category) get the
 \minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
 is not supported by keyboard input and/or hardware printers,
-and ideally, the character should not be used.
+and ideally, the character should not be used.  The
+\TT{support\_\EOL control} member of a \TT{printer->\EOL print\_\EOL format}
+is typcally used to reset the flags of a character not supported by
+the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
+see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
-The next three flags are used in conjuction with printer format
+
+The next four flags are used in conjunction with printer format
 masks to perform special printer functions.
 The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
 can be followed by a line break, such as \TT{-} and \TT{\_}.
@@ -3798,20 +3827,18 @@ and \minkey{QUOTE\_\EOL SKIP} flags mark characters that
 suppress quoting a string if they appear at the beginning
 of the string; specifically, the string is \underline{not}
 quoted if it begins with zero or more \TT{QUOTE\_\EOL SKIP}
-characters (such at `\TT{.}')
+characters (such as `\TT{.}')
 followed by a single \TT{QUOTE\_\EOL SUPPRESS}
 character (such as any letter).
 See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
 and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
 on \pagref{IN_CLASS_IF_FIRST}.\label{QUOTE-SUPPRESS}
-
-The next flag, the 
-\minkey{IS\_\EOL MARK} flag, is given to all punctuation and symbols
+The \minkey{IS\_\EOL MARK} flag is given to all punctuation and symbols
 (i.e., to non-letter, non-combining-mark, non-number characters)
 and is used to define the \TT{marking\_\EOL type} string category:
 see \pagref{MARKING_TYPE}.
 
-The specific assignment of these last four flags encoded in
+The assignment of these four flags in
 \TT{min::standard\_char\_flags} is:
 
 \begin{center}
@@ -3828,10 +3855,21 @@ The specific assignment of these last four flags encoded in
 
 The last two flags are used in conjunction with printer format
 masks to dynamically control which characters are supported.
-The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters with
-codes from \TT{00} through \TT{7F}.
-The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters with
-codes from \TT{80} through \TT{FF}.  See \pagref{SUPPORT-CONTROL}.
+The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters, and
+The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters.
+These are used with \TT{support\_\EOL control}'s: see \pagref{SUPPORT-CONTROL}.
+
+The assignment of these two flags in
+\TT{min::standard\_char\_flags} is:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_ASCII}: & ASCII characters with codes in range
+                          [\TT{00}\ldots\TT{7F}] \\
+\ttkey{min::IS\_LATIN1}: & LATIN1, non-ASCII characters with codes in range
+                          [\TT{80}\ldots\TT{FF}] \\
+\end{tabular}
+\end{center}
 
 The question of which characters can be supported is determined
 by the file
@@ -3849,7 +3887,7 @@ which defines which sets of characters
 are marked with which support set character flags, such as
 \TT{min::\EOL IS\_\EOL ASCII/\EOL LATIN1}.
 
-The characters with the \TT{min::IS\_LATIN1} flag 
+The non-control characters with the \TT{min::IS\_LATIN1} flag 
 in \TT{min::standard\_char\_flags}
 are listed,
 along with the multi-key sequences commonly used to input them,
@@ -3866,12 +3904,6 @@ using this data.  For \TT{c <= 0xFF}, \TT{min::Uindex(c) == c}, and
 for \TT{c > 0xFF}, \TT{min::Uindex(c) > 0xFF}, so
 each ASCII and LATIN1 character has its own private character flag
 element in any character flag vector.
-
-Only the low order 16 bits of a 32 bit character flags value are
-used for some printer functions, like controlling how the character
-displays or breaks are inserted, so flags relevant to these functions
-need to be in the low order 16 bits.
-
 
 \begin{boxedfigure}[p]
 \begin{tabular}{llll}
@@ -4137,6 +4169,9 @@ and a support control structure \TT{sc} with the format:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::uns32
+    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
+\LABEL{MIN::ALL_CHARS} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
 	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
@@ -4147,7 +4182,7 @@ and a support control structure \TT{sc} with the format:
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
+	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{tabular}\end{indpar}
 
@@ -7976,9 +8011,9 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \verb|struct     min::| & \MINKEY{display\_\EOL control}
 \LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
 \verb|{               | \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{display\_char}{in {\tt min::display\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}} \\
 \verb|}               | \\
 \end{tabular}\end{indpar}
@@ -8009,13 +8044,13 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \verb|struct     min::| & \MINKEY{break\_\EOL control}
 \LABEL{MIN::BREAK_CONTROL_STRUCT} \\
 \verb|{               | \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{break\_before}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{break\_after}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}} \\
 \verb|}               | \\
 \end{tabular}\end{indpar}
@@ -16255,6 +16290,9 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::uns32
+    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
+\LABEL{MIN::ALL_CHARS} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[0.5in]
 	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
@@ -16265,7 +16303,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::support\_control
     min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[0.5in]
-	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
+	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{TABULAR}
 
@@ -17877,21 +17915,6 @@ These are in \verb|min_parameters.h|.
 \TT{print\_format.support\_control}:
 \dotfill \pagref{MIN::SUPPORT_CONTROL_STRUCT}
 
-\begin{TABULAR}{0.0in}
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[0.5in]
-	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[0.5in]
-	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[0.5in]
-	\verb|{ 0xFFFFFFFF, min::IS_UNSUPPORTED };|
-\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
-\end{TABULAR}
-
 \bigskip
 
 \TT{print\_format.display\_control}:
@@ -17902,9 +17925,9 @@ These are in \verb|min_parameters.h|.
 \verb|struct     min::| & \MINKEY{display\_\EOL control}
 \LABEL{MIN::DISPLAY_CONTROL_STRUCT} \\
 \verb|{               | \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{display\_char}{in {\tt min::display\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{display\_suppress}{in {\tt min::display\_control}} \\
 \verb|}               | \\
 \end{TABULAR}
@@ -17939,13 +17962,13 @@ These are in \verb|min_parameters.h|.
 \verb|struct     min::| & \MINKEY{break\_\EOL control}
 \LABEL{MIN::BREAK_CONTROL_STRUCT} \\
 \verb|{               | \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{break\_before}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{break\_after}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}} \\
-\verb|     min::uns16 |
+\verb|     min::uns32 |
 	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}} \\
 \verb|}               | \\
 \end{TABULAR}
