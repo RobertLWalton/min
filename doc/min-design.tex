@@ -3490,6 +3490,10 @@ has name \TT{UUC} and picture $/\!\!/\!\!/$, and the
 \minmkey{SOFTWARE\_NL}{name and picture} character has name
 \TT{NL} and picture {\tiny $\stackrel{\textstyle N~}{\textstyle ~L}$}.
 
+The \TT{ustring} name and picture values contain only graphic
+characters (e.g., no spaces) and have non-zero numbers of columns
+encoded in their second bytes (see \pagref{USTRING-ZERO-COLUMNS}).
+
 The most important attributes of a character are its
 \smkey{flag}s{of UNICODE character}\index{character flag}%
 \label{CHARACTER-FLAGS}.
@@ -4253,7 +4257,8 @@ which are sequences of 8 bit bytes.  The first two bytes,
 called the \mkey{header}{of {\tt ustring}},
 hold the length of the string (not counting the header) plus some flags
 in the first byte, and the number of print columns the string will take
-plus some flags in the second byte.  The remainder of the bytes
+if the string is all graphics,
+plus some flags, in the second byte.  The remainder of the bytes
 constitute a `\TT{const char *}' value that is the Modified UTF-8 encoded,
 NUL-terminated, string itself.
 
@@ -4304,21 +4309,49 @@ of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
 The \TT{min::unicode\_\EOL columns} function returns the number
 of print columns these take; the maximum is 15.  If this is non-zero,
 the string must consist of only graphics characters and must take
-the returned number of columns; but if it is
-zero, the string may contain other characters, such as single spaces,
+the returned number of columns;
+but if it is zero,\label{USTRING-ZERO-COLUMNS}
+the string may contain other characters, such as single spaces,
 and may take any number of columns.
 The \TT{min::\EOL unicode\_\EOL flags} function returns the flags,
-which can be tested by AND'ing the unsigned flags value with
+which can be tested by AND'ing the returned value with
 the \TT{min::USTRING\_LEADING/TRAILING} or
 \TT{min::USTRING\_LEADING/TRAILING\_\EOL ALWAYS} flags.
-The flags can be set into a \TT{ustring} by adding them to the first
-or second byte, as in \TT{"\textbackslash x81\textbackslash x41"~","}
+The \TT{min::unicode\_\EOL string} function returns a pointer
+to the \TT{const char *} string in the \TT{ustring}.
+
+The flags cause the following printer operations, which are described
+in \itemref{LEADING-AND-TRAILING-SEPARATORS}:
+\begin{center}
+\begin{tabular}{ll}
+\TT{min::USTRING\_TRAILING} & preceed by \TT{min::\EOL trailing} \\
+\TT{min::USTRING\_TRAILING\_ALWAYS}
+    & preceed by \TT{min::\EOL trailing\_always} \\
+\TT{min::USTRING\_LEADING} & follow by \TT{min::\EOL leading} \\
+\TT{min::USTRING\_LEADING\_ALWAYS}
+    & follow by \TT{min::\EOL leading\_always} \\
+\end{tabular}
+\end{center}
+The flags are set by OR'ing their designated bits (i.e., \TT{0x80}
+or \TT{0x40}, 
+and \underline{not} the
+values of \TT{min::USTRING\_\ldots}) into the first
+or second byte of a \TT{ustring}.  An example is
+\TT{"\textbackslash x81\textbackslash x41"~","}
 which prints as
 \begin{center}
 \TT{printer << min::trailing\_always << "," << min::leading}
 \end{center}
-The \TT{min::unicode\_\EOL string} function returns a pointer
-to the \TT{const char *} string in the \TT{ustring}.
+If both \TT{min::\EOL USTRING\_\EOL TRAILING} and
+\TT{min::\EOL USTRING\_\EOL TRAILING\_\EOL ALWAYS} are
+given, only \TT{min::\EOL USTRING\_\EOL TRAILING}
+is effective (as the two operations together
+in either order are equivalent to only \TT{min::\EOL trailing}),
+and simularly if
+both \TT{min::\EOL USTRING\_\EOL LEADING} and
+\TT{min::\EOL USTRING\_\EOL LEADING\_\EOL ALWAYS} are
+given, only \TT{min::\EOL USTRING\_\EOL LEADING}
+is effective.
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -8081,6 +8114,8 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
     & \MINKEY{char\_\EOL name\_\EOL format}
 \LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
 \verb|{                         | \\
+\multicolumn{2}{l}%
+    {\tt ~~~~~// Members must encode non-zero numbers of columns.} \\
 \verb|     const min::ustring * |
 	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}} \\
 \verb|     const min::ustring * |
@@ -8095,6 +8130,10 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \verb|  (const min::ustring *) "\x01\x01" ">" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{tabular}\end{indpar}
+
+The \TT{ustring} members of \TT{min::char\_name\_format} \underline{must not}
+contain non-graphic characters (e.g., no spaces) and \underline{must}
+have non-zero numbers of columns encoded in their second bytes.
 
 The basic algorithm for printing a UNICODE character \TT{c} is:
 
@@ -10480,7 +10519,9 @@ The formats for printing string \TT{min::gen} values are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{bracket\_format}}\ARGBREAK
-    \verb|{|\ARGBREAK
+    \verb|{| \\
+\multicolumn{2}{l}%
+    {\tt ~~~~~// Members must encode non-zero numbers of columns.}\ARGBREAK
     \verb|  const min::ustring *    str_prefix;|%
 \ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix;|%
@@ -10502,6 +10543,10 @@ The formats for printing string \TT{min::gen} values are:
 \verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \LABEL{MIN::QUOTE_BRACKET_FORMAT}
 \end{tabular}\end{indpar}
+
+The \TT{ustring} members of \TT{min::bracket\_format} \underline{must not}
+contain non-graphic characters (e.g., no spaces) and \underline{must}
+have non-zero numbers of columns encoded in their second bytes.
 
 The following function, which is used to print string general values,
 prints a \TT{const char *}
@@ -10656,7 +10701,7 @@ The format for printing label \TT{min::gen} values is:
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -10682,9 +10727,9 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "[: "  // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " :]"  // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
 A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
@@ -14256,12 +14301,12 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x82\x02" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" ", "   // obj_attrsep|\ARGBREAK
+\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14269,15 +14314,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14325,7 +14370,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14338,15 +14383,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14394,7 +14439,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // obj_sep|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14407,15 +14452,15 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " = "  // obj_attreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x04" " <= " // obj_valreq|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14703,7 +14748,7 @@ If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
 character if \TT{ob\_sep}'s  value were
-\TT{"\textbackslash x01\textbackslash x01" " "}.
+\TT{"\textbackslash x01\textbackslash x00" " "}.
 
 Any \TT{.type} present in compact format with an \TT{.initiator}
 attribute is not printed, as it must be a label formed from the
@@ -19073,7 +19118,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
@@ -19105,9 +19150,9 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "[: "  // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" " "    // lab_separator|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" " :]"  // lab_postfix|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "[: "  // lab_prefix|\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " :]"  // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
 \bigskip

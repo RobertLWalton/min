@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 20 06:31:02 EST 2014
+// Date:	Thu Nov 20 14:47:42 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9364,7 +9364,7 @@ const min::str_format *
 static min::lab_format name_lab_format =
 {
     NULL,
-    (const min::ustring *) "\x01\x01" " ",
+    (const min::ustring *) "\x01\x00" " ",
     NULL
 };
 const min::lab_format * min::name_lab_format =
@@ -9372,9 +9372,9 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    (const min::ustring *) "\x03\x03" "[: ",
-    (const min::ustring *) "\x01\x01" " ",
-    (const min::ustring *) "\x03\x03" " :]"
+    (const min::ustring *) "\x03\x00" "[: ",
+    (const min::ustring *) "\x01\x00" " ",
+    (const min::ustring *) "\x03\x00" " :]"
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
@@ -9445,29 +9445,29 @@ static min::obj_format compact_obj_format =
         "\x01\x01" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_sep
+        "\x01\x00" " ",     // obj_sep
 
     (const min::ustring *)
-        "\x82\x02" ": ",    // obj_attrbegin
+        "\x82\x00" ": ",    // obj_attrbegin
     (const min::ustring *)
-        "\x02\x02" ", ",    // obj_attrsep
+        "\x02\x00" ", ",    // obj_attrsep
 
     (const min::ustring *)
         "\x81\x01" ":",     // obj_attreol
 
     (const min::ustring *)
-        "\x03\x03" "no ",   // obj_attrneg
+        "\x03\x00" "no ",   // obj_attrneg
     (const min::ustring *)
-        "\x03\x03" " = ",   // obj_attreq
+        "\x03\x00" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x03\x03" "{* ",   // obj_valbegin
+        "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x02" ", ",    // obj_valsep
+        "\x02\x00" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x03\x03" " *}",   // obj_valend
+        "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
-        "\x04\x04" " <= ",  // obj_valreq
+        "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
 
@@ -9499,7 +9499,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_sep
+        "\x01\x00" " ",     // obj_sep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
@@ -9508,18 +9508,18 @@ static min::obj_format isolated_line_obj_format =
         "\x81\x01" ":",     // obj_attreol
 
     (const min::ustring *)
-        "\x03\x03" "no ",   // obj_attrneg
+        "\x03\x00" "no ",   // obj_attrneg
     (const min::ustring *)
-        "\x03\x03" " = ",   // obj_attreq
+        "\x03\x00" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x03\x03" "{* ",   // obj_valbegin
+        "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x02" ", ",    // obj_valsep
+        "\x02\x00" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x03\x03" " *}",   // obj_valend
+        "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
-        "\x04\x04" " <= ",  // obj_valreq
+        "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
 
@@ -9556,7 +9556,7 @@ static min::obj_format embedded_line_obj_format =
         "\x01\x01" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x01\x01" " ",     // obj_sep
+        "\x01\x00" " ",     // obj_sep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
@@ -9565,18 +9565,18 @@ static min::obj_format embedded_line_obj_format =
         "\x81\x01" ":",     // obj_attreol
 
     (const min::ustring *)
-        "\x03\x03" "no ",   // obj_attrneg
+        "\x03\x00" "no ",   // obj_attrneg
     (const min::ustring *)
-        "\x03\x03" " = ",   // obj_attreq
+        "\x03\x00" " = ",   // obj_attreq
 
     (const min::ustring *)
-        "\x03\x03" "{* ",   // obj_valbegin
+        "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x02" ", ",    // obj_valsep
+        "\x02\x00" ", ",    // obj_valsep
     (const min::ustring *)
-        "\x03\x03" " *}",   // obj_valend
+        "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
-        "\x04\x04" " <= ",  // obj_valreq
+        "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
 
