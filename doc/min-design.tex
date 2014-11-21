@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 20, 2014}
+\date{November 21, 2014}
  
 \maketitle
 
@@ -4246,6 +4246,44 @@ the \TT{marking\_type} member of a \TT{min::obj\_format}:
     & \pagref{MARKING_TYPE} \\
 \end{tabular}
 \end{center}
+
+The following are some predefined string classifiers:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{never\_str\_classifier}:}\ARGBREAK
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|0                          // in_class_if_all|
+\LABEL{MIN::NEVER_STR_CLASSIFIER}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{always\_str\_classifier}:}\ARGBREAK
+\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::ALL_CHARS             // in_class_if_all|
+\LABEL{MIN::ALWAYS_STR_CLASSIFIER}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{all\_graphics\_str\_classifier}:}\ARGBREAK
+\verb|min::IS_GRAPHIC            // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::IS_GRAPHIC            // in_class_if_all|
+\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{all\_marks\_str\_classifier}:}\ARGBREAK
+\verb|min::IS_MARK               // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::IS_MARK               // in_class_if_all|
+\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}
+\end{tabular}\end{indpar}
 
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
@@ -14326,7 +14364,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\verb|min::all_marks_str_classifier,           // marking_type|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -16354,7 +16392,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{2.4in}
+\begin{TABULAR}{1.5in}
 \verb|struct     min::| & \MINKEY{str\_classifier}%
 \LABEL{MIN::STR_CLASSIFIER} \\
 \verb|{               | \\
@@ -16365,6 +16403,42 @@ These are in \verb|min_parameters.h|.
 \verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
                                 {in {\tt min::str\_classifier}} \\
 \verb|};              | \\
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{never\_str\_classifier}:}
+\LABEL{MIN::NEVER_STR_CLASSIFIER}\ARGBREAK
+\verb|0                          // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|0                          // in_class_if_all|
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{always\_str\_classifier}:}
+\LABEL{MIN::ALWAYS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::ALL_CHARS             // in_class_if_all|
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{all\_graphics\_str\_classifier}:}
+\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_GRAPHIC            // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::IS_GRAPHIC            // in_class_if_all|
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{all\_marks\_str\_classifier}:}
+\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_MARK               // in_class_if_first|\ARGBREAK
+\verb|0                          // skip_if_first|\ARGBREAK
+\verb|min::IS_MARK               // in_class_if_all|
 \end{TABULAR}
 
 \INDEXHEADER{UNICODE Strings}
