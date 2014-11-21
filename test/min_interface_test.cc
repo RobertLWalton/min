@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  8 18:19:00 EST 2014
+// Date:	Fri Nov 21 02:20:54 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4703,6 +4703,44 @@ void test_object_printing ( void )
     printer << min::pgen ( obj ) << min::eol;
     min::print_obj ( printer, obj,
                      min::embedded_line_obj_format );
+
+    min::gen obj4 = min::new_obj_gen ( 5, 5 );
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_push ( vp, 3 );
+	vp[0] = min::new_str_gen ( "X" );
+	vp[1] = min::new_str_gen ( "Y" );
+	vp[2] = min::new_str_gen ( "Z" );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "T" ) );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_push ( vp, 3 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "+" ) );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_push ( vp, 3 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_lab_gen ( "<", ">" ) );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_push ( vp, 3 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_lab_gen ( "{", "}" ) );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+
 # ifdef NONE_SUCH
 
     printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )

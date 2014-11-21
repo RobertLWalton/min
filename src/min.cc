@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 20 14:47:42 EST 2014
+// Date:	Fri Nov 21 01:38:31 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1163,6 +1163,7 @@ static void init_standard_char_flags ( void )
 		    break;  // NBSP
 	case '\f':
 	case '\v':
+	case '\n':
 	case '\r': flags = min::IS_VSPACE
 			 + min::IS_NON_SPACING;
 		   break;
@@ -9301,6 +9302,30 @@ min::printer min::print_num
 }
 
 const min::str_classifier
+	min::never_str_classifier =
+{
+    0, 0, 0
+};
+
+const min::str_classifier
+	min::always_str_classifier =
+{
+    min::ALL_CHARS, 0, min::ALL_CHARS
+};
+
+const min::str_classifier
+	min::all_marks_str_classifier =
+{
+    min::IS_MARK, 0, min::IS_MARK
+};
+
+const min::str_classifier
+	min::all_graphics_str_classifier =
+{
+    min::IS_GRAPHIC, 0, min::IS_GRAPHIC
+};
+
+const min::str_classifier
 	min::quote_all_control =
 {
     0, 0, 0
@@ -9316,7 +9341,7 @@ const min::str_classifier
 const min::str_classifier
 	min::quote_non_graphic_control =
 {
-    min::ALL_CHARS, 0, min::IS_GRAPHIC
+    min::IS_GRAPHIC, 0, min::IS_GRAPHIC
 };
 
 const min::bracket_format min::quote_bracket_format =
@@ -9469,7 +9494,8 @@ static min::obj_format compact_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::all_marks_str_classifier,
+    			    // marking_type
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10247,7 +10273,7 @@ min::printer min::print_obj
 	    if ( marking_begin_type != min::NONE() )
 		min::print_gen
 		    ( printer, marking_begin_type,
-		      objf->label_format );
+		      min::never_quote_gen_format );
 	    else
 	    {
 	        if ( type != min::NONE() )
@@ -10370,7 +10396,7 @@ min::printer min::print_obj
 	{
 	    min::print_gen
 		( printer, marking_end_type,
-		  objf->label_format );
+		  min::never_quote_gen_format );
 	    min::print_ustring
 		( printer, objf->obj_ket );
 	}

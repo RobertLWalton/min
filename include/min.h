@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 20 06:30:09 EST 2014
+// Date:	Fri Nov 21 01:34:29 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11479,11 +11479,21 @@ namespace min {
     const min::uns32 ALL_CHARS = 0xFFFFFFFF;
 
     extern const min::str_classifier
+        never_str_classifier;
+    extern const min::str_classifier
+        always_str_classifier;
+    extern const min::str_classifier
+        all_marks_str_classifier;
+    extern const min::str_classifier
+        all_graphics_str_classifier;
+    extern const min::str_classifier
         quote_all_control;
+	// Just like never_str_classifier
     extern const min::str_classifier
         quote_first_not_letter_control;
     extern const min::str_classifier
         quote_non_graphic_control;
+	// Just like all_graphics_str_classifier
 
     struct str_format
     {
