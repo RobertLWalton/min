@@ -4204,6 +4204,10 @@ Start Object Printing Test!
        .separator = ","
        .terminator = "*}"
     |}
+{T| X Y Z |T}
+{+ X Y Z 0 0 0 +}
+{< X Y Z 0 0 0 0 0 0 >}
+{{ X Y Z 0 0 0 0 0 0 0 0 0 }}
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
