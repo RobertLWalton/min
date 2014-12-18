@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug  8 15:00:57 EDT 2014
+# Date:		Thu Dec 18 01:40:00 EST 2014
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -144,7 +144,7 @@ min_interface_test_loose_stretch:	\
 
 min_interface_test_compact_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
-	         -D$N=0xDFFFFFFF \
+	         -D$N=0xCFFFFFFF \
 		 -DMIN_STUB_BASE=0x100 \
 	         -DMIN_USE_OBJ_AUX_STUBS=1
 

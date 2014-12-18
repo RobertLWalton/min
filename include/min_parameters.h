@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 13:43:57 EDT 2014
+// Date:	Thu Dec 18 01:29:46 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -106,7 +106,7 @@
 //
 # ifndef MIN_MAX_NUMBER_OF_STUBS
 #   define MIN_MAX_NUMBER_OF_STUBS \
-	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
+	( MIN_IS_COMPACT ? 0x0CFFFFFFull : \
 	  ( MIN_PTR_BITS <= 32 ? 1 << 28 : \
 	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
 	          ( 1ull << 40 ) : \
@@ -221,7 +221,7 @@
 #	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
 	   (    MIN_IS_COMPACT \
 	     && MIN_PTR_BITS <= 32 ? \
-	       0xDFFFFFFFull : \
+	       0xCFFFFFFFull : \
 	     MIN_PTR_BITS <= 32 ? 0xFFFFFFFFull : \
 	     ( ( 1ull << 48 ) - 1 ) )
 #   endif
