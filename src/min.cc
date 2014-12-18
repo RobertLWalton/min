@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 21 01:38:31 EST 2014
+// Date:	Tue Dec 16 02:41:52 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8863,10 +8863,12 @@ static min::printer print_quoted_unicode
 
 	printer << min::pustring ( bf.str_postfix )
 		<< " "
-		<< min::set_break
-		<< min::pustring ( bf.str_concatenator )
-		<< " "
-		<< min::pustring ( bf.str_prefix );
+		<< min::set_break;
+	if ( bf.str_concatenator != NULL )
+	    printer << min::pustring
+	                   ( bf.str_concatenator )
+		    << " ";
+	printer << min::pustring ( bf.str_prefix );
 
 	min::uns32 cat_columns =
 	      min::ustring_columns
