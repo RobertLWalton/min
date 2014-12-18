@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 21 02:20:54 EST 2014
+// Date:	Thu Dec 18 00:16:36 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -683,23 +683,23 @@ void test_general_value_functions ( void )
 	    ( MUP::direct_int_of ( igen ) == i );
 	desire_failure (
 	    igen = min::new_direct_int_gen
-			( 1 << 27 );
+			( 1 << 28 );
 	);
 	desire_success (
 	    igen = min::new_direct_int_gen
-			( 1 << 26 );
+			( 1 << 27 );
 	);
 	desire_failure (
 	    igen = min::new_direct_int_gen
-			( -1 << 28 );
+			( -1 << 29 );
 	);
 	desire_success (
 	    igen = min::new_direct_int_gen
-			( -1 << 27 );
+			( -1 << 28 );
 	);
 	MIN_ASSERT
 	    (    MUP::direct_int_of ( igen )
-	      == -1 << 27 );
+	      == -1 << 28 );
 #   endif
 
 #   if MIN_IS_LOOSE

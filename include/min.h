@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 21 01:34:29 EST 2014
+// Date:	Wed Dec 17 17:26:16 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -130,44 +130,53 @@ namespace min {
 #   if MIN_IS_COMPACT
 
 	// General Value Subtype (high order 8 bits)
-	//   0x00-0xDF	stubs
-	//   0xE0-0xEF  direct integers
-	//   0xF0-0xF7  direct string and other
-	//   0xF8-0xFC  illegal
-	//   0xFD-0xFF  auxiliary pointers
+	//   0x00-0x0F  direct integers >= 0
+	//   0x10-0x18  illegal
+	//   0x19-0x1F  auxiliary pointers, direct
+	//              string, index, control code,
+	//              special
+	//   0x20-0xEF	stubs
+	//   0xF0-0xFF  direct integers < 0
 
-	const unsigned GEN_STUB
-	    = 0;
 	// Unimplemented for COMPACT:
 	//   unsigned GEN_DIRECT_FLOAT
 	const unsigned GEN_DIRECT_INT
-	    = 0xE0;
-	const unsigned GEN_DIRECT_STR
-	    = 0xF0;
-	const unsigned GEN_INDEX
-	    = 0xF1;
-	const unsigned GEN_CONTROL_CODE
-	    = 0xF2;
-	const unsigned GEN_SPECIAL
-	    = 0xF3;
+	    = 0x00;  // First non-negative integer
+	             // subtype code.
+	const unsigned GEN_DIRECT_INT_BOUND
+	    = 0x10;  // Last non-negative integer
+	             // subtype code + 1.
 	const unsigned GEN_ILLEGAL
-	    = 0xF4;  // First illegal subtype code
-	             // below GEN_AUX_LOWER.
-
-	// Auxiliary pointer subtype codes are at the
-	// end.
-	//
-	const unsigned GEN_AUX_LOWER
-	    = 0xFD;  // Lowest AUX subtype code.
+	    = 0x10;  // First illegal subtype code.
+	const unsigned GEN_ILLEGAL_BOUND
+	    = 0x19;  // Largest illegal subtype code
+	             // + 1.
+	const unsigned GEN_AUX
+	    = 0x19;  // First aux subtype code.
 	const unsigned GEN_INDIRECT_AUX
-	    = 0xFD;
+	    = 0x19;
 	const unsigned GEN_SUBLIST_AUX
-	    = 0xFE;
+	    = 0x1A;
 	const unsigned GEN_LIST_AUX
-	    = 0xFF;
-
+	    = 0x1B;
+	const unsigned GEN_AUX_BOUND
+	    = 0x1C;  // Largest aux subtype code + 1.
+	const unsigned GEN_DIRECT_STR
+	    = 0x1C;
+	const unsigned GEN_INDEX
+	    = 0x1D;
+	const unsigned GEN_CONTROL_CODE
+	    = 0x1E;
+	const unsigned GEN_SPECIAL
+	    = 0x1F;
+	const unsigned GEN_STUB
+	    = 0x20;   // First stub subtype code
+	const unsigned GEN_STUB_BOUND
+	    = 0xF0;   // Last stub subtype code + 1.
+	const unsigned GEN_NEGATIVE_INT
+	    = 0xF0;   // Integer < 0.
 	const unsigned GEN_UPPER
-	    = 0xFF; // Largest subtype code.
+	    = 0xFF;   // Largest subtype code.
 
 	typedef uns32 unsgen;
 	    // Unsigned type convertable to a min::gen
@@ -176,9 +185,13 @@ namespace min {
 	const unsigned VSIZE = 24;
 	    // Sized of type and value field in a
 	    // min::gen.
-#	define MIN_AMAX 0xDFFFFFFFu
+#	define MIN_AMAX 0xCFFFFFFFu
 	    // Maximum packed stub address value in
 	    // general value.
+	const int GEN_MIN_INT = - 0x10000000;
+	const int GEN_MAX_INT = + 0x0FFFFFFF;
+	    // Minimum and maximum integer storable
+	    // in a direct integer min::gen value.
 
 #   elif MIN_IS_LOOSE
 
@@ -186,42 +199,49 @@ namespace min {
 	// with base MIN_FLOAT_SIGNALLING_NAN:
 	//
 	//   0x00-0x0F	stub
-	//   0x10-0x13	direct string and others
-	//   0x14-0x1C	illegal
-	//   0x1D-0x1F	auxiliary pointers
+	//   0x10-0x18	illegal
+	//   0x19-0x1F  auxiliary pointers, direct
+	//              string, index, control code,
+	//              special
 	//   other	floating point
 
-	const unsigned GEN_STUB
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x00;
+	// Unimplemented for LOOSE:
+	//   unsigned GEN_DIRECT_INT
+	//   unsigned GEN_NEGATIVE_INT
 	const unsigned GEN_DIRECT_FLOAT
 	    = 0;
-	// Unimplemented for LOOSE:
-	//   unsigned GEN_DIRECT_INT // illegal
-	const unsigned GEN_DIRECT_STR
+	const unsigned GEN_STUB
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x00;
+	        // First stub subtype code.
+	const unsigned GEN_STUB_BOUND
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
-	const unsigned GEN_INDEX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
-	const unsigned GEN_CONTROL_CODE
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
-	const unsigned GEN_SPECIAL
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
+	        // Last stub subtype code + 1.
 	const unsigned GEN_ILLEGAL
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
-	    // First illegal subtype code below
-	    // aux subtype codes.
-
-	// Auxiliary pointer subtype codes are at the
-	// end.
-	//
-	const unsigned GEN_AUX_LOWER
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1D;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
+		// First illegal subtype code.
+	const unsigned GEN_ILLEGAL_BOUND
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x19;
+		// Largest illegal subtype code + 1.
+	const unsigned GEN_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x19;
+		// First aux subtype code.
 	const unsigned GEN_INDIRECT_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1D;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x19;
 	const unsigned GEN_SUBLIST_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1E;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1A;
 	const unsigned GEN_LIST_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1B;
+	const unsigned GEN_AUX_BOUND
+		// Largest aux subtype code + 1.
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1C;
+	const unsigned GEN_DIRECT_STR
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1C;
+	const unsigned GEN_INDEX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1D;
+	const unsigned GEN_CONTROL_CODE
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1E;
+	const unsigned GEN_SPECIAL
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
-
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
@@ -250,12 +270,16 @@ namespace min {
 	const unsgen VHIHALFMASK =
 	    VHALFMASK << ( VSIZE / 2 );
 	    // Ditto for upper half of VSIZE datum.
-#       if MIN_IS_LOOSE
-	    const unsgen AMASK =
-		( (unsgen) 1 << ( VSIZE + 4 ) ) - 1;
-		// Mask for packed stub address in
-		// general value.
+#       if MIN_IS_COMPACT
+	    typedef int32 intgen;
+		// Signed type convertable to a min::gen
+		// value (used to convert direct
+		// integers).
 #	endif
+	const unsgen AOFFSET =
+		 ( (unsgen) GEN_STUB << VSIZE );
+	    // Offset of a stub address packed into
+	    // a general value.
     }
 
     class gen;
@@ -500,75 +524,41 @@ namespace min { namespace internal {
     // We need to be able to pack/unpack a stub address
     // into/from the appropriate part of a general
     // value.  The packed stub address is stored in an
-    // unsgen value that equals the min::gen value
-    // stripped of its subtype.
+    // unsgen value that equals the min::gen value.
 
-#   if MIN_IS_COMPACT
-
-	inline min::stub * unsgen_to_stub
-		( min::unsgen v )
-	{
-	    unsptr p = (unsptr) v;
-#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= MIN_AMAX
-		return (min::stub *) p;
+    inline min::stub * unsgen_to_stub
+	    ( min::unsgen v )
+    {
+	unsptr p = (unsptr) ( v - AOFFSET );
+#           if      MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+	         <= MIN_AMAX
+	    return (min::stub *) p;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= MIN_AMAX
-		return (min::stub *) ( p + stub_base );
+	         <= MIN_AMAX
+	    return (min::stub *) ( p + stub_base );
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
-		return (min::stub *) stub_base + p;
+	    return (min::stub *) stub_base + p;
 #           else
-#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
+#	        error MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
-	}
-	inline min::unsgen stub_to_unsgen
-		( const min::stub * s )
-	{
-#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= MIN_AMAX
-	        return (unsptr) s;
+    }
+    inline min::unsgen stub_to_unsgen
+	    ( const min::stub * s )
+    {
+	unsgen v;
+#           if      MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+	         <= MIN_AMAX
+	    v = (unsptr) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= MIN_AMAX
-	        return   (unsptr) s - stub_base;
+	         <= MIN_AMAX
+	    v = (unsptr) s - stub_base;
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
-	        return s - (min::stub *) stub_base;
+	    v = s - (min::stub *) stub_base;
 #           else
-#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
+#	        error MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
-	}
-#   elif MIN_IS_LOOSE
-        inline min::stub * unsgen_to_stub
-	        ( min::unsgen v )
-        {
-#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= MIN_AMAX
-	        return (min::stub *) v;
-#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= MIN_AMAX
-	        return (min::stub *) ( v + stub_base );
-#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
-	        return (min::stub *) stub_base + v;
-#           else
-#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
-#           endif
-        }
-
-        inline min::unsgen stub_to_unsgen
-	        ( const min::stub * s )
-        {
-#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= MIN_AMAX
-	        return (unsptr) s;
-#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= MIN_AMAX
-	        return   (unsptr) s - stub_base;
-#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
-	        return s - (min::stub *) stub_base;
-#           else
-#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
-#           endif
-        }
-#   endif
+	return v + AOFFSET;
+    }
 } }
 
 // General Value Constructor Functions
@@ -591,19 +581,18 @@ namespace min { namespace unprotected {
 
     // MUP:: constructors
 
+    inline min::gen new_stub_gen
+	    ( const min::stub * s )
+    {
+	return unprotected::new_gen
+	    ( internal::stub_to_unsgen ( s ) );
+    }
+
 #   if MIN_IS_COMPACT
-	inline min::gen new_stub_gen
-		( const min::stub * s )
-	{
-	    return unprotected::new_gen
-	        ( internal::stub_to_unsgen ( s ) );
-	}
 	inline min::gen new_direct_int_gen ( int v )
 	{
 	    return unprotected::new_gen
-	           (  (uns32) v
-		    + ( GEN_DIRECT_INT << VSIZE )
-		    + ( 1 << 27 ) );
+	           ( (unsgen) (internal::intgen) v );
 	}
 	// Unimplemented for COMPACT:
 	//  min::gen new_direct_float_gen ( float64 v )
@@ -631,13 +620,7 @@ namespace min { namespace unprotected {
 	}
 
 #   elif MIN_IS_LOOSE
-	inline min::gen new_stub_gen
-		( const min::stub * s )
-	{
-	    return unprotected::new_gen
-		   (   internal::stub_to_unsgen ( s )
-		     + ( (uns64) GEN_STUB << VSIZE )  );
-	}
+
 	// Unimplemented for LOOSE:
 	//   min::gen new_direct_int_gen ( int v )
 	inline min::gen new_direct_float_gen
@@ -733,7 +716,8 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline min::gen new_direct_int_gen ( int v )
 	{
-	    MIN_ASSERT ( -1 << 27 <= v && v < 1 << 27 );
+	    MIN_ASSERT (    GEN_MIN_INT <= v
+	                 && v <= GEN_MAX_INT );
 	    return unprotected::new_direct_int_gen
 	    		( v );
 	}
@@ -765,7 +749,7 @@ namespace min {
 	    MIN_ASSERT
 	        ( internal::strnlen ( p, n ) <= 5 );
 #	endif
-	return unprotected::new_direct_str_gen ( p );
+	return unprotected::new_direct_str_gen ( p, n );
     }
     inline min::gen new_list_aux_gen ( unsgen p )
     {
@@ -809,46 +793,50 @@ namespace min {
 
 namespace min {
 
+    inline bool is_stub ( min::gen g )
+    {
+	unsgen v = unprotected::value_of ( g );
+	return
+	    ( (unsgen) GEN_STUB << VSIZE ) <= v
+	    &&
+	    v < ( (unsgen) GEN_STUB_BOUND << VSIZE );
+    }
+
+    inline bool is_aux ( min::gen g )
+    {
+	unsgen v = unprotected::value_of ( g );
+	return
+	    ( (unsgen) GEN_AUX << VSIZE ) <= v
+	    &&
+	    v < ( (unsgen) GEN_AUX_BOUND << VSIZE );
+    }
+
 #   if MIN_IS_COMPACT
-	inline bool is_stub ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return v < ( GEN_DIRECT_INT << VSIZE );
-	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen g )
 	inline bool is_direct_int ( min::gen g )
 	{
-	    unsgen v = unprotected::value_of ( g );
-	    return ( v >> 28 == GEN_DIRECT_INT >> 4 );
+	    internal::intgen v =
+	        (internal::intgen)
+		unprotected::value_of ( g );
+	    return GEN_MIN_INT <= v && v <= GEN_MAX_INT;
 	}
 	inline unsigned gen_subtype_of ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
 	    v >>= VSIZE;
-	    if ( v < GEN_DIRECT_INT )
-	        return GEN_STUB;
-	    else if ( v < GEN_DIRECT_STR)
-	        return GEN_DIRECT_INT;
-	    else if ( v < GEN_ILLEGAL)
+	    if ( v < GEN_ILLEGAL )
 	        return v;
-	    else if ( v < GEN_AUX_LOWER)
+	    else if ( v < GEN_ILLEGAL_BOUND )
 	        return GEN_ILLEGAL;
-	    else
+	    else if ( v < GEN_STUB )
 	        return v;
-	}
-	inline bool is_aux ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return v >= (GEN_AUX_LOWER << VSIZE);
+	    else if ( v < GEN_STUB_BOUND )
+	        return GEN_STUB;
+	    else
+	        return GEN_DIRECT_INT;
 	}
 #   elif MIN_IS_LOOSE
-	inline bool is_stub ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return    ( v >> ( VSIZE + 4 ) )
-	           == GEN_STUB >> 4;
-	}
 	inline bool is_direct_float ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
@@ -869,24 +857,14 @@ namespace min {
 	    v >>= VSIZE;
 	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
-	    else if ( v < GEN_DIRECT_STR)
+	    else if ( v < GEN_STUB_BOUND )
 	        return GEN_STUB;
-	    else if ( v < GEN_ILLEGAL)
-	        return v;
-	    else if ( v < GEN_AUX_LOWER)
+	    else if ( v < GEN_ILLEGAL_BOUND )
 	        return GEN_ILLEGAL;
 	    else if ( v <= GEN_UPPER)
 	        return v;
 	    else
 	        return GEN_DIRECT_FLOAT;
-	}
-	inline bool is_aux ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    v >>= VSIZE;
-	    return GEN_AUX_LOWER <= v
-	           &&
-		   v <= GEN_UPPER;
 	}
 #   endif
 
@@ -934,20 +912,20 @@ namespace min { namespace unprotected {
 
     // MUP:: functions.
 
+    inline min::stub * stub_of ( min::gen g )
+    {
+	unsgen v = unprotected::value_of ( g );
+	return internal::unsgen_to_stub ( v );
+    }
+
 #   if MIN_IS_COMPACT
-	inline min::stub * stub_of ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return internal::unsgen_to_stub ( v );
-	}
+
 	// Unimplemented for COMPACT:
 	//   float64 direct_float_of ( min::gen g )
 	inline int direct_int_of ( min::gen g )
 	{
-	    unsgen v = unprotected::value_of ( g );
-	    return (int32)
-	           ( v - ( GEN_DIRECT_INT << VSIZE )
-		       - ( 1 << 27 ) );
+	    return (internal::intgen)
+	           unprotected::value_of ( g );
 	}
 	inline uns64 direct_str_of ( min::gen g )
 	{
@@ -960,12 +938,6 @@ namespace min { namespace unprotected {
 #	    endif
 	}
 #   elif MIN_IS_LOOSE
-	inline min::stub * stub_of ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return internal::unsgen_to_stub
-	    		( v & internal::AMASK );
-	}
 	inline float64 direct_float_of ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
@@ -3470,48 +3442,56 @@ namespace min {
         inline bool is_num ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
-	    if ( v >= ( GEN_DIRECT_STR << VSIZE ) )
-	        return false;
-	    else if ( v >= (    GEN_DIRECT_INT
-	                     << VSIZE ) )
+	    if ( v < (    (unsgen) GEN_DIRECT_INT_BOUND
+	               << VSIZE )
+		 ||
+	         v >= (   (unsgen) GEN_NEGATIVE_INT
+		        << VSIZE ) )
 	        return true;
-	    else
+	    else if (   v
+	              < ( (unsgen) GEN_STUB << VSIZE ) )
+	        return false;
+	    else if (   v
+	              < (    (unsgen) GEN_STUB_BOUND
+		          << VSIZE ) )
 	        return
 		  ( type_of
 		      ( internal::unsgen_to_stub ( v ) )
 		    == NUMBER );
+	    else
+	        return false;
 	}
 	inline min::gen new_num_gen ( min::int32 v )
 	{
-	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
+	    if ( GEN_MIN_INT <= v && v <= GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( v );
 	    return internal::new_num_stub_gen ( v );
 	}
 	inline min::gen new_num_gen ( min::uns32 v )
 	{
-	    if ( v < ( 1 << 27 ) )
+	    if ( v <= GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
 	}
 	inline min::gen new_num_gen ( min::int64 v )
 	{
-	    if ( v < ( 1 << 27 ) )
+	    if ( GEN_MIN_INT <= v && v <= GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
 	}
 	inline min::gen new_num_gen ( min::uns64 v )
 	{
-	    if ( v < ( 1 << 27 ) )
+	    if ( v <= GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
 	}
 	inline min::gen new_num_gen ( min::float64 v )
 	{
-	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
+	    if ( GEN_MIN_INT <= v && v <= GEN_MAX_INT )
 	    {
 	        int i = (int) v;
 		if ( i == v )
