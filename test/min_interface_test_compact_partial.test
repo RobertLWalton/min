@@ -24,16 +24,6 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -88,7 +78,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::direct_int_of ( igen ) == i true.
 ../include/min.h:XXXX assert:
-    -1 << 27 <= v && v < 1 << 27 true.
+    GEN_MIN_INT <= v && v <= GEN_MAX_INT true.
 min_interface_test.cc:XXXX assert:
     min::is_direct_int ( igen ) true.
 min_interface_test.cc:XXXX assert:
@@ -98,23 +88,23 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::direct_int_of ( igen ) == i true.
 min_interface_test.cc:XXXX desire failure:
+    igen = min::new_direct_int_gen ( 1 << 28 );
+../include/min.h:XXXX assert:
+    GEN_MIN_INT <= v && v <= GEN_MAX_INT false.
+min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( 1 << 27 );
 ../include/min.h:XXXX assert:
-    -1 << 27 <= v && v < 1 << 27 false.
-min_interface_test.cc:XXXX desire success:
-    igen = min::new_direct_int_gen ( 1 << 26 );
-../include/min.h:XXXX assert:
-    -1 << 27 <= v && v < 1 << 27 true.
+    GEN_MIN_INT <= v && v <= GEN_MAX_INT true.
 min_interface_test.cc:XXXX desire failure:
+    igen = min::new_direct_int_gen ( -1 << 29 );
+../include/min.h:XXXX assert:
+    GEN_MIN_INT <= v && v <= GEN_MAX_INT false.
+min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( -1 << 28 );
 ../include/min.h:XXXX assert:
-    -1 << 27 <= v && v < 1 << 27 false.
-min_interface_test.cc:XXXX desire success:
-    igen = min::new_direct_int_gen ( -1 << 27 );
-../include/min.h:XXXX assert:
-    -1 << 27 <= v && v < 1 << 27 true.
+    GEN_MIN_INT <= v && v <= GEN_MAX_INT true.
 min_interface_test.cc:XXXX assert:
-    MUP::direct_int_of ( igen ) == -1 << 27 true.
+    MUP::direct_int_of ( igen ) == -1 << 28 true.
 
 Test direct string general values:
 strgen: "ABC"
@@ -484,7 +474,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 40
+initial stubs allocated = 27
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -665,6 +655,8 @@ min_interface_test.cc:XXXX assert:
 
 Test string general values:
 min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 20 ) == strgen13 true.
@@ -789,8 +781,6 @@ Test protected string ptrs:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
@@ -860,6 +850,8 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
@@ -951,6 +943,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     sd == 1e-307 true.
 min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
     min::strto ( si, snumsp, j ) true.
 min_interface_test.cc:XXXX assert:
     si == 1 true.
@@ -976,8 +970,6 @@ min_interface_test.cc:XXXX assert:
     si == 5 true.
 min_interface_test.cc:XXXX assert:
     snumsp[j] == 0 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     ! min::strto ( si, sspace ) true.
 min_interface_test.cc:XXXX assert:
@@ -1021,6 +1013,8 @@ Test label hash:
 labhash1: 95375049
 
 Test labels:
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -1180,8 +1174,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     -1 == min::is_subsequence ( min::new_str_gen ( "66" ), lab ) true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1198,6 +1190,8 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     0 == min::is_subsequence ( min::new_lab_gen ( labv1, 2 ), lab ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1214,8 +1208,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     1 == min::is_subsequence ( min::new_lab_gen ( labv1 + 1, 2 ), lab ) true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
@@ -1368,8 +1360,6 @@ Finish Names Test!
 Start Packed Structs Test!
 ps1type.name = ps1type
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
@@ -1378,6 +1368,8 @@ min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 upv2->control = 2
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
@@ -1391,8 +1383,6 @@ min_interface_test.cc:XXXX assert:
     pv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
     pv2->j == 99 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     upv2 == min::stub_of ( v2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -1560,6 +1550,8 @@ min_interface_test.cc:XXXX assert:
     ::id_map->next == 1 true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
@@ -1621,14 +1613,14 @@ Start Printer Test!
     123456789012345678901234567890
     B
 <NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL><BS><HT><LF><VT><FF><CR><SO><SI>
-    <DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB><CAN><EM><SUB><ESC><FS><GS>
-    <RS><US><SP><DEL><ILL><ILL>
-␀␁␂␃␄␅␆␇␈␉␤␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣␡��
-¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
+    <DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB><CAN><EOM><SUB><ESC><FS><GS>
+    <RS><US><SP><DEL><PAD><NBSP><UUC><UUC>
+␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣␡<PAD>␢␥␥
+¡¢£¤¥¦§ ¨©ª«¬<SHY>®¯ °±²³´µ¶· ¸¹º»¼½¾¿
     ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
     àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
 <0A1><0A2><0A3><0A4><0A5><0A6><0A7>
-    <0A8><0A9><0AA><0AB><0AC><0AD><0AE><0AF>
+    <0A8><0A9><0AA><0AB><0AC><SHY><0AE><0AF>
     <0B0><0B1><0B2><0B3><0B4><0B5><0B6><0B7>
     <0B8><0B9><0BA><0BB><0BC><0BD><0BE><0BF>
     <0C0><0C1><0C2><0C3><0C4><0C5><0C6><0C7>
@@ -1639,11 +1631,11 @@ Start Printer Test!
     <0E8><0E9><0EA><0EB><0EC><0ED><0EE><0EF>
     <0F0><0F1><0F2><0F3><0F4><0F5><0F6><0F7>
     <0F8><0F9><0FA><0FB><0FC><0FD><0FE><0FF>
-¡¢£¤¥¦§␣¨©ª«¬­®¯␣°±²³´µ¶·␣¸¹º»¼½¾¿␣ÀÁÂÃÄ
-    ÅÆÇ␣ÈÉÊËÌÍÎÏ␣ÐÑÒÓÔÕÖ×␣ØÙÚÛÜÝÞß␣àáâãä
-    åæç␣èéêëìíîï␣ðñòóôõö÷␣øùúûüýþÿ
+¡¢£¤¥¦§␣¨©ª«¬<SHY>®¯␣°±²³´µ¶·␣¸¹º»¼½¾¿␣
+    ÀÁÂÃÄÅÆÇ␣ÈÉÊËÌÍÎÏ␣ÐÑÒÓÔÕÖ×␣ØÙÚÛÜÝÞß␣
+    àáâãäåæç␣èéêëìíîï␣ðñòóôõö÷␣øùúûüýþÿ
 <0A1><0A2><0A3><0A4><0A5><0A6><0A7><SP>
-    <0A8><0A9><0AA><0AB><0AC><0AD><0AE>
+    <0A8><0A9><0AA><0AB><0AC><SHY><0AE>
     <0AF><SP><0B0><0B1><0B2><0B3><0B4>
     <0B5><0B6><0B7><SP><0B8><0B9><0BA>
     <0BB><0BC><0BD><0BE><0BF><SP><0C0>
@@ -1658,7 +1650,7 @@ Start Printer Test!
     <0F3><0F4><0F5><0F6><0F7><SP><0F8>
     <0F9><0FA><0FB><0FC><0FD><0FE><0FF>
 hello␤
-hello<LF>
+hello<NL>
    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17
       18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34
       35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
@@ -1677,10 +1669,10 @@ A   B
     C D
     E F G
     H I J
-¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
+¡¢£¤¥¦§ ¨©ª«¬<SHY>®¯ °±²³´µ¶· ¸¹º»¼½¾¿
     ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
     àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
-�
+<UUC>
 int32 -1 = -1
     int64 -2 = -2
     uns32 1 = 1
@@ -1693,11 +1685,24 @@ pint ( -3, "%05d" ) = -0003
 1
 1.23456789
 1.23456789012345
+1.23457
+1/3
+0.333333
+1 1/3
+-1/3
+-1 1/3
+this is a string
+"this<SP>is<SP>a<SP>string"
+a_name
+a_name
+"a_name"
+..a_name
+"..."
 "this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")
 [: 5.6 [: 1.234 "str<SP>1" :] "str<SP>2" :]
-A,B / A , B
+A "," B / [: A "," B :]
 MISSING
 NONE
 ANY
@@ -1705,24 +1710,26 @@ MULTI_VALUED
 UNDEFINED
 SUCCESS
 FAILURE
-SPECIAL(0xabcdef)
-SPECIAL(0xffffff)
+ERROR
+SPECIAL(0xABCDEF)
+[$SPECIAL(0x000111)$]
+[$MISSING$]
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)
-LIST_AUX(10)
-SUBLIST_AUX(20)
-INDIRECT_AUX(30)
-INDEX(40)
-CONTROL_CODE(0xfedcba)
-UNDEFINED_GEN(0xf4000000)
-MISSING [$ MISSING $] MISSING
+[$LIST_AUX(0x00000A)$]
+[$SUBLIST_AUX(0x000014)$]
+[$INDIRECT_AUX(0x00001E)$]
+[$INDEX(0x000028)$]
+[$CONTROL_CODE(0xFEDCBA)$]
+[$UNDEFINED_GEN(0x10000000)$]
+[$MISSING$] MISSING [$MISSING$]
 A flush is next:
 The line being flushed
-a       ␀�
-a       <2400><ILL>
-a<SOH><SP><HT><DEL><2400><ILL>
-a␁␣␉␡␀�
+a␁      ␡<2400>␥
+a<SOH>  <DEL><2400><UUC>
+a<SOH><SP><HT><DEL><2400><UUC>
+a␁␣␉␡<2400>␥
 [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 [ aaa, bbb,
   ccc, ddd,
@@ -1741,6 +1748,10 @@ a␁␣␉␡␀�
 { aaa, bbb,
   [ ccc, ddd, eee, ( fff, ggg ),
     hhh ], iii, jjj }
+(100, 200)
+( 100, 200 )
+(100, )
+( 100, )
 The file has lines: test_file: lines 1-4
 The last line is: test_file: line 4
 Line 1
@@ -1763,17 +1774,17 @@ Line 3
 #
 <EOF>
 #
-Line␣2␤
+Line 2␤
 ␤
 <END-OF-FILE>
 <UNAVALABLE-LINE>
 Phrase Print Test: test_file: lines 2-3
-Line␣2␤
+Line 2␤
      ^^
-Line␣3␤
+Line 3␤
 ^^^^
 Phrase Print Test: test_file: lines 3-5
-Line␣3␤
+Line 3␤
      ##
 ␤
 #
@@ -4045,37 +4056,70 @@ Finish Object Attribute Level Test!
 
 Start Object Printing Test!
 
-{| |}
+{}
 {| 1 2 3 |}
-1 2 3
-[. 1 2 3 .]
+{* 1, 2, 3, 4, 5 *}
+[ {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *};
+  {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *} ]
+{T| A B C |T}
+{T| A B C |}
+    {T| A B C |T}
+    {T| A B C |}
+{T| A; B; C |T}
+{T: number = 123, .separator = ";"| A B C |T}
+    {T| A B C:
+        number = 123
+        .separator = ";"
+    |T}
+{T: no scientific, number = 123, .separator = ";", fraction| A B C |T}
+{"": myattr = [: MYATTR VALUE :], .initiator = "{*", .separator = ",",
+     .terminator = "*}"| 1 2 3 4 5 |}
 @1
-{| 1 2 3 4 5; .terminator = "}"; .separator = ","; .initiator = "{" |}
-{1, 2, 3, 4, 5}
-@1
-{| {1, 2, 3, 4, 5} {1, 2, 3, 4, 5} {1, 2, 3, 4, 5} {1, 2, 3, 4, 5}
-   {1, 2, 3, 4, 5}; .terminator = "]"; .separator = ";";
-   .initiator = "[" |}
-[{1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5}; {1, 2, 3, 4, 5};
- {1, 2, 3, 4, 5}]
-@2
-@1 = 1 2 3 4 5 |:
-    .terminator = "}"
+@1 = 1 2 3 4 5:
+    myattr = [: MYATTR VALUE :]
+    .initiator = "{*"
     .separator = ","
-    .initiator = "{"
-@2 = [@1; @1; @1; @1; @1]
-@3 = 10 @4 11 |:
-    label3[!z] = @5 = label5
-    label3[!z] = {: @4; @5 :} = label4
-@4 =  |:
-    label4 = @3 = label3
-@5 =  |:
-    label4 = @3 = label3
-    label5 = @3 = label3
+    .terminator = "*}"
+
+{"": myattr =
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", .separator =
+     ",", .terminator = "*}"| 1 2 3 4 5 |}
+{T: no scientific, number = 123, .separator = ";", myforward = @1
+     <= myreverse, fraction| A B C |T}
+{"": myattr =
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", myreverse = @2
+      <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
+
+@2 = A B C:
+    no scientific
+    number = 123
+    .separator = ";"
+    myforward = @1 <= myreverse
+    fraction
+    .type = T
+
+{T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
+     <= myreverse, fraction| A B C |T}
+{"": myattr[~*~Z,256,512] =
+     {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
+        [: MYATTR SECOND VALUE :] *}, .initiator = "{*", myreverse = @2
+      <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
+    {| 1 2 3 4 5:
+       myattr[~*~Z,256,512] = [: MYATTR THIRD VALUE :],
+           [: MYATTR VALUE :], [: MYATTR SECOND VALUE :]
+       .initiator = "{*"
+       myreverse = @2 <= myforward
+       .separator = ","
+       .terminator = "*}"
+    |}
+{T| X Y Z |T}
+{+ X Y Z +}
+{< X Y Z >}
+{{ X Y Z }}
 
 Finish Object Printing Test!
-../include/min.h:XXXX assert:
-    type == INSERTABLE true.
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
