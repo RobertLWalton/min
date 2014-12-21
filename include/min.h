@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 20 18:21:48 EST 2014
+// Date:	Sun Dec 21 03:18:17 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6951,7 +6951,7 @@ namespace min {
 
     protected:
 
-	void deinit ( void  )
+	void deinit ( void )
 	{
 	    if ( s == NULL ) return;
 
@@ -7631,7 +7631,7 @@ namespace min { namespace unprotected {
     // This is the generic list pointer type from which
     // specific list pointer types are made.
 
-    template < class vecpt >
+    template < class vecptr >
         class list_ptr_type;
 
 } }
@@ -7696,7 +7696,7 @@ namespace min { namespace internal {
 #	      if MIN_USE_OBJ_AUX_STUBS
 	          , min::stub * s = NULL
 #	      endif
-	      );
+	    );
 
     // If v is a non-empty sublist pointer, remove
     // the sublist.  Base is a list pointer base,
@@ -7724,7 +7724,7 @@ namespace min { namespace internal {
 	    remove_list
 	        ( base, total_size,
 		    total_size
-		  - sublist_aux_of ( v  ) );
+		  - sublist_aux_of ( v ) );
     }
 } }
 
@@ -7755,64 +7755,74 @@ namespace min {
     // We must declare these before we make them
     // friends.
 
-    template < class vecpt >
-    vecpt & obj_vec_ptr_of
+    template < class vecptr >
+    vecptr & obj_vec_ptr_of
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
+	         ::list_ptr_type<vecptr> & lp );
 
-    template < class vecpt >
+    template < class vecptr >
+    min::unsptr hash_size_of
+    	    ( min::unprotected
+	         ::list_ptr_type<vecptr> & lp );
+
+    template < class vecptr >
+    min::unsptr attr_size_of
+    	    ( min::unprotected
+	         ::list_ptr_type<vecptr> & lp );
+
+    template < class vecptr >
     min::gen start_hash
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index );
-    template < class vecpt >
+    template < class vecptr >
     min::gen start_vector
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index );
-    template < class vecpt, class vecpt2 >
+    template < class vecptr, class vecptr2 >
     min::gen start_copy
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unprotected
-	         ::list_ptr_type<vecpt2> & lp2 );
-    template < class vecpt, class vecpt2 >
+	         ::list_ptr_type<vecptr2> & lp2 );
+    template < class vecptr, class vecptr2 >
     min::gen start_sublist
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
     	      min::unprotected
-	         ::list_ptr_type<vecpt2> & lp2 );
-    template < class vecpt >
+	         ::list_ptr_type<vecptr2> & lp2 );
+    template < class vecptr >
     min::gen start_sublist
     	    ( min::list_insptr & lp,
     	      min::unprotected
-	         ::list_ptr_type<vecpt> & lp2 );
+	         ::list_ptr_type<vecptr> & lp2 );
 
-    template < class vecpt >
+    template < class vecptr >
     min::gen next
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
-    template < class vecpt >
+	         ::list_ptr_type<vecptr> & lp );
+    template < class vecptr >
     min::gen peek
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
-    template < class vecpt >
+	         ::list_ptr_type<vecptr> & lp );
+    template < class vecptr >
     min::gen current
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
-    template < class vecpt >
+	         ::list_ptr_type<vecptr> & lp );
+    template < class vecptr >
     min::gen update_refresh
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
-    template < class vecpt >
+	         ::list_ptr_type<vecptr> & lp );
+    template < class vecptr >
     min::gen insert_refresh
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp );
+	         ::list_ptr_type<vecptr> & lp );
 
-    template < class vecpt >
+    template < class vecptr >
     void update
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::gen value );
 
     bool insert_reserve
@@ -8083,8 +8093,13 @@ namespace min { namespace unprotected {
 
     // Friends:
 
-	friend min::obj_vec_insptr &
-	    obj_vec_ptr_of<>
+	friend min::obj_vec_insptr & obj_vec_ptr_of<>
+		( min::list_insptr & lp );
+
+	friend min::unsptr hash_size_of<>
+		( min::list_insptr & lp );
+
+	friend min::unsptr attr_size_of<>
 		( min::list_insptr & lp );
 
 	friend min::gen min::start_hash<>
@@ -8219,12 +8234,12 @@ namespace min { namespace unprotected {
     // previous pointer and the reservations are
     // omitted.
     //
-    template < class vecpt >
+    template < class vecptr >
 	class list_ptr_type {
 
     public:
 
-        list_ptr_type ( vecpt & vecp )
+        list_ptr_type ( vecptr & vecp )
 	    : vecp ( vecp ),
 	      base ( * (min::gen **) &
 	             unprotected::base ( vecp ) ),
@@ -8243,7 +8258,7 @@ namespace min { namespace unprotected {
 
     // Private Data:
 
-	vecpt & vecp;
+	vecptr & vecp;
 	min::gen * & base;
 	min::gen current;
 	min::unsptr current_index;
@@ -8259,17 +8274,25 @@ namespace min { namespace unprotected {
 
     // Friends:
 
-	friend vecpt & obj_vec_ptr_of<>
+	friend vecptr & obj_vec_ptr_of<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
+
+	friend min::unsptr hash_size_of<>
+		( min::unprotected
+		     ::list_ptr_type<vecptr> & lp );
+
+	friend min::unsptr attr_size_of<>
+		( min::unprotected
+		     ::list_ptr_type<vecptr> & lp );
 
 	friend min::gen min::start_hash<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp,
+		     ::list_ptr_type<vecptr> & lp,
 		  min::unsptr index );
 	friend min::gen min::start_vector<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp,
+		     ::list_ptr_type<vecptr> & lp,
 		  min::unsptr index );
 
 	friend min::gen start_copy<>
@@ -8315,19 +8338,19 @@ namespace min { namespace unprotected {
 
 	friend min::gen min::next<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
 	friend min::gen min::peek<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
 	friend min::gen min::current<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
 	friend min::gen min::update_refresh<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
 	friend min::gen min::insert_refresh<>
 		( min::unprotected
-		     ::list_ptr_type<vecpt> & lp );
+		     ::list_ptr_type<vecptr> & lp );
 
 	friend void min::update<>
 		( min::list_updptr & lp,
@@ -8388,18 +8411,34 @@ namespace min {
 
     // Inline functions.  See MIN design document.
 
-    template < class vecpt >
-    inline vecpt & obj_vec_ptr_of
+    template < class vecptr >
+    inline vecptr & obj_vec_ptr_of
 	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
     	return lp.vecp;
     }
 
-    template < class vecpt >
+    template < class vecptr >
+    inline min::unsptr hash_size_of
+	    ( min::unprotected
+	         ::list_ptr_type<vecptr> & lp )
+    {
+    	return min::hash_size_of ( lp.vecp );
+    }
+
+    template < class vecptr >
+    inline min::unsptr attr_size_of
+	    ( min::unprotected
+	         ::list_ptr_type<vecptr> & lp )
+    {
+    	return min::attr_size_of ( lp.vecp );
+    }
+
+    template < class vecptr >
     inline min::gen start_hash
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index )
     {
 	lp.hash_offset =
@@ -8408,16 +8447,16 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
-	index %= hash_size_of ( lp.vecp );
+	index %= hash_size_of ( lp );
 
 	lp.head_index = lp.hash_offset + index;
 	return lp.forward ( lp.head_index );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen start_vector
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index )
     {
 	lp.hash_offset =
@@ -8449,12 +8488,12 @@ namespace min {
     //
     // is not allowed (not a friend).
     //
-    template < class vecpt, class vecpt2 >
+    template < class vecptr, class vecptr2 >
     inline min::gen start_copy
             ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
 	      min::unprotected
-	         ::list_ptr_type<vecpt2> & lp2 )
+	         ::list_ptr_type<vecptr2> & lp2 )
     {
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
@@ -8503,12 +8542,12 @@ namespace min {
     // legal combinations of list pointers, just like
     // start_copy above.
     //
-    template < class vecpt, class vecpt2 >
+    template < class vecptr, class vecptr2 >
     inline min::gen start_sublist
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp,
+	         ::list_ptr_type<vecptr> & lp,
     	      min::unprotected
-	         ::list_ptr_type<vecpt2> & lp2 )
+	         ::list_ptr_type<vecptr2> & lp2 )
     {
 	// We want the total size check to work even
 	// if & lp == & lp2.
@@ -8557,11 +8596,11 @@ namespace min {
 
 	return lp.current;
     }
-    template <class vecpt>
+    template <class vecptr>
     inline min::gen start_sublist
     	    ( min::list_insptr & lp,
     	      min::unprotected
-	         ::list_ptr_type<vecpt> & lp2 )
+	         ::list_ptr_type<vecptr> & lp2 )
     {
 	// We want the total size check to work even
 	// if & lp == & lp2.
@@ -8614,10 +8653,10 @@ namespace min {
 	return lp.current;
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen next
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
         if ( lp.current == LIST_END() )
 	    return LIST_END();
@@ -8743,10 +8782,10 @@ namespace min {
 	}
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen peek
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
         if ( lp.current == LIST_END() )
 	    return LIST_END();
@@ -8826,18 +8865,18 @@ namespace min {
 	MIN_ABORT ( "control should never reach here" );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen current
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
     	return lp.current;
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen update_refresh
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
 	if ( lp.current_index != 0 )
 	    return lp.current =
@@ -8854,10 +8893,10 @@ namespace min {
 	MIN_ABORT ( "inconsistent list pointer" );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen insert_refresh
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
@@ -8949,10 +8988,10 @@ namespace min {
 	MIN_ABORT ( "inconsistent list pointer" );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen start_sublist
     	    ( min::unprotected
-	         ::list_ptr_type<vecpt> & lp )
+	         ::list_ptr_type<vecptr> & lp )
     {
 	return start_sublist ( lp, lp );
     }
@@ -9072,7 +9111,7 @@ namespace min { namespace unprotected {
     // This is the generic attribute pointer type from
     // which specific attribute pointer types are made.
 
-    template < class vecpt >
+    template < class vecptr >
         class attr_ptr_type;
 
 } }
@@ -9095,60 +9134,60 @@ namespace min {
     // We must declare these before we make them
     // friends.
 
-    template < class vecpt >
-    vecpt & obj_vec_ptr_of
+    template < class vecptr >
+    vecptr & obj_vec_ptr_of
     	    ( min::unprotected::attr_ptr_type
-	          < vecpt > & ap );
+	          < vecptr > & ap );
 
-    template < class vecpt >
+    template < class vecptr >
     void locate
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      min::gen name );
-    template < class vecpt >
+    template < class vecptr >
     void locatei
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      int name );
-    template < class vecpt >
+    template < class vecptr >
     void locatei
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      min::unsptr name );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	template < class vecpt >
+	template < class vecptr >
 	void locate
 		( unprotected::attr_ptr_type
-		      < vecpt > & ap,
+		      < vecptr > & ap,
 		  min::unsptr & length, min::gen name );
 #   endif
-    template < class vecpt >
+    template < class vecptr >
     void locate_reverse
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      min::gen reverse_name );
-    template < class vecpt >
+    template < class vecptr >
     void relocate
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap );
-    template < class vecpt >
+	          < vecptr > & ap );
+    template < class vecptr >
     min::unsptr get
 	    ( min::gen * out, min::unsptr n,
 	      unprotected::attr_ptr_type
-	          < vecpt > & ap );
-    template < class vecpt >
+	          < vecptr > & ap );
+    template < class vecptr >
     min::gen get
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap );
-    template < class vecpt >
+	          < vecptr > & ap );
+    template < class vecptr >
     unsigned get_flags
 	    ( min::gen * out, unsigned n,
 	      unprotected::attr_ptr_type
-	          < vecpt > & ap );
-    template < class vecpt >
+	          < vecptr > & ap );
+    template < class vecptr >
     bool test_flag
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      unsigned n );
 
     struct attr_info
@@ -9173,23 +9212,23 @@ namespace min {
 	    ( min::reverse_attr_info * out,
 	      min::unsptr n );
 
-    template < class vecpt >
+    template < class vecptr >
     min::unsptr get_attrs
 	    ( min::attr_info * out,
 	      min::unsptr n,
 	      unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      bool include_attr_vec = false );
-    template < class vecpt >
+    template < class vecptr >
     min::unsptr get_reverse_attrs
 	    ( min::reverse_attr_info * out,
 	      min::unsptr n,
 	      unprotected::attr_ptr_type
-	          < vecpt > & ap );
-    template < class vecpt >
+	          < vecptr > & ap );
+    template < class vecptr >
     min::gen update
 	    ( unprotected::attr_ptr_type
-	          < vecpt > & ap,
+	          < vecptr > & ap,
 	      min::gen v );
     void set
 	    ( min::attr_insptr & ap,
@@ -9246,47 +9285,47 @@ namespace min {
     namespace internal {
 
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    template < class vecpt >
+	    template < class vecptr >
 	    void locate
 		    ( unprotected::attr_ptr_type
-			  < vecpt > & ap,
+			  < vecptr > & ap,
 		      min::gen name,
 		      bool allow_partial_label = false
 		    );
 #	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    template < class vecpt >
+	    template < class vecptr >
 	    void locate
 		    ( unprotected::attr_ptr_type
-			  < vecpt > & ap,
+			  < vecptr > & ap,
 		      min::gen name );
 #	endif
-	template < class vecpt >
+	template < class vecptr >
 	void relocate
 		( unprotected::attr_ptr_type
-		      < vecpt > & ap );
-	template < class vecpt >
+		      < vecptr > & ap );
+	template < class vecptr >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
 		  unprotected::attr_ptr_type
-		      < vecpt > & ap );
-	template < class vecpt >
+		      < vecptr > & ap );
+	template < class vecptr >
 	min::gen get
 		( unprotected::attr_ptr_type
-		      < vecpt > & ap );
-	template < class vecpt >
+		      < vecptr > & ap );
+	template < class vecptr >
 	min::unsptr get_flags
 		( min::gen * out, min::unsptr n,
 		  unprotected::attr_ptr_type
-		      < vecpt > & ap );
-	template < class vecpt >
+		      < vecptr > & ap );
+	template < class vecptr >
 	bool test_flag
 		( unprotected::attr_ptr_type
-		      < vecpt > & ap,
+		      < vecptr > & ap,
 		  unsigned n );
-	template < class vecpt >
+	template < class vecptr >
 	min::gen update
 		( unprotected::attr_ptr_type
-		      < vecpt > & ap,
+		      < vecptr > & ap,
 		  min::gen v );
 	void set
 		( min::attr_insptr & ap,
@@ -9415,12 +9454,12 @@ namespace min {
 namespace min { namespace unprotected {
 
 
-    template < class vecpt >
+    template < class vecptr >
     class attr_ptr_type {
 
     public:
 
-        attr_ptr_type ( vecpt & vecp )
+        attr_ptr_type ( vecptr & vecp )
 	    : attr_name ( NONE() ),
 	      reverse_attr_name ( NONE() ),
 	      state ( INIT ),
@@ -9531,7 +9570,7 @@ namespace min { namespace unprotected {
 	    // last call to locate.  See the IN_VECTOR
 	    // flag above.  Set even if locate failed.
 
-    	list_ptr_type<vecpt> dlp;
+    	list_ptr_type<vecptr> dlp;
 	    // Descriptor list pointer.  Points at the
 	    // list element containing the attribute- or
 	    // node- descriptor found, if the state
@@ -9549,7 +9588,7 @@ namespace min { namespace unprotected {
 	    // which is both the vector element and the
 	    // first element of the list.
 
-    	list_ptr_type<vecpt> locate_dlp;
+    	list_ptr_type<vecptr> locate_dlp;
 	    // This is the value of dlp after the last
 	    // successful locate, if state >= LOCATE_
 	    // NONE.
@@ -9561,67 +9600,67 @@ namespace min { namespace unprotected {
 	    // which has an associated node-descriptor.
 	    // This permits create_attr to be optimized.
 
-    	list_ptr_type<vecpt> lp;
+    	list_ptr_type<vecptr> lp;
 	    // A working pointer for temporary use.
 
     // Friends:
 
-	friend vecpt & obj_vec_ptr_of<>
+	friend vecptr & obj_vec_ptr_of<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend void locate<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  min::gen name );
 	friend void locatei<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  int name );
 	friend void locatei<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  min::unsptr name );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    friend void locate<>
 		    ( min::unprotected
-			 ::attr_ptr_type<vecpt>
+			 ::attr_ptr_type<vecptr>
 			     & ap,
 		      min::unsptr & length,
 		      min::gen name );
 #   endif
 	friend void min::locate_reverse<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  min::gen reverse_name );
 	friend void min::relocate<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::unsptr min::get<>
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::gen min::get<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend unsigned min::get_flags<>
 		( min::gen * out, unsigned n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend bool min::test_flag<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  unsigned n );
 	friend min::unsptr min::get_attrs<>
 	        ( min::attr_info * out,
 		  min::unsptr n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 	          bool include_attr_vec );
 	friend min::unsptr min::get_reverse_attrs<>
 	        ( min::reverse_attr_info * out,
 		  min::unsptr n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::gen min::update<>
 		( min::attr_updptr & ap,
 		  min::gen v );
@@ -9683,7 +9722,7 @@ namespace min { namespace unprotected {
     #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    friend void min::internal::locate<>
 		    ( min::unprotected
-			 ::attr_ptr_type<vecpt>
+			 ::attr_ptr_type<vecptr>
 			     & ap,
 		      min::gen name,
 		      bool allow_partial_label
@@ -9691,31 +9730,31 @@ namespace min { namespace unprotected {
 #	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    friend void min::internal::locate<>
 		    ( min::unprotected
-			 ::attr_ptr_type<vecpt>
+			 ::attr_ptr_type<vecptr>
 			     & ap,
 		      min::gen name );
 #	endif
 	friend void min::internal::relocate<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::unsptr min::internal::get<>
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::gen min::internal::get<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend min::unsptr min::internal::get_flags<>
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
-		     ::attr_ptr_type<vecpt> & ap );
+		     ::attr_ptr_type<vecptr> & ap );
 	friend bool min::internal::test_flag<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  unsigned n );
 	friend min::gen min::internal::update<>
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  min::gen v );
 	friend void min::internal::set
 		( min::attr_insptr & ap,
@@ -9776,21 +9815,21 @@ namespace min {
 
     // Locate Functions:
 
-    template < class vecpt >
-    inline vecpt & obj_vec_ptr_of
+    template < class vecptr >
+    inline vecptr & obj_vec_ptr_of
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap )
+	         ::attr_ptr_type<vecptr> & ap )
     {
         return obj_vec_ptr_of ( ap.locate_dlp );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline void locatei
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap,
+	         ::attr_ptr_type<vecptr> & ap,
 	      int name )
     {
-	typedef unprotected::attr_ptr_type<vecpt>
+	typedef unprotected::attr_ptr_type<vecptr>
 	    ap_type;
 
 	ap.attr_name = new_num_gen ( name );
@@ -9818,13 +9857,13 @@ namespace min {
 	internal::locate ( ap, ap.attr_name );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline void locatei
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap,
+	         ::attr_ptr_type<vecptr> & ap,
 	      min::unsptr name )
     {
-	typedef unprotected::attr_ptr_type<vecpt>
+	typedef unprotected::attr_ptr_type<vecptr>
 	    ap_type;
 
 	ap.attr_name = new_num_gen ( name );
@@ -9850,13 +9889,13 @@ namespace min {
 	internal::locate ( ap, ap.attr_name );
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline void locate
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap,
+	         ::attr_ptr_type<vecptr> & ap,
 	      min::gen name )
     {
-	typedef unprotected::attr_ptr_type<vecpt>
+	typedef unprotected::attr_ptr_type<vecptr>
 	    ap_type;
 
 	// We only handle the case of vector elements
@@ -9894,15 +9933,15 @@ namespace min {
     }
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	template < class vecpt >
+	template < class vecptr >
 	inline void locate
 		( min::unprotected
-		     ::attr_ptr_type<vecpt> & ap,
+		     ::attr_ptr_type<vecptr> & ap,
 		  min::unsptr & length,
 		  min::gen name )
 	{
 	    typedef min::unprotected
-		       ::attr_ptr_type<vecpt>
+		       ::attr_ptr_type<vecptr>
 		         ap_type;
 
 	    // We only handle the case of vector
@@ -9950,14 +9989,14 @@ namespace min {
     // only updates are performed, and calls to update_
     // refresh are very cheap.
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::unsptr get
 	    ( min::gen * out, min::unsptr n,
 	      min::unprotected
-	         ::attr_ptr_type<vecpt> & ap )
+	         ::attr_ptr_type<vecptr> & ap )
     {
 	typedef min::unprotected
-	           ::attr_ptr_type<vecpt> ap_type;
+	           ::attr_ptr_type<vecptr> ap_type;
 
 	if ( n == 0 ) return 0;
 
@@ -9993,13 +10032,13 @@ namespace min {
 	return result;
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen get
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap )
+	         ::attr_ptr_type<vecptr> & ap )
     {
 	typedef min::unprotected
-	           ::attr_ptr_type<vecpt> ap_type;
+	           ::attr_ptr_type<vecptr> ap_type;
 
 	switch ( ap.state )
 	{
@@ -10034,14 +10073,14 @@ namespace min {
 	    return MULTI_VALUED();
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline unsigned get_flags
 	    ( min::gen * out, unsigned n,
 	      min::unprotected
-	         ::attr_ptr_type<vecpt> & ap )
+	         ::attr_ptr_type<vecptr> & ap )
     {
 	typedef min::unprotected
-	           ::attr_ptr_type<vecpt> ap_type;
+	           ::attr_ptr_type<vecptr> ap_type;
 
 	switch ( ap.state )
 	{
@@ -10081,14 +10120,14 @@ namespace min {
 	return result;
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline bool test_flag
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap,
+	         ::attr_ptr_type<vecptr> & ap,
 	      unsigned n )
     {
 	typedef min::unprotected
-	           ::attr_ptr_type<vecpt> ap_type;
+	           ::attr_ptr_type<vecptr> ap_type;
 
 	switch ( ap.state )
 	{
@@ -10122,14 +10161,14 @@ namespace min {
 	return false;
     }
 
-    template < class vecpt >
+    template < class vecptr >
     inline min::gen update
 	    ( min::unprotected
-	         ::attr_ptr_type<vecpt> & ap,
+	         ::attr_ptr_type<vecptr> & ap,
 	      min::gen v )
     {
 	typedef min::unprotected
-	           ::attr_ptr_type<vecpt> ap_type;
+	           ::attr_ptr_type<vecptr> ap_type;
 
 	switch ( ap.state )
 	{
