@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 20 18:37:00 EST 2014
+// Date:	Sun Dec 21 03:22:31 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -633,9 +633,9 @@ static void packed_struct_scavenger_routine
 {
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
-    min::uns32 subtype = * ( min::uns32 *) beginp;
+    min::uns32 subtype = * (min::uns32 *) beginp;
     subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( subtype < MINT::packed_subtype_count);
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count );
     MINT::packed_struct_descriptor * psd =
         (MINT::packed_struct_descriptor *)
         (*MINT::packed_subtypes)[subtype];
@@ -728,14 +728,14 @@ static void packed_vec_scavenger_routine
 
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
-    min::uns32 subtype = * ( min::uns32 *) beginp;
+    min::uns32 subtype = * (min::uns32 *) beginp;
     subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( subtype < MINT::packed_subtype_count);
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count );
     MINT::packed_vec_descriptor * pvd =
         (MINT::packed_vec_descriptor *)
         (*MINT::packed_subtypes)[subtype];
 
-    min::uns32 length = * ( min::uns32 *)
+    min::uns32 length = * (min::uns32 *)
     	( beginp + pvd->length_disp );
 
     min::uns32 i = ( (min::uns32) sc.state ) >> 2;
@@ -2489,7 +2489,7 @@ min::uns32 min::print_line_column
                      + min::DISPLAY_PICTURE
 		     + min::DISPLAY_NON_GRAPHIC;
     pf.op_flags &= ~ flags;
-    pf.op_flags |= ( flags & line_display);
+    pf.op_flags |= ( flags & line_display );
     pf.op_flags |= min::EXPAND_HT;
     pf.display_control =
         ( line_display & min::DISPLAY_NON_GRAPHIC ?
@@ -2907,7 +2907,7 @@ static void new_hash_table
     assert (   length
 	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
     length *= 4;
-    if ( length < 128) length = 128;
+    if ( length < 128 ) length = 128;
 
     hash_table_ref ( map ) =
 	min::uns32_packed_vec_type.new_stub ( length );
@@ -3385,7 +3385,7 @@ void min::resize
     MUP::retype_resize_body ( r, new_type );
 
     min::gen * & oldb = MUP::base ( vp );
-    min::gen * & newb = * ( min::gen **) &
+    min::gen * & newb = * (min::gen **) &
 	MUP::new_body_ptr_ref ( r );
 
     min::unsptr new_var_offset = header_size;
@@ -3527,7 +3527,7 @@ void MINT::remove_list
 		      MUP::gen_of ( s ) );
 		uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
-		if ( c & MUP::STUB_PTR)
+		if ( c & MUP::STUB_PTR )
 		    s = MUP::stub_of_control ( c );
 		else
 		{
@@ -5292,7 +5292,7 @@ void min::compact
 
 	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
-	          next ( ap.dlp),
+	          next ( ap.dlp ),
 		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
@@ -5351,7 +5351,7 @@ void min::compact
 
 	    for ( c = current ( ap.lp );
 	          ! is_list_end ( c );
-	          next ( ap.lp),
+	          next ( ap.lp ),
 		  c = next ( ap.lp ) )
 	    {
 		if ( c == element[ap.length] )
@@ -5433,7 +5433,7 @@ void min::compact
 	{
 	    for ( c = current ( ap.locate_dlp );
 		  ! is_list_end ( c );
-		  next ( ap.locate_dlp),
+		  next ( ap.locate_dlp ),
 		  c = next ( ap.locate_dlp ) )
 	    {
 		if ( c == element[0] )
@@ -5464,7 +5464,7 @@ void min::compact
 
 	    for ( c = current ( ap.dlp );
 	          ! is_list_end ( c );
-		  next ( ap.dlp),
+		  next ( ap.dlp ),
 		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[ap.length] )
@@ -5677,7 +5677,7 @@ void min::compact
 
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
-	      next ( ap.locate_dlp),
+	      next ( ap.locate_dlp ),
 	      c = next ( ap.locate_dlp ) )
 	{
 	    if ( c == name )
@@ -5721,7 +5721,7 @@ void min::compact
 
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
-	      next ( ap.locate_dlp),
+	      next ( ap.locate_dlp ),
 	      c = next ( ap.locate_dlp ) )
 	{
 	    if ( c == ap.attr_name )
@@ -5978,7 +5978,7 @@ void min::locate_reverse
 
     for ( min::gen c = current ( ap.dlp );
 	  ! is_list_end ( c );
-	  next ( ap.dlp), c = next ( ap.dlp ) )
+	  next ( ap.dlp ), c = next ( ap.dlp ) )
     {
 	if ( c == reverse_name )
 	{
@@ -6068,7 +6068,7 @@ void min::relocate
 
     for ( min::gen c = current ( ap.dlp );
 	  ! is_list_end ( c );
-	  next ( ap.dlp), c = next ( ap.dlp ) )
+	  next ( ap.dlp ), c = next ( ap.dlp ) )
     {
 	if ( c == ap.reverse_attr_name )
 	{
