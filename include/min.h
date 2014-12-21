@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 03:18:17 EST 2014
+// Date:	Sun Dec 21 04:53:28 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7525,7 +7525,8 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 		     + vp.unused_offset,
 		     p, sizeof ( min::gen ) * n );
-	    write_update<min::gen> X ( vp.s, p, n );
+	    unprotected::acc_write_update
+	        ( vp.s, p, n );
         }
 	vp.unused_offset += n;
     }
@@ -7557,7 +7558,8 @@ namespace min {
 	    memcpy (   unprotected::base(vp)
 	             + vp.aux_offset,
 		     p, sizeof ( min::gen ) * n );
-	    write_update<min::gen> X ( vp.s, p, n );
+	    unprotected::acc_write_update
+	        ( vp.s, p, n );
 	}
     }
 
@@ -7979,6 +7981,10 @@ namespace min { namespace unprotected {
 	// insert before the current position or a
 	// removal of the current element.
 	//
+	// The previous pointer is only maintained and
+	// used by min::list_insptr's, and NOT by min::
+	// list_ptr's or min::list_updptr's.
+	//
 	// The gen_of value of the auxiliary stub is
 	// equivalent to an auxiliary area element
 	// pointed at by a sublist or list pointer.  The
@@ -8004,10 +8010,10 @@ namespace min { namespace unprotected {
 	//	   and current pointer does not exist
 	//	   and current == LIST_END()
 	//
-	// The previous pointer is similar, but also
-	// differs when it points at a stub, since it
-	// could be pointing at either a sublist or
-	// list head:
+	// The previous pointer (used only by min::list_
+	// insptr's) is similar, but also differs when
+	// it points at a stub, since it could be point-
+	// ing at either a sublist or list head:
 	//
 	//	       previous_index != 0
 	//	   and previous = base[previous_index]
@@ -8024,12 +8030,20 @@ namespace min { namespace unprotected {
 	//	   and previous_stub == NULL
 	//	   and previous pointer does not exist
 	//
+	// Here `previous' is not stored in the list_
+	// insptr, but is computed as needed.
+	//
 	// If a previous value is a stub pointer, then
 	// it points at an auxiliary stub, and is
 	// treated as a sublist pointer if the auxiliary
 	// stub is of type SUBLIST_AUX, and is treated
 	// as a list pointer if the stub is of type
 	// LIST_AUX.
+	//
+	// If current != LIST_END(), the previous
+	// pointer, if it exists, is a list or sublist
+	// pointer pointing at the location storing
+	// current.
 	//
 	// If current == LIST_END() one of the following
 	// special cases applies.
@@ -8042,6 +8056,7 @@ namespace min { namespace unprotected {
 	//   Current pointer does NOT exist,
 	//   previous pointer points at list head in the
 	//	    attribute vector or hash table:
+	//   previous_is_sublist_header == false:
 	//      [current is the virtual LIST_END() after
 	//       a 1-element list whose first element
 	//       is the list head]
@@ -8700,7 +8715,9 @@ namespace min {
 
 	if ( lp.current_index == lp.head_index )
 	{
-	    // Current is list (not sublist) head.
+	    // Current is list (not sublist) head and
+	    // current pointer ceases to exist when
+	    // we move to the next element.
 	    //
 	    lp.current_index = 0;
 	    return lp.current = LIST_END();
@@ -9008,7 +9025,7 @@ namespace min {
         MIN_ASSERT ( lp.current != LIST_END() );
         MIN_ASSERT ( ! is_sublist ( lp.current ) );
         MIN_ASSERT ( ! is_sublist ( value ) );
-	write_update<min::gen> X
+	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS
@@ -9040,7 +9057,7 @@ namespace min {
 		     ! is_sublist ( value ) );
 	internal::remove_sublist
 	       ( lp.base, lp.total_size, lp.current );
-	write_update<min::gen> X
+	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USE_OBJ_AUX_STUBS
