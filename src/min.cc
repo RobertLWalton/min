@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 16 02:41:52 EST 2014
+// Date:	Sat Dec 20 18:37:00 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3598,8 +3598,7 @@ void min::insert_before
 
     unsptr unused_offset =
         MUP::unused_offset_of ( lp.vecp );
-    unsptr aux_offset =
-        MUP::aux_offset_of ( lp.vecp );
+    unsptr aux_offset = lp.aux_offset;
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
@@ -3799,7 +3798,8 @@ void min::insert_before
 	    lp.base[-- aux_offset] = * p ++;
 	lp.base[-- aux_offset] = min::LIST_END();
 
-	MUP::aux_offset_of ( lp.vecp ) = aux_offset;
+	MUP::aux_offset_of ( lp.vecp ) =
+	    lp.aux_offset = aux_offset;
 	return;
     }
 
@@ -4014,7 +4014,8 @@ void min::insert_before
 	lp.current_stub = NULL;
 #   endif
 
-    MUP::aux_offset_of ( lp.vecp ) = aux_offset;
+    MUP::aux_offset_of ( lp.vecp ) =
+	lp.aux_offset = aux_offset;
 }
 
 void min::insert_after
@@ -4025,8 +4026,7 @@ void min::insert_after
 
     unsptr unused_offset =
         MUP::unused_offset_of ( lp.vecp );
-    unsptr aux_offset =
-        MUP::aux_offset_of ( lp.vecp );
+    unsptr aux_offset = lp.aux_offset;
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
@@ -4274,7 +4274,8 @@ void min::insert_after
 	lp.current_index = first;
     }
 
-    MUP::aux_offset_of ( lp.vecp ) = aux_offset;
+    MUP::aux_offset_of ( lp.vecp ) =
+        lp.aux_offset = aux_offset;
 }
 
 min::unsptr min::remove

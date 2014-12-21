@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 17 17:26:16 EST 2014
+// Date:	Sat Dec 20 18:21:48 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7844,7 +7844,8 @@ namespace min { namespace unprotected {
 		( min::obj_vec_insptr & vecp )
 	    : vecp ( vecp ),
 	      base ( min::unprotected::base ( vecp ) ),
-	      hash_offset ( 0 ), total_size ( 0 )
+	      hash_offset ( 0 ), aux_offset ( 0 ),
+	      total_size ( 0 )
 	{
 	    // An unstarted list pointer behaves as if
 	    // it were pointing at the end of a list
@@ -7928,14 +7929,16 @@ namespace min { namespace unprotected {
 	    // assert violation).
 
 	min::unsptr hash_offset;
+	min::unsptr aux_offset;
 	min::unsptr total_size;
-	    // Save of hash_offset and total_size from
-	    // obj_vec pointer.  0 if list pointer has
-	    // not yet been started.
+	    // Save of hash_offset, aux_offset, and
+	    // total_size from obj_vec pointer.  0 if
+	    // list pointer has not yet been started.
 	    //
-	    // Used by refresh to adjust indices if
-	    // resize has been called for another list
-	    // pointer to the same object.
+	    // Hash_offset and total_size are unsed by
+	    // refresh to adjust indices if resize has
+	    // been called for another list pointer to
+	    // the same object.
 	    //
 	    // Adjusting an index is done by as follows:
 	    //
@@ -7951,6 +7954,9 @@ namespace min { namespace unprotected {
 	    //   Else
 	    //      new_index =
 	    //        old_index + size_adjust
+	    //
+	    // Aux_offset is used by next(...) to detect
+	    // badly formatted objects.
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
@@ -8222,7 +8228,8 @@ namespace min { namespace unprotected {
 	    : vecp ( vecp ),
 	      base ( * (min::gen **) &
 	             unprotected::base ( vecp ) ),
-	      hash_offset ( 0 ), total_size ( 0 )
+	      hash_offset ( 0 ), aux_offset ( 0 ),
+	      total_size ( 0 )
 	{
 	    current = LIST_END();
 	    current_index = 0;
@@ -8247,6 +8254,7 @@ namespace min { namespace unprotected {
 #	endif
 
 	min::unsptr hash_offset;
+	min::unsptr aux_offset;
 	min::unsptr total_size;
 
     // Friends:
@@ -8396,6 +8404,8 @@ namespace min {
     {
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
 	index %= hash_size_of ( lp.vecp );
@@ -8412,6 +8422,8 @@ namespace min {
     {
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
 	lp.head_index =
@@ -8446,6 +8458,8 @@ namespace min {
     {
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
@@ -8466,6 +8480,8 @@ namespace min {
     {
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
@@ -8499,6 +8515,8 @@ namespace min {
 	//
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr total_size = total_size_of ( lp.vecp );
 
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
@@ -8550,6 +8568,8 @@ namespace min {
 	//
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	lp.aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr total_size = total_size_of ( lp.vecp );
 
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
@@ -8647,7 +8667,10 @@ namespace min {
 	    return lp.current = LIST_END();
 	}
 	else
+	{
+	    assert ( lp.current_index > lp.aux_offset );
 	    return lp.forward ( lp.current_index - 1 );
+	}
     }
     template <>
     inline min::gen next
@@ -8714,7 +8737,10 @@ namespace min {
 	    return lp.current = LIST_END();
 	}
 	else
+	{
+	    assert ( lp.current_index > lp.aux_offset );
 	    return lp.forward ( lp.current_index - 1 );
+	}
     }
 
     template < class vecpt >
@@ -8764,7 +8790,7 @@ namespace min {
 	else
 	{
 	    unsptr index = lp.current_index;
-	    MIN_ASSERT ( index != 0 );
+	    assert ( index > lp.aux_offset );
 	    -- index;
 	    min::gen c = lp.base[index];
 
@@ -8835,6 +8861,8 @@ namespace min {
     {
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	unsptr new_aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr new_total_size =
 	    total_size_of ( lp.vecp );
 
@@ -8852,6 +8880,7 @@ namespace min {
 	        lp.head_index += adjust;
 
 	lp.hash_offset = new_hash_offset;
+	lp.aux_offset = new_aux_offset;
 	lp.total_size = new_total_size;
 
 	if ( lp.current_index != 0 )
@@ -8875,6 +8904,8 @@ namespace min {
     {
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
+	unsptr new_aux_offset =
+	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr new_total_size =
 	    total_size_of ( lp.vecp );
 
@@ -8900,6 +8931,7 @@ namespace min {
 	        lp.head_index += adjust;
 
 	lp.hash_offset = new_hash_offset;
+	lp.aux_offset = new_aux_offset;
 	lp.total_size = new_total_size;
 
 	if ( lp.current_index != 0 )
