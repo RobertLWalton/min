@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 03:22:31 EST 2014
+// Date:	Sun Dec 21 05:42:17 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3502,7 +3502,7 @@ void MINT::allocate_stub_list
 # endif // MIN_USE_OBJ_AUX_STUBS
 
 // Remove a list.  Free any aux stubs used and
-// set any auxiliary area elements use to min::NONE().
+// set any auxiliary area elements used to min::NONE().
 // Index/s point at the first element of the list.
 // Either index != 0 and s == NULL or index == 0
 // and s != NULL.  Base is the base of an object
@@ -3534,7 +3534,7 @@ void MINT::remove_list
 		    unsptr vc =
 			MUP::value_of_control ( c );
 		    if ( vc == 0 ) return;
-		    index = total_size - c;
+		    index = total_size - vc;
 		    s = NULL;
 		}
 	    }
@@ -3552,12 +3552,17 @@ void MINT::remove_list
 		    min::stub * s2 = MUP::stub_of ( v );
 		    if (    MUP::type_of ( s2 )
 			 == LIST_AUX )
-		        s = s2, index = 0;
+		    {
+		        base[index] = min::NONE();
+			index = 0;
+		        s = s2;
+		    }
 		}
 		else
 #	    endif
 	    if ( min::is_list_aux ( v ) )
 	    {
+		base[index] = min::NONE();
 		index = min::list_aux_of ( v  );
 		if ( index == 0 ) return;
 		index = total_size - index;
@@ -3867,7 +3872,10 @@ void min::insert_before
 		    next = 0;
 		}
 		else
+		{
+		    assert ( next >= lp.aux_offset );
 		    next = total_size - next;
+		}
 		MUP::set_control_of
 		    ( s,
 		      MUP::new_control_with_type
@@ -3965,7 +3973,11 @@ void min::insert_before
 		next = 0;
 	    }
 	}
-	if ( next != 0 ) next = total_size - next;
+	if ( next != 0 )
+	{
+	    assert ( next >= lp.aux_offset );
+	    next = total_size - next;
+	}
         lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( next );
     }
