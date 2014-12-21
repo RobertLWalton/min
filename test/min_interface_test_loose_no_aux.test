@@ -2559,8 +2559,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num100 true.
@@ -2568,8 +2566,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2620,8 +2616,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == min::LIST_END() true.
@@ -2641,8 +2635,6 @@ min_interface_test.cc:XXXX assert:
 RESIZE HAPPENED
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2665,8 +2657,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
@@ -2674,8 +2664,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2691,8 +2679,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num101 true.
@@ -2700,8 +2686,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num101 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2711,21 +2695,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END() true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2739,8 +2717,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num100 true.
@@ -2748,8 +2724,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2767,8 +2741,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num101 true.
@@ -2785,8 +2757,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == min::LIST_END() true.
@@ -2801,8 +2771,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
@@ -2810,8 +2778,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2833,8 +2799,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == min::LIST_END() true.
@@ -2848,8 +2812,6 @@ min_interface_test.cc:XXXX assert:
     is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2868,14 +2830,10 @@ min_interface_test.cc:XXXX assert:
     1 == min::remove ( wslp, 5 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_list_end ( min::current ( wslp ) ) true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -2899,8 +2857,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 ../include/min.h:XXXX assert:
-    index != 0 true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == min::LIST_END() true.
@@ -2912,8 +2868,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
-../include/min.h:XXXX assert:
-    index != 0 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
@@ -3580,9 +3534,9 @@ Start Object Printing Test!
        .terminator = "*}"
     |}
 {T| X Y Z |T}
-{+ X Y Z 0 0 0 +}
-{< X Y Z 0 0 0 0 0 0 >}
-{{ X Y Z 0 0 0 0 0 0 0 0 0 }}
+{+ X Y Z +}
+{< X Y Z >}
+{{ X Y Z 0 0 0 }}
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
