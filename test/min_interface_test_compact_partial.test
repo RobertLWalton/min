@@ -2485,6 +2485,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
@@ -2779,6 +2781,8 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3152,6 +3156,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
@@ -3412,41 +3418,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-min_interface_test.cc:XXXX assert:
-    min::get ( ap ) == int1 true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    is_list_aux ( g ) true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3454,11 +3426,61 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int1 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( g ) true.
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_list_aux ( g ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+min_interface_test.cc:XXXX assert:
+    min::get ( ap ) == int1 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( g ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3468,9 +3490,13 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3480,9 +3506,13 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3497,6 +3527,8 @@ min_interface_test.cc:XXXX assert:
     min::attr ( vp, 21 ) == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3536,27 +3568,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    is_sublist_aux ( g ) true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    is_sublist_aux ( g ) true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3580,6 +3592,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
@@ -3601,6 +3615,32 @@ min_interface_test.cc:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    total_size == lp2.total_size true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( g ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3616,6 +3656,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
@@ -3630,6 +3672,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
+../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
@@ -3643,6 +3687,8 @@ min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab3 true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
+../include/min.h:XXXX assert:
+    lp2.hash_offset != 0 true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
