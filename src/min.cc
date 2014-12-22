@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 05:42:17 EST 2014
+// Date:	Sun Dec 21 12:33:41 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4566,6 +4566,8 @@ bool MINT::insert_reserve
 	  min::unsptr elements,
 	  bool use_obj_aux_stubs )
 {
+    // Warning: it is OK if lp is not yet started.
+ 
     bool result = false;
 
 #   if MIN_USE_OBJ_AUX_STUBS

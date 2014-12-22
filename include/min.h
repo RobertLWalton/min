@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 04:53:28 EST 2014
+// Date:	Sun Dec 21 12:29:59 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8040,11 +8040,6 @@ namespace min { namespace unprotected {
 	// as a list pointer if the stub is of type
 	// LIST_AUX.
 	//
-	// If current != LIST_END(), the previous
-	// pointer, if it exists, is a list or sublist
-	// pointer pointing at the location storing
-	// current.
-	//
 	// If current == LIST_END() one of the following
 	// special cases applies.
 	//
@@ -8092,8 +8087,21 @@ namespace min { namespace unprotected {
 	//      as pointing at an empty list into
 	//      which insertions CANNOT be made.
 	//
-	// If the current pointer points at a stub, the
-	// previous pointer must exist.
+	// From the above the following can be deduced:
+	//
+	//   (1) If the current pointer points at a stub,
+	//       the previous pointer must exist.
+	//
+	//   (2) If the previous pointer does not exist
+	//       and current != LIST_END(), then
+	//       current_index != 0 and current_stub ==
+	//       NULL.
+	//
+	//   (3) If the previous pointer does not exist
+	//       and current == LIST_END(), then either
+	//       current_index != 0 or the list pointer
+	//       was never started (e.g., by start_
+	//       hash).
 	//
 	// If the current value is not LIST_END(), the
 	// current pointer must exist.
@@ -8532,6 +8540,9 @@ namespace min {
             ( min::list_insptr & lp,
 	      min::list_insptr & lp2 )
     {
+	MIN_ASSERT ( lp2.hash_offset != 0 );
+	    // Check that list pointer has been started.
+
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
 	lp.aux_offset =
@@ -8564,6 +8575,9 @@ namespace min {
     	      min::unprotected
 	         ::list_ptr_type<vecptr2> & lp2 )
     {
+	MIN_ASSERT ( lp2.hash_offset != 0 );
+	    // Check that list pointer has been started.
+
 	// We want the total size check to work even
 	// if & lp == & lp2.
 	//
@@ -8895,6 +8909,9 @@ namespace min {
     	    ( min::unprotected
 	         ::list_ptr_type<vecptr> & lp )
     {
+	if ( lp.hash_offset == 0 ) return lp.current;
+	    // Unstarted list pointer needs nothing done.
+
 	if ( lp.current_index != 0 )
 	    return lp.current =
 	    		lp.base[lp.current_index];
@@ -8915,6 +8932,9 @@ namespace min {
     	    ( min::unprotected
 	         ::list_ptr_type<vecptr> & lp )
     {
+	if ( lp.hash_offset == 0 ) return lp.current;
+	    // Unstarted list pointer needs nothing done.
+
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
 	unsptr new_aux_offset =
@@ -8958,6 +8978,9 @@ namespace min {
     inline min::gen insert_refresh
     	    ( min::list_insptr & lp )
     {
+	if ( lp.hash_offset == 0 ) return lp.current;
+	    // Unstarted list pointer needs nothing done.
+
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
 	unsptr new_aux_offset =
@@ -9084,6 +9107,8 @@ namespace min {
 	      min::unsptr elements,
 	      bool use_obj_aux_stubs )
     {
+        // Warning: it is OK if lp is not yet started.
+
         if ( elements == 0 ) elements = insertions;
 	MIN_ASSERT ( insertions <= elements );
 
