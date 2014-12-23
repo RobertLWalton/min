@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 12:33:41 EST 2014
+// Date:	Tue Dec 23 03:15:37 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4179,23 +4179,12 @@ void min::insert_after
 
     unsptr first = aux_offset - 1;
 
-    if ( lp.current_index != 0 )
-	lp.base[-- aux_offset] = lp.current;
-
-    // If previous, we can copy the last new element to
-    // the old current element.
-
-    // Copy all the new elements BUT the last new
-    // element.
-    //
-    while ( -- n )
-	lp.base[-- aux_offset] = * p ++;
-
 #   if MIN_USE_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
 	MIN_ASSERT ( previous );
-	lp.base[-- aux_offset] = * p ++;
+	while ( n -- )
+	    lp.base[-- aux_offset] = * p ++;
 	uns64 c =
 	    MUP::control_of ( lp.current_stub );
 	if ( c & MUP::STUB_PTR )
@@ -4211,9 +4200,28 @@ void min::insert_after
 	      MUP::new_control_with_type
 	         ( min::type_of ( lp.current_stub ),
 		   total_size - first ) );
+
+	MUP::aux_offset_of ( lp.vecp ) =
+	    lp.aux_offset = aux_offset;
+
+	return;
     }
-    else
 #   endif
+
+    // Current element that we are inserting after
+    // is moved to `first'.
+    //
+    lp.base[-- aux_offset] = lp.current;
+
+    // If previous, we can copy the last new element to
+    // the old current element.
+
+    // Copy all the new elements BUT the last new
+    // element.
+    //
+    while ( -- n )
+	lp.base[-- aux_offset] = * p ++;
+
     if ( previous )
     {
 	lp.base[-- aux_offset] =
@@ -4254,7 +4262,7 @@ void min::insert_after
     else
     {
 	// With no previous we must use current aux
-	// element as pointer to copied of current
+	// element as pointer to copy of current
 	// element.
 	//
 	MIN_ASSERT ( lp.current_index != 0 );
@@ -4351,21 +4359,9 @@ min::unsptr min::remove
 #       endif
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
-	    lp.base[lp.current_index] = min::NONE();
-	    lp.current =
-		lp.base[-- lp.current_index];
-	    if ( min::is_list_aux ( lp.current ) )
-	    {
-		if ( lp.current == min::LIST_END() )
-		    break;
-		lp.base[lp.current_index] = min::NONE();
-		lp.current_index =
-		      total_size
-		    - min::list_aux_of ( lp.current );
-		lp.current = lp.base[lp.current_index];
-	    }
-	    else if ( min::is_stub ( lp.current ) )
-		lp.forward ( lp.current_index );
+	    unsptr index = lp.current_index;
+	    next ( lp );
+	    lp.base[index] = min::NONE();
 	}
     }
 
@@ -4521,7 +4517,9 @@ min::unsptr min::remove
     {
     	// No previous.  Then the first element
 	// removed cannot be a stub, as stubs always
-	// have a previous pointer.
+	// have a previous pointer.  Also, current
+	// element cannot be the first element of
+	// a sublist or a list head.
 
 	MIN_ASSERT ( current_index != 0 );
 
@@ -4556,6 +4554,16 @@ min::unsptr min::remove
 
 	lp.previous_is_sublist_head = false;
     }
+
+    // Remove any min::NONE() aux values at beginning
+    // of aux area.
+    //
+    unsptr aux_offset = lp.aux_offset;
+    while (    aux_offset < total_size
+            && lp.base[aux_offset] == min::NONE() )
+        ++ aux_offset;
+    MUP::aux_offset_of ( lp.vecp ) =
+        lp.aux_offset = aux_offset;
 
     return count;
 }
