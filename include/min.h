@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 21 12:29:59 EST 2014
+// Date:	Tue Dec 23 07:07:58 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7514,7 +7514,7 @@ namespace min {
 	  const min::gen * p = NULL )
     {
 	min::unsptr m = unused_size_of ( vp );
-	if ( m < n ) expand ( vp, n - m );
+	if ( m < n ) expand ( vp, n );
 
 	if ( p == NULL )
 	    memset (   unprotected::base(vp)
@@ -7546,7 +7546,7 @@ namespace min {
 	  min::unsptr n, const min::gen * p = NULL )
     {
 	min::unsptr m = unused_size_of ( vp );
-	if ( m < n ) expand ( vp, n - m );
+	if ( m < n ) expand ( vp, n );
 
 	vp.aux_offset -= n;
 	if ( p == NULL )
