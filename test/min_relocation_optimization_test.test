@@ -6,28 +6,30 @@
 _Z5test1PKN3min4stubEi:
 .LFBXXX:
 	.cfi_startproc
-	movq	%rbx, -24(%rsp)
-	movq	%rbp, -16(%rsp)
-	.cfi_offset 3, -32
-	.cfi_offset 6, -24
-	movq	%rdi, %rbp
-	movq	%r12, -8(%rsp)
-	subq	$24, %rsp
-	.cfi_def_cfa_offset 32
+	pushq	%r12
+	.cfi_def_cfa_offset 16
 	.cfi_offset 12, -16
 	movq	(%rdi), %rax
 	movslq	%esi, %r12
+	pushq	%rbp
+	.cfi_def_cfa_offset 24
+	.cfi_offset 6, -24
+	movq	%rdi, %rbp
+	pushq	%rbx
+	.cfi_def_cfa_offset 32
+	.cfi_offset 3, -32
 	movl	(%rax,%r12,4), %ebx
 	addl	(%rax), %ebx
 	call	_Z12do_somethingv
 	movq	0(%rbp), %rdx
-	movq	8(%rsp), %rbp
 	movl	(%rdx), %eax
 	addl	%ebx, %eax
-	movq	(%rsp), %rbx
 	addl	(%rdx,%r12,4), %eax
-	movq	16(%rsp), %r12
-	addq	$24, %rsp
+	popq	%rbx
+	.cfi_def_cfa_offset 24
+	popq	%rbp
+	.cfi_def_cfa_offset 16
+	popq	%r12
 	.cfi_def_cfa_offset 8
 	ret
 	.cfi_endproc
@@ -54,32 +56,38 @@ _Z5test2PKN3min4stubEii:
 _Z5test3Ri:
 .LFBXXX:
 	.cfi_startproc
-	movq	_ZN3min8internal9acc_stackE(%rip), %rax
+	subq	$24, %rsp
+	.cfi_def_cfa_offset 32
 	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
-	pushq	%rbx
-	.cfi_def_cfa_offset 16
-	.cfi_offset 3, -16
-	movq	%rdi, %rbx
-	cmpq	%rdx, %rax
-	jb	.L5
-	call	_ZN3min8internal13acc_interruptEv
 	movq	_ZN3min8internal9acc_stackE(%rip), %rax
+	cmpq	%rdx, %rax
+	jae	.L10
 .L5:
 	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
-	addl	$1, (%rbx)
+	addl	$1, (%rdi)
 	cmpq	%rax, %rdx
-	jbe	.L9
-	popq	%rbx
+	jbe	.L11
+	addq	$24, %rsp
 	.cfi_remember_state
 	.cfi_def_cfa_offset 8
 	ret
 	.p2align 4,,10
 	.p2align 3
-.L9:
+.L11:
 	.cfi_restore_state
-	popq	%rbx
+	addq	$24, %rsp
+	.cfi_remember_state
 	.cfi_def_cfa_offset 8
 	jmp	_ZN3min8internal13acc_interruptEv
+	.p2align 4,,10
+	.p2align 3
+.L10:
+	.cfi_restore_state
+	movq	%rdi, 8(%rsp)
+	call	_ZN3min8internal13acc_interruptEv
+	movq	_ZN3min8internal9acc_stackE(%rip), %rax
+	movq	8(%rsp), %rdi
+	jmp	.L5
 	.cfi_endproc
 .LFEXXX:
 	.size	_Z5test3Ri, .-_Z5test3Ri
@@ -108,5 +116,5 @@ _GLOBAL__sub_I__Z5test1PKN3min4stubEi:
 	.local	_ZStL8__ioinit
 	.comm	_ZStL8__ioinit,1,1
 	.hidden	__dso_handle
-	.ident	"GCC: (GNU) 4.7.2 20120921 (Red Hat 4.7.2-2)"
+	.ident	"GCC: (GNU) 4.8.3 20140911 (Red Hat 4.8.3-7)"
 	.section	.note.GNU-stack,"",@progbits

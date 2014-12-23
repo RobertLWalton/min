@@ -2,7 +2,7 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 28 06:45:41 EDT 2012
+// Date:	Tue Dec 23 03:09:47 EST 2014
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,9 @@ inline int * vec ( const min::stub * s )
     return (int *) MUP::ptr_of ( s );
 }
 
-// Function receiving const min:stub *.
+// Function testing whether stub pointer is reloaded
+// after call to out of line function.  The answer
+// should be yes.
 //
 int test1 ( const min::stub * s, int n )
 {
@@ -68,6 +70,10 @@ int test2 ( const min::stub * s, int i1, int i2 )
 
 // Test 3 tests whether the interrupt() function checks
 // for asynchronous changes to MINT::acc_stack_limit.
+// MINT::acc_stack_limit is volatile and should be
+// reloaded whenever it is used.  Conversely,
+// MINT::acc_stack is merely global and need only be
+// reloaded after a call to an out of line function.
 //
 void test3 ( int & n )
 {
