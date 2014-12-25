@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 21, 2014}
+\date{December 25, 2014}
  
 \maketitle
 
@@ -12728,6 +12728,16 @@ to be inserted.  If the later is {\tt 0}, the default, it is taken to
 be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
+
+Reservations are made against a list pointer and its object, and are
+\underline{not} affected by calls to functions such as
+\TT{min::\EOL start\_\EOL hash}, \TT{min::\EOL start\_\EOL copy},
+and \TT{min::\EOL start\_\EOL sublist}
+which reposition the list pointer.
+A reservation on a list pointer may be made as soon as the list pointer
+has been created and before any start list function has been called
+for it.  Functions like \TT{min::\EOL start\_\EOL copy} do
+\underline{not} transfer reservations from one list pointer to another.
 
 Only one pointer at a time
 for a given object may have an effective reservation.
