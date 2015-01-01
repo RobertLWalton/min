@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 23 07:07:58 EST 2014
+// Date:	Thu Jan  1 11:18:48 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11670,6 +11670,8 @@ namespace min {
 	const min::ustring *   	    obj_valreq;
 
 	min::str_classifier	    marking_type;
+	min::gen		    quote_type;
+	const min::gen_format *     quote_format;
 
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;

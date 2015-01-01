@@ -4172,6 +4172,7 @@ Start Object Printing Test!
 {+ X Y Z +}
 {< X Y Z >}
 {{ X Y Z 0 0 0 }}
+"X" "Y" "Z" 0 0 0
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX assert:
