@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 23 07:09:50 EST 2014
+// Date:	Thu Jan  1 12:13:24 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4738,6 +4738,13 @@ void test_object_printing ( void )
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::new_lab_gen ( "{", "}" ) );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::doublequote );
     }
     printer << min::pgen ( obj4 ) << min::eol;
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 23 03:15:37 EST 2014
+// Date:	Thu Jan  1 11:18:37 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9521,6 +9521,8 @@ static min::obj_format compact_obj_format =
 
     min::all_marks_str_classifier,
     			    // marking_type
+    min::NONE(),	    // quote_type*
+    NULL,		    // quote_format*
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9573,6 +9575,8 @@ static min::obj_format isolated_line_obj_format =
         "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
+    min::NONE(),	    // quote_type*
+    NULL,		    // quote_format*
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9630,6 +9634,8 @@ static min::obj_format embedded_line_obj_format =
         "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
+    min::NONE(),	    // quote_type*
+    NULL,		    // quote_format*
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9671,6 +9677,8 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_valreq
 
     {0,0,0},		    // marking_type
+    min::NONE(),	    // quote_type
+    NULL,		    // quote_format
 
     min::NULL_STUB	    // attr_flag_names
 };
@@ -9842,6 +9850,10 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::compact_obj_format.terminator_format =
         min::trailing_always_gen_format;
+    ::compact_obj_format.quote_type =
+        min::doublequote;
+    ::compact_obj_format.quote_format =
+        min::always_quote_gen_format;
     ::compact_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
@@ -9857,6 +9869,10 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::isolated_line_obj_format.terminator_format =
         min::trailing_always_gen_format;
+    ::isolated_line_obj_format.quote_type =
+        min::doublequote;
+    ::isolated_line_obj_format.quote_format =
+        min::always_quote_gen_format;
     ::isolated_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
@@ -9872,6 +9888,10 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::embedded_line_obj_format.terminator_format =
         min::trailing_always_gen_format;
+    ::embedded_line_obj_format.quote_type =
+        min::doublequote;
+    ::embedded_line_obj_format.quote_format =
+        min::always_quote_gen_format;
     ::embedded_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
@@ -10248,6 +10268,23 @@ min::printer min::print_obj
 	        printer << min::pustring
 		               ( objf->obj_empty )
 			<< min::restore_print_format;
+	else if ( type == objf->quote_type
+	          &&
+		  type != min::NONE() )
+	{
+	    bool first = true;
+	    for ( min::unsptr i = 0;
+	          i < min::size_of ( vp ); ++ i )
+	    {
+		if ( first ) 
+		    first = false;
+		else
+		    min::print_spaces ( printer, 1 );
+		min::print_gen
+		    ( printer, vp[i], objf->quote_format );
+	    }
+	    return printer;
+	}
 	else
 	{
 	    min::print_ustring
