@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  1 11:18:48 EST 2015
+// Date:	Fri Jan  2 03:49:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11670,6 +11670,7 @@ namespace min {
 	const min::ustring *   	    obj_valreq;
 
 	min::str_classifier	    marking_type;
+
 	min::gen		    quote_type;
 	const min::gen_format *     quote_format;
 
@@ -11887,18 +11888,18 @@ namespace min {
 
     extern min::locatable_gen TRUE;
     extern min::locatable_gen FALSE;
+    extern min::locatable_gen empty_string;
+    extern min::locatable_gen doublequote;
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
-    extern min::locatable_gen dot_position;
     extern min::locatable_gen dot_type;
-    extern min::locatable_gen new_line;
-    extern min::locatable_gen empty_string;
-    extern min::locatable_gen doublequote;
-    extern min::locatable_gen number_sign;
+    extern min::locatable_gen dot_position;
 
     // Deprecated:
     //
+    extern min::locatable_gen new_line;
+    extern min::locatable_gen number_sign;
     extern min::locatable_gen dot_middle;
     extern min::locatable_gen dot_name;
     extern min::locatable_gen dot_arguments;

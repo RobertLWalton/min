@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 25, 2014}
+\date{January 2, 2015}
  
 \maketitle
 
@@ -5394,6 +5394,38 @@ argument \TT{v2}, or returns \TT{-1} if there is no such
 occurence.  For this function,
 a non-label must be an atom, and is equivalent to a length \TT{1} label
 whose sole element is the atom.
+
+The following names are defined for general use:
+
+\begin{indpar}\begin{tabular}{r@{}ll}
+\verb|min::gen min::| & \MINKEY{TRUE}
+		      & \verb|= min::new_str_gen ( "TRUE" )|
+\LABEL{MIN::TRUE} \\
+\verb|min::gen min::| & \MINKEY{FALSE}
+		      & \verb|= min::new_str_gen ( "FALSE" )|
+\LABEL{MIN::FALSE} \\
+\verb|min::gen min::| & \MINKEY{empty\_string}
+		      & \verb|= min::new_str_gen ( "" )|
+\LABEL{MIN::EMPTY_STRING} \\
+\verb|min::gen min::| & \MINKEY{doublequote}
+		      & \verb|= min::new_str_gen ( "\"" )|
+\LABEL{MIN::DOUBLEQUOTE} \\
+\verb|min::gen min::| & \MINKEY{dot\_initiator}
+		      & \verb|= min::new_str_gen ( ".initiator" )|
+\LABEL{MIN::DOT_INITIATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_separator}
+		      & \verb|= min::new_str_gen ( ".separator" )|
+\LABEL{MIN::DOT_SEPARATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_terminator}
+		      & \verb|= min::new_str_gen ( ".terminator" )|
+\LABEL{MIN::DOT_TERMINATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_type}
+		      & \verb|= min::new_str_gen ( ".type" )|
+\LABEL{MIN::DOT_TYPE} \\
+\verb|min::gen min::| & \MINKEY{dot\_position}
+		      & \verb|= min::new_str_gen ( ".position" )|
+\LABEL{MIN::DOT_POSITION} \\
+\end{tabular}\end{indpar}
 
 \subsection{Packed Structures}
 \label{PACKED-STRUCTURES}
@@ -14217,20 +14249,20 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::gen_format                      element_format;|%
+    \verb|  min::gen_format *                    element_format;|%
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format                      label_format;|%
+    \verb|  min::gen_format *                    label_format;|%
 \ttmindex{label\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format                      value_format;|%
+    \verb|  min::gen_format *                    value_format;|%
 \ttmindex{value\_format}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::gen_format                      initiator_format;|%
+    \verb|  min::gen_format *                    initiator_format;|%
 \ttmindex{initiator\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format                      separator_format;|%
+    \verb|  min::gen_format *                    separator_format;|%
 \ttmindex{separator\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format                      terminator_format;|%
+    \verb|  min::gen_format *                    terminator_format;|%
 \ttmindex{terminator\_format}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
@@ -14288,6 +14320,13 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::str_classifier                  marking_type;|%
 \ttmindex{marking\_type}{in {\tt min::obj\_format}}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::gen                             quote_type;|%
+\ttmindex{quote\_type}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::gen_format *                    quote_format;|%
+\ttmindex{quote\_format}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14378,6 +14417,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::doublequote,                        // quote_type|\ARGBREAK
+\verb|min::always_quote_gen_format,            // quote_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -14444,6 +14488,11 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::doublequote,                        // quote_type|\ARGBREAK
+\verb|min::always_quote_gen_format,            // quote_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14516,6 +14565,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::doublequote,                        // quote_type|\ARGBREAK
+\verb|min::always_quote_gen_format,            // quote_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -14577,6 +14631,11 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|{0,0,0},                                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::NONE(),                            // quote_type|\ARGBREAK
+\verb|NULL,                                   // quote_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14748,6 +14807,17 @@ This is a \TT{min::str\_classifier} that specifies a class of
 form `\TT{\{"T"|}\ldots\TT{|\}}' is replaced by `\TT{\{T}\ldots\TT{T\}}'.
 See \pagref{MARKING_TYPE}.
 
+\item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]
+\item[\ttmkey{quote\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+If \TT{quote\_type} is \underline{not} \TT{min::NONE()} and
+an object being printed in compact format has \TT{.type} attribute
+equal to \TT{quote\_\EOL type} and does not have
+\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
+the object is printed as a list of its elements with each element
+being printed using the \TT{quote\_\EOL format} general format.
+These members are typically used to replace \TT{\{"~...~"\}} by
+\TT{"..."}.
+
 \item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it
 is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
@@ -14861,6 +14931,18 @@ E.g., if \TT{min::\EOL new\_\EOL lab\_\EOL gen("<",">")} is a \TT{.type}
 value with both \TT{"<"} and \TT{">"} being strings in
 the \TT{marking\_\EOL type} class,
 the format is `\TT{\{<}\ldots\TT{>\}}'.
+
+If instead the \TT{.type} exists and equals \TT{quote\_\EOL type},
+\underline{and} if there is no \TT{.separator} attribute,
+then the elements of the object are printed using
+\TT{quote\_\EOL format}.  Typically \TT{quote\_\EOL type} is set
+to \TT{min::\EOL doublequote} which is just the string consisting
+of a single \TT{"}, and \TT{quote\_\EOL format} is set to
+\TT{min::\EOL always\_\EOL quote\_\EOL gen\_\EOL format}, so
+if the object \TT{.type} is \TT{"} and the object
+elements are strings, just the elements are printed as quoted
+strings.  Thus instead of printing a one element object
+as \TT{\{"~...~"\}}, the object prints as \TT{"..."}.
 
 In compact format \underline{without}
 any \TT{.initiator} \underline{or} \TT{.type}, the format
@@ -16988,6 +17070,27 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::HASH} \\
 \verb|int min::| & \MINKEY{compare} \verb|( min::gen v1, min::gen v2 )|
 \LABEL{MIN::COMPARE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::gen min::| & \MINKEY{TRUE}
+\LABEL{MIN::TRUE} \\
+\verb|min::gen min::| & \MINKEY{FALSE}
+\LABEL{MIN::FALSE} \\
+\verb|min::gen min::| & \MINKEY{empty\_string}
+\LABEL{MIN::EMPTY_STRING} \\
+\verb|min::gen min::| & \MINKEY{doublequote}
+\LABEL{MIN::DOUBLEQUOTE} \\
+\verb|min::gen min::| & \MINKEY{dot\_initiator}
+\LABEL{MIN::DOT_INITIATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_separator}
+\LABEL{MIN::DOT_SEPARATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_terminator}
+\LABEL{MIN::DOT_TERMINATOR} \\
+\verb|min::gen min::| & \MINKEY{dot\_type}
+\LABEL{MIN::DOT_TYPE} \\
+\verb|min::gen min::| & \MINKEY{dot\_position}
+\LABEL{MIN::DOT_POSITION} \\
 \end{TABULAR}
 
 \end{indpar}

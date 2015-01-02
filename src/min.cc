@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  1 11:18:37 EST 2015
+// Date:	Fri Jan  2 03:49:38 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,18 +67,18 @@ char const ** min::type_name = type_name_vector + 128;
 
 min::locatable_gen min::TRUE;
 min::locatable_gen min::FALSE;
+min::locatable_gen min::empty_string;
+min::locatable_gen min::doublequote;
 min::locatable_gen min::dot_initiator;
 min::locatable_gen min::dot_separator;
 min::locatable_gen min::dot_terminator;
-min::locatable_gen min::dot_position;
 min::locatable_gen min::dot_type;
-min::locatable_gen min::new_line;
-min::locatable_gen min::empty_string;
-min::locatable_gen min::doublequote;
-min::locatable_gen min::number_sign;
+min::locatable_gen min::dot_position;
 
 // Deprecated
 //
+min::locatable_gen min::new_line;
+min::locatable_gen min::number_sign;
 min::locatable_gen min::dot_middle;
 min::locatable_gen min::dot_name;
 min::locatable_gen min::dot_arguments;
@@ -323,27 +323,27 @@ void MINT::initialize ( void )
         min::new_str_gen ( "TRUE" );
     min::FALSE =
         min::new_str_gen ( "FALSE" );
+    min::empty_string =
+        min::new_str_gen ( "" );
+    min::doublequote =
+        min::new_str_gen ( "\"" );
     min::dot_initiator =
         min::new_str_gen ( ".initiator" );
     min::dot_separator =
         min::new_str_gen ( ".separator" );
     min::dot_terminator =
         min::new_str_gen ( ".terminator" );
-    min::dot_position =
-        min::new_str_gen ( ".position" );
     min::dot_type =
         min::new_str_gen ( ".type" );
-    min::new_line =
-        min::new_str_gen ( "\n" );
-    min::empty_string =
-        min::new_str_gen ( "" );
-    min::doublequote =
-        min::new_str_gen ( "\"" );
-    min::number_sign =
-        min::new_str_gen ( "#" );
+    min::dot_position =
+        min::new_str_gen ( ".position" );
 
     // Deprecated:
     //
+    min::new_line =
+        min::new_str_gen ( "\n" );
+    min::number_sign =
+        min::new_str_gen ( "#" );
     min::dot_middle =
         min::new_str_gen ( ".middle" );
     min::dot_name =
@@ -9521,6 +9521,7 @@ static min::obj_format compact_obj_format =
 
     min::all_marks_str_classifier,
     			    // marking_type
+
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
 
@@ -9575,6 +9576,7 @@ static min::obj_format isolated_line_obj_format =
         "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
+
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
 
@@ -9634,6 +9636,7 @@ static min::obj_format embedded_line_obj_format =
         "\x04\x00" " <= ",  // obj_valreq
 
     min::quote_all_control, // marking_type
+
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
 
@@ -9677,6 +9680,7 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_valreq
 
     {0,0,0},		    // marking_type
+
     min::NONE(),	    // quote_type
     NULL,		    // quote_format
 
@@ -10270,7 +10274,9 @@ min::printer min::print_obj
 			<< min::restore_print_format;
 	else if ( type == objf->quote_type
 	          &&
-		  type != min::NONE() )
+		  type != min::NONE()
+		  &&
+		  separator == min::NONE() )
 	{
 	    bool first = true;
 	    for ( min::unsptr i = 0;
