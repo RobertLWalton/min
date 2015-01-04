@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 2, 2015}
+\date{January 4, 2015}
  
 \maketitle
 
@@ -4390,6 +4390,76 @@ both \TT{min::\EOL USTRING\_\EOL LEADING} and
 \TT{min::\EOL USTRING\_\EOL LEADING\_\EOL ALWAYS} are
 given, only \TT{min::\EOL USTRING\_\EOL LEADING}
 is effective.
+
+\subsubsection{UNICODE Name Hash Tables}
+\label{UNICODE-NAME-HASH-TABLES}
+
+A \key{UNICODE name hash table} can be used to look up a UNICODE
+character given its name.  For most characters the name is that
+given by \TT{min::\EOL unicode::\EOL name} (\pagref{MIN::UNICODE::NAME}),
+but other names may be associated with characters.
+
+UNICODE name hash tables have the type
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+(type) \verb|min::| & \MINKEY{unicode\_name\_hash\_table}
+\LABEL{MIN::UNICODE_NAME_HASH_TABLE} \\
+\end{tabular}\end{indpar}
+
+whose implementation is hidden.  The tables may be created and
+read using the following functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{{\tt min::unicode\_name\_hash\_table
+                        min::}\MINKEY{init\REL}}\ARGBREAK
+    \verb|( min::ref<min::unicode_name_hash_table> table,|\ARGBREAK
+    \verb|  const min::uns32 * char_flags =|\ARGBREAK
+    \verb|            min::standard_char_flags,|\ARGBREAK
+    \verb|  min::uns32 flags = min::ALL_CHARS,|\ARGBREAK
+    \verb|  min::uns32 extras = 10 )|
+\LABEL{MIN::INIT_OF_UNICODE_NAME_HASH_TABLE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{add}\ARGBREAK
+    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|  const min::ustring * name,|\ARGBREAK
+    \verb|  min::Uchar c )|
+\LABEL{MIN::ADD_OF_UNICODE_NAME_HASH_TABLE} \\
+\verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
+    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|  const char * name)|
+\LABEL{MIN::FIND_OF_UNICODE_NAME_HASH_TABLE} \\
+\verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::NO_UCHAR} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::init} function creates a hash table
+if the \TT{table} argument equals \TT{min::\EOL NULL\_\EOL STUB},
+and sets this argument to the new hash table.  If the table
+already exists, the function and does nothing.  
+
+If the table is created, the \TT{min::\EOL unicode::\EOL name}
+name of a character is added to the table if its flags,
+as given by the \TT{char\_\EOL flags} argument,
+have a flag in common with the \TT{flags} argument.
+Additinally extra space is reserved for later adding character
+names to the table, as long as the number of names added later
+does not exceed the value of the \TT{extras} argument.
+The default arguments to \TT{min::\EOL init} add all names
+in the \TT{min::\EOL unicode::\EOL name} data base and reserve
+space for adding 10 additional names.
+
+The \TT{min::add} function adds \TT{name} to the table, mapping
+it to the character \TT{c}.  It is a programming error if
+\TT{name} is already mapped to a different character, or if
+more names are added than allowed by the \TT{extras} argument
+to \TT{min::\EOL init} (this latter error may not be detected
+and may result in inefficient lookup).
+
+The \TT{min::find} function looks up \TT{name} in the table
+and returns the character it maps to.  \TT{min::\EOL NO\_\EOL UCHAR}
+is returned if the name is not in the table.
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -16570,10 +16640,36 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
-\end{TABULAR}
+\INDEXHEADER{UNICODE Name Hash Tables}
 
 \begin{TABULAR}{2.4in}
+(type) \verb|min::| & \MINKEY{unicode\_name\_hash\_table}
+\LABEL{MIN::UNICODE_NAME_HASH_TABLE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{{\tt min::unicode\_name\_hash\_table
+                        min::}\MINKEY{init\REL}}\ARGBREAK
+    \verb|( min::ref<min::unicode_name_hash_table> table,|\ARGBREAK
+    \verb|  const min::uns32 * char_flags =|\ARGBREAK
+    \verb|            min::standard_char_flags,|\ARGBREAK
+    \verb|  min::uns32 flags = min::ALL_CHARS,|\ARGBREAK
+    \verb|  min::uns32 extras = 10 )|
+\LABEL{MIN::INIT_OF_UNICODE_NAME_HASH_TABLE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+\verb|void min::| & \MINKEY{add}\ARGBREAK
+    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|  const min::ustring * name,|\ARGBREAK
+    \verb|  min::Uchar c )|
+\LABEL{MIN::ADD_OF_UNICODE_NAME_HASH_TABLE} \\
+\verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
+    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|  const char * name)|
+\LABEL{MIN::FIND_OF_UNICODE_NAME_HASH_TABLE} \\
+\verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::NO_UCHAR} \\
 \end{TABULAR}
 
 \end{indpar}

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  2 03:49:52 EST 2015
+// Date:	Sun Jan  4 00:01:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,6 +35,7 @@
 //	Packed Vectors
 //	Files
 //	Identifier Maps
+//	UNICODE Name Hash Tables
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -3336,6 +3337,31 @@ bool operator != \
 
 namespace min {
 
+    struct str_classifier
+    {
+        min::uns32 in_class_if_first;
+        min::uns32 skip_if_first;
+	min::uns32 in_class_if_all;
+    };
+    const min::uns32 ALL_CHARS = 0xFFFFFFFF;
+
+    extern const min::str_classifier
+        never_str_classifier;
+    extern const min::str_classifier
+        always_str_classifier;
+    extern const min::str_classifier
+        all_marks_str_classifier;
+    extern const min::str_classifier
+        all_graphics_str_classifier;
+    extern const min::str_classifier
+        quote_all_control;
+	// Just like never_str_classifier
+    extern const min::str_classifier
+        quote_first_not_letter_control;
+    extern const min::str_classifier
+        quote_non_graphic_control;
+	// Just like all_graphics_str_classifier
+
     // Ustring flags
 
     const min::uns32
@@ -6265,6 +6291,41 @@ namespace min {
             ( min::id_map map,
 	      const min::stub * s,
 	      min::uns32 id );
+}
+
+// UNICODE Name Hash Tables
+// ------- ---- ---- ------
+
+namespace min {
+
+    namespace internal {
+	struct unicode_name_hash_table_entry
+	{
+	    const min::Uchar c;
+	    const min::ustring * name;
+	};
+    }
+    
+    typedef min::packed_vec_ptr
+		< internal::
+		  unicode_name_hash_table_entry >
+	    unicode_name_hash_table;
+
+    min::unicode_name_hash_table init
+            ( min::ref<min::unicode_name_hash_table>
+	          table,
+	      const min::uns32 * char_flags =
+	          min::standard_char_flags,
+	      min::uns32 flags = min::ALL_CHARS,
+	      min::uns32 extras = 10 );
+    uns32 add
+            ( min::unicode_name_hash_table table,
+	      const min::ustring * name,
+	      min::Uchar c );
+    uns32 find
+            ( min::unicode_name_hash_table table,
+	      const char * name );
+    const uns32 NO_UCHAR = 0xFFFFFFFF;
 }
 
 // Objects
@@ -11562,31 +11623,6 @@ namespace min {
 
     extern const min::bracket_format
         quote_bracket_format;
-
-    struct str_classifier
-    {
-        min::uns32 in_class_if_first;
-        min::uns32 skip_if_first;
-	min::uns32 in_class_if_all;
-    };
-    const min::uns32 ALL_CHARS = 0xFFFFFFFF;
-
-    extern const min::str_classifier
-        never_str_classifier;
-    extern const min::str_classifier
-        always_str_classifier;
-    extern const min::str_classifier
-        all_marks_str_classifier;
-    extern const min::str_classifier
-        all_graphics_str_classifier;
-    extern const min::str_classifier
-        quote_all_control;
-	// Just like never_str_classifier
-    extern const min::str_classifier
-        quote_first_not_letter_control;
-    extern const min::str_classifier
-        quote_non_graphic_control;
-	// Just like all_graphics_str_classifier
 
     struct str_format
     {

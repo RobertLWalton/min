@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  2 03:49:38 EST 2015
+// Date:	Sun Jan  4 00:13:12 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5739,8 +5739,6 @@ void min::compact
     void MINT::relocate
 	    ( MUP::attr_ptr_type<vecpt> & ap )
     {
-	typedef MUP::attr_ptr_type<vecpt> ap_type;
-
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
 	      next ( ap.locate_dlp ),
@@ -7418,8 +7416,6 @@ void MINT::set_more_flags
 	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::attr_insptr ap_type;
-
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
 
