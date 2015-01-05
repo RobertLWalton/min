@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 06:35:00 EST 2015
+// Date:	Mon Jan  5 11:12:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -520,23 +520,14 @@ void output ( ostream & out,
     out << endl;
 }
 
-// Compute and output unicode_character vector.
+// Output Uchar vector.
 //
-void output_unicode_character
-	( ostream & out, unsigned index_size,
-	                 unsigned index_limit )
+void output_Uchar
+	( ostream & out, const Uchar * character,
+	                 unsigned size )
 {
-    Uchar v[index_limit];
-    for ( Uchar c = 0; c < index_size; ++ c )
-        v[index[c]] = c;
-    for ( unsigned i = 0; i < index_limit; ++ i )
-    {
-        if ( reference_count[i] == 1 ) continue;
-	v[i] = NO_UCHAR;
-    }
-
     const char * finish = "";
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( unsigned i = 0; i < size; ++ i )
     {
         out << finish << " \\" << endl;
 	finish = ",";
@@ -544,7 +535,7 @@ void output_unicode_character
 	out << "    /* [" << setw ( 3 ) << i << "] */ ";
 
 	char buffer[100];
-	sprintf ( buffer, "0x%08X", v[i] );
+	sprintf ( buffer, "0x%08X", character[i] );
 	out << buffer;
     }
     out << endl;
@@ -699,8 +690,7 @@ void output_data ( const char * filename )
       "// is UNICODE_INDEX_LIMIT.\n";
 
     out << endl << "# define UNICODE_CHARACTER";
-    output_unicode_character
-        ( out, index_size, index_limit );
+    output_Uchar ( out, character, index_limit );
 
     out <<
       "\n"

@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 06:26:30 EST 2015
+// Date:	Mon Jan  5 11:06:24 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,7 @@ const unsigned index_size = 0x30001;
 unsigned short index[index_size];
 unsigned index_limit = 0;
 
+Uchar character[index_size];
 const char * category[index_size];
 short combining_class[index_size];
 const char * bidi_class[index_size];
@@ -128,7 +129,8 @@ void initialize ( void )
     }
 }
 
-// Construct index.
+// Construct index.  Compute `character' data base
+// vector.
 //
 void finalize ( void )
 {
@@ -176,6 +178,15 @@ void finalize ( void )
     assert ( ::name[i] == NULL );
     assert ( ::picture[i] == NULL );
     assert ( ::support_sets[i] == 0 );
+
+
+    for ( Uchar c = 0; c < index_size; ++ c )
+        character[index[c]] = c;
+    for ( unsigned i = 0; i < index_limit; ++ i )
+    {
+        if ( reference_count[i] != 1 )
+	    character[i] = NO_UCHAR;
+    }
 }
 
 // Store UNICODE name for a character.  Complain if

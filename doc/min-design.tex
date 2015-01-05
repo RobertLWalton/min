@@ -3462,6 +3462,24 @@ where usually
 \tt printer->print\_format.char\_flags == min::standard\_char\_flags
 \end{center}
 
+For indices \TT{i} for which there is exactly one character that
+has index \TT{i}, you can find out that character by using:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::Uchar min::|
+    & \MINKEY{unicode::character}\verb|[i]|
+\LABEL{MIN::UNICODE::CHARACTER} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::UNICODE::NO_UCHAR} \\
+\end{tabular}\end{indpar}
+
+As no two characters share a name or picture, this last can be
+useful for finding the character that has a given name or picture.
+If \TT{i} is associated with exactly one character,
+\TT{min::\EOL unicode::\EOL character[i]} equals that
+character, and otherwise it equals \TT{min::\EOL NO\_\EOL CHAR}.
+
 Here `\TT{const min::ustring *}' values encode UNICODE character
 strings in a format optimized for printing, or are \TT{NULL} to
 indicate a missing value; see \itemref{UNICODE-STRINGS} for details.
@@ -4430,8 +4448,6 @@ read using the following functions:
     \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const char * name)|
 \LABEL{MIN::FIND_OF_UNICODE_NAME_TABLE} \\
-\verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
-\LABEL{MIN::NO_UCHAR} \\
 \end{tabular}\end{indpar}
 
 The \TT{min::init} function creates a hash table
@@ -16429,6 +16445,15 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
+\verb|const min::Uchar min::|
+    & \MINKEY{unicode::character}\verb|[i]|
+\LABEL{MIN::UNICODE::CHARACTER} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::UNICODE::NO_UCHAR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
 \LABEL{MIN::IS_NON_SPACING} \\
 \end{TABULAR}
@@ -16668,8 +16693,6 @@ These are in \verb|min_parameters.h|.
     \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const char * name)|
 \LABEL{MIN::FIND_OF_UNICODE_NAME_TABLE} \\
-\verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
-\LABEL{MIN::NO_UCHAR} \\
 \end{TABULAR}
 
 \end{indpar}
