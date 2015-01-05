@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  4 03:29:00 EST 2014
+// Date:	Mon Jan  5 06:08:13 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,7 +11,8 @@
 // This file should be included inside a namespace.
 
 typedef unsigned int Uchar;
-    // Unicode character.  Must be 32 bit integer.
+    // Unicode character.  Must be 32 bit unsigned
+    // integer.
 
 const Uchar UNKNOWN_UCHAR = 0xFFFD;
     // == `unicode replacement character',
@@ -26,6 +27,9 @@ const Uchar SOFTWARE_NL = 0xF0FF;
     // given the name "NL" and corresponding control
     // picture character (as opposed to line-feed
     // which has the name "LF").
+
+const Uchar NO_UCHAR = 0xFFFFFFFF;
+    // Denotes a missing Uchar value.
 
 typedef unsigned char ustring;
     // A `ustring *' value is a sequence of 8 bit bytes
@@ -273,6 +277,11 @@ extern unsigned short const index_limit;
     // 	  From CompositeCharacters.txt:
     // 	        Supported Set
 
+
+extern const Uchar * const character[];
+    // character[i] == c iff i = index[c] and exactly
+    // one character c has index i.  Otherwise
+    // character[i] == NO_UCHAR.
 
 extern const char * const category[];
     // category[index[c]] is the UNICODE General

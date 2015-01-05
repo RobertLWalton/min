@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 4, 2015}
+\date{January 5, 2015}
  
 \maketitle
 
@@ -4391,45 +4391,45 @@ both \TT{min::\EOL USTRING\_\EOL LEADING} and
 given, only \TT{min::\EOL USTRING\_\EOL LEADING}
 is effective.
 
-\subsubsection{UNICODE Name Hash Tables}
-\label{UNICODE-NAME-HASH-TABLES}
+\subsubsection{UNICODE Name Tables}
+\label{UNICODE-NAME-TABLES}
 
-A \key{UNICODE name hash table} can be used to look up a UNICODE
+A \key{UNICODE name table} can be used to look up a UNICODE
 character given its name.  For most characters the name is that
 given by \TT{min::\EOL unicode::\EOL name} (\pagref{MIN::UNICODE::NAME}),
 but other names may be associated with characters.
 
-UNICODE name hash tables have the type
+UNICODE name tables have the type
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-(type) \verb|min::| & \MINKEY{unicode\_name\_hash\_table}
-\LABEL{MIN::UNICODE_NAME_HASH_TABLE} \\
+(type) \verb|min::| & \MINKEY{unicode\_name\_table}
+\LABEL{MIN::UNICODE_NAME_TABLE} \\
 \end{tabular}\end{indpar}
 
 whose implementation is hidden.  The tables may be created and
 read using the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{{\tt min::unicode\_name\_hash\_table
+\multicolumn{2}{l}{{\tt min::unicode\_name\_table
                         min::}\MINKEY{init\REL}}\ARGBREAK
-    \verb|( min::ref<min::unicode_name_hash_table> table,|\ARGBREAK
+    \verb|( min::ref<min::unicode_name_table> table,|\ARGBREAK
     \verb|  const min::uns32 * char_flags =|\ARGBREAK
     \verb|            min::standard_char_flags,|\ARGBREAK
     \verb|  min::uns32 flags = min::ALL_CHARS,|\ARGBREAK
     \verb|  min::uns32 extras = 10 )|
-\LABEL{MIN::INIT_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::INIT_OF_UNICODE_NAME_TABLE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
-    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const min::ustring * name,|\ARGBREAK
     \verb|  min::Uchar c )|
-\LABEL{MIN::ADD_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
-    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const char * name)|
-\LABEL{MIN::FIND_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::FIND_OF_UNICODE_NAME_TABLE} \\
 \verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
 \LABEL{MIN::NO_UCHAR} \\
 \end{tabular}\end{indpar}
@@ -16640,34 +16640,34 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{TABULAR}
 
-\INDEXHEADER{UNICODE Name Hash Tables}
+\INDEXHEADER{UNICODE Name Tables}
 
 \begin{TABULAR}{2.4in}
-(type) \verb|min::| & \MINKEY{unicode\_name\_hash\_table}
-\LABEL{MIN::UNICODE_NAME_HASH_TABLE} \\
+(type) \verb|min::| & \MINKEY{unicode\_name\_table}
+\LABEL{MIN::UNICODE_NAME_TABLE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{{\tt min::unicode\_name\_hash\_table
+\multicolumn{2}{l}{{\tt min::unicode\_name\_table
                         min::}\MINKEY{init\REL}}\ARGBREAK
-    \verb|( min::ref<min::unicode_name_hash_table> table,|\ARGBREAK
+    \verb|( min::ref<min::unicode_name_table> table,|\ARGBREAK
     \verb|  const min::uns32 * char_flags =|\ARGBREAK
     \verb|            min::standard_char_flags,|\ARGBREAK
     \verb|  min::uns32 flags = min::ALL_CHARS,|\ARGBREAK
     \verb|  min::uns32 extras = 10 )|
-\LABEL{MIN::INIT_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::INIT_OF_UNICODE_NAME_TABLE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
-    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const min::ustring * name,|\ARGBREAK
     \verb|  min::Uchar c )|
-\LABEL{MIN::ADD_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
-    \verb|( min::unicode_name_hash_table table,|\ARGBREAK
+    \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const char * name)|
-\LABEL{MIN::FIND_OF_UNICODE_NAME_HASH_TABLE} \\
+\LABEL{MIN::FIND_OF_UNICODE_NAME_TABLE} \\
 \verb|const min::Uchar min::| & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
 \LABEL{MIN::NO_UCHAR} \\
 \end{TABULAR}

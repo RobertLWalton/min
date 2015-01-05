@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  4 03:30:45 EST 2014
+// Date:	Mon Jan  5 07:51:33 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@ namespace min {
 
     using min::unicode::UNKNOWN_UCHAR;
     using min::unicode::SOFTWARE_NL;
+    using min::unicode::NO_UCHAR;
 
     using min::unicode::utf8_to_unicode;
     using min::unicode::unicode_to_utf8;

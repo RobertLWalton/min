@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  4 00:13:12 EST 2015
+// Date:	Mon Jan  5 03:53:40 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3131,6 +3131,40 @@ min::id_map min::set_id_map
 	id_map_ref(printer) = map;
 
     return printer->id_map;
+}
+
+// UNICODE Name Hash Tables
+// ------- ---- ---- ------
+
+static min::packed_vec<MINT::unicode_name_entry>
+    unicode_name_table_type
+	( "min::unicode_name_table_type" );
+
+min::unicode_name_table min::init
+	( min::ref<min::unicode_name_table>
+	      table,
+	  const min::uns32 * char_flags,
+	  min::uns32 flags,
+	  min::uns32 extras )
+{
+    if ( table == NULL_STUB )
+    {
+        table = ::unicode_name_table_type.new_stub();
+    }
+    return table;
+}
+
+void min::add
+	( min::unicode_name_table table,
+	  const min::ustring * name,
+	  min::Uchar c )
+{
+}
+min::uns32 min::find
+	( min::unicode_name_table table,
+	  const char * name )
+{
+    return 0;
 }
 
 // Objects
