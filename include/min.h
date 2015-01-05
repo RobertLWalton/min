@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan  4 00:01:52 EST 2015
+// Date:	Mon Jan  5 04:04:10 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6299,7 +6299,7 @@ namespace min {
 namespace min {
 
     namespace internal {
-	struct unicode_name_hash_table_entry
+	struct unicode_name_entry
 	{
 	    const min::Uchar c;
 	    const min::ustring * name;
@@ -6307,25 +6307,22 @@ namespace min {
     }
     
     typedef min::packed_vec_ptr
-		< internal::
-		  unicode_name_hash_table_entry >
-	    unicode_name_hash_table;
+		< internal::unicode_name_entry >
+	    unicode_name_table;
 
-    min::unicode_name_hash_table init
-            ( min::ref<min::unicode_name_hash_table>
-	          table,
+    min::unicode_name_table init
+            ( min::ref<min::unicode_name_table> table,
 	      const min::uns32 * char_flags =
 	          min::standard_char_flags,
 	      min::uns32 flags = min::ALL_CHARS,
 	      min::uns32 extras = 10 );
-    uns32 add
-            ( min::unicode_name_hash_table table,
+    void add
+            ( min::unicode_name_table table,
 	      const min::ustring * name,
 	      min::Uchar c );
     uns32 find
-            ( min::unicode_name_hash_table table,
+            ( min::unicode_name_table table,
 	      const char * name );
-    const uns32 NO_UCHAR = 0xFFFFFFFF;
 }
 
 // Objects

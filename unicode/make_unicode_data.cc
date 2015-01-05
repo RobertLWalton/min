@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  9 14:18:57 EDT 2014
+// Date:	Mon Jan  5 06:26:30 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,7 @@ namespace unicode {
 using unicode::UNKNOWN_UCHAR;
 using unicode::SOFTWARE_NL;
 using unicode::Uchar;
+using unicode::NO_UCHAR;
 using unicode::ustring;
 using unicode::ustring_length;
 using unicode::ustring_columns;

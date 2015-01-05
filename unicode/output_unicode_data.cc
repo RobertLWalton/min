@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 21 07:04:07 EDT 2014
+// Date:	Mon Jan  5 06:35:00 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -520,6 +520,36 @@ void output ( ostream & out,
     out << endl;
 }
 
+// Compute and output unicode_character vector.
+//
+void output_unicode_character
+	( ostream & out, unsigned index_size,
+	                 unsigned index_limit )
+{
+    Uchar v[index_limit];
+    for ( Uchar c = 0; c < index_size; ++ c )
+        v[index[c]] = c;
+    for ( unsigned i = 0; i < index_limit; ++ i )
+    {
+        if ( reference_count[i] == 1 ) continue;
+	v[i] = NO_UCHAR;
+    }
+
+    const char * finish = "";
+    for ( unsigned i = 0; i < index_limit; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+
+	out << "    /* [" << setw ( 3 ) << i << "] */ ";
+
+	char buffer[100];
+	sprintf ( buffer, "0x%08X", v[i] );
+	out << buffer;
+    }
+    out << endl;
+}
+
 // Output unicode_data_support_sets.h style file.
 //
 void output_support_sets ( const char * filename )
@@ -661,6 +691,16 @@ void output_data ( const char * filename )
 
     out << endl << "# define UNICODE_INDEX_LIMIT "
         << index_limit << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_CHARACTER is the list of element\n"
+      "// values of the `character' vector whose size\n"
+      "// is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_CHARACTER";
+    output_unicode_character
+        ( out, index_size, index_limit );
 
     out <<
       "\n"
