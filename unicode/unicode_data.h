@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 06:08:13 EST 2015
+// Date:	Mon Jan  5 11:36:05 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -278,7 +278,7 @@ extern unsigned short const index_limit;
     // 	        Supported Set
 
 
-extern const Uchar * const character[];
+extern const Uchar character[];
     // character[i] == c iff i = index[c] and exactly
     // one character c has index i.  Otherwise
     // character[i] == NO_UCHAR.
