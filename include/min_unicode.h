@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 07:51:33 EST 2015
+// Date:	Mon Jan  5 20:09:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,7 +25,13 @@ namespace min {
     using min::unicode::ustring;
     using min::unicode::ustring_length;
     using min::unicode::ustring_columns;
+    using min::unicode::ustring_flags;
     using min::unicode::ustring_chars;
+
+    using min::unicode::USTRING_LEADING;
+    using min::unicode::USTRING_TRAILING;
+    using min::unicode::USTRING_LEADING_ALWAYS;
+    using min::unicode::USTRING_TRAILING_ALWAYS;
 
     using min::unicode::UNKNOWN_UCHAR;
     using min::unicode::SOFTWARE_NL;

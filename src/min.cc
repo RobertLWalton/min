@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 03:53:40 EST 2015
+// Date:	Tue Jan  6 01:15:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3149,7 +3149,33 @@ min::unicode_name_table min::init
 {
     if ( table == NULL_STUB )
     {
-        table = ::unicode_name_table_type.new_stub();
+        uns32 length = extras;
+	if ( flags != 0 )
+	{
+	    for ( unsigned i = 0;
+	          i < min::unicode::index_limit; ++ i )
+	    {
+	        if ( ( char_flags[i] & flags ) != 0 )
+		    ++ length;
+	    }
+	}
+
+	length *= 3;
+        table = ::unicode_name_table_type
+	        .new_stub ( length, length );
+
+	for ( unsigned i = 0;
+	      i < min::unicode::index_limit; ++ i )
+	{
+	    if ( ( char_flags[i] & flags ) == 0 )
+		continue;
+	    const ustring * name =
+	        min::unicode::name[i];
+	    Uchar c = min::unicode::character[i];
+	    if ( name == NULL ) continue;
+	    assert ( c != NO_UCHAR );
+	    min::add ( table, name, c );
+	}
     }
     return table;
 }
@@ -3159,12 +3185,49 @@ void min::add
 	  const min::ustring * name,
 	  min::Uchar c )
 {
+    Uchar c2 = min::find
+                 ( table, min::ustring_chars ( name ) );
+    if ( c2 == c ) return;
+    assert ( c2 == NO_UCHAR );
+
+    uns32 length = table->length;
+    uns32 i = min::strhash
+                  ( min::ustring_chars ( name ) )
+	    % length;
+    uns32 j;
+    for ( j = 0; j < length; ++ j, ++ i, i %= length )
+    {
+        internal::unicode_name_entry e = table[i];
+	if ( e.name == NULL ) break;
+    }
+    assert ( j != length );
+    internal::unicode_name_entry e;
+    e.c = c;
+    e.name = name;
+    packed_vec_insptr<internal::unicode_name_entry> p =
+        (packed_vec_insptr
+	     <internal::unicode_name_entry>)
+        table;
+    p[i] = e;
 }
-min::uns32 min::find
+
+min::Uchar min::find
 	( min::unicode_name_table table,
 	  const char * name )
 {
-    return 0;
+    uns32 length = table->length;
+    uns32 i = min::strhash ( name ) % length;
+    for ( uns32 j = 0; j < length;
+                       ++ j, ++ i, i %= length )
+    {
+        internal::unicode_name_entry e = table[i];
+	if ( e.name == NULL ) return NO_UCHAR;
+	if (    ::strcmp
+		    ( ustring_chars ( e.name ), name )
+	     == 0 )
+	    return e.c;
+    }
+    assert ( ! "unicode name table too small" );
 }
 
 // Objects

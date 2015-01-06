@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 04:04:10 EST 2015
+// Date:	Mon Jan  5 20:10:02 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3362,23 +3362,6 @@ namespace min {
         quote_non_graphic_control;
 	// Just like all_graphics_str_classifier
 
-    // Ustring flags
-
-    const min::uns32
-    	USTRING_LEADING		= ( 1 << 6 );
-    const min::uns32
-    	USTRING_TRAILING	= ( 1 << 7 );
-    const min::uns32
-    	USTRING_LEADING_ALWAYS	= ( 1 << 14 );
-    const min::uns32
-    	USTRING_TRAILING_ALWAYS	= ( 1 << 15 );
-
-    inline min::uns32 ustring_flags
-        ( const min::ustring * str )
-    {
-        return ( str[0] << 8 ) + str[1];
-    }
-
     // UTF-8 Conversion Functions
 
     unsptr utf8_to_unicode
@@ -6301,7 +6284,7 @@ namespace min {
     namespace internal {
 	struct unicode_name_entry
 	{
-	    const min::Uchar c;
+	    min::Uchar c;
 	    const min::ustring * name;
 	};
     }
@@ -6320,7 +6303,7 @@ namespace min {
             ( min::unicode_name_table table,
 	      const min::ustring * name,
 	      min::Uchar c );
-    uns32 find
+    Uchar find
             ( min::unicode_name_table table,
 	      const char * name );
 }

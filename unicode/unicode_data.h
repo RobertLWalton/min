@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 11:36:05 EST 2015
+// Date:	Tue Jan  6 00:09:56 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13,6 +13,12 @@
 typedef unsigned int Uchar;
     // Unicode character.  Must be 32 bit unsigned
     // integer.
+
+typedef unsigned long long uns64;
+typedef unsigned int uns32;
+typedef unsigned short uns16;
+typedef unsigned char uns8;
+    // Must be 64, 32, 16, and 8 bit unsigned integers.
 
 const Uchar UNKNOWN_UCHAR = 0xFFFD;
     // == `unicode replacement character',
@@ -31,7 +37,7 @@ const Uchar SOFTWARE_NL = 0xF0FF;
 const Uchar NO_UCHAR = 0xFFFFFFFF;
     // Denotes a missing Uchar value.
 
-typedef unsigned char ustring;
+typedef uns8 ustring;
     // A `ustring *' value is a sequence of 8 bit bytes
     // the first two of which are the `header' and the
     // remainder of which is a NUL terminated `const
@@ -58,12 +64,12 @@ typedef unsigned char ustring;
 // header of a ustring, and return a pointer to the
 // `const char *' UTF8 string in the ustring.
 //
-inline unsigned ustring_length
+inline uns32 ustring_length
 	( const ustring * p )
 {
-    return p[0];
+    return p[0] & 0x3F;
 }
-inline unsigned ustring_columns
+inline uns32 ustring_columns
 	( const ustring * p )
 {
     return p[1] & 0x3F;
@@ -72,6 +78,26 @@ inline const char * ustring_chars
 	( const ustring * p )
 {
     return (const char *) ( p + 2 );
+}
+
+// Ustring flags as returned by ustring_flags function
+// (and NOT as encode in ustring bytes).
+//
+const uns32 USTRING_LEADING		= ( 1 << 6 );
+    // 0x40 in second byte
+const uns32 USTRING_TRAILING		= ( 1 << 7 );
+    // 0x80 in second byte
+const uns32 USTRING_LEADING_ALWAYS	= ( 1 << 14 );
+    // 0x40 in first byte
+const uns32 USTRING_TRAILING_ALWAYS	= ( 1 << 15 );
+    // 0x80 in first byte
+
+// Return flags as per above.
+//
+inline uns32 ustring_flags
+    ( const ustring * str )
+{
+    return ( str[0] << 8 ) + str[1];
 }
 
 
@@ -219,18 +245,18 @@ inline unsigned unicode_to_utf8
 //
 // where support_sets and index are described below.
 
-extern unsigned const ss_support_sets_size;
+extern uns32 const ss_support_sets_size;
 extern const char * const ss_support_sets_name[];
-extern unsigned char const ss_support_sets_shift[];
+extern uns8 const ss_support_sets_shift[];
     // An ss support set s has shift k if and only if
     // for some i, 0 <= i < ss_support_sets_size,
     //
     //     "s" == ss_support_sets_name[i]
     //      k  == ss_support_sets_shift[i]
 
-extern unsigned const cc_support_sets_size;
+extern uns32 const cc_support_sets_size;
 extern const char * const cc_support_sets_name[];
-extern unsigned long const cc_support_sets_mask[];
+extern uns32 const cc_support_sets_mask[];
     // A cc support set c has mask m if and only if
     // for some j, 0 <= j < cc_support_sets_size,
     //
@@ -238,8 +264,8 @@ extern unsigned long const cc_support_sets_mask[];
     //      m  == cc_support_sets_mask[j]
 
 extern Uchar const index_size;
-extern unsigned short const index[];
-extern unsigned short const index_limit;
+extern uns16 const index[];
+extern uns16 const index_limit;
     // Index table.
     //
     // index[c] is the index of c.  For c <= 0xFF,
@@ -326,7 +352,7 @@ extern char const bidi_mirrored[];
     // Mirrored Indicator of c, 'Y' or 'N' or 0 if
     // missing.
 
-extern unsigned long long const properties[];
+extern uns64 const properties[];
     // properties[index[c]] & ( 1 << P ) is true if
     // c has property P, where P is one of the
     // following (the items in this table and their
@@ -393,7 +419,7 @@ extern const ustring * const picture[];
     //     0x7F	    	    ---> 0x2421
     //     SOFTWARE_NL	    ---> 0x2424
 
-extern unsigned long const support_sets[];
+extern uns32 const support_sets[];
     // support_sets[index[c]] & ( 1 << k ) != 0 if
     // and only if c is in support set s where
     //
@@ -402,7 +428,7 @@ extern unsigned long const support_sets[];
     //
     // See discussion of support sets above.
 
-extern unsigned const reference_count[];
+extern uns32 const reference_count[];
     // reference_count[i] is the number of character
     // codes c with i == index[c].  This is just for
     // integrity checking purposes.

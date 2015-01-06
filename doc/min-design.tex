@@ -3311,7 +3311,7 @@ Unicode characters are implemented by the following:
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_TO_UNICODE} \\
-\verb|min::unsptr min::|
+\verb|unsigned min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
       \verb|( char * & s, min::Uchar c )|
 \LABEL{MIN::UNICODE_TO_UTF8} \\
@@ -3472,6 +3472,9 @@ has index \TT{i}, you can find out that character by using:
 \verb|const min::Uchar min::|
     & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
 \LABEL{MIN::UNICODE::NO_UCHAR} \\
+\verb|const min::uns16 min::|
+    & \MINKEY{unicode::index\_limit}
+\LABEL{MIN::UNICODE::INDEX_LIMIT} \\
 \end{tabular}\end{indpar}
 
 As no two characters share a name or picture, this last can be
@@ -3479,6 +3482,11 @@ useful for finding the character that has a given name or picture.
 If \TT{i} is associated with exactly one character,
 \TT{min::\EOL unicode::\EOL character[i]} equals that
 character, and otherwise it equals \TT{min::\EOL NO\_\EOL CHAR}.
+
+The size of all the above vectors is
+\TT{min::\EOL unicode::\EOL index\_\EOL limit},
+which is a strict upper bound on the index \TT{i}
+(i.e., \TT{0 <= i < index\_limit}).
 
 Here `\TT{const min::ustring *}' values encode UNICODE character
 strings in a format optimized for printing, or are \TT{NULL} to
@@ -4328,18 +4336,18 @@ The following are for programming with \TT{ustring}'s:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|typedef min::uns8 min::| & \MINKEY{ustring}
 \LABEL{MIN::USTRING} \\
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_length} \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{unicode\_columns} \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_COLUMNS} \\
+    & \MINKEY{ustring\_length} \verb|( const min::ustring * p )|
+\LABEL{MIN::USTRING_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{unicode\_flags} \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_FLAGS} \\
+    & \MINKEY{ustring\_columns} \verb|( const min::ustring * p )|
+\LABEL{MIN::USTRING_COLUMNS} \\
+\verb|min::uns32 min::|
+    & \MINKEY{ustring\_flags} \verb|( const min::ustring * p )|
+\LABEL{MIN::USTRING_FLAGS} \\
 \verb|const min::Uchar * min::|
-    & \MINKEY{unicode\_string} \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_STRING} \\
+    & \MINKEY{ustring\_chars} \verb|( const min::ustring * p )|
+\LABEL{MIN::USTRING_CHARS} \\
 \end{tabular}\end{indpar}
 
 where the possible \skey{ustring flag}s are:
@@ -4359,21 +4367,21 @@ where the possible \skey{ustring flag}s are:
 \LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
-The \TT{min::unicode\_\EOL length} function returns the number
+The \TT{min::ustring\_\EOL length} function returns the number
 of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
 (not including the terminating \TT{NUL}); the maximum is 63.
-The \TT{min::unicode\_\EOL columns} function returns the number
+The \TT{min::ustring\_\EOL columns} function returns the number
 of print columns these take; the maximum is 15.  If this is non-zero,
 the string must consist of only graphics characters and must take
 the returned number of columns;
 but if it is zero,\label{USTRING-ZERO-COLUMNS}
 the string may contain other characters, such as single spaces,
 and may take any number of columns.
-The \TT{min::\EOL unicode\_\EOL flags} function returns the flags,
+The \TT{min::\EOL ustring\_\EOL flags} function returns the flags,
 which can be tested by AND'ing the returned value with
 the \TT{min::USTRING\_LEADING/TRAILING} or
 \TT{min::USTRING\_LEADING/TRAILING\_\EOL ALWAYS} flags.
-The \TT{min::unicode\_\EOL string} function returns a pointer
+The \TT{min::ustring\_\EOL chars} function returns a pointer
 to the \TT{const char *} string in the \TT{ustring}.
 
 The flags cause the following printer operations, which are described
@@ -16401,7 +16409,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_TO_UNICODE} \\
-\verb|min::unsptr min::|
+\verb|unsigned min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
       \verb|( char * & s, min::Uchar c )|
 \LABEL{MIN::UNICODE_TO_UTF8} \\
@@ -16451,6 +16459,9 @@ These are in \verb|min_parameters.h|.
 \verb|const min::Uchar min::|
     & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
 \LABEL{MIN::UNICODE::NO_UCHAR} \\
+\verb|const min::uns16 min::|
+    & \MINKEY{unicode::index\_limit}
+\LABEL{MIN::UNICODE::INDEX_LIMIT} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -16636,22 +16647,22 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|min::unsptr min::|
-    & \MINKEY{unicode\_length}\ARGBREAK
-      \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{unicode\_columns} \ARGBREAK
+    & \MINKEY{ustring\_length}\ARGBREAK
       \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_COLUMNS} \\
+\LABEL{MIN::USTRING_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{unicode\_flags} \ARGBREAK
+    & \MINKEY{ustring\_columns} \ARGBREAK
       \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_FLAGS} \\
+\LABEL{MIN::USTRING_COLUMNS} \\
+\verb|min::uns32 min::|
+    & \MINKEY{ustring\_flags} \ARGBREAK
+      \verb|( const min::ustring * p )|
+\LABEL{MIN::USTRING_FLAGS} \\
 \verb|const min::Uchar * min::|
-    & \MINKEY{unicode\_string} \ARGBREAK
+    & \MINKEY{ustring\_chars} \ARGBREAK
       \verb|( const min::ustring * p )|
-\LABEL{MIN::UNICODE_STRING} \\
+\LABEL{MIN::USTRING_CHARS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}

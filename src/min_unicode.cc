@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 11:24:58 EST 2015
+// Date:	Tue Jan  6 01:16:19 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,36 +15,36 @@
 
 # define UNI min::unicode
 
-const unsigned
+const UNI::uns32
     UNI::ss_support_sets_size =
 	UNICODE_SS_SUPPORT_SETS_SIZE;
 const char * const
     UNI::ss_support_sets_name
         [UNI::ss_support_sets_size] =
 	    { UNICODE_SS_SUPPORT_SETS_NAME };
-const unsigned char
+const UNI::uns8
     UNI::ss_support_sets_shift
         [UNI::ss_support_sets_size] =
 	    { UNICODE_SS_SUPPORT_SETS_SHIFT };
 
-const unsigned
+const UNI::uns32
     UNI::cc_support_sets_size =
 	UNICODE_CC_SUPPORT_SETS_SIZE;
 const char * const
     UNI::cc_support_sets_name
         [UNI::cc_support_sets_size] =
 	    { UNICODE_CC_SUPPORT_SETS_NAME };
-const unsigned long
+const UNI::uns32
     UNI::cc_support_sets_mask
         [UNI::cc_support_sets_size] =
 	    { UNICODE_CC_SUPPORT_SETS_MASK };
 
-const unsigned
+const UNI::Uchar
     UNI::index_size = UNICODE_INDEX_SIZE;
-const unsigned short
+const UNI::uns16
     UNI::index[UNI::index_size] =
         { UNICODE_INDEX };
-const unsigned short
+const UNI::uns16
     UNI::index_limit = UNICODE_INDEX_LIMIT;
 const UNI::Uchar
     UNI::character[UNI::index_limit] =
@@ -67,10 +67,10 @@ const double
 const double
     UNI::numeric_value[UNI::index_limit] =
         { UNICODE_NUMERIC_VALUE };
-extern char const
+char const
     UNI::bidi_mirrored[UNI::index_limit] =
         { UNICODE_BIDI_MIRRORED };
-extern unsigned long long const
+UNI::uns64 const
     UNI::properties[UNI::index_limit] =
         { UNICODE_PROPERTIES };
 const UNI::ustring * const
@@ -79,9 +79,9 @@ const UNI::ustring * const
 const UNI::ustring * const
     UNI::picture[UNI::index_limit] =
         { UNICODE_PICTURE };
-extern const unsigned long
+const UNI::uns32
     UNI::support_sets[UNI::index_limit] =
         { UNICODE_SUPPORT_SETS };
-const unsigned
+const UNI::uns32
     UNI::reference_count[UNI::index_limit] =
         { UNICODE_REFERENCE_COUNT };

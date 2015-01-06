@@ -82,7 +82,10 @@ inline bool ustring_eq
 // identical values in all the tables and so can be
 // merged.
 //
-inline bool index_eq ( unsigned i1, unsigned i2 )
+// WARNING: as this function is used by make_unicode_
+// data.cc, indexes must be uns32's and NOT uns16's.
+//
+inline bool index_eq ( uns32 i1, uns32 i2 )
 {
     return
            eq ( category[i1], category[i2] )
@@ -126,17 +129,17 @@ void putprop ( ostream & out, const char * prop )
 }
 
 void print_ss_support_set
-	( unsigned i, ostream & out = cout )
+	( uns32 i, ostream & out = cout )
 {
     assert ( i < ss_support_sets_size );
 
-    unsigned k = ss_support_sets_shift[i];
+    uns8 k = ss_support_sets_shift[i];
     sprintf ( line, "%12s = ( 1 << %2d ):",
                     ss_support_sets_name[i], k );
     indent = strlen ( line );
     linep = line + indent;
 
-    for ( unsigned j = 0; j < cc_support_sets_size;
+    for ( uns32 j = 0; j < cc_support_sets_size;
                           ++ j )
     {
         if ( cc_support_sets_mask[j] & ( 1 << k ) )
@@ -147,7 +150,7 @@ void print_ss_support_set
     out << line << endl;
 }
 
-void print_index ( unsigned i, ostream & out = cout )
+void print_index ( uns16 i, ostream & out = cout )
 {
     assert ( i < index_limit );
 
@@ -190,9 +193,9 @@ void print_index ( unsigned i, ostream & out = cout )
 	putprop ( out, buffer );
     }
 
-    for ( unsigned j = 0; j < ss_support_sets_size; ++ j )
+    for ( uns32 j = 0; j < ss_support_sets_size; ++ j )
     {
-	unsigned k = ss_support_sets_shift[j];
+	uns8 k = ss_support_sets_shift[j];
         if ( ( support_sets[i] & ( 1 << k ) ) != 0 )
 	    putprop ( out, ss_support_sets_name[j] );
     }
@@ -235,7 +238,7 @@ void dump ( const char * filename )
 	<< endl;
 
     out << endl;
-    for ( unsigned i = 0; i < ss_support_sets_size;
+    for ( uns32 i = 0; i < ss_support_sets_size;
                           ++ i )
         print_ss_support_set ( i, out );
 
@@ -244,7 +247,7 @@ void dump ( const char * filename )
 	<< endl;
 
     out << endl;
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( uns16 i = 0; i < index_limit; ++ i )
         print_index ( i, out );
 
     out.close();
@@ -358,10 +361,10 @@ void output ( ostream & out, const char * vector,
     out << endl;
 }
 
-// Output values for a vector of unsigned char's.
+// Output values for a vector of uns8's.
 //
 void output ( ostream & out,
-              const unsigned char * vector,
+              const uns8 * vector,
 	      unsigned size )
 {
     const char * finish = "";
@@ -395,9 +398,9 @@ void output ( ostream & out, const short * vector,
     out << endl;
 }
 
-// Output values for a vector of unsigned's.
+// Output values for a vector of uns32's.
 //
-void output ( ostream & out, const unsigned * vector,
+void output ( ostream & out, const uns32 * vector,
 	      unsigned size )
 {
     const char * finish = "";
@@ -413,11 +416,11 @@ void output ( ostream & out, const unsigned * vector,
     out << endl;
 }
 
-// Output values for a vector of unsigned long long's
+// Output values for a vector of uns64's
 // each containing at most b bits.
 //
 void output ( ostream & out,
-              const unsigned long long * vector,
+              const uns64 * vector,
 	      unsigned b,
 	      unsigned size )
 {
@@ -439,11 +442,11 @@ void output ( ostream & out,
     out << endl;
 }
 
-// Output values for a vector of unsigned long's
+// Output values for a vector of uns32's
 // each containing at most b bits.
 //
 void output ( ostream & out,
-              const unsigned long * vector,
+              const uns32 * vector,
 	      unsigned b,
 	      unsigned size )
 {
