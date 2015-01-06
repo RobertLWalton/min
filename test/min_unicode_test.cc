@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 11:38:31 EST 2015
+// Date:	Tue Jan  6 01:08:18 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,10 @@ using std::ofstream;
 # define UNI min::unicode
 
 using UNI::Uchar;
+using UNI::uns64;
+using UNI::uns32;
+using UNI::uns16;
+using UNI::uns8;
 using UNI::utf8_to_unicode;
 using UNI::unicode_to_utf8;
 

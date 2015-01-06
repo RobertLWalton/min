@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 11:06:24 EST 2015
+// Date:	Tue Jan  6 00:10:51 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -39,6 +39,10 @@ namespace unicode {
 using unicode::UNKNOWN_UCHAR;
 using unicode::SOFTWARE_NL;
 using unicode::Uchar;
+using unicode::uns64;
+using unicode::uns32;
+using unicode::uns16;
+using unicode::uns8;
 using unicode::NO_UCHAR;
 using unicode::ustring;
 using unicode::ustring_length;
@@ -52,20 +56,23 @@ using unicode::unicode_to_utf8;
 // with vectors of size index_size instead index_limit
 // and of max_support_sets instead of ss/cc_support_
 // sets_size.
+//
+// WARNING: This means that indexes are uns32's and
+// NOT uns16's in this program only.
 
-const unsigned max_support_sets = 4096;
+const uns32 max_support_sets = 4096;
     // This is so large its ridiculous, and should
     // never been exceeded.
 const char * ss_support_sets_name[max_support_sets];
-unsigned char ss_support_sets_shift[max_support_sets];
-unsigned ss_support_sets_size = 0;
+uns8 ss_support_sets_shift[max_support_sets];
+uns32 ss_support_sets_size = 0;
 const char * cc_support_sets_name[max_support_sets];
-unsigned long cc_support_sets_mask[max_support_sets];
-unsigned cc_support_sets_size = 0;
+uns32 cc_support_sets_mask[max_support_sets];
+uns32 cc_support_sets_size = 0;
 
-const unsigned index_size = 0x30001;
-unsigned short index[index_size];
-unsigned index_limit = 0;
+const Uchar index_size = 0x30001;
+uns32 index[index_size];
+uns32 index_limit = 0;
 
 Uchar character[index_size];
 const char * category[index_size];
@@ -75,11 +82,11 @@ double numerator[index_size];
 double denominator[index_size];
 double numeric_value[index_size];
 char bidi_mirrored[index_size];
-unsigned long long properties[index_size];
+uns64 properties[index_size];
 const ustring * name[index_size];
 const ustring * picture[index_size];
-unsigned long support_sets[index_size];
-unsigned reference_count[index_size];
+uns32 support_sets[index_size];
+uns32 reference_count[index_size];
 
 # include "output_unicode_data.cc"
     // Includes:
@@ -98,7 +105,7 @@ void line_error ( const char * format, ... );
 // Copy table entries for index[.] value i2 to entries
 // for index[.] value i1.
 //
-inline void index_copy ( unsigned i1, unsigned i2 )
+inline void index_copy ( uns32 i1, uns32 i2 )
 {
     assert ( i1 <= i2 );
     category[i1] = category[i2];
@@ -144,7 +151,7 @@ void finalize ( void )
 	    continue;
 	}
 
-	unsigned i;
+	uns32 i;
 	for ( i = 0x100; i < index_limit; ++ i )
 	{
 	    if ( index_eq ( i, c ) ) break;
@@ -168,7 +175,7 @@ void finalize ( void )
 	}
     }
 
-    unsigned i = index[index_size-1];
+    uns32 i = index[index_size-1];
     assert ( ::category[i] == NULL );
     assert ( ::combining_class[i] == -1 );
     assert ( ::bidi_class[i] == NULL );
@@ -182,7 +189,7 @@ void finalize ( void )
 
     for ( Uchar c = 0; c < index_size; ++ c )
         character[index[c]] = c;
-    for ( unsigned i = 0; i < index_limit; ++ i )
+    for ( uns32 i = 0; i < index_limit; ++ i )
     {
         if ( reference_count[i] != 1 )
 	    character[i] = NO_UCHAR;
@@ -223,7 +230,7 @@ void store_name ( Uchar c, const char * n )
 
     // Check for name being used more than once.
     //
-    for ( unsigned c2 = 0; c2 < index_size; ++ c2 )
+    for ( Uchar c2 = 0; c2 < index_size; ++ c2 )
     {
 	if ( ! ustring_eq ( name[c], name[c2] ) )
 	    continue;
@@ -490,9 +497,9 @@ bool get_next_field
 // Find an cc_support set and return its mask.  Return
 // 0 if not found.
 //
-unsigned long find_cc_support_set ( const char * name )
+uns32 find_cc_support_set ( const char * name )
 {
-    unsigned j;
+    uns32 j;
     for ( j = 0; j < cc_support_sets_size; ++ j )
     {
 	if ( eq ( name, cc_support_sets_name[j] ) )
@@ -569,7 +576,7 @@ void read_support_sets ( void )
 	    continue;
 	}
 
-	unsigned i;
+	uns32 i;
 	for ( i = 0; i < ss_support_sets_size; ++ i )
 	{
 	    if ( eq ( field, ss_support_sets_name[i] ) )
@@ -616,7 +623,7 @@ void read_support_sets ( void )
 	const char * subfield;
 	while ( ( subfield = get_next_subfield() ) )
 	{
-	    unsigned j;
+	    uns32 j;
 	    for ( j = 0; j < cc_support_sets_size; ++ j )
 	    {
 		if ( eq ( subfield,
@@ -669,7 +676,7 @@ void read_composite_characters ( void )
 	if ( ! get_next_field ( p, "third" ) )
 	    continue;
 
-	unsigned long support_sets = 0;
+	uns32 support_sets = 0;
 	const char * subfield;
 	while ( ( subfield = get_next_subfield() ) )
 	    support_sets |=
@@ -887,13 +894,13 @@ void read_prop_list ( void )
 //
 void set_support_sets ( void )
 {
-    unsigned long special_ss =
+    uns32 special_ss =
         find_cc_support_set ( "special" );
 
     support_sets[UNKNOWN_UCHAR] |= special_ss;
     support_sets[SOFTWARE_NL] |= special_ss;
 
-    unsigned long ascii_ss =
+    uns32 ascii_ss =
         find_cc_support_set ( "ascii" );
 
     for ( Uchar c = 0; c <= 0x7F; ++ c )
@@ -937,6 +944,10 @@ void set_pictures ( void )
 int main ( int argc, const char ** argv )
 {
     assert ( sizeof(Uchar) == 4 );
+    assert ( sizeof(uns64) == 8 );
+    assert ( sizeof(uns32) == 4 );
+    assert ( sizeof(uns16) == 2 );
+    assert ( sizeof(uns8)  == 1 );
 
     cout << setiosflags ( ios_base::uppercase );
 
