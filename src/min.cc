@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 01:15:51 EST 2015
+// Date:	Wed Jan  7 14:50:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@
 //	Packed Structures and Vectors
 //	Files
 //	Identifier Maps
+//	UNICODE Name Tables
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -3133,8 +3134,8 @@ min::id_map min::set_id_map
     return printer->id_map;
 }
 
-// UNICODE Name Hash Tables
-// ------- ---- ---- ------
+// UNICODE Name Tables
+// ------- ---- ------
 
 static min::packed_vec<MINT::unicode_name_entry>
     unicode_name_table_type
@@ -3173,7 +3174,7 @@ min::unicode_name_table min::init
 	        min::unicode::name[i];
 	    Uchar c = min::unicode::character[i];
 	    if ( name == NULL ) continue;
-	    assert ( c != NO_UCHAR );
+	    MIN_ASSERT ( c != NO_UCHAR );
 	    min::add ( table, name, c );
 	}
     }
@@ -3188,7 +3189,7 @@ void min::add
     Uchar c2 = min::find
                  ( table, min::ustring_chars ( name ) );
     if ( c2 == c ) return;
-    assert ( c2 == NO_UCHAR );
+    MIN_ASSERT ( c2 == NO_UCHAR );
 
     uns32 length = table->length;
     uns32 i = min::strhash
