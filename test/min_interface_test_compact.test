@@ -1536,6 +1536,172 @@ min_interface_test.cc:XXXX assert:
 Finish Packed Vectors Test!
 
 Start File Test!
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 1", ! & file1->buffer [min::next_line(file1)] ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 2", ! & file1->buffer [min::next_line(file1)] ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 3", ! & file1->buffer [min::next_line(file1)] ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::NO_LINE == min::next_line ( file1 ) true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 2", ! & file1->buffer [min::line(file1,1)] ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 0", ! & file2->buffer [min::next_line(file2)] ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line 1", ! & file2->buffer [min::next_line(file2)] ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::NO_LINE == min::next_line ( file2 ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    data_length == file3->buffer->length true.
+min_interface_test.cc:XXXX assert:
+    data_length == file4->buffer->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strncmp ( ! & file3->buffer[0], ! & file4->buffer[0], data_length ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line A", ! & file4->buffer [min::next_line(file4)] ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Line B", ! & file4->buffer [min::next_line(file4)] ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::NO_LINE == min::next_line ( file4 ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    data == ostream.str() true.
+min_interface_test.cc:XXXX assert:
+    file4->buffer->length == file5->buffer->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strncmp ( ! & file4->buffer[0], ! & file5->buffer[0], file4->buffer->length ) == 0 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( "Partial Line", ! & file5->buffer [min::next_line(file5)] ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::NO_LINE == min::next_line ( file5 ) true.
 
 Finish File Test!
 

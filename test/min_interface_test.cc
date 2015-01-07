@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  1 12:13:24 EST 2015
+// Date:	Wed Jan  7 03:27:14 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@
 //	Packed Vectors
 //	Files
 //	Identifier Maps
+//	UNICODE Name Tables
 //	Printers
 //	Objects
 //	Object Vector Level
@@ -2319,7 +2320,6 @@ void test_file ( void )
 {
     cout << endl;
     cout << "Start File Test!" << endl;
-    min_assert_print = false;
 
     min::locatable_var<min::file> file1;
     min::init_input_string
@@ -2430,7 +2430,6 @@ void test_file ( void )
     // Tests of files + printers is deferred until
     // test of printers.
 
-    min_assert_print = true;
     cout << endl;
     cout << "Finish File Test!" << endl;
 
@@ -2494,6 +2493,68 @@ void test_identifier_map ( void )
 
     cout << endl;
     cout << "Finish Identifier Map Test!" << endl;
+}
+
+// UNICODE Name Tables
+// ------- ---- ------
+
+static min::locatable_var<min::unicode_name_table>
+    unicode_table;
+
+void test_unicode_name_table ( void )
+{
+    cout << endl;
+    cout << "Start UNICODE Name Table Test!" << endl;
+
+    min::init ( ::unicode_table );
+    min::Uchar c = min::find ( ::unicode_table, "FF" );
+    MIN_ASSERT ( c == '\f' );
+    c = min::find ( ::unicode_table, "DEL" );
+    MIN_ASSERT ( c == 0x7F );
+    c = min::find ( ::unicode_table, "PAD" );
+    MIN_ASSERT ( c == 0x80 );
+    c = min::find ( ::unicode_table, "SHY" );
+    MIN_ASSERT ( c == 0xAD );
+    c = min::find ( ::unicode_table, "XXXXXX" );
+    MIN_ASSERT ( c == min::NO_UCHAR );
+    c = min::find ( ::unicode_table, "YYYYY" );
+    MIN_ASSERT ( c == min::NO_UCHAR );
+
+    min::add ( ::unicode_table,
+               (const min::ustring *) "\x06\x06XXXXXX",
+	       0x1234 );
+    c = min::find ( ::unicode_table, "XXXXXX" );
+    MIN_ASSERT ( c == 0x1234 );
+    c = min::find ( ::unicode_table, "YYYYY" );
+    MIN_ASSERT ( c == min::NO_UCHAR );
+
+    min::add ( ::unicode_table,
+               (const min::ustring *) "\x05\x05YYYYY",
+	       0x5678 );
+    c = min::find ( ::unicode_table, "XXXXXX" );
+    MIN_ASSERT ( c == 0x1234 );
+    c = min::find ( ::unicode_table, "YYYYY" );
+    MIN_ASSERT ( c == 0x5678 );
+
+    desire_success (
+	min::add ( ::unicode_table,
+		   (const min::ustring *)
+		       "\x05\x05YYYYY",
+		   0x5678 );
+    );
+    desire_failure (
+	min::add ( ::unicode_table,
+		   (const min::ustring *)
+		       "\x05\x05YYYYY",
+		   0x1234 );
+    );
+    c = min::find ( ::unicode_table, "XXXXXX" );
+    MIN_ASSERT ( c == 0x1234 );
+    c = min::find ( ::unicode_table, "YYYYY" );
+    MIN_ASSERT ( c == 0x5678 );
+
+    cout << endl;
+    cout << "Finish UNICODE Name Table Test!" << endl;
 }
 
 // Printers
@@ -4840,6 +4901,7 @@ int main ( int argc, const char * argv[] )
 	test_packed_vectors();
 	test_file();
 	test_identifier_map();
+	test_unicode_name_table();
 	test_printer();
 	test_objects();
 	test_object_vector_level();

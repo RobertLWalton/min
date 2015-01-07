@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 20:10:02 EST 2015
+// Date:	Tue Jan  6 21:14:16 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,7 @@
 //	Packed Vectors
 //	Files
 //	Identifier Maps
-//	UNICODE Name Hash Tables
+//	UNICODE Name Tables
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -6276,8 +6276,8 @@ namespace min {
 	      min::uns32 id );
 }
 
-// UNICODE Name Hash Tables
-// ------- ---- ---- ------
+// UNICODE Name Tables
+// ------- ---- ------
 
 namespace min {
 
