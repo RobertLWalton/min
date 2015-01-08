@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 04:03:21 EST 2015
+// Date:	Thu Jan  8 07:40:18 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,7 +59,6 @@ namespace min {
 	  const char * message_format, ... );
 
     extern bool assert_print;
-    extern bool assert_desired_value;
     extern bool assert_abort;
     extern bool assert_throw;
 
