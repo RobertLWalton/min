@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 11:24:21 EST 2015
+// Date:	Thu Jan  8 13:41:28 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2513,14 +2513,12 @@ void test_unicode_name_table ( void )
 		       "\x05\x05YYYYY",
 		   0x5678 );
     );
-# ifdef NONE_SUCH
     desire_failure (
 	min::add ( ::unicode_table,
 		   (const min::ustring *)
 		       "\x05\x05YYYYY",
 		   0x1234 );
     );
-# endif // NONE_SUCH
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
