@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 07:40:43 EST 2015
+// Date:	Thu Jan  8 11:42:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,12 +40,13 @@ void min::standard_assert
 	      &&
 	      ( ! value || expression == NULL ) ) )
     {
-	printf ( "%s:%d", file_name, line_number );
+	printf ( "%s:%d:\n", file_name, line_number );
+	if ( function_name != NULL )
+	    printf ( "    in %s:\n", function_name );
 	if ( expression == NULL )
-	    printf ( " abort\n" );
+	    printf ( "     abort\n" );
 	else
-	    printf ( " assert:\n" );
-	    printf ( "    %s %s.\n",
+	    printf ( "    %s => %s\n",
 	             expression,
 	             ( value ? "true" : "false" ) );
     }

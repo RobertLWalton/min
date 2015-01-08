@@ -1,16 +1,16 @@
 Start min_os Test
 
 Start Parameter Test
-min_os_test.cc:XXXX assert:
-    parameter1 != NULL true.
-min_os_test.cc:XXXX assert:
-    parameter2 != NULL true.
-min_os_test.cc:XXXX assert:
-    parameter3 == NULL true.
-min_os_test.cc:XXXX assert:
-    strncmp ( parameter1, "123 ", 4 ) == 0 true.
-min_os_test.cc:XXXX assert:
-    strcmp ( parameter2, "3.21" ) == 0 true.
+min_os_test.cc:XXXX:
+    parameter1 != NULL => true
+min_os_test.cc:XXXX:
+    parameter2 != NULL => true
+min_os_test.cc:XXXX:
+    parameter3 == NULL => true
+min_os_test.cc:XXXX:
+    strncmp ( parameter1, "123 ", 4 ) == 0 => true
+min_os_test.cc:XXXX:
+    strcmp ( parameter2, "3.21" ) == 0 => true
 Finish Parameter Test
 
 
@@ -19,68 +19,68 @@ Start Memory Management Test
 100 pages successfully allocated
 1000 pages successfully allocated
 10000 pages successfully allocated
-min_os_test.cc:XXXX assert:
-    check_really_no_change() true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 200, P(0), 1000000 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(200), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 700, P(300), 1000300 ) true.
+min_os_test.cc:XXXX:
+    check_really_no_change() => true
+min_os_test.cc:XXXX:
+    check_pages ( 200, P(0), 1000000 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(200), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 700, P(300), 1000300 ) => true
 300 pages successfully deallocated
-min_os_test.cc:XXXX assert:
-    test_address ( P(0) ) true.
-min_os_test.cc:XXXX assert:
-    ! test_address ( P(200) ) true.
-min_os_test.cc:XXXX assert:
-    ! test_address ( P(499) ) true.
+min_os_test.cc:XXXX:
+    test_address ( P(0) ) => true
+min_os_test.cc:XXXX:
+    ! test_address ( P(200) ) => true
+min_os_test.cc:XXXX:
+    ! test_address ( P(499) ) => true
 250 pages successfully allocated
 50 pages successfully allocated
-min_os_test.cc:XXXX assert:
-    check_pages ( 200, P(0), 1000000 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 300, P(200), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 500, P(500), 1000500 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 200, P(0), 1000000 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 300, P(200), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 500, P(500), 1000500 ) => true
 100 pages successfully moved
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(0), 1000200 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(100), 1000100 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(200), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 700, P(300), 1000300 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(0), 1000200 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(100), 1000100 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(200), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 700, P(300), 1000300 ) => true
 500 pages successfully moved
-min_os_test.cc:XXXX assert:
-    check_pages ( 500, P(0), 1000100 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(500), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 400, P(600), 1000600 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 500, P(0), 1000100 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(500), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 400, P(600), 1000600 ) => true
 500 pages successfully moved
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(0), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 500, P(100), 1000000 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 400, P(600), 1000600 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(0), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 500, P(100), 1000000 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 400, P(600), 1000600 ) => true
 100 pages successfully made inaccessible
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(0), 1000000 ) true.
-min_os_test.cc:XXXX assert:
-    ! test_address ( P(100) ) true.
-min_os_test.cc:XXXX assert:
-    ! test_address ( P(199) ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 800, P(200), 1000200 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(0), 1000000 ) => true
+min_os_test.cc:XXXX:
+    ! test_address ( P(100) ) => true
+min_os_test.cc:XXXX:
+    ! test_address ( P(199) ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 800, P(200), 1000200 ) => true
 100 pages successfully made accessible
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(0), 1000000 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 100, P(100), 0 ) true.
-min_os_test.cc:XXXX assert:
-    check_pages ( 800, P(200), 1000200 ) true.
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(0), 1000000 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 100, P(100), 0 ) => true
+min_os_test.cc:XXXX:
+    check_pages ( 800, P(200), 1000200 ) => true
 new_pool will allocate at most 1 << 34 pages.
 virtual memory has 68719476736 = 0x1000000000 pages.
 Finish Memory Management Test

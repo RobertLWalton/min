@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 02:01:59 EST 2015
+// Date:	Thu Jan  8 11:24:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -87,12 +87,14 @@ bool memory_debug = false;
     catch ( min::assert_exception * x ) \
         { }
 
-#define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
-
 # include <min.h>
 # define MUP min::unprotected
 # define MINT min::internal
 # define MTEST min::test
+
+
+# undef MIN_ASSERT
+# define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
 
 
 // Run-Time System for Interface Tests

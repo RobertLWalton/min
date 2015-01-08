@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Jan  8 07:10:05 EST 2015
+# Date:		Thu Jan  8 12:12:49 EST 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -92,8 +92,8 @@ optimization_test:	\
 %.test:	%.out Makefile
 	rm -f $*.test
 	sed \
-	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
-	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
+	    -e '/\.cc:[0-9]*:/s//.cc:XXXX:/' \
+	    -e '/\.h:[0-9]*:/s//.h:XXXX:/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
@@ -106,8 +106,8 @@ optimization_test:	\
 %.diff:	%.out
 	@echo DIFFING $*.test $*.out
 	-@sed \
-	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
-	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
+	    -e '/\.cc:[0-9]*:/s//.cc:XXXX:/' \
+	    -e '/\.h:[0-9]*:/s//.h:XXXX:/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
