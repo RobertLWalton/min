@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 01:59:41 EST 2015
+// Date:	Thu Jan  8 07:12:29 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -23,54 +23,11 @@
 using std::cout;
 using std::endl;
 
-// Redefinition of MIN_ASSERT for use in min.h.
-//
-struct min_assert_exception {};
-//
-bool min_assert_print = true;
-void min_assert
-	( bool value,
-	  const char * file, unsigned line,
-	  const char * expression )
-{
-    if ( min_assert_print )
-    {
-	cout << file << ":" << line
-             << " assert:" << endl 
-	     << "    " << expression
-	     << ( value ? " true." : " false." )
-	     << endl;
-    }
-    if ( ! value )
-	throw ( new min_assert_exception );
-}
-
-# define desire_success(statement) \
-    { cout << __FILE__ << ":" << __LINE__ \
-	   << " desire success:" << endl \
-	   << "    " << #statement << endl; \
-      statement; }
-
-# define desire_failure(statement) \
-    try { cout << __FILE__ << ":" << __LINE__ \
-               << " desire failure:" << endl \
-	       << "    " << #statement << endl; \
-	  statement; \
-          cout << "EXITING BECAUSE OF SUCCESSFUL" \
-	          " MIN_ASSERT" << endl; \
-	  exit ( 1 ); } \
-    catch ( min_assert_exception * x ) {}
-//
-# define MIN_ASSERT(expr,...) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
-# define MIN_CHECK(expr) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
 
 // Note: we include min_os.cc because we want to use
 // its static functions and data.
 //
+# define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
 # include "../src/min_os.cc"
 
 
@@ -447,6 +404,7 @@ void check_reaccess ( min::uns64 pages, void * start,
 
 int main ( int argc, const char ** argv )
 {
+    min::assert_print = true;
     cout << "Start min_os Test" << endl;
 
 // Parameter Tests

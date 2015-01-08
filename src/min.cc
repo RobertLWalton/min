@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 01:05:01 EST 2015
+// Date:	Thu Jan  8 05:39:41 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -398,8 +398,13 @@ min::uns32 min::hash ( min::gen g )
     else if ( is_lab ( g ) )
         return labhash ( g );
     else
+    {
 	MIN_ABORT ( "argument to min::hash"
 	            " is not a name" );
+	return 0;
+	    // Suppresses compiler warning;
+    }
+
 }
 
 int min::compare ( min::gen g1, min::gen g2 )
@@ -6467,6 +6472,8 @@ min::unsptr MINT::get_flags
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::get_flags" );
+	return 0;
+	    // Suppresses compiler warning.
     }
 }
 template min::unsptr MINT::get_flags
@@ -6491,9 +6498,13 @@ bool MINT::test_flag
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::test_flag called before locate" );
+	return false;
+	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::test_flag" );
+	return false;
+	    // Suppresses compiler warning.
     }
 }
 template bool MINT::test_flag
@@ -6753,6 +6764,8 @@ min::unsptr min::get_reverse_attrs
 	MIN_ABORT
 	    ( "min::get_reverse_attrs called before"
 	      " locate" );
+	return 0;
+	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
         return m;
     }
@@ -6864,20 +6877,28 @@ min::gen MINT::update
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::update called before locate" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
 	MIN_ABORT
 	    ( "min::update called with no previous"
 	      " value" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     case ap_type::REVERSE_LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_SUCCEED:
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::update called with reverse name"
 	      " other than min::NONE()" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "min::update called with >= 2 previous"
 	      " values" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     }
 }
 template min::gen MINT::update
@@ -7381,17 +7402,25 @@ min::unsptr min::remove_one
 	MIN_ABORT
 	    ( "min::remove_one called before"
 	      " locate" );
+	return 0;
+	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_one called after"
 		  " reverse locate of min::ANY()" );
+	return 0;
+	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_FAIL:
 	if ( ap.reverse_attr_name == min::ANY() )
+	{
 	    MIN_ABORT
 		( "min::remove_one called after"
 		  " reverse locate of min::ANY()" );
+	    return 0;
+		// Suppresses compiler warning.
+	}
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -7472,17 +7501,25 @@ min::unsptr min::remove_all
 	MIN_ABORT
 	    ( "min::remove_all called before"
 	      " locate" );
+	return 0;
+	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_all called after"
 		  " reverse locate of min::ANY()" );
+	return 0;
+	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_FAIL:
 	if ( ap.reverse_attr_name == min::ANY() )
+	{
 	    MIN_ABORT
 		( "min::remove_all called after"
 		  " reverse locate of min::ANY()" );
+	    return 0;
+		// Suppresses compiler warning.
+        }
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -7704,6 +7741,8 @@ bool MINT::set_flag
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::set_flag called before locate" );
+	return false;
+	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
     	    MINT::attr_create
 	              ( ap, min::EMPTY_SUBLIST() );
@@ -7758,9 +7797,13 @@ bool MINT::clear_flag
 	MIN_ABORT
 	    ( "min::clear_flag called before"
 	      " locate" );
+	return false;
+	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::clear_flag" );
+	return false;
+	    // Suppresses compiler warning.
     }
     return false;
 }
@@ -7777,9 +7820,13 @@ bool MINT::flip_flag
 	MIN_ABORT
 	    ( "min::flip_flag called before"
 	      " locate" );
+	return false;
+	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::flip_flag" );
+	return false;
+	    // Suppresses compiler warning.
     }
     return false;
 }
@@ -8393,6 +8440,8 @@ min::printer operator <<
         return printer;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
+	return min::NULL_STUB;
+	    // Suppresses compiler warning.
     }
 }
 

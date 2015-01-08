@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 18 01:29:46 EST 2014
+// Date:	Thu Jan  8 04:03:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Assert
 //	Settable Software Parameters
 //	Rarely Set Software Parameters
 //	Hardware Functions
@@ -38,26 +39,79 @@
 # ifndef MIN_PARAMETERS_H
 # define MIN_PARAMETERS_H
 
+// Assert
+// ------
+
+namespace min {
+
+    extern void ( * assert_hook )
+    	( bool value,
+	  const char * expression,
+	  const char * file_name, unsigned line_number,
+	  const char * function_name,
+	  const char * message_format, ... );
+
+    void standard_assert
+    	( bool value,
+	  const char * expression,
+	  const char * file_name, unsigned line_number,
+	  const char * function_name,
+	  const char * message_format, ... );
+
+    extern bool assert_print;
+    extern bool assert_desired_value;
+    extern bool assert_abort;
+    extern bool assert_throw;
+
+    struct assert_exception { };
+}
+
+# define MIN_ASSERT_CALL_ON_FAIL(expression,...) \
+    ( expression ? (void) 0 : \
+        ( * min::assert_hook ) \
+	    ( (expression), \
+	      #expression, \
+	      __FILE__, __LINE__, \
+	      __func__, \
+	      __VA_ARGS__ ) )
+# define MIN_ASSERT_CALL_ALWAYS(expression,...) \
+    ( ( * min::assert_hook ) \
+	    ( (expression), \
+	      #expression, \
+	      __FILE__, __LINE__, \
+	      __func__, \
+	      __VA_ARGS__ ) )
+# define MIN_ASSERT_CALL_NEVER(expression,...)
+# define MIN_REQUIRE(expression) \
+    ( expression ? (void) 0 : \
+        ( * min::assert_hook ) \
+	    ( (expression), \
+	      #expression, \
+	      __FILE__, __LINE__, \
+	      __func__, \
+	      NULL ) )
+# define MIN_CHECK(expression) \
+    ( ( * min::assert_hook ) \
+	    ( (expression), \
+	      #expression, \
+	      __FILE__, __LINE__, \
+	      __func__, \
+	      NULL ) )
+# define MIN_ABORT(...) \
+    ( ( * min::assert_hook ) \
+	    ( false, \
+	      NULL, \
+	      __FILE__, __LINE__, \
+	      __func__, \
+	      __VA_ARGS__ ) )
+
+# ifndef MIN_ASSERT
+#	define MIN_ASSERT MIN_ASSERT_CALL_ON_FAIL
+# endif
+
+
 // Settable Software Parameters
 // -------- -------- ----------
-
-// 1 to include checks in protected functions; 0 not to.
-//
-# ifndef MIN_PROTECT
-#   define MIN_PROTECT 1
-# endif
-
-// Define MIN_ASSERT so we can intercept assertions.
-// Normally MIN_ASSERT == assert from <cassert>.
-//
-# ifndef MIN_ASSERT
-#   if MIN_PROTECT
-#	define MIN_ASSERT( expression, ... ) \
-		assert(expression)
-#   else
-#	define MIN_ASSERT( expression, ... )
-#   endif
-# endif
 
 // 1 if min::gen values are 32 bits; else 0.
 //

@@ -65,38 +65,10 @@ bool debug = false;
 bool memory_debug = false;
 #define mout if ( memory_debug ) cout
 
-// Redefinition of MIN_ASSERT for use in min.h.
-//
-struct min_assert_exception {};
-//
-bool min_assert_print = true;
-bool min_assert_abort = false;
-bool min_desire_failure = false;
-void min_assert
-	( bool value,
-	  const char * file, unsigned line,
-	  const char * expression )
-{
-    if ( min_assert_print || ! value )
-    {
-	cout << file << ":" << line
-             << " assert:" << endl 
-	     << "    " << expression
-	     << ( value ? " true." : " false." )
-	     << endl;
-    }
-    if ( value == min_desire_failure
-         &&
-	 min_assert_abort )
-        abort();
-    else if ( ! value )
-	throw ( new min_assert_exception );
-}
-
 #define PRINTING_MIN_CHECK(x) \
-    min_assert_print = true; \
+    min::assert_print = true; \
     MIN_CHECK ( x ); \
-    min_assert_print = false;
+    min::assert_print = false;
 
 # define desire_success(statement) \
     { cout << __FILE__ << ":" << __LINE__ \
@@ -108,20 +80,14 @@ void min_assert
     try { cout << __FILE__ << ":" << __LINE__ \
                << " desire failure:" << endl \
 	       << "    " << #statement << endl; \
-	  min_desire_failure = true; \
 	  statement; \
           cout << "EXITING BECAUSE OF SUCCESSFUL" \
 	          " MIN_ASSERT" << endl; \
 	  exit ( 1 ); } \
-    catch ( min_assert_exception * x ) \
-        { min_desire_failure = false; }
-//
-# define MIN_ASSERT(expr,...) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
-# define MIN_CHECK(expr) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
+    catch ( min::assert_exception * x ) \
+        { }
+
+#define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
 
 # include <min.h>
 # define MUP min::unprotected
@@ -2571,7 +2537,7 @@ void test_printer ( void )
 {
     cout << endl;
     cout << "Start Printer Test!" << endl;
-    min_assert_print = false;
+    min::assert_print = false;
 
     min::init_ostream ( printer, std::cout );
     min::resize ( printer->file->buffer, 16*1024 );
@@ -3207,7 +3173,7 @@ void test_printer ( void )
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
 
-    min_assert_print = true;
+    min::assert_print = true;
     cout << endl;
     cout << "Finish Printer Test!" << endl;
 }
@@ -3623,8 +3589,8 @@ static void insert
     min::gen numtest = min::new_num_gen ( 123456789 );
     min::gen out;
 
-    bool saved_min_assert_print = min_assert_print;
-    min_assert_print = false;
+    bool saved_min_assert_print = min::assert_print;
+    min::assert_print = false;
     if ( use_obj_aux_stubs || resize )
     {
 	cout << "EMPTYING UNUSED AREA" << endl;
@@ -3638,7 +3604,7 @@ static void insert
         while ( min::unused_size_of ( vp ) < 20 )
 	    out = min::attr_pop ( vp );
     }
-    min_assert_print = saved_min_assert_print;
+    min::assert_print = saved_min_assert_print;
 
     bool resize_happened =
         min::insert_reserve
@@ -3685,8 +3651,8 @@ void test_object_list_level
 
     min::gen * & base = MUP::base ( vp );
 
-    bool saved_min_assert_print = min_assert_print;
-    min_assert_print = false;
+    bool saved_min_assert_print = min::assert_print;
+    min::assert_print = false;
 
     // Empty aux area.
     //
@@ -3699,7 +3665,7 @@ void test_object_list_level
     while ( min::unused_size_of ( vp ) > 0 )
 	min::attr_push(vp) = num100;
 
-    min_assert_print = saved_min_assert_print;
+    min::assert_print = saved_min_assert_print;
 
     min::unsptr vorg = MUP::attr_offset_of ( vp );
     min::unsptr vsize = min::attr_size_of ( vp );
@@ -3938,8 +3904,8 @@ static bool check_attr_info
 	  min::attr_info * aip, unsigned n,
 	  bool include_attr_vec = true )
 {
-    bool save_min_assert_print = min_assert_print;
-    min_assert_print = false;
+    bool save_min_assert_print = min::assert_print;
+    min::assert_print = false;
     min::attr_info aiv[n+100];
     min::unsptr m = min::get_attrs
         ( aiv, n+100, ap, include_attr_vec );
@@ -4019,7 +3985,7 @@ static bool check_attr_info
         cout << "A MISSING ATTRIBUTE MAY BE "
 	     << aip[m].name << endl;
 
-    min_assert_print = save_min_assert_print;
+    min::assert_print = save_min_assert_print;
     return ok;
 }
 
@@ -4041,8 +4007,8 @@ static bool check_values
         ( min::attr_insptr & ap,
 	  min::gen * p, unsigned n )
 {
-    bool save_min_assert_print = min_assert_print;
-    min_assert_print = false;
+    bool save_min_assert_print = min::assert_print;
+    min::assert_print = false;
     bool ok = true;
 
     min::gen values[n], sortedp[n];
@@ -4076,7 +4042,7 @@ static bool check_values
 	}
     }
 
-    min_assert_print = save_min_assert_print;
+    min::assert_print = save_min_assert_print;
     return ok;
 }
 
@@ -4090,7 +4056,7 @@ void test_attribute_values
 	( min::attr_insptr & ap,
 	  min::gen label1, min::gen label2 )
 {
-    min_assert_print = false;
+    min::assert_print = false;
 
     cout << "TEST ATTRIBUTE VALUES ( "
          << label1 << ", "
@@ -4154,7 +4120,7 @@ void test_attribute_values
     PRINTING_MIN_CHECK
         ( check_values ( ap, values2, 6 ) );
 
-    min_assert_print = true;
+    min::assert_print = true;
 }
 
 // Use get_flags ( ap ) to get a vector of control codes
@@ -4166,8 +4132,8 @@ static bool check_flags
         ( min::attr_insptr & ap,
 	  min::gen * p, unsigned n )
 {
-    bool save_min_assert_print = min_assert_print;
-    min_assert_print = false;
+    bool save_min_assert_print = min::assert_print;
+    min::assert_print = false;
     bool ok = true;
 
     min::gen flags[n];
@@ -4201,7 +4167,7 @@ static bool check_flags
 	}
     }
 
-    min_assert_print = save_min_assert_print;
+    min::assert_print = save_min_assert_print;
     return ok;
 }
 
@@ -4227,7 +4193,7 @@ void test_attribute_flags
 	  min::gen label1, min::gen label2,
 	  min::gen label3 )
 {
-    min_assert_print = false;
+    min::assert_print = false;
 
     cout << "TEST ATTRIBUTE FLAGS ( "
          << label1 << ", "
@@ -4329,7 +4295,7 @@ void test_attribute_flags
     PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 0 ) );
 
-    min_assert_print = true;
+    min::assert_print = true;
 }
 
 // Set, add, and remove reverse attribute values with
@@ -4347,7 +4313,7 @@ void test_reverse_attribute_values
 	  min::gen label2,
 	  min::gen obj1, min::gen obj2, min::gen obj3 )
 {
-    min_assert_print = false;
+    min::assert_print = false;
 
     cout << "TEST REVERSE ATTRIBUTE VALUES ( "
          << label1 << ", "
@@ -4436,7 +4402,7 @@ void test_reverse_attribute_values
     MIN_CHECK ( rinfo.value_count == 1 );
     MIN_CHECK ( rinfo.value == obj  );
 
-    min_assert_print = true;
+    min::assert_print = true;
 }
 
 void test_object_attribute_level ( void )
@@ -4492,10 +4458,10 @@ void test_object_attribute_level ( void )
     min::locate ( ap, lab4 );
     MIN_CHECK ( min::get ( ap ) == int4 );
 
-    min_assert_print = false;
+    min::assert_print = false;
     for ( unsigned i = 0; i < 50; ++ i )
         min::attr_push(vp) = min::EMPTY_SUBLIST();
-    min_assert_print = true;
+    min::assert_print = true;
     MIN_CHECK ( min::attr_size_of ( vp ) == 50 );
     MIN_CHECK
         (    min::attr ( vp, 21 )
@@ -4595,7 +4561,7 @@ void test_object_printing ( void )
     cout << endl;
     cout << "Start Object Printing Test!"
 	 << endl << endl;
-    min_assert_print = false;
+    min::assert_print = false;
 
     min::gen obj = min::new_obj_gen ( 5, 5 );
 
@@ -4865,7 +4831,7 @@ void test_object_printing ( void )
 
 # endif // NONE_SUCH
 
-    min_assert_print = true;
+    min::assert_print = true;
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
 }
@@ -4876,6 +4842,9 @@ void test_object_printing ( void )
 
 int main ( int argc, const char * argv[] )
 {
+    min::assert_print = true;
+    min::assert_throw = true;
+
     debug = ( argc > 1 );
     cout << endl;
     cout << "Initialize!" << endl;
@@ -4927,7 +4896,7 @@ int main ( int argc, const char * argv[] )
 		       - 1 )
 	      == 0 );
 
-    } catch ( min_assert_exception * x ) {
+    } catch ( min::assert_exception * x ) {
         cout << "EXITING BECAUSE OF FAILED MIN_CHECK"
 	     << endl;
 	exit ( 1 );

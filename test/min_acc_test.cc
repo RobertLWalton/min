@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 01:58:49 EST 2015
+// Date:	Thu Jan  8 07:09:35 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,51 +26,7 @@ using std::hex;
 using std::dec;
 using std::ostream;
 
-// Redefinition of MIN_ASSERT for use in min.h.
-//
-struct min_assert_exception {};
-//
-bool min_assert_print = true;
-void min_assert
-	( bool value,
-	  const char * file, unsigned line,
-	  const char * expression )
-{
-    if ( min_assert_print )
-    {
-	cout << file << ":" << line
-             << " assert:" << endl 
-	     << "    " << expression
-	     << ( value ? " true." : " false." )
-	     << endl;
-    }
-    if ( ! value )
-	throw ( new min_assert_exception );
-}
-
-# define desire_success(statement) \
-    { cout << __FILE__ << ":" << __LINE__ \
-	   << " desire success:" << endl \
-	   << "    " << #statement << endl; \
-      statement; }
-
-# define desire_failure(statement) \
-    try { cout << __FILE__ << ":" << __LINE__ \
-               << " desire failure:" << endl \
-	       << "    " << #statement << endl; \
-	  statement; \
-          cout << "EXITING BECAUSE OF SUCCESSFUL" \
-	          " MIN_ASSERT" << endl; \
-	  exit ( 1 ); } \
-    catch ( min_assert_exception * x ) {}
-//
-# define MIN_ASSERT(expr,...) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
-# define MIN_CHECK(expr) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr )
-
+# define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
 # include <min.h>
 # include <min_acc.h>
 # define MUP min::unprotected
@@ -115,8 +71,8 @@ static min::uns32 random_uns32 ( void )
 //
 static min::gen create_object ( min::unsptr m )
 {
-    bool print_save = min_assert_print;
-    min_assert_print = false;
+    bool print_save = min::assert_print;
+    min::assert_print = false;
 
     min::unsptr size = 2 + random_uns32() % m;
 
@@ -127,7 +83,7 @@ static min::gen create_object ( min::unsptr m )
     for ( min::unsptr j = 0; j < size; ++ j )
 	min::attr_push(ep) = min::new_num_gen ( j );
 
-    min_assert_print = print_save;
+    min::assert_print = print_save;
 
     return obj;
 }
@@ -138,8 +94,8 @@ static min::gen create_object ( min::unsptr m )
 static min::gen create_vec_of_objects
     ( min::unsptr n, min::unsptr m )
 {
-    bool print_save = min_assert_print;
-    min_assert_print = false;
+    bool print_save = min::assert_print;
+    min::assert_print = false;
 
     min::locatable_gen obj;
     obj = min::new_obj_gen ( n );
@@ -149,7 +105,7 @@ static min::gen create_vec_of_objects
     for ( min::unsptr i = 0; i < n; ++ i )
         min::attr_push(vp) = create_object ( m );
 
-    min_assert_print = print_save;
+    min::assert_print = print_save;
 
     return obj;
 }
@@ -161,8 +117,8 @@ static min::gen create_vec_of_objects
 static void random_deallocate
 	( min::gen obj, min::unsptr n, min::unsptr m )
 {
-    bool print_save = min_assert_print;
-    min_assert_print = false;
+    bool print_save = min::assert_print;
+    min::assert_print = false;
 
     min::obj_vec_updptr vp ( obj );
     min::unsptr size = min::attr_size_of ( vp );
@@ -173,7 +129,7 @@ static void random_deallocate
 	    ( MUP::stub_of ( min::attr ( vp, i ) ) );
 	min::attr ( vp, i ) = create_object ( m );
     }
-    min_assert_print = print_save;
+    min::assert_print = print_save;
 }
 
 
@@ -183,8 +139,8 @@ static void random_deallocate
 //
 static bool check_vec_of_objects ( min::gen obj )
 {
-    bool print_save = min_assert_print;
-    min_assert_print = false;
+    bool print_save = min::assert_print;
+    min::assert_print = false;
 
     bool checks = true;
 
@@ -217,7 +173,7 @@ static bool check_vec_of_objects ( min::gen obj )
 	}
     }
 
-    min_assert_print = print_save;
+    min::assert_print = print_save;
     return checks;
 }
 
@@ -226,6 +182,7 @@ static bool check_vec_of_objects ( min::gen obj )
 
 int main ()
 {
+    min::assert_print = true;
     cout << endl;
     cout << "Initialize!" << endl;
     min::interrupt();
@@ -262,7 +219,7 @@ int main ()
 	                ( "this is a test str" ) );
 
 
-    } catch ( min_assert_exception * x ) {
+    } catch ( min::assert_exception * x ) {
         cout << "EXITING BECAUSE OF FAILED MIN_CHECK"
 	     << endl;
 	exit ( 1 );
