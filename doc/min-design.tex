@@ -512,6 +512,7 @@ Protected functions use the following macro to enforce protection:
 \LABEL{MIN_ASSERT_CALL_ALWAYS} \\
 \TTKEY{MIN\_ASSERT\_CALL\_NEVER}\TT{(}$e$\TT{,...)}
 	& Does nothing.  Does not even evaluate $e$.
+\LABEL{MIN_ASSERT_CALL_NEVER} \\
 \end{tabular}\end{indpar}
 
 Thus by default \TT{MIN\_ASSERT} is defined by
@@ -594,8 +595,6 @@ used by this default are:
 \LABEL{MIN::STANDARD_ASSERT} \\
 \verb|bool min::| & \MINKEY{assert\_print} \verb|= false|
 \LABEL{MIN::ASSERT_PRINT} \\
-\verb|bool min::| & \MINKEY{assert\_desired\_value} \verb|= true|
-\LABEL{MIN::ASSERT_DESIRED_VALUE} \\
 \verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
 \LABEL{MIN::ASSERT_ABORT} \\
 \verb|bool min::| & \MINKEY{assert\_throw} \verb|= false|
@@ -604,7 +603,7 @@ used by this default are:
 \LABEL{MIN::ASSERT_EXCEPTION} \\
 \end{tabular}\end{indpar}
 
-If the \TT{value} argument equals \TT{min::\EOL desired\_\EOL value},
+If the \TT{value} argument equals \TT{true},
 and if the \TT{expression} argument is not \TT{NULL}
 (and hence this is not a call from \TT{MIN\_\EOL ABORT}),
 this function just returns without doing anything.
@@ -15548,15 +15547,64 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\
 \TTKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
 \LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS} \\
-\TTKEY{MIN\_PROTECT}
-\LABEL{MIN_PROTECT} \\
-\TTKEY{MIN\_ASSERT($e$)}
-\LABEL{MIN_ASSERT} \\
 \TTKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
 \TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Assert Macros and Functions}
+
+\begin{indpar}[0.2in]
+
+These are in \verb|min_parameters.h|.
+
+\begin{tabular}{@{}p{6.2in}@{}}
+\TTKEY{MIN\_ASSERT($e$,...)}
+\LABEL{MIN_ASSERT} \\
+\TTKEY{MIN\_ASSERT\_CALL\_ON\_FAIL($e$,...)}
+\LABEL{MIN_ASSERT_CALL_ON_FAIL} \\
+\TTKEY{MIN\_ASSERT\_CALL\_ALWAYS($e$,...)}
+\LABEL{MIN_ASSERT_CALL_NEVER} \\
+\TTKEY{MIN\_ASSERT\_CALL\_NEVER($e$,...)}
+\LABEL{MIN_ASSERT_CALL_ALWAYS} \\
+\TTKEY{MIN\_REQUIRE($e$)}
+\LABEL{MIN_REQUIRE} \\
+\TTKEY{MIN\_CHECK($e$)}
+\LABEL{MIN_CHECK} \\
+\TTKEY{MIN\_ABORT(...)}
+\LABEL{MIN_ABORT} \\
+\end{tabular}
+
+\begin{TABULAR}{1.2in}
+\verb|void ( * min::| & \MINKEY{assert\_hook} \verb|)|\ARGBREAK
+    \verb|( bool value,|\ARGBREAK
+    \verb|  const char * expression,|\ARGBREAK
+    \verb|  const char * file_name, unsigned line_number,|\ARGBREAK
+    \verb|  const char * function_name,|\ARGBREAK
+    \verb|  const char * message_format, ... )|
+\LABEL{MIN::ASSERT_HOOK} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{standard\_assert}\ARGBREAK
+    \verb|( bool value,|\ARGBREAK
+    \verb|  const char * expression,|\ARGBREAK
+    \verb|  const char * file_name, unsigned line_number,|\ARGBREAK
+    \verb|  const char * function_name,|\ARGBREAK
+    \verb|  const char * message_format, ... )|
+\LABEL{MIN::STANDARD_ASSERT} \\
+\verb|bool min::| & \MINKEY{assert\_print} \verb|= false|
+\LABEL{MIN::ASSERT_PRINT} \\
+\verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
+\LABEL{MIN::ASSERT_ABORT} \\
+\verb|bool min::| & \MINKEY{assert\_throw} \verb|= false|
+\LABEL{MIN::ASSERT_THROW} \\
+\verb|struct min::| & \MINKEY{assert\_exception} \verb|{ }|
+\LABEL{MIN::ASSERT_EXCEPTION} \\
+\end{TABULAR}
 
 \end{indpar}
 
