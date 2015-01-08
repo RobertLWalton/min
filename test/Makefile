@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Dec 18 01:40:00 EST 2014
+# Date:		Thu Jan  8 07:10:05 EST 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -176,6 +176,13 @@ min_acc_test.out:	\
 	RUNENV = \
 	    MIN_CONFIG="debug=pmc"
 
+min_assert.o:	../src/min_assert.cc \
+		../include/min_parameters.h
+	rm -f min_assert.o
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -c ../src/min_assert.cc \
+
 min_unicode.o:	../src/min_unicode.cc \
 		../include/min_unicode.h \
 		../unicode/unicode_data.h \
@@ -236,13 +243,14 @@ min_unicode_test.diff:	../unicode/unicode_data.cc \
 
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \
-		min_unicode.o ${INCLUDE_FILES} Makefile
+		min_assert.o min_unicode.o \
+		${INCLUDE_FILES} Makefile
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_interface_test.cc \
 	    ../src/min.cc ../src/min_os.cc \
-	    min_unicode.o
+	    min_assert.o min_unicode.o
 
 min_os_test:		\
 		min_os_test.cc \
@@ -251,7 +259,7 @@ min_os_test:		\
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
-	    min_os_test.cc
+	    min_os_test.cc min_assert.o
 
 min_builtin_test:		\
 		min_builtin_test.cc \
@@ -277,12 +285,12 @@ min_acc_test:		\
 		../include/min_acc_parameters.h \
 		${INCLUDE_FILES} Makefile \
 		../src/min.cc ../src/min_os.cc \
-		min_unicode.o
+		min_assert.o min_unicode.o
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    ../src/min_acc.cc ../src/min.cc \
-	    min_unicode.o \
+	    min_assert.o min_unicode.o \
 	    ../src/min_os.cc min_acc_test.cc
 
 min_relocation_optimization_test.out:	\

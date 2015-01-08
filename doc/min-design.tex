@@ -567,6 +567,8 @@ The \TT{value} argument to \TT{min::\EOL assert\_\EOL hook} is the
 value of the $e$ argument to \TT{MIN\_\EOL ASSERT}.
 The \TT{expression} argument is the expression $e$ that is evaluated
 to produce the \TT{value} argument, and is used for printing messages.
+It is \TT{NULL} only on a call from \TT{MIN\_ABORT}, and is not
+used in this case.
 The \TT{file\_\EOL name} and \TT{line\_\EOL number} arguments
 identify the file and line containing the \TT{MIN\_\EOL ASSERT}, and
 are used in printing messages.
@@ -595,24 +597,25 @@ used by this default are:
 \verb|bool min::| & \MINKEY{assert\_desired\_value} \verb|= true|
 \LABEL{MIN::ASSERT_DESIRED_VALUE} \\
 \verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
-\LABEL{MIN::ASSERT_THROW} \\
+\LABEL{MIN::ASSERT_ABORT} \\
 \verb|bool min::| & \MINKEY{assert\_throw} \verb|= false|
 \LABEL{MIN::ASSERT_THROW} \\
 \verb|struct min::| & \MINKEY{assert\_exception} \verb|{ }|
-\LABEL{MIN::ASSERT_THROW} \\
+\LABEL{MIN::ASSERT_EXCEPTION} \\
 \end{tabular}\end{indpar}
 
-If the \TT{value} argument equals \TT{min::\EOL desired\_\EOL value}
-and \TT{min::\EOL assert\_\EOL print} is \TT{false}, this function
-just returns without doing anything.
+If the \TT{value} argument equals \TT{min::\EOL desired\_\EOL value},
+and if the \TT{expression} argument is not \TT{NULL}
+(and hence this is not a call from \TT{MIN\_\EOL ABORT}),
+this function just returns without doing anything.
 
-If the \TT{value} argument does \underline{not} equal
-\TT{min::\EOL desired\_\EOL value}, this function
-prints a message and calls \TT{abort()} if
-\TT{min::\EOL assert\_\EOL abort} is \TT{true},
-else it just throws a \TT{min::\EOL assert\_\EOL exception} without
-printing a message if \TT{min::\EOL assert\_\EOL throw} is \TT{true},
-else it just returns.
+Otherwise this function
+just throws a \TT{min::\EOL assert\_\EOL exception} without
+printing a message if \TT{min::\EOL assert\_\EOL throw} is \TT{true}
+(even if \TT{expression} is \TT{NULL}),
+else prints a message and calls \TT{abort()} if
+\TT{min::\EOL assert\_\EOL abort} is \TT{true} or
+\TT{expression} is \TT{NULL}, else just returns.
 
 If \TT{min::assert\_print} is \TT{true}, the above behavior is
 modified in that a message as \underline{always} printed.

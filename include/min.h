@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 01:04:12 EST 2015
+// Date:	Thu Jan  8 06:43:08 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,9 +70,6 @@
 # include <cstring>
 # include <cassert>
 # include <new>
-
-#define MIN_ABORT(string) assert ( ! string )
-#define MIN_REQUIRE(expr) assert ( expr )
 
 namespace min { namespace internal {
 
@@ -3564,6 +3561,8 @@ namespace min {
 	    else
 	    {
 		MIN_ABORT ( "int_of non number" );
+		return 0;
+		    // Suppresses compiler warning.
 	    }
 	}
 	namespace unprotected {
@@ -3595,6 +3594,8 @@ namespace min {
 	    else
 	    {
 		MIN_ABORT ( "float_of non number" );
+		return 0;
+		    // Suppresses compiler warning.
 	    }
 	}
 #   elif MIN_IS_LOOSE
@@ -6715,7 +6716,8 @@ namespace min {
 		( min::unsptr index ) const
 	{
 	    index += attr_offset;
-	    MIN_ASSERT ( index < unused_offset );
+	    MIN_ASSERT ( index < unused_offset,
+	                 "subscript too large" );
 	    return ( (min::gen const *)
 		     unprotected::ptr_of (s) )
 		   [index];
@@ -6725,7 +6727,8 @@ namespace min {
 		( min::unsptr index ) const
 	{
 	    index += attr_offset;
-	    MIN_ASSERT ( index < unused_offset );
+	    MIN_ASSERT ( index < unused_offset,
+	                 "subscript too large" );
 	    return unprotected::new_ptr
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
@@ -7039,11 +7042,15 @@ namespace min {
 
 	    MIN_ASSERT
 	        (    ( total_size_flags & OBJ_PRIVATE )
-		  == 0 );
+		  == 0,
+		  "creating new object pointer to a"
+		  " PRIVATE object" );
 
 	    if ( total_size_flags & OBJ_PUBLIC )
 	    {
-	        MIN_ASSERT ( this->type != INSERTABLE );
+	        MIN_ASSERT ( this->type != INSERTABLE,
+		             "creating insptr pointer"
+			     " to a PUBLIC object" );
 	    }
 	    else
 	        * flags_p |= OBJ_PRIVATE;
@@ -9032,6 +9039,8 @@ namespace min {
 		return c;
         }
 	MIN_ABORT ( "control should never reach here" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -9063,6 +9072,8 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -9110,6 +9121,8 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     }
 
     template <>
@@ -9164,6 +9177,8 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
+	return min::NONE();
+	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -12262,9 +12277,7 @@ namespace min { namespace internal {
     // and last_c is the control of last_s.  True is
     // returned if the stub is moved and false is
     // returned if the stub type indicates it is not
-    // in the hash tables.  MIN_ABORT is called if the
-    // stub type indicates it is in the tables but
-    // the stub is not in the aux hash table.
+    // in the hash tables.
     //
     inline bool move_to_acc_hash_table
 	    ( min::uns64 c, min::stub * s,
