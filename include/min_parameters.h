@@ -52,10 +52,10 @@
 //
 # ifndef MIN_ASSERT
 #   if MIN_PROTECT
-#	define MIN_ASSERT( expression ) \
+#	define MIN_ASSERT( expression, ... ) \
 		assert(expression)
 #   else
-#	define MIN_ASSERT( expression )
+#	define MIN_ASSERT( expression, ... )
 #   endif
 # endif
 

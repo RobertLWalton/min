@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 26 19:19:39 EDT 2012
+// Date:	Thu Jan  8 01:52:08 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1070,7 +1070,8 @@ inline void * new_paged_body
     {
         allocate_new_paged_body_region();
 	r = MACC::last_paged_body_region;
-	MIN_ASSERT ( r->next + n <= r->end );
+	MIN_ASSERT ( r->next + n <= r->end,
+	             "system programming error" );
     }
 
 

@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 14:27:25 EDT 2014
+// Date:	Thu Jan  8 01:59:41 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,7 +61,10 @@ void min_assert
 	  exit ( 1 ); } \
     catch ( min_assert_exception * x ) {}
 //
-# define MIN_ASSERT(expr) \
+# define MIN_ASSERT(expr,...) \
+    min_assert ( expr ? true : false, \
+    		 __FILE__, __LINE__, #expr )
+# define MIN_CHECK(expr) \
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr )
 
@@ -458,12 +461,12 @@ int main ( int argc, const char ** argv )
         MOS::get_parameter ( "parameter2" );
     const char * parameter3 =
         MOS::get_parameter ( "parameter3" );
-    MIN_ASSERT ( parameter1 != NULL );
-    MIN_ASSERT ( parameter2 != NULL );
-    MIN_ASSERT ( parameter3 == NULL );
-    MIN_ASSERT
+    MIN_CHECK ( parameter1 != NULL );
+    MIN_CHECK ( parameter2 != NULL );
+    MIN_CHECK ( parameter3 == NULL );
+    MIN_CHECK
         ( strncmp ( parameter1, "123 ", 4 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( strcmp ( parameter2, "3.21" ) == 0 );
 
     cout << "Finish Parameter Test" << endl
@@ -501,17 +504,17 @@ int main ( int argc, const char ** argv )
     set_pages ( 1000, P(0), 1000000 );
 
     MOS::purge_pool ( 100, P(200) );
-    MIN_ASSERT ( check_really_no_change() );
-    MIN_ASSERT ( check_pages ( 200, P(0), 1000000 ) );
-    MIN_ASSERT ( check_pages ( 100, P(200), 0 ) );
-    MIN_ASSERT ( check_pages ( 700, P(300), 1000300 ) );
+    MIN_CHECK ( check_really_no_change() );
+    MIN_CHECK ( check_pages ( 200, P(0), 1000000 ) );
+    MIN_CHECK ( check_pages ( 100, P(200), 0 ) );
+    MIN_CHECK ( check_pages ( 700, P(300), 1000300 ) );
 
     MOS::free_pool ( 300, P(200) );
     check_deallocation ( 300, P(200) );
 
-    MIN_ASSERT ( test_address ( P(0) ) );
-    MIN_ASSERT ( ! test_address ( P(200) ) );
-    MIN_ASSERT ( ! test_address ( P(499) ) );
+    MIN_CHECK ( test_address ( P(0) ) );
+    MIN_CHECK ( ! test_address ( P(200) ) );
+    MIN_CHECK ( ! test_address ( P(499) ) );
 
     void * start1200 = MOS::new_pool_at ( 250, P(200) );
     check_allocation ( 250, start1200 );
@@ -519,52 +522,52 @@ int main ( int argc, const char ** argv )
     void * start1450 = MOS::new_pool_at ( 50, P(450) );
     check_allocation ( 50, start1450 );
 
-    MIN_ASSERT ( check_pages ( 200, P(0), 1000000 ) );
-    MIN_ASSERT ( check_pages ( 300, P(200), 0 ) );
-    MIN_ASSERT ( check_pages ( 500, P(500), 1000500 ) );
+    MIN_CHECK ( check_pages ( 200, P(0), 1000000 ) );
+    MIN_CHECK ( check_pages ( 300, P(200), 0 ) );
+    MIN_CHECK ( check_pages ( 500, P(500), 1000500 ) );
 
     set_pages ( 1000, P(0), 1000000 );
 
     MOS::move_pool ( 100, P(0), P(200) );
     check_move ( 100, P(0), P(200) );
 
-    MIN_ASSERT ( check_pages ( 100, P(0), 1000200 ) );
-    MIN_ASSERT ( check_pages ( 100, P(100), 1000100 ) );
-    MIN_ASSERT ( check_pages ( 100, P(200), 0 ) );
-    MIN_ASSERT ( check_pages ( 700, P(300), 1000300 ) );
+    MIN_CHECK ( check_pages ( 100, P(0), 1000200 ) );
+    MIN_CHECK ( check_pages ( 100, P(100), 1000100 ) );
+    MIN_CHECK ( check_pages ( 100, P(200), 0 ) );
+    MIN_CHECK ( check_pages ( 700, P(300), 1000300 ) );
 
     set_pages ( 1000, P(0), 1000000 );
 
     MOS::move_pool ( 500, P(0), P(100) );
     check_move ( 500, P(0), P(100) );
 
-    MIN_ASSERT ( check_pages ( 500, P(0), 1000100 ) );
-    MIN_ASSERT ( check_pages ( 100, P(500), 0 ) );
-    MIN_ASSERT ( check_pages ( 400, P(600), 1000600 ) );
+    MIN_CHECK ( check_pages ( 500, P(0), 1000100 ) );
+    MIN_CHECK ( check_pages ( 100, P(500), 0 ) );
+    MIN_CHECK ( check_pages ( 400, P(600), 1000600 ) );
 
     set_pages ( 1000, P(0), 1000000 );
 
     MOS::move_pool ( 500, P(100), P(0) );
     check_move ( 500, P(100), P(0) );
 
-    MIN_ASSERT ( check_pages ( 100, P(0), 0 ) );
-    MIN_ASSERT ( check_pages ( 500, P(100), 1000000 ) );
-    MIN_ASSERT ( check_pages ( 400, P(600), 1000600 ) );
+    MIN_CHECK ( check_pages ( 100, P(0), 0 ) );
+    MIN_CHECK ( check_pages ( 500, P(100), 1000000 ) );
+    MIN_CHECK ( check_pages ( 400, P(600), 1000600 ) );
 
     set_pages ( 1000, P(0), 1000000 );
 
     MOS::inaccess_pool ( 100, P(100) );
     check_reaccess ( 100, P(100), "inaccessible" );
-    MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
-    MIN_ASSERT ( ! test_address ( P(100) ) );
-    MIN_ASSERT ( ! test_address ( P(199) ) );
-    MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
+    MIN_CHECK ( check_pages ( 100, P(0), 1000000 ) );
+    MIN_CHECK ( ! test_address ( P(100) ) );
+    MIN_CHECK ( ! test_address ( P(199) ) );
+    MIN_CHECK ( check_pages ( 800, P(200), 1000200 ) );
 
     MOS::access_pool ( 100, P(100) );
     check_reaccess ( 100, P(100), "accessible" );
-    MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
-    MIN_ASSERT ( check_pages ( 100, P(100), 0 ) );
-    MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
+    MIN_CHECK ( check_pages ( 100, P(0), 1000000 ) );
+    MIN_CHECK ( check_pages ( 100, P(100), 0 ) );
+    MIN_CHECK ( check_pages ( 800, P(200), 1000200 ) );
 
     // Find largest size of memory that can be
     // allocated.
