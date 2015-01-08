@@ -532,19 +532,22 @@ Three alternatives to \TT{MIN\_ASSERT} are:
 
 \begin{indpar}\begin{tabular}{lp{4.5in}}
 \TTKEY{MIN\_REQUIRE}\TT{(}$e$\TT{)}
-	& Always defined to be the equivalent of
-	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ON\_\EOL FAIL(}$e$\TT{,NULL)},
-	  and used for system integrety checks.
+	& Defined to always be the equivalent of
+	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ON\_\EOL FAIL(}$e$\TT{,NULL)}.
+	  Used for system integrety checks.
 \LABEL{MIN_REQUIRE} \\
 \TTKEY{MIN\_CHECK}\TT{(}$e$\TT{)}
-	& Always defined to be the equivalent of
+	& Defined to always be the equivalent of
 	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ALWAYS(}$e$\TT{,NULL)},
-	  and used by diagnostic programs.
+	  except that \TT{MIN\_\EOL CHECK} always passes a \TT{NULL}
+	  \TT{function\_\EOL name} argument to
+	  \TT{min::\EOL assert\_\EOL hook} so printed messages will
+	  have less clutter.  Used by diagnostic programs.
 \LABEL{MIN_CHECK} \\
 \TTKEY{MIN\_ABORT}\TT{(...)}
-	& Always defined to be the equivalent of
-	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ALWAYS(false,...)},
-	  and used when code transfers to a place it
+	& Defined to always be the equivalent of
+	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ALWAYS(false,...)}.
+	  Used when code transfers to a place it
 	  should never transfer to.
 \LABEL{MIN_ABORT} \\
 \end{tabular}\end{indpar}
