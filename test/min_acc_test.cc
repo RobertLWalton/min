@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 15 02:04:21 EDT 2014
+// Date:	Thu Jan  8 01:58:49 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -64,7 +64,10 @@ void min_assert
 	  exit ( 1 ); } \
     catch ( min_assert_exception * x ) {}
 //
-# define MIN_ASSERT(expr) \
+# define MIN_ASSERT(expr,...) \
+    min_assert ( expr ? true : false, \
+    		 __FILE__, __LINE__, #expr )
+# define MIN_CHECK(expr) \
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr )
 
@@ -239,28 +242,28 @@ int main ()
 
     	min::locatable_gen v;
 	v = create_vec_of_objects ( 1000, 300 );
-	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	MIN_CHECK ( check_vec_of_objects ( v ) );
 	cout << "After Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
 
 	random_deallocate ( v, 100000, 300 );
-	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	MIN_CHECK ( check_vec_of_objects ( v ) );
 	cout << "After Random Deallocation" << endl;
 	MACC::print_acc_statistics ( cout );
 
 	MACC::collect ( MACC::ephemeral_levels );
-	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	MIN_CHECK ( check_vec_of_objects ( v ) );
 	cout << "After Highest Level GC" << endl;
 	MACC::print_acc_statistics ( cout );
 
-	MIN_ASSERT
+	MIN_CHECK
 	    (    ::teststr
 	      == min::new_str_gen
 	                ( "this is a test str" ) );
 
 
     } catch ( min_assert_exception * x ) {
-        cout << "EXITING BECAUSE OF FAILED MIN_ASSERT"
+        cout << "EXITING BECAUSE OF FAILED MIN_CHECK"
 	     << endl;
 	exit ( 1 );
     }

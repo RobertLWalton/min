@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  7 03:27:14 EST 2015
+// Date:	Thu Jan  8 02:01:59 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,9 +93,9 @@ void min_assert
 	throw ( new min_assert_exception );
 }
 
-#define PRINTING_MIN_ASSERT(x) \
+#define PRINTING_MIN_CHECK(x) \
     min_assert_print = true; \
-    MIN_ASSERT ( x ); \
+    MIN_CHECK ( x ); \
     min_assert_print = false;
 
 # define desire_success(statement) \
@@ -116,7 +116,10 @@ void min_assert
     catch ( min_assert_exception * x ) \
         { min_desire_failure = false; }
 //
-# define MIN_ASSERT(expr) \
+# define MIN_ASSERT(expr,...) \
+    min_assert ( expr ? true : false, \
+    		 __FILE__, __LINE__, #expr )
+# define MIN_CHECK(expr) \
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr )
 
@@ -191,7 +194,7 @@ void initialize_stub_region ( void )
 	    (min::unsptr) begin_stub_region;
 	min::internal::null_stub = begin_stub_region;
 #   else
-	MIN_ASSERT
+	MIN_CHECK
 	    (    begin_stub_region
 	      >= (min::stub *)
 	         min::internal::stub_base );
@@ -310,7 +313,7 @@ void MINT::new_non_fixed_body
     min::unsptr m = n + 7;
     m >>= 3;
     ++ m;
-    MIN_ASSERT ( next_body + m <= end_body_region );
+    MIN_CHECK ( next_body + m <= end_body_region );
 
     * next_body =
         MUP::new_control_with_locator ( 0, s );
@@ -332,7 +335,7 @@ void MINT::new_fixed_body
 
     min::unsptr m = fbl->size >> 3;
     min::uns64 * next = next_body;
-    MIN_ASSERT ( next + 2 * m <= end_body_region );
+    MIN_CHECK ( next + 2 * m <= end_body_region );
 
     dout << "Using fixed_block_lists["
          << fbl - fixed_block_lists << "]"
@@ -555,11 +558,11 @@ void test_number_types ( void )
     u64 <<= 63;
     u64 >>= 13;
     min::float64 f64 = u64;
-    MIN_ASSERT ( f64 != 0 );
+    MIN_CHECK ( f64 != 0 );
     u64 <<= 14;
     u64 >>= 14;
     f64 = u64;
-    MIN_ASSERT ( f64 == 0 );
+    MIN_CHECK ( f64 == 0 );
 
     cout << endl;
     cout << "Finish Number Types Test!" << endl;
@@ -599,14 +602,14 @@ void test_ptr_conversions ( void )
 	MINT::ptr_to_uns64 ( buffer );
     char * b64 = (char *)
 	MINT::uns64_to_ptr ( u64 );
-    MIN_ASSERT ( b64 == buffer );
+    MIN_CHECK ( b64 == buffer );
 
     cout << endl;
     cout << "Test stub/unsgen conversions:"
 	 << endl;
     min::unsgen ugen = MINT::stub_to_unsgen ( stub );
     min::stub * sgen = MINT::unsgen_to_stub ( ugen );
-    MIN_ASSERT ( sgen == stub );
+    MIN_CHECK ( sgen == stub );
 
     cout << endl;
     cout << "Finish Internal Pointer Conversion"
@@ -650,15 +653,15 @@ void test_general_value_functions ( void )
 	 << dec << endl;
     min::gen stubgen = MUP::new_stub_gen ( stub );
     cout << "stubgen: " << stubgen << endl;
-    MIN_ASSERT ( min::is_stub ( stubgen ) );
-    MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
-    MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
+    MIN_CHECK ( min::is_stub ( stubgen ) );
+    MIN_CHECK ( count_gen_tests ( stubgen ) == 1 );
+    MIN_CHECK ( MUP::stub_of ( stubgen ) == stub );
     stubgen = min::new_stub_gen ( stub );
-    MIN_ASSERT ( min::is_stub ( stubgen ) );
-    MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
-    MIN_ASSERT (    min::gen_subtype_of ( stubgen )
+    MIN_CHECK ( min::is_stub ( stubgen ) );
+    MIN_CHECK ( count_gen_tests ( stubgen ) == 1 );
+    MIN_CHECK (    min::gen_subtype_of ( stubgen )
 		 == min::GEN_STUB );
-    MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
+    MIN_CHECK ( MUP::stub_of ( stubgen ) == stub );
 
 #   if MIN_IS_COMPACT
 	cout << endl;
@@ -668,19 +671,19 @@ void test_general_value_functions ( void )
 	min::gen igen =
 	    MUP::new_direct_int_gen ( i );
 	cout << "igen: " << igen << endl;
-	MIN_ASSERT ( min::is_direct_int ( igen ) );
-	MIN_ASSERT
+	MIN_CHECK ( min::is_direct_int ( igen ) );
+	MIN_CHECK
 	    ( count_gen_tests ( igen ) == 1 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( MUP::direct_int_of ( igen ) == i );
 	igen = min::new_direct_int_gen ( i );
-	MIN_ASSERT ( min::is_direct_int ( igen ) );
-	MIN_ASSERT
+	MIN_CHECK ( min::is_direct_int ( igen ) );
+	MIN_CHECK
 	    ( count_gen_tests ( igen ) == 1 );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    min::gen_subtype_of ( igen )
 	      == min::GEN_DIRECT_INT );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( MUP::direct_int_of ( igen ) == i );
 	desire_failure (
 	    igen = min::new_direct_int_gen
@@ -698,7 +701,7 @@ void test_general_value_functions ( void )
 	    igen = min::new_direct_int_gen
 			( -1 << 28 );
 	);
-	MIN_ASSERT
+	MIN_CHECK
 	    (    MUP::direct_int_of ( igen )
 	      == -1 << 28 );
 #   endif
@@ -711,21 +714,21 @@ void test_general_value_functions ( void )
 	min::gen fgen =
 	    MUP::new_direct_float_gen ( f );
 	cout << "fgen: " << fgen << endl;
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::is_direct_float ( fgen ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( count_gen_tests ( fgen ) == 1 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( MUP::direct_float_of ( fgen ) == f );
 	fgen = min::new_direct_float_gen ( f );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::is_direct_float ( fgen ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( count_gen_tests ( fgen ) == 1 );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    min::gen_subtype_of ( fgen )
 	      == min::GEN_DIRECT_FLOAT );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( MUP::direct_float_of ( fgen ) == f );
 #   endif
 
@@ -751,12 +754,12 @@ void test_general_value_functions ( void )
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
     cout << "strgen: " << strgen << endl;
-    MIN_ASSERT ( min::is_direct_str ( strgen ) );
-    MIN_ASSERT ( count_gen_tests ( strgen ) == 1 );
-    MIN_ASSERT (    min::gen_subtype_of ( strgen )
+    MIN_CHECK ( min::is_direct_str ( strgen ) );
+    MIN_CHECK ( count_gen_tests ( strgen ) == 1 );
+    MIN_CHECK (    min::gen_subtype_of ( strgen )
 		 == min::GEN_DIRECT_STR );
     value.u64 = MUP::direct_str_of ( strgen );
-    MIN_ASSERT ( strcmp ( str, value.str ) == 0 );
+    MIN_CHECK ( strcmp ( str, value.str ) == 0 );
     desire_success (
 	strgen = min::new_direct_str_gen ( str );
     );
@@ -768,14 +771,14 @@ void test_general_value_functions ( void )
     min::gen strngen =
 	MUP::new_direct_str_gen ( str, 2 );
     cout << "strngen: " << strngen << endl;
-    MIN_ASSERT ( min::is_direct_str ( strngen ) );
-    MIN_ASSERT ( count_gen_tests ( strngen ) == 1 );
-    MIN_ASSERT (    min::gen_subtype_of ( strngen )
+    MIN_CHECK ( min::is_direct_str ( strngen ) );
+    MIN_CHECK ( count_gen_tests ( strngen ) == 1 );
+    MIN_CHECK (    min::gen_subtype_of ( strngen )
 		 == min::GEN_DIRECT_STR );
     value.u64 = MUP::direct_str_of ( strngen );
-    MIN_ASSERT
+    MIN_CHECK
 	( strncmp ( str, value.str, 2 ) == 0 );
-    MIN_ASSERT ( value.str[2] == 0 );
+    MIN_CHECK ( value.str[2] == 0 );
     desire_success (
 	strngen =
 	    min::new_direct_str_gen ( str, 2 );
@@ -793,13 +796,13 @@ void test_general_value_functions ( void )
     min::gen listauxgen =
 	MUP::new_list_aux_gen ( aux );
     cout << "listauxgen: " << listauxgen << endl;
-    MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
-    MIN_ASSERT
+    MIN_CHECK ( min::is_list_aux ( listauxgen ) );
+    MIN_CHECK
 	( count_gen_tests ( listauxgen ) == 2 );
-    MIN_ASSERT (    min::gen_subtype_of
+    MIN_CHECK (    min::gen_subtype_of
 			    ( listauxgen )
 		 == min::GEN_LIST_AUX );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::list_aux_of ( listauxgen ) == aux );
     desire_success (
 	listauxgen = min::new_list_aux_gen ( aux );
@@ -812,10 +815,10 @@ void test_general_value_functions ( void )
     listauxgen =
 	MUP::renew_gen ( listauxgen, reaux );
     cout << "re-listauxgen: " << listauxgen << endl;
-    MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
-    MIN_ASSERT
+    MIN_CHECK ( min::is_list_aux ( listauxgen ) );
+    MIN_CHECK
 	( count_gen_tests ( listauxgen ) == 2 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::list_aux_of ( listauxgen )
 	  == reaux );
 
@@ -825,14 +828,14 @@ void test_general_value_functions ( void )
     min::gen sublistauxgen =
 	MUP::new_sublist_aux_gen ( aux );
     cout << "sublistauxgen: " << sublistauxgen << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_sublist_aux ( sublistauxgen ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( sublistauxgen ) == 2 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::gen_subtype_of ( sublistauxgen )
 	  == min::GEN_SUBLIST_AUX );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::sublist_aux_of ( sublistauxgen )
 	  == aux );
     desire_success (
@@ -851,15 +854,15 @@ void test_general_value_functions ( void )
 	MUP::new_indirect_aux_gen ( aux );
     cout << "indirectauxgen: "
 	 << indirectauxgen << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_indirect_aux
 		    ( indirectauxgen ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( indirectauxgen ) == 2 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::gen_subtype_of ( indirectauxgen )
 	  == min::GEN_INDIRECT_AUX );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::indirect_aux_of
 		  ( indirectauxgen )
 	  == aux );
@@ -878,13 +881,13 @@ void test_general_value_functions ( void )
     min::gen indexgen =
 	MUP::new_index_gen ( index );
     cout << "indexgen: " << indexgen << endl;
-    MIN_ASSERT ( min::is_index ( indexgen ) );
-    MIN_ASSERT
+    MIN_CHECK ( min::is_index ( indexgen ) );
+    MIN_CHECK
 	( count_gen_tests ( indexgen ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::gen_subtype_of ( indexgen )
 	  == min::GEN_INDEX );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::index_of ( indexgen ) == index );
     desire_success (
 	indexgen = min::new_index_gen ( index );
@@ -901,12 +904,12 @@ void test_general_value_functions ( void )
     min::gen codegen =
 	MUP::new_control_code_gen ( code );
     cout << "codegen: " << codegen << endl;
-    MIN_ASSERT ( min::is_control_code ( codegen ) );
-    MIN_ASSERT ( count_gen_tests ( codegen ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK ( min::is_control_code ( codegen ) );
+    MIN_CHECK ( count_gen_tests ( codegen ) == 1 );
+    MIN_CHECK
 	(    min::gen_subtype_of ( codegen )
 	  == min::GEN_CONTROL_CODE );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::control_code_of ( codegen )
 	  == code );
     desire_success (
@@ -922,43 +925,43 @@ void test_general_value_functions ( void )
     cout << "Test special general values:"
 	 << endl;
 
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::MISSING() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( min::MISSING() ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::ANY() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( min::ANY() ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::MULTI_VALUED() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests
 	      ( min::MULTI_VALUED() ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::UNDEFINED() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( min::UNDEFINED() ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::SUCCESS() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( min::SUCCESS() ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_special ( min::FAILURE() ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( count_gen_tests ( min::FAILURE() ) == 1 );
 
     unsigned special = 0x7e005f;
     min::gen specialgen =
 	MUP::new_special_gen ( special );
     cout << "specialgen: " << specialgen << endl;
-    MIN_ASSERT ( min::is_special ( specialgen ) );
-    MIN_ASSERT
+    MIN_CHECK ( min::is_special ( specialgen ) );
+    MIN_CHECK
 	( count_gen_tests ( specialgen ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::gen_subtype_of ( specialgen )
 	  == min::GEN_SPECIAL );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::special_index_of ( specialgen )
 	  == special );
     desire_success (
@@ -1007,43 +1010,43 @@ void test_control_values ( void )
 	    ( type1, v1, flags );
     cout << "control1: " << hex << control1 << dec
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control1 )
 	  == type1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::value_of_control ( control1 )
 	  == v1 );
-    MIN_ASSERT ( control1 & hiflag );
-    MIN_ASSERT ( control1 & loflag );
-    MIN_ASSERT ( ! ( control1 & midflag ) );
+    MIN_CHECK ( control1 & hiflag );
+    MIN_CHECK ( control1 & loflag );
+    MIN_CHECK ( ! ( control1 & midflag ) );
 
     control1 =
 	MUP::renew_control_type ( control1, type2 );
     cout << "re-control1: " << hex << control1
 	 << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control1 )
 	  == type2 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::value_of_control ( control1 )
 	  == v1 );
-    MIN_ASSERT ( control1 & hiflag );
-    MIN_ASSERT ( control1 & loflag );
-    MIN_ASSERT ( ! ( control1 & midflag ) );
+    MIN_CHECK ( control1 & hiflag );
+    MIN_CHECK ( control1 & loflag );
+    MIN_CHECK ( ! ( control1 & midflag ) );
 
     control1 =
 	MUP::renew_control_value ( control1, v2 );
     cout << "re-control1: " << hex << control1
 	 << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control1 )
 	  == type2 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::value_of_control ( control1 )
 	  == v2 );
-    MIN_ASSERT ( control1 & hiflag );
-    MIN_ASSERT ( control1 & loflag );
-    MIN_ASSERT ( ! ( control1 & midflag ) );
+    MIN_CHECK ( control1 & hiflag );
+    MIN_CHECK ( control1 & loflag );
+    MIN_CHECK ( ! ( control1 & midflag ) );
 
     cout << endl;
     cout << "Test non-acc controls with stub"
@@ -1055,30 +1058,30 @@ void test_control_values ( void )
 	control2 & MIN_CONTROL_VALUE_MASK;
     cout << "control2: " << hex
 	 << control2 - stubbase << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control2 )
 	  == type1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::stub_of_control ( control2 )
 	  == stub1 );
-    MIN_ASSERT ( control2 & hiflag );
-    MIN_ASSERT ( ! ( control2 & loflag ) );
-    MIN_ASSERT ( ! ( control2 & midflag ) );
+    MIN_CHECK ( control2 & hiflag );
+    MIN_CHECK ( ! ( control2 & loflag ) );
+    MIN_CHECK ( ! ( control2 & midflag ) );
 
     control2 =
 	MUP::renew_control_stub
 	    ( control2, stub2 );
     cout << "re-control2: " << hex
 	 << control2 - stubbase << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control2 )
 	  == type1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::stub_of_control ( control2 )
 	  == stub2 );
-    MIN_ASSERT ( control2 & hiflag );
-    MIN_ASSERT ( ! ( control2 & loflag ) );
-    MIN_ASSERT ( ! ( control2 & midflag ) );
+    MIN_CHECK ( control2 & hiflag );
+    MIN_CHECK ( ! ( control2 & loflag ) );
+    MIN_CHECK ( ! ( control2 & midflag ) );
 
     cout << endl;
     cout << "Test acc controls with stub"
@@ -1090,30 +1093,30 @@ void test_control_values ( void )
 	control3 & MIN_ACC_CONTROL_VALUE_MASK;
     cout << "control3: " << hex
 	 << control3 - stubbase << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control3 )
 	  == type1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::stub_of_acc_control ( control3 )
 	  == stub1 );
-    MIN_ASSERT ( control3 & hiflag );
-    MIN_ASSERT ( ! ( control3 & loflag ) );
-    MIN_ASSERT ( ! ( control3 & midflag ) );
+    MIN_CHECK ( control3 & hiflag );
+    MIN_CHECK ( ! ( control3 & loflag ) );
+    MIN_CHECK ( ! ( control3 & midflag ) );
 
     control3 =
 	MUP::renew_acc_control_stub
 	    ( control3, stub2 );
     cout << "re-control3: " << hex
 	 << control3 - stubbase << dec << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::type_of_control ( control3 )
 	  == type1 );
-    MIN_ASSERT
+    MIN_CHECK
 	(    MUP::stub_of_acc_control ( control3 )
 	  == stub2 );
-    MIN_ASSERT ( control3 & hiflag );
-    MIN_ASSERT ( ! ( control3 & loflag ) );
-    MIN_ASSERT ( ! ( control3 & midflag ) );
+    MIN_CHECK ( control3 & hiflag );
+    MIN_CHECK ( ! ( control3 & loflag ) );
+    MIN_CHECK ( ! ( control3 & midflag ) );
 
     cout << endl;
     cout << "Finish Control Value Test!" << endl;
@@ -1135,19 +1138,19 @@ void test_stub_functions ( void )
     min::uns64 u = 0x9047814326432464ull;
     cout << "u: " << hex << u << dec << endl;
     MUP::set_value_of ( stub, u );
-    MIN_ASSERT ( MUP::value_of ( stub ) == u );
+    MIN_CHECK ( MUP::value_of ( stub ) == u );
 
     min::float64 f = 1.4362346234;
     MUP::set_float_of ( stub, f );
-    MIN_ASSERT ( MUP::float_of ( stub ) == f );
+    MIN_CHECK ( MUP::float_of ( stub ) == f );
 
     min::gen g = min::new_stub_gen ( stub );
     MUP::set_gen_of ( stub, g );
-    MIN_ASSERT ( MUP::gen_of ( stub ) == g );
+    MIN_CHECK ( MUP::gen_of ( stub ) == g );
 
     void * p = & g;
     MUP::set_ptr_of ( stub, p );
-    MIN_ASSERT ( MUP::ptr_of ( stub ) == p );
+    MIN_CHECK ( MUP::ptr_of ( stub ) == p );
 
     cout << endl;
     cout << "Test stub control set/read functions:"
@@ -1157,40 +1160,40 @@ void test_stub_functions ( void )
     min::uns64 c = f1 | f2;
     cout << "c: " << hex << c << dec << endl;
     MUP::set_control_of ( stub, c );
-    MIN_ASSERT ( MUP::control_of ( stub ) == c );
-    MIN_ASSERT ( min::type_of ( stub ) == 0 );
+    MIN_CHECK ( MUP::control_of ( stub ) == c );
+    MIN_CHECK ( min::type_of ( stub ) == 0 );
     MUP::set_type_of ( stub, min::NUMBER );
     c = MUP::renew_control_type ( c, min::NUMBER );
     cout << "c: " << hex << c << dec << endl;
-    MIN_ASSERT ( MUP::control_of ( stub ) == c );
-    MIN_ASSERT
+    MIN_CHECK ( MUP::control_of ( stub ) == c );
+    MIN_CHECK
 	( min::type_of ( stub ) == min::NUMBER );
 
     cout << endl;
     cout << "Test stub flag set/clear/read"
 	    " functions:" << endl;
-    MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
-    MIN_ASSERT ( MUP::test_flags_of ( stub, f2 ) );
+    MIN_CHECK ( MUP::test_flags_of ( stub, f1 ) );
+    MIN_CHECK ( MUP::test_flags_of ( stub, f2 ) );
     MUP::clear_flags_of ( stub, f2 );
-    MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
-    MIN_ASSERT
+    MIN_CHECK ( MUP::test_flags_of ( stub, f1 ) );
+    MIN_CHECK
 	( ! MUP::test_flags_of ( stub, f2 ) );
     MUP::set_flags_of ( stub, f2 );
-    MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
-    MIN_ASSERT ( MUP::test_flags_of ( stub, f2 ) );
-    MIN_ASSERT ( MUP::control_of ( stub ) == c );
+    MIN_CHECK ( MUP::test_flags_of ( stub, f1 ) );
+    MIN_CHECK ( MUP::test_flags_of ( stub, f2 ) );
+    MIN_CHECK ( MUP::control_of ( stub ) == c );
 
     cout << endl;
     cout << "Test stub ACC related functions:"
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_collectible ( min::NUMBER ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( ! min::is_collectible ( min::LIST_AUX ) );
     MUP::set_type_of ( stub, min::NUMBER );
-    MIN_ASSERT ( ! min::is_deallocated ( stub ) );
+    MIN_CHECK ( ! min::is_deallocated ( stub ) );
     MUP::set_type_of ( stub, min::DEALLOCATED );
-    MIN_ASSERT ( min::is_deallocated ( stub ) );
+    MIN_CHECK ( min::is_deallocated ( stub ) );
 
     cout << endl;
     cout << "Finish Stub Functions Test!" << endl;
@@ -1210,11 +1213,11 @@ void test_process_interface ( void )
     cout << "Test interrupt function:" << endl;
     min::uns32 count = ::interrupt_count;
     min::interrupt();
-    MIN_ASSERT ( ::interrupt_count == count );
+    MIN_CHECK ( ::interrupt_count == count );
     min::stub ** limit_save = MINT::acc_stack_limit;
     MINT::acc_stack_limit = MINT::acc_stack;
     min::interrupt();
-    MIN_ASSERT ( ::interrupt_count == count + 1 );
+    MIN_CHECK ( ::interrupt_count == count + 1 );
     MINT::acc_stack_limit = limit_save;
 
     cout << endl;
@@ -1256,21 +1259,21 @@ void test_acc_interface ( void )
     MUP::set_flags_of ( &s2, unmarked_flag );
     MINT::acc_stack_mask = 0;
     MUP::acc_write_update ( &s1, &s2 );
-    MIN_ASSERT ( MINT::acc_stack == ::acc_stack );
+    MIN_CHECK ( MINT::acc_stack == ::acc_stack );
     MINT::acc_stack_mask = unmarked_flag;
     MUP::acc_write_update ( &s1, &s2 );
-    MIN_ASSERT
+    MIN_CHECK
 	( MINT::acc_stack == ::acc_stack + 2 );
-    MIN_ASSERT ( ::acc_stack[0] == &s1 );
-    MIN_ASSERT ( ::acc_stack[1] == &s2 );
+    MIN_CHECK ( ::acc_stack[0] == &s1 );
+    MIN_CHECK ( ::acc_stack[1] == &s2 );
     MUP::clear_flags_of ( &s1, scavenged_flag );
     MUP::acc_write_update ( &s1, &s2 );
-    MIN_ASSERT
+    MIN_CHECK
 	( MINT::acc_stack == ::acc_stack + 2 );
     MUP::set_flags_of ( &s1, scavenged_flag );
     MUP::clear_flags_of ( &s2, unmarked_flag );
     MUP::acc_write_update ( &s1, &s2 );
-    MIN_ASSERT
+    MIN_CHECK
 	( MINT::acc_stack == ::acc_stack + 2 );
 
     cout << endl;
@@ -1281,43 +1284,43 @@ void test_acc_interface ( void )
     cout << "initial stubs allocated = "
 	 << sbase << endl;
     min::stub * stub1 = MUP::new_acc_stub();
-    MIN_ASSERT
+    MIN_CHECK
 	( stub1 == begin_stub_region + sbase  );
-    MIN_ASSERT
+    MIN_CHECK
 	( stub1 == MINT::last_allocated_stub );
-    MIN_ASSERT ( stubs_allocated == sbase + 1 );
-    MIN_ASSERT
+    MIN_CHECK ( stubs_allocated == sbase + 1 );
+    MIN_CHECK
 	( min::type_of ( stub1 ) == min::ACC_FREE );
-    MIN_ASSERT
+    MIN_CHECK
 	( ! MUP::test_flags_of
 		 ( stub1, unmarked_flag ) );
     MINT::new_acc_stub_flags = unmarked_flag;
     min::stub * stub2 = MUP::new_acc_stub();
-    MIN_ASSERT
+    MIN_CHECK
 	( stub2 == MINT::last_allocated_stub );
-    MIN_ASSERT ( stubs_allocated == sbase + 2 );
-    MIN_ASSERT
+    MIN_CHECK ( stubs_allocated == sbase + 2 );
+    MIN_CHECK
 	( stub2 == begin_stub_region + sbase + 1 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::type_of ( stub2 ) == min::ACC_FREE );
-    MIN_ASSERT
+    MIN_CHECK
 	( MUP::test_flags_of
 		 ( stub2, unmarked_flag ) );
     MINT::acc_expand_stub_free_list ( 2 );
-    MIN_ASSERT ( stubs_allocated == sbase + 4 );
-    MIN_ASSERT
+    MIN_CHECK ( stubs_allocated == sbase + 4 );
+    MIN_CHECK
 	( stub2 == MINT::last_allocated_stub );
     min::stub * stub3 = MUP::new_aux_stub();
-    MIN_ASSERT
+    MIN_CHECK
 	( stub3 == begin_stub_region + sbase + 3 );
-    MIN_ASSERT ( stubs_allocated == sbase + 4 );
-    MIN_ASSERT
+    MIN_CHECK ( stubs_allocated == sbase + 4 );
+    MIN_CHECK
 	( stub2 == MINT::last_allocated_stub );
     min::stub * stub4 = MUP::new_acc_stub();
-    MIN_ASSERT
+    MIN_CHECK
 	( stub4 == begin_stub_region + sbase + 2 );
-    MIN_ASSERT ( stubs_allocated == sbase + 4 );
-    MIN_ASSERT
+    MIN_CHECK ( stubs_allocated == sbase + 4 );
+    MIN_CHECK
 	( stub4 == MINT::last_allocated_stub );
 
 
@@ -1335,26 +1338,26 @@ void test_acc_interface ( void )
     MUP::new_body ( stub2, 128 );
     char * p2 = (char *) MUP::ptr_of ( stub2 );
     memset ( p2, 0xBB, 128 );
-    MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
-    MIN_ASSERT ( p1 != p2 );
+    MIN_CHECK ( memcmp ( p1, p2, 128 ) == 0 );
+    MIN_CHECK ( p1 != p2 );
     MUP::new_body ( stub3, 128 );
     char * p3 = (char *) MUP::ptr_of ( stub3 );
     memset ( p3, 0xCC, 128 );
     MUP::new_body ( stub4, 128 );
     char * p4 = (char *) MUP::ptr_of ( stub4 );
     memset ( p4, 0xCC, 128 );
-    MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
-    MIN_ASSERT ( p3 != p4 );
+    MIN_CHECK ( memcmp ( p3, p4, 128 ) == 0 );
+    MIN_CHECK ( p3 != p4 );
     resize_body ( stub4, 128, 128 );
     char * p5 = (char *) MUP::ptr_of ( stub4 );
-    MIN_ASSERT ( memcmp ( p3, p5, 128 ) == 0 );
-    MIN_ASSERT ( p4 != p5 );
+    MIN_CHECK ( memcmp ( p3, p5, 128 ) == 0 );
+    MIN_CHECK ( p4 != p5 );
     MUP::deallocate_body ( stub4, 128 );
-    MIN_ASSERT ( min::type_of ( stub4 )
+    MIN_CHECK ( min::type_of ( stub4 )
 		 == min::DEALLOCATED );
     char * p6 = (char *) MUP::ptr_of ( stub4 );
-    MIN_ASSERT ( p5 != p6 );
-    MIN_ASSERT ( p6[0] == 0
+    MIN_CHECK ( p5 != p6 );
+    MIN_CHECK ( p6[0] == 0
 		 &&
 		 memcmp ( p6, p6+1, 127 ) == 0 );
 
@@ -1365,14 +1368,14 @@ void test_acc_interface ( void )
     static min::locatable_gen staticg1[3];
     static min::locatable_num_gen staticg2[2];
 
-    MIN_ASSERT
+    MIN_CHECK
 	( find_ptr_locator
 	      ( & (const min::stub * &)
 	          min::error_message ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( find_gen_locator
 	      ( & (min::gen &) staticg1[0] ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( find_gen_locator
 	      ( & (min::gen &) staticg2[0] )
 	  == MIN_IS_COMPACT );
@@ -1382,18 +1385,18 @@ void test_acc_interface ( void )
         min::locatable_gen g3[5];
         min::locatable_num_gen g4[3];
 	g3[0] = g4[0];
-	MIN_ASSERT
+	MIN_CHECK
 	    ( find_gen_locator
 	          ( & (min::gen &) staticg1[2] ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( find_gen_locator
 	          ( & (min::gen &) g3[4] ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    count_gen_locators()
 	      == 5 + 3 * MIN_IS_COMPACT
 	       + locatable_gen_count );
     }
-    MIN_ASSERT
+    MIN_CHECK
 	(    count_gen_locators()
 	  == locatable_gen_count );
 
@@ -1418,55 +1421,55 @@ void test_numbers ( void )
 
     min::gen n1 = min::new_num_gen ( 12345 );
     cout << "n1: " << n1 << endl;
-    MIN_ASSERT ( min::is_num ( n1 ) );
-    MIN_ASSERT ( min::is_name ( n1 ) );
-    MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
-    MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
-    MIN_ASSERT ( MUP::float_of ( n1 ) == 12345 );
+    MIN_CHECK ( min::is_num ( n1 ) );
+    MIN_CHECK ( min::is_name ( n1 ) );
+    MIN_CHECK ( min::int_of ( n1 ) == 12345 );
+    MIN_CHECK ( min::float_of ( n1 ) == 12345 );
+    MIN_CHECK ( MUP::float_of ( n1 ) == 12345 );
     min::uns32 n1hash = min::numhash ( n1 );
     cout << "n1hash: " << hex << n1hash << dec
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( n1hash == min::floathash ( 12345 ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( n1hash == min::hash ( n1 ) );
-    MIN_ASSERT ( min::new_num_gen ( 12345 ) == n1 );
+    MIN_CHECK ( min::new_num_gen ( 12345 ) == n1 );
 
     min::gen n2 = min::new_num_gen ( 1.2345 );
 #   if MIN_IS_LOOSE
 	cout << "n2: " << n2 << endl;
 #   endif
-    MIN_ASSERT ( min::is_num ( n2 ) );
-    MIN_ASSERT ( min::is_name ( n2 ) );
-    MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
-    MIN_ASSERT ( MUP::float_of ( n2 ) == 1.2345 );
+    MIN_CHECK ( min::is_num ( n2 ) );
+    MIN_CHECK ( min::is_name ( n2 ) );
+    MIN_CHECK ( min::float_of ( n2 ) == 1.2345 );
+    MIN_CHECK ( MUP::float_of ( n2 ) == 1.2345 );
     min::uns32 n2hash = min::numhash ( n2 );
     cout << "n2hash: " << hex << n2hash << dec
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( n2hash == min::floathash ( 1.2345 ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( n2hash == min::hash ( n2 ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::new_num_gen ( 1.2345 ) == n2 );
 
     min::gen n3 = min::new_num_gen ( 1 << 30 );
 #   if MIN_IS_LOOSE
 	cout << "n3: " << n3 << endl;
 #   endif
-    MIN_ASSERT ( min::is_num ( n3 ) );
-    MIN_ASSERT ( min::is_name ( n3 ) );
-    MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
-    MIN_ASSERT ( min::float_of ( n3 ) == 1 << 30 );
-    MIN_ASSERT ( MUP::float_of ( n3 ) == 1 << 30 );
+    MIN_CHECK ( min::is_num ( n3 ) );
+    MIN_CHECK ( min::is_name ( n3 ) );
+    MIN_CHECK ( min::int_of ( n3 ) == 1 << 30 );
+    MIN_CHECK ( min::float_of ( n3 ) == 1 << 30 );
+    MIN_CHECK ( MUP::float_of ( n3 ) == 1 << 30 );
     min::uns32 n3hash = min::numhash ( n3 );
     cout << "n3hash: " << hex << n3hash << dec
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( n3hash == min::floathash ( 1 << 30 ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( n3hash == min::hash ( n3 ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::new_num_gen ( 1 << 30 ) == n3 );
 
     cout << endl;
@@ -1501,9 +1504,9 @@ void test_strings ( void )
 	 << endl;
     cout << "s3hash: " << hex << s3hash << dec
 	 << endl;
-    MIN_ASSERT
+    MIN_CHECK
 	( min::strnhash ( s13, 8 ) == s8hash );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::strnhash ( s13, 3 ) == s3hash );
 
     cout << endl;
@@ -1512,128 +1515,128 @@ void test_strings ( void )
     min::gen strgen7 = min::new_str_gen ( s7 );
     min::gen strgen8 = min::new_str_gen ( s8 );
     min::gen strgen13 = min::new_str_gen ( s13 );
-    MIN_ASSERT (    min::new_str_gen ( s13, 8 )
+    MIN_CHECK (    min::new_str_gen ( s13, 8 )
 		 == strgen8 );
-    MIN_ASSERT (    min::new_str_gen ( s13, 20 )
+    MIN_CHECK (    min::new_str_gen ( s13, 20 )
 		 == strgen13 );
 
-    MIN_ASSERT ( min::is_str ( strgen3 ) );
-    MIN_ASSERT ( min::is_name ( strgen3 ) );
-    MIN_ASSERT ( min::is_direct_str ( strgen3 ) );
-    MIN_ASSERT ( min::is_str ( strgen7 ) );
-    MIN_ASSERT ( min::is_name ( strgen7 ) );
-    MIN_ASSERT ( min::is_stub ( strgen7 ) );
-    MIN_ASSERT ( min::is_str ( strgen8 ) );
-    MIN_ASSERT ( min::is_name ( strgen8 ) );
-    MIN_ASSERT ( min::is_stub ( strgen8 ) );
-    MIN_ASSERT ( min::is_str ( strgen13 ) );
-    MIN_ASSERT ( min::is_name ( strgen13 ) );
-    MIN_ASSERT ( min::is_stub ( strgen13 ) );
+    MIN_CHECK ( min::is_str ( strgen3 ) );
+    MIN_CHECK ( min::is_name ( strgen3 ) );
+    MIN_CHECK ( min::is_direct_str ( strgen3 ) );
+    MIN_CHECK ( min::is_str ( strgen7 ) );
+    MIN_CHECK ( min::is_name ( strgen7 ) );
+    MIN_CHECK ( min::is_stub ( strgen7 ) );
+    MIN_CHECK ( min::is_str ( strgen8 ) );
+    MIN_CHECK ( min::is_name ( strgen8 ) );
+    MIN_CHECK ( min::is_stub ( strgen8 ) );
+    MIN_CHECK ( min::is_str ( strgen13 ) );
+    MIN_CHECK ( min::is_name ( strgen13 ) );
+    MIN_CHECK ( min::is_stub ( strgen13 ) );
 
-    MIN_ASSERT ( min::strlen ( strgen3 ) == 3 );
-    MIN_ASSERT
+    MIN_CHECK ( min::strlen ( strgen3 ) == 3 );
+    MIN_CHECK
 	( min::strhash ( strgen3 ) == s3hash );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::hash ( strgen3 ) == s3hash );
     min::strcpy ( buffer, strgen3 );
-    MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s3, strgen3 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( strcmp ( buffer, s3 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s3, strgen3 ) == 0 );
+    MIN_CHECK
 	( min::new_str_gen ( buffer ) == strgen3 );
     buffer[2] = 0;
     min::strncpy ( buffer, strgen3, 2 );
-    MIN_ASSERT ( buffer[2] == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( buffer[2] == 0 );
+    MIN_CHECK
 	(    min::strncmp ( buffer, strgen3, 2 )
 	  == 0 );
-    MIN_ASSERT ( min::strlen ( strgen7 ) == 7 );
-    MIN_ASSERT
+    MIN_CHECK ( min::strlen ( strgen7 ) == 7 );
+    MIN_CHECK
 	( min::strhash ( strgen7 ) == s7hash );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::hash ( strgen7 ) == s7hash );
     min::strcpy ( buffer, strgen7 );
-    MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s7, strgen7 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( strcmp ( buffer, s7 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s7, strgen7 ) == 0 );
+    MIN_CHECK
 	( min::new_str_gen ( buffer ) == strgen7 );
     buffer[6] = 0;
     min::strncpy ( buffer, strgen7, 6 );
-    MIN_ASSERT ( buffer[6] == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( buffer[6] == 0 );
+    MIN_CHECK
 	(    min::strncmp ( buffer, strgen7, 6 )
 	  == 0 );
-    MIN_ASSERT ( min::strlen ( strgen8 ) == 8 );
-    MIN_ASSERT
+    MIN_CHECK ( min::strlen ( strgen8 ) == 8 );
+    MIN_CHECK
 	( min::strhash ( strgen8 ) == s8hash );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::hash ( strgen8 ) == s8hash );
     min::strcpy ( buffer, strgen8 );
-    MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s8, strgen8 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( strcmp ( buffer, s8 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s8, strgen8 ) == 0 );
+    MIN_CHECK
 	( min::new_str_gen ( buffer ) == strgen8 );
     buffer[7] = 0;
     min::strncpy ( buffer, strgen8, 7 );
-    MIN_ASSERT ( buffer[7] == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( buffer[7] == 0 );
+    MIN_CHECK
 	(    min::strncmp ( buffer, strgen8, 7 )
 	  == 0 );
-    MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
-    MIN_ASSERT
+    MIN_CHECK ( min::strlen ( strgen13 ) == 13 );
+    MIN_CHECK
 	( min::strhash ( strgen13 ) == s13hash );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::hash ( strgen13 ) == s13hash );
     min::strcpy ( buffer, strgen13 );
-    MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( strcmp ( buffer, s13 ) == 0 );
+    MIN_CHECK
 	( min::strcmp ( s13, strgen13 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::new_str_gen ( buffer ) == strgen13 );
     buffer[12] = 0;
     min::strncpy ( buffer, strgen13, 12 );
-    MIN_ASSERT ( buffer[12] == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( buffer[12] == 0 );
+    MIN_CHECK
 	(    min::strncmp ( buffer, strgen13, 12 )
 	  == 0 );
 
     union { min::uns64 u; char s[8]; } v;
     v.u = min::strhead ( strgen3 );
-    MIN_ASSERT ( strcmp ( v.s, "ABC" ) == 0 );
+    MIN_CHECK ( strcmp ( v.s, "ABC" ) == 0 );
     v.u = min::strhead ( strgen7 );
-    MIN_ASSERT ( strcmp ( v.s, "ABCDEFG" ) == 0 );
+    MIN_CHECK ( strcmp ( v.s, "ABCDEFG" ) == 0 );
     v.u = min::strhead ( strgen8 );
-    MIN_ASSERT ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
+    MIN_CHECK ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
     v.u = min::strhead ( strgen13 );
-    MIN_ASSERT ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
+    MIN_CHECK ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
 
-    MIN_ASSERT ( min::strhead ( min::MISSING() ) == 0 );
+    MIN_CHECK ( min::strhead ( min::MISSING() ) == 0 );
 
     cout << endl;
     cout << "Test unprotected string functions:"
 	 << endl;
 
     min::stub * stub7 = MUP::stub_of ( strgen7 );
-    MIN_ASSERT (    min::type_of ( stub7 )
+    MIN_CHECK (    min::type_of ( stub7 )
 		 == min::SHORT_STR );
     u.str = MUP::short_str_of ( stub7 );
     u.buf[8] = 0;
-    MIN_ASSERT ( strcmp ( u.buf, s7 ) == 0 );
+    MIN_CHECK ( strcmp ( u.buf, s7 ) == 0 );
     min::stub * stub8 = MUP::stub_of ( strgen8 );
-    MIN_ASSERT (    min::type_of ( stub8 )
+    MIN_CHECK (    min::type_of ( stub8 )
 		 == min::SHORT_STR );
     u.str = MUP::short_str_of ( stub8 );
     u.buf[8] = 0;
-    MIN_ASSERT ( strcmp ( u.buf, s8 ) == 0 );
+    MIN_CHECK ( strcmp ( u.buf, s8 ) == 0 );
 
     min::stub * stub13 = MUP::stub_of ( strgen13 );
-    MIN_ASSERT (    min::type_of ( stub13 )
+    MIN_CHECK (    min::type_of ( stub13 )
 		 == min::LONG_STR );
     MUP::long_str * lstr13 =
 	MUP::long_str_of ( stub13 );
-    MIN_ASSERT ( MUP::length_of ( lstr13 ) == 13 );
-    MIN_ASSERT
+    MIN_CHECK ( MUP::length_of ( lstr13 ) == 13 );
+    MIN_CHECK
 	( MUP::hash_of ( lstr13 ) == s13hash );
-    MIN_ASSERT
+    MIN_CHECK
 	(    strcmp ( MUP::str_of ( lstr13 ), s13 )
 	  == 0 );
 
@@ -1641,92 +1644,92 @@ void test_strings ( void )
     cout << "Test protected string ptrs:" << endl;
 
     // Test body relocation first.
-    MIN_ASSERT
+    MIN_CHECK
 	( MUP::body_size_of ( stub13 )
 	  ==
 	  sizeof ( MUP::long_str ) + 13 + 1 );
     resize_body
 	( stub13, MUP::body_size_of ( stub13 ),
 		  MUP::body_size_of ( stub13 ) );
-    MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
-    MIN_ASSERT
+    MIN_CHECK ( min::strlen ( strgen13 ) == 13 );
+    MIN_CHECK
 	( min::strhash ( strgen13 ) == s13hash );
     min::strcpy ( buffer, strgen13 );
-    MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+    MIN_CHECK ( strcmp ( buffer, s13 ) == 0 );
 
     min::str_ptr p3 ( strgen3 );
     min::str_ptr p7 ( strgen7 );
     min::str_ptr p8 ( strgen8 );
     min::str_ptr p13 ( strgen13 );
 
-    MIN_ASSERT ( min::strcmp ( s3, p3 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s7, p7 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s8, p8 ) == 0 );
-    MIN_ASSERT ( min::strcmp ( s13, p13 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s3, p3 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s7, p7 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s8, p8 ) == 0 );
+    MIN_CHECK ( min::strcmp ( s13, p13 ) == 0 );
 
-    MIN_ASSERT ( s3[0] == p3[0] );
-    MIN_ASSERT ( s3[1] == p3[1] );
-    MIN_ASSERT ( s3[2] == p3[2] );
-    MIN_ASSERT ( s3[3] == p3[3] );
-    MIN_ASSERT ( s7[0] == p7[0] );
-    MIN_ASSERT ( s7[6] == p7[6] );
-    MIN_ASSERT ( s7[7] == p7[7] );
-    MIN_ASSERT ( s8[0] == p8[0] );
-    MIN_ASSERT ( s8[7] == p8[7] );
-    MIN_ASSERT ( s8[8] == p8[8] );
-    MIN_ASSERT ( s13[0] == p13[0] );
-    MIN_ASSERT ( s13[12] == p13[12] );
-    MIN_ASSERT ( s13[13] == p13[13] );
+    MIN_CHECK ( s3[0] == p3[0] );
+    MIN_CHECK ( s3[1] == p3[1] );
+    MIN_CHECK ( s3[2] == p3[2] );
+    MIN_CHECK ( s3[3] == p3[3] );
+    MIN_CHECK ( s7[0] == p7[0] );
+    MIN_CHECK ( s7[6] == p7[6] );
+    MIN_CHECK ( s7[7] == p7[7] );
+    MIN_CHECK ( s8[0] == p8[0] );
+    MIN_CHECK ( s8[7] == p8[7] );
+    MIN_CHECK ( s8[8] == p8[8] );
+    MIN_CHECK ( s13[0] == p13[0] );
+    MIN_CHECK ( s13[12] == p13[12] );
+    MIN_CHECK ( s13[13] == p13[13] );
 
     min::strcpy ( buffer, p3 );
-    MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
+    MIN_CHECK ( strcmp ( buffer, s3 ) == 0 );
     min::strcpy ( buffer, p13 );
-    MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+    MIN_CHECK ( strcmp ( buffer, s13 ) == 0 );
     buffer[5] = 0;
-    MIN_ASSERT ( strncmp ( buffer, p13, 5 ) == 0 );
-    MIN_ASSERT ( strncmp ( buffer, p13, 6 ) != 0 );
+    MIN_CHECK ( strncmp ( buffer, p13, 5 ) == 0 );
+    MIN_CHECK ( strncmp ( buffer, p13, 6 ) != 0 );
     buffer[4] = 0;
     buffer[5] = 'X';
     min::strncpy ( buffer, p13, 5 );
-    MIN_ASSERT ( buffer[4] == s13[4] );
-    MIN_ASSERT ( buffer[5] == 'X' );
+    MIN_CHECK ( buffer[4] == s13[4] );
+    MIN_CHECK ( buffer[5] == 'X' );
 
-    MIN_ASSERT ( min::strlen ( p3 ) == 3 );
-    MIN_ASSERT ( min::strlen ( p7 ) == 7 );
-    MIN_ASSERT ( min::strlen ( p8 ) == 8 );
-    MIN_ASSERT ( min::strlen ( p13 ) == 13 );
+    MIN_CHECK ( min::strlen ( p3 ) == 3 );
+    MIN_CHECK ( min::strlen ( p7 ) == 7 );
+    MIN_CHECK ( min::strlen ( p8 ) == 8 );
+    MIN_CHECK ( min::strlen ( p13 ) == 13 );
 
-    MIN_ASSERT (    min::strhash ( p3 )
+    MIN_CHECK (    min::strhash ( p3 )
 		 == min::strhash ( s3 ) );
-    MIN_ASSERT (    min::strhash ( p7 )
+    MIN_CHECK (    min::strhash ( p7 )
 		 == min::strhash ( s7 ) );
-    MIN_ASSERT (    min::strhash ( p8 )
+    MIN_CHECK (    min::strhash ( p8 )
 		 == min::strhash ( s8 ) );
-    MIN_ASSERT (    min::strhash ( p13 )
+    MIN_CHECK (    min::strhash ( p13 )
 		 == min::strhash ( s13 ) );
 
     const char * p13str_before =
 	min::unprotected::str_of ( p13 );
-    MIN_ASSERT
+    MIN_CHECK
 	( strcmp ( p13str_before, s13 ) == 0 );
     resize_body
 	( stub13, MUP::body_size_of ( stub13 ),
 		  MUP::body_size_of ( stub13 ) );
     const char * p13str_after =
 	min::unprotected::str_of ( p13 );
-    MIN_ASSERT ( p13str_after != p13str_before );
-    MIN_ASSERT ( min::strcmp ( s13, p13 ) == 0 );
+    MIN_CHECK ( p13str_after != p13str_before );
+    MIN_CHECK ( min::strcmp ( s13, p13 ) == 0 );
 
     min::str_ptr p = strgen13;
-    MIN_ASSERT ( strcmp ( s13, p ) == 0 );
+    MIN_CHECK ( strcmp ( s13, p ) == 0 );
     min::str_ptr pb = p;
     p = strgen8;
-    MIN_ASSERT ( strcmp ( s8, p ) == 0 );
-    MIN_ASSERT ( strcmp ( s13, pb ) == 0 );
+    MIN_CHECK ( strcmp ( s8, p ) == 0 );
+    MIN_CHECK ( strcmp ( s13, pb ) == 0 );
     min::str_ptr pc;
     pb = min::NULL_STUB;
     pc = strgen13;
-    MIN_ASSERT ( strcmp ( s13, pc ) == 0 );
+    MIN_CHECK ( strcmp ( s13, pc ) == 0 );
 
     min::gen sempty = min::new_str_gen ( "" );
     min::gen s1234 = min::new_str_gen ( "1234" );
@@ -1736,18 +1739,18 @@ void test_strings ( void )
     min::gen sA8 = min::new_str_gen ( "A8" );
 
     min::int32 si;
-    MIN_ASSERT ( min::strto ( si, s1234 ) );
-    MIN_ASSERT ( si == 1234 );
-    MIN_ASSERT ( min::strto ( si, sm1234 ) );
-    MIN_ASSERT ( si == -1234 );
+    MIN_CHECK ( min::strto ( si, s1234 ) );
+    MIN_CHECK ( si == 1234 );
+    MIN_CHECK ( min::strto ( si, sm1234 ) );
+    MIN_CHECK ( si == -1234 );
     si = 55;
-    MIN_ASSERT ( ! min::strto ( si, s1234x ) );
-    MIN_ASSERT ( ! min::strto ( si, sm1234x ) );
-    MIN_ASSERT ( ! min::strto ( si, sempty ) );
-    MIN_ASSERT ( ! min::strto ( si, min::MISSING() ) );
-    MIN_ASSERT ( si == 55 );
-    MIN_ASSERT ( min::strto ( si, sA8, 16 ) );
-    MIN_ASSERT ( si == 168 );
+    MIN_CHECK ( ! min::strto ( si, s1234x ) );
+    MIN_CHECK ( ! min::strto ( si, sm1234x ) );
+    MIN_CHECK ( ! min::strto ( si, sempty ) );
+    MIN_CHECK ( ! min::strto ( si, min::MISSING() ) );
+    MIN_CHECK ( si == 55 );
+    MIN_CHECK ( min::strto ( si, sA8, 16 ) );
+    MIN_CHECK ( si == 168 );
 
 
     min::gen s1234567890 =
@@ -1759,20 +1762,20 @@ void test_strings ( void )
     min::gen s123456789012345678900 =
 	min::new_str_gen ( "123456789012345678900" );
     si = 0;
-    MIN_ASSERT ( min::strto ( si, s1234567890 ) );
-    MIN_ASSERT ( si == 1234567890 );
-    MIN_ASSERT ( ! min::strto ( si, s12345678900 ) );
-    MIN_ASSERT ( si == 1234567890 );
+    MIN_CHECK ( min::strto ( si, s1234567890 ) );
+    MIN_CHECK ( si == 1234567890 );
+    MIN_CHECK ( ! min::strto ( si, s12345678900 ) );
+    MIN_CHECK ( si == 1234567890 );
 
     min::uns64 sli = 0;
-    MIN_ASSERT
+    MIN_CHECK
         ( min::strto ( sli, s12345678901234567890 ) );
-    MIN_ASSERT ( sli == 12345678901234567890ull );
-    MIN_ASSERT
+    MIN_CHECK ( sli == 12345678901234567890ull );
+    MIN_CHECK
         ( ! min::strto
 		( sli, s123456789012345678900 ) );
-    MIN_ASSERT ( ! min::strto ( sli, sempty ) );
-    MIN_ASSERT ( sli == 12345678901234567890ull );
+    MIN_CHECK ( ! min::strto ( sli, sempty ) );
+    MIN_CHECK ( sli == 12345678901234567890ull );
 
     min::gen s1e38 = min::new_str_gen ( "1e38" );
     min::gen s1e39 = min::new_str_gen ( "1e39" );
@@ -1783,14 +1786,14 @@ void test_strings ( void )
     min::gen s1em46 = min::new_str_gen ( "1e-46" );
 
     min::float32 sf = 0;
-    MIN_ASSERT ( min::strto ( sf, s1e38 ) );
-    MIN_ASSERT ( sf == 1e38f );
-    MIN_ASSERT ( min::strto ( sf, s1em37 ) );
-    MIN_ASSERT ( sf == 1e-37f );
-    MIN_ASSERT ( ! min::strto ( sf, s1e39 ) );
-    MIN_ASSERT ( ! min::strto ( sf, s1em46 ) );
-    MIN_ASSERT ( ! min::strto ( sf, sempty ) );
-    MIN_ASSERT ( sf == 1e-37f );
+    MIN_CHECK ( min::strto ( sf, s1e38 ) );
+    MIN_CHECK ( sf == 1e38f );
+    MIN_CHECK ( min::strto ( sf, s1em37 ) );
+    MIN_CHECK ( sf == 1e-37f );
+    MIN_CHECK ( ! min::strto ( sf, s1e39 ) );
+    MIN_CHECK ( ! min::strto ( sf, s1em46 ) );
+    MIN_CHECK ( ! min::strto ( sf, sempty ) );
+    MIN_CHECK ( sf == 1e-37f );
 
     min::gen s1e308 = min::new_str_gen ( "1e308" );
     min::gen s1e308x = min::new_str_gen ( "1e308x" );
@@ -1802,35 +1805,35 @@ void test_strings ( void )
     min::gen s1em324 = min::new_str_gen ( "1e-324" );
 
     min::float64 sd = 0;
-    MIN_ASSERT ( min::strto ( sd, s1e308 ) );
-    MIN_ASSERT ( sd == 1e308 );
-    MIN_ASSERT ( min::strto ( sd, s1em307 ) );
-    MIN_ASSERT ( sd == 1e-307 );
-    MIN_ASSERT ( ! min::strto ( sd, s1e308x ) );
-    MIN_ASSERT ( ! min::strto ( sd, s1e309 ) );
-    MIN_ASSERT ( ! min::strto ( sd, s1em324 ) );
-    MIN_ASSERT ( ! min::strto ( sd, sempty ) );
-    MIN_ASSERT ( sd == 1e-307 );
+    MIN_CHECK ( min::strto ( sd, s1e308 ) );
+    MIN_CHECK ( sd == 1e308 );
+    MIN_CHECK ( min::strto ( sd, s1em307 ) );
+    MIN_CHECK ( sd == 1e-307 );
+    MIN_CHECK ( ! min::strto ( sd, s1e308x ) );
+    MIN_CHECK ( ! min::strto ( sd, s1e309 ) );
+    MIN_CHECK ( ! min::strto ( sd, s1em324 ) );
+    MIN_CHECK ( ! min::strto ( sd, sempty ) );
+    MIN_CHECK ( sd == 1e-307 );
 
     min::gen snums =
         min::new_str_gen ( "1 -2e 3e10 -4e-10X5" );
     min::str_ptr snumsp ( snums );
     int j = 0;
-    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
-    MIN_ASSERT ( si == 1 );
-    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
-    MIN_ASSERT ( si == -2 );
-    MIN_ASSERT ( snumsp[j] == 'e' );
+    MIN_CHECK ( min::strto ( si, snumsp, j ) );
+    MIN_CHECK ( si == 1 );
+    MIN_CHECK ( min::strto ( si, snumsp, j ) );
+    MIN_CHECK ( si == -2 );
+    MIN_CHECK ( snumsp[j] == 'e' );
     ++ j;
-    MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
-    MIN_ASSERT ( sd == 3e10 );
-    MIN_ASSERT ( min::strto ( sd, snumsp, j ) );
-    MIN_ASSERT ( sd == -4e-10 );
-    MIN_ASSERT ( snumsp[j] == 'X' );
+    MIN_CHECK ( min::strto ( sd, snumsp, j ) );
+    MIN_CHECK ( sd == 3e10 );
+    MIN_CHECK ( min::strto ( sd, snumsp, j ) );
+    MIN_CHECK ( sd == -4e-10 );
+    MIN_CHECK ( snumsp[j] == 'X' );
     ++ j;
-    MIN_ASSERT ( min::strto ( si, snumsp, j ) );
-    MIN_ASSERT ( si == 5 );
-    MIN_ASSERT ( snumsp[j] == 0 );
+    MIN_CHECK ( min::strto ( si, snumsp, j ) );
+    MIN_CHECK ( si == 5 );
+    MIN_CHECK ( snumsp[j] == 0 );
 
     min::gen sspace = min::new_str_gen ( " " );
     min::gen spoint = min::new_str_gen ( " ." );
@@ -1839,14 +1842,14 @@ void test_strings ( void )
     min::gen sispace = min::new_str_gen ( " -123  " );
     min::gen sdspace =
         min::new_str_gen ( " -123.4e-15  " );
-    MIN_ASSERT ( ! min::strto ( si, sspace ) );
-    MIN_ASSERT ( ! min::strto ( sd, spoint ) );
-    MIN_ASSERT ( ! min::strto ( si, splus ) );
-    MIN_ASSERT ( ! min::strto ( si, sminus ) );
-    MIN_ASSERT ( min::strto ( si, sispace ) );
-    MIN_ASSERT ( si == -123 );
-    MIN_ASSERT ( min::strto ( sd, sdspace ) );
-    MIN_ASSERT ( sd == -123.4e-15 );
+    MIN_CHECK ( ! min::strto ( si, sspace ) );
+    MIN_CHECK ( ! min::strto ( sd, spoint ) );
+    MIN_CHECK ( ! min::strto ( si, splus ) );
+    MIN_CHECK ( ! min::strto ( si, sminus ) );
+    MIN_CHECK ( min::strto ( si, sispace ) );
+    MIN_CHECK ( si == -123 );
+    MIN_CHECK ( min::strto ( sd, sdspace ) );
+    MIN_CHECK ( sd == -123.4e-15 );
 
     // `A' with latin1 diacritics
     //
@@ -1859,8 +1862,8 @@ void test_strings ( void )
 	min::unsptr len = min::unicode_to_utf8
 	    ( s, s + sizeof ( sbuffer ),
 	      u, Ubuffer + 7 );
-	MIN_ASSERT ( s - sbuffer == 2*7 );
-	MIN_ASSERT ( len == 2*7 );
+	MIN_CHECK ( s - sbuffer == 2*7 );
+	MIN_CHECK ( len == 2*7 );
 	* s = 0;
 	cout << sbuffer << endl;
 
@@ -1869,10 +1872,10 @@ void test_strings ( void )
 	const char * s2 = sbuffer;
 	len = min::utf8_to_unicode
 	    ( u2, u2 + 8, s2, s2 + 2 * 7 );
-	MIN_ASSERT ( len == 7 );
-	MIN_ASSERT ( u2 - Ubuffer2 == 7 );
-	MIN_ASSERT ( s == sbuffer + 2 * 7 );
-	MIN_ASSERT (    memcmp ( Ubuffer, Ubuffer2,
+	MIN_CHECK ( len == 7 );
+	MIN_CHECK ( u2 - Ubuffer2 == 7 );
+	MIN_CHECK ( s == sbuffer + 2 * 7 );
+	MIN_CHECK (    memcmp ( Ubuffer, Ubuffer2,
 	                         sizeof ( Ubuffer ) )
 		     == 0 );
 
@@ -1880,8 +1883,8 @@ void test_strings ( void )
 	s2 = sbuffer;
 	len = min::utf8_to_unicode
 	    ( u2, u2 + 8, s2, s2 + 2 * 7 - 1 );
-	MIN_ASSERT ( len == 7 );
-	MIN_ASSERT
+	MIN_CHECK ( len == 7 );
+	MIN_CHECK
 	    ( Ubuffer2[6] == min::UNKNOWN_UCHAR );
 
 	char sbuffer3[20];
@@ -1920,76 +1923,76 @@ void test_labels ( void )
     cout << endl;
     cout << "Test labels:" << endl;
     min::gen lab = min::new_lab_gen ( labv1, 3 );
-    MIN_ASSERT ( min::is_lab ( lab ) );
-    MIN_ASSERT ( min::is_name ( lab ) );
-    MIN_ASSERT ( min::is_stub ( lab ) );
+    MIN_CHECK ( min::is_lab ( lab ) );
+    MIN_CHECK ( min::is_name ( lab ) );
+    MIN_CHECK ( min::is_stub ( lab ) );
     const min::stub * s = min::stub_of ( lab );
-    MIN_ASSERT ( min::labhash ( s ) == labhash1 );
-    MIN_ASSERT ( min::lablen ( s ) == 3 );
-    MIN_ASSERT ( min::labhash ( lab ) == labhash1 );
-    MIN_ASSERT ( min::lablen ( lab ) == 3 );
-    MIN_ASSERT ( MUP::body_size_of ( s )
+    MIN_CHECK ( min::labhash ( s ) == labhash1 );
+    MIN_CHECK ( min::lablen ( s ) == 3 );
+    MIN_CHECK ( min::labhash ( lab ) == labhash1 );
+    MIN_CHECK ( min::lablen ( lab ) == 3 );
+    MIN_CHECK ( MUP::body_size_of ( s )
 		 ==
 		 3 * sizeof ( min::gen )
 		 +
 		 sizeof ( MINT::lab_header ) );
-    MIN_ASSERT ( min::hash ( lab ) == labhash1 );
-    MIN_ASSERT
+    MIN_CHECK ( min::hash ( lab ) == labhash1 );
+    MIN_CHECK
 	( min::labncpy ( labv2, s, 5 ) == 3 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::new_lab_gen ( labv2, 3 ) == lab );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::labncpy ( labv2, lab, 5 ) == 3 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::new_lab_gen ( labv2, 3 ) == lab );
 
     min::lab_ptr labp ( lab );
-    MIN_ASSERT ( labp != min::NULL_STUB );
-    MIN_ASSERT ( labp[0] == labv1[0] );
-    MIN_ASSERT ( labp[1] == labv1[1] );
-    MIN_ASSERT ( labp[2] == labv1[2] );
-    MIN_ASSERT ( min::lablen ( labp ) == 3);
-    MIN_ASSERT ( min::labhash ( labp ) == labhash1 );
+    MIN_CHECK ( labp != min::NULL_STUB );
+    MIN_CHECK ( labp[0] == labv1[0] );
+    MIN_CHECK ( labp[1] == labv1[1] );
+    MIN_CHECK ( labp[2] == labv1[2] );
+    MIN_CHECK ( min::lablen ( labp ) == 3);
+    MIN_CHECK ( min::labhash ( labp ) == labhash1 );
     labp = labv1[0];
-    MIN_ASSERT ( labp == min::NULL_STUB );
+    MIN_CHECK ( labp == min::NULL_STUB );
     labp = lab;
-    MIN_ASSERT ( min::lablen ( labp ) == 3);
+    MIN_CHECK ( min::lablen ( labp ) == 3);
     min::lab_ptr labp1 ( labv1[0] );
-    MIN_ASSERT ( labp1 == min::NULL_STUB );
+    MIN_CHECK ( labp1 == min::NULL_STUB );
     min::lab_ptr labp2 ( labv1[0] );
-    MIN_ASSERT ( labp2 == min::NULL_STUB );
+    MIN_CHECK ( labp2 == min::NULL_STUB );
 
     cout << "LABEL " << lab << endl;
 
-    MIN_ASSERT
+    MIN_CHECK
         ( -1 == min::is_subsequence ( lab, labv1[0] ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 0 == min::is_subsequence
 	           ( labv1[0], labv1[0] ));
-    MIN_ASSERT
+    MIN_CHECK
         ( -1 == min::is_subsequence
 	           ( labv1[0], labv1[1] ));
-    MIN_ASSERT
+    MIN_CHECK
         ( 0 == min::is_subsequence ( labv1[0], lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 1 == min::is_subsequence ( labv1[1], lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 2 == min::is_subsequence ( labv1[2], lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 0 == min::is_subsequence ( lab, lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( -1 == min::is_subsequence
 	    ( min::new_str_gen ( "66" ), lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 0 == min::is_subsequence
 	    ( min::new_lab_gen ( labv1, 2 ), lab ) );
-    MIN_ASSERT
+    MIN_CHECK
         ( 1 == min::is_subsequence
 	    ( min::new_lab_gen ( labv1 + 1, 2 ),
 	      lab ) );
     labv2[0] = labv1[2];
     labv2[1] = labv1[1];
-    MIN_ASSERT
+    MIN_CHECK
         ( -1 == min::is_subsequence
 	    ( min::new_lab_gen ( labv2, 2 ), lab ) );
     
@@ -2044,29 +2047,29 @@ void test_names ( void )
               " ( { 1.0, \"str 2\" }, 2 ) = "
          << min::hash ( lab22 ) << endl;
 
-    MIN_ASSERT ( min::compare ( num1, num1 ) == 0 );
-    MIN_ASSERT ( min::compare ( num1, num2 ) < 0 );
-    MIN_ASSERT ( min::compare ( num2, num1 ) > 0 );
+    MIN_CHECK ( min::compare ( num1, num1 ) == 0 );
+    MIN_CHECK ( min::compare ( num1, num2 ) < 0 );
+    MIN_CHECK ( min::compare ( num2, num1 ) > 0 );
 
-    MIN_ASSERT ( min::compare ( str1, str1 ) == 0 );
-    MIN_ASSERT ( min::compare ( str1, str2 ) < 0 );
-    MIN_ASSERT ( min::compare ( str2, str1 ) > 0 );
+    MIN_CHECK ( min::compare ( str1, str1 ) == 0 );
+    MIN_CHECK ( min::compare ( str1, str2 ) < 0 );
+    MIN_CHECK ( min::compare ( str2, str1 ) > 0 );
 
-    MIN_ASSERT ( min::compare ( lab11, lab11 ) == 0 );
-    MIN_ASSERT ( min::compare ( lab11, lab12 ) < 0 );
-    MIN_ASSERT ( min::compare ( lab12, lab11 ) > 0 );
+    MIN_CHECK ( min::compare ( lab11, lab11 ) == 0 );
+    MIN_CHECK ( min::compare ( lab11, lab12 ) < 0 );
+    MIN_CHECK ( min::compare ( lab12, lab11 ) > 0 );
 
-    MIN_ASSERT ( min::compare ( lab21, lab21 ) == 0 );
-    MIN_ASSERT ( min::compare ( lab11, lab21 ) < 0 );
-    MIN_ASSERT ( min::compare ( lab21, lab11 ) > 0 );
+    MIN_CHECK ( min::compare ( lab21, lab21 ) == 0 );
+    MIN_CHECK ( min::compare ( lab11, lab21 ) < 0 );
+    MIN_CHECK ( min::compare ( lab21, lab11 ) > 0 );
 
-    MIN_ASSERT ( min::compare ( lab21, lab21 ) == 0 );
-    MIN_ASSERT ( min::compare ( lab21, lab23 ) < 0 );
-    MIN_ASSERT ( min::compare ( lab23, lab21 ) > 0 );
+    MIN_CHECK ( min::compare ( lab21, lab21 ) == 0 );
+    MIN_CHECK ( min::compare ( lab21, lab23 ) < 0 );
+    MIN_CHECK ( min::compare ( lab23, lab21 ) > 0 );
 
-    MIN_ASSERT ( min::compare ( lab23, lab23 ) == 0 );
-    MIN_ASSERT ( min::compare ( lab23, lab24 ) < 0 );
-    MIN_ASSERT ( min::compare ( lab24, lab23 ) > 0 );
+    MIN_CHECK ( min::compare ( lab23, lab23 ) == 0 );
+    MIN_CHECK ( min::compare ( lab23, lab24 ) < 0 );
+    MIN_CHECK ( min::compare ( lab24, lab23 ) > 0 );
     
     cout << endl;
     cout << "Finish Names Test!" << endl;
@@ -2117,52 +2120,52 @@ void test_packed_structs ( void )
     cout << "ps1type.name = " << ps1type.name << endl;
 
     const min::stub * v1 = ps1type.new_stub();
-    MIN_ASSERT (    min::packed_subtype_of ( v1 )
+    MIN_CHECK (    min::packed_subtype_of ( v1 )
                  == ps1type.subtype );
     ps1updptr upv1 ( v1 );
-    MIN_ASSERT (    min::packed_subtype_of ( upv1 )
+    MIN_CHECK (    min::packed_subtype_of ( upv1 )
                  == ps1type.subtype );
     cout << "upv1->control = " << upv1->control << endl;
-    MIN_ASSERT ( upv1->i == 0 );
+    MIN_CHECK ( upv1->i == 0 );
     upv1->i = 88;
-    MIN_ASSERT ( upv1->i == 88 );
+    MIN_CHECK ( upv1->i == 88 );
 
     min::gen v2 = ps2type.new_gen();
     ps2updptr upv2 ( v2 );
     cout << "upv2->control = " << upv2->control << endl;
-    MIN_ASSERT ( upv2->i == 0 );
-    MIN_ASSERT ( upv2->j == 0 );
+    MIN_CHECK ( upv2->i == 0 );
+    MIN_CHECK ( upv2->j == 0 );
     upv2->i = 55;
     upv2->j = 99;
-    MIN_ASSERT ( upv2->i == 55 );
-    MIN_ASSERT ( upv2->j == 99 );
+    MIN_CHECK ( upv2->i == 55 );
+    MIN_CHECK ( upv2->j == 99 );
     ps2ptr pv2 ( v2 );
-    MIN_ASSERT ( pv2->i == 55 );
-    MIN_ASSERT ( pv2->j == 99 );
+    MIN_CHECK ( pv2->i == 55 );
+    MIN_CHECK ( pv2->j == 99 );
 
     const min::stub * v3 = ps2type.new_stub();
-    MIN_ASSERT ( upv2 == min::stub_of ( v2 ) );
+    MIN_CHECK ( upv2 == min::stub_of ( v2 ) );
     upv2 = min::NULL_STUB;
-    MIN_ASSERT ( upv2 != min::stub_of ( v2 ) );
+    MIN_CHECK ( upv2 != min::stub_of ( v2 ) );
     upv2 = min::new_stub_gen ( v3 );
-    MIN_ASSERT ( upv2->i == 0 );
-    MIN_ASSERT ( upv2->j == 0 );
+    MIN_CHECK ( upv2->i == 0 );
+    MIN_CHECK ( upv2->j == 0 );
     upv2->i = 22;
     upv2->j = 44;
-    MIN_ASSERT ( upv2->i == 22 );
-    MIN_ASSERT ( upv2->j == 44 );
+    MIN_CHECK ( upv2->i == 22 );
+    MIN_CHECK ( upv2->j == 44 );
     upv2 = v2;
-    MIN_ASSERT ( upv2->i == 55 );
-    MIN_ASSERT ( upv2->j == 99 );
+    MIN_CHECK ( upv2->i == 55 );
+    MIN_CHECK ( upv2->j == 99 );
 
     ps1updptr upv1b;
-    MIN_ASSERT ( upv1b == min::NULL_STUB );
+    MIN_CHECK ( upv1b == min::NULL_STUB );
     upv1b = upv1;
-    MIN_ASSERT ( upv1b->i == 88 );
+    MIN_CHECK ( upv1b->i == 88 );
 
-    MIN_ASSERT ( upv1->psp == min::NULL_STUB );
+    MIN_CHECK ( upv1->psp == min::NULL_STUB );
     upv1->psp = upv1;
-    MIN_ASSERT ( upv1->psp->i == 88 );
+    MIN_CHECK ( upv1->psp->i == 88 );
 
     cout << endl;
     cout << "Finish Packed Structs Test!" << endl;
@@ -2219,26 +2222,26 @@ void test_packed_vectors ( void )
     cout << endl;
     cout << "Start Packed Vectors Test!" << endl;
 
-    MIN_ASSERT ( sizeof ( pve ) == 32 );
+    MIN_CHECK ( sizeof ( pve ) == 32 );
 
     cout << "pvtype.name = " << pvtype.name << endl;
 
     const min::stub * v = pvtype.new_stub ( 5 );
-    MIN_ASSERT (    min::packed_subtype_of ( v )
+    MIN_CHECK (    min::packed_subtype_of ( v )
                  == pvtype.subtype );
     pvinsptr pvip ( v );
-    MIN_ASSERT (    min::packed_subtype_of ( pvip )
+    MIN_CHECK (    min::packed_subtype_of ( pvip )
                  == pvtype.subtype );
-    MIN_ASSERT ( pvip->max_length == 5 );
-    MIN_ASSERT ( pvip->length == 0 );
+    MIN_CHECK ( pvip->max_length == 5 );
+    MIN_CHECK ( pvip->length == 0 );
     pve e1 = { min::MISSING(), min::ANY(),
                NULL, 88, { 0 } };
     min::push(pvip) = e1;
-    MIN_ASSERT ( pvip->length == 1 );
-    MIN_ASSERT ( (&pvip[0])->j == 88 );
+    MIN_CHECK ( pvip->length == 1 );
+    MIN_CHECK ( (&pvip[0])->j == 88 );
     pvptr pvp = min::new_stub_gen ( v );
-    MIN_ASSERT ( pvp->length == 1 );
-    MIN_ASSERT ( (&pvp[0])->j == 88 );
+    MIN_CHECK ( pvp->length == 1 );
+    MIN_CHECK ( (&pvp[0])->j == 88 );
 
     pve e2[3] = { { min::MISSING(), min::NONE(),
                     NULL, 11, { 0 } },
@@ -2247,67 +2250,67 @@ void test_packed_vectors ( void )
                   { min::MISSING(), min::NONE(),
 		    NULL, 33, { 0 } } };
     min::push ( pvip, 3, e2 );
-    MIN_ASSERT ( (&pvp[1])->j == 11 );
-    MIN_ASSERT ( (&pvp[2])->j == 22 );
-    MIN_ASSERT ( (&pvp[3])->j == 33 );
+    MIN_CHECK ( (&pvp[1])->j == 11 );
+    MIN_CHECK ( (&pvp[2])->j == 22 );
+    MIN_CHECK ( (&pvp[3])->j == 33 );
 
 
-    MIN_ASSERT ( pvp->length == 4 );
-    MIN_ASSERT ( pvp->max_length == 5 );
+    MIN_CHECK ( pvp->length == 4 );
+    MIN_CHECK ( pvp->max_length == 5 );
     min::resize ( pvip, 10 );
-    MIN_ASSERT ( pvp->length == 4 );
-    MIN_ASSERT ( pvp->max_length == 10 );
+    MIN_CHECK ( pvp->length == 4 );
+    MIN_CHECK ( pvp->max_length == 10 );
 
     pve e3, e4[3];
     e3 = min::pop ( pvip );
-    MIN_ASSERT
+    MIN_CHECK
         ( memcmp ( & e3, & e2[2],
 	           sizeof ( pve ) ) == 0 );
-    MIN_ASSERT ( pvip->length == 3 );
+    MIN_CHECK ( pvip->length == 3 );
     min::pop ( pvip, 2, e4 );
-    MIN_ASSERT
+    MIN_CHECK
         ( memcmp ( e4, e2, 2 * sizeof ( pve ) ) == 0 );
-    MIN_ASSERT ( pvip->length == 1 );
+    MIN_CHECK ( pvip->length == 1 );
     min::pop ( pvip, 1, (pve *) NULL );
-    MIN_ASSERT ( pvip->length == 0 );
+    MIN_CHECK ( pvip->length == 0 );
 
     pvtype.increment_ratio = 3.5;
     pvtype.max_increment = 5;
     min::push ( pvip, 3, e2 );
-    MIN_ASSERT ( pvip->length == 3 );
-    MIN_ASSERT ( pvip->max_length == 10 );
+    MIN_CHECK ( pvip->length == 3 );
+    MIN_CHECK ( pvip->max_length == 10 );
     min::reserve ( pvip, 10 );
-    MIN_ASSERT ( pvip->length == 3 );
-    MIN_ASSERT ( pvip->max_length == 15 );
-    MIN_ASSERT ( (&pvp[0])->j == 11 );
-    MIN_ASSERT ( (&pvp[1])->j == 22 );
-    MIN_ASSERT ( (&pvp[2])->j == 33 );
+    MIN_CHECK ( pvip->length == 3 );
+    MIN_CHECK ( pvip->max_length == 15 );
+    MIN_CHECK ( (&pvp[0])->j == 11 );
+    MIN_CHECK ( (&pvp[1])->j == 22 );
+    MIN_CHECK ( (&pvp[2])->j == 33 );
 
     pvp = min::NULL_STUB;
-    MIN_ASSERT ( pvp != v );
+    MIN_CHECK ( pvp != v );
     pvp = v;
-    MIN_ASSERT ( pvp == v );
-    MIN_ASSERT ( (&pvp[2])->j == 33 );
+    MIN_CHECK ( pvp == v );
+    MIN_CHECK ( (&pvp[2])->j == 33 );
 
     pvinsptr pvip2;
-    MIN_ASSERT ( pvip2 == min::NULL_STUB );
+    MIN_CHECK ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
-    MIN_ASSERT ( (&pvip2[2])->j == 33 );
+    MIN_CHECK ( (&pvip2[2])->j == 33 );
 
-    MIN_ASSERT ( pvip->length == 3 );
-    MIN_ASSERT ( pvip->pvip == min::NULL_STUB );
+    MIN_CHECK ( pvip->length == 3 );
+    MIN_CHECK ( pvip->pvip == min::NULL_STUB );
     pvip->pvip = pvp;
     min::push(pvip->pvip) = e1;
-    MIN_ASSERT ( pvip->length == 4 );
-    MIN_ASSERT ( (&pvip[3])->j == 88 );
+    MIN_CHECK ( pvip->length == 4 );
+    MIN_CHECK ( (&pvip[3])->j == 88 );
     (&pvip->pvip[3])->j = 77;
-    MIN_ASSERT ( (&pvip[3])->j == 77 );
+    MIN_CHECK ( (&pvip[3])->j == 77 );
 
     min::push ( pvip, 3, &pvip[0] );
-    MIN_ASSERT ( pvip->length == 7 );
-    MIN_ASSERT ( (&pvp[4])->j == 11 );
-    MIN_ASSERT ( (&pvp[5])->j == 22 );
-    MIN_ASSERT ( (&pvp[6])->j == 33 );
+    MIN_CHECK ( pvip->length == 7 );
+    MIN_CHECK ( (&pvp[4])->j == 11 );
+    MIN_CHECK ( (&pvp[5])->j == 22 );
+    MIN_CHECK ( (&pvp[6])->j == 33 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;
@@ -2325,24 +2328,24 @@ void test_file ( void )
     min::init_input_string
         ( file1,
 	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n" ) );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 1",
 	              ! & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 2",
 	              ! & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 3",
 	              ! & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::NO_LINE == min::next_line ( file1 ) );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 2",
 	              ! & file1->buffer
 		              [min::line(file1,1)] )
@@ -2354,17 +2357,17 @@ void test_file ( void )
 	  min::new_str_gen
 	      ( "min_interface_test_file.in" ),
 	  0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 0",
 	              ! & file2->buffer
 		              [min::next_line(file2)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line 1",
 	              ! & file2->buffer
 		              [min::next_line(file2)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::NO_LINE == min::next_line ( file2 ) );
 
     const char * data = "Line A\nLine B\nPartial Line";
@@ -2376,22 +2379,22 @@ void test_file ( void )
     min::init_input ( file4 );
     min::init_ofile ( file3, file4 );
     min::flush_file ( file3 );
-    MIN_ASSERT ( data_length == file3->buffer->length );
-    MIN_ASSERT ( data_length == file4->buffer->length );
-    MIN_ASSERT ( strncmp ( ! & file3->buffer[0],
+    MIN_CHECK ( data_length == file3->buffer->length );
+    MIN_CHECK ( data_length == file4->buffer->length );
+    MIN_CHECK ( strncmp ( ! & file3->buffer[0],
     			   ! & file4->buffer[0],
                            data_length ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line A",
 	              ! & file4->buffer
 		              [min::next_line(file4)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Line B",
 	              ! & file4->buffer
 		              [min::next_line(file4)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::NO_LINE == min::next_line ( file4 ) );
 
     std::ostringstream ostream
@@ -2401,15 +2404,15 @@ void test_file ( void )
     min::init_ostream ( file5, ostream );
     min::rewind ( file4 );
     min::flush_file ( file5 );
-    MIN_ASSERT ( data == ostream.str() );
+    MIN_CHECK ( data == ostream.str() );
 
     min::rewind ( file4 );
     min::init_ostream
         ( file5, * (std::ostream *) NULL );
     min::flush_file ( file5 );
-    MIN_ASSERT (    file4->buffer->length
+    MIN_CHECK (    file4->buffer->length
                  == file5->buffer->length );
-    MIN_ASSERT (    strncmp ( ! & file4->buffer[0],
+    MIN_CHECK (    strncmp ( ! & file4->buffer[0],
     			      ! & file5->buffer[0],
                               file4->buffer->length )
 		 == 0 );
@@ -2419,12 +2422,12 @@ void test_file ( void )
         // We cannot rewind to line 1 as that is ==
 	// file5->next_line_number.
     min::next_line ( file5 );
-    MIN_ASSERT
+    MIN_CHECK
         (    strcmp ( "Partial Line",
 	              ! & file5->buffer
 		              [min::next_line(file5)] )
 	  == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::NO_LINE == min::next_line ( file5 ) );
 
     // Tests of files + printers is deferred until
@@ -2446,9 +2449,9 @@ void test_identifier_map ( void )
     cout << "Start Identifier Map Test!" << endl;
 
     min::init ( ::id_map );
-    MIN_ASSERT ( ::id_map->length == 1 );
-    MIN_ASSERT ( ::id_map->occupied == 0 );
-    MIN_ASSERT ( ::id_map->next == 1 );
+    MIN_CHECK ( ::id_map->length == 1 );
+    MIN_CHECK ( ::id_map->occupied == 0 );
+    MIN_CHECK ( ::id_map->next == 1 );
 
     min::locatable_gen g1 =
         min::new_str_gen
@@ -2461,33 +2464,33 @@ void test_identifier_map ( void )
     const min::stub * s2 = min::stub_of ( g2 );
     const min::stub * s3 = min::stub_of ( g3 );
 
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find ( ::id_map, s1 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find_or_add ( ::id_map, s1 ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find ( ::id_map, s2 ) == 0 );
     min::insert ( ::id_map, s2, 3 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find ( ::id_map, s3 ) == 0 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find_or_add ( ::id_map, s3 ) == 4 );
 
-    MIN_ASSERT ( ::id_map->length == 5 );
-    MIN_ASSERT ( ::id_map[0] == min::NULL_STUB );
-    MIN_ASSERT ( ::id_map[1] == s1 );
-    MIN_ASSERT ( ::id_map[2] == min::NULL_STUB );
-    MIN_ASSERT ( ::id_map[3] == s2 );
-    MIN_ASSERT ( ::id_map[4] == s3 );
+    MIN_CHECK ( ::id_map->length == 5 );
+    MIN_CHECK ( ::id_map[0] == min::NULL_STUB );
+    MIN_CHECK ( ::id_map[1] == s1 );
+    MIN_CHECK ( ::id_map[2] == min::NULL_STUB );
+    MIN_CHECK ( ::id_map[3] == s2 );
+    MIN_CHECK ( ::id_map[4] == s3 );
 
-    MIN_ASSERT ( ::id_map->occupied == 3 );
-    MIN_ASSERT ( ::id_map->next == 1 );
+    MIN_CHECK ( ::id_map->occupied == 3 );
+    MIN_CHECK ( ::id_map->next == 1 );
 
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find ( ::id_map, s1 ) == 1 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find ( ::id_map, s2 ) == 3 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::find_or_add ( ::id_map, s3 ) == 4 );
 
 
@@ -2508,33 +2511,33 @@ void test_unicode_name_table ( void )
 
     min::init ( ::unicode_table );
     min::Uchar c = min::find ( ::unicode_table, "FF" );
-    MIN_ASSERT ( c == '\f' );
+    MIN_CHECK ( c == '\f' );
     c = min::find ( ::unicode_table, "DEL" );
-    MIN_ASSERT ( c == 0x7F );
+    MIN_CHECK ( c == 0x7F );
     c = min::find ( ::unicode_table, "PAD" );
-    MIN_ASSERT ( c == 0x80 );
+    MIN_CHECK ( c == 0x80 );
     c = min::find ( ::unicode_table, "SHY" );
-    MIN_ASSERT ( c == 0xAD );
+    MIN_CHECK ( c == 0xAD );
     c = min::find ( ::unicode_table, "XXXXXX" );
-    MIN_ASSERT ( c == min::NO_UCHAR );
+    MIN_CHECK ( c == min::NO_UCHAR );
     c = min::find ( ::unicode_table, "YYYYY" );
-    MIN_ASSERT ( c == min::NO_UCHAR );
+    MIN_CHECK ( c == min::NO_UCHAR );
 
     min::add ( ::unicode_table,
                (const min::ustring *) "\x06\x06XXXXXX",
 	       0x1234 );
     c = min::find ( ::unicode_table, "XXXXXX" );
-    MIN_ASSERT ( c == 0x1234 );
+    MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
-    MIN_ASSERT ( c == min::NO_UCHAR );
+    MIN_CHECK ( c == min::NO_UCHAR );
 
     min::add ( ::unicode_table,
                (const min::ustring *) "\x05\x05YYYYY",
 	       0x5678 );
     c = min::find ( ::unicode_table, "XXXXXX" );
-    MIN_ASSERT ( c == 0x1234 );
+    MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
-    MIN_ASSERT ( c == 0x5678 );
+    MIN_CHECK ( c == 0x5678 );
 
     desire_success (
 	min::add ( ::unicode_table,
@@ -2542,16 +2545,18 @@ void test_unicode_name_table ( void )
 		       "\x05\x05YYYYY",
 		   0x5678 );
     );
+# ifdef NONE_SUCH
     desire_failure (
 	min::add ( ::unicode_table,
 		   (const min::ustring *)
 		       "\x05\x05YYYYY",
 		   0x1234 );
     );
+# endif // NONE_SUCH
     c = min::find ( ::unicode_table, "XXXXXX" );
-    MIN_ASSERT ( c == 0x1234 );
+    MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
-    MIN_ASSERT ( c == 0x5678 );
+    MIN_CHECK ( c == 0x5678 );
 
     cout << endl;
     cout << "Finish UNICODE Name Table Test!" << endl;
@@ -2574,44 +2579,44 @@ void test_printer ( void )
     printer << min::bom << min::set_indent ( 4 )
             << min::set_line_length ( 16 )
             << "123456 123456789";
-    MIN_ASSERT
+    MIN_CHECK
         ( printer->line_break.line_length == 16 );
-    MIN_ASSERT
+    MIN_CHECK
         ( printer->line_break.indent == 4 );
-    MIN_ASSERT ( printer->file->end_offset == 0 );
-    MIN_ASSERT ( printer->column == 16 );
-    MIN_ASSERT ( printer->line_break.column == 7 );
+    MIN_CHECK ( printer->file->end_offset == 0 );
+    MIN_CHECK ( printer->column == 16 );
+    MIN_CHECK ( printer->line_break.column == 7 );
     printer << " ";
-    MIN_ASSERT ( printer->line_break.column == 7 );
-    MIN_ASSERT ( printer->column == 17 );
+    MIN_CHECK ( printer->line_break.column == 7 );
+    MIN_CHECK ( printer->column == 17 );
     printer << "\t";
-    MIN_ASSERT ( printer->column == 24 );
+    MIN_CHECK ( printer->column == 24 );
     printer << "A";
-    MIN_ASSERT ( printer->file->end_offset == 17 );
-    MIN_ASSERT ( printer->column == 5 );
+    MIN_CHECK ( printer->file->end_offset == 17 );
+    MIN_CHECK ( printer->column == 5 );
     printer << " B C D E F";
-    MIN_ASSERT ( printer->column == 15 );
-    MIN_ASSERT ( printer->line_break.column == 14 );
+    MIN_CHECK ( printer->column == 15 );
+    MIN_CHECK ( printer->line_break.column == 14 );
     printer << "1234";
-    MIN_ASSERT ( printer->file->end_offset == 31 );
-    MIN_ASSERT ( printer->column == 9 );
+    MIN_CHECK ( printer->file->end_offset == 31 );
+    MIN_CHECK ( printer->column == 9 );
     printer << "\tab\t";
-    MIN_ASSERT ( printer->file->end_offset == 41 );
-    MIN_ASSERT ( printer->column == 8 );
-    MIN_ASSERT ( printer->line_break.column == 4 );
+    MIN_CHECK ( printer->file->end_offset == 41 );
+    MIN_CHECK ( printer->column == 8 );
+    MIN_CHECK ( printer->line_break.column == 4 );
     printer << "123456789012345678901234567890";
-    MIN_ASSERT ( printer->file->end_offset == 48 );
-    MIN_ASSERT ( printer->column == 34 );
+    MIN_CHECK ( printer->file->end_offset == 48 );
+    MIN_CHECK ( printer->column == 34 );
     printer << " B";
-    MIN_ASSERT ( printer->file->end_offset == 83 );
-    MIN_ASSERT ( printer->column == 5 );
+    MIN_CHECK ( printer->file->end_offset == 83 );
+    MIN_CHECK ( printer->column == 5 );
     printer << min::eom;
-    MIN_ASSERT (    printer->file->spool_lines
+    MIN_CHECK (    printer->file->spool_lines
                  == min::ALL_LINES );
-    MIN_ASSERT (    printer->file->next_offset
+    MIN_CHECK (    printer->file->next_offset
                  == printer->file->buffer->length );
-    MIN_ASSERT ( printer->column == 0 );
-    MIN_ASSERT
+    MIN_CHECK ( printer->column == 0 );
+    MIN_CHECK
         ( printer->line_break.line_length == 72 );
 
     printer << min::bom << min::set_indent ( 4 ) 
@@ -2693,11 +2698,11 @@ void test_printer ( void )
 
     printer << min::save_indent
             << min::set_indent ( 4 );
-    MIN_ASSERT ( printer->line_break.indent == 4 );
+    MIN_CHECK ( printer->line_break.indent == 4 );
     printer << min::set_indent ( 8 );
-    MIN_ASSERT ( printer->line_break.indent == 8 );
+    MIN_CHECK ( printer->line_break.indent == 8 );
     printer << min::restore_indent;
-    MIN_ASSERT ( printer->line_break.indent == 4 );
+    MIN_CHECK ( printer->line_break.indent == 4 );
 
     printer << "A" << min::indent << "B"
             << min::indent << "C" << min::eol;
@@ -2946,9 +2951,9 @@ void test_printer ( void )
 	min::pwidth \
 	    ( column, ctemp, strlen ( ctemp ), \
 	      printer->print_format ); \
-	MIN_ASSERT ( printer->column == column );
+	MIN_CHECK ( printer->column == column );
 
-    MIN_ASSERT ( printer->column == 0 );
+    MIN_CHECK ( printer->column == 0 );
     column = 0;
     printer << min::display_picture
             << min::graphic_and_vspace;
@@ -2963,7 +2968,7 @@ void test_printer ( void )
     printer << min::eol;
 
     printer << min::nodisplay_picture;
-    MIN_ASSERT ( printer->column == 0 );
+    MIN_CHECK ( printer->column == 0 );
     column = 0;
     WTEST ( '\f' );
     WTEST ( 'a' );
@@ -2978,7 +2983,7 @@ void test_printer ( void )
     printer << min::break_before_all
             << min::graphic_only
             << min::nodisplay_picture;
-    MIN_ASSERT ( printer->column == 0 );
+    MIN_CHECK ( printer->column == 0 );
     column = 0;
     WTEST ( 'a' );
     WTEST ( '\001' );
@@ -2991,7 +2996,7 @@ void test_printer ( void )
 
     printer << min::display_picture;
     column = 0;
-    MIN_ASSERT ( printer->column == 0 );
+    MIN_CHECK ( printer->column == 0 );
     WTEST ( 'a' );
     WTEST ( '\001' );
     WTEST ( ' ' );
@@ -3225,7 +3230,7 @@ void test_objects ( void )
     short_obj_gen = min::new_obj_gen ( 500, 100 );
     const min::stub * sstub =
 	min::stub_of ( short_obj_gen );
-    MIN_ASSERT
+    MIN_CHECK
 	(    min::type_of ( sstub )
 	  == min::SHORT_OBJ );
     {
@@ -3242,13 +3247,13 @@ void test_objects ( void )
 	     << " sav: " << sav
 	     << " saa: " << saa
 	     << " st: " << st << endl;
-	MIN_ASSERT ( sht >= 100 );
-	MIN_ASSERT ( sua >= 500 );
-	MIN_ASSERT ( sav == 0 );
-	MIN_ASSERT ( saa == 0 );
-	MIN_ASSERT
+	MIN_CHECK ( sht >= 100 );
+	MIN_CHECK ( sua >= 500 );
+	MIN_CHECK ( sav == 0 );
+	MIN_CHECK ( saa == 0 );
+	MIN_CHECK
 	    ( st == sh + sht + sav + sua + saa );
-	MIN_ASSERT ( MUP::body_size_of ( sstub )
+	MIN_CHECK ( MUP::body_size_of ( sstub )
 		     ==
 		     st * sizeof ( min::gen ) );
     }
@@ -3258,7 +3263,7 @@ void test_objects ( void )
     long_obj_gen = min::new_obj_gen ( 70000, 7000 );
     const min::stub * lstub =
 	min::stub_of ( long_obj_gen );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::type_of ( lstub ) == min::LONG_OBJ );
     {
 	min::obj_vec_ptr lvp ( long_obj_gen );
@@ -3274,13 +3279,13 @@ void test_objects ( void )
 	     << " lav: " << lav
 	     << " laa: " << laa
 	     << " lt: " << lt << endl;
-	MIN_ASSERT ( lht >= 7000 );
-	MIN_ASSERT ( lua >= 70000 );
-	MIN_ASSERT ( lav == 0 );
-	MIN_ASSERT ( laa == 0 );
-	MIN_ASSERT
+	MIN_CHECK ( lht >= 7000 );
+	MIN_CHECK ( lua >= 70000 );
+	MIN_CHECK ( lav == 0 );
+	MIN_CHECK ( laa == 0 );
+	MIN_CHECK
 	    ( lt == lh + lht + lav + lua + laa );
-	MIN_ASSERT ( MUP::body_size_of ( lstub )
+	MIN_CHECK ( MUP::body_size_of ( lstub )
 		     ==
 		     lt * sizeof ( min::gen ) );
     }
@@ -3319,11 +3324,11 @@ void test_object_vector_level
 
     {
 	min::obj_vec_insptr vp ( sstub );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::attr_size_of ( vp ) == 0 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::unused_size_of ( vp ) >= 20 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::aux_size_of ( vp ) == 0 );
 
 	min::gen * & base = MUP::base ( vp );
@@ -3340,41 +3345,41 @@ void test_object_vector_level
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
 
-	MIN_ASSERT ( base[ht] == min::LIST_END() );
+	MIN_CHECK ( base[ht] == min::LIST_END() );
 	min::hash ( vp, 0 ) = min::EMPTY_SUBLIST();
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[ht] == min::EMPTY_SUBLIST() );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    min::hash(vp,0)
 	      == min::EMPTY_SUBLIST() );
 
 	base[av] = num0;
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[av+0] == num0 );
-	MIN_ASSERT ( cua == av + 0 );
+	MIN_CHECK ( cua == av + 0 );
 	min::attr_push(vp) = num1;
-	MIN_ASSERT ( base[av] == num1 );
-	MIN_ASSERT ( attr ( vp, 0 ) == num1 );
-	MIN_ASSERT
+	MIN_CHECK ( base[av] == num1 );
+	MIN_CHECK ( attr ( vp, 0 ) == num1 );
+	MIN_CHECK
 	    ( min::attr_size_of ( vp ) == 1 );
-	MIN_ASSERT ( cua == av + 1 );
+	MIN_CHECK ( cua == av + 1 );
 	base[av+1] = num0;
 	base[av+2] = num0;
 	base[av+3] = num0;
-	MIN_ASSERT ( base[av+1] == num0 );
-	MIN_ASSERT ( base[av+2] == num0 );
-	MIN_ASSERT ( base[av+3] == num0 );
+	MIN_CHECK ( base[av+1] == num0 );
+	MIN_CHECK ( base[av+2] == num0 );
+	MIN_CHECK ( base[av+3] == num0 );
 	min::attr_push ( vp, 3, numv );
 	vp = min::NULL_STUB;
 	vp = v;
-	MIN_ASSERT ( base[av+1] == num1 );
-	MIN_ASSERT ( base[av+2] == num2 );
-	MIN_ASSERT ( base[av+3] == num3 );
-	MIN_ASSERT ( attr ( vp, 3 ) == num3 );
-	MIN_ASSERT
+	MIN_CHECK ( base[av+1] == num1 );
+	MIN_CHECK ( base[av+2] == num2 );
+	MIN_CHECK ( base[av+3] == num3 );
+	MIN_CHECK ( attr ( vp, 3 ) == num3 );
+	MIN_CHECK
 	    ( min::attr_size_of ( vp ) == 4 );
-	MIN_ASSERT ( cua == av + 4 );
-	MIN_ASSERT
+	MIN_CHECK ( cua == av + 4 );
+	MIN_CHECK
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 
@@ -3382,46 +3387,46 @@ void test_object_vector_level
 	min::unsptr & caa =
 	    MUP::aux_offset_of ( vp );
 	base[aa-1] = num0;
-	MIN_ASSERT ( base[aa-1] == num0 );
-	MIN_ASSERT ( caa == aa );
+	MIN_CHECK ( base[aa-1] == num0 );
+	MIN_CHECK ( caa == aa );
 	min::aux_push(vp) = num1;
-	MIN_ASSERT ( base[aa-1] == num1 );
-	MIN_ASSERT
+	MIN_CHECK ( base[aa-1] == num1 );
+	MIN_CHECK
 	    (    min::aux ( vp, total_size-aa+1 )
 	      == num1 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::aux_size_of ( vp ) == 1 );
-	MIN_ASSERT ( caa == aa - 1 );
+	MIN_CHECK ( caa == aa - 1 );
 	base[aa-2] = num0;
 	base[aa-3] = num0;
 	base[aa-4] = num0;
-	MIN_ASSERT ( base[aa-2] == num0 );
-	MIN_ASSERT ( base[aa-3] == num0 );
-	MIN_ASSERT ( base[aa-4] == num0 );
+	MIN_CHECK ( base[aa-2] == num0 );
+	MIN_CHECK ( base[aa-3] == num0 );
+	MIN_CHECK ( base[aa-4] == num0 );
 	min::aux_push ( vp, 3, numv );
-	MIN_ASSERT ( base[aa-4] == num1 );
-	MIN_ASSERT ( base[aa-3] == num2 );
-	MIN_ASSERT ( base[aa-2] == num3 );
-	MIN_ASSERT
+	MIN_CHECK ( base[aa-4] == num1 );
+	MIN_CHECK ( base[aa-3] == num2 );
+	MIN_CHECK ( base[aa-2] == num3 );
+	MIN_CHECK
 	    (    min::aux ( vp, total_size-aa+2 )
 	      == num3 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::aux_size_of ( vp ) == 4 );
-	MIN_ASSERT ( caa == aa - 4 );
-	MIN_ASSERT
+	MIN_CHECK ( caa == aa - 4 );
+	MIN_CHECK
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 8 );
 
 	min::attr_pop ( vp, 3, outv + 1 );
 	outv[0] = min::attr_pop ( vp );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
+	MIN_CHECK ( outv[0] == num1 );
+	MIN_CHECK ( outv[1] == num1 );
+	MIN_CHECK ( outv[2] == num2 );
+	MIN_CHECK ( outv[3] == num3 );
+	MIN_CHECK
 	    ( min::attr_size_of ( vp ) == 0 );
-	MIN_ASSERT ( cua == av + 0 );
-	MIN_ASSERT
+	MIN_CHECK ( cua == av + 0 );
+	MIN_CHECK
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
@@ -3434,15 +3439,15 @@ void test_object_vector_level
 
 	min::aux_pop ( vp, 3, outv + 1 );
 	outv[0] = min::aux_pop ( vp );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
+	MIN_CHECK ( outv[0] == num1 );
+	MIN_CHECK ( outv[1] == num1 );
+	MIN_CHECK ( outv[2] == num2 );
+	MIN_CHECK ( outv[3] == num3 );
+	MIN_CHECK
 	    (    min::aux_size_of ( vp )
 	      == 0 );
-	MIN_ASSERT ( caa == aa );
-	MIN_ASSERT
+	MIN_CHECK ( caa == aa );
+	MIN_CHECK
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
@@ -3459,9 +3464,9 @@ void test_object_vector_level
 	    ( vp,
 	      unused_size - half_unused_size - 4,
 	      fillv );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::unused_size_of ( vp ) == 0 );
-	MIN_ASSERT ( cua == caa );
+	MIN_CHECK ( cua == caa );
 
 	min::unsptr attr_offset =
 	    MUP::attr_offset_of ( vp );
@@ -3469,27 +3474,27 @@ void test_object_vector_level
 	    MUP::aux_offset_of ( vp );
 
 	min::attr ( vp, 0 ) = min::MISSING();
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[attr_offset] == min::MISSING() );
-	MIN_ASSERT ( vp[0] == min::MISSING() );
+	MIN_CHECK ( vp[0] == min::MISSING() );
 
 	min::attr ( vp, 0 ) = min::LIST_END();
-	MIN_ASSERT ( vp[0] == min::LIST_END() );
+	MIN_CHECK ( vp[0] == min::LIST_END() );
 
 	vp[1] = min::new_list_aux_gen
 		    ( total_size - aux_offset );
 	min::aux ( vp, total_size - aux_offset ) =
 	    min::LIST_END();
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[attr_offset] == min::LIST_END() );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[aux_offset] == min::LIST_END() );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
 		     ( total_size - aux_offset ) );
 
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::unused_size_of ( vp ) == 0 );
 
 	min::resize ( vp, 10, 20 );
@@ -3501,25 +3506,25 @@ void test_object_vector_level
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
 
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::var_size_of ( vp ) == 20 );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::unused_size_of ( vp ) >= 10 );
 	min::unsptr attr_offset =
 	    MUP::attr_offset_of ( vp );
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
 	vp = min::NULL_STUB;
-	MIN_ASSERT ( vp == min::NULL_STUB );
+	MIN_CHECK ( vp == min::NULL_STUB );
 	vp = v;
-	MIN_ASSERT ( vp == sstub );
-	MIN_ASSERT
+	MIN_CHECK ( vp == sstub );
+	MIN_CHECK
 	    ( base[attr_offset] == min::LIST_END() );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( vp[0] == min::LIST_END() );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( base[aux_offset] == min::LIST_END() );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
 		     ( total_size - aux_offset ) );
@@ -3527,7 +3532,7 @@ void test_object_vector_level
 
     {
 	min::obj_vec_insptr vp ( sstub );
-	MIN_ASSERT
+	MIN_CHECK
 	    ( min::unused_size_of ( vp ) >= 10 );
 	min::unsptr attr_size =
 	    min::attr_size_of ( vp );
@@ -3539,41 +3544,41 @@ void test_object_vector_level
 	    min::aux ( vp, aux_size );
 
 	min::resize ( vp, 0 );
-	MIN_ASSERT ( min::unused_size_of ( vp ) == 0 );
-	MIN_ASSERT
+	MIN_CHECK ( min::unused_size_of ( vp ) == 0 );
+	MIN_CHECK
 	    (    att_end
 	      == min::attr ( vp, attr_size - 1 ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    aux_begin
 	      == min::aux ( vp, aux_size  ) );
 
-	MIN_ASSERT ( att_end != min::SUCCESS() );
-	MIN_ASSERT ( aux_begin != min::SUCCESS() );
+	MIN_CHECK ( att_end != min::SUCCESS() );
+	MIN_CHECK ( aux_begin != min::SUCCESS() );
 	min::attr_push ( vp ) = min::SUCCESS();
 	min::aux_push ( vp ) = min::SUCCESS();
-	MIN_ASSERT
+	MIN_CHECK
 	    (    att_end
 	      == min::attr ( vp, attr_size - 1 ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    min::SUCCESS()
 	      == min::attr ( vp, attr_size ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    aux_begin
 	      == min::aux ( vp, aux_size  ) );
-	MIN_ASSERT
+	MIN_CHECK
 	    (    min::SUCCESS()
 	      == min::aux ( vp, aux_size + 1  ) );
     }
 
     {
 	min::obj_vec_ptr vp ( min::new_num_gen ( 8 ) );
-	MIN_ASSERT ( vp == min::NULL_STUB );
+	MIN_CHECK ( vp == min::NULL_STUB );
 	vp = v;
-	MIN_ASSERT ( vp == sstub );
-	MIN_ASSERT
+	MIN_CHECK ( vp == sstub );
+	MIN_CHECK
 	    ( min::var_size_of ( vp ) == 20 );
 	vp = min::MISSING();
-	MIN_ASSERT ( vp == min::NULL_STUB );
+	MIN_CHECK ( vp == min::NULL_STUB );
     }
 }
 
@@ -3638,7 +3643,7 @@ static void insert
     bool resize_happened =
         min::insert_reserve
 	      ( wlp, 1, n, use_obj_aux_stubs );
-    MIN_ASSERT
+    MIN_CHECK
         ( resize_happened ==
 	  ( ! use_obj_aux_stubs && resize ) );
     if ( resize_happened )
@@ -3707,21 +3712,21 @@ void test_object_list_level
 
     min::list_ptr lp ( vp );
     min::start_vector ( lp, 0 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::current ( lp ) == base[vorg+0] );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::peek ( lp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::next ( lp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::current ( lp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::peek ( lp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::next ( lp ) == min::LIST_END() );
     base[vorg+0] = numtest;
     min::start_vector ( lp, 0 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::current ( lp ) == base[vorg+0] );
 
     min::list_insptr wlp ( vp );
@@ -3733,50 +3738,50 @@ void test_object_list_level
     // Vector[0] list now is
     //	{ numtest, num100, num101, num102 }
 
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::peek ( wlp ) == num100 );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT ( min::peek ( wlp ) == num101 );
-    MIN_ASSERT ( min::next ( wlp ) == num101 );
+    MIN_CHECK ( min::current ( wlp ) == numtest );
+    MIN_CHECK ( min::peek ( wlp ) == num100 );
+    MIN_CHECK ( min::next ( wlp ) == num100 );
+    MIN_CHECK ( min::peek ( wlp ) == num101 );
+    MIN_CHECK ( min::next ( wlp ) == num101 );
 
     min::update ( wlp, min::EMPTY_SUBLIST() );
-    MIN_ASSERT (    min::current ( wlp )
+    MIN_CHECK (    min::current ( wlp )
 		 == min::EMPTY_SUBLIST() );
     //
     // Vector[0] list now is
     //	{ numtest, num100, {}, num102 }
 
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wlp ) == numtest );
+    MIN_CHECK ( min::next ( wlp ) == num100 );
+    MIN_CHECK
 	( min::is_sublist ( min::next ( wlp ) ) );
 
     min::list_insptr wslp ( vp );
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wslp ) == num100 );
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
     min::insert_refresh ( wlp );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::is_sublist ( min::current ( wlp ) ) );
     ::resize = true;
     min::start_sublist ( wslp, wlp );
     insert ( wslp, false, p+2, 1 );
-    MIN_ASSERT ( min::peek ( wslp ) == num102 );
-    MIN_ASSERT ( min::next ( wslp ) == num102 );
+    MIN_CHECK ( min::peek ( wslp ) == num102 );
+    MIN_CHECK ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::insert_refresh ( wlp );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::is_sublist ( min::current ( wlp ) ) );
-    MIN_ASSERT ( min::current ( wslp ) == num101 );
-    MIN_ASSERT ( min::peek ( wslp ) == num102 );
-    MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wslp ) == num101 );
+    MIN_CHECK ( min::peek ( wslp ) == num102 );
+    MIN_CHECK ( min::next ( wslp ) == num102 );
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
     //
     // Vector[0] list now is
@@ -3784,118 +3789,118 @@ void test_object_list_level
     //        { num100, num101, num102 }, num102 }
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::peek ( wslp ) == num101 );
-    MIN_ASSERT ( min::next ( wslp ) == num101 );
-    MIN_ASSERT ( min::peek ( wslp ) == num102 );
-    MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wslp ) == num100 );
+    MIN_CHECK ( min::peek ( wslp ) == num101 );
+    MIN_CHECK ( min::next ( wslp ) == num101 );
+    MIN_CHECK ( min::peek ( wslp ) == num102 );
+    MIN_CHECK ( min::next ( wslp ) == num102 );
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
 
-    MIN_ASSERT ( min::peek ( wlp ) == num102 );
-    MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::peek ( wlp ) == num102 );
+    MIN_CHECK ( min::next ( wlp ) == num102 );
+    MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::peek ( wlp ) == num100 );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wlp ) == numtest );
+    MIN_CHECK ( min::peek ( wlp ) == num100 );
+    MIN_CHECK ( min::next ( wlp ) == num100 );
+    MIN_CHECK
 	( min::is_sublist ( min::peek ( wlp ) ) );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::is_sublist ( min::next ( wlp ) ) );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::peek ( wslp ) == num101 );
-    MIN_ASSERT ( min::next ( wslp ) == num101 );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
+    MIN_CHECK ( min::current ( wslp ) == num100 );
+    MIN_CHECK ( min::peek ( wslp ) == num101 );
+    MIN_CHECK ( min::next ( wslp ) == num101 );
+    MIN_CHECK ( 1 == min::remove ( wslp, 1 ) );
     min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
     //        { num100, num102 }, num102 }
     //
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wslp ) == num102 );
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::peek ( wslp ) == num102 );
-    MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK ( min::current ( wslp ) == num100 );
+    MIN_CHECK ( min::peek ( wslp ) == num102 );
+    MIN_CHECK ( min::next ( wslp ) == num102 );
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
+    MIN_CHECK ( 1 == min::remove ( wslp, 1 ) );
     min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
     //        { num102 }, num102 }
     //
-    MIN_ASSERT
+    MIN_CHECK
         ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT
+    MIN_CHECK
         ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 5 ) );
+    MIN_CHECK ( min::current ( wslp ) == num102 );
+    MIN_CHECK ( 1 == min::remove ( wslp, 5 ) );
     min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100, { }, num102 }
     //
-    MIN_ASSERT ( min::is_list_end
+    MIN_CHECK ( min::is_list_end
                       ( min::current ( wslp ) ) );
-    MIN_ASSERT ( min::peek ( wlp ) == num102 );
-    MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::peek ( wlp ) == num102 );
+    MIN_CHECK ( min::next ( wlp ) == num102 );
+    MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( 3 == min::remove ( wlp, 3 ) );
+    MIN_CHECK ( min::current ( wlp ) == numtest );
+    MIN_CHECK ( 3 == min::remove ( wlp, 3 ) );
     //
     // Vector[0] list now is { num102 }
     //
-    MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::current ( wlp ) == num102 );
+    MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::current ( wlp ) == num102 );
+    MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
+    MIN_CHECK ( 1 == min::remove ( wlp, 3 ) );
     //
     // Vector[0] list now is { }
     //
-    MIN_ASSERT
+    MIN_CHECK
 	( min::current ( wlp ) == min::LIST_END() );
     min::start_vector ( wlp, 0 );
-    MIN_ASSERT
+    MIN_CHECK
 	( min::current ( wlp ) == min::LIST_END() );
 }
 
@@ -4101,52 +4106,52 @@ void test_attribute_values
                             val5, val6, val6, val6 };
     min::locate ( ap, label1 );
     min::set ( ap, values1, 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 3 ) );
     min::add_to_multiset ( ap, values1 + 3, 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 6 ) );
     min::add_to_set ( ap, values1 + 4, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 6 ) );
     min::add_to_multiset ( ap, values1 + 6, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 8 ) );
     min::add_to_set ( ap, values1, 8 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 8 ) );
     cout << "REMOVED "
          << min::remove_one ( ap, values1+7, 1 )
 	 << endl;
     min::locate ( ap, label2 );
     min::locate ( ap, label1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 7 ) );
     cout << "REMOVED "
          << min::remove_one ( ap, values1, 1 )
 	 << endl;
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1+1, 6 ) );
     cout << "REMOVED "
          << min::remove_all ( ap, values1+7, 1 )
 	 << endl;
     min::locate ( ap, label2 );
     min::locate ( ap, label1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1+1, 4 ) );
     cout << "REMOVED "
          << min::remove_all ( ap, val2 )
 	 << endl;
     min::gen values2[6] = { val1, val1,
                             val5, val6, val6, val6 };
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values2+1, 2 ) );
     min::add_to_set ( ap, values2+1, 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values2+1, 3 ) );
     min::add_to_multiset ( ap, values2+3, 2 );
     min::add_to_multiset ( ap, val1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values2, 6 ) );
 
     min_assert_print = true;
@@ -4241,26 +4246,26 @@ void test_attribute_flags
     min::locate ( ap, label1 );
 
     min::set_flags ( ap, codes1, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 2 ) );
     min::set_flags ( ap, codes1, 0 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 0 ) );
     min::set_some_flags ( ap, codes1, 3 );
     locate ( ap, label3 );
     locate ( ap, label1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 3 ) );
     min::clear_some_flags ( ap, codes1, 4 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 0 ) );
     min::flip_some_flags ( ap, codes1, 4 );
     locate ( ap, label3 );
     locate ( ap, label1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 4 ) );
     min::flip_some_flags ( ap, codes1, 4 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 0 ) );
 
     bool flag[5][min::VSIZE];
@@ -4271,9 +4276,9 @@ void test_attribute_flags
         min::set_flag ( ap, 3*min::VSIZE + 10 );
     flag[4][1] =
         min::set_flag ( ap, 4*min::VSIZE + 1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( ! flag[0][0] && ! flag[4][1] );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 5 ) );
     flag[0][0] = test_flag ( ap, 0 );
     flag[0][3] = test_flag ( ap, 1 );
@@ -4285,43 +4290,43 @@ void test_attribute_flags
     flag[4][0] = test_flag ( ap, 4*min::VSIZE + 0 );
     flag[4][1] = test_flag ( ap, 4*min::VSIZE + 1 );
     flag[1][2] = test_flag ( ap, 4*min::VSIZE + 2 );
-    PRINTING_MIN_ASSERT ( flag[0][0] );
-    PRINTING_MIN_ASSERT ( ! flag[0][3] );
-    PRINTING_MIN_ASSERT ( ! flag[1][2] );
-    PRINTING_MIN_ASSERT ( flag[1][3] );
-    PRINTING_MIN_ASSERT ( ! flag[1][4] );
-    PRINTING_MIN_ASSERT ( ! flag[4][0] );
-    PRINTING_MIN_ASSERT ( flag[4][1] );
-    PRINTING_MIN_ASSERT ( ! flag[1][2]);
+    PRINTING_MIN_CHECK ( flag[0][0] );
+    PRINTING_MIN_CHECK ( ! flag[0][3] );
+    PRINTING_MIN_CHECK ( ! flag[1][2] );
+    PRINTING_MIN_CHECK ( flag[1][3] );
+    PRINTING_MIN_CHECK ( ! flag[1][4] );
+    PRINTING_MIN_CHECK ( ! flag[4][0] );
+    PRINTING_MIN_CHECK ( flag[4][1] );
+    PRINTING_MIN_CHECK ( ! flag[1][2]);
     flag[4][1] =
         min::set_flag ( ap, 4*min::VSIZE + 1 );
-    PRINTING_MIN_ASSERT ( flag[4][1] );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK ( flag[4][1] );
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 5 ) );
     flag[4][1] =
         min::flip_flag ( ap, 4*min::VSIZE + 1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 4 ) );
-    PRINTING_MIN_ASSERT ( flag[4][1] );
+    PRINTING_MIN_CHECK ( flag[4][1] );
 
     locate ( ap, label2 );
     flag[0][0] = min::flip_flag ( ap, 0 );
     flag[1][3] = min::flip_flag ( ap, min::VSIZE + 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( ! flag[0][0] && ! flag[1][3] );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 2 ) );
     flag[0][0] = min::clear_flag ( ap, min::VSIZE + 3 );
     flag[4][0] = min::clear_flag ( ap, 4*min::VSIZE );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( flag[0][0] && ! flag[4][0] );
     locate ( ap, label3 );
     locate ( ap, label2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 1 ) );
     flag[0][0] = min::flip_flag ( ap, 0 );
-    PRINTING_MIN_ASSERT ( flag[0][0] );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK ( flag[0][0] );
+    PRINTING_MIN_CHECK
         ( check_flags ( ap, codes1, 0 ) );
 
     min_assert_print = true;
@@ -4356,23 +4361,23 @@ void test_reverse_attribute_values
     min::locate ( ap, label1 );
     min::locate_reverse ( ap, rlabel1 );
     min::set ( ap, values1, 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 3 ) );
     min::add_to_multiset ( ap, values1, 3 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 6 ) );
     min::add_to_set ( ap, values1, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 6 ) );
     min::add_to_multiset ( ap, values1, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 8 ) );
     // min::locate ( ap, label1 );
     // min::locate_reverse ( ap, rlabel1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 8 ) );
     min::add_to_set ( ap, values1, 8 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 8 ) );
     cout << "REMOVED "
          << min::remove_one ( ap, values1+7, 1 )
@@ -4380,12 +4385,12 @@ void test_reverse_attribute_values
     min::locate ( ap, label2 );
     min::locate ( ap, label1 );
     min::locate_reverse ( ap, rlabel1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 7 ) );
     cout << "REMOVED "
          << min::remove_one ( ap, values1, 1 )
 	 << endl;
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1+1, 6 ) );
     cout << "REMOVED "
          << min::remove_all ( ap, values1, 1 )
@@ -4393,29 +4398,29 @@ void test_reverse_attribute_values
     // min::locate ( ap, label2 );
     // min::locate ( ap, label1 );
     // min::locate_reverse ( ap, rlabel1 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1+1, 4 ) );
     cout << "REMOVED "
          << min::remove_all ( ap, obj2 )
 	 << endl;
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1+2, 2 ) );
     min::add_to_set ( ap, values1, 2 );
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 4 ) );
     cout << "REMOVED "
          << min::remove_one ( ap, obj3 )
 	 << endl;
-    PRINTING_MIN_ASSERT
+    PRINTING_MIN_CHECK
         ( check_values ( ap, values1, 3 ) );
 
     min::reverse_attr_info rinfo;
-    MIN_ASSERT
+    MIN_CHECK
         (    min::get_reverse_attrs ( & rinfo, 1, ap )
 	  == 1 );
-    MIN_ASSERT ( rinfo.name == rlabel1 );
-    MIN_ASSERT ( rinfo.value_count == 3 );
-    MIN_ASSERT ( rinfo.value == min::MULTI_VALUED() );
+    MIN_CHECK ( rinfo.name == rlabel1 );
+    MIN_CHECK ( rinfo.value_count == 3 );
+    MIN_CHECK ( rinfo.value == min::MULTI_VALUED() );
 
     min::obj_vec_ptr vp1 ( obj1 );
     min::attr_ptr ap1 ( vp1 );
@@ -4424,12 +4429,12 @@ void test_reverse_attribute_values
         ( (const min::stub * )
 	  min::obj_vec_ptr_of ( ap ) );
 
-    MIN_ASSERT
+    MIN_CHECK
         (    min::get_reverse_attrs ( & rinfo, 1, ap1 )
 	  == 1 );
-    MIN_ASSERT ( rinfo.name == label1 );
-    MIN_ASSERT ( rinfo.value_count == 1 );
-    MIN_ASSERT ( rinfo.value == obj  );
+    MIN_CHECK ( rinfo.name == label1 );
+    MIN_CHECK ( rinfo.value_count == 1 );
+    MIN_CHECK ( rinfo.value == obj  );
 
     min_assert_print = true;
 }
@@ -4469,7 +4474,7 @@ void test_object_attribute_level ( void )
 
     min::locate ( ap, lab1 );
     min::set ( ap, int1 );
-    MIN_ASSERT ( min::get ( ap ) == int1 );
+    MIN_CHECK ( min::get ( ap ) == int1 );
 
     min::locate ( ap, lab2 );
     min::set ( ap, int2 );
@@ -4479,27 +4484,27 @@ void test_object_attribute_level ( void )
     min::set ( ap, int4 );
 
     min::locate ( ap, lab1 );
-    MIN_ASSERT ( min::get ( ap ) == int1 );
+    MIN_CHECK ( min::get ( ap ) == int1 );
     min::locate ( ap, lab2 );
-    MIN_ASSERT ( min::get ( ap ) == int2 );
+    MIN_CHECK ( min::get ( ap ) == int2 );
     min::locate ( ap, lab3 );
-    MIN_ASSERT ( min::get ( ap ) == int3 );
+    MIN_CHECK ( min::get ( ap ) == int3 );
     min::locate ( ap, lab4 );
-    MIN_ASSERT ( min::get ( ap ) == int4 );
+    MIN_CHECK ( min::get ( ap ) == int4 );
 
     min_assert_print = false;
     for ( unsigned i = 0; i < 50; ++ i )
         min::attr_push(vp) = min::EMPTY_SUBLIST();
     min_assert_print = true;
-    MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
-    MIN_ASSERT
+    MIN_CHECK ( min::attr_size_of ( vp ) == 50 );
+    MIN_CHECK
         (    min::attr ( vp, 21 )
 	  == min::EMPTY_SUBLIST() );
 
     min::locatei ( ap, 1 );
-    MIN_ASSERT ( min::get ( ap ) == min::NONE() );
+    MIN_CHECK ( min::get ( ap ) == min::NONE() );
     min::set ( ap, lab1 );
-    MIN_ASSERT ( min::get ( ap ) == lab1 );
+    MIN_CHECK ( min::get ( ap ) == lab1 );
     min::locatei ( ap, 2 );
     min::set ( ap, lab2 );
     min::locatei ( ap, 3 );
@@ -4508,13 +4513,13 @@ void test_object_attribute_level ( void )
     min::set ( ap, lab4 );
 
     min::locate ( ap, int1 );
-    MIN_ASSERT ( min::get ( ap ) == lab1 );
+    MIN_CHECK ( min::get ( ap ) == lab1 );
     min::locate ( ap, int2 );
-    MIN_ASSERT ( min::get ( ap ) == lab2 );
+    MIN_CHECK ( min::get ( ap ) == lab2 );
     min::locate ( ap, int3 );
-    MIN_ASSERT ( min::get ( ap ) == lab3 );
+    MIN_CHECK ( min::get ( ap ) == lab3 );
     min::locate ( ap, int4 );
-    MIN_ASSERT ( min::get ( ap ) == lab4 );
+    MIN_CHECK ( min::get ( ap ) == lab4 );
 
     min::gen MULTI = min::MULTI_VALUED();
     min::attr_info ai[12] = {
@@ -4531,34 +4536,34 @@ void test_object_attribute_level ( void )
 	{ lab1int1, MULTI, 0, 0, 0, 0 },
 	{ lab1int2, MULTI, 0, 0, 0, 0 } };
 
-    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, lab1, lab2 );
     ai[4].value_count = 6;
     ai[4].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, int3, lab1 );
     ai[2].value_count = 6;
     ai[2].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, int1lab1, int1lab2 );
     ai[8].value_count = 6;
     ai[8].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 9 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 9 ) );
     test_attribute_values ( ap, int1lab2, int1lab1 );
     ai[9].value_count = 6;
     ai[9].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 10 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 10 ) );
     test_attribute_values ( ap, lab1int1, lab1int2 );
     ai[10].value_count = 6;
     ai[10].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 11 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 11 ) );
     test_attribute_values ( ap, lab1int2, lab1int1 );
     ai[11].value_count = 6;
     ai[11].value = MULTI;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 12 ) );
 
     test_attribute_flags ( ap, lab1, lab2, lab3 );
     ai[4].flag_count = 4;
@@ -4566,7 +4571,7 @@ void test_object_attribute_level ( void )
     test_attribute_flags ( ap, lab2, int1, int2 );
     ai[5].flag_count = 4;
     ai[5].flags = ::test_flags;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 12 ) );
 
     min::gen obj1 = min::new_obj_gen ( 40, 10 );
     min::gen obj2 = min::new_obj_gen ( 40, 10 );
@@ -4575,7 +4580,7 @@ void test_object_attribute_level ( void )
     test_reverse_attribute_values
 	( ap, lab1, lab2, int1, obj1, obj2, obj3 );
     ai[4].reverse_attr_count = 1;
-    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
+    MIN_CHECK ( check_attr_info ( ap, ai, 12 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
@@ -4912,7 +4917,7 @@ int main ( int argc, const char * argv[] )
 	// Check that deallocated_body_region is still
 	// zero.
 	//
-	MIN_ASSERT
+	MIN_CHECK
 	    ( deallocated_body_region[0] == 0
 	      &&
 	      memcmp ( deallocated_body_region,
@@ -4923,7 +4928,7 @@ int main ( int argc, const char * argv[] )
 	      == 0 );
 
     } catch ( min_assert_exception * x ) {
-        cout << "EXITING BECAUSE OF FAILED MIN_ASSERT"
+        cout << "EXITING BECAUSE OF FAILED MIN_CHECK"
 	     << endl;
 	exit ( 1 );
     }

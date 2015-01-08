@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 21:14:16 EST 2015
+// Date:	Thu Jan  8 01:04:12 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -718,7 +718,9 @@ namespace min {
 	inline min::gen new_direct_int_gen ( int v )
 	{
 	    MIN_ASSERT (    GEN_MIN_INT <= v
-	                 && v <= GEN_MAX_INT );
+	                 && v <= GEN_MAX_INT,
+			 "argument is not direct"
+			 " integer" );
 	    return unprotected::new_direct_int_gen
 	    		( v );
 	}
@@ -734,9 +736,11 @@ namespace min {
 	    ( const char * p )
     {
 #       if MIN_IS_COMPACT
-	    MIN_ASSERT ( strlen ( p ) <= 3 );
+	    MIN_ASSERT ( strlen ( p ) <= 3,
+	                 "string argument too long" );
 #	elif MIN_IS_LOOSE
-	    MIN_ASSERT ( strlen ( p ) <= 5 );
+	    MIN_ASSERT ( strlen ( p ) <= 5,
+	                 "string argument too long" );
 #	endif
 	return unprotected::new_direct_str_gen ( p );
     }
@@ -745,46 +749,54 @@ namespace min {
     {
 #       if MIN_IS_COMPACT
 	    MIN_ASSERT
-	        ( internal::strnlen ( p, n ) <= 3 );
+	        ( internal::strnlen ( p, n ) <= 3,
+		  "string argument too long" );
 #	elif MIN_IS_LOOSE
 	    MIN_ASSERT
-	        ( internal::strnlen ( p, n ) <= 5 );
+	        ( internal::strnlen ( p, n ) <= 5,
+		  "string argument too long" );
 #	endif
 	return unprotected::new_direct_str_gen ( p, n );
     }
     inline min::gen new_list_aux_gen ( unsgen p )
     {
-	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_list_aux_gen ( p );
     }
     inline min::gen new_sublist_aux_gen
 	    ( unsgen p )
     {
-	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_sublist_aux_gen ( p );
     }
     inline min::gen new_indirect_aux_gen
 	    ( unsgen p )
     {
-	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_indirect_aux_gen
 			( p );
     }
     inline min::gen new_index_gen ( unsgen i )
     {
-	MIN_ASSERT ( i < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( i < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_index_gen ( i );
     }
     inline min::gen new_control_code_gen
 	    ( unsgen c )
     {
-	MIN_ASSERT ( c < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( c < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_control_code_gen ( c );
     }
     inline min::gen new_special_gen
 	    ( unsgen i )
     {
-	MIN_ASSERT ( i < (unsgen) 1 << VSIZE );
+	MIN_ASSERT ( i < (unsgen) 1 << VSIZE,
+	             "argument too large" );
 	return unprotected::new_special_gen ( i );
     }
 }
@@ -1008,49 +1020,61 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline int direct_int_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_direct_int ( g ) );
+	    MIN_ASSERT ( is_direct_int ( g ),
+	                 "argument is not direct"
+			 " integer" );
 	    return unprotected::direct_int_of ( g );
 	}
 #   elif MIN_IS_LOOSE
 	inline float64 direct_float_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_direct_float ( g ) );
+	    MIN_ASSERT ( is_direct_float ( g ),
+	                 "argument is not direct"
+			 " float" );
 	    return unprotected::direct_float_of ( g );
 	}
 #   endif
     inline uns64 direct_str_of ( min::gen g )
     {
-	MIN_ASSERT ( is_direct_str ( g ) );
+	MIN_ASSERT ( is_direct_str ( g ),
+	             "argument is not direct"
+		     " string" );
 	return unprotected::direct_str_of ( g );
     }
     inline unsgen list_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_list_aux ( g ) );
+	MIN_ASSERT ( is_list_aux ( g ),
+	             "argument is not list aux" );
 	return unprotected::list_aux_of ( g );
     }
     inline unsgen sublist_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_sublist_aux ( g ) );
+	MIN_ASSERT ( is_sublist_aux ( g ),
+	             "argument is not sublist aux" );
 	return unprotected::sublist_aux_of ( g );
     }
     inline unsgen indirect_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_indirect_aux ( g ) );
+	MIN_ASSERT ( is_indirect_aux ( g ),
+	             "argument is not indirect aux" );
 	return unprotected::indirect_aux_of ( g );
     }
     inline unsgen index_of ( min::gen g )
     {
-	MIN_ASSERT ( is_index ( g ) );
+	MIN_ASSERT ( is_index ( g ),
+	             "argument is not index" );
 	return unprotected::index_of ( g );
     }
     inline unsgen control_code_of ( min::gen g )
     {
-	MIN_ASSERT ( is_control_code ( g ) );
+	MIN_ASSERT ( is_control_code ( g ),
+	             "argument is not control code" );
 	return unprotected::control_code_of ( g );
     }
     inline unsgen special_index_of ( min::gen g )
     {
-	MIN_ASSERT ( is_special ( g ) );
+	MIN_ASSERT ( is_special ( g ),
+	             "argument is not special" );
 	return unprotected::special_index_of ( g );
     }
 }
@@ -3266,7 +3290,8 @@ namespace min {
 	      (    OFFSETOF
 		     ( & locatable_var<T>::previous )
 	        == OFFSETOF
-		     ( & locatable_stub_ptr::previous )
+		     ( & locatable_stub_ptr::previous ),
+		"system programmer error"
 	      );
 	}
 	template < typename T >
@@ -3445,7 +3470,9 @@ namespace min {
 	inline min::float64 float_of
 	    ( const min::stub * s )
 	{
-	    MIN_ASSERT ( type_of ( s ) == NUMBER );
+	    MIN_ASSERT ( type_of ( s ) == NUMBER,
+	                 "stub argument type is not"
+			 " NUMBER" );
 	    return unprotected::float_of ( s );
 	}
         inline bool is_num ( min::gen g )
@@ -3517,13 +3544,18 @@ namespace min {
 		const min::stub * s =
 		    unprotected::stub_of ( g );
 		MIN_ASSERT (    type_of ( s )
-			     == NUMBER );
+			     == NUMBER,
+			     "argument has stub whose"
+			     " type is not NUMBER" );
 		float64 f =
 		    unprotected::float_of ( s );
 		MIN_ASSERT (    INT_MIN <= f
-			     && f <= INT_MAX );
+			     && f <= INT_MAX,
+			     "argument out of range" );
 		int i = (int) f;
-		MIN_ASSERT ( i == f );
+		MIN_ASSERT ( i == f,
+		             "argument has non-zero"
+			     " fractional part");
 		return i;
 	    }
 	    else if ( is_direct_int ( g ) )
@@ -3588,13 +3620,17 @@ namespace min {
 	}
 	inline int int_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_num ( g ) );
+	    MIN_ASSERT ( is_num ( g ),
+	                 "argument is not number" );
 	    float64 f =
 	        unprotected::direct_float_of ( g );
 	    MIN_ASSERT
-		( INT_MIN <= f && f <= INT_MAX );
+		( INT_MIN <= f && f <= INT_MAX,
+		  "argument is out of range" );
 	    int i = (int) f;
-	    MIN_ASSERT ( i == f );
+	    MIN_ASSERT ( i == f,
+		         "argument has non-zero"
+			 " fractional part");
 	    return i;
 	}
 	namespace unprotected {
@@ -3606,7 +3642,8 @@ namespace min {
 	}
 	inline float64 float_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_num ( g ) );
+	    MIN_ASSERT ( is_num ( g ),
+	                 "argument is not number" );
 	    return unprotected::direct_float_of ( g );
 	}
 #   endif
@@ -4284,7 +4321,8 @@ namespace min {
 	min::gen operator []
 	    ( min::uns32 i ) const
 	{
-	    MIN_ASSERT ( i < header()->length );
+	    MIN_ASSERT ( i < header()->length,
+	                 "subscript is too large" );
 	    return base()[i];
 	}
 
@@ -4319,7 +4357,9 @@ namespace min {
 
     inline min::uns32 lablen ( const min::stub * s )
     {
-        MIN_ASSERT ( type_of ( s ) == min::LABEL );
+        MIN_ASSERT ( type_of ( s ) == LABEL,
+	             "stub argument type is not"
+		     " LABEL" );
 	return internal::lab_header_of(s)->length;
     }
 
@@ -4330,7 +4370,9 @@ namespace min {
 
     inline min::uns32 labhash ( const min::stub * s )
     {
-        MIN_ASSERT ( type_of ( s ) == LABEL );
+	MIN_ASSERT ( type_of ( s ) == LABEL,
+		     "stub argument type is not"
+		     " LABEL" );
 	return internal::lab_header_of(s)->hash;
     }
 
@@ -4897,7 +4939,9 @@ min::packed_struct<S>::packed_struct
     //
     MIN_ASSERT
         ( ( OFFSETOF<S,const min::uns32>
-	      ( & S::control ) == 0 ) );
+	      ( & S::control ) == 0 ),
+	  "`control' member of structure is not first"
+	  " member of the structure" );
 
     if (   internal::packed_subtype_count
 	 > internal::max_packed_subtype_count )
@@ -4909,7 +4953,10 @@ min::packed_struct<S>::packed_struct
 	this;
     if ( & base_class_id != id.base )
     {
-        MIN_ASSERT ( id.base == NULL );
+        MIN_ASSERT ( id.base == NULL,
+	             "packed_struct_with_base used twice"
+		     " to declare same packed_struct"
+		     " with two distinct bases" );
 	id.base = & base_class_id;
     }
 }
@@ -5130,7 +5177,8 @@ namespace min {
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
+	    MIN_ASSERT ( i < hp->length,
+	                 "subscript too large" );
 	    return * min::unprotected::new_ptr<const E>
 	       ( this->s,
 		 internal::packed_vec_ptr_base<E,H,L>
@@ -5144,7 +5192,8 @@ namespace min {
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
+	    MIN_ASSERT ( i < hp->length,
+	                 "subscript too large" );
 	    return min::unprotected::new_ptr
 		( this->s,
 		  ( E const *)
@@ -5266,7 +5315,8 @@ namespace min {
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
+	    MIN_ASSERT ( i < hp->length,
+	                 "subscript too large" );
 	    return * min::unprotected::new_ptr<E>
 	       ( this->s,
 		 internal::packed_vec_ptr_base<E,H,L>
@@ -5280,7 +5330,8 @@ namespace min {
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
+	    MIN_ASSERT ( i < hp->length,
+	                 "subscript too large" );
 	    return min::unprotected::new_ptr<E>
 		( this->s,
 		  internal::packed_vec_ptr_base<E,H,L>
@@ -5681,7 +5732,9 @@ min::packed_vec<E,H,L>::packed_vec
     //
     MIN_ASSERT
         ( ( OFFSETOF<H,const min::uns32>
-	        ( & H::control ) == 0 ) );
+	        ( & H::control ) == 0 ),
+	  "`control' member of header is not first"
+	  " member of the header" );
 
     min::internal::locatable_var_check
         < packed_vec_ptr<E,H,L> >();
@@ -5700,7 +5753,10 @@ min::packed_vec<E,H,L>::packed_vec
 	this;
     if ( & base_class_id != id.base )
     {
-        MIN_ASSERT ( id.base == NULL );
+        MIN_ASSERT ( id.base == NULL,
+	             "packed_vec_with_base used twice"
+		     " to declare same packed_vec"
+		     " with two distinct bases" );
 	id.base = & base_class_id;
     }
 }
@@ -6015,8 +6071,10 @@ namespace min {
     inline void end_line
 	    ( min::file file, min::uns32 offset )
     {
-	MIN_ASSERT ( offset < file->buffer->length );
-	MIN_ASSERT ( offset >= file->end_offset );
+	MIN_ASSERT ( offset < file->buffer->length,
+	             "offset argument too large" );
+	MIN_ASSERT ( offset >= file->end_offset,
+	             "offset argument too small" );
         file->buffer[offset] = 0;
 	file->end_offset = offset + 1;
 	++ file->end_count;
@@ -6627,7 +6685,8 @@ namespace min {
 	    // s == NULL but type == UPDATABLE.
 	    //
 	    if ( s == NULL ) return;
-	    MIN_ASSERT ( type == READONLY );
+	    MIN_ASSERT ( type == READONLY,
+	                 "system programmer error" );
 	    deinit();
 	}
 
@@ -7107,7 +7166,8 @@ namespace min {
 	    // s == NULL but type == INSERTABLE.
 	    //
 	    if ( s == NULL ) return;
-	    MIN_ASSERT ( type == UPDATABLE );
+	    MIN_ASSERT ( type == UPDATABLE,
+	                 "system programmer error" );
 	    deinit();
 	}
 
@@ -7131,7 +7191,8 @@ namespace min {
 		( min::unsptr index ) const
 	{
 	    index += attr_offset;
-	    MIN_ASSERT ( index < unused_offset );
+	    MIN_ASSERT ( index < unused_offset,
+	                 "index argument too large" );
 	    return unprotected::new_ref<min::gen>
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
@@ -7142,7 +7203,8 @@ namespace min {
 		( min::unsptr index ) const
 	{
 	    index += attr_offset;
-	    MIN_ASSERT ( index < unused_offset );
+	    MIN_ASSERT ( index < unused_offset,
+	                 "index argument too large" );
 	    return unprotected::new_ptr
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
@@ -7176,7 +7238,8 @@ namespace min {
 
 	~ obj_vec_insptr ( void )
 	{
-	    MIN_ASSERT ( type == INSERTABLE );
+	    MIN_ASSERT ( type == INSERTABLE,
+	                 "system programmer error" );
 	    deinit();
 	}
 
@@ -7300,7 +7363,8 @@ namespace min {
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.var_offset;
-	MIN_ASSERT ( index < vp.hash_offset );
+	MIN_ASSERT ( index < vp.hash_offset,
+	             "index argument too large" );
 	return unprotected::base(vp)[index];
     }
 
@@ -7308,7 +7372,8 @@ namespace min {
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.hash_offset;
-	MIN_ASSERT ( index < vp.attr_offset );
+	MIN_ASSERT ( index < vp.attr_offset,
+	             "index argument too large" );
 	return unprotected::base(vp)[index];
     }
 
@@ -7316,7 +7381,8 @@ namespace min {
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.attr_offset;
-	MIN_ASSERT ( index < vp.unused_offset );
+	MIN_ASSERT ( index < vp.unused_offset,
+	             "index argument too large" );
 	return unprotected::base(vp)[index];
     }
 
@@ -7324,8 +7390,10 @@ namespace min {
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index = vp.total_size - index;
-	MIN_ASSERT ( vp.aux_offset <= index );
-	MIN_ASSERT ( index < vp.total_size );
+	MIN_ASSERT ( vp.aux_offset <= index,
+	             "index argument too large" );
+	MIN_ASSERT ( index < vp.total_size,
+	             "index argument too large" );
 	return unprotected::base(vp)[index];
     }
 
@@ -7358,7 +7426,8 @@ namespace min {
 	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.var_offset;
-	MIN_ASSERT ( index < vp.hash_offset );
+	MIN_ASSERT ( index < vp.hash_offset,
+	             "index argument too large" );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)[index] );
     }
@@ -7367,7 +7436,8 @@ namespace min {
 	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.hash_offset;
-	MIN_ASSERT ( index < vp.attr_offset );
+	MIN_ASSERT ( index < vp.attr_offset,
+	             "index argument too large" );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)[index] );
     }
@@ -7376,7 +7446,8 @@ namespace min {
 	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.attr_offset;
-	MIN_ASSERT ( index < vp.unused_offset );
+	MIN_ASSERT ( index < vp.unused_offset,
+	             "index argument too large" );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)[index] );
     }
@@ -7385,8 +7456,10 @@ namespace min {
 	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index = vp.total_size - index;
-	MIN_ASSERT ( vp.aux_offset <= index );
-	MIN_ASSERT ( index < vp.total_size );
+	MIN_ASSERT ( vp.aux_offset <= index,
+	             "index argument too large" );
+	MIN_ASSERT ( index < vp.total_size,
+	             "index argument too large" );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)[index] );
     }
@@ -7608,7 +7681,8 @@ namespace min {
 	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT
-	    ( vp.attr_offset < vp.unused_offset );
+	    ( vp.attr_offset < vp.unused_offset,
+	      "no attribute left to pop" );
 	return unprotected::base(vp)
 		   [-- vp.unused_offset];
     }
@@ -7619,7 +7693,8 @@ namespace min {
 	  min::gen * p = NULL )
     {
 	MIN_ASSERT
-	    ( vp.attr_offset + n <= vp.unused_offset );
+	    ( vp.attr_offset + n <= vp.unused_offset,
+	      "less than n attributes left to pop" );
 	vp.unused_offset -= n;
 	if ( p != NULL )
 	    memcpy
@@ -7632,7 +7707,8 @@ namespace min {
     inline min::gen aux_pop
 	( min::obj_vec_insptr & vp )
     {
-	MIN_ASSERT ( vp.aux_offset < vp.total_size );
+	MIN_ASSERT ( vp.aux_offset < vp.total_size,
+	             "no aux element left to pop" );
 	return unprotected::base(vp)[vp.aux_offset ++];
     }
 
@@ -7642,7 +7718,8 @@ namespace min {
 	  min::gen * p = NULL )
     {
 	MIN_ASSERT
-	    ( vp.aux_offset + n <= vp.total_size );
+	    ( vp.aux_offset + n <= vp.total_size,
+	      "less than n aux elements left to pop" );
 	if ( p != NULL )
 	    memcpy ( p,
 		       unprotected::base(vp)
@@ -8535,7 +8612,8 @@ namespace min {
 	MIN_ASSERT
 	    (   lp.head_index
 	      < unprotected::unused_offset_of
-	            ( lp.vecp ) );
+	            ( lp.vecp ),
+	      "index argument too large" );
 	return lp.forward ( lp.head_index );
     }
 
@@ -8565,8 +8643,12 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
-        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
-	MIN_ASSERT ( lp.total_size == lp2.total_size );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp,
+	             "list arguments do not have same"
+		     " object vector pointer" );
+	MIN_ASSERT ( lp.total_size == lp2.total_size,
+	             "second list argument not up to"
+		     " date (refreshed)" );
 
 	lp.current_index = lp2.current_index;
 	lp.head_index = lp2.head_index;
@@ -8581,8 +8663,9 @@ namespace min {
             ( min::list_insptr & lp,
 	      min::list_insptr & lp2 )
     {
-	MIN_ASSERT ( lp2.hash_offset != 0 );
-	    // Check that list pointer has been started.
+	MIN_ASSERT ( lp2.hash_offset != 0,
+	             "second list pointer argument"
+		     " has not been started" );
 
 	lp.hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
@@ -8590,8 +8673,12 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
-        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
-	MIN_ASSERT ( lp.total_size == lp2.total_size );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp,
+	             "list arguments do not have same"
+		     " object vector pointer" );
+	MIN_ASSERT ( lp.total_size == lp2.total_size,
+	             "second list argument not up to"
+		     " date (refreshed)" );
 
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
@@ -8616,8 +8703,9 @@ namespace min {
     	      min::unprotected
 	         ::list_ptr_type<vecptr2> & lp2 )
     {
-	MIN_ASSERT ( lp2.hash_offset != 0 );
-	    // Check that list pointer has been started.
+	MIN_ASSERT ( lp2.hash_offset != 0,
+	             "second list pointer argument"
+		     " has not been started" );
 
 	// We want the total size check to work even
 	// if & lp == & lp2.
@@ -8628,8 +8716,12 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr total_size = total_size_of ( lp.vecp );
 
-        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
-	MIN_ASSERT ( total_size == lp2.total_size );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp,
+	             "list arguments do not have same"
+		     " object vector pointer" );
+	MIN_ASSERT ( total_size == lp2.total_size,
+	             "second list argument not up to"
+		     " date (refreshed)" );
 	lp.total_size = total_size;
 
 	lp.head_index = lp2.head_index;
@@ -8642,7 +8734,8 @@ namespace min {
 		lp.current_index = 0;
 		MIN_ASSERT
 		    (    type_of ( lp.current_stub )
-		      == SUBLIST_AUX );
+		      == SUBLIST_AUX,
+		      "system programming error" );
 		lp.current =
 		    unprotected::gen_of
 		        ( lp.current_stub );
@@ -8681,8 +8774,11 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	unsptr total_size = total_size_of ( lp.vecp );
 
-        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
-	MIN_ASSERT ( total_size == lp2.total_size );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp,
+	             "list arguments do not have same"
+		     " object vector pointer" );
+	MIN_ASSERT ( total_size == lp2.total_size,
+	             "second list argument not up to" );
 	lp.total_size = total_size;
 
 	lp.previous_index = lp2.current_index;
@@ -8698,7 +8794,8 @@ namespace min {
 		lp.current_index = 0;
 		MIN_ASSERT
 		    (    type_of ( lp.current_stub )
-		      == SUBLIST_AUX );
+		      == SUBLIST_AUX,
+		      "system programming error");
 		lp.current =
 		    unprotected::gen_of
 		        ( lp.current_stub );
@@ -9085,10 +9182,15 @@ namespace min {
     	    ( min::list_updptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != LIST_END() );
-        MIN_ASSERT ( lp.current != LIST_END() );
-        MIN_ASSERT ( ! is_sublist ( lp.current ) );
-        MIN_ASSERT ( ! is_sublist ( value ) );
+        MIN_ASSERT ( value != LIST_END(),
+	             "value is LIST_END" );
+        MIN_ASSERT ( lp.current != LIST_END(),
+	             "list is currently at its end" );
+        MIN_ASSERT ( ! is_sublist ( lp.current ),
+	             "current list element is a"
+		     " sublist" );
+        MIN_ASSERT ( ! is_sublist ( value ),
+	             "value is a sublist aux" );
 	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
@@ -9114,11 +9216,14 @@ namespace min {
     	    ( min::list_insptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != LIST_END() );
-        MIN_ASSERT ( lp.current != LIST_END() );
+        MIN_ASSERT ( value != LIST_END(),
+	             "value is LIST_END" );
+        MIN_ASSERT ( lp.current != LIST_END(),
+	             "list is currently at its end" );
         MIN_ASSERT ( value == EMPTY_SUBLIST()
 	             ||
-		     ! is_sublist ( value ) );
+		     ! is_sublist ( value ),
+		     "value is a non-empty sublist" );
 	internal::remove_sublist
 	       ( lp.base, lp.total_size, lp.current );
 	unprotected::acc_write_update
@@ -9151,7 +9256,9 @@ namespace min {
         // Warning: it is OK if lp is not yet started.
 
         if ( elements == 0 ) elements = insertions;
-	MIN_ASSERT ( insertions <= elements );
+	MIN_ASSERT ( insertions <= elements,
+	             "more insertions reserved than"
+		     " elements" );
 
 	unsptr unused_size =
 	      unprotected::aux_offset_of ( lp.vecp )
@@ -10555,7 +10662,10 @@ namespace min {
 			{
 			    MIN_ASSERT
 				( is_control_code
-				      ( * in ) );
+				      ( * in ),
+				  "vector argument"
+				  " element is not"
+				  " control code" );
 			    update ( ap.lp, * in ++ );
 			    -- n;
 			}
@@ -10598,7 +10708,10 @@ namespace min {
 		    {
 			MIN_ASSERT
 			    ( is_control_code
-				  ( * in ) );
+				  ( * in ),
+			      "vector argument"
+			      " element is not"
+			      " control code" );
 			unsgen uc =
 			    control_code_of ( c )
 			    |
@@ -10647,7 +10760,10 @@ namespace min {
 		    {
 			MIN_ASSERT
 			    ( is_control_code
-				  ( * in ) );
+				  ( * in ),
+			      "vector argument"
+			      " element is not"
+			      " control code" );
 			unsgen uc =
 			    control_code_of ( c )
 			    & ~
@@ -10693,7 +10809,10 @@ namespace min {
 		    {
 			MIN_ASSERT
 			    ( is_control_code
-				  ( * in ) );
+				  ( * in ),
+			      "vector argument"
+			      " element is not"
+			      " control code" );
 			unsgen uc =
 			    control_code_of ( c )
 			    ^

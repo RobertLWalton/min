@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan  7 14:50:06 EST 2015
+// Date:	Thu Jan  8 01:05:01 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -454,8 +454,10 @@ int min::compare ( min::gen g1, min::gen g2 )
 min::int32 min::is_subsequence
 	( min::gen v1, min::gen v2 )
 {
-    MIN_ASSERT ( is_name ( v1 ) );
-    MIN_ASSERT ( is_name ( v2 ) );
+    MIN_ASSERT ( is_name ( v1 ),
+                 "first argument is not name" );
+    MIN_ASSERT ( is_name ( v2 ),
+                 "second argument is not name" );
 
     min::uns32 length1 =
         is_lab ( v1 ) ? lablen ( v1 ) : 1;
@@ -636,7 +638,8 @@ static void packed_struct_scavenger_routine
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 subtype = * (min::uns32 *) beginp;
     subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( subtype < MINT::packed_subtype_count );
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count,
+                 "system programming error" );
     MINT::packed_struct_descriptor * psd =
         (MINT::packed_struct_descriptor *)
         (*MINT::packed_subtypes)[subtype];
@@ -731,7 +734,8 @@ static void packed_vec_scavenger_routine
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 subtype = * (min::uns32 *) beginp;
     subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( subtype < MINT::packed_subtype_count );
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count,
+                 "system programming error" );
     MINT::packed_vec_descriptor * pvd =
         (MINT::packed_vec_descriptor *)
         (*MINT::packed_subtypes)[subtype];
@@ -1332,7 +1336,8 @@ min::unsptr min::strlen ( min::gen g )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return MUP::long_str_of ( s )->length;
     }
 }
@@ -1351,7 +1356,8 @@ min::uns32 min::strhash ( min::gen g )
 	return strnhash ( s->v.c8, 8 );
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return MUP::long_str_of ( s )->hash;
     }
 }
@@ -1377,7 +1383,8 @@ char * min::strcpy ( char * p, min::gen g )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return ::strcpy
 	    ( p, MUP::str_of
 		   ( MUP::long_str_of ( s ) ) );
@@ -1404,7 +1411,8 @@ char * min::strncpy
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return ::strncpy
 	    ( p, MUP::str_of
 		   ( MUP::long_str_of ( s ) ),
@@ -1436,7 +1444,8 @@ int min::strcmp ( const char * p, min::gen g )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return ::strcmp
 	    ( p, MUP::str_of
 		   ( MUP::long_str_of ( s ) ) );
@@ -1468,7 +1477,8 @@ int min::strncmp
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR,
+	             "argument is not string" );
 	return ::strncmp
 	    ( p, MUP::str_of
 		   ( MUP::long_str_of ( s ) ),
@@ -1799,7 +1809,9 @@ min::uns32 min::labhash
     uns32 hash = min::labhash_initial;
     while ( n -- )
     {
-        MIN_ASSERT ( is_name ( * p ) );
+        MIN_ASSERT ( is_name ( * p ),
+	             "first argument contains element"
+		     " that is not a name" );
         hash = labhash ( hash, min::hash ( * p ++ ) );
     }
     return hash;
@@ -2094,7 +2106,8 @@ void min::load_string
 	( min::file file,
 	  min::ptr<const char> string )
 {
-    MIN_ASSERT ( ! min::file_is_complete ( file ) );
+    MIN_ASSERT ( ! min::file_is_complete ( file ),
+                 "file is complete" );
 
     uns64 length = ::strlen ( ! string );
     uns32 offset = file->buffer->length;
@@ -2130,7 +2143,8 @@ bool min::load_named_file
 	( min::file file,
 	  min::gen file_name )
 {
-    MIN_ASSERT ( ! min::file_is_complete ( file ) );
+    MIN_ASSERT ( ! min::file_is_complete ( file ),
+                 "file is complete" );
 
     min::str_ptr fname ( file_name );
     min::uns32 offset = file->buffer->length;
@@ -3174,7 +3188,11 @@ min::unicode_name_table min::init
 	        min::unicode::name[i];
 	    Uchar c = min::unicode::character[i];
 	    if ( name == NULL ) continue;
-	    MIN_ASSERT ( c != NO_UCHAR );
+	    MIN_ASSERT ( c != NO_UCHAR,
+	                 "Bad UNICODE data base entry"
+			 " at index %d: name used by"
+			 " more than one character",
+			 i );
 	    min::add ( table, name, c );
 	}
     }
@@ -3189,7 +3207,9 @@ void min::add
     Uchar c2 = min::find
                  ( table, min::ustring_chars ( name ) );
     if ( c2 == c ) return;
-    MIN_ASSERT ( c2 == NO_UCHAR );
+    MIN_ASSERT ( c2 == NO_UCHAR,
+                 "name already assigned to a different"
+		 " character" );
 
     uns32 length = table->length;
     uns32 i = min::strhash
@@ -3537,8 +3557,10 @@ void min::resize
     while ( from < from_end )
         newb[to++] = oldb[from++];
 
-    MIN_ASSERT ( from == vp.total_size );
-    MIN_ASSERT ( to == total_size );
+    MIN_ASSERT ( from == vp.total_size,
+                 "system programming error" );
+    MIN_ASSERT ( to == total_size,
+                 "system programming error" );
 
     // Fix vector pointer.
     //
@@ -3576,7 +3598,8 @@ void MINT::allocate_stub_list
 	  const min::gen * p, min::unsptr n,
 	  min::uns64 end )
 {
-    MIN_ASSERT ( n > 0 );
+    MIN_ASSERT ( n > 0,
+                 "vector is zero length" );
 
     first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
@@ -3639,7 +3662,8 @@ void MINT::remove_list
 	    else
 #	endif
 	{
-	    MIN_ASSERT ( index != 0 );
+	    MIN_ASSERT ( index != 0,
+	                 "system programming error" );
 	    MINT::remove_sublist
 	        ( base, total_size, base[index] );
 	    base[index] = min::NONE();
@@ -3673,9 +3697,12 @@ void min::insert_before
 	( min::list_insptr & lp,
 	  const min::gen * p, min::unsptr n )
 {
-
-    MIN_ASSERT ( lp.reserved_insertions >= 1 );
-    MIN_ASSERT ( lp.reserved_elements >= n );
+    MIN_ASSERT ( lp.reserved_insertions >= 1,
+                 "no insertions reserved for list"
+		 " pointer" );
+    MIN_ASSERT ( lp.reserved_elements >= n,
+                 "too few elements reserved for list"
+		 " pointer" );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
@@ -3704,7 +3731,9 @@ void min::insert_before
     unsptr aux_offset = lp.aux_offset;
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
-                 == min::total_size_of ( lp.vecp ) );
+                 == min::total_size_of ( lp.vecp ),
+		 "list pointer not up to date"
+		 " (refreshed)" );
 
     MUP::acc_write_update
             ( MUP::stub_of ( lp.vecp ), p, n );
@@ -3838,7 +3867,12 @@ void min::insert_before
 	MIN_ASSERT (      unused_offset
 			+ n + ( ! contiguous )
 			+ previous_is_list_head
-		     <= aux_offset );
+		     <= aux_offset,
+		     "too little space in object;"
+		     " space reserved for this list"
+		     " pointer must have been consumed"
+		     " using a different list"
+		     " pointer" );
 
 #	if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
@@ -3944,7 +3978,9 @@ void min::insert_before
 		end = MUP::new_control_with_type
 		   ( 0, lp.current_stub,
 		     MUP::STUB_PTR );
-		MIN_ASSERT ( previous );
+		MIN_ASSERT ( previous,
+		             "system programming"
+			     " error" );
 	    }
 	    else if ( ! previous )
 	    {
@@ -4014,7 +4050,9 @@ void min::insert_before
 	    }
 	    else
 	    {
-	        MIN_ASSERT ( lp.current_index != 0 );
+	        MIN_ASSERT ( lp.current_index != 0,
+		             "system programming"
+			     " error" );
 
 		lp.base[lp.current_index] =
 		    min::new_stub_gen ( first );
@@ -4032,7 +4070,12 @@ void min::insert_before
 
     MIN_ASSERT (      unused_offset
 		    + n + 1 + ( ! previous )
-		 <= aux_offset );
+		 <= aux_offset,
+		 "too little space in object;"
+		 " space reserved for this list"
+		 " pointer must have been consumed"
+		 " using a different list"
+		 " pointer" );
 
     unsptr first = aux_offset - 1;
     unsptr aux_first = total_size - first;
@@ -4043,7 +4086,8 @@ void min::insert_before
 #   if MIN_USE_OBJ_AUX_STUBS
 	if ( lp.current_stub != NULL )
 	{
-	    MIN_ASSERT ( previous );
+	    MIN_ASSERT ( previous,
+	                 "system programming error" );
 	    lp.base[-- aux_offset] =
 		min::new_stub_gen ( lp.current_stub );
 	    MUP::set_type_of
@@ -4111,7 +4155,8 @@ void min::insert_before
     }
     else
     {
-	MIN_ASSERT ( lp.current_index != 0 );
+	MIN_ASSERT ( lp.current_index != 0,
+	             "system programming error" );
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( aux_first );
 	lp.previous_index = lp.current_index;
@@ -4139,11 +4184,18 @@ void min::insert_after
     unsptr aux_offset = lp.aux_offset;
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
-                 == min::total_size_of ( lp.vecp ) );
+                 == min::total_size_of ( lp.vecp ),
+		 "list pointer is not up to date"
+		 " (refreshed)" );
 
-    MIN_ASSERT ( lp.reserved_insertions >= 1 );
-    MIN_ASSERT ( lp.reserved_elements >= n );
-    MIN_ASSERT ( lp.current != min::LIST_END() );
+    MIN_ASSERT ( lp.reserved_insertions >= 1,
+                 "no insertions reserved for list"
+		 " pointer" );
+    MIN_ASSERT ( lp.reserved_elements >= n,
+                 "too few elements reserved for list"
+		 " pointer" );
+    MIN_ASSERT ( lp.current != min::LIST_END(),
+                 "list pointer is at end of list" );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
@@ -4252,7 +4304,9 @@ void min::insert_after
 		// has been moved to stub s and current
 		// aux element is used to point at s.
 		//
-		MIN_ASSERT ( lp.current_index != 0 );
+		MIN_ASSERT ( lp.current_index != 0,
+		             "system programming"
+			     " error" );
 
 		MUP::set_control_of
 		    ( s,
@@ -4273,14 +4327,20 @@ void min::insert_after
 
     MIN_ASSERT (      unused_offset
 		    + ( n + 1 + ! previous )
-		 <= aux_offset );
+		 <= aux_offset,
+		 "too little space in object;"
+		 " space reserved for this list"
+		 " pointer must have been consumed"
+		 " using a different list"
+		 " pointer" );
 
     unsptr first = aux_offset - 1;
 
 #   if MIN_USE_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
-	MIN_ASSERT ( previous );
+	MIN_ASSERT ( previous,
+	             "system programming error" );
 	while ( n -- )
 	    lp.base[-- aux_offset] = * p ++;
 	uns64 c =
@@ -4363,7 +4423,8 @@ void min::insert_after
 	// element as pointer to copy of current
 	// element.
 	//
-	MIN_ASSERT ( lp.current_index != 0 );
+	MIN_ASSERT ( lp.current_index != 0,
+	             "system programming error" );
 
 	lp.base[-- aux_offset] = * p ++;
 	unsptr next = lp.current_index;
@@ -4405,7 +4466,9 @@ min::unsptr min::remove
 
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
-                 == min::total_size_of ( lp.vecp ) );
+                 == min::total_size_of ( lp.vecp ),
+		 "list pointer is not up to date"
+		 " (refreshed)" );
 
     if ( lp.current_index != 0
          &&
@@ -4456,7 +4519,8 @@ min::unsptr min::remove
 	    else
 #       endif
 	{
-	    MIN_ASSERT ( lp.current_index != 0 );
+	    MIN_ASSERT ( lp.current_index != 0,
+	                 "system programming error" );
 	    unsptr index = lp.current_index;
 	    next ( lp );
 	    lp.base[index] = min::NONE();
@@ -4520,7 +4584,9 @@ min::unsptr min::remove
 	    }
 	    else
 	    {
-	        MIN_ASSERT ( lp.current_index != 0 );
+	        MIN_ASSERT ( lp.current_index != 0,
+		             "system programming"
+			     " error" );
 
 	        if ( previous_is_sublist_head )
 		    MUP::set_gen_of
@@ -4593,7 +4659,8 @@ min::unsptr min::remove
 	}
 	else
 	{
-	    MIN_ASSERT ( lp.current_index != 0 );
+	    MIN_ASSERT ( lp.current_index != 0,
+	                 "system programming error" );
 
 	    if ( previous_is_sublist_head )
 		lp.base[previous_index] =
@@ -4619,7 +4686,8 @@ min::unsptr min::remove
 	// element cannot be the first element of
 	// a sublist or a list head.
 
-	MIN_ASSERT ( current_index != 0 );
+	MIN_ASSERT ( current_index != 0,
+	             "system programming error" );
 
 #       if MIN_USE_OBJ_AUX_STUBS
 	    lp.previous_stub = NULL;
@@ -4643,7 +4711,8 @@ min::unsptr min::remove
 	else
 	{
 	    MIN_ASSERT
-	        ( current_index != lp.head_index );
+	        ( current_index != lp.head_index,
+		  "system programming error" );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
 		    ( total_size - lp.current_index );
@@ -4892,11 +4961,13 @@ min::unsptr min::hash_count_of
 	    {
 	    	s = MUP::stub_of ( v );
 		MIN_ASSERT
-		    ( MUP::type_of ( s ) == LIST_AUX );
+		    ( MUP::type_of ( s ) == LIST_AUX,
+		      "system programming error" );
 	    }
 	    else
 #       endif
-	MIN_ASSERT ( is_list_aux ( v ) );
+	MIN_ASSERT ( is_list_aux ( v ),
+		     "system programming error" );
 	    
 	bool label_is_next = true;
 	FORLIST(vp,index2,s,v2,false)
@@ -4907,7 +4978,8 @@ min::unsptr min::hash_count_of
 	    }
 	    else label_is_next = true;
 	ENDFORLIST
-	MIN_ASSERT ( label_is_next );
+	MIN_ASSERT ( label_is_next,
+	             "system programming error" );
     }
 
     return count;
@@ -5062,7 +5134,8 @@ inline void copy_hash_to_work
 	    }
 	    else label_is_next = true;
 	ENDFORLIST
-	MIN_ASSERT ( label_is_next );
+	MIN_ASSERT ( label_is_next,
+	             "system programming error" );
     }
 
     // Now allocate new hash table lists, with the
@@ -5134,7 +5207,8 @@ inline void copy_hash_to_work
 		label_is_next = true;
 	    }
 	ENDFORLIST
-	MIN_ASSERT ( label_is_next );
+	MIN_ASSERT ( label_is_next,
+	             "system programming error" );
     }
 }
 
@@ -5356,12 +5430,15 @@ void min::compact
 	if ( is_label )
 	{
 	    len = min::lablen ( name );
-	    MIN_ASSERT ( len > 0 );
+	    MIN_ASSERT ( len > 0,
+	                 "name argument is zero length"
+			 " label" );
 	}
 	else
 	{
 	    MIN_ASSERT
-		( is_str ( name ) || is_num ( name ) );
+		( is_str ( name ) || is_num ( name ),
+		  "name argument is not a name" );
 	    len = 1;
 	}
 	min::gen element[len];
@@ -5418,7 +5495,9 @@ void min::compact
 		if ( c == element[0] )
 		{
 		    c = next ( ap.dlp );
-		    MIN_ASSERT ( ! is_list_end ( c ) );
+		    MIN_ASSERT ( ! is_list_end ( c ),
+		                 "system programming"
+				 " error" );
 		    break;
 		}
 	    }
@@ -5477,7 +5556,9 @@ void min::compact
 		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.lp );
-		    MIN_ASSERT ( ! is_list_end ( c ) );
+		    MIN_ASSERT ( ! is_list_end ( c ),
+		                 "system programming"
+				 " error" );
 		    break;
 		}
 	    }
@@ -5536,7 +5617,8 @@ void min::compact
     {
 	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
-	MIN_ASSERT ( ap.length > 0 );
+	MIN_ASSERT ( ap.length > 0,
+	             "system programming error" );
 
 	bool is_label = is_lab ( ap.attr_name );
 	unsptr len;
@@ -5559,13 +5641,16 @@ void min::compact
 		if ( c == element[0] )
 		{
 		    c = next ( ap.locate_dlp );
-		    MIN_ASSERT ( ! is_list_end ( c ) );
+		    MIN_ASSERT ( ! is_list_end ( c ),
+		                 "system programming"
+				 " error" );
 		    break;
 		}
 	    }
 	}
 
-	MIN_ASSERT ( ap.length <= len );
+	MIN_ASSERT ( ap.length <= len,
+	             "system programming error" );
 	unsptr length = 1;
 	start_copy ( ap.dlp, ap.locate_dlp );
 	while ( length < ap.length )
@@ -5590,7 +5675,9 @@ void min::compact
 		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.dlp );
-		    MIN_ASSERT ( ! is_list_end ( c ) );
+		    MIN_ASSERT ( ! is_list_end ( c ),
+		                 "system programming"
+				 " error" );
 		    break;
 		}
 	    }
@@ -5600,7 +5687,8 @@ void min::compact
 	    ++ length;
 	}
 
-	MIN_ASSERT ( length == ap.length );
+	MIN_ASSERT ( length == ap.length,
+	             "system programming error" );
     }
     template void MINT::relocate
 	    ( min::attr_ptr & ap );
@@ -5616,7 +5704,8 @@ void min::compact
 	typedef min::attr_insptr ap_type;
 
 	MIN_ASSERT
-	    ( ap.state == ap_type::LOCATE_FAIL );
+	    ( ap.state == ap_type::LOCATE_FAIL,
+	      "system programming error" );
 
 	bool is_label = is_lab ( ap.attr_name );
 	unsptr len;
@@ -5629,7 +5718,8 @@ void min::compact
 	    labncpy ( element, ap.attr_name, len );
 	else element[0] = ap.attr_name;
 
-	MIN_ASSERT ( ap.length < len );
+	MIN_ASSERT ( ap.length < len,
+	             "system programming error" );
 
 	update_refresh ( ap.locate_dlp );
 	if ( insert_reserve
@@ -5755,7 +5845,8 @@ void min::compact
 	}
 	else
 	    MIN_ASSERT
-		( is_str ( name ) || is_num ( name ) );
+		( is_str ( name ) || is_num ( name ),
+		  "name argument is not a name" );
 
 	ap.attr_name = name;
 
@@ -5803,7 +5894,9 @@ void min::compact
 	    if ( c == name )
 	    {
 		c = next ( ap.locate_dlp );
-		MIN_ASSERT ( ! is_list_end ( c ) );
+		MIN_ASSERT ( ! is_list_end ( c ),
+		             "system programming"
+			     " error" );
 		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.flags = 0;
 		ap.state = ap_type::LOCATE_NONE;
@@ -5845,7 +5938,9 @@ void min::compact
 	    if ( c == ap.attr_name )
 	    {
 		c = next ( ap.locate_dlp );
-		MIN_ASSERT ( ! is_list_end ( c ) );
+		MIN_ASSERT ( ! is_list_end ( c ),
+		             "system programming"
+			     " error" );
 		return;
 	    }
 	}
@@ -5867,13 +5962,15 @@ void min::compact
 	typedef min::attr_insptr ap_type;
 
 	MIN_ASSERT
-	    ( ap.state == ap_type::LOCATE_FAIL );
+	    ( ap.state == ap_type::LOCATE_FAIL,
+	      "system programming error" );
 
 	if ( ap.flags & ap_type::IN_VECTOR )
 	{
 	    start_vector ( ap.locate_dlp, ap.index );
 	    min::gen c = current ( ap.locate_dlp );
-	    MIN_ASSERT ( is_list_end ( c ) );
+	    MIN_ASSERT ( is_list_end ( c ),
+			 "system programming error" );
 	    if ( insert_reserve
 	             ( ap.locate_dlp, 1, 1 ) )
 	    {
@@ -5920,7 +6017,8 @@ void MINT::reverse_attr_create
     typedef min::attr_insptr ap_type;
 
     MIN_ASSERT
-	( ap.state == ap_type::REVERSE_LOCATE_FAIL );
+	( ap.state == ap_type::REVERSE_LOCATE_FAIL,
+	  "system programming error" );
 
     update_refresh ( ap.locate_dlp );
     start_copy ( ap.dlp, ap.locate_dlp );
@@ -6101,7 +6199,8 @@ void min::locate_reverse
 	if ( c == reverse_name )
 	{
 	    c = next ( ap.dlp );
-	    MIN_ASSERT ( ! is_list_end ( c ) );
+	    MIN_ASSERT ( ! is_list_end ( c ),
+	                 "system programming error" );
 	    ap.state =
 		ap_type::REVERSE_LOCATE_SUCCEED;
 	    return;
@@ -6191,7 +6290,8 @@ void min::relocate
 	if ( c == ap.reverse_attr_name )
 	{
 	    c = next ( ap.dlp );
-	    MIN_ASSERT ( ! is_list_end ( c ) );
+	    MIN_ASSERT ( ! is_list_end ( c ),
+	                 "system programming error" );
 	    return;
 	}
     }
@@ -6804,12 +6904,14 @@ void MINT::remove_reverse_attr_value
     min::locate_reverse ( rap, ap.attr_name );
     MIN_ASSERT
         (    rap.state
-	  == ap_type::REVERSE_LOCATE_SUCCEED );
+	  == ap_type::REVERSE_LOCATE_SUCCEED,
+	  "system programming error" );
 
     min::gen c = current ( rap.dlp );
     if ( ! is_sublist ( c ) )
     {
-        MIN_ASSERT ( c == v );
+        MIN_ASSERT ( c == v,
+	             "system programming error" );
 	min::update ( rap, min::EMPTY_SUBLIST() );
 	return;
     }
@@ -6818,7 +6920,8 @@ void MINT::remove_reverse_attr_value
           c != v && ! is_list_end ( c );
 	  c = next ( rap.dlp ) );
 
-    MIN_ASSERT ( c == v );
+    MIN_ASSERT ( c == v,
+                 "system programming error" );
     min::remove ( rap.dlp, 1 );
 }
     
@@ -6864,7 +6967,8 @@ void MINT::add_reverse_attr_value
     }
     MIN_ASSERT
         (    rap.state
-	  == ap_type::REVERSE_LOCATE_SUCCEED );
+	  == ap_type::REVERSE_LOCATE_SUCCEED,
+	  "system programming error" );
 
     min::gen c = current ( rap.dlp );
     if ( ! is_sublist ( c ) )
@@ -7441,7 +7545,9 @@ void MINT::set_flags
     typedef min::attr_insptr ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
-        MIN_ASSERT ( is_control_code ( in[i] ) );
+        MIN_ASSERT ( is_control_code ( in[i] ),
+	             "vector argument element is not"
+		     " control code" );
 
     switch ( ap.state )
     {
@@ -7492,7 +7598,8 @@ void MINT::set_flags
 	    else
 		update ( ap.lp, zero_cc );
 	}
-	MIN_ASSERT ( c == min::LIST_END() );
+	MIN_ASSERT ( c == min::LIST_END(),
+	             "system programming error" );
 
 	if ( n > 0 )
 	{
@@ -7515,7 +7622,9 @@ void MINT::set_more_flags
 	  const min::gen * in, unsigned n )
 {
     for ( unsigned i = 0; i < n; ++ i )
-        MIN_ASSERT ( is_control_code ( in[i] ) );
+        MIN_ASSERT ( is_control_code ( in[i] ),
+	             "vector argument element is not"
+		     " control code" );
 
     if ( insert_reserve ( ap.lp, 1, n ) )
     {
@@ -10381,7 +10490,8 @@ min::printer min::print_obj
 		else
 		    min::print_spaces ( printer, 1 );
 		min::print_gen
-		    ( printer, vp[i], objf->quote_format );
+		    ( printer,
+		      vp[i], objf->quote_format );
 	    }
 	    return printer;
 	}
