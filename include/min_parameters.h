@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 07:40:18 EST 2015
+// Date:	Thu Jan  8 12:15:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -71,14 +71,14 @@ namespace min {
 	    ( (expression), \
 	      #expression, \
 	      __FILE__, __LINE__, \
-	      __func__, \
+	      __PRETTY_FUNCTION__, \
 	      __VA_ARGS__ ) )
 # define MIN_ASSERT_CALL_ALWAYS(expression,...) \
     ( ( * min::assert_hook ) \
 	    ( (expression), \
 	      #expression, \
 	      __FILE__, __LINE__, \
-	      __func__, \
+	      __PRETTY_FUNCTION__, \
 	      __VA_ARGS__ ) )
 # define MIN_ASSERT_CALL_NEVER(expression,...)
 # define MIN_REQUIRE(expression) \
@@ -87,21 +87,21 @@ namespace min {
 	    ( (expression), \
 	      #expression, \
 	      __FILE__, __LINE__, \
-	      __func__, \
+	      __PRETTY_FUNCTION__, \
 	      NULL ) )
 # define MIN_CHECK(expression) \
     ( ( * min::assert_hook ) \
 	    ( (expression), \
 	      #expression, \
 	      __FILE__, __LINE__, \
-	      __func__, \
+	      NULL, \
 	      NULL ) )
 # define MIN_ABORT(...) \
     ( ( * min::assert_hook ) \
 	    ( false, \
 	      NULL, \
 	      __FILE__, __LINE__, \
-	      __func__, \
+	      __PRETTY_FUNCTION__, \
 	      __VA_ARGS__ ) )
 
 # ifndef MIN_ASSERT
