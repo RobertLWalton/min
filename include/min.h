@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 06:43:08 EST 2015
+// Date:	Sat Jan 10 06:05:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,7 +68,6 @@
 # include <iostream>
 # include <climits>
 # include <cstring>
-# include <cassert>
 # include <new>
 
 namespace min { namespace internal {
@@ -78,7 +77,7 @@ namespace min { namespace internal {
     //
     inline unsigned log2ceil ( unsigned u )
     {
-        assert ( u != 0 );
+        MIN_ASSERT ( u != 0, "argument is zero" );
         return u == 1 ? 0
 	              : 1 + log2floor ( u - 1 );
     }
@@ -1563,14 +1562,13 @@ namespace min {
 	initializer ( void (*init) ( void ) )
 	    : init ( init )
 	{
-	    assert ( previous == NULL );
 	    previous = internal::last_initializer;
 	    internal::last_initializer = this;
 	}
 	~ initializer ( void )
 	{
-	    assert (    internal::last_initializer
-	             == this );
+	    MIN_REQUIRE (    internal::last_initializer
+	                  == this );
 	    internal::last_initializer = previous;
 	}
     };
@@ -3155,7 +3153,7 @@ namespace min {
 	    ( min::locatable_var<T> * var,
 	      min::locatable_var<T> * previous )
 	{
-	    assert
+	    MIN_REQUIRE
 		(    locatable_stub_ptr_last
 		  == (min::locatable_stub_ptr *) var );
 
@@ -3167,7 +3165,7 @@ namespace min {
 		( min::locatable_gen * var,
 		  min::locatable_gen * previous )
 	{
-	    assert
+	    MIN_REQUIRE
 		(    locatable_gen_last
 		  == (min::locatable_gen *) var );
 
@@ -3559,11 +3557,7 @@ namespace min {
 		return unprotected::
 		       direct_int_of ( g );
 	    else
-	    {
 		MIN_ABORT ( "int_of non number" );
-		return 0;
-		    // Suppresses compiler warning.
-	    }
 	}
 	namespace unprotected {
 	    inline float64 float_of ( min::gen g )
@@ -3592,11 +3586,7 @@ namespace min {
 		return unprotected::
 		       direct_int_of ( g );
 	    else
-	    {
 		MIN_ABORT ( "float_of non number" );
-		return 0;
-		    // Suppresses compiler warning.
-	    }
 	}
 #   elif MIN_IS_LOOSE
 	inline bool is_num ( min::gen g )
@@ -5650,7 +5640,8 @@ namespace min {
     inline E pop
 	( typename min::packed_vec_insptr<E,H,L> pvip )
     {
-	assert ( pvip->length > 0 );
+	MIN_ASSERT ( pvip->length > 0,
+	             "vector is empty" );
 	-- * (L *) & pvip->length;
 	return * end_ptr_of ( pvip );
     }
@@ -5659,7 +5650,9 @@ namespace min {
 	( typename min::packed_vec_insptr<E,H,L> pvip,
 	  min::unsptr n, E * vp = NULL )
     {
-	assert ( pvip->length >= n );
+	MIN_ASSERT ( pvip->length >= n,
+	             "second argument too large:"
+		     " vector has too few elements" );
 	* (L *) & pvip->length -= n;
 	if ( vp )
 	    memcpy ( vp,
@@ -8063,7 +8056,7 @@ namespace min { namespace unprotected {
 	    // decrement reserved_elements once for
 	    // each element inserted.  These counters
 	    // must never become less than 0 (else
-	    // assert violation).
+	    // MIN_ASSERT violation).
 
 	min::unsptr hash_offset;
 	min::unsptr aux_offset;
@@ -8883,7 +8876,9 @@ namespace min {
 	}
 	else
 	{
-	    assert ( lp.current_index > lp.aux_offset );
+	    MIN_ASSERT
+	        ( lp.current_index > lp.aux_offset,
+		  "system programming error" );
 	    return lp.forward ( lp.current_index - 1 );
 	}
     }
@@ -8953,7 +8948,9 @@ namespace min {
 	}
 	else
 	{
-	    assert ( lp.current_index > lp.aux_offset );
+	    MIN_ASSERT
+	        ( lp.current_index > lp.aux_offset,
+		  "system programming error" );
 	    return lp.forward ( lp.current_index - 1 );
 	}
     }
@@ -9005,7 +9002,8 @@ namespace min {
 	else
 	{
 	    unsptr index = lp.current_index;
-	    assert ( index > lp.aux_offset );
+	    MIN_ASSERT ( index > lp.aux_offset,
+	                 "system programming error" );
 	    -- index;
 	    min::gen c = lp.base[index];
 
@@ -9039,8 +9037,6 @@ namespace min {
 		return c;
         }
 	MIN_ABORT ( "control should never reach here" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -9072,8 +9068,6 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -9121,8 +9115,6 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     }
 
     template <>
@@ -9177,8 +9169,6 @@ namespace min {
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     }
 
     template < class vecptr >
@@ -9222,9 +9212,7 @@ namespace min {
 	    lp.current =
 	        lp.base[lp.current_index] = value;
 	else
-	{
 	    MIN_ABORT ( "inconsistent list pointer" );
-	}
     }
     template <>
     inline void update
@@ -9257,9 +9245,7 @@ namespace min {
 	    lp.current =
 	        lp.base[lp.current_index] = value;
 	else
-	{
 	    MIN_ABORT ( "inconsistent list pointer" );
-	}
     }
 
     inline bool insert_reserve
@@ -11981,7 +11967,8 @@ namespace min {
             ( min::printer printer, min::gen v,
 	      const min::gen_format * f )
     {
-        assert ( f != NULL );
+        MIN_ASSERT ( f != NULL,
+	             "second argument is NULL" );
         return ( * f->pgen ) ( printer, v, f );
     }
 

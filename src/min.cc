@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 05:39:41 EST 2015
+// Date:	Sat Jan 10 03:28:37 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -46,6 +46,8 @@
 
 # define ERR min::init ( min::error_message ) \
     << min::set_indent ( 7 ) << "ERROR: "
+
+void min::no_return ( void ) { abort(); }
 
 // For debugging.
 //
@@ -186,9 +188,9 @@ static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
 
 #define PTR_CHECK(...) \
-    assert (    sizeof ( __VA_ARGS__ ) \
-             == sizeof ( min::stub * ) ); \
-    assert ( ( __VA_ARGS__::DISP() == 0 ) );
+    MIN_REQUIRE (    sizeof ( __VA_ARGS__ ) \
+                  == sizeof ( min::stub * ) ); \
+    MIN_REQUIRE ( ( __VA_ARGS__::DISP() == 0 ) );
 
 static void init_standard_char_flags ( void );
 static void init_pgen_formats ( void );
@@ -221,24 +223,24 @@ void MINT::initialize ( void )
     type_name[HASHTABLE_AUX] = "HASHTABLE_AUX";
     type_name[RELOCATE_BODY] = "RELOCATE_BODY";
 
-    assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
-    assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
-    assert
+    MIN_REQUIRE ( sizeof ( MIN_INT32_TYPE ) == 4 );
+    MIN_REQUIRE ( sizeof ( MIN_INT64_TYPE ) == 8 );
+    MIN_REQUIRE
         ( sizeof ( void * ) == MIN_PTR_BITS / 8 );
 
-    assert
+    MIN_REQUIRE
       ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
 
-    assert
+    MIN_REQUIRE
       (     sizeof ( MINT::tiny_obj )
          == MINT::obj_header_size ( TINY_OBJ ) );
-    assert
+    MIN_REQUIRE
       (     sizeof ( MINT::short_obj )
          == MINT::obj_header_size ( SHORT_OBJ ) );
-    assert
+    MIN_REQUIRE
       (     sizeof ( MINT::long_obj )
          == MINT::obj_header_size ( LONG_OBJ ) );
-    assert
+    MIN_REQUIRE
       (     sizeof ( MINT::huge_obj )
          == MINT::obj_header_size ( HUGE_OBJ ) );
 
@@ -246,8 +248,9 @@ void MINT::initialize ( void )
     char * up = (char *) & u;
     bool big_endian = ( up[3] == 1 );
     bool little_endian = ( up[0] == 1 );
-    assert ( MIN_IS_BIG_ENDIAN == big_endian );
-    assert ( MIN_IS_LITTLE_ENDIAN == little_endian );
+    MIN_REQUIRE ( MIN_IS_BIG_ENDIAN == big_endian );
+    MIN_REQUIRE
+        ( MIN_IS_LITTLE_ENDIAN == little_endian );
 
 #   if MIN_IS_LOOSE 
 
@@ -256,7 +259,7 @@ void MINT::initialize ( void )
 	min::gen missing = MISSING();
 	float64 v = * (float64 *) & missing;
 
-	assert ( isnan ( v ) );
+	MIN_REQUIRE ( isnan ( v ) );
 
 	// Attemps to get any kind of NaN to raise an
 	// exception failed, so we cannot test for that.
@@ -267,19 +270,19 @@ void MINT::initialize ( void )
 
 	float64 v2 = v + 1.0;
 
-	assert ( isnan ( v2 ) );
+	MIN_REQUIRE ( isnan ( v2 ) );
 	uns16 * vp = (uns16 *) & v;
 	uns16 * v2p = (uns16 *) & v2;
-	assert ( vp[3*little_endian]
-		 !=
-		 v2p[3*little_endian] );
+	MIN_REQUIRE ( vp[3*little_endian]
+		      !=
+		      v2p[3*little_endian] );
 
 	v2 = 0.0;
 	v2 = v2 / v2;
-	assert ( isnan ( v2 ) );
-	assert ( vp[3*little_endian]
-		 !=
-		 v2p[3*little_endian] );
+	MIN_REQUIRE ( isnan ( v2 ) );
+	MIN_REQUIRE ( vp[3*little_endian]
+		      !=
+		      v2p[3*little_endian] );
 #   endif
 
     for ( unsigned j = 0;
@@ -398,12 +401,8 @@ min::uns32 min::hash ( min::gen g )
     else if ( is_lab ( g ) )
         return labhash ( g );
     else
-    {
 	MIN_ABORT ( "argument to min::hash"
 	            " is not a name" );
-	return 0;
-	    // Suppresses compiler warning;
-    }
 
 }
 
@@ -643,13 +642,13 @@ static void packed_struct_scavenger_routine
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 subtype = * (min::uns32 *) beginp;
     subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( subtype < MINT::packed_subtype_count,
-                 "system programming error" );
+    MIN_REQUIRE
+        ( subtype < MINT::packed_subtype_count );
     MINT::packed_struct_descriptor * psd =
         (MINT::packed_struct_descriptor *)
         (*MINT::packed_subtypes)[subtype];
 
-    assert ( sc.state < (1ull << 32 ) );
+    MIN_REQUIRE ( sc.state < (1ull << 32 ) );
     min::uns32 i = (min::uns32) sc.state >> 2;
     min::uns64 accumulator = sc.stub_flag_accumulator;
 
@@ -657,7 +656,7 @@ static void packed_struct_scavenger_routine
          && psd->gen_disp != NULL )
 	while ( true )
     {
-	assert ( i < (1<<30) );
+	MIN_REQUIRE ( i < (1<<30) );
 
         min::uns32 d = psd->gen_disp[i];
 	if ( d == min::DISP_END )
@@ -690,7 +689,7 @@ static void packed_struct_scavenger_routine
     if ( psd->stub_disp != NULL )
         while ( true )
     {
-	assert ( i < (1<<30) );
+	MIN_REQUIRE ( i < (1<<30) );
 
         min::uns32 d = psd->stub_disp[i];
 	if ( d == min::DISP_END ) break;
@@ -771,7 +770,7 @@ static void packed_vec_scavenger_routine
 	if ( ( sc.state & 1 ) == 0 && gen_disp != NULL )
 	    while ( true )
 	{
-	    assert ( i < (1<<30) );
+	    MIN_REQUIRE ( i < (1<<30) );
 
 	    min::uns32 d = gen_disp[i];
 	    if ( d == min::DISP_END )
@@ -806,7 +805,7 @@ static void packed_vec_scavenger_routine
 	if ( stub_disp != NULL )
 	    while ( true )
 	{
-	    assert ( i < (1<<30) );
+	    MIN_REQUIRE ( i < (1<<30) );
 
 	    min::uns32 d = stub_disp[i];
 	    if ( d == min::DISP_END )
@@ -1086,7 +1085,7 @@ min::unsptr min::unicode_to_utf8
 	    char * b = buffer;
 	    min::unsptr len =
 	        unicode_to_utf8 ( b, * u );
-	    assert ( len <= 7 );
+	    MIN_REQUIRE ( len <= 7 );
 	    if ( s + len > ends ) break;
 	    std::strncpy ( s, buffer, len );
 	    s += len;
@@ -2116,7 +2115,9 @@ void min::load_string
 
     uns64 length = ::strlen ( ! string );
     uns32 offset = file->buffer->length;
-    assert ( length <= ( 1ull << 32 ) - 1 - offset );
+    MIN_ASSERT ( length <= ( 1ull << 32 ) - 1 - offset,
+                 "string is too long or file buffer"
+		 " is too full" );
 
     min::push ( file->buffer, length, string );
 
@@ -2264,7 +2265,10 @@ min::uns32 min::next_line ( min::file file )
 	//
 	if ( file->istream != NULL )
 	{
-	    assert ( file->ifile == NULL_STUB );
+	    MIN_ASSERT
+	        ( file->ifile == NULL_STUB,
+		  "file has non-NULL istream and ifile"
+		  " members" );
 
 	    int c;
 	    while ( c = file->istream->get(),
@@ -2460,13 +2464,17 @@ min::uns32 min::print_line
 		    ( printer->print_format
 		              .char_name_format
 			     ->char_name_prefix );
-	    assert ( prefix_columns > 0 );
+	    MIN_ASSERT ( prefix_columns > 0,
+	                 "char_name_prefix"
+			 " ustring_columns is zero" );
 	    min::uns32 postfix_columns =
 		min::ustring_columns
 		    ( printer->print_format
 		              .char_name_format
 			     ->char_name_postfix );
-	    assert ( postfix_columns > 0 );
+	    MIN_ASSERT ( postfix_columns > 0,
+	                 "char_name_postfix"
+			 " ustring_columns is zero" );
 	    width +=
 	        (   line_display
 		  & min::DISPLAY_PICTURE ?  1 :
@@ -2532,7 +2540,8 @@ void min::print_phrase_lines
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
-    assert ( position.end.line >= position.begin.line );
+    MIN_REQUIRE
+        ( position.end.line >= position.begin.line );
 
     min::position begin = position.begin;
     min::position end   = position.end;
@@ -2630,7 +2639,9 @@ void min::flush_file
 void min::flush_line
 	( min::file file, min::uns32 offset )
 {
-    assert ( offset < file->end_offset );
+    MIN_ASSERT ( offset < file->end_offset,
+                 "offset argument too large: at or"
+		 " beyond end of file" );
 
     if ( file->ostream != NULL )
         * file->ostream << ! ( file->buffer + offset )
@@ -2692,11 +2703,13 @@ void min::flush_spool
     if ( line_number == NO_LINE )
         line_number = file->next_line_number;
     else
-        assert (    line_number
-	         <= file->next_line_number );
+        MIN_ASSERT (    line_number
+	             <= file->next_line_number,
+		     "line_number argument too large:"
+		     " beyond file next_line_number" );
 
-    assert (    file->next_line_number
-	     >= file->line_index->length );
+    MIN_REQUIRE (    file->next_line_number
+	          >= file->line_index->length );
     uns32 first_spool_line_number =
           file->next_line_number
 	- file->line_index->length;
@@ -2711,8 +2724,8 @@ void min::flush_spool
     uns32 lines_to_delete =
           spool_lines_before_line_number
 	- file->spool_lines;
-    assert (   lines_to_delete
-             < file->line_index->length );
+    MIN_REQUIRE (   lines_to_delete
+                  < file->line_index->length );
 
     uns32 buffer_offset =
 	file->line_index[lines_to_delete];
@@ -2744,12 +2757,16 @@ void min::rewind
 
     if ( line_offset != min::NO_LINE )
     {
-	assert ( file->line_index != NULL_STUB );
-	assert ( line_number < file->next_line_number );
+	MIN_ASSERT ( file->line_index != NULL_STUB,
+	             "file has no line_index" );
+	MIN_ASSERT
+	    ( line_number < file->next_line_number,
+	      "line_number argument too large:"
+	      " at or beyond file next_line_number" );
 	min::uns32 lines_to_back_up =
 	    file->next_line_number - line_number;
-	assert (    file->line_index->length
-		 >= lines_to_back_up );
+	MIN_REQUIRE (    file->line_index->length
+		      >= lines_to_back_up );
 	file->next_offset = line_offset;
 	file->next_line_number = line_number;
 	min::pop ( file->line_index, lines_to_back_up );
@@ -2761,9 +2778,7 @@ void min::rewind
 	file->next_offset = 0;
     }
     else if ( file->next_line_number != line_number )
-    {
 	MIN_ABORT ( "bad rewind line_number" );
-    }
 }
 
 std::ostream & operator <<
@@ -2903,7 +2918,7 @@ inline L hash
 {
     min::packed_vec_insptr<min::uns32> hash_table =
         map->hash_table;
-    assert ( hash_table != min::NULL_STUB );
+    MIN_REQUIRE ( hash_table != min::NULL_STUB );
     min::uns64 h0 = ( s - ( const min::stub * ) 0 );
     h0 &= map->hash_mask;
     h0 *= map->hash_multiplier;
@@ -2924,8 +2939,9 @@ static void new_hash_table
     id_map_insptr map_insptr = (id_map_insptr) map;
 
     L length = map->occupied;
-    assert (   length
-	     < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
+    MIN_REQUIRE
+        (   length
+          < ( (L) 1 << ( 8 * sizeof ( L ) - 2 ) ) );
     length *= 4;
     if ( length < 128 ) length = 128;
 
@@ -3076,8 +3092,9 @@ inline void insert
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
-    assert ( id != 0 );
-    assert ( s != min::NULL_STUB );
+    MIN_ASSERT ( id != 0, "id argument is zero" );
+    MIN_ASSERT ( s != min::NULL_STUB,
+                 "stub argument is NULL_STUB" );
 
     if ( id >= map->length )
         min::push ( map_insptr, id + 1 - map->length );
@@ -3226,7 +3243,8 @@ void min::add
         internal::unicode_name_entry e = table[i];
 	if ( e.name == NULL ) break;
     }
-    assert ( j != length );
+    MIN_ASSERT ( j != length,
+                 "unicode name table too small" );
     internal::unicode_name_entry e;
     e.c = c;
     e.name = name;
@@ -3253,7 +3271,7 @@ min::Uchar min::find
 	     == 0 )
 	    return e.c;
     }
-    assert ( ! "unicode name table too small" );
+    MIN_ABORT ( "unicode name table too small" );
 }
 
 // Objects
@@ -4012,7 +4030,8 @@ void min::insert_before
 		}
 		else
 		{
-		    assert ( next >= lp.aux_offset );
+		    MIN_REQUIRE
+		        ( next >= lp.aux_offset );
 		    next = total_size - next;
 		}
 		MUP::set_control_of
@@ -4122,7 +4141,7 @@ void min::insert_before
 	}
 	if ( next != 0 )
 	{
-	    assert ( next >= lp.aux_offset );
+	    MIN_REQUIRE ( next >= lp.aux_offset );
 	    next = total_size - next;
 	}
         lp.base[-- aux_offset] =
@@ -6472,8 +6491,6 @@ min::unsptr MINT::get_flags
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::get_flags" );
-	return 0;
-	    // Suppresses compiler warning.
     }
 }
 template min::unsptr MINT::get_flags
@@ -6498,13 +6515,9 @@ bool MINT::test_flag
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::test_flag called before locate" );
-	return false;
-	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::test_flag" );
-	return false;
-	    // Suppresses compiler warning.
     }
 }
 template bool MINT::test_flag
@@ -6764,8 +6777,6 @@ min::unsptr min::get_reverse_attrs
 	MIN_ABORT
 	    ( "min::get_reverse_attrs called before"
 	      " locate" );
-	return 0;
-	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
         return m;
     }
@@ -6877,28 +6888,20 @@ min::gen MINT::update
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::update called before locate" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
 	MIN_ABORT
 	    ( "min::update called with no previous"
 	      " value" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     case ap_type::REVERSE_LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_SUCCEED:
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::update called with reverse name"
 	      " other than min::NONE()" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "min::update called with >= 2 previous"
 	      " values" );
-	return min::NONE();
-	    // Suppresses compiler warning.
     }
 }
 template min::gen MINT::update
@@ -7402,25 +7405,17 @@ min::unsptr min::remove_one
 	MIN_ABORT
 	    ( "min::remove_one called before"
 	      " locate" );
-	return 0;
-	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_one called after"
 		  " reverse locate of min::ANY()" );
-	return 0;
-	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_FAIL:
 	if ( ap.reverse_attr_name == min::ANY() )
-	{
 	    MIN_ABORT
 		( "min::remove_one called after"
 		  " reverse locate of min::ANY()" );
-	    return 0;
-		// Suppresses compiler warning.
-	}
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -7501,25 +7496,17 @@ min::unsptr min::remove_all
 	MIN_ABORT
 	    ( "min::remove_all called before"
 	      " locate" );
-	return 0;
-	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_all called after"
 		  " reverse locate of min::ANY()" );
-	return 0;
-	    // Suppresses compiler warning.
 
     case ap_type::LOCATE_FAIL:
 	if ( ap.reverse_attr_name == min::ANY() )
-	{
 	    MIN_ABORT
 		( "min::remove_all called after"
 		  " reverse locate of min::ANY()" );
-	    return 0;
-		// Suppresses compiler warning.
-        }
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -7741,8 +7728,6 @@ bool MINT::set_flag
     case ap_type::INIT:
 	MIN_ABORT
 	    ( "min::set_flag called before locate" );
-	return false;
-	    // Suppresses compiler warning.
     case ap_type::LOCATE_FAIL:
     	    MINT::attr_create
 	              ( ap, min::EMPTY_SUBLIST() );
@@ -7797,13 +7782,9 @@ bool MINT::clear_flag
 	MIN_ABORT
 	    ( "min::clear_flag called before"
 	      " locate" );
-	return false;
-	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::clear_flag" );
-	return false;
-	    // Suppresses compiler warning.
     }
     return false;
 }
@@ -7820,13 +7801,9 @@ bool MINT::flip_flag
 	MIN_ABORT
 	    ( "min::flip_flag called before"
 	      " locate" );
-	return false;
-	    // Suppresses compiler warning.
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::flip_flag" );
-	return false;
-	    // Suppresses compiler warning.
     }
     return false;
 }
@@ -8026,12 +8003,14 @@ static void end_line ( min::printer printer )
          & min::DISPLAY_EOL )
     {
         min::Uchar c = min::unicode::SOFTWARE_NL;
-	assert ( c < min::unicode::index_size );
+	MIN_REQUIRE ( c < min::unicode::index_size );
         min::uns16 cindex = min::unicode::index[c];
-	assert
-	    ( min::unicode::picture[cindex] != NULL );
-	assert
-	    ( min::unicode::name[cindex] != NULL );
+	MIN_ASSERT
+	    ( min::unicode::picture[cindex] != NULL,
+	     "SOFTWARE_NL has no unicode::picture" );
+	MIN_ASSERT
+	    ( min::unicode::name[cindex] != NULL,
+	     "SOFTWARE_NL has no unicode::name" );
 
 	if ( printer->print_format.op_flags
 	     &
@@ -8433,15 +8412,14 @@ min::printer operator <<
 	    static const min::uns32 * adr = NULL;
 	    if ( adr == NULL )
 	        adr = & printer->line_break.indent;
-	    assert
+	    MIN_REQUIRE
 	        ( adr == & printer->line_break.indent );
 	}
-	assert ( printer->line_break.indent < 1000 );
+	MIN_REQUIRE
+	    ( printer->line_break.indent < 1000 );
         return printer;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
-	return min::NULL_STUB;
-	    // Suppresses compiler warning.
     }
 }
 
@@ -8790,10 +8768,10 @@ min::printer MINT::print_unicode
 	    flags = 0; // Do NOT print space.
 	else if ( flags & cflags )
 	{
-	    assert (    min::IS_LEADING
-	             == min::AFTER_LEADING );
-	    assert (    min::IS_TRAILING
-	             == min::AFTER_TRAILING );
+	    MIN_REQUIRE (    min::IS_LEADING
+	                  == min::AFTER_LEADING );
+	    MIN_REQUIRE (    min::IS_TRAILING
+	                  == min::AFTER_TRAILING );
 
 	    flags &= (   min::IS_LEADING
 		       + min::IS_TRAILING );
@@ -8859,7 +8837,9 @@ min::printer MINT::print_unicode
 	    //
 	    columns = min::ustring_columns
 		         ( replacement );
-	    assert ( columns > 0 );
+	    MIN_ASSERT ( columns > 0,
+	                 "replacement ustring_column"
+			 " is zero" );
 	    length = 0;
 	    prefix = replacement;
 	    clength = substring_length;
@@ -8912,7 +8892,9 @@ min::printer MINT::print_unicode
 	        min::unicode::picture[cindex];
 	    length = min::ustring_length ( picture );
 	    columns = min::ustring_columns ( picture );
-	    assert ( columns > 0 );
+	    MIN_ASSERT ( columns > 0,
+	                 "picture ustring_columns"
+			 " is zero" );
 	    rep = min::ustring_chars ( picture );
 	}
 	else
@@ -8923,7 +8905,9 @@ min::printer MINT::print_unicode
 		    min::unicode::name[cindex];
 		length = min::ustring_length ( name );
 		columns = min::ustring_columns ( name );
-		assert ( columns > 0 );
+		MIN_ASSERT ( columns > 0,
+		             "name ustring_columns"
+			     " is zero" );
 		rep = min::ustring_chars ( name );
 	    }
 	    else
@@ -8942,10 +8926,14 @@ min::printer MINT::print_unicode
 			    ->char_name_postfix;
 	    min::uns32 prefix_columns =
 	        min::ustring_columns ( prefix );
-	    assert ( prefix_columns > 0 );
+	    MIN_ASSERT ( prefix_columns > 0,
+	                 "char_name_prefix"
+			 " ustring_columns is zero" );
 	    min::uns32 postfix_columns =
 	        min::ustring_columns ( postfix );
-	    assert ( postfix_columns > 0 );
+	    MIN_ASSERT ( postfix_columns > 0,
+	                 "char_name_postfix"
+			 " ustring_columns is zero" );
 	    columns += prefix_columns + postfix_columns;
 	}
 
@@ -9095,10 +9083,14 @@ static min::printer print_quoted_unicode
 
     min::uns32 prefix_columns =
         min::ustring_columns ( bf.str_prefix );
-    assert ( prefix_columns > 0 );
+    MIN_ASSERT ( prefix_columns > 0,
+                 "str_prefix ustring_columns"
+		 " is zero" );
     min::uns32 postfix_columns =
         min::ustring_columns ( bf.str_postfix );
-    assert ( postfix_columns > 0 );
+    MIN_ASSERT ( postfix_columns > 0,
+                 "str_postfix ustring_columns"
+		 " is zero" );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
@@ -9117,8 +9109,8 @@ static min::printer print_quoted_unicode
 	min::Uchar * q = postfix_string;
 	while ( p != endp )
 	    * q ++ = min::utf8_to_unicode ( p, endp );
-	assert (    q - postfix_string
-	         <= postfix_length + 1 );
+	MIN_REQUIRE (    q - postfix_string
+	              <= postfix_length + 1 );
 	postfix_length = q - postfix_string;
     }
 
@@ -9148,7 +9140,9 @@ static min::printer print_quoted_unicode
 	min::uns32 cat_columns =
 	      min::ustring_columns
 		  ( bf.str_concatenator );
-	assert ( cat_columns > 0 );
+	MIN_ASSERT ( cat_columns > 0,
+	             "str_concatenator ustring_columns"
+		     " is zero" );
 	width = reduced_width - 1 - cat_columns;
     }
     printer << min::pustring ( bf.str_postfix );
@@ -9368,7 +9362,9 @@ void min::pwidth ( min::uns32 & column,
 	        unicode::picture[cindex];
 	    min::uns32 picture_columns =
 	        ustring_columns ( picture );
-	    assert ( picture_columns > 0 );
+	    MIN_ASSERT ( picture_columns > 0,
+	                 "picture ustring_columns"
+			 " is zero" );
 	    column += picture_columns;
 	}
 	else
@@ -9379,7 +9375,9 @@ void min::pwidth ( min::uns32 & column,
 		    unicode::name[cindex];
 		min::uns32 name_columns =
 		    ustring_columns ( name );
-		assert ( name_columns > 0 );
+		MIN_ASSERT ( name_columns > 0,
+			     "name ustring_columns"
+			     " is zero" );
 		column += name_columns;
 	    }
 	    else
@@ -9392,12 +9390,16 @@ void min::pwidth ( min::uns32 & column,
 		min::ustring_columns
 		    ( print_format.char_name_format
 				 ->char_name_prefix );
-	    assert ( prefix_columns > 0 );
+	    MIN_ASSERT ( prefix_columns > 0,
+		         "char_name_prefix"
+			 " ustring_columns is zero" );
 	    min::uns32 postfix_columns =
 		min::ustring_columns
 		    ( print_format.char_name_format
 				 ->char_name_postfix );
-	    assert ( postfix_columns > 0 );
+	    MIN_ASSERT ( postfix_columns > 0,
+		         "char_name_postfix"
+			 " ustring_columns is zero" );
 
 	    column += prefix_columns + postfix_columns;
 	}
@@ -10352,7 +10354,7 @@ static bool print_attributes
 	    }
 	    else
 	    {
-	        assert ( rvc == 1 );
+	        MIN_REQUIRE ( rvc == 1 );
 		rvalue[0] = rinfo[j].value;
 	    }
 

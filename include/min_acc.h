@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 21 06:37:41 EST 2011
+// Date:	Sat Jan 10 06:12:04 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -998,7 +998,7 @@ namespace min { namespace acc {
 
 	min::stub * current ( void )
 	{
-	    assert ( ! is_at_end );
+	    MIN_REQUIRE ( ! is_at_end );
 	    return * input;
 	}
 
@@ -1051,7 +1051,7 @@ namespace min { namespace acc {
 	void remove_jump ( void );
 	void remove ( void )
 	{
-	    assert ( ! is_at_end );
+	    MIN_REQUIRE ( ! is_at_end );
 
 	    ++ out;
 	    if ( ++ input == input_segment->next )
@@ -1060,7 +1060,7 @@ namespace min { namespace acc {
 
 	void next ( void )
 	{
-	    assert ( ! is_at_end );
+	    MIN_REQUIRE ( ! is_at_end );
 
 	    if ( ++ input == input_segment->next )
 	    {
@@ -1080,7 +1080,7 @@ namespace min { namespace acc {
 
 	void keep ( void )
 	{
-	    assert ( ! is_at_end );
+	    MIN_REQUIRE ( ! is_at_end );
 
 	    min::stub * value = * input;
 

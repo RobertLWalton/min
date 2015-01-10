@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 01:52:08 EST 2015
+// Date:	Sat Jan 10 06:05:39 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -341,10 +341,11 @@ static void stub_allocator_initializer ( void )
 	    // ADDRESS is defined to be large enough
 	    // to accommodate stub vector.
 
-	    assert (   MIN_STUB_BASE
-	             + MACC::page_size * pages
-		     <=
-	             MIN_MAX_ABSOLUTE_STUB_ADDRESS );
+	    MIN_REQUIRE
+	        (   MIN_STUB_BASE
+	          + MACC::page_size * pages
+		  <=
+	          MIN_MAX_ABSOLUTE_STUB_ADDRESS );
 
 	    MOS::free_pool ( pages, stubs );
 
@@ -753,7 +754,7 @@ static void free_paged_block_region
 	     << "] )" << endl;
 
     min::uns64 length = MACC::size_of ( r );
-    assert ( length % MACC::page_size == 0 );
+    MIN_REQUIRE ( length % MACC::page_size == 0 );
     min::uns64 pages = length / MACC::page_size;
 
     MOS::free_pool ( pages, r->begin );
@@ -772,7 +773,8 @@ static void free_paged_block_region
     r->max_free_count = 0;
     r->last_free = NULL;
 
-    assert ( r->region_previous == r->region_next );
+    MIN_REQUIRE
+        ( r->region_previous == r->region_next );
 
     insert ( MACC::last_free_region, r );
 }
@@ -897,7 +899,7 @@ void MINT::new_fixed_body
 	}
 	else
 	{
-	    assert ( sr->next < sr->end );
+	    MIN_REQUIRE ( sr->next < sr->end );
 	    r = (MACC::region *) sr->next;
 	    sr->next += MACC::subregion_size;
 	}
@@ -931,8 +933,8 @@ void MINT::new_fixed_body
 	       -   ( MACC::subregion_size - s )
 	         % fbl->size;
 
-	assert ( r->end > r->begin );
-	assert
+	MIN_REQUIRE ( r->end > r->begin );
+	MIN_REQUIRE
 	    ( ( r->end - r->begin ) % fbl->size == 0 );
 
 	r->round_size = fbl->size;
@@ -976,12 +978,12 @@ void MINT::new_fixed_body
 	                  / fbl->size;
 	if ( count == 0 ) count = 1;
 	MINT::free_fixed_size_block * first = NULL;
-	assert ( fbl->last_free == NULL );
+	MIN_REQUIRE ( fbl->last_free == NULL );
 	while ( count -- > 0 )
 	{
 	    if ( r->next + fbl->size > r->end )
 	    {
-		assert ( r->next == r->end );
+		MIN_REQUIRE ( r->next == r->end );
 		break;
 	    }
 
@@ -1004,11 +1006,11 @@ void MINT::new_fixed_body
 	    ++ fbl->count;
 	    ++ r->max_free_count;
 	}
-	assert ( fbl->last_free != NULL );
+	MIN_REQUIRE ( fbl->last_free != NULL );
 	fbl->last_free->next = first;
     }
 
-    assert ( fbl->count > 0 );
+    MIN_REQUIRE ( fbl->count > 0 );
 
     // Allocate first block from refurbished fbl free
     // list.
@@ -1109,7 +1111,7 @@ inline void * new_mono_body
 
     min::uns64 * b = (min::uns64 *) r->next;
     r->next += n;
-    assert ( r->next <= r->end );
+    MIN_REQUIRE ( r->next <= r->end );
 
     int locator = r - MACC::region_table;
     * b = MUP::new_control_with_locator
@@ -1145,7 +1147,7 @@ void MUP::deallocate_body
     min::uns64 * bp =
         (min::uns64 *) MUP::ptr_of ( s ) - 1;
     MACC::region * r = MACC::region_of_body ( bp );
-    assert ( s == MACC::stub_of_body ( bp ) );
+    MIN_REQUIRE ( s == MACC::stub_of_body ( bp ) );
 
     int type = MACC::type_of ( r );
     if ( type == MACC::FIXED_SIZE_BLOCK_REGION )
@@ -1287,7 +1289,7 @@ void MACC::stub_stack
 		&&
 		r != last_stub_stack_region )
 	{
-	    assert ( r->next == r->end );
+	    MIN_REQUIRE ( r->next == r->end );
 	    r = r->region_next;
 	}
 
@@ -1344,7 +1346,7 @@ void MACC::stub_stack
     {
         sss = (stub_stack_segment *) r->next;
 	r->next += stub_stack_segment_size;
-	assert ( r->next <= r->end );
+	MIN_REQUIRE ( r->next <= r->end );
     }
 
     // Fill in members of sss.
@@ -1369,7 +1371,7 @@ void MACC::stub_stack
 	last_segment = sss;
 	input_segment = output_segment = sss;
 	input = output = sss->next;
-	assert ( is_at_end );
+	MIN_REQUIRE ( is_at_end );
     }
     else
     {
@@ -1428,7 +1430,7 @@ void MACC::stub_stack::remove_jump ( void )
 	    //
 	    MACC::stub_stack_segment * sss =
 	        input_segment->previous_segment;
-	    assert ( sss != sss->next_segment );
+	    MIN_REQUIRE ( sss != sss->next_segment );
 	    sss->next_segment->previous_segment =
 	        sss->previous_segment;
 	    sss->previous_segment->next_segment =
@@ -1440,7 +1442,7 @@ void MACC::stub_stack::remove_jump ( void )
 
 	    int locator = MUP::locator_of_control
 		( sss->block_control );
-	    assert ( locator > 0 );
+	    MIN_REQUIRE ( locator > 0 );
 	    region * r = & region_table[locator];
 	    if ( r->free_count ++ == 0 )
 		r->last_free = b->next = b;
@@ -1465,7 +1467,7 @@ void MACC::stub_stack::remove_jump ( void )
 			  r );
 	    }
 
-	    assert ( segment_count > 0 );
+	    MIN_REQUIRE ( segment_count > 0 );
 	    -- segment_count;
 	}
     }
@@ -1513,7 +1515,7 @@ void MACC::stub_stack::flush ( void )
 
 	int locator = MUP::locator_of_control
 	    ( sss->block_control );
-	assert ( locator > 0 );
+	MIN_REQUIRE ( locator > 0 );
 	region * r = & region_table[locator];
 	if ( r->free_count ++ == 0 )
 	    r->last_free = b->next = b;
@@ -1536,7 +1538,7 @@ void MACC::stub_stack::flush ( void )
 		MACC::remove
 		    ( MACC::last_stub_stack_region, r );
 	}
-	assert ( segment_count > 0 );
+	MIN_REQUIRE ( segment_count > 0 );
 	-- segment_count;
     }
 
@@ -1807,7 +1809,7 @@ min::unsptr MACC::process_acc_stack
 		    c2 &= ~ UNMARKED ( level );
 		    int type =
 		        MUP::type_of_control ( c2 );
-		    assert ( type >= 0 );
+		    MIN_REQUIRE ( type >= 0 );
 		    if ( MINT::is_scavengable ( type ) )
 			lev.to_be_scavenged.push ( s2 );
 		}
@@ -1847,25 +1849,30 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // empty.
 	    //
 	    lev.to_be_scavenged.rewind();
-	    assert ( lev.to_be_scavenged.at_end() );
+	    MIN_REQUIRE ( lev.to_be_scavenged.at_end() );
 
 	    // Check that flags are properly cleared.
 	    //
-	    assert (    ( MINT::acc_stack_mask
-	                  & UNMARKED ( level ) )
-		     == 0 );
-	    assert (    ( MACC::acc_stack_scavenge_mask
-	                  & SCAVENGED ( level ) )
-		     == 0 );
-	    assert (    ( MACC::removal_request_flags
-	                  & UNMARKED ( level ) )
-		     == 0 );
-	    assert (    ( MINT::hash_acc_clear_flags
-	                  & UNMARKED ( level ) )
-		     == 0 );
-	    assert (    ( MINT::new_acc_stub_flags
-	                  & UNMARKED ( level ) )
-		     == 0 );
+	    MIN_REQUIRE
+	        (    (   MINT::acc_stack_mask
+	               & UNMARKED ( level ) )
+		  == 0 );
+	    MIN_REQUIRE
+	        (    (   MACC::acc_stack_scavenge_mask
+	               & SCAVENGED ( level ) )
+		  == 0 );
+	    MIN_REQUIRE
+	        (    (   MACC::removal_request_flags
+	               & UNMARKED ( level ) )
+		  == 0 );
+	    MIN_REQUIRE
+	        (    (   MINT::hash_acc_clear_flags
+	               & UNMARKED ( level ) )
+		  == 0 );
+	    MIN_REQUIRE
+	        (    (   MINT::new_acc_stub_flags
+	               & UNMARKED ( level ) )
+		  == 0 );
 
 	    // Execute this phase.
 	    //
@@ -1897,8 +1904,10 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // scanned).
 	    //
 
-	    assert ( lev.first_g == lev.last_g );
-	    assert ( lev.first_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.first_g == lev.last_g );
+	    MIN_REQUIRE
+	        ( lev.first_g->lock == (int) level );
 
 	    if ( lev.last_g[1].lock >= 0 )
 	        return lev.last_g[1].lock;
@@ -1913,9 +1922,12 @@ unsigned MACC::collector_increment ( unsigned level )
         {
 	    // Set the flags of lev.first_g.
 	    //
-	    assert ( lev.first_g + 1 == lev.last_g );
-	    assert ( lev.first_g->lock == (int) level );
-	    assert ( lev.last_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.first_g + 1 == lev.last_g );
+	    MIN_REQUIRE
+	        ( lev.first_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.last_g->lock == (int) level );
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
@@ -1993,8 +2005,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    
     case INITING_HASH:
         {
-	    assert ( level == 0 );
-	    assert ( lev.g[1].lock == (int) level );
+	    MIN_REQUIRE ( level == 0 );
+	    MIN_REQUIRE
+	        ( lev.g[1].lock == (int) level );
 
 	    min::uns64 scanned = 0;
 	    min::stub * s = lev.last_stub;
@@ -2079,7 +2092,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case INITING_ROOT:
 	{
-	    assert ( lev.root_lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.root_lock == (int) level );
 
 	    min::uns64 scanned = 0;
 
@@ -2149,7 +2163,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case SCAVENGING_ROOT:
         {
-	    assert ( lev.root_lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.root_lock == (int) level );
 
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
@@ -2265,7 +2280,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		// is its control.
 		//
 		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
+		MIN_REQUIRE ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
 		if ( scav != NULL )
@@ -2279,7 +2294,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 		else
 		{
-		    assert ( type == min::DEALLOCATED );
+		    MIN_REQUIRE
+		        ( type == min::DEALLOCATED );
 		    sc.state = 0;
 		}
 
@@ -2474,7 +2490,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		// is its control.
 		//
 		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
+		MIN_REQUIRE ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
 		if ( scav != NULL )
@@ -2488,7 +2504,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 		else
 		{
-		    assert ( type == min::DEALLOCATED );
+		    MIN_REQUIRE
+		        ( type == min::DEALLOCATED );
 		    sc.state = 0;
 		}
 
@@ -2607,7 +2624,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	        MACC::removal_request_flags;
 	    MACC::level * rrlev =
 	        levels + lev.next_level;
-	    assert ( rrlev->root_lock == (int) level );
+	    MIN_REQUIRE
+	        ( rrlev->root_lock == (int) level );
 	    while (   root_kept + root_removed
 		    < MACC::scan_limit )
 	    {
@@ -2695,8 +2713,9 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case COLLECTING_HASH:
         {
-	    assert ( level == 0 );
-	    assert ( lev.g[1].lock == (int) level );
+	    MIN_REQUIRE ( level == 0 );
+	    MIN_REQUIRE
+	        ( lev.g[1].lock == (int) level );
 
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
@@ -2849,8 +2868,10 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case COLLECTING:
         {
-	    assert ( lev.first_g->lock == (int) level );
-	    assert ( lev.last_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.first_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.last_g->lock == (int) level );
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
@@ -3080,9 +3101,11 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case LEVEL_PROMOTING:
         {
-	    assert ( level > 0 );
-	    assert ( lev.g->lock = level );
-	    assert ( lev.g[1].lock = level );
+	    MIN_REQUIRE ( level > 0 );
+	    MIN_REQUIRE
+	        ( lev.g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.g[1].lock == (int) level );
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
@@ -3142,7 +3165,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    if (    lev.g->last_before
 		 == lev.g[1].last_before )
 	    {
-	        assert ( lev.g->count == 0 );
+	        MIN_REQUIRE ( lev.g->count == 0 );
 		lev.g->lock = -1;
 		lev.collector_phase =
 		    START_GENERATION_PROMOTING;
@@ -3164,8 +3187,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // lev.first_g + 1 == lev.last_g and both
 	    // lev.first_g and lev.last_g are locked.
 
-	    assert ( lev.first_g == lev.last_g );
-	    assert ( lev.first_g->lock == (int) level );
+	    MIN_REQUIRE ( lev.first_g == lev.last_g );
+	    MIN_REQUIRE
+	        ( lev.first_g->lock == (int) level );
 
 	    if ( lev.last_g[1].lock >= 0 )
 	        return lev.last_g[1].lock;
@@ -3178,10 +3202,13 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case GENERATION_PROMOTING:
         {
-	    assert ( level > 0 );
-	    assert ( lev.first_g + 1 == lev.last_g );
-	    assert ( lev.first_g->lock = level );
-	    assert ( lev.last_g->lock = level );
+	    MIN_REQUIRE ( level > 0 );
+	    MIN_REQUIRE
+	        ( lev.first_g + 1 == lev.last_g );
+	    MIN_REQUIRE
+	        ( lev.first_g->lock == (int) level );
+	    MIN_REQUIRE
+	        ( lev.last_g->lock == (int) level );
 
 	    end_g->last_before =
 	        MINT::last_allocated_stub;
@@ -3203,7 +3230,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
 		lev.first_g->lock = -1;
 		++ lev.first_g;
-		assert ( lev.first_g == lev.last_g );
+		MIN_REQUIRE
+		    ( lev.first_g == lev.last_g );
 
 		if (    lev.first_g - lev.g
 		     == lev.number_of_sublevels )
