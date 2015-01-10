@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 13:41:28 EST 2015
+// Date:	Sat Jan 10 05:50:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -149,9 +149,9 @@ void initialize_stub_region ( void )
 {
     min::unsptr stp = (min::unsptr) stub_region;
     // Check that sizeof min::stub is a power of 2.
-    assert ( (   ( sizeof (min::stub) - 1 )
-	       & sizeof (min::stub) )
-	     == 0 );
+    MIN_REQUIRE ( (   ( sizeof (min::stub) - 1 )
+	            & sizeof (min::stub) )
+	          == 0 );
     min::unsptr p = stp;
     p += sizeof (min::stub) - 1;
     p &= ~ (sizeof (min::stub) - 1 ) ;
@@ -173,7 +173,7 @@ void initialize_stub_region ( void )
         ( stp - p ) / ( sizeof (min::stub) );
     p += ( sizeof (min::stub) ) * n;
     end_stub_region = (min::stub *) p;
-    assert ( begin_stub_region < end_stub_region );
+    MIN_REQUIRE ( begin_stub_region < end_stub_region );
 
     MINT::head_stub = begin_stub_region;
     MINT::last_allocated_stub = begin_stub_region;
@@ -223,7 +223,7 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
     {
         min::stub * s = begin_stub_region
 	              + stubs_allocated;
-	assert ( s < end_stub_region );
+	MIN_REQUIRE ( s < end_stub_region );
 	++ stubs_allocated;
 	++ MINT::number_of_free_stubs;
 	min::uns64 c = MUP::new_acc_control
@@ -447,9 +447,9 @@ static void ** packed_subtypes_p = packed_subtypes;
 
 void MINT::allocate_packed_subtypes ( min::uns32 count )
 {
-    assert ( MINT::packed_subtypes == NULL );
+    MIN_REQUIRE ( MINT::packed_subtypes == NULL );
     MINT::packed_subtypes = & ::packed_subtypes_p;
-    assert ( count <= MIN_PACKED_SUBTYPE_COUNT );
+    MIN_REQUIRE ( count <= MIN_PACKED_SUBTYPE_COUNT );
     MINT::max_packed_subtype_count = count;
 }
 
@@ -4848,11 +4848,11 @@ int main ( int argc, const char * argv[] )
     debug = ( argc > 1 );
     cout << endl;
     cout << "Initialize!" << endl;
-    assert ( ::interrupt_count == 0 );
-    assert ( ! MINT::initialization_done );
+    MIN_REQUIRE ( ::interrupt_count == 0 );
+    MIN_REQUIRE ( ! MINT::initialization_done );
     min::interrupt();
-    assert ( ::interrupt_count == 1 );
-    assert ( MINT::initialization_done );
+    MIN_REQUIRE ( ::interrupt_count == 1 );
+    MIN_REQUIRE ( MINT::initialization_done );
     cout << endl;
     cout << "Start Test!" << endl;
 

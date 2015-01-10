@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 12:15:21 EST 2015
+// Date:	Sat Jan 10 05:55:57 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,7 +28,7 @@
 // The following compiler options illustrate typical use
 // in overriding defaults:
 //
-// -DMIN_PROTECT=0
+// -DMIN_ASSERT=MIN_ASSERT_CALL_NEVER
 // -DMIN_IS_COMPACT=1
 // -DMIN_USE_OBJ_AUX_STUBS=1
 // -DMIN_MAX_EPHEMERAL_LEVELS=1
@@ -43,6 +43,10 @@
 // ------
 
 namespace min {
+
+    void no_return ( void ) __attribute__ ((noreturn));
+        // Function that does not return; used by
+	// MIN_ABORT.
 
     extern void ( * assert_hook )
     	( bool value,
@@ -102,7 +106,7 @@ namespace min {
 	      NULL, \
 	      __FILE__, __LINE__, \
 	      __PRETTY_FUNCTION__, \
-	      __VA_ARGS__ ) )
+	      __VA_ARGS__ ), min::no_return() )
 
 # ifndef MIN_ASSERT
 #	define MIN_ASSERT MIN_ASSERT_CALL_ON_FAIL
