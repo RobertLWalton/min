@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 10 03:28:37 EST 2015
+// Date:	Sat Jan 17 07:12:45 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10544,7 +10544,7 @@ min::printer min::print_obj
 		    ( printer,
 		      vp[i], objf->quote_format );
 	    }
-	    return printer;
+	    return printer << min::restore_print_format;
 	}
 	else
 	{
