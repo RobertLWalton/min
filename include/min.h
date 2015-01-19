@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 10 06:05:06 EST 2015
+// Date:	Mon Jan 19 04:04:33 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11810,6 +11810,9 @@ namespace min {
 	min::gen		    quote_type;
 	const min::gen_format *     quote_format;
 
+	min::gen		    line_type;
+	const min::gen_format *     line_format;
+
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;
     };
@@ -11825,6 +11828,8 @@ namespace min {
         isolated_line_obj_format;
     extern const min::obj_format *
         embedded_line_obj_format;
+    extern const min::obj_format *
+        paragraph_obj_format;
     extern const min::obj_format *
         id_obj_format;
 
@@ -12027,6 +12032,7 @@ namespace min {
     extern min::locatable_gen FALSE;
     extern min::locatable_gen empty_string;
     extern min::locatable_gen doublequote;
+    extern min::locatable_gen line_feed;
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
