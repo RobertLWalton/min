@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 19 04:04:33 EST 2015
+// Date:	Tue Jan 20 04:20:13 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11829,7 +11829,7 @@ namespace min {
     extern const min::obj_format *
         embedded_line_obj_format;
     extern const min::obj_format *
-        paragraph_obj_format;
+        paragraph_line_obj_format;
     extern const min::obj_format *
         id_obj_format;
 
@@ -11869,6 +11869,8 @@ namespace min {
         always_quote_gen_format;
     extern const gen_format *
         never_quote_gen_format;
+    extern const gen_format *
+        paragraph_line_gen_format;
 
     extern packed_vec_ptr<const char *>
            standard_special_names;

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 10 06:05:39 EST 2015
+// Date:	Tue Jan 20 04:22:09 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1849,7 +1849,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // empty.
 	    //
 	    lev.to_be_scavenged.rewind();
-	    MIN_REQUIRE ( lev.to_be_scavenged.at_end() );
+	    MIN_REQUIRE
+	        ( lev.to_be_scavenged.at_end() );
 
 	    // Check that flags are properly cleared.
 	    //

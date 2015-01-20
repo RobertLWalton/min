@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 19 04:05:22 EST 2015
+// Date:	Tue Jan 20 04:20:24 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -332,7 +332,7 @@ void MINT::initialize ( void )
         min::new_str_gen ( "" );
     min::doublequote =
         min::new_str_gen ( "\"" );
-    min::doublequote =
+    min::line_feed =
         min::new_str_gen ( "\n" );
     min::dot_initiator =
         min::new_str_gen ( ".initiator" );
@@ -9782,8 +9782,8 @@ static min::obj_format compact_obj_format =
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
 
-    min::NONE(),	    // line_type
-    NULL,		    // line_format
+    min::NONE(),	    // line_type*
+    NULL,		    // line_format*
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9958,9 +9958,9 @@ static min::obj_format id_obj_format =
 const min::obj_format * min::id_obj_format =
     & ::id_obj_format;
 
-static min::obj_format paragraph_obj_format =
+static min::obj_format paragraph_line_obj_format =
 {
-    min::ISOLATED_LINE,	    // obj_op_flags
+    min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // label_format*
@@ -10013,8 +10013,8 @@ static min::obj_format paragraph_obj_format =
 
     min::NULL_STUB	    // attr_flag_names*
 };
-const min::obj_format * min::paragraph_obj_format =
-    & ::paragraph_obj_format;
+const min::obj_format * min::paragraph_line_obj_format =
+    & ::paragraph_line_obj_format;
 
 static min::gen_format top_gen_format =
 {
@@ -10148,6 +10148,19 @@ static min::gen_format never_quote_gen_format =
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
 
+static min::gen_format paragraph_line_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_non_graphic_str_format,
+    & ::name_lab_format,
+    & ::name_special_format,
+    & ::paragraph_line_obj_format,
+    NULL,			    // id_map_format
+};
+const min::gen_format * min::paragraph_line_gen_format =
+    & ::paragraph_line_gen_format;
+
 const min::print_format min::default_print_format =
 {
     min::EXPAND_HT,
@@ -10185,6 +10198,10 @@ static void init_pgen_formats ( void )
         min::doublequote;
     ::compact_obj_format.quote_format =
         min::always_quote_gen_format;
+    ::compact_obj_format.line_type =
+        min::line_feed;
+    ::compact_obj_format.line_format =
+        min::paragraph_line_gen_format;
     ::compact_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
@@ -10226,27 +10243,27 @@ static void init_pgen_formats ( void )
     ::embedded_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
-    ::paragraph_obj_format.element_format =
-        min::id_gen_format;
-    ::paragraph_obj_format.label_format =
+    ::paragraph_line_obj_format.element_format =
+        min::top_gen_format;
+    ::paragraph_line_obj_format.label_format =
         min::name_gen_format;
-    ::paragraph_obj_format.value_format =
-        min::id_gen_format;
-    ::paragraph_obj_format.initiator_format =
+    ::paragraph_line_obj_format.value_format =
+        min::top_gen_format;
+    ::paragraph_line_obj_format.initiator_format =
         min::leading_always_gen_format;
-    ::paragraph_obj_format.separator_format =
+    ::paragraph_line_obj_format.separator_format =
         min::trailing_always_gen_format;
-    ::paragraph_obj_format.terminator_format =
+    ::paragraph_line_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::paragraph_obj_format.quote_type =
+    ::paragraph_line_obj_format.quote_type =
         min::doublequote;
-    ::paragraph_obj_format.quote_format =
+    ::paragraph_line_obj_format.quote_format =
         min::always_quote_gen_format;
-    ::paragraph_obj_format.line_type =
+    ::paragraph_line_obj_format.line_type =
         min::line_feed;
-    ::paragraph_obj_format.line_format =
-        min::never_quote_gen_format;
-    ::paragraph_obj_format.attr_flag_names =
+    ::paragraph_line_obj_format.line_format =
+        min::paragraph_line_gen_format;
+    ::paragraph_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
     ::top_gen_format.id_map_format =
@@ -10628,17 +10645,38 @@ min::printer min::print_obj
 		  &&
 		  separator == min::NONE() )
 	{
-	    bool first = true;
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
-		if ( first ) 
-		    first = false;
-		else
+		if ( i != 0 )
 		    min::print_spaces ( printer, 1 );
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->quote_format );
+	    }
+	    return printer << min::restore_print_format;
+	}
+	else if ( type == objf->line_type
+	          &&
+		  type != min::NONE()
+		  &&
+		  separator == min::NONE() )
+	{
+	    for ( min::unsptr i = 0;
+	          i < min::size_of ( vp ); ++ i )
+	    {
+		if ( i == 0 )
+		    printer << min::indent
+		            << min::place_indent ( 4 );
+		else
+		    min::print_ustring
+		        ( printer, objf->line_format
+				       ->obj_format
+			               ->obj_sep )
+		        << min::set_break;
+		min::print_gen
+		    ( printer,
+		      vp[i], objf->line_format );
 	    }
 	    return printer << min::restore_print_format;
 	}
