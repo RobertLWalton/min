@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 20 04:20:24 EST 2015
+// Date:	Wed Jan 21 01:51:24 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,6 +73,8 @@ min::locatable_gen min::FALSE;
 min::locatable_gen min::empty_string;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::line_feed;
+min::locatable_gen min::colon;
+min::locatable_gen min::semicolon;
 min::locatable_gen min::dot_initiator;
 min::locatable_gen min::dot_separator;
 min::locatable_gen min::dot_terminator;
@@ -334,6 +336,10 @@ void MINT::initialize ( void )
         min::new_str_gen ( "\"" );
     min::line_feed =
         min::new_str_gen ( "\n" );
+    min::colon =
+        min::new_str_gen ( ":" );
+    min::semicolon =
+        min::new_str_gen ( ";" );
     min::dot_initiator =
         min::new_str_gen ( ".initiator" );
     min::dot_separator =
@@ -9784,6 +9790,12 @@ static min::obj_format compact_obj_format =
 
     min::NONE(),	    // line_type*
     NULL,		    // line_format*
+    min::NONE(),	    // line_sep_type*
+    (const min::ustring *)
+        "\x81\x01" ";",     // obj_line_sep
+    min::NONE(),	    // paragraph_type*
+    (const min::ustring *)
+        "\x81\x01" ":",     // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9842,6 +9854,10 @@ static min::obj_format isolated_line_obj_format =
 
     min::NONE(),	    // line_type
     NULL,		    // line_format
+    min::NONE(),	    // line_sep_type
+    NULL,		    // obj_line_sep
+    min::NONE(),	    // paragraph_type
+    NULL,		    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9905,6 +9921,10 @@ static min::obj_format embedded_line_obj_format =
 
     min::NONE(),	    // line_type
     NULL,		    // line_format
+    min::NONE(),	    // line_sep_type
+    NULL,		    // obj_line_sep
+    min::NONE(),	    // paragraph_type
+    NULL,		    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -9952,6 +9972,10 @@ static min::obj_format id_obj_format =
 
     min::NONE(),	    // line_type
     NULL,		    // line_format
+    min::NONE(),	    // line_sep_type
+    NULL,		    // obj_line_sep
+    min::NONE(),	    // paragraph_type
+    NULL,		    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names
 };
@@ -10010,6 +10034,12 @@ static min::obj_format paragraph_line_obj_format =
 
     min::NONE(),	    // line_type*
     NULL,		    // line_format*
+    min::NONE(),	    // line_sep_type*
+    (const min::ustring *)
+        "\x81\x01" ";",     // obj_line_sep
+    min::NONE(),	    // paragraph_type*
+    (const min::ustring *)
+        "\x81\x01" ":",     // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10202,6 +10232,10 @@ static void init_pgen_formats ( void )
         min::line_feed;
     ::compact_obj_format.line_format =
         min::paragraph_line_gen_format;
+    ::compact_obj_format.line_sep_type =
+        min::semicolon;
+    ::compact_obj_format.paragraph_type =
+        min::colon;
     ::compact_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 
@@ -10263,6 +10297,10 @@ static void init_pgen_formats ( void )
         min::line_feed;
     ::paragraph_line_obj_format.line_format =
         min::paragraph_line_gen_format;
+    ::paragraph_line_obj_format.line_sep_type =
+        min::semicolon;
+    ::paragraph_line_obj_format.paragraph_type =
+        min::colon;
     ::paragraph_line_obj_format.attr_flag_names =
         min::standard_attr_flag_names;
 

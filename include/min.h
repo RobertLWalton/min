@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 20 04:20:13 EST 2015
+// Date:	Wed Jan 21 01:49:05 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11812,6 +11812,10 @@ namespace min {
 
 	min::gen		    line_type;
 	const min::gen_format *     line_format;
+	min::gen		    line_sep_type;
+	const min::ustring *   	    obj_line_sep;
+	min::gen		    paragraph_type;
+	const min::ustring *   	    obj_paragraph_begin;
 
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;
@@ -12035,6 +12039,8 @@ namespace min {
     extern min::locatable_gen empty_string;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen line_feed;
+    extern min::locatable_gen colon;
+    extern min::locatable_gen semicolon;
     extern min::locatable_gen dot_initiator;
     extern min::locatable_gen dot_separator;
     extern min::locatable_gen dot_terminator;
