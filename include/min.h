@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 21 01:49:05 EST 2015
+// Date:	Fri Jan 23 06:25:07 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4945,9 +4945,10 @@ min::packed_struct<S>::packed_struct
     if ( & base_class_id != id.base )
     {
         MIN_ASSERT ( id.base == NULL,
-	             "packed_struct_with_base used twice"
-		     " to declare same packed_struct"
-		     " with two distinct bases" );
+	             "packed_struct_with_base used"
+		     " twice to declare same"
+		     " packed_struct with two distinct"
+		     " bases" );
 	id.base = & base_class_id;
     }
 }
@@ -8207,8 +8208,8 @@ namespace min { namespace unprotected {
 	//
 	// From the above the following can be deduced:
 	//
-	//   (1) If the current pointer points at a stub,
-	//       the previous pointer must exist.
+	//   (1) If the current pointer points at a
+	//       stub, the previous pointer must exist.
 	//
 	//   (2) If the previous pointer does not exist
 	//       and current != LIST_END(), then
@@ -9053,7 +9054,8 @@ namespace min {
 	         ::list_ptr_type<vecptr> & lp )
     {
 	if ( lp.hash_offset == 0 ) return lp.current;
-	    // Unstarted list pointer needs nothing done.
+	    // Unstarted list pointer needs nothing
+	    // done.
 
 	if ( lp.current_index != 0 )
 	    return lp.current =
@@ -9076,7 +9078,8 @@ namespace min {
 	         ::list_ptr_type<vecptr> & lp )
     {
 	if ( lp.hash_offset == 0 ) return lp.current;
-	    // Unstarted list pointer needs nothing done.
+	    // Unstarted list pointer needs nothing
+	    // done.
 
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
@@ -9122,7 +9125,8 @@ namespace min {
     	    ( min::list_insptr & lp )
     {
 	if ( lp.hash_offset == 0 ) return lp.current;
-	    // Unstarted list pointer needs nothing done.
+	    // Unstarted list pointer needs nothing
+	    // done.
 
 	unsptr new_hash_offset =
 	    unprotected::hash_offset_of ( lp.vecp );
@@ -11833,7 +11837,9 @@ namespace min {
     extern const min::obj_format *
         embedded_line_obj_format;
     extern const min::obj_format *
-        paragraph_line_obj_format;
+        line_element_obj_format;
+    extern const min::obj_format *
+        paragraph_element_obj_format;
     extern const min::obj_format *
         id_obj_format;
 
@@ -11874,7 +11880,9 @@ namespace min {
     extern const gen_format *
         never_quote_gen_format;
     extern const gen_format *
-        paragraph_line_gen_format;
+        line_element_gen_format;
+    extern const gen_format *
+        paragraph_element_gen_format;
 
     extern packed_vec_ptr<const char *>
            standard_special_names;
