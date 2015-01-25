@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 23 06:25:07 EST 2015
+// Date:	Sat Jan 24 19:05:23 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11816,8 +11816,10 @@ namespace min {
 
 	min::gen		    line_type;
 	const min::gen_format *     line_format;
+
 	min::gen		    line_sep_type;
 	const min::ustring *   	    obj_line_sep;
+
 	min::gen		    paragraph_type;
 	const min::ustring *   	    obj_paragraph_begin;
 
@@ -11837,11 +11839,11 @@ namespace min {
     extern const min::obj_format *
         embedded_line_obj_format;
     extern const min::obj_format *
-        line_element_obj_format;
+        id_obj_format;
     extern const min::obj_format *
         paragraph_element_obj_format;
     extern const min::obj_format *
-        id_obj_format;
+        line_element_obj_format;
 
     struct gen_format
     {
