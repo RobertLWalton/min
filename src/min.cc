@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 24 19:05:11 EST 2015
+// Date:	Sun Jan 25 04:22:15 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10079,7 +10079,7 @@ static min::obj_format line_element_obj_format =
         "\x01\x01" "}",     // obj_ket
 
     (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+        "\x80\x00" "",      // obj_sep
 
     (const min::ustring *)
         "\x82\x00" ": ",    // obj_attrbegin
@@ -10360,7 +10360,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::paragraph_element_obj_format.element_format =
-        min::top_gen_format;
+        min::paragraph_element_gen_format;
     ::paragraph_element_obj_format.label_format =
         min::name_gen_format;
     ::paragraph_element_obj_format.value_format =
@@ -10385,7 +10385,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::line_element_obj_format.element_format =
-        min::top_gen_format;
+        min::line_element_gen_format;
     ::line_element_obj_format.label_format =
         min::name_gen_format;
     ::line_element_obj_format.value_format =
