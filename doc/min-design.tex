@@ -10549,6 +10549,45 @@ for general value formats is as follows:
 \verb|NULL                                    // id_map_format|
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{paragraph\_element\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_ELEMENT_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|NULL                                    // str_format|\ARGBREAK
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK
+\verb|min::name_special_format                // special_format|\ARGBREAK
+\verb|min::paragraph_element_obj_format       // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{line\_element\_gen\_format}:}
+\LABEL{MIN::LINE_ELEMENT_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|NULL                                    // str_format|\ARGBREAK
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK
+\verb|min::name_special_format                // special_format|\ARGBREAK
+\verb|min::line_element_obj_format            // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{line\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK
+\verb|min::long_num_format                    // num_format|\ARGBREAK
+\verb|NULL                                    // str_format|\ARGBREAK
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK
+\verb|min::name_special_format                // special_format|\ARGBREAK
+\verb|min::line_obj_format                    // obj_format|\ARGBREAK
+\verb|NULL                                    // id_map_format|
+\end{tabular}\end{indpar}
+
 A general value format can be any structure whose first member
 is:
 
@@ -15101,6 +15140,95 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{line\_obj\_format}:}%
+\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::name_gen_format                     // label_format|\ARGBREAK
+\verb|min::top_gen_format                      // value_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
+\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
+\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::all_marks_str_classifier            // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::doublequote                         // quote_type|\ARGBREAK
+\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::line_feed                           // line_type|\ARGBREAK
+\verb|min::line_element_gen_format             // line_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::semicolon                           // line_sep_type|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::NONE()                              // paragraph_type|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<const char *> min::|%
     \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
@@ -19549,6 +19677,51 @@ These are in \verb|min_parameters.h|.
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::name_special_format                // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{paragraph\_element\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_ELEMENT_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
+\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
+\verb|min::paragraph_element_obj_format       // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{line\_element\_gen\_format}:}
+\LABEL{MIN::LINE_ELEMENT_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
+\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
+\verb|min::line_element_obj_format            // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // id_map_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{line\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK[0in]
+\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
+\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
+\verb|NULL                                    // str_format|\ARGBREAK[0in]
+\verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
+\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
+\verb|min::line_obj_format                    // obj_format|\ARGBREAK[0in]
 \verb|NULL                                    // id_map_format|
 \end{TABULAR}
 
