@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 25 04:22:15 EST 2015
+// Date:	Sun Jan 25 20:00:01 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8260,10 +8260,12 @@ min::printer operator <<
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
         if ( printer->column != 0 )
+	{
 	    ::end_line ( printer );
-	if (   printer->print_format.op_flags
-	     & min::FLUSH_ON_EOL )
-	    min::flush_file ( printer->file );
+	    if (   printer->print_format.op_flags
+		 & min::FLUSH_ON_EOL )
+		min::flush_file ( printer->file );
+	}
 
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ID_MAP_ON_EOM )
@@ -8735,6 +8737,7 @@ min::printer MINT::print_unicode
         // This prevents repeated checks for an enabled
 	// line break that does not exist.
 
+    printer->state &= ~ min::PARAGRAPH_POSSIBLE;
     min::uns32 flags = printer->state
                      & (   min::AFTER_LEADING
 		         + min::AFTER_TRAILING
@@ -10043,7 +10046,8 @@ static min::obj_format paragraph_element_obj_format =
     (const min::ustring *)
         "\x81\x01" ";",     // obj_line_sep
     min::NONE(),	    // paragraph_type
-    NULL,                   // obj_paragraph_begin
+    (const min::ustring *)
+        "\x81\x01" ":",     // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10113,8 +10117,7 @@ static min::obj_format line_element_obj_format =
     min::NONE(),	    // line_sep_type
     NULL,                   // obj_line_sep
     min::NONE(),	    // paragraph_type*
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_paragraph_begin
+    NULL,                   // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10801,28 +10804,64 @@ min::printer min::print_obj
 	          &&
 		  type != min::NONE()
 		  &&
-		  separator == min::NONE() )
+		  separator == min::NONE()
+		  &&
+		  min::size_of ( vp ) > 0 )
 	{
+	    printer << min::save_indent
+		    << min::place_indent ( 4 );
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
-		if ( i == 0 )
-		    printer << min::indent
-		            << min::save_line_break
-		            << min::place_indent ( 4 );
-		else
+		if ( i != 0 )
+		{
 		    min::print_ustring
 		        ( printer, objf->line_format
 				       ->obj_format
 			               ->obj_sep )
 		        << min::set_break;
+		    if ( i == min::size_of ( vp ) - 1 )
+		        printer->state |=
+			    min::PARAGRAPH_POSSIBLE;
+		}
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->line_format );
 	    }
-	    if ( min::size_of ( vp ) > 0 )
-	        printer << min::restore_line_break;
-	    return printer << min::restore_print_format;
+	    return printer << min::restore_indent
+		           << min::bol
+	                   << min::restore_print_format;
+	}
+	else if ( type == objf->paragraph_type
+	          &&
+		  type != min::NONE()
+		  &&
+		  separator == min::NONE()
+		  &&
+		  (   printer->state
+		    & min::PARAGRAPH_POSSIBLE ) )
+	{
+	    min::print_ustring
+		( printer, objf->line_format
+			       ->obj_format
+			       ->obj_paragraph_begin );
+	    printer << min::eol
+	            << min::save_line_break;
+		    // As we are printed this from
+		    // inside a line, indent is already
+		    // adjusted to line indent + 4.
+
+	    for ( min::unsptr i = 0;
+	          i < min::size_of ( vp ); ++ i )
+	    {
+		printer << min::indent;
+		min::print_gen
+		    ( printer,
+		      vp[i], objf->line_format );
+		printer << min::bol;
+	    }
+	    return printer << min::restore_line_break
+	                   << min::restore_print_format;
 	}
 	else
 	{
@@ -11839,7 +11878,7 @@ static min::printer flush_one_id
     printer << min::save_indent << "@" << id << " = ";
 
     (* id_map_f->pgen) ( printer, v, id_map_f );
-    return printer << min::eol << min::restore_indent;
+    return printer << min::bol << min::restore_indent;
 }
 
 static min::printer flush_one_id
