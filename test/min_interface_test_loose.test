@@ -2919,7 +2919,6 @@ Start Object Printing Test!
     .initiator = "{*"
     .separator = ","
     .terminator = "*}"
-
 {"": myattr =
      {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
         [: MYATTR SECOND VALUE :] *}, .initiator = "{*", .separator =
@@ -2938,7 +2937,6 @@ Start Object Printing Test!
     myforward = @1 <= myreverse
     fraction
     .type = T
-
 {T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr[~*~Z,256,512] =
