@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 24 19:05:23 EST 2015
+// Date:	Sun Jan 25 19:59:52 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11095,11 +11095,29 @@ namespace min {
         TRAILING_STATE		= ( 1 << 5 ),
         NON_GRAPHIC_STATE	= ( 1 << 6 ),
 
-        BREAK_AFTER		= ( 1 << 7 )
+        BREAK_AFTER		= ( 1 << 7 ),
 	    // Set a break before the NEXT character
 	    // (i.e., a break after the last character)
 	    // UNLESS the next character is also a
 	    // break-after character.
+
+	PARAGRAPH_POSSIBLE	= ( 1 << 8 ),
+	    // Set when printing the last element of
+	    // an object with more than one element.
+	    // Such an element may be a paragraph, so
+	    // paragraphs are only recognized if this
+	    // is on and the object format has a non-
+	    // NONE paragraph_type.
+	    //
+	    // This flag is turned off by printer init,
+	    // ::end_line, and internal::print_unicode.
+
+	AFTER_LINE_SEPARATOR	= ( 1 << 9 )
+	    // A line separator (obj_line_sep) has
+	    // just been printed.  This can be used
+	    // to suppress the return to indent that
+	    // normally preceeds printing a paragraph
+	    // element.
 
     };
 

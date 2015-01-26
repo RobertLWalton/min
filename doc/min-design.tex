@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 25, 2015}
+\date{January 26, 2015}
  
 \maketitle
 
@@ -8639,7 +8639,7 @@ is executed at the very end of each \TT{min::\EOL eol} operation.
 If this flag is on, a \TT{min::eom()} printer operation performs
 a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
-\TT{min::\EOL eol} operation.
+\TT{min::\EOL bol} operation.
 
 \item[\ttmkey{LEADING}%
 {in {\tt print\_\EOL format.op\_\EOL flags}}]
@@ -9607,7 +9607,7 @@ a \TT{min::\EOL save\_\EOL indent}
 and a \TT{min::\EOL save\_\EOL print\_\EOL format} operation.
 \TT{min::\EOL eom} executes in order a
 \TT{min::\EOL restore\_\EOL indent},
-a \TT{min::\EOL eol},
+a \TT{min::\EOL bol},
 a \TT{min::\EOL flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP})
 if the printer operation flag
 \TT{FLUSH\_ID\_MAP\_ON\_EOM} printer operation flag is on, and lastly
@@ -15005,7 +15005,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
+\verb|(const min::ustring *) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15094,7 +15094,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::colon                               // paragraph_type|\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
+\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
