@@ -2915,10 +2915,10 @@ Start Object Printing Test!
      .terminator = "*}"| 1 2 3 4 5 |}
 @1
 @1 = 1 2 3 4 5:
-    myattr = [: MYATTR VALUE :]
-    .initiator = "{*"
-    .separator = ","
-    .terminator = "*}"
+         myattr = [: MYATTR VALUE :]
+         .initiator = "{*"
+         .separator = ","
+         .terminator = "*}"
 {"": myattr =
      {* [: MYATTR THIRD VALUE :], [: MYATTR VALUE :],
         [: MYATTR SECOND VALUE :] *}, .initiator = "{*", .separator =
@@ -2931,12 +2931,12 @@ Start Object Printing Test!
       <= myforward, .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
 
 @2 = A B C:
-    no scientific
-    number = 123
-    .separator = ";"
-    myforward = @1 <= myreverse
-    fraction
-    .type = T
+         no scientific
+         number = 123
+         .separator = ";"
+         myforward = @1 <= myreverse
+         fraction
+         .type = T
 {T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr[~*~Z,256,512] =
