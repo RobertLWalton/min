@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 26 04:02:31 EST 2015
+// Date:	Wed Jan 28 02:03:49 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3372,15 +3372,13 @@ namespace min {
     extern const min::str_classifier
         all_marks_str_classifier;
     extern const min::str_classifier
+        all_marks_or_brackets_str_classifier;
+    extern const min::str_classifier
         all_graphics_str_classifier;
     extern const min::str_classifier
-        quote_all_control;
-	// Just like never_str_classifier
+        all_non_bracket_graphics_str_classifier;
     extern const min::str_classifier
         quote_first_not_letter_control;
-    extern const min::str_classifier
-        quote_non_graphic_control;
-	// Just like all_graphics_str_classifier
 
     // UTF-8 Conversion Functions
 
@@ -3427,6 +3425,9 @@ namespace min {
     const min::uns32 QUOTE_SUPPRESS	= ( 1 << 24 );
     const min::uns32 QUOTE_SKIP		= ( 1 << 25 );
     const min::uns32 IS_MARK		= ( 1 << 26 );
+    const min::uns32 IS_BRACKET		= ( 1 << 27 );
+    const min::uns32 IS_NON_BRACKET_GRAPHIC
+    					= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -11761,6 +11762,8 @@ namespace min {
         quote_first_not_letter_str_format;
     extern const min::str_format *
         quote_non_graphic_str_format;
+    extern const min::str_format *
+        quote_bracket_or_non_graphic_str_format;
 
     struct lab_format
     {

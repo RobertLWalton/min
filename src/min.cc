@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 26 04:02:42 EST 2015
+// Date:	Wed Jan 28 00:29:59 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1124,15 +1124,23 @@ static void init_standard_char_flags ( void )
 	    switch ( cat[1] )
 	    {
 	    case 'i':
-	    case 's':
 		flags = min::IS_LEADING
 		      + min::IS_MARK;
 		break;
 
+	    case 's':
+		flags = min::IS_LEADING
+		      + min::IS_BRACKET;
+		break;
+
 	    case 'f':
-	    case 'e':
 		flags = min::IS_TRAILING
 		      + min::IS_MARK;
+		break;
+
+	    case 'e':
+		flags = min::IS_TRAILING
+		      + min::IS_BRACKET;
 		break;
 
 	    case 'c':
@@ -1187,13 +1195,21 @@ static void init_standard_char_flags ( void )
 		   break;
 
 	case '`':
+		    flags = min::IS_LEADING
+			  + min::IS_BRACKET;
+		    break;
+
+	case '\'':
+		    flags = min::IS_TRAILING
+			  + min::IS_BRACKET;
+		    break;
+
 	case 0xA1:  // Inverted !
 	case 0xBF:	// Inverted ?
 		    flags = min::IS_LEADING
 			  + min::IS_MARK;
 		    break;
 	
-	case '\'':
 	case ',':
 	case ';':
 	case ':':
@@ -1215,6 +1231,11 @@ static void init_standard_char_flags ( void )
 			  + min::IS_MARK;
 		    break;
 	}
+
+	if ( ( flags & min::IS_GRAPHIC )
+	     &&
+	     ( flags & min::IS_BRACKET ) == 0 )
+	    flags |= min::IS_NON_BRACKET_GRAPHIC;
 
 	::standard_char_flags[i] =
 	    flags + min::unicode::support_sets[i];
@@ -9185,8 +9206,6 @@ bool min::in_str_class
 	  min::ptr<const min::Uchar> p,
 	  min::str_classifier strcl )
 {
-    if ( n == 0 ) return false;
-
     bool first = true;
     while ( n -- )
     {
@@ -9198,8 +9217,7 @@ bool min::in_str_class
 	    return false;
 	if ( first
 	     &&
-	     (    ( cflags & strcl.skip_if_first ) == 0
-	       || n == 0 ) )
+	     ( cflags & strcl.skip_if_first ) == 0 )
 	{
 	    if ( ( cflags & strcl.in_class_if_first )
 		 == 0 )
@@ -9211,7 +9229,7 @@ bool min::in_str_class
 		first = false;
 	}
     }
-    return true;
+    return ! first;
 }
 
 min::printer min::print_unicode
@@ -9611,15 +9629,23 @@ const min::str_classifier
 };
 
 const min::str_classifier
+	min::all_marks_or_brackets_str_classifier =
+{
+    min::IS_MARK + min::IS_BRACKET, 0,
+    min::IS_MARK + min::IS_BRACKET
+};
+
+const min::str_classifier
 	min::all_graphics_str_classifier =
 {
     min::IS_GRAPHIC, 0, min::IS_GRAPHIC
 };
 
 const min::str_classifier
-	min::quote_all_control =
+	min::all_non_bracket_graphics_str_classifier =
 {
-    0, 0, 0
+    min::IS_NON_BRACKET_GRAPHIC, 0,
+    min::IS_NON_BRACKET_GRAPHIC
 };
 
 const min::str_classifier
@@ -9627,12 +9653,6 @@ const min::str_classifier
 {
     min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
     min::IS_GRAPHIC
-};
-
-const min::str_classifier
-	min::quote_non_graphic_control =
-{
-    min::IS_GRAPHIC, 0, min::IS_GRAPHIC
 };
 
 const min::bracket_format min::quote_bracket_format =
@@ -9645,7 +9665,7 @@ const min::bracket_format min::quote_bracket_format =
 
 static min::str_format quote_all_str_format =
 {
-    min::quote_all_control,
+    min::never_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
@@ -9668,7 +9688,7 @@ const min::str_format *
 static min::str_format
 	quote_non_graphic_str_format =
 {
-    min::quote_non_graphic_control,
+    min::all_graphics_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
@@ -9676,6 +9696,18 @@ static min::str_format
 const min::str_format *
 	min::quote_non_graphic_str_format =
     & ::quote_non_graphic_str_format;
+
+static min::str_format
+	quote_bracket_or_non_graphic_str_format =
+{
+    min::all_non_bracket_graphics_str_classifier,
+    min::quote_bracket_format,
+    min::graphic_only_display_control,
+    0xFFFFFFFF
+};
+const min::str_format *
+	min::quote_bracket_or_non_graphic_str_format =
+    & ::quote_bracket_or_non_graphic_str_format;
 
 static min::lab_format name_lab_format =
 {
@@ -9785,7 +9817,7 @@ static min::obj_format compact_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::all_marks_str_classifier,
+    min::all_marks_or_brackets_str_classifier,
     			    // marking_type
 
     min::NONE(),	    // quote_type*
@@ -9848,7 +9880,8 @@ static min::obj_format isolated_line_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
@@ -9915,7 +9948,8 @@ static min::obj_format embedded_line_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
@@ -9966,7 +10000,8 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_valend
     NULL,		    // obj_valreq
 
-    {0,0,0},		    // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type
     NULL,		    // quote_format
@@ -10035,7 +10070,8 @@ static min::obj_format paragraph_element_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
@@ -10107,7 +10143,8 @@ static min::obj_format line_element_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
@@ -10176,7 +10213,8 @@ static min::obj_format line_obj_format =
     (const min::ustring *)
         "\x04\x00" " <= ",  // obj_valreq
 
-    min::quote_all_control, // marking_type
+    min::never_str_classifier,
+    			    // marking_type
 
     min::NONE(),	    // quote_type*
     NULL,		    // quote_format*
@@ -10213,7 +10251,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_bracket_or_non_graphic_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
@@ -10293,7 +10331,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_bracket_or_non_graphic_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -10332,7 +10370,7 @@ static min::gen_format line_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_graphic_str_format,
+    & ::quote_bracket_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::line_element_obj_format,
@@ -10346,7 +10384,7 @@ static min::gen_format paragraph_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_graphic_str_format,
+    & ::quote_bracket_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::paragraph_element_obj_format,
@@ -10360,7 +10398,7 @@ static min::gen_format line_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_graphic_str_format,
+    & ::quote_bracket_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::line_obj_format,
@@ -10415,7 +10453,7 @@ static void init_pgen_formats ( void )
     ::isolated_line_obj_format.label_format =
         min::name_gen_format;
     ::isolated_line_obj_format.value_format =
-        min::id_gen_format;
+        min::top_gen_format;
     ::isolated_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::isolated_line_obj_format.separator_format =
@@ -11074,6 +11112,8 @@ min::printer min::print_obj
 		    printer << min::set_break;
 	    }
 	    printer << min::save_indent;
+	    if ( isolated_line_format )
+	        printer << min::adjust_indent ( 8 );
 	}
 	else
 	{
@@ -11986,9 +12026,10 @@ static min::printer flush_one_id
     * ( min::uns32 * ) & id_map->next = id + 1;
     min::gen v = min::new_stub_gen ( id_map[id] );
 
-    printer << min::save_indent << "@" << id << " = ";
+    printer << min::bol << "@" << id << " = "
+            << min::save_indent;
 
-    (* id_map_f->pgen) ( printer, v, id_map_f );
+    min::print_gen ( printer, v, id_map_f );
     return printer << min::bol << min::restore_indent;
 }
 
