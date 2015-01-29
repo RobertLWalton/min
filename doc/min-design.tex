@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 26, 2015}
+\date{January 28, 2015}
  
 \maketitle
 
@@ -3682,8 +3682,13 @@ The standard character flags are
 \LABEL{MIN::QUOTE_SUPPRESS} \\
 \verb|const min::uns32 min::| & \MINKEY{QUOTE\_SKIP}
 \LABEL{MIN::QUOTE_SKIP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_BRACKET}
+\LABEL{MIN::IS_BRACKET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3969,8 +3974,12 @@ character (such as any letter).
 See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
 and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
 on \pagref{IN_CLASS_IF_FIRST}.\label{QUOTE-SUPPRESS}
+The \minkey{IS\_\EOL BRACKET} flag is given to all brackets, such as
+\TT{(~)}, \TT{`~'}, and \TT{\guillemotleft~\guillemotright}, and is
+used to force quoting of strings containing bracket characters.
 The \minkey{IS\_\EOL MARK} flag is given to all punctuation and symbols
 (i.e., to non-letter, non-combining-mark, non-number characters)
+other that the \TT{IS\_\EOL BRACKET} characters,
 and is used to define the \TT{marking\_\EOL type} string category:
 see \pagref{MARKING_TYPE}.
 
@@ -3984,8 +3993,14 @@ The assignment of these four flags in
 \ttkey{min::QUOTE\_SUPPRESS}: & categories \TT{L} and \TT{M}
 				(letters and combining marks) \\
 \ttkey{min::QUOTE\_SKIP}: & \TT{.} (period) \\
+\ttkey{min::IS\_BRACKET}: & categories \TT{Ps} and \TT{Pe}
+                            (start and end brackets), \\
+			  & plus \TT{`}, \TT{'}, \TT{\guillemotleft},
+			                     and \TT{\guillemotright} \\
 \ttkey{min::IS\_MARK}: & categories \TT{P} and \TT{S}
-                         (punctuation and symbols)
+                         (punctuation and symbols), \\
+		       & but \underline{not} characters with
+		         \TT{IS\_BRACKET} flag above \\
 \end{tabular}
 \end{center}
 
@@ -4340,6 +4355,8 @@ to be quoted in a certain context.  This is done with a
                                 {in {\tt min::str\_classifier}} \\
 \verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
                                 {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{not\_in\_class\_if\_any}
+                                {in {\tt min::str\_classifier}} \\
 \verb|};              | \\
 \end{tabular}\end{indpar}
 
@@ -4352,18 +4369,28 @@ a \TT{min::\EOL str\_\EOL classifier}\label{STRING-CLASSIFIER}
 flag in common with \TT{sc.in\_\EOL class\_\EOL if\_\EOL all}.
 If \TT{sc.in\_\EOL class\_\EOL if\_\EOL all} equals
 \TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true (and the code, being optimized, does not have to read the entire
+true (and the code, being optimized, may not have to read the entire
 string).
 \end{itemize}
 \underline{and}
 \begin{itemize}
-\item[(2)] The string is of length \TT{n} and begins with \TT{0} to \TT{n-1}
+\item[(2)] \underline{No} character in the string has some
+flag in common with \TT{sc.not\_\EOL in\_\EOL class\_\EOL if\_\EOL any}.
+If \TT{sc.not\_\EOL in\_\EOL class\_\EOL if\_\EOL any} equals
+0, which has no bits on, this is always
+true (and the code, being optimized, may not have to read the entire
+string).
+\end{itemize}
+\underline{and}
+\begin{itemize}
+\item[(3)] The string is of length \TT{n} and begins with \TT{0} to \TT{n-1}
 characters each with a flag in \TT{sc.skip\_\EOL if\_\EOL first},
 followed by a single character with a flag in
 \TT{sc.in\_\EOL class\_\EOL if\_\EOL first}.\label{IN_CLASS_IF_FIRST}
 If \TT{sc.in\_\EOL class\_\EOL if\_\EOL first} equals
 \TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true unless \TT{n == 0}.
+true unless all characters have a flag in common with
+\TT{sc.skip\_\EOL if\_\EOL first}.
 
 Note that the empty string never satisfies this condition and therefore
 is never in the specified class.
@@ -4381,40 +4408,64 @@ the \TT{marking\_type} member of a \TT{min::obj\_format}:
 
 The following are some predefined string classifiers:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{never\_str\_classifier}:}\ARGBREAK
-\verb|0                          // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|0                          // in_class_if_all|
-\LABEL{MIN::NEVER_STR_CLASSIFIER}
+                   min::\MINKEY{never\_str\_classifier}:}
+\LABEL{MIN::NEVER_STR_CLASSIFIER}\ARGBREAK
+\verb|0                              // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|0                              // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{always\_str\_classifier}:}\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_all|
-\LABEL{MIN::ALWAYS_STR_CLASSIFIER}
+                   min::\MINKEY{always\_str\_classifier}:}
+\LABEL{MIN::ALWAYS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::ALL_CHARS                 // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::ALL_CHARS                 // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_graphics\_str\_classifier}:}\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
-\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}
+                   min::\MINKEY{all\_graphics\_str\_classifier}:}
+\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_marks\_str\_classifier}:}\ARGBREAK
-\verb|min::IS_MARK               // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK               // in_class_if_all|
-\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}
+       min::\MINLKEY{all\_non\_bracket\_graphics}{\_str\_classifier}:}
+\LABEL{MIN::ALL_NON_BRACKET_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
+\verb|min::IS_BRACKET                // not_in_class_if_any|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+                   min::\MINKEY{all\_marks\_str\_classifier}:}
+\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_MARK                   // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_MARK                   // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+	   min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
+\LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
 \subsubsection{UNICODE Strings}
@@ -10551,7 +10602,7 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_element\_gen\_format}:}
+                   min::\MINLKEY{paragraph\_element}{\_gen\_format}:}
 \LABEL{MIN::PARAGRAPH_ELEMENT_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
@@ -10800,29 +10851,12 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{quote\_all\_control}:}\ARGBREAK
-\verb|0                          // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|0                          // in_class_if_all|
-\LABEL{MIN::QUOTE_ALL_CONTROL}
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-		   min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
+	       min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
 \verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
 \verb|min::QUOTE_SKIP            // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
+\verb|min::IS_GRAPHIC            // in_class_if_all|\ARGBREAK
+\verb|0                          // not_in_class_if_any|
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-		   min::\MINKEY{quote\_non\_graphic\_control}:}\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
-\LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -12423,7 +12457,7 @@ A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a \verb|min::LIST_END()| value.
 
 {\bf No Superfluous List Auxiliary Pointers}.%
-\index{superfluous list auxiliary pointers}
+\index{superfluous list!auxiliary pointers}
 A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a list auxiliary pointer.
 
@@ -14965,7 +14999,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{paragraph\_element\_obj\_format}:}%
+                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
 \LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK
 \verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
@@ -17052,6 +17086,13 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
+\LABEL{MIN::IS_MARK} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_BRACKET}
+\LABEL{MIN::IS_BRACKET} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_ASCII}
 \LABEL{MIN::IS_ASCII} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
@@ -17143,6 +17184,8 @@ These are in \verb|min_parameters.h|.
                                 {in {\tt min::str\_classifier}} \\
 \verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
                                 {in {\tt min::str\_classifier}} \\
+\verb|     min::uns32 | & \TTMKEY{not\_in\_class\_if\_any}
+                                {in {\tt min::str\_classifier}} \\
 \verb|};              | \\
 \end{TABULAR}
 
@@ -17174,12 +17217,36 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\multicolumn{2}{l}%
+    {\tt ~~~~~~~~~~~~~~~
+         min::\MINLKEY{all\_non\_bracket\_graphics}{\_str\_classifier}:}
+\LABEL{MIN::ALL_NON_BRACKET_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
+\verb|min::IS_BRACKET                // not_in_class_if_any|
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier
                    min::\MINKEY{all\_marks\_str\_classifier}:}
 \LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}\ARGBREAK
 \verb|min::IS_MARK               // in_class_if_first|\ARGBREAK
 \verb|0                          // skip_if_first|\ARGBREAK
 \verb|min::IS_MARK               // in_class_if_all|
+\end{TABULAR}
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\multicolumn{2}{l}%
+    {\tt ~~~~~~~~~~~~~~~
+         min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
+\LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_first|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{TABULAR}
 
 \INDEXHEADER{UNICODE Strings}
@@ -19875,24 +19942,11 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{str\_classifier}}
 \LABEL{MIN::STR_CLASSIFIER}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32    in_class_if_first;|%
-\ttmindex{in\_class\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
-    \verb|  min::uns32    skip_if_first;|%
-\ttmindex{skip\_if\_first}{in {\tt min::str\_classifier}}\ARGBREAK
-    \verb|  min::uns32    in_class_if_all;|%
-\ttmindex{in\_class\_if\_all}{in {\tt min::str\_classifier}}\ARGBREAK
+    \verb|  min::uns32    in_class_if_first;|\ARGBREAK
+    \verb|  min::uns32    skip_if_first;|\ARGBREAK
+    \verb|  min::uns32    in_class_if_all;|\ARGBREAK
+    \verb|  min::uns32    not_in_class_if_any;|\ARGBREAK
     \verb|};|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::~{quote\_all\_control}:}
-\LABEL{MIN::QUOTE_ALL_CONTROL}\ARGBREAK
-\verb|0                          // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|0                          // in_class_if_all|
 \end{TABULAR}
 
 \bigskip
@@ -19903,22 +19957,11 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}\ARGBREAK
 \verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
 \verb|min::QUOTE_SKIP            // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
+\verb|min::IS_GRAPHIC            // in_class_if_all|\ARGBREAK
+\verb|0                          // not_in_class_if_any|
 \end{TABULAR}
 
 \bigskip
-
-\begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-		   min::~{quote\_non\_graphic\_control}:}
-\LABEL{MIN::QUOTE_NON_GRAPHIC_CONTROL}\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
-\end{TABULAR}
-
-\bigskip
-
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{bracket\_format}}
