@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 28 17:49:39 EST 2015
+// Date:	Thu Jan 29 02:29:48 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1118,7 +1118,7 @@ static void init_standard_char_flags ( void )
 	    flags = min::IS_UNSUPPORTED;
 	else if ( cat[0] == 'L' )
 	    flags = min::IS_MIDDLING
-		  + min::QUOTE_SUPPRESS;
+		  + min::IS_LETTER;
 	else if ( cat[0] == 'P' )
 	{
 	    switch ( cat[1] )
@@ -1161,10 +1161,10 @@ static void init_standard_char_flags ( void )
 	else if ( strcmp ( cat, "Mn" ) == 0 )
 	    flags = min::IS_MIDDLING
 	          + min::IS_NON_SPACING
-		  + min::QUOTE_SUPPRESS;
+		  + min::IS_LETTER;
 	else if ( cat[0] == 'M' )
 	    flags = min::IS_MIDDLING
-		  + min::QUOTE_SUPPRESS;
+		  + min::IS_LETTER;
 	else if ( cat[0] == 'N' )
 	    flags = min::IS_MIDDLING;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
@@ -1226,7 +1226,7 @@ static void init_standard_char_flags ( void )
 		    break;
 
 	case '.':   flags = min::IS_TRAILING
-			  + min::QUOTE_SKIP
+			  + min::IS_PERIOD
 			  + min::IS_MARK;
 		    break;
 
@@ -9654,10 +9654,10 @@ const min::str_classifier
 };
 
 const min::str_classifier
-	min::quote_first_not_letter_control =
+	min::name_str_classifier =
 {
-    min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
-    min::IS_GRAPHIC, 0
+    min::IS_LETTER, min::IS_PERIOD,
+    min::IS_LETTER + min::IS_PERIOD, 0
 };
 
 const min::bracket_format min::quote_bracket_format =
@@ -9679,16 +9679,16 @@ const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
 
 static min::str_format
-	quote_first_not_letter_str_format =
+	quote_non_name_str_format =
 {
-    min::quote_first_not_letter_control,
+    min::name_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
 };
 const min::str_format *
-	min::quote_first_not_letter_str_format =
-    & ::quote_first_not_letter_str_format;
+	min::quote_non_name_str_format =
+    & ::quote_non_name_str_format;
 
 static min::str_format
 	quote_non_graphic_str_format =
@@ -10243,7 +10243,7 @@ static min::gen_format top_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_non_name_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10269,7 +10269,7 @@ static min::gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_non_name_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10310,7 +10310,7 @@ static min::gen_format value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_non_name_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10323,7 +10323,7 @@ static min::gen_format element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_first_not_letter_str_format,
+    & ::quote_non_name_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,

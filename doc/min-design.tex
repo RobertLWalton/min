@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 28, 2015}
+\date{January 29, 2015}
  
 \maketitle
 
@@ -3678,10 +3678,10 @@ The standard character flags are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
 \LABEL{MIN::CONDITIONAL_BREAK} \\
-\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
-\LABEL{MIN::QUOTE_SUPPRESS} \\
-\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SKIP}
-\LABEL{MIN::QUOTE_SKIP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
+\LABEL{MIN::IS_LETTER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_PERIOD}
+\LABEL{MIN::IS_PERIOD} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3958,22 +3958,19 @@ the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
 see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
 
-The next four flags are used in conjunction with printer format
+The next five flags are used in conjunction with printer format
 masks to perform special printer functions.
 The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
 can be followed by a line break, such as \TT{-} and \TT{\_}.
 See \pagref{CONDITIONAL-BREAK}.
-The \minkey{QUOTE\_\EOL SUPPRESS}
-and \minkey{QUOTE\_\EOL SKIP} flags mark characters that
-suppress quoting a string if they appear at the beginning
-of the string; specifically, the string is \underline{not}
-quoted if it begins with zero or more \TT{QUOTE\_\EOL SKIP}
-characters (such as `\TT{.}')
-followed by a single \TT{QUOTE\_\EOL SUPPRESS}
-character (such as any letter).
+The \minkey{IS\_\EOL LETTER}
+and \minkey{IS\_\EOL PERIOD} flags mark letters (including combining
+characters) and periods
+and can be used in a string classifier to classify strings that
+are names not be be quoted.
 See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
 and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
-on \pagref{IN_CLASS_IF_FIRST}.\label{QUOTE-SUPPRESS}
+on \pagref{IN_CLASS_IF_FIRST}.
 The \minkey{IS\_\EOL BRACKET} flag is given to all brackets, such as
 \TT{(~)}, \TT{`~'}, and \TT{\guillemotleft~\guillemotright}, and is
 used to force quoting of strings containing bracket characters.
@@ -3990,9 +3987,9 @@ The assignment of these four flags in
 \begin{tabular}{l@{~~~~~}l}
 \ttkey{min::CONDITIONAL\_BREAK}: & \TT{\%} plus categories \TT{Pc} and \TT{Pd}
 				   (includes \TT{-} and \TT{\_}) \\
-\ttkey{min::QUOTE\_SUPPRESS}: & categories \TT{L} and \TT{M}
+\ttkey{min::IS\_LETTER}: & categories \TT{L} and \TT{M}
 				(letters and combining marks) \\
-\ttkey{min::QUOTE\_SKIP}: & \TT{.} (period) \\
+\ttkey{min::IS\_PERIOD}: & \TT{.} (period) \\
 \ttkey{min::IS\_BRACKET}: & categories \TT{Ps} and \TT{Pe}
                             (start and end brackets), \\
 			  & plus \TT{`}, \TT{'}, \TT{\guillemotleft},
@@ -4446,6 +4443,16 @@ The following are some predefined string classifiers:
 \verb|0                              // skip_if_first|\ARGBREAK
 \verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
 \verb|min::IS_BRACKET                // not_in_class_if_any|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+	   min::\MINKEY{name\_str\_classifier}:}
+\LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
+\verb|min::IS_PERIOD                 // skip_if_first|\ARGBREAK
+\verb|min::IS_LETTER+min::IS_PERIOD  // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.5em]\begin{tabular}{r@{}l}
@@ -10476,7 +10483,7 @@ for general value formats is as follows:
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -10489,7 +10496,7 @@ for general value formats is as follows:
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::isolated_line_obj_format           // obj_format|\ARGBREAK
@@ -10502,7 +10509,7 @@ for general value formats is as follows:
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -10541,7 +10548,7 @@ for general value formats is as follows:
 \LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -10554,7 +10561,7 @@ for general value formats is as follows:
 \LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -10567,7 +10574,7 @@ for general value formats is as follows:
 \LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::id_obj_format                      // obj_format|\ARGBREAK
@@ -10817,29 +10824,39 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINKEY{quote\_all\_str\_format}:}\ARGBREAK
-\verb|min::quote_all_control                 // quote_control|\ARGBREAK
+                   min::\MINKEY{quote\_all\_str\_format}:}
+\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
+\verb|min::never_str_classifier              // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
-\LABEL{MIN::QUOTE_ALL_STR_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINLKEY{quote\_first\_not\_letter}{\_str\_format}:}\ARGBREAK
-\verb|min::quote_first_not_letter_control    // quote_control|\ARGBREAK
+    min::\MINKEY{quote\_non\_name\_str\_format}:}
+\LABEL{MIN::QUOTE_NON_NAME_STR_FORMAT}\ARGBREAK
+\verb|min::name_str_classifier               // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
-\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_STR_FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINLKEY{quote\_non\_graphic}{\_str\_format}:}\ARGBREAK
-\verb|min::quote_non_graphic_control         // quote_control|\ARGBREAK
+                   min::\MINLKEY{quote\_non\_graphic}{\_str\_format}:}
+\LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
+\verb|min::all_graphics_str_classifier       // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
-\LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{const min::str\_format *
+   min::\MINLKEY{quote\_bracket\_or\_non\_graphic}{\_str\_format}:}
+\LABEL{MIN::QUOTE_BRACKET_OR_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
+\verb|min::all_non_bracket_graphics_str_classifier|\ARGBREAK
+\verb|                                       // quote_control|\ARGBREAK
+\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::graphic_only_display_control      // display_control|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -10848,16 +10865,6 @@ The formats for printing string \TT{min::gen} values are:
 		       See \pagref{MIN::STR_CLASSIFIER}}
 \end{tabular}
 \end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-	       min::\MINLKEY{quote\_first\_not\_letter}{\_control}:}\ARGBREAK
-\verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
-\verb|min::QUOTE_SKIP            // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|\ARGBREAK
-\verb|0                          // not_in_class_if_any|
-\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}
-\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
@@ -10924,8 +10931,6 @@ A \TT{min::quote\_control}\label{QUOTE_CONTROL} value is
 a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
 \underline{unless} the string is in the specified class.  See
 \pagref{STRING-CLASSIFIER} for details on string classifiers.
-Also see the \TT{min::\EOL QUOTE\_\EOL SUPPRESS}
-and \TT{min::\EOL QUOTE\_\EOL SKIP} flags on \pagref{QUOTE-SUPPRESS}.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
 determines how the string is quoted.  The quoted string is preceeded
@@ -17079,10 +17084,10 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
 \LABEL{MIN::CONDITIONAL_BREAK} \\
-\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SUPPRESS}
-\LABEL{MIN::QUOTE_SUPPRESS} \\
-\verb|const min::uns32 min::| & \MINKEY{QUOTE\_SKIP}
-\LABEL{MIN::QUOTE_SKIP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
+\LABEL{MIN::IS_LETTER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_PERIOD}
+\LABEL{MIN::IS_PERIOD} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17189,6 +17194,8 @@ These are in \verb|min_parameters.h|.
 \verb|};              | \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier
                    min::\MINKEY{never\_str\_classifier}:}
@@ -17197,6 +17204,8 @@ These are in \verb|min_parameters.h|.
 \verb|0                          // skip_if_first|\ARGBREAK
 \verb|0                          // in_class_if_all|
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier
@@ -17207,6 +17216,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::ALL_CHARS             // in_class_if_all|
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier
                    min::\MINKEY{all\_graphics\_str\_classifier}:}
@@ -17215,6 +17226,8 @@ These are in \verb|min_parameters.h|.
 \verb|0                          // skip_if_first|\ARGBREAK
 \verb|min::IS_GRAPHIC            // in_class_if_all|
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier} \\
@@ -17228,6 +17241,20 @@ These are in \verb|min_parameters.h|.
 \verb|min::IS_BRACKET                // not_in_class_if_any|
 \end{TABULAR}
 
+\bigskip
+
+\begin{TABULAR}{0in}
+\multicolumn{2}{l}{\tt const min::str\_classifier
+	   min::\MINKEY{name\_str\_classifier}:}
+\LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
+\verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
+\verb|min::IS_PERIOD                 // skip_if_first|\ARGBREAK
+\verb|min::IS_LETTER+min::IS_PERIOD  // in_class_if_all|\ARGBREAK
+\verb|0                              // not_in_class_if_any|
+\end{TABULAR}
+
+\bigskip
+
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier
                    min::\MINKEY{all\_marks\_str\_classifier}:}
@@ -17236,6 +17263,8 @@ These are in \verb|min_parameters.h|.
 \verb|0                          // skip_if_first|\ARGBREAK
 \verb|min::IS_MARK               // in_class_if_all|
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{0in}
 \multicolumn{2}{l}{\tt const min::str\_classifier} \\
@@ -17248,6 +17277,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{TABULAR}
+
+\bigskip
 
 \INDEXHEADER{UNICODE Strings}
 
@@ -19605,7 +19636,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK[0in]
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
 \verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
@@ -19620,7 +19651,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::isolated_line_obj_format           // obj_format|\ARGBREAK
@@ -19635,7 +19666,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
 \verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK[0in]
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
@@ -19680,7 +19711,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -19695,7 +19726,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -19710,7 +19741,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::quote_first_not_letter_str_format  // str_format|\ARGBREAK
+\verb|min::quote_non_name_str_format          // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::id_obj_format                      // obj_format|\ARGBREAK
@@ -19908,7 +19939,7 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{const min::str\_format *
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
-\verb|min::quote_all_control                 // quote_control|\ARGBREAK
+\verb|min::never_str_classifier              // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
 \end{TABULAR}
@@ -19917,9 +19948,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINLKEY{quote\_first\_not\_letter}{\_str\_format}:}
-\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_STR_FORMAT}\ARGBREAK
-\verb|min::quote_first_not_letter_control    // quote_control|\ARGBREAK
+    min::\MINKEY{quote\_non\_name\_str\_format}:}
+\LABEL{MIN::QUOTE_NON_NAME_STR_FORMAT}\ARGBREAK
+\verb|min::name_str_classifier               // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
 \end{TABULAR}
@@ -19930,36 +19961,24 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{const min::str\_format *
                    min::\MINKEY{quote\_non\_graphic\_str\_format}:}
 \LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
-\verb|min::quote_non_graphic_control         // quote_control|\ARGBREAK
+\verb|min::all_graphics_str_classifier       // quote_control|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{1.6in}
-\multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{str\_classifier}}
-\LABEL{MIN::STR_CLASSIFIER}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32    in_class_if_first;|\ARGBREAK
-    \verb|  min::uns32    skip_if_first;|\ARGBREAK
-    \verb|  min::uns32    in_class_if_all;|\ARGBREAK
-    \verb|  min::uns32    not_in_class_if_any;|\ARGBREAK
-    \verb|};|
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+   min::\MINLKEY{quote\_bracket\_or\_non\_graphic}{\_str\_format}:}
+\LABEL{MIN::QUOTE_BRACKET_OR_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
+\verb|min::all_non_bracket_graphics_str_classifier|\ARGBREAK
+\verb|                                       // quote_control|\ARGBREAK
+\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::graphic_only_display_control      // display_control|
 \end{TABULAR}
 
 \bigskip
-
-\begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-		   min::~{quote\_first\_not\_letter\_control}:}
-\LABEL{MIN::QUOTE_FIRST_NOT_LETTER_CONTROL}\ARGBREAK
-\verb|min::QUOTE_SUPPRESS        // in_class_if_first|\ARGBREAK
-\verb|min::QUOTE_SKIP            // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|\ARGBREAK
-\verb|0                          // not_in_class_if_any|
-\end{TABULAR}
 
 \bigskip
 \begin{TABULAR}{1.6in}
