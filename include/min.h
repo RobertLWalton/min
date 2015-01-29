@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 28 02:03:49 EST 2015
+// Date:	Wed Jan 28 17:43:46 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3362,6 +3362,7 @@ namespace min {
         min::uns32 in_class_if_first;
         min::uns32 skip_if_first;
 	min::uns32 in_class_if_all;
+	min::uns32 not_in_class_if_any;
     };
     const min::uns32 ALL_CHARS = 0xFFFFFFFF;
 
@@ -3426,8 +3427,6 @@ namespace min {
     const min::uns32 QUOTE_SKIP		= ( 1 << 25 );
     const min::uns32 IS_MARK		= ( 1 << 26 );
     const min::uns32 IS_BRACKET		= ( 1 << 27 );
-    const min::uns32 IS_NON_BRACKET_GRAPHIC
-    					= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;

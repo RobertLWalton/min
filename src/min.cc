@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 28 00:29:59 EST 2015
+// Date:	Wed Jan 28 17:49:39 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1182,11 +1182,15 @@ static void init_standard_char_flags ( void )
 	//
 	switch ( i )
 	{
-	case ' ':	flags = min::IS_SP; break;	
-	case '\t':	flags = min::IS_OTHER_HSPACE;
+	case ' ':   flags = min::IS_SP;
+		    break;	
+
+	case '\t':  flags = min::IS_OTHER_HSPACE;
 		    break;
-	case 0xA0:	flags = min::IS_NB_HSPACE;
-		    break;  // NBSP
+
+	case 0xA0:	// NBSP
+		    flags = min::IS_NB_HSPACE;
+		    break;
 	case '\f':
 	case '\v':
 	case '\n':
@@ -1195,16 +1199,18 @@ static void init_standard_char_flags ( void )
 		   break;
 
 	case '`':
+	case 0xAB:	// Left Double Angle Quote, <<
 		    flags = min::IS_LEADING
 			  + min::IS_BRACKET;
 		    break;
 
 	case '\'':
+	case 0xBB:	// Right Double Angle Quote, >>
 		    flags = min::IS_TRAILING
 			  + min::IS_BRACKET;
 		    break;
 
-	case 0xA1:  // Inverted !
+	case 0xA1:	// Inverted !
 	case 0xBF:	// Inverted ?
 		    flags = min::IS_LEADING
 			  + min::IS_MARK;
@@ -1219,23 +1225,18 @@ static void init_standard_char_flags ( void )
 			  + min::IS_MARK;
 		    break;
 
-	case '.':	flags = min::IS_TRAILING
+	case '.':   flags = min::IS_TRAILING
 			  + min::QUOTE_SKIP
 			  + min::IS_MARK;
 		    break;
 
 	case '-':
 	case '_':
-	case '%':	flags = min::IS_MIDDLING
+	case '%':   flags = min::IS_MIDDLING
 			  + min::CONDITIONAL_BREAK
 			  + min::IS_MARK;
 		    break;
 	}
-
-	if ( ( flags & min::IS_GRAPHIC )
-	     &&
-	     ( flags & min::IS_BRACKET ) == 0 )
-	    flags |= min::IS_NON_BRACKET_GRAPHIC;
 
 	::standard_char_flags[i] =
 	    flags + min::unicode::support_sets[i];
@@ -9215,15 +9216,20 @@ bool min::in_str_class
 
 	if ( ( cflags & strcl.in_class_if_all ) == 0 )
 	    return false;
-	if ( first
-	     &&
-	     ( cflags & strcl.skip_if_first ) == 0 )
+	else if ( cflags & strcl.not_in_class_if_any )
+	    return false;
+	else if ( first
+	          &&
+	             ( cflags & strcl.skip_if_first )
+		  == 0 )
 	{
-	    if ( ( cflags & strcl.in_class_if_first )
+	    if (    ( cflags & strcl.in_class_if_first )
 		 == 0 )
 	        return false;
 	    else if (    strcl.in_class_if_all
-	              == min::ALL_CHARS )
+	              == min::ALL_CHARS
+		      &&
+		      strcl.not_in_class_if_any == 0 )
 	        return true;
 	    else
 		first = false;
@@ -9613,46 +9619,45 @@ min::printer min::print_num
 const min::str_classifier
 	min::never_str_classifier =
 {
-    0, 0, 0
+    0, 0, 0, 0
 };
 
 const min::str_classifier
 	min::always_str_classifier =
 {
-    min::ALL_CHARS, 0, min::ALL_CHARS
+    min::ALL_CHARS, 0, min::ALL_CHARS, 0
 };
 
 const min::str_classifier
 	min::all_marks_str_classifier =
 {
-    min::IS_MARK, 0, min::IS_MARK
+    min::IS_MARK, 0, min::IS_MARK, 0
 };
 
 const min::str_classifier
 	min::all_marks_or_brackets_str_classifier =
 {
     min::IS_MARK + min::IS_BRACKET, 0,
-    min::IS_MARK + min::IS_BRACKET
+    min::IS_MARK + min::IS_BRACKET, 0
 };
 
 const min::str_classifier
 	min::all_graphics_str_classifier =
 {
-    min::IS_GRAPHIC, 0, min::IS_GRAPHIC
+    min::IS_GRAPHIC, 0, min::IS_GRAPHIC, 0
 };
 
 const min::str_classifier
 	min::all_non_bracket_graphics_str_classifier =
 {
-    min::IS_NON_BRACKET_GRAPHIC, 0,
-    min::IS_NON_BRACKET_GRAPHIC
+    min::IS_GRAPHIC, 0, min::IS_GRAPHIC, min::IS_BRACKET
 };
 
 const min::str_classifier
 	min::quote_first_not_letter_control =
 {
     min::QUOTE_SUPPRESS, min::QUOTE_SKIP,
-    min::IS_GRAPHIC
+    min::IS_GRAPHIC, 0
 };
 
 const min::bracket_format min::quote_bracket_format =
