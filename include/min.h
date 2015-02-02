@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 29 02:28:49 EST 2015
+// Date:	Mon Feb  2 04:11:23 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11116,8 +11116,18 @@ namespace min {
 	    // A line separator (obj_line_sep) has
 	    // just been printed.  This can be used
 	    // to suppress the return to indent that
-	    // normally preceeds printing a paragraph
-	    // element.
+	    // normally preceeds printing a following
+	    // object of line_type or line_sep_type.
+	    // It also signals that a restore_indent
+	    // and bol need to be executed if there
+	    // is no object of following line_type or
+	    // line_sep_type.
+	    //
+	    // This flag is turned off by printer init,
+	    // ::end_line, internal::print_unicode, and
+	    // min::print_quoted_unicode. When turned
+	    // off by the non-init functions, restore_
+	    // indent and bol are exeucted.
 
     };
 
