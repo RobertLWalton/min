@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 29, 2015}
+\date{February 2, 2015}
  
 \maketitle
 
@@ -15444,6 +15444,40 @@ the object is printed as a list of its elements with each element
 being printed using the \TT{quote\_\EOL format} general format.
 These members are typically used to replace \TT{\{"~...~"\}} by
 \TT{"..."}.
+
+\item[\ttmkey{line\_type}{in {\tt min::obj\_format}}]
+\item[\ttmkey{line\_sep\_type}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{line\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_line\_sep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+If \TT{line\_type} is \underline{not} \TT{min::NONE()} and
+an object being printed in compact format has \TT{.type} attribute
+equal to \TT{line\_\EOL type} and does not have
+\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
+the object is printed in \key{compact non-separator line format},
+and if all this applies except
+the \TT{.type} attribute equals
+\TT{line\_\EOL sep\_\EOL type} instead of \TT{line\_\EOL type},
+the object is printed in \key{compact line separator format}.
+These two formats are collectively referred to as \skey{compact line format}s.
+
+In compact line formats the
+object is printed as a list of its elements with each element
+being printed using the \TT{line\_\EOL format} general format,
+and the elements being separated by
+\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL sep}.
+
+In compact separator line format
+\begin{center}
+\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL line\_\EOL sep}
+\end{center}
+is printed after the last element.
+
+A \key{compact line} is defined as a longest sequence of compact line format
+printed objects where only the last may be in non-separator format.
+Just before printing a compact line, the indent
+is set to 4 spaces to the right
+of the initial column position, and at the end of the compact line, a
+\TT{min::bol} is executed.
 
 \item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it

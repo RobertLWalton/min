@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 29 02:29:48 EST 2015
+// Date:	Mon Feb  2 04:11:34 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8015,6 +8015,12 @@ inline void push
 
 static void end_line ( min::printer printer )
 {
+    if ( printer->state & min::AFTER_LINE_SEPARATOR )
+    {
+	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
+	printer << min::restore_indent;
+    }
+
     // Remove line ending horizontal spaces.
     //
     min::packed_vec_insptr<char> buffer =
@@ -8728,6 +8734,14 @@ min::printer MINT::print_unicode
 {
     if ( n == 0 ) return printer;
 
+    if ( printer->state & min::AFTER_LINE_SEPARATOR )
+    {
+	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
+	printer << min::restore_indent
+		<< min::bol;
+    }
+    printer->state &= ~ min::PARAGRAPH_POSSIBLE;
+
     char temp[32];
 
     min::support_control sc =
@@ -8754,12 +8768,10 @@ min::printer MINT::print_unicode
     min::uns32 expand_ht =
         printer->print_format.op_flags & min::EXPAND_HT;
 
-
     bool no_line_break_enabled = false;
         // This prevents repeated checks for an enabled
 	// line break that does not exist.
 
-    printer->state &= ~ min::PARAGRAPH_POSSIBLE;
     min::uns32 flags = printer->state
                      & (   min::AFTER_LEADING
 		         + min::AFTER_TRAILING
@@ -9093,6 +9105,13 @@ static min::printer print_quoted_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
+    if ( printer->state & min::AFTER_LINE_SEPARATOR )
+    {
+	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
+	printer << min::restore_indent
+		<< min::bol;
+    }
+
     min::bracket_format bf = sf->bracket_format;
     min::line_break_stack line_break_stack =
         printer->line_break_stack;
@@ -10084,8 +10103,7 @@ static min::obj_format paragraph_element_obj_format =
     min::NONE(),	    // line_type*
     NULL,		    // line_format*
     min::NONE(),	    // line_sep_type*
-    (const min::ustring *)
-        "\x81\x01" ";",     // obj_line_sep
+    NULL,		    // obj_line_sep
     min::NONE(),	    // paragraph_type
     (const min::ustring *)
         "\x81\x01" ":",     // obj_paragraph_begin
@@ -10157,7 +10175,8 @@ static min::obj_format line_element_obj_format =
     min::NONE(),	    // line_type
     NULL,		    // line_format*
     min::NONE(),	    // line_sep_type
-    NULL,                   // obj_line_sep
+    (const min::ustring *)
+        "\x81\x01" ";",     // obj_line_sep
     min::NONE(),	    // paragraph_type*
     NULL,                   // obj_paragraph_begin
 
@@ -10227,8 +10246,7 @@ static min::obj_format line_obj_format =
     min::NONE(),	    // line_type*
     NULL,		    // line_format*
     min::NONE(),	    // line_sep_type*
-    (const min::ustring *)
-        "\x81\x01" ";",     // obj_line_sep
+    NULL,		    // obj_line_sep
     min::NONE(),	    // paragraph_type
     (const min::ustring *)
         "\x81\x01" ":",     // obj_paragraph_begin
@@ -10954,16 +10972,31 @@ min::printer min::print_obj
 	    }
 	    return printer << min::restore_print_format;
 	}
-	else if ( type == objf->line_type
+	else if ( ( type == objf->line_type
+	            ||
+		    type == objf->line_sep_type )
 	          &&
 		  type != min::NONE()
 		  &&
-		  separator == min::NONE()
-		  &&
-		  min::size_of ( vp ) > 0 )
+		  separator == min::NONE() )
 	{
-	    printer << min::save_indent
-		    << min::place_indent ( 4 );
+	    if (   printer->state
+		 & min::AFTER_LINE_SEPARATOR )
+	    {
+		printer->state &=
+		    ~ min::AFTER_LINE_SEPARATOR;
+		min::print_ustring
+		    ( printer, objf->line_format
+				   ->obj_format
+				   ->obj_sep )
+		    << min::set_break;
+	    }
+	    else
+	    {
+		printer << min::save_indent
+			<< min::place_indent ( 4 );
+	    }
+
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
@@ -10974,7 +11007,9 @@ min::printer min::print_obj
 				       ->obj_format
 			               ->obj_sep )
 		        << min::set_break;
-		    if ( i == min::size_of ( vp ) - 1 )
+		    if ( i == min::size_of ( vp ) - 1
+		         &&
+			 type == objf->line_type )
 		        printer->state |=
 			    min::PARAGRAPH_POSSIBLE;
 		}
@@ -10982,9 +11017,21 @@ min::printer min::print_obj
 		    ( printer,
 		      vp[i], objf->line_format );
 	    }
-	    return printer << min::restore_indent
-		           << min::bol
-	                   << min::restore_print_format;
+	    if ( type == objf->line_sep_type )
+	    {
+		min::print_ustring
+		    ( printer, objf->line_format
+				   ->obj_format
+				   ->obj_line_sep );
+		printer->state |=
+		    min::AFTER_LINE_SEPARATOR;
+		    // See min.h for discussion of when
+		    // this flag will be turned off.
+	    }
+	    else
+	        printer << min::restore_indent
+		        << min::bol;
+	    return printer << min::restore_print_format;
 	}
 	else if ( type == objf->paragraph_type
 	          &&
@@ -10995,24 +11042,37 @@ min::printer min::print_obj
 		  (   printer->state
 		    & min::PARAGRAPH_POSSIBLE ) )
 	{
+	    MIN_REQUIRE
+	        ( (   printer->state
+		    & min::AFTER_LINE_SEPARATOR )
+		  == 0 );
+
 	    min::print_ustring
 		( printer, objf->line_format
 			       ->obj_format
 			       ->obj_paragraph_begin );
 	    printer << min::eol
 	            << min::save_line_break;
-		    // As we are printed this from
+		    // As we are printing this from
 		    // inside a line, indent is already
 		    // adjusted to line indent + 4.
 
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
-		printer << min::indent;
+		if ( (   printer->state
+	               & min::AFTER_LINE_SEPARATOR )
+		     == 0 )
+		    printer << min::indent;
+
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->line_format );
-		printer << min::bol;
+
+		if ( (   printer->state
+	               & min::AFTER_LINE_SEPARATOR )
+		     == 0 )
+		    printer << min::bol;
 	    }
 	    return printer << min::restore_line_break
 	                   << min::restore_print_format;
