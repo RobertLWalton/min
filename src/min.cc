@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  2 04:11:34 EST 2015
+// Date:	Thu Feb  5 21:10:36 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10830,8 +10830,6 @@ static bool print_attributes
     {
 	if ( line_format )
 	    printer << min::adjust_indent ( - adjust );
-	else
-	    printer << min::restore_indent;
     }
     return ! first_attr;
 }
@@ -11170,15 +11168,20 @@ min::printer min::print_obj
         if ( first ) 
 	{
 	    first = false;
-	    if ( ! isolated_line_format )
+	    if ( isolated_line_format )
+		printer << min::save_indent
+	                << min::adjust_indent ( 8 );
+	    else if ( embedded_line_format )
+		min::print_spaces ( printer, 1 )
+		    << min::save_indent;
+	    else
 	    {
 		min::print_spaces ( printer, 1 );
 		if ( ! compact_format )
 		    printer << min::set_break;
+		else
+		    printer << min::save_indent;
 	    }
-	    printer << min::save_indent;
-	    if ( isolated_line_format )
-	        printer << min::adjust_indent ( 8 );
 	}
 	else
 	{
