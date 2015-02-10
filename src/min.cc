@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  5 21:10:36 EST 2015
+// Date:	Mon Feb  9 16:07:06 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1205,6 +1205,11 @@ static void init_standard_char_flags ( void )
 		    break;
 
 	case '\'':
+		    flags = min::IS_TRAILING
+		          + min::IS_APOSTROPHE
+			  + min::IS_BRACKET;
+		    break;
+
 	case 0xBB:	// Right Double Angle Quote, >>
 		    flags = min::IS_TRAILING
 			  + min::IS_BRACKET;
@@ -9219,13 +9224,16 @@ inline min::uns32 compute_flags
     return cflags;
 }
 
-bool min::in_str_class
+static bool standard_in_str_class_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p,
-	  min::str_classifier strcl )
+	  const min::str_classifier * strcl )
 {
+    const min::standard_str_classifier & cl =
+        * (min::standard_str_classifier *) strcl;
+
     bool first = true;
     while ( n -- )
     {
@@ -9233,22 +9241,22 @@ bool min::in_str_class
 	min::uns32 cflags =
 	    min::char_flags ( char_flags, sc, c );
 
-	if ( ( cflags & strcl.in_class_if_all ) == 0 )
+	if ( ( cflags & cl.in_class_if_all ) == 0 )
 	    return false;
-	else if ( cflags & strcl.not_in_class_if_any )
+	else if ( cflags & cl.not_in_class_if_any )
 	    return false;
 	else if ( first
 	          &&
-	             ( cflags & strcl.skip_if_first )
+	             ( cflags & cl.skip_if_first )
 		  == 0 )
 	{
-	    if (    ( cflags & strcl.in_class_if_first )
+	    if (    ( cflags & cl.in_class_if_first )
 		 == 0 )
 	        return false;
-	    else if (    strcl.in_class_if_all
+	    else if (    cl.in_class_if_all
 	              == min::ALL_CHARS
 		      &&
-		      strcl.not_in_class_if_any == 0 )
+		      cl.not_in_class_if_any == 0 )
 	        return true;
 	    else
 		first = false;
@@ -9256,6 +9264,9 @@ bool min::in_str_class
     }
     return ! first;
 }
+min::in_str_class_function
+	min::standard_in_str_class_function =
+    & ::standard_in_str_class_function;
 
 min::printer min::print_unicode
 	( min::printer printer,
@@ -9635,49 +9646,78 @@ min::printer min::print_num
     return printer << buffer;
 }
 
-const min::str_classifier
-	min::never_str_classifier =
+static const min::standard_str_classifier
+	never_str_classifier =
 {
+    min::standard_in_str_class_function,
     0, 0, 0, 0
 };
+const min::str_classifier * min::never_str_classifier =
+    (min::str_classifier * ) & ::never_str_classifier;
 
-const min::str_classifier
-	min::always_str_classifier =
+static const min::standard_str_classifier
+	always_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::ALL_CHARS, 0, min::ALL_CHARS, 0
 };
+const min::str_classifier * min::always_str_classifier =
+    (min::str_classifier * ) & ::always_str_classifier;
 
-const min::str_classifier
-	min::all_marks_str_classifier =
+static const min::standard_str_classifier
+	all_marks_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::IS_MARK, 0, min::IS_MARK, 0
 };
+const min::str_classifier *
+	min::all_marks_str_classifier =
+    (min::str_classifier * )
+    	& ::all_marks_str_classifier;
 
-const min::str_classifier
-	min::all_marks_or_brackets_str_classifier =
+static const min::standard_str_classifier
+	all_marks_or_brackets_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::IS_MARK + min::IS_BRACKET, 0,
     min::IS_MARK + min::IS_BRACKET, 0
 };
+const min::str_classifier *
+	min::all_marks_or_brackets_str_classifier =
+    (min::str_classifier * )
+    	& ::all_marks_or_brackets_str_classifier;
 
-const min::str_classifier
-	min::all_graphics_str_classifier =
+static const min::standard_str_classifier
+	all_graphics_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::IS_GRAPHIC, 0, min::IS_GRAPHIC, 0
 };
+const min::str_classifier *
+	min::all_graphics_str_classifier =
+    (min::str_classifier * )
+    	& ::all_graphics_str_classifier;
 
-const min::str_classifier
-	min::all_non_bracket_graphics_str_classifier =
+static const min::standard_str_classifier
+	all_non_bracket_graphics_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::IS_GRAPHIC, 0, min::IS_GRAPHIC, min::IS_BRACKET
 };
+const min::str_classifier *
+	min::all_non_bracket_graphics_str_classifier =
+    (min::str_classifier * )
+    	& ::all_non_bracket_graphics_str_classifier;
 
-const min::str_classifier
-	min::name_str_classifier =
+static const min::standard_str_classifier
+	name_str_classifier =
 {
+    min::standard_in_str_class_function,
     min::IS_LETTER, min::IS_PERIOD,
     min::IS_LETTER + min::IS_PERIOD, 0
 };
+const min::str_classifier * min::name_str_classifier =
+    (min::str_classifier * ) & ::name_str_classifier;
 
 const min::bracket_format min::quote_bracket_format =
 {
