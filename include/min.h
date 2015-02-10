@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  2 04:11:23 EST 2015
+// Date:	Mon Feb  9 16:02:21 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3357,28 +3357,90 @@ bool operator != \
 
 namespace min {
 
+    inline min::uns16 Uindex ( Uchar c )
+    {
+        return c < unicode::index_size ?
+	           unicode::index[c] :
+		   unicode::index
+		       [unicode::index_size - 1];
+    }
+
+    struct support_control
+    {
+        min::uns32 support_mask;
+        min::uns32 unsupported_char_flags;
+    };
+
+    extern const min::support_control
+        ascii_support_control;
+    extern const min::support_control
+        latin1_support_control;
+    extern const min::support_control
+        support_all_support_control;
+
+    inline min::uns32 char_flags
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::Uchar c )
+    {
+	min::uns16 cindex = min::Uindex ( c );
+	min::uns32 cflags = char_flags[cindex];
+	if ( ( cflags & sc.support_mask ) == 0 )
+	    cflags = sc.unsupported_char_flags;
+	return cflags;
+    }
+
+    struct str_classifier;
+    typedef bool ( * in_str_class_function )
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      const min::str_classifier * strcl );
+
     struct str_classifier
     {
-        min::uns32 in_class_if_first;
-        min::uns32 skip_if_first;
+        min::in_str_class_function in_str_class;
+    };
+
+    struct standard_str_classifier
+    {
+        min::in_str_class_function in_str_class;
+	min::uns32 in_class_if_first;
+	min::uns32 skip_if_first;
 	min::uns32 in_class_if_all;
 	min::uns32 not_in_class_if_any;
     };
+
+    extern min::in_str_class_function
+	standard_in_str_class_function;
+
+    inline bool in_str_class
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      const min::str_classifier * strcl )
+    {
+        return (* strcl->in_str_class )
+	    ( char_flags, sc, n, p, strcl );
+    }
+
     const min::uns32 ALL_CHARS = 0xFFFFFFFF;
 
-    extern const min::str_classifier
+    extern const min::str_classifier *
         never_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         always_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         all_marks_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         all_marks_or_brackets_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         all_graphics_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         all_non_bracket_graphics_str_classifier;
-    extern const min::str_classifier
+    extern const min::str_classifier *
         name_str_classifier;
 
     // UTF-8 Conversion Functions
@@ -3391,14 +3453,6 @@ namespace min {
 	( char * & s, const char * ends,
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
-
-    inline min::uns16 Uindex ( Uchar c )
-    {
-        return c < unicode::index_size ?
-	           unicode::index[c] :
-		   unicode::index
-		       [unicode::index_size - 1];
-    }
 
     // WARNING: IS_LEADING/TRAILING are the same bits
     // as AFTER_LEADING/TRAILING in printer->state.
@@ -3425,8 +3479,9 @@ namespace min {
 
     const min::uns32 IS_LETTER		= ( 1 << 24 );
     const min::uns32 IS_PERIOD		= ( 1 << 25 );
-    const min::uns32 IS_MARK		= ( 1 << 26 );
-    const min::uns32 IS_BRACKET		= ( 1 << 27 );
+    const min::uns32 IS_APOSTROPHE	= ( 1 << 26 );
+    const min::uns32 IS_MARK		= ( 1 << 27 );
+    const min::uns32 IS_BRACKET		= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -4111,6 +4166,26 @@ namespace min {
     {
         return new_str_gen
 	    ( ! p, n );
+    }
+
+    inline bool in_str_class
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::gen v,
+	      const min::str_classifier * strcl )
+    {
+        if ( ! min::is_str ( v ) ) return false;
+	min::str_ptr sp ( v );
+	min::unsptr len = min::strlen ( sp );
+	min::Uchar s[len];
+	min::Uchar * p = s;
+	const char * q = ! min::begin_ptr_of ( sp );
+	min::utf8_to_unicode 
+	    ( p, p + len, q, q + len );
+	return min::in_str_class
+	    ( char_flags, sc, p - s,
+	      min::new_ptr<const min::Uchar> ( s ),
+	      strcl );
     }
 }
 
@@ -10987,19 +11062,6 @@ namespace min {
 
     extern const min::uns32 standard_op_flags;
 
-    struct support_control
-    {
-        min::uns32 support_mask;
-        min::uns32 unsupported_char_flags;
-    };
-
-    extern const min::support_control
-        ascii_support_control;
-    extern const min::support_control
-        latin1_support_control;
-    extern const min::support_control
-        support_all_support_control;
-
     struct display_control
     {
         min::uns32 display_char;
@@ -11759,10 +11821,10 @@ namespace min {
     struct str_format
     {
 
-        min::str_classifier	quote_control;
-	min::bracket_format 	bracket_format;
-	min::display_control	display_control;
-	min::uns32		id_map_if_longer;
+        const min::str_classifier * quote_control;
+	min::bracket_format 	    bracket_format;
+	min::display_control	    display_control;
+	min::uns32		    id_map_if_longer;
     };
 
     extern const min::str_format *
@@ -11839,7 +11901,7 @@ namespace min {
 	const min::ustring *   	    obj_valend;
 	const min::ustring *   	    obj_valreq;
 
-	min::str_classifier	    marking_type;
+	const min::str_classifier * marking_type;
 
 	min::gen		    quote_type;
 	const min::gen_format *     quote_format;
@@ -11925,45 +11987,6 @@ namespace min {
 
     extern packed_vec_ptr<const char *>
            standard_attr_flag_names;
-
-    inline min::uns32 char_flags
-	    ( const min::uns32 * char_flags,
-	      min::support_control sc,
-	      min::Uchar c )
-    {
-	min::uns16 cindex = min::Uindex ( c );
-	min::uns32 cflags = char_flags[cindex];
-	if ( ( cflags & sc.support_mask ) == 0 )
-	    cflags = sc.unsupported_char_flags;
-	return cflags;
-    }
-
-    bool in_str_class
-	    ( const min::uns32 * char_flags,
-	      min::support_control sc,
-	      min::unsptr n,
-	      min::ptr<const min::Uchar> p,
-	      min::str_classifier strcl );
-
-    inline bool in_str_class
-	    ( const min::uns32 * char_flags,
-	      min::support_control sc,
-	      min::gen v,
-	      min::str_classifier strcl )
-    {
-        if ( ! min::is_str ( v ) ) return false;
-	min::str_ptr sp ( v );
-	min::unsptr len = min::strlen ( sp );
-	min::Uchar s[len];
-	min::Uchar * p = s;
-	const char * q = ! min::begin_ptr_of ( sp );
-	min::utf8_to_unicode 
-	    ( p, p + len, q, q + len );
-	return min::in_str_class
-	    ( char_flags, sc, p - s,
-	      min::new_ptr<const min::Uchar> ( s ),
-	      strcl );
-    }
 
     min::printer standard_pgen
 	    ( min::printer printer,
