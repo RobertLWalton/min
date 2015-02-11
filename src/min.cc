@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 10 19:50:18 EST 2015
+// Date:	Wed Feb 11 05:56:41 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1129,7 +1129,7 @@ static void init_standard_char_flags ( void )
 
 	    case 's':
 		flags = min::IS_LEADING
-		      + min::IS_BRACKET;
+		      + min::IS_SEPARATOR;
 		break;
 
 	    case 'f':
@@ -1139,7 +1139,7 @@ static void init_standard_char_flags ( void )
 
 	    case 'e':
 		flags = min::IS_TRAILING
-		      + min::IS_BRACKET;
+		      + min::IS_SEPARATOR;
 		break;
 
 	    case 'c':
@@ -1200,18 +1200,13 @@ static void init_standard_char_flags ( void )
 	case '`':
 	case 0xAB:	// Left Double Angle Quote, <<
 		    flags = min::IS_LEADING
-			  + min::IS_BRACKET;
+			  + min::IS_SEPARATOR;
 		    break;
 
 	case '\'':
-		    flags = min::IS_TRAILING
-		          + min::IS_APOSTROPHE
-			  + min::IS_BRACKET;
-		    break;
-
 	case 0xBB:	// Right Double Angle Quote, >>
 		    flags = min::IS_TRAILING
-			  + min::IS_BRACKET;
+			  + min::IS_SEPARATOR;
 		    break;
 
 	case 0xA1:	// Inverted !
@@ -1223,14 +1218,20 @@ static void init_standard_char_flags ( void )
 	case ',':
 	case ';':
 	case ':':
-	case '!':
-	case '?':
 		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
+			  + min::IS_SEPARATOR;
 		    break;
 
-	case '.':   flags = min::IS_TRAILING
-			  + min::IS_PERIOD
+	case '|':
+	case '"':
+		    flags = min::IS_MIDDLING
+			  + min::IS_SEPARATOR;
+		    break;
+
+	case '!':
+	case '?':
+	case '.':
+		    flags = min::IS_TRAILING
 			  + min::IS_MARK;
 		    break;
 
@@ -9230,38 +9231,30 @@ static bool standard_in_str_class_function
 	  min::ptr<const min::Uchar> p,
 	  const min::str_classifier * strcl )
 {
+    if ( n == 0 ) return false;
+
     const min::standard_str_classifier & cl =
         * (min::standard_str_classifier *) strcl;
 
-    bool first = true;
-    while ( n -- )
+    min::Uchar first = * p ++;
+    min::uns32 cflags =
+	min::char_flags ( char_flags, sc, first );
+    bool not_in_class_if_only =
+	( cflags & cl.not_in_class_if_only );
+    while ( true )
     {
-        min::Uchar c = * p ++;
-	min::uns32 cflags =
-	    min::char_flags ( char_flags, sc, c );
-
 	if ( ( cflags & cl.in_class_if_all ) == 0 )
 	    return false;
 	else if ( cflags & cl.not_in_class_if_any )
 	    return false;
-	else if ( first
-	          &&
-	             ( cflags & cl.skip_if_first )
-		  == 0 )
-	{
-	    if (    ( cflags & cl.in_class_if_first )
-		 == 0 )
-	        return false;
-	    else if (    cl.in_class_if_all
-	              == min::ALL_CHARS
-		      &&
-		      cl.not_in_class_if_any == 0 )
-	        return true;
-	    else
-		first = false;
-	}
+
+	if ( -- n == 0 ) break;
+
+	min::Uchar c = * p ++;
+	if ( c != first ) not_in_class_if_only = false;
+	cflags = min::char_flags ( char_flags, sc, c );
     }
-    return ! first;
+    return ! not_in_class_if_only;
 }
 min::in_str_class_function
 	min::standard_in_str_class_function =
@@ -9649,7 +9642,7 @@ static const min::standard_str_classifier
 	never_str_classifier =
 {
     min::standard_in_str_class_function,
-    0, 0, 0, 0
+    0, 0, 0
 };
 const min::str_classifier * min::never_str_classifier =
     (min::str_classifier * ) & ::never_str_classifier;
@@ -9658,7 +9651,7 @@ static const min::standard_str_classifier
 	always_str_classifier =
 {
     min::standard_in_str_class_function,
-    min::ALL_CHARS, 0, min::ALL_CHARS, 0
+    min::ALL_CHARS, 0, 0
 };
 const min::str_classifier * min::always_str_classifier =
     (min::str_classifier * ) & ::always_str_classifier;
@@ -9667,7 +9660,7 @@ static const min::standard_str_classifier
 	all_marks_str_classifier =
 {
     min::standard_in_str_class_function,
-    min::IS_MARK, 0, min::IS_MARK, 0
+    min::IS_MARK, 0, 0
 };
 const min::str_classifier *
 	min::all_marks_str_classifier =
@@ -9675,22 +9668,21 @@ const min::str_classifier *
     	& ::all_marks_str_classifier;
 
 static const min::standard_str_classifier
-	all_marks_or_brackets_str_classifier =
+	all_marks_or_separators_str_classifier =
 {
     min::standard_in_str_class_function,
-    min::IS_MARK + min::IS_BRACKET, 0,
-    min::IS_MARK + min::IS_BRACKET, 0
+    min::IS_MARK | min::IS_SEPARATOR, 0, 0
 };
 const min::str_classifier *
-	min::all_marks_or_brackets_str_classifier =
+	min::all_marks_or_separators_str_classifier =
     (min::str_classifier * )
-    	& ::all_marks_or_brackets_str_classifier;
+    	& ::all_marks_or_separators_str_classifier;
 
 static const min::standard_str_classifier
 	all_graphics_str_classifier =
 {
     min::standard_in_str_class_function,
-    min::IS_GRAPHIC, 0, min::IS_GRAPHIC, 0
+    min::IS_GRAPHIC, 0, 0
 };
 const min::str_classifier *
 	min::all_graphics_str_classifier =
@@ -9698,25 +9690,15 @@ const min::str_classifier *
     	& ::all_graphics_str_classifier;
 
 static const min::standard_str_classifier
-	all_non_bracket_graphics_str_classifier =
+	all_graphics_but_not_separator_str_classifier =
 {
     min::standard_in_str_class_function,
-    min::IS_GRAPHIC, 0, min::IS_GRAPHIC, min::IS_BRACKET
+    min::IS_GRAPHIC, 0, min::IS_SEPARATOR
 };
 const min::str_classifier *
-	min::all_non_bracket_graphics_str_classifier =
-    (min::str_classifier * )
-    	& ::all_non_bracket_graphics_str_classifier;
-
-static const min::standard_str_classifier
-	name_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::IS_LETTER, min::IS_PERIOD,
-    min::IS_LETTER + min::IS_PERIOD, 0
-};
-const min::str_classifier * min::name_str_classifier =
-    (min::str_classifier * ) & ::name_str_classifier;
+    min::all_graphics_but_not_separator_str_classifier =
+  (min::str_classifier * )
+    & ::all_graphics_but_not_separator_str_classifier;
 
 const min::bracket_format min::quote_bracket_format =
 {
@@ -9739,7 +9721,7 @@ const min::str_format * min::quote_all_str_format =
 static min::str_format
 	quote_non_name_str_format =
 {
-    min::name_str_classifier,
+    min::all_graphics_but_not_separator_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
@@ -9761,16 +9743,16 @@ const min::str_format *
     & ::quote_non_graphic_str_format;
 
 static min::str_format
-	quote_bracket_or_non_graphic_str_format =
+	quote_separator_or_non_graphic_str_format =
 {
-    min::all_non_bracket_graphics_str_classifier,
+    min::all_graphics_but_not_separator_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
 };
 const min::str_format *
-	min::quote_bracket_or_non_graphic_str_format =
-    & ::quote_bracket_or_non_graphic_str_format;
+	min::quote_separator_or_non_graphic_str_format =
+    & ::quote_separator_or_non_graphic_str_format;
 
 static min::lab_format name_lab_format =
 {
@@ -9843,7 +9825,7 @@ static min::obj_format compact_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::all_marks_or_brackets_str_classifier,
+    min::all_marks_or_separators_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
@@ -10313,7 +10295,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_bracket_or_non_graphic_str_format,
+    & ::quote_separator_or_non_graphic_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
@@ -10393,7 +10375,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_bracket_or_non_graphic_str_format,
+    & ::quote_separator_or_non_graphic_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -10432,7 +10414,7 @@ static min::gen_format line_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_bracket_or_non_graphic_str_format,
+    & ::quote_separator_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::line_element_obj_format,
@@ -10446,7 +10428,7 @@ static min::gen_format paragraph_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_bracket_or_non_graphic_str_format,
+    & ::quote_separator_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::paragraph_element_obj_format,
@@ -10460,7 +10442,7 @@ static min::gen_format line_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_bracket_or_non_graphic_str_format,
+    & ::quote_separator_or_non_graphic_str_format,
     & ::name_lab_format,
     & ::name_special_format,
     & ::line_obj_format,
@@ -10551,7 +10533,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::paragraph_element_obj_format.element_format =
-        min::paragraph_element_gen_format;
+        min::top_gen_format;
     ::paragraph_element_obj_format.top_element_format =
         min::line_element_gen_format;
     ::paragraph_element_obj_format
@@ -10577,7 +10559,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::line_element_obj_format.element_format =
-        min::line_element_gen_format;
+        min::top_gen_format;
     ::line_element_obj_format.top_element_format =
         min::paragraph_element_gen_format;
     ::line_element_obj_format.quote_element_format =

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 10 19:45:05 EST 2015
+// Date:	Wed Feb 11 06:43:24 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3406,10 +3406,9 @@ namespace min {
     struct standard_str_classifier
     {
         min::in_str_class_function in_str_class;
-	min::uns32 in_class_if_first;
-	min::uns32 skip_if_first;
 	min::uns32 in_class_if_all;
 	min::uns32 not_in_class_if_any;
+	min::uns32 not_in_class_if_only;
     };
 
     extern min::in_str_class_function
@@ -3435,13 +3434,11 @@ namespace min {
     extern const min::str_classifier *
         all_marks_str_classifier;
     extern const min::str_classifier *
-        all_marks_or_brackets_str_classifier;
+        all_marks_or_separators_str_classifier;
     extern const min::str_classifier *
         all_graphics_str_classifier;
     extern const min::str_classifier *
-        all_non_bracket_graphics_str_classifier;
-    extern const min::str_classifier *
-        name_str_classifier;
+        all_graphics_but_not_separator_str_classifier;
 
     // UTF-8 Conversion Functions
 
@@ -3478,10 +3475,8 @@ namespace min {
     const min::uns32 IS_LATIN1		= ( 1 << 17 );
 
     const min::uns32 IS_LETTER		= ( 1 << 24 );
-    const min::uns32 IS_PERIOD		= ( 1 << 25 );
-    const min::uns32 IS_APOSTROPHE	= ( 1 << 26 );
-    const min::uns32 IS_MARK		= ( 1 << 27 );
-    const min::uns32 IS_BRACKET		= ( 1 << 28 );
+    const min::uns32 IS_MARK		= ( 1 << 25 );
+    const min::uns32 IS_SEPARATOR	= ( 1 << 26 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -11834,7 +11829,7 @@ namespace min {
     extern const min::str_format *
         quote_non_graphic_str_format;
     extern const min::str_format *
-        quote_bracket_or_non_graphic_str_format;
+        quote_separator_or_non_graphic_str_format;
 
     struct lab_format
     {
