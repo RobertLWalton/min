@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  9 16:02:21 EST 2015
+// Date:	Tue Feb 10 19:45:05 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11871,49 +11871,47 @@ namespace min {
     {
         min::uns32		    obj_op_flags;
 
-	const min::gen_format *     element_format;
-        const min::gen_format *	    label_format;
-	const min::gen_format *     value_format;
+	const min::gen_format * element_format;
+	const min::gen_format * compact_element_format;
+	const min::gen_format * top_element_format;
+	const min::gen_format * quote_element_format;
+        const min::gen_format *	label_format;
+	const min::gen_format * value_format;
 
-	const min::gen_format *     initiator_format;
-        const min::gen_format *	    separator_format;
-	const min::gen_format *     terminator_format;
-
-	const min::ustring *   	    obj_empty;
-
-	const min::ustring *   	    obj_bra;
-	const min::ustring *   	    obj_braend;
-	const min::ustring *   	    obj_ketbegin;
-	const min::ustring *   	    obj_ket;
-
-	const min::ustring *   	    obj_sep;
-
-	const min::ustring *   	    obj_attrbegin;
-	const min::ustring *   	    obj_attrsep;
-
-	const min::ustring *   	    obj_attreol;
-
-	const min::ustring *   	    obj_attrneg;
-	const min::ustring *   	    obj_attreq;
-
-	const min::ustring *   	    obj_valbegin;
-	const min::ustring *   	    obj_valsep;
-	const min::ustring *   	    obj_valend;
-	const min::ustring *   	    obj_valreq;
+	const min::gen_format * initiator_format;
+        const min::gen_format *	separator_format;
+	const min::gen_format * terminator_format;
 
 	const min::str_classifier * marking_type;
+	min::gen		quote_type;
+	min::gen		line_type;
+	min::gen		line_sep_type;
+	min::gen		paragraph_type;
 
-	min::gen		    quote_type;
-	const min::gen_format *     quote_format;
+	const min::ustring *   	obj_empty;
 
-	min::gen		    line_type;
-	const min::gen_format *     line_format;
+	const min::ustring *   	obj_bra;
+	const min::ustring *   	obj_braend;
+	const min::ustring *   	obj_ketbegin;
+	const min::ustring *   	obj_ket;
 
-	min::gen		    line_sep_type;
-	const min::ustring *   	    obj_line_sep;
+	const min::ustring *   	obj_sep;
 
-	min::gen		    paragraph_type;
-	const min::ustring *   	    obj_paragraph_begin;
+	const min::ustring *   	obj_attrbegin;
+	const min::ustring *   	obj_attrsep;
+
+	const min::ustring *   	obj_attreol;
+
+	const min::ustring *   	obj_attrneg;
+	const min::ustring *   	obj_attreq;
+
+	const min::ustring *   	obj_valbegin;
+	const min::ustring *   	obj_valsep;
+	const min::ustring *   	obj_valend;
+	const min::ustring *   	obj_valreq;
+
+	const min::ustring *   	obj_line_sep;
+	const min::ustring *   	obj_paragraph_begin;
 
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;
