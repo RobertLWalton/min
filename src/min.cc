@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 11 05:56:41 EST 2015
+// Date:	Thu Feb 12 02:25:35 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10349,7 +10349,7 @@ static min::gen_format value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_name_str_format,
+    & ::quote_all_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10415,7 +10415,7 @@ static min::gen_format line_element_gen_format =
     & min::standard_pgen,
     & ::long_num_format,
     & ::quote_separator_or_non_graphic_str_format,
-    & ::name_lab_format,
+    & ::bracket_lab_format,
     & ::name_special_format,
     & ::line_element_obj_format,
     NULL,			    // id_map_format
@@ -10429,7 +10429,7 @@ static min::gen_format paragraph_element_gen_format =
     & min::standard_pgen,
     & ::long_num_format,
     & ::quote_separator_or_non_graphic_str_format,
-    & ::name_lab_format,
+    & ::bracket_lab_format,
     & ::name_special_format,
     & ::paragraph_element_obj_format,
     NULL,			    // id_map_format
@@ -10443,7 +10443,7 @@ static min::gen_format line_gen_format =
     & min::standard_pgen,
     & ::long_num_format,
     & ::quote_separator_or_non_graphic_str_format,
-    & ::name_lab_format,
+    & ::bracket_lab_format,
     & ::name_special_format,
     & ::line_obj_format,
     NULL,			    // id_map_format
@@ -10474,7 +10474,7 @@ static void init_pgen_formats ( void )
         min::standard_special_names;
 
     ::compact_obj_format.element_format =
-        min::top_gen_format;
+        min::element_gen_format;
     ::compact_obj_format.compact_element_format =
         min::top_gen_format;
     ::compact_obj_format.quote_element_format =
@@ -10482,7 +10482,7 @@ static void init_pgen_formats ( void )
     ::compact_obj_format.label_format =
         min::name_gen_format;
     ::compact_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::compact_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::compact_obj_format.separator_format =
@@ -10501,7 +10501,7 @@ static void init_pgen_formats ( void )
     ::isolated_line_obj_format.label_format =
         min::name_gen_format;
     ::isolated_line_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::isolated_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::isolated_line_obj_format.separator_format =
@@ -10514,13 +10514,13 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::embedded_line_obj_format.element_format =
-        min::top_gen_format;
+        min::element_gen_format;
     ::embedded_line_obj_format.quote_element_format =
         min::always_quote_gen_format;
     ::embedded_line_obj_format.label_format =
         min::name_gen_format;
     ::embedded_line_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::embedded_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::embedded_line_obj_format.separator_format =
@@ -10533,7 +10533,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::paragraph_element_obj_format.element_format =
-        min::top_gen_format;
+        min::element_gen_format;
     ::paragraph_element_obj_format.top_element_format =
         min::line_element_gen_format;
     ::paragraph_element_obj_format
@@ -10542,7 +10542,7 @@ static void init_pgen_formats ( void )
     ::paragraph_element_obj_format.label_format =
         min::name_gen_format;
     ::paragraph_element_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::paragraph_element_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::paragraph_element_obj_format.separator_format =
@@ -10559,7 +10559,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::line_element_obj_format.element_format =
-        min::top_gen_format;
+        min::element_gen_format;
     ::line_element_obj_format.top_element_format =
         min::paragraph_element_gen_format;
     ::line_element_obj_format.quote_element_format =
@@ -10567,7 +10567,7 @@ static void init_pgen_formats ( void )
     ::line_element_obj_format.label_format =
         min::name_gen_format;
     ::line_element_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::line_element_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::line_element_obj_format.separator_format =
@@ -10582,7 +10582,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::line_obj_format.element_format =
-        min::top_gen_format;
+        min::element_gen_format;
     ::line_obj_format.top_element_format =
         min::line_element_gen_format;
     ::line_obj_format.quote_element_format =
@@ -10590,7 +10590,7 @@ static void init_pgen_formats ( void )
     ::line_obj_format.label_format =
         min::name_gen_format;
     ::line_obj_format.value_format =
-        min::top_gen_format;
+        min::value_gen_format;
     ::line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::line_obj_format.separator_format =
@@ -11270,7 +11270,8 @@ min::printer min::print_obj
     }
     else
     {
-	min::print_spaces ( printer, 1 );
+	min::print_spaces ( printer, 1 )
+	    << min::set_break;
 
 	if (    compact_format
 	     && terminator != min::NONE() )
