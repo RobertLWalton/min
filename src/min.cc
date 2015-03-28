@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 12 02:25:35 EST 2015
+// Date:	Sat Mar 28 15:25:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1219,7 +1219,7 @@ static void init_standard_char_flags ( void )
 	case ';':
 	case ':':
 		    flags = min::IS_TRAILING
-			  + min::IS_SEPARATOR;
+			  + min::IS_MARK;
 		    break;
 
 	case '|':

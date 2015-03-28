@@ -1463,7 +1463,7 @@ name
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")
 [: 5.6 [: 1.234 "str<SP>1" :] "str<SP>2" :]
-A "," B / [: A "," B :]
+A , B / [: A , B :]
 MISSING
 NONE
 ANY
