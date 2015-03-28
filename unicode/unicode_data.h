@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 00:09:56 EST 2015
+// Date:	Sat Mar 28 05:22:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -104,12 +104,14 @@ inline uns32 ustring_flags
 // Return the UTF8 encoded unicode character at the
 // beginning of the string s and move s to just after
 // that character.  Ends is just after the last
-// character of the string, and if the string runs out
-// before a legal unicode character is found, s is set
-// to ends and UNKNOWN_UCHAR is returned.  If an illegal
-// UTF8 encoding is encountered inside the string,
-// UNKNOWN_UCHAR is returned and s is set to point just
-// after the illegal UTF8 encoding.
+// character of the string.  If s >= ends when this
+// function is called, NO_UCHAR is returned.  Otherwise
+// if the string runs out before a legal unicode char-
+// acter is found, s is set to ends and UNKNOWN_UCHAR
+// is returned.  If an illegal UTF8 encoding is encount-
+// ered inside the string, UNKNOWN_UCHAR is returned and
+// s is set to point just after the illegal UTF8 encod-
+// ing.
 //
 // Overlong encodings and 7 bytes encodings of 32-bit
 // unicode characters are supported.  Overlong encodings
@@ -118,7 +120,7 @@ inline uns32 ustring_flags
 inline Uchar utf8_to_unicode
     ( const char * & s, const char * ends )
 {
-    if ( s >= ends ) return UNKNOWN_UCHAR;
+    if ( s >= ends ) return NO_UCHAR;
 
     unsigned char c = (unsigned char) * s ++;
     if ( c < 0x80 ) return c;

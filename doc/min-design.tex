@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 2, 2015}
+\date{March 28, 2015}
  
 \maketitle
 
@@ -3455,21 +3455,26 @@ of the encoding and is updated to point after the encoding, while
 \TT{ends} points just after the last byte that can be part of
 the encoding.
 
+The \TT{min::uft8\_to\_unicode} function returns \TT{min::\EOL NO\_\EOL UCHAR}
+if \TT{s >= ends} when the function is called.
+Otherwise in returns the first character encoded by the UTF-8 string
+pointed at by \TT{s} and terminating just before \TT{ends}, and updates
+\TT{s} to point just after that character's encoding.
+
 The \TT{min::uft8\_to\_unicode} function will accept
 \mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
 and also accept 7-byte encodings (first byte \TT{0xFE})
 so that $2^{32}-1$ can be encoded.  If it encounters an
-illegal encoding it returns \TT{min::\EOL UNKNOWN\_\EOL UCHAR}
-and updates \TT{s} to point just after the illegal encoding.
+illegal encoding it returns \TT{min::\EOL UNKNOWN\_\EOL UCHAR}.
+An illegal encoding will terminate if the next byte cannot be
+part of a legal encoding or if there is no next byte according
+to \TT{ends}.
+
 Applying the \TT{min::uft8\_to\_unicode} function repeatedly
 until \TT{s >= ends} will produce a sequence of UNICODE
 characters from any byte string, even one that is not legal UTF-8,
 though if the string is not legal some \TT{min::\EOL UNKNOWN\_\EOL UCHAR}
 characters will be returned.
-
-More specifically, an illegal encoding is a string of bytes such that
-the last byte cannot be UTF-8 legal given the previous bytes, or
-is an incomplete UTF-8 encoding at the end of the byte string.
 
 The \TT{min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
 a UTF-8 character \TT{c} into \TT{s}, updating \TT{s} to point after the
@@ -3641,17 +3646,17 @@ possible.
 The standard character flags are
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
-\LABEL{MIN::IS_NON_SPACING} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
 \LABEL{MIN::IS_LEADING} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
 \LABEL{MIN::IS_MIDDLING} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
 \LABEL{MIN::IS_TRAILING} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
+\LABEL{MIN::IS_NON_SPACING} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3678,17 +3683,15 @@ The standard character flags are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
 \LABEL{MIN::CONDITIONAL_BREAK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
-\LABEL{MIN::IS_LETTER} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_PERIOD}
-\LABEL{MIN::IS_PERIOD} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
+\LABEL{MIN::IS_LETTER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_BRACKET}
-\LABEL{MIN::IS_BRACKET} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
+\LABEL{MIN::IS_SEPARATOR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3732,19 +3735,20 @@ Of these flags, only the first four:
 
 \begin{center}
 \begin{tabular}{l}
-\TT{min::IS\_NON\_SPACING} \\
 \TT{min::IS\_LEADING} \\
 \TT{min::IS\_MIDDLING} \\
 \TT{min::IS\_TRAILING} \\
+\TT{min::IS\_NON\_SPACING} \\
 \end{tabular}
 \end{center}
 
 are built into MIN printer code and need to be in user
 defined character flags as well as standard character flags.
-\minkey{IS\_NON\_SPACING} signifies that a character takes zero
-columns, instead of 1 column.  \TT{min::IS\_LEADING/MIDDLING/TRAILING}
+\TT{min::IS\_LEADING/MIDDLING/TRAILING}
 are used by the single space suppression feature of MIN printers;
 see below.
+\minkey{IS\_NON\_SPACING} signifies that a character takes zero
+columns, instead of 1 column.
 
 The specific assignment of these flags encoded in
 \TT{min::standard\_char\_flags} is according to their
@@ -3768,7 +3772,7 @@ and digits).
 ~~~\TT{Mn}	& non-spacing combining marks \\
 \TT{N}		& number \\
 ~~~\TT{Nd}	& decimal numbers, includes digits \\
-~~~\TT{No}	& other number, includes
+~~~\TT{No}	& other numbers, includes
                   \TT{\textsuperscript{1}}
                   \TT{\textsuperscript{2}}
 		  \TT{\textsuperscript{3}}
@@ -3830,10 +3834,13 @@ and digits).
 \end{tabular}
 \end{center}
 
-For \TT{min::standard\_char\_flags}, the non-spacing mark characters
+For \TT{min::standard\_char\_flags}, the non-spacing combining mark characters
 and all control characters except single space, horizontal tab,
-and non-break space
-are given the \minkey{IS\_NON\_SPACING} flag.  Note that the
+and non-break space are given the
+\TT{min::\EOL IS\_\EOL NON\_\EOL SPACING}%
+\ttindex{min::IS\_NON\_SPACING}%
+\ttindex{IS\_NON\_SPACING}
+flag.  Note that the
 horizontal tabs are handled specially by the printer as far
 as the number of columns they take, and this special handling
 ignores the character flags of the horizontal tab character.
@@ -3964,19 +3971,20 @@ The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
 can be followed by a line break, such as \TT{-} and \TT{\_}.
 See \pagref{CONDITIONAL-BREAK}.
 The \minkey{IS\_\EOL LETTER}
-and \minkey{IS\_\EOL PERIOD} flags mark letters (including combining
-characters) and periods
+flag marks letters (including combining
+characters)
 and can be used in a string classifier to classify strings that
 are names not be be quoted.
 See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
 and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
 on \pagref{IN_CLASS_IF_FIRST}.
-The \minkey{IS\_\EOL BRACKET} flag is given to all brackets, such as
-\TT{(~)}, \TT{`~'}, and \TT{\guillemotleft~\guillemotright}, and is
-used to force quoting of strings containing bracket characters.
+The \minkey{IS\_\EOL SEPARATOR} flag is given to all separators, such as
+\TT{(~)}, \TT{`~'}, \TT{\guillemotleft~\guillemotright}, `\TT{,}',
+`\TT{;}', and `\TT{:}', and is
+used to force quoting of strings containing separators.
 The \minkey{IS\_\EOL MARK} flag is given to all punctuation and symbols
 (i.e., to non-letter, non-combining-mark, non-number characters)
-other that the \TT{IS\_\EOL BRACKET} characters,
+other that the \TT{IS\_\EOL SEPARATOR} characters,
 and is used to define the \TT{marking\_\EOL type} string category:
 see \pagref{MARKING_TYPE}.
 
@@ -3989,15 +3997,14 @@ The assignment of these four flags in
 				   (includes \TT{-} and \TT{\_}) \\
 \ttkey{min::IS\_LETTER}: & categories \TT{L} and \TT{M}
 				(letters and combining marks) \\
-\ttkey{min::IS\_PERIOD}: & \TT{.} (period) \\
-\ttkey{min::IS\_BRACKET}: & categories \TT{Ps} and \TT{Pe}
-                            (start and end brackets), \\
-			  & plus \TT{`}, \TT{'}, \TT{\guillemotleft},
-			                     and \TT{\guillemotright} \\
 \ttkey{min::IS\_MARK}: & categories \TT{P} and \TT{S}
                          (punctuation and symbols), \\
 		       & but \underline{not} characters with
-		         \TT{IS\_BRACKET} flag above \\
+		         \TT{IS\_SEPARATOR} flag below \\
+\ttkey{min::IS\_SEPARATOR}: & categories \TT{Ps} and \TT{Pe}
+                            (start and end brackets), \\
+			  & plus \TT{`} \TT{'} \TT{\guillemotleft}
+			    \TT{\guillemotright} \TT{|} \TT{"} \\
 \end{tabular}
 \end{center}
 
@@ -4442,7 +4449,7 @@ The following are some predefined string classifiers:
 \verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
 \verb|0                              // skip_if_first|\ARGBREAK
 \verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
-\verb|min::IS_BRACKET                // not_in_class_if_any|
+\verb|min::IS_SEPARATOR              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.5em]\begin{tabular}{r@{}l}
@@ -4450,8 +4457,7 @@ The following are some predefined string classifiers:
 	   min::\MINKEY{name\_str\_classifier}:}
 \LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
 \verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
-\verb|min::IS_PERIOD                 // skip_if_first|\ARGBREAK
-\verb|min::IS_LETTER+min::IS_PERIOD  // in_class_if_all|\ARGBREAK
+\verb|min::IS_LETTER                 // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
@@ -4469,9 +4475,9 @@ The following are some predefined string classifiers:
 \multicolumn{2}{l}{\tt const min::str\_classifier
 	   min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
 \LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_first|\ARGBREAK
+\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_first|\ARGBREAK
 \verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_all|\ARGBREAK
+\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
 
@@ -17081,17 +17087,17 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
-\LABEL{MIN::IS_NON_SPACING} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
 \LABEL{MIN::IS_LEADING} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
 \LABEL{MIN::IS_MIDDLING} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
 \LABEL{MIN::IS_TRAILING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
+\LABEL{MIN::IS_NON_SPACING} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17120,15 +17126,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::CONDITIONAL_BREAK} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
 \LABEL{MIN::IS_LETTER} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_PERIOD}
-\LABEL{MIN::IS_PERIOD} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_BRACKET}
-\LABEL{MIN::IS_BRACKET} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
+\LABEL{MIN::IS_SEPARATOR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17272,7 +17273,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
 \verb|0                              // skip_if_first|\ARGBREAK
 \verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
-\verb|min::IS_BRACKET                // not_in_class_if_any|
+\verb|min::IS_SEPARATOR              // not_in_class_if_any|
 \end{TABULAR}
 
 \bigskip
@@ -17282,8 +17283,8 @@ These are in \verb|min_parameters.h|.
 	   min::\MINKEY{name\_str\_classifier}:}
 \LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
 \verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
-\verb|min::IS_PERIOD                 // skip_if_first|\ARGBREAK
-\verb|min::IS_LETTER+min::IS_PERIOD  // in_class_if_all|\ARGBREAK
+\verb|0                              // skip_if_first|\ARGBREAK
+\verb|min::IS_LETTER                 // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{TABULAR}
 
@@ -17306,9 +17307,9 @@ These are in \verb|min_parameters.h|.
     {\tt ~~~~~~~~~~~~~~~
          min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
 \LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_first|\ARGBREAK
+\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_first|\ARGBREAK
 \verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK+min::IS_BRACKET   // in_class_if_all|\ARGBREAK
+\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{TABULAR}
 
