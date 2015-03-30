@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 28 05:10:21 EDT 2015
+// Date:	Mon Mar 30 04:00:12 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3391,55 +3391,18 @@ namespace min {
 	return cflags;
     }
 
-    struct str_classifier;
-    typedef bool ( * in_str_class_function )
+    typedef min::uns32 ( * str_classifier )
 	    ( const min::uns32 * char_flags,
 	      min::support_control sc,
 	      min::unsptr n,
-	      min::ptr<const min::Uchar> p,
-	      const min::str_classifier * strcl );
+	      min::ptr<const min::Uchar> p );
 
-    struct str_classifier
-    {
-        min::in_str_class_function in_str_class;
-    };
-
-    struct standard_str_classifier
-    {
-        min::in_str_class_function in_str_class;
-	min::uns32 in_class_if_all;
-	min::uns32 not_in_class_if_any;
-	min::uns32 not_in_class_if_only;
-    };
-
-    extern min::in_str_class_function
-	standard_in_str_class_function;
-
-    inline bool in_str_class
-	    ( const min::uns32 * char_flags,
-	      min::support_control sc,
-	      min::unsptr n,
-	      min::ptr<const min::Uchar> p,
-	      const min::str_classifier * strcl )
-    {
-        return (* strcl->in_str_class )
-	    ( char_flags, sc, n, p, strcl );
-    }
-
-    const min::uns32 ALL_CHARS = 0xFFFFFFFF;
-
-    extern const min::str_classifier *
-        never_str_classifier;
-    extern const min::str_classifier *
-        always_str_classifier;
-    extern const min::str_classifier *
-        all_marks_str_classifier;
-    extern const min::str_classifier *
-        all_marks_or_separators_str_classifier;
-    extern const min::str_classifier *
-        all_graphics_str_classifier;
-    extern const min::str_classifier *
-        all_graphics_but_not_separator_str_classifier;
+    extern const min::str_classifier
+        standard_str_classifier;
+    extern const min::str_classifier
+        quote_all_str_classifier;
+    extern const min::str_classifier
+        null_str_classifier;
 
     // UTF-8 Conversion Functions
 
@@ -3475,9 +3438,11 @@ namespace min {
     const min::uns32 IS_ASCII		= ( 1 << 16 );
     const min::uns32 IS_LATIN1		= ( 1 << 17 );
 
-    const min::uns32 IS_LETTER		= ( 1 << 24 );
-    const min::uns32 IS_MARK		= ( 1 << 25 );
-    const min::uns32 IS_SEPARATOR	= ( 1 << 26 );
+    const min::uns32 IS_MARK		= ( 1 << 24 );
+    const min::uns32 IS_SEPARATOR	= ( 1 << 25 );
+    const min::uns32 IS_REPEATER	= ( 1 << 26 );
+    const min::uns32 IS_GLUABLE		= ( 1 << 27 );
+    const min::uns32 IS_NON_GLUABLE	= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -4164,11 +4129,21 @@ namespace min {
 	    ( ! p, n );
     }
 
-    inline bool in_str_class
+    inline min::uns32 str_class
+	    ( const min::uns32 * char_flags,
+	      min::support_control sc,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      const min::str_classifier strcl )
+    {
+	return ( * strcl ) ( char_flags, sc, n, p );
+    }
+
+    inline min::uns32 str_class
 	    ( const min::uns32 * char_flags,
 	      min::support_control sc,
 	      min::gen v,
-	      const min::str_classifier * strcl )
+	      const min::str_classifier strcl )
     {
         if ( ! min::is_str ( v ) ) return false;
 	min::str_ptr sp ( v );
@@ -4178,10 +4153,9 @@ namespace min {
 	const char * q = ! min::begin_ptr_of ( sp );
 	min::utf8_to_unicode 
 	    ( p, p + len, q, q + len );
-	return min::in_str_class
+	return ( * strcl )
 	    ( char_flags, sc, p - s,
-	      min::new_ptr<const min::Uchar> ( s ),
-	      strcl );
+	      min::new_ptr<const min::Uchar> ( s ) );
     }
 }
 
@@ -6416,6 +6390,8 @@ namespace min {
     typedef min::packed_vec_ptr
 		< internal::unicode_name_entry >
 	    unicode_name_table;
+
+    const min::uns32 ALL_CHARS = 0xFFFFFFFF;
 
     min::unicode_name_table init
             ( min::ref<min::unicode_name_table> table,
@@ -11212,25 +11188,9 @@ namespace min {
         min::uns32 state;
 	    // See state flags above.
 
-	min::uns32 last_char_flags;
-	min::uns32 and_ed_char_flags;
-	    // Last_char_flags are the char_flags of the
-	    // UNICODE character whose representation
-	    // is last in the printer->buffer.  Note
-	    // the representation may not have the
-	    // same kind of flags as the character
-	    // represented, and it is the latter whose
-	    // flags are here.
-	    //
-	    // And_ed_char_flags is the logical AND of
-	    // char_flags of all the UNICODE characters
-	    // represented in the printer->buffer since
-	    // the last time this value was initialized.
-	    // It is reset to min::IS_LEADING + min::IS_
-	    // TRAILING just before a string is output,
-	    // and can be used to check whether a lead-
-	    // ing or trailing string has just been
-	    // output.
+	min::uns32 last_str_class;
+	    // Result of str_class applied to last
+	    // string in line, or 0 if after whitespace.
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11599,6 +11559,7 @@ namespace min {
 		( min::printer printer,
 		  min::unsptr & n,
 		  min::ptr<const min::Uchar> & p,
+		  min::uns32 str_class,
 		  min::uns32 & width,
 		  const min::display_control *
 		      display_control = NULL,
@@ -11631,7 +11592,7 @@ namespace min {
         min::ptr<const min::Uchar> p =
 	      min::new_ptr<const min::Uchar>( buffer );
 	return min::internal::print_unicode
-	    ( printer, n, p, width );
+	    ( printer, n, p, 0, width );
     }
 
 
@@ -11647,17 +11608,7 @@ namespace min {
 	    ( min::printer printer,
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
-	      const min::str_format * );
-
-    inline min::printer print_unicode
-	    ( min::printer printer,
-	      min::unsptr n,
-	      min::ptr<const min::Uchar> p )
-    {
-	min::uns32 width = 0xFFFFFFFF;
-	return min::internal::print_unicode
-		    ( printer, n, p, width );
-    }
+	      const min::str_format * = NULL );
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
@@ -11817,7 +11768,7 @@ namespace min {
     struct str_format
     {
 
-        const min::str_classifier * quote_control;
+        const min::str_classifier   str_classifier;
 	min::bracket_format 	    bracket_format;
 	min::display_control	    display_control;
 	min::uns32		    id_map_if_longer;
@@ -11826,11 +11777,7 @@ namespace min {
     extern const min::str_format *
         quote_all_str_format;
     extern const min::str_format *
-        quote_non_name_str_format;
-    extern const min::str_format *
-        quote_non_graphic_str_format;
-    extern const min::str_format *
-        quote_separator_or_non_graphic_str_format;
+        standard_str_format;
 
     struct lab_format
     {
@@ -11878,7 +11825,7 @@ namespace min {
         const min::gen_format *	separator_format;
 	const min::gen_format * terminator_format;
 
-	const min::str_classifier * marking_type;
+	const min::str_classifier marking_type;
 	min::gen		quote_type;
 	min::gen		line_type;
 	min::gen		line_sep_type;

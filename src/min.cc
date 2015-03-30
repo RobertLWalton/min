@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 28 15:25:59 EDT 2015
+// Date:	Mon Mar 30 07:32:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1117,53 +1117,60 @@ static void init_standard_char_flags ( void )
 	    flags = min::IS_UNSUPPORTED;
 	else if ( cat[0] == 'L' )
 	    flags = min::IS_MIDDLING
-		  + min::IS_LETTER;
+		  + min::IS_GLUABLE;
 	else if ( cat[0] == 'P' )
 	{
 	    switch ( cat[1] )
 	    {
 	    case 'i':
 		flags = min::IS_LEADING
-		      + min::IS_MARK;
+		      + min::IS_MARK
+		      + min::IS_GLUABLE;
 		break;
 
 	    case 's':
 		flags = min::IS_LEADING
-		      + min::IS_SEPARATOR;
+		      + min::IS_SEPARATOR
+		      + min::IS_GLUABLE;
 		break;
 
 	    case 'f':
 		flags = min::IS_TRAILING
-		      + min::IS_MARK;
+		      + min::IS_MARK
+		      + min::IS_GLUABLE;
 		break;
 
 	    case 'e':
 		flags = min::IS_TRAILING
-		      + min::IS_SEPARATOR;
+		      + min::IS_SEPARATOR
+		      + min::IS_GLUABLE;
 		break;
 
 	    case 'c':
 	    case 'd':
 	        flags = min::IS_MIDDLING
 		      + min::CONDITIONAL_BREAK
-		      + min::IS_MARK;
+		      + min::IS_MARK
+		      + min::IS_GLUABLE;
 		break;
 
 	    default:
 		flags = min::IS_MIDDLING
-		      + min::IS_MARK;
+		      + min::IS_MARK
+		      + min::IS_GLUABLE;
 	    }
 	}
 	else if ( cat[0] == 'S' )
 	    flags = min::IS_MIDDLING
-		  + min::IS_MARK;
+		  + min::IS_MARK
+		  + min::IS_GLUABLE;
 	else if ( strcmp ( cat, "Mn" ) == 0 )
 	    flags = min::IS_MIDDLING
 	          + min::IS_NON_SPACING
-		  + min::IS_LETTER;
+		  + min::IS_GLUABLE;
 	else if ( cat[0] == 'M' )
 	    flags = min::IS_MIDDLING
-		  + min::IS_LETTER;
+		  + min::IS_GLUABLE;
 	else if ( cat[0] == 'N' )
 	    flags = min::IS_MIDDLING;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
@@ -1200,46 +1207,57 @@ static void init_standard_char_flags ( void )
 	case '`':
 	case 0xAB:	// Left Double Angle Quote, <<
 		    flags = min::IS_LEADING
-			  + min::IS_SEPARATOR;
+			  + min::IS_SEPARATOR
+			  + min::IS_GLUABLE;
 		    break;
 
 	case '\'':
 	case 0xBB:	// Right Double Angle Quote, >>
 		    flags = min::IS_TRAILING
-			  + min::IS_SEPARATOR;
+			  + min::IS_SEPARATOR
+			  + min::IS_GLUABLE;
 		    break;
 
 	case 0xA1:	// Inverted !
 	case 0xBF:	// Inverted ?
 		    flags = min::IS_LEADING
-			  + min::IS_MARK;
+			  + min::IS_MARK
+			  + min::IS_GLUABLE;
 		    break;
 	
 	case ',':
 	case ';':
 	case ':':
 		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
+			  + min::IS_MARK
+			  + min::IS_GLUABLE;
 		    break;
 
 	case '|':
+		    flags = min::IS_MIDDLING
+			  + min::IS_SEPARATOR
+			  + min::IS_GLUABLE;
+		    break;
+
 	case '"':
 		    flags = min::IS_MIDDLING
-			  + min::IS_SEPARATOR;
+			  + min::IS_NON_GLUABLE;
 		    break;
 
 	case '!':
 	case '?':
 	case '.':
 		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
+			  + min::IS_MARK
+			  + min::IS_GLUABLE;
 		    break;
 
 	case '-':
 	case '_':
 	case '%':   flags = min::IS_MIDDLING
 			  + min::CONDITIONAL_BREAK
-			  + min::IS_MARK;
+			  + min::IS_MARK
+			  + min::IS_GLUABLE;
 		    break;
 	}
 
@@ -7995,7 +8013,7 @@ min::printer min::init
     printer->column = 0;
     printer->line_break = min::default_line_break;
     printer->print_format = min::default_print_format;
-    printer->state = min::NON_GRAPHIC_STATE;
+    printer->last_str_class = 0;
 
     return printer;
 }
@@ -8079,7 +8097,7 @@ static void end_line ( min::printer printer )
     printer->column = 0;
     printer->line_break.offset = buffer->length;
     printer->line_break.column = 0;
-    printer->state = min::NON_GRAPHIC_STATE;
+    printer->last_str_class = 0;
 }
 
 static bool insert_line_break
@@ -8429,25 +8447,29 @@ min::printer operator <<
 	    min::print_spaces ( printer, 1 );
 	return printer;
     case min::op::LEADING:
-        if ( printer->state & min::NON_GRAPHIC_STATE )
-	    return printer;
+        if ( ! (   printer->last_str_class
+	         & min::IS_LEADING ) )
+	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_LEADING
 	                + min::FORCE_SPACE_OK;
 	return printer;
     case min::op::TRAILING:
-        if ( printer->state & min::NON_GRAPHIC_STATE )
-	    return printer;
+        if ( ! (   printer->last_str_class
+	         & min::IS_GLUABLE ) )
+	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING
 	                + min::FORCE_SPACE_OK;
 	return printer;
     case min::op::LEADING_ALWAYS:
-        if ( printer->state & min::NON_GRAPHIC_STATE )
-	    return printer;
+        if ( ! (   printer->last_str_class
+	         & min::IS_LEADING ) )
+	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_LEADING;
 	return printer;
     case min::op::TRAILING_ALWAYS:
-        if ( printer->state & min::NON_GRAPHIC_STATE )
-	    return printer;
+        if ( ! (   printer->last_str_class
+	         & min::IS_GLUABLE ) )
+	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING;
 	return printer;
     case min::op::PRINT_ASSERT:
@@ -8731,6 +8753,7 @@ min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
 	  min::ptr<const min::Uchar> & p,
+	  min::uns32 str_class,
 	  min::uns32 & width,
 	  const min::display_control * display_control,
 	  const min::Uchar * substring,
@@ -8781,18 +8804,22 @@ min::printer MINT::print_unicode
                      & (   min::AFTER_LEADING
 		         + min::AFTER_TRAILING
 			 + min::FORCE_SPACE_OK );
+    const min::uns32 IS_NON_SPACE = min::IS_GLUABLE
+                                  | min::IS_NON_GLUABLE;
     if ( flags )
     {
         printer->state &= ~ flags;
 
-        min::Uchar c = * p;
-	min::uns16 cindex = min::Uindex ( c );
-	min::uns32 cflags = char_flags[cindex];
-	if ( ( cflags & sc.support_mask ) == 0 )
-	    cflags = sc.unsupported_char_flags;
-
-	if ( cflags & min::IS_NON_GRAPHIC )
+	if ( ! ( str_class & IS_NON_SPACE ) )
 	    flags = 0; // Do NOT print space.
+	else if ( ! (   printer->last_str_class
+	              & IS_NON_SPACE ) )
+	    flags = 0; // Do NOT print space.
+	else if ( ! ( str_class & min::IS_GLUABLE ) )
+	    /* Do nothing, i.e., print space. */;
+	else if ( ! (   printer->last_str_class
+	              & min::IS_GLUABLE ) )
+	    /* Do nothing, i.e., print space. */;
 	else if ( ( flags & (   min::AFTER_LEADING
 	                      + min::AFTER_TRAILING ) )
 		  == (   min::AFTER_LEADING
@@ -8803,48 +8830,17 @@ min::printer MINT::print_unicode
 		  &&
 		  ( flags & min::FORCE_SPACE_OK ) )
 	    /* Do nothing, i.e., print space. */;
-	else if ( flags & min::IS_LEADING
-		  &&
-		  ! (   printer->state
-		      & min::LEADING_STATE ) )
-	    /* Do nothing; i.e. print space. */;
 	else if ( flags & min::IS_TRAILING
 		  &&
-		  ! (   printer->state
-		      & min::TRAILING_STATE ) )
-	    /* Do nothing; i.e. print space. */;
+		  ( str_class & min::IS_TRAILING ) )
+	    flags = 0; // Do NOT print space.
 	else if ( flags & min::IS_LEADING
 	          &&
-	          cflags & min::IS_MIDDLING )
+		  (   printer->last_str_class
+		    & min::IS_LEADING ) )
 	    flags = 0; // Do NOT print space.
-	else if ( flags & cflags )
-	{
-	    MIN_REQUIRE (    min::IS_LEADING
-	                  == min::AFTER_LEADING );
-	    MIN_REQUIRE (    min::IS_TRAILING
-	                  == min::AFTER_TRAILING );
-
-	    flags &= (   min::IS_LEADING
-		       + min::IS_TRAILING );
-	    min::uns32 sflags = flags;
-
-	    min::unsptr m = 0;
-	    while ( true )
-	    {
-		if ( cflags & min::IS_NON_GRAPHIC )
-		    break;
-		sflags &= cflags;
-
-		if ( sflags == 0 || ++ m >= n ) break;
-
-		c = p[m];
-		cindex = min::Uindex ( c );
-		cflags = char_flags[cindex];
-		if ( ( cflags & sc.support_mask ) == 0 )
-		    cflags = sc.unsupported_char_flags;
-	    }
-	    flags ^= sflags;
-	}
+	else
+	    /* Do nothing, i.e., print space. */{}
 
 	if ( flags ) min::print_spaces ( printer );
 
@@ -8854,10 +8850,9 @@ min::printer MINT::print_unicode
 	    printer << min::save_indent;
 	}
     }
+    printer->last_str_class = str_class;
 
     bool rep_is_space;
-    printer->and_ed_char_flags = min::IS_LEADING
-                               + min::IS_TRAILING;
     while ( n )
     {
         min::Uchar c = * p;
@@ -8993,18 +8988,6 @@ min::printer MINT::print_unicode
 
 	n -= clength;
 	p = p + clength;
-	printer->last_char_flags = cflags;
-	if ( cflags & min::IS_GRAPHIC )
-	    printer->and_ed_char_flags &= cflags;
-	else
-	{
-	    printer->and_ed_char_flags =
-	        min::IS_LEADING + min::IS_TRAILING;
-	    printer->state |= min::NON_GRAPHIC_STATE;
-	    printer->state &=
-	        ~ (   min::LEADING_STATE
-		    + min::TRAILING_STATE );
-	}
 
 	if ( columns > 0 )
 	{
@@ -9059,47 +9042,6 @@ min::printer MINT::print_unicode
 	width -= columns;
 
     }
-
-    if ( ( printer->last_char_flags & min::IS_GRAPHIC )
-         == 0 )
-    {
-	printer->state |= min::NON_GRAPHIC_STATE;
-	printer->state &= ~ (   min::LEADING_STATE
-	                      + min::TRAILING_STATE );
-    }
-    else if (   printer->last_char_flags
-              & min::IS_MIDDLING )
-    {
-	printer->state &=
-	    ~ (   min::LEADING_STATE
-	        + min::NON_GRAPHIC_STATE );
-	printer->state |= min::TRAILING_STATE;
-    }
-    else if (   printer->and_ed_char_flags
-              & min::IS_LEADING )
-    {
-        if (   printer->state
-             & min::NON_GRAPHIC_STATE )
-	    printer->state |= min::LEADING_STATE;
-	printer->state &=
-	    ~ (   min::TRAILING_STATE
-	        + min::NON_GRAPHIC_STATE );
-    }
-    else if (   printer->and_ed_char_flags
-              & min::IS_TRAILING )
-    {
-        if (   printer->state
-             & min::NON_GRAPHIC_STATE )
-	    printer->state |= min::TRAILING_STATE;
-	printer->state &=
-	    ~ (   min::LEADING_STATE
-	        + min::NON_GRAPHIC_STATE );
-    }
-    else
-	printer->state &=
-	    ~ (   min::LEADING_STATE
-	        + min::TRAILING_STATE
-	        + min::NON_GRAPHIC_STATE );
 
     return printer;
 }
@@ -9178,7 +9120,9 @@ static min::printer print_quoted_unicode
     while ( length > 0 )
     {
 	MINT::print_unicode
-	    ( printer, length, p, width,
+	    ( printer, length, p,
+		       min::IS_NON_GLUABLE,
+		       width,
 	               & sf->display_control,
 	               postfix_string,
 		       postfix_length,
@@ -9208,57 +9152,79 @@ static min::printer print_quoted_unicode
     return printer;
 }
 
-inline min::uns32 compute_flags
-	( const min::print_format & print_format,
-	  min::Uchar c )
-{
-    min::support_control sc =
-        print_format.support_control;
-    const min::uns32 * char_flags =
-	print_format.char_flags;
-
-    min::uns16 cindex = min::Uindex ( c );
-    min::uns32 cflags = char_flags[cindex];
-    if ( ( cflags & sc.support_mask ) == 0 )
-	cflags = sc.unsupported_char_flags;
-    return cflags;
-}
-
-static bool standard_in_str_class_function
+static min::uns32 standard_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
 	  min::unsptr n,
-	  min::ptr<const min::Uchar> p,
-	  const min::str_classifier * strcl )
+	  min::ptr<const min::Uchar> p )
 {
-    if ( n == 0 ) return false;
-
-    const min::standard_str_classifier & cl =
-        * (min::standard_str_classifier *) strcl;
+    if ( n == 0 ) return min::IS_NON_GLUABLE;
 
     min::Uchar first = * p ++;
-    min::uns32 cflags =
-	min::char_flags ( char_flags, sc, first );
-    bool not_in_class_if_only =
-	( cflags & cl.not_in_class_if_only );
-    while ( true )
+    min::uns32 first_cflags =
+	    min::char_flags ( char_flags, sc, first );
+    min::uns32 and_of_flags = first_cflags;
+    min::uns32 or_of_flags = first_cflags;
+    bool repeating = true;
+
+    for ( min::unsptr i = 1; i < n; ++ i )
     {
-	if ( ( cflags & cl.in_class_if_all ) == 0 )
-	    return false;
-	else if ( cflags & cl.not_in_class_if_any )
-	    return false;
-
-	if ( -- n == 0 ) break;
-
 	min::Uchar c = * p ++;
-	if ( c != first ) not_in_class_if_only = false;
-	cflags = min::char_flags ( char_flags, sc, c );
+	min::uns32 cflags =
+	    min::char_flags ( char_flags, sc, c );
+	and_of_flags &= cflags;
+	or_of_flags |= cflags;
+	if ( c != first ) repeating = false;
     }
-    return ! not_in_class_if_only;
+
+    if ( ! ( and_of_flags & min::IS_GLUABLE ) )
+        return min::IS_NON_GLUABLE;
+    else if ( or_of_flags & min::IS_SEPARATOR )
+    {
+        if ( ! repeating )
+	    return min::IS_NON_GLUABLE;
+	else if ( ! ( first_cflags & min::IS_REPEATER )
+	          &&
+		  n > 1 )
+	    return min::IS_NON_GLUABLE;
+    }
+
+    return and_of_flags;
 }
-min::in_str_class_function
-	min::standard_in_str_class_function =
-    & ::standard_in_str_class_function;
+const min::str_classifier min::standard_str_classifier =
+    & ::standard_str_classifier_function;
+
+static min::uns32 quote_all_str_classifier_function
+	( const min::uns32 * char_flags,
+	  min::support_control sc,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    return min::IS_NON_GLUABLE;
+}
+const min::str_classifier min::quote_all_str_classifier =
+    & ::quote_all_str_classifier_function;
+
+static min::uns32 null_str_classifier_function
+	( const min::uns32 * char_flags,
+	  min::support_control sc,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    if ( n == 0 ) return 0;
+
+    for ( min::unsptr i = 0; i < n; ++ i )
+    {
+	min::Uchar c = * p ++;
+	min::uns32 cflags =
+	    min::char_flags ( char_flags, sc, c );
+	if ( cflags & min::IS_GRAPHIC )
+	    return min::IS_NON_GLUABLE;
+    }
+    return 0;
+}
+const min::str_classifier min::null_str_classifier =
+    & ::null_str_classifier_function;
 
 min::printer min::print_unicode
 	( min::printer printer,
@@ -9266,19 +9232,29 @@ min::printer min::print_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
-    if ( sf != NULL
-         &&
-         ! min::in_str_class
+    min::uns32 str_class =
+        sf == NULL ?
+	    ::null_str_classifier_function
 	       ( printer->print_format.char_flags,
 	         printer->print_format
 		         .support_control,
-	         n, p, sf->quote_control ) )
+	         n, p ) :
+	    min::str_class
+	       ( printer->print_format.char_flags,
+	         printer->print_format
+		         .support_control,
+	         n, p, sf->str_classifier );
+    if ( sf != NULL && str_class & min::IS_NON_GLUABLE )
 	return ::print_quoted_unicode
 	    ( printer, n, p, sf );
+    else if ( n == 0 ) return printer;
+    else
+    {
+	min::uns32 width = 0xFFFFFFFF;
 
-    min::uns32 width = 0xFFFFFFFF;
-
-    return MINT::print_unicode ( printer, n, p, width );
+	return MINT::print_unicode
+	    ( printer, n, p, str_class, width );
+    }
 }
 
 
@@ -9638,68 +9614,6 @@ min::printer min::print_num
     return printer << buffer;
 }
 
-static const min::standard_str_classifier
-	never_str_classifier =
-{
-    min::standard_in_str_class_function,
-    0, 0, 0
-};
-const min::str_classifier * min::never_str_classifier =
-    (min::str_classifier * ) & ::never_str_classifier;
-
-static const min::standard_str_classifier
-	always_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::ALL_CHARS, 0, 0
-};
-const min::str_classifier * min::always_str_classifier =
-    (min::str_classifier * ) & ::always_str_classifier;
-
-static const min::standard_str_classifier
-	all_marks_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::IS_MARK, 0, 0
-};
-const min::str_classifier *
-	min::all_marks_str_classifier =
-    (min::str_classifier * )
-    	& ::all_marks_str_classifier;
-
-static const min::standard_str_classifier
-	all_marks_or_separators_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::IS_MARK | min::IS_SEPARATOR, 0, 0
-};
-const min::str_classifier *
-	min::all_marks_or_separators_str_classifier =
-    (min::str_classifier * )
-    	& ::all_marks_or_separators_str_classifier;
-
-static const min::standard_str_classifier
-	all_graphics_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::IS_GRAPHIC, 0, 0
-};
-const min::str_classifier *
-	min::all_graphics_str_classifier =
-    (min::str_classifier * )
-    	& ::all_graphics_str_classifier;
-
-static const min::standard_str_classifier
-	all_graphics_but_not_separator_str_classifier =
-{
-    min::standard_in_str_class_function,
-    min::IS_GRAPHIC, 0, min::IS_SEPARATOR
-};
-const min::str_classifier *
-    min::all_graphics_but_not_separator_str_classifier =
-  (min::str_classifier * )
-    & ::all_graphics_but_not_separator_str_classifier;
-
 const min::bracket_format min::quote_bracket_format =
 {
     (const min::ustring *) "\x01\x01" "\"",
@@ -9710,7 +9624,7 @@ const min::bracket_format min::quote_bracket_format =
 
 static min::str_format quote_all_str_format =
 {
-    min::never_str_classifier,
+    min::quote_all_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
@@ -9718,41 +9632,15 @@ static min::str_format quote_all_str_format =
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
 
-static min::str_format
-	quote_non_name_str_format =
+static min::str_format standard_str_format =
 {
-    min::all_graphics_but_not_separator_str_classifier,
+    min::standard_str_classifier,
     min::quote_bracket_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
 };
-const min::str_format *
-	min::quote_non_name_str_format =
-    & ::quote_non_name_str_format;
-
-static min::str_format
-	quote_non_graphic_str_format =
-{
-    min::all_graphics_str_classifier,
-    min::quote_bracket_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
-};
-const min::str_format *
-	min::quote_non_graphic_str_format =
-    & ::quote_non_graphic_str_format;
-
-static min::str_format
-	quote_separator_or_non_graphic_str_format =
-{
-    min::all_graphics_but_not_separator_str_classifier,
-    min::quote_bracket_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
-};
-const min::str_format *
-	min::quote_separator_or_non_graphic_str_format =
-    & ::quote_separator_or_non_graphic_str_format;
+const min::str_format * min::standard_str_format =
+    & ::standard_str_format;
 
 static min::lab_format name_lab_format =
 {
@@ -9825,7 +9713,7 @@ static min::obj_format compact_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::all_marks_or_separators_str_classifier,
+    min::standard_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
@@ -9895,7 +9783,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
@@ -9958,7 +9846,7 @@ static min::obj_format embedded_line_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
@@ -10026,7 +9914,7 @@ static min::obj_format id_obj_format =
     NULL,		    // separator_format
     NULL,		    // terminator_format
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type
     min::NONE(),	    // line_type
@@ -10078,7 +9966,7 @@ static min::obj_format paragraph_element_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type*
@@ -10150,7 +10038,7 @@ static min::obj_format line_element_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
@@ -10221,7 +10109,7 @@ static min::obj_format line_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::never_str_classifier,
+    min::null_str_classifier,
     			    // marking_type
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type*
@@ -10282,7 +10170,7 @@ static min::gen_format top_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_name_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10295,7 +10183,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_or_non_graphic_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
@@ -10308,7 +10196,7 @@ static min::gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_name_str_format,
+    & ::standard_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10362,7 +10250,7 @@ static min::gen_format element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_name_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10375,7 +10263,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_or_non_graphic_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -10414,7 +10302,7 @@ static min::gen_format line_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_or_non_graphic_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::name_special_format,
     & ::line_element_obj_format,
@@ -10428,7 +10316,7 @@ static min::gen_format paragraph_element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_or_non_graphic_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::name_special_format,
     & ::paragraph_element_obj_format,
@@ -10442,7 +10330,7 @@ static min::gen_format line_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_or_non_graphic_str_format,
+    & ::standard_str_format,
     & ::bracket_lab_format,
     & ::name_special_format,
     & ::line_obj_format,
@@ -11111,7 +10999,8 @@ min::printer min::print_obj
 	    min::gen marking_begin_type = min::NONE();
 	    if ( min::is_str ( type ) )
 	    {
-	        if ( min::in_str_class
+	        if (   min::IS_MARK
+		     & min::str_class
 			 ( pf.char_flags,
 			   pf.support_control, 
 			   type,
@@ -11128,19 +11017,22 @@ min::printer min::print_obj
 		     &&
 		     min::is_str ( lab[0] )
 		     &&
-		     min::in_str_class
-			 ( pf.char_flags,
-			   pf.support_control, 
-			   lab[0],
-			   objf->marking_type )
+		     (   min::IS_MARK
+		       & min::str_class
+			     ( pf.char_flags,
+			       pf.support_control, 
+			       lab[0],
+			       objf->marking_type )
+		     )
 		     &&
 		     min::is_str ( lab[1] )
 		     &&
-		     min::in_str_class
-			 ( pf.char_flags,
-			   pf.support_control, 
-			   lab[1],
-			   objf->marking_type ) )
+		     (   min::IS_MARK
+		       & min::str_class
+			     ( pf.char_flags,
+			       pf.support_control, 
+			       lab[1],
+			       objf->marking_type ) ) )
 		{
 		    marking_begin_type = lab[0];
 		    marking_end_type = lab[1];
