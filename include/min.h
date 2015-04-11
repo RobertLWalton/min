@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 30 04:00:12 EDT 2015
+// Date:	Fri Apr 10 03:53:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11125,17 +11125,13 @@ namespace min {
 	    // A min::save_indent was in a sequence
 	    // of min::leading/trailing{,_always}.
 
-        LEADING_STATE		= ( 1 << 4 ),
-        TRAILING_STATE		= ( 1 << 5 ),
-        NON_GRAPHIC_STATE	= ( 1 << 6 ),
-
-        BREAK_AFTER		= ( 1 << 7 ),
+        BREAK_AFTER		= ( 1 << 4 ),
 	    // Set a break before the NEXT character
 	    // (i.e., a break after the last character)
 	    // UNLESS the next character is also a
 	    // break-after character.
 
-	PARAGRAPH_POSSIBLE	= ( 1 << 8 ),
+	PARAGRAPH_POSSIBLE	= ( 1 << 5 ),
 	    // Set when printing the last element of
 	    // an object with more than one element.
 	    // Such an element may be a paragraph, so
@@ -11146,7 +11142,7 @@ namespace min {
 	    // This flag is turned off by printer init,
 	    // ::end_line, and internal::print_unicode.
 
-	AFTER_LINE_SEPARATOR	= ( 1 << 9 )
+	AFTER_LINE_SEPARATOR	= ( 1 << 6 )
 	    // A line separator (obj_line_sep) has
 	    // just been printed.  This can be used
 	    // to suppress the return to indent that
@@ -11210,9 +11206,11 @@ namespace min {
 	    PUNICODE1,
 	    PUNICODE2,
 	    PUSTRING,
-	    PINT,
-	    PUNS,
-	    PFLOAT,
+	    PINT32,
+	    PINT64,
+	    PUNS32,
+	    PUNS64,
+	    PFLOAT64,
 
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
@@ -11324,11 +11322,27 @@ namespace min {
 	    v1.p = (void *) str;
 	}
 	op ( op::OPCODE opcode,
+	     min::int32 i,
+	     const char * printf_format )
+	    : opcode ( opcode )
+	{
+	    v1.i32 = i;
+	    v2.p = (void *) printf_format;
+	}
+	op ( op::OPCODE opcode,
 	     min::int64 i,
 	     const char * printf_format )
 	    : opcode ( opcode )
 	{
 	    v1.i64 = i;
+	    v2.p = (void *) printf_format;
+	}
+	op ( op::OPCODE opcode,
+	     min::uns32 u,
+	     const char * printf_format )
+	    : opcode ( opcode )
+	{
+	    v1.u32 = u;
 	    v2.p = (void *) printf_format;
 	}
 	op ( op::OPCODE opcode,
@@ -11398,24 +11412,38 @@ namespace min {
     }
 
     inline op pint
+	    ( min::int32 i,
+              const char * printf_format )
+    {
+        return op ( op::PINT32, i, printf_format );
+    }
+
+    inline op pint
 	    ( min::int64 i,
               const char * printf_format )
     {
-        return op ( op::PINT, i, printf_format );
+        return op ( op::PINT64, i, printf_format );
+    }
+
+    inline op puns
+	    ( min::uns32 u,
+              const char * printf_format )
+    {
+        return op ( op::PUNS32, u, printf_format );
     }
 
     inline op puns
 	    ( min::uns64 u,
               const char * printf_format )
     {
-        return op ( op::PUNS, u, printf_format );
+        return op ( op::PUNS64, u, printf_format );
     }
 
     inline op pfloat
 	    ( min::float64 f,
               const char * printf_format )
     {
-        return op ( op::PFLOAT, f, printf_format );
+        return op ( op::PFLOAT64, f, printf_format );
     }
 
     inline op set_line_length ( uns32 line_length )
@@ -11510,6 +11538,9 @@ namespace min {
     extern const op spaces_if_before_indent;
     extern const op space_if_after_indent;
 
+    extern const op flush_one_id;
+    extern const op flush_id_map;
+
     extern const op expand_ht;
     extern const op noexpand_ht;
     extern const op display_eol;
@@ -11573,18 +11604,6 @@ namespace min {
     inline min::printer print_spaces
     	    ( min::printer printer, min::unsptr n = 1 )
     {
-        // In the future this might be optimized by
-	// pre-computing that ' ' would take no special
-	// actions other than setting BREAK_AFTER.
-	//
-	// Code to be include in optimzation:
-	//
-	//    printer->state |= min::LEADING_STATE
-	//		      + min::TRAILING_STATE;
-	//    printer->state &=
-	//        ~ (   min::AFTER_LEADING
-	//	      + min::AFTER_TRAILING );
-	//
         min::Uchar buffer[n];
 	for ( min::unsptr i = 0; i < n; ++ i )
 	    buffer[i] = ' ';
@@ -11608,7 +11627,24 @@ namespace min {
 	    ( min::printer printer,
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
-	      const min::str_format * = NULL );
+	      const min::str_format * );
+    inline min::printer print_unicode
+	    ( min::printer printer,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p )
+    {
+        if ( n == 0 ) return printer;
+
+	min::uns32 width = 0xFFFFFFFF;
+	min::uns32 str_class =
+	    min::str_class
+	        ( printer->print_format.char_flags,
+		  printer->print_format.support_control,
+		  n, p, min::null_str_classifier );
+
+	return internal::print_unicode
+		( printer, n, p, str_class, width );
+    }
 
     inline min::printer print_Uchar
 	    ( min::printer printer,
@@ -12038,9 +12074,6 @@ namespace min {
     {
         return op ( op::SET_GEN_FORMAT, gen_format );
     }
-
-    extern const op flush_one_id;
-    extern const op flush_id_map;
 
     extern min::locatable_gen TRUE;
     extern min::locatable_gen FALSE;

@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 30 07:32:34 EDT 2015
+// Date:	Sat Apr 11 06:27:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7887,13 +7887,13 @@ const min::support_control
 const min::support_control
         min::support_all_support_control =
 {
-    0xFFFFFFFF, min::IS_UNSUPPORTED
+    min::ALL_CHARS, min::IS_UNSUPPORTED
 };
 
 const min::display_control
         min::display_all_display_control =
 {
-    0xFFFF, 0
+    min::ALL_CHARS, 0
 };
 
 const min::display_control
@@ -7935,7 +7935,7 @@ const min::break_control
 const min::break_control
 	min::break_before_all_break_control =
 {
-    0, 0xFFFF, 0, 0
+    0, min::ALL_CHARS, 0, 0
 };
 
 const min::break_control
@@ -8013,6 +8013,7 @@ min::printer min::init
     printer->column = 0;
     printer->line_break = min::default_line_break;
     printer->print_format = min::default_print_format;
+    printer->state = 0;
     printer->last_str_class = 0;
 
     return printer;
@@ -8097,6 +8098,7 @@ static void end_line ( min::printer printer )
     printer->column = 0;
     printer->line_break.offset = buffer->length;
     printer->line_break.column = 0;
+    printer->state = 0;
     printer->last_str_class = 0;
 }
 
@@ -8180,15 +8182,23 @@ min::printer operator <<
         return min::print_ustring
 	         ( printer,
 		   (const min::ustring *) op.v1.p );
-    case min::op::PINT:
+    case min::op::PINT32:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.i32 );
+	return printer << buffer;
+    case min::op::PINT64:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.i64 );
 	return printer << buffer;
-    case min::op::PUNS:
+    case min::op::PUNS32:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.u32 );
+	return printer << buffer;
+    case min::op::PUNS64:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.u64 );
 	return printer << buffer;
-    case min::op::PFLOAT:
+    case min::op::PFLOAT64:
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.f64 );
 	return printer << buffer;
@@ -8474,15 +8484,7 @@ min::printer operator <<
 	return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
-	{
-	    static const min::uns32 * adr = NULL;
-	    if ( adr == NULL )
-	        adr = & printer->line_break.indent;
-	    MIN_REQUIRE
-	        ( adr == & printer->line_break.indent );
-	}
-	MIN_REQUIRE
-	    ( printer->line_break.indent < 1000 );
+	// Put add hoc MIN_REQUIRE statements here.
         return printer;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
@@ -8623,10 +8625,11 @@ const min::op min::print_assert
 // space characters representing a single character
 // into the line and the result would exceed line
 // length.  Return true if there is no enabled line
-// break and false if there MIGHT be an enabled line
-// break.  The return value can be used to avoid
-// repeated calls to check for break insertion if
-// no break points are set between calls.
+// break and false if we installed a line break and
+// there MIGHT be another enabled line break.  The
+// return value can be used to avoid repeated calls
+// to check for break insertion if no break points
+// are set between calls.
 //
 static bool insert_line_break ( min::printer printer )
 {

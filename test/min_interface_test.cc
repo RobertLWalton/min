@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 29 03:20:06 EST 2015
+// Date:	Sat Apr 11 10:57:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2720,8 +2720,8 @@ void test_printer ( void )
             <<  "pint ( -3, \"%05d\" ) = "
 	    <<  min::pint ( -3, "%05d" )
 	    << " " << min::set_break
-            <<  "puns ( 3, \"%05u\" ) = "
-	    <<  min::puns ( 3, "%05u" )
+            <<  "puns ( 3u, \"%05u\" ) = "
+	    <<  min::puns ( 3u, "%05u" )
 	    << " " << min::set_break
             <<  "pfloat ( 1.2345, \"%04.2f\" ) = "
 	    <<  min::pfloat ( 1.2345, "%04.2f" )
@@ -2758,27 +2758,23 @@ void test_printer ( void )
 	<< min::eol;
     min::print_chars
         ( printer, "this is a string",
-	  min::quote_non_graphic_str_format )
+	  min::quote_all_str_format )
 	<< min::eol;
     min::print_chars
         ( printer, "name",
-          min::quote_non_name_str_format )
+          min::standard_str_format )
 	<< min::eol;
     min::print_chars
         ( printer, "name",
-          min::quote_non_graphic_str_format )
-	<< min::eol;
-    min::print_chars
-        ( printer, "name",
-          min::quote_all_str_format )
+	  min::quote_all_str_format )
 	<< min::eol;
     min::print_chars
         ( printer, "..name",
-          min::quote_non_name_str_format )
+          min::standard_str_format )
 	<< min::eol;
     min::print_chars
         ( printer, "...",
-          min::quote_non_name_str_format )
+          min::standard_str_format )
 	<< min::eol;
 
     printer << min::bom;
