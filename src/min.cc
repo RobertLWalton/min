@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 11 06:27:29 EDT 2015
+// Date:	Tue Apr 14 03:27:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1172,7 +1172,8 @@ static void init_standard_char_flags ( void )
 	    flags = min::IS_MIDDLING
 		  + min::IS_GLUABLE;
 	else if ( cat[0] == 'N' )
-	    flags = min::IS_MIDDLING;
+	    flags = min::IS_MIDDLING
+	          + min::IS_GLUABLE;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
 	    flags = min::IS_OTHER_HSPACE;
 	else if ( cat[0] == 'Z' )
@@ -1241,7 +1242,7 @@ static void init_standard_char_flags ( void )
 
 	case '"':
 		    flags = min::IS_MIDDLING
-			  + min::IS_NON_GLUABLE;
+			  + min::IS_GLUABLE;
 		    break;
 
 	case '!':
@@ -8456,6 +8457,10 @@ min::printer operator <<
 	     > printer->line_break.indent )
 	    min::print_spaces ( printer, 1 );
 	return printer;
+    case min::op::SPACE_IF_NONE:
+        if ( printer->last_str_class != 0 )
+	    min::print_spaces ( printer, 1 );
+	return printer;
     case min::op::LEADING:
         if ( ! (   printer->last_str_class
 	         & min::IS_LEADING ) )
@@ -8517,6 +8522,8 @@ const min::op min::spaces_if_before_indent
     ( min::op::SPACES_IF_BEFORE_INDENT );
 const min::op min::space_if_after_indent
     ( min::op::SPACE_IF_AFTER_INDENT );
+const min::op min::space_if_none
+    ( min::op::SPACE_IF_NONE );
 
 const min::op min::expand_ht
     ( min::op::SET_PRINT_OP_FLAGS,
@@ -8807,16 +8814,14 @@ min::printer MINT::print_unicode
                      & (   min::AFTER_LEADING
 		         + min::AFTER_TRAILING
 			 + min::FORCE_SPACE_OK );
-    const min::uns32 IS_NON_SPACE = min::IS_GLUABLE
-                                  | min::IS_NON_GLUABLE;
     if ( flags )
     {
         printer->state &= ~ flags;
 
-	if ( ! ( str_class & IS_NON_SPACE ) )
+	if ( ! ( str_class & IS_NON_SPACE_ITEM ) )
 	    flags = 0; // Do NOT print space.
 	else if ( ! (   printer->last_str_class
-	              & IS_NON_SPACE ) )
+	              & IS_NON_SPACE_ITEM ) )
 	    flags = 0; // Do NOT print space.
 	else if ( ! ( str_class & min::IS_GLUABLE ) )
 	    /* Do nothing, i.e., print space. */;
@@ -9192,6 +9197,7 @@ static min::uns32 standard_str_classifier_function
 	    return min::IS_NON_GLUABLE;
     }
 
+
     return and_of_flags;
 }
 const min::str_classifier min::standard_str_classifier =
@@ -9237,7 +9243,7 @@ min::printer min::print_unicode
 {
     min::uns32 str_class =
         sf == NULL ?
-	    ::null_str_classifier_function
+	    ::standard_str_classifier_function
 	       ( printer->print_format.char_flags,
 	         printer->print_format
 		         .support_control,
@@ -9312,6 +9318,8 @@ min::printer MINT::print_ustring
         printer << min::trailing;
     else if ( flags & USTRING_TRAILING_ALWAYS )
         printer << min::trailing_always;
+    else if ( flags & USTRING_ADD_SPACE )
+        printer << min::space_if_none;
 
     min::print_chars
 	( printer, ustring_chars ( s ) );
@@ -9320,6 +9328,8 @@ min::printer MINT::print_ustring
         printer << min::leading;
     else if ( flags & USTRING_LEADING_ALWAYS )
         printer << min::leading_always;
+    else if ( flags & USTRING_ADD_SPACE )
+        printer << min::space_if_none;
 
     return printer;
 }
@@ -9723,8 +9733,9 @@ static min::obj_format compact_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     (const min::ustring *)
         "\x02\x02" "{}",    // obj_empty
@@ -9742,9 +9753,9 @@ static min::obj_format compact_obj_format =
         "\x01\x00" " ",     // obj_sep
 
     (const min::ustring *)
-        "\x82\x00" ": ",    // obj_attrbegin
+        "\x81\x21" ":",     // obj_attrbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_attrsep
+        "\x81\x21" ",",     // obj_attrsep
 
     (const min::ustring *)
         "\x81\x01" ":",     // obj_attreol
@@ -9757,7 +9768,7 @@ static min::obj_format compact_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
@@ -9793,8 +9804,9 @@ static min::obj_format isolated_line_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     NULL,		    // obj_empty
 
@@ -9820,7 +9832,7 @@ static min::obj_format isolated_line_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
@@ -9856,8 +9868,9 @@ static min::obj_format embedded_line_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     (const min::ustring *)
         "\x04\x04" "{||}",  // obj_empty
@@ -9888,7 +9901,7 @@ static min::obj_format embedded_line_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
@@ -9976,8 +9989,9 @@ static min::obj_format paragraph_element_obj_format =
     min::NONE(),	    // line_sep_type*
     min::NONE(),	    // paragraph_type
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     (const min::ustring *)
         "\x02\x02" "{}",    // obj_empty
@@ -9995,9 +10009,9 @@ static min::obj_format paragraph_element_obj_format =
         "\x01\x00" " ",     // obj_sep
 
     (const min::ustring *)
-        "\x82\x00" ": ",    // obj_attrbegin
+        "\x81\x21" ":",     // obj_attrbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_attrsep
+        "\x81\x21" ",",     // obj_attrsep
 
     (const min::ustring *)
         "\x81\x01" ":",     // obj_attreol
@@ -10010,7 +10024,7 @@ static min::obj_format paragraph_element_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
@@ -10048,8 +10062,9 @@ static min::obj_format line_element_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type*
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     (const min::ustring *)
         "\x02\x02" "{}",    // obj_empty
@@ -10067,9 +10082,9 @@ static min::obj_format line_element_obj_format =
         "\x80\x00" "",      // obj_sep
 
     (const min::ustring *)
-        "\x82\x00" ": ",    // obj_attrbegin
+        "\x81\x21" ":",     // obj_attrbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_attrsep
+        "\x81\x21" ",",     // obj_attrsep
 
     (const min::ustring *)
         "\x81\x01" ":",     // obj_attreol
@@ -10082,7 +10097,7 @@ static min::obj_format line_element_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)
@@ -10119,8 +10134,9 @@ static min::obj_format line_obj_format =
     min::NONE(),	    // line_sep_type*
     min::NONE(),	    // paragraph_type
 
-    // USTRING_LEADING  == 0x40
-    // USTRING_TRAILING == 0x80
+    // USTRING_ADD_SPACE == 0x20
+    // USTRING_LEADING   == 0x40
+    // USTRING_TRAILING  == 0x80
 
     (const min::ustring *)
         "\x02\x02" "{}",    // obj_empty
@@ -10138,9 +10154,9 @@ static min::obj_format line_obj_format =
         "\x01\x00" " ",     // obj_sep
 
     (const min::ustring *)
-        "\x82\x00" ": ",    // obj_attrbegin
+        "\x81\x21" ":",     // obj_attrbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_attrsep
+        "\x81\x21" ",",     // obj_attrsep
 
     (const min::ustring *)
         "\x81\x01" ":",     // obj_attreol
@@ -10153,7 +10169,7 @@ static min::obj_format line_obj_format =
     (const min::ustring *)
         "\x03\x00" "{* ",   // obj_valbegin
     (const min::ustring *)
-        "\x02\x00" ", ",    // obj_valsep
+        "\x81\x21" ",",     // obj_valsep
     (const min::ustring *)
         "\x03\x00" " *}",   // obj_valend
     (const min::ustring *)

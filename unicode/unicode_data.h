@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 28 05:22:48 EDT 2015
+// Date:	Tue Apr 14 03:23:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,7 +72,7 @@ inline uns32 ustring_length
 inline uns32 ustring_columns
 	( const ustring * p )
 {
-    return p[1] & 0x3F;
+    return p[1] & 0x0F;
 }
 inline const char * ustring_chars
 	( const ustring * p )
@@ -83,6 +83,8 @@ inline const char * ustring_chars
 // Ustring flags as returned by ustring_flags function
 // (and NOT as encode in ustring bytes).
 //
+const uns32 USTRING_ADD_SPACE		= ( 1 << 5 );
+    // 0x20 in second byte
 const uns32 USTRING_LEADING		= ( 1 << 6 );
     // 0x40 in second byte
 const uns32 USTRING_TRAILING		= ( 1 << 7 );
@@ -92,7 +94,8 @@ const uns32 USTRING_LEADING_ALWAYS	= ( 1 << 14 );
 const uns32 USTRING_TRAILING_ALWAYS	= ( 1 << 15 );
     // 0x80 in first byte
 
-// Return flags as per above.
+// Return flags as per above.  Non-flag bits are set at
+// random.
 //
 inline uns32 ustring_flags
     ( const ustring * str )

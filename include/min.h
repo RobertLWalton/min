@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 10 03:53:23 EDT 2015
+// Date:	Tue Apr 14 03:27:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3458,6 +3458,9 @@ namespace min {
 				   + IS_UNSUPPORTED;
     const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
 				    + IS_UNSUPPORTED;
+
+    const min::uns32 IS_NON_SPACE_ITEM = IS_GLUABLE
+				       + IS_NON_GLUABLE;
 
     extern const min::uns32 * standard_char_flags;
 
@@ -11186,7 +11189,8 @@ namespace min {
 
 	min::uns32 last_str_class;
 	    // Result of str_class applied to last
-	    // string in line, or 0 if after whitespace.
+	    // string in line, or 0 if after whitespace
+	    // item.
     };
 
     MIN_REF ( min::file, file, min::printer )
@@ -11245,6 +11249,7 @@ namespace min {
 	    EOL_IF_AFTER_INDENT,
 	    SPACES_IF_BEFORE_INDENT,
 	    SPACE_IF_AFTER_INDENT,
+	    SPACE_IF_NONE,
 
 	    SET_SUPPORT_CONTROL,
 	    SET_DISPLAY_CONTROL,
@@ -11537,6 +11542,7 @@ namespace min {
     extern const op eol_if_after_indent;
     extern const op spaces_if_before_indent;
     extern const op space_if_after_indent;
+    extern const op space_if_none;
 
     extern const op flush_one_id;
     extern const op flush_id_map;
@@ -11640,7 +11646,7 @@ namespace min {
 	    min::str_class
 	        ( printer->print_format.char_flags,
 		  printer->print_format.support_control,
-		  n, p, min::null_str_classifier );
+		  n, p, min::standard_str_classifier );
 
 	return internal::print_unicode
 		( printer, n, p, str_class, width );
