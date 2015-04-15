@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 14 03:27:49 EDT 2015
+// Date:	Wed Apr 15 03:58:25 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11592,6 +11592,10 @@ namespace min {
 
     namespace internal {
 
+	void print_item_preface
+	    ( min::printer printer,
+	      min::uns32 str_class );
+
 	min::printer print_unicode
 		( min::printer printer,
 		  min::unsptr & n,
@@ -11605,21 +11609,66 @@ namespace min {
 		  const min::ustring * replacement =
 		      NULL );
 
+	bool insert_line_break
+	    ( min::printer printer );
+    }
+
+    inline min::printer print_item_preface
+    	( min::printer printer,
+	  min::uns32 str_class )
+    {
+        if ( printer->state
+	     &
+	     (   AFTER_LEADING
+	       | AFTER_TRAILING
+               | FORCE_SPACE_OK
+	       | AFTER_SAVE_INDENT
+	       | PARAGRAPH_POSSIBLE
+	       | AFTER_LINE_SEPARATOR ) )
+	    internal::print_item_preface
+	        ( printer, str_class );
+	printer->last_str_class = str_class;
+	return printer;
+    }
+
+    inline min::printer print_item
+        ( min::printer printer,
+	  const char * p,
+	  min::unsptr n,
+	  min::uns32 columns,
+	  min::uns32 str_class = min::IS_NON_GLUABLE )
+    {
+        if ( n == 0 ) return printer;
+	min::print_item_preface ( printer, str_class );
+	if ( printer->column + columns
+	     >
+	     printer->line_break.line_length )
+	    internal::insert_line_break ( printer );
+	min::push ( printer->file->buffer, n, p );
+	printer->column += columns;
+        return printer;
     }
 
     inline min::printer print_spaces
     	    ( min::printer printer, min::unsptr n = 1 )
     {
-        min::Uchar buffer[n];
-	for ( min::unsptr i = 0; i < n; ++ i )
-	    buffer[i] = ' ';
-	min::uns32 width = 0xFFFFFFFF;
-        min::ptr<const min::Uchar> p =
-	      min::new_ptr<const min::Uchar>( buffer );
-	return min::internal::print_unicode
-	    ( printer, n, p, 0, width );
-    }
+        if ( n == 0 ) return printer;
+	min::print_item_preface ( printer, 0 );
+	while ( n -- )
+	{
+	    min::push ( printer->file->buffer ) = ' ';
+	    ++ printer->column;
+	}
+	if ( printer->print_format.break_control
+	                          .break_after
+	     &
+	     printer->print_format.char_flags[' '] )
+	    printer->state |= min::BREAK_AFTER;
+	else
+	    printer->state &= ~ min::BREAK_AFTER;
 
+	return printer;
+    }
 
     min::printer print_chars
     	    ( min::printer printer, const char * s,

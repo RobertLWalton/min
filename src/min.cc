@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 14 03:27:37 EDT 2015
+// Date:	Wed Apr 15 03:08:40 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -395,6 +395,9 @@ void MINT::initialize ( void )
     for ( min::initializer * i = MINT::last_initializer;
           i != NULL; i = i->previous )
         i->init();
+
+    MIN_REQUIRE ( min::Uindex ( ' ' ) == ' ' );
+        // Used by min::print_spaces
 }
 
 // Names
@@ -8103,9 +8106,6 @@ static void end_line ( min::printer printer )
     printer->last_str_class = 0;
 }
 
-static bool insert_line_break
-	( min::printer printer );
-
 static min::printer flush_one_id
 	( min::printer printer );
 
@@ -8414,7 +8414,7 @@ min::printer operator <<
 		if (    i > offset
 		     && column + n > line_length )
 		{
-		    ::insert_line_break ( printer );
+		    MINT::insert_line_break ( printer );
 		    offset = printer->line_break.offset;
 		}
 	    }
@@ -8638,7 +8638,7 @@ const min::op min::print_assert
 // to check for break insertion if no break points
 // are set between calls.
 //
-static bool insert_line_break ( min::printer printer )
+bool MINT::insert_line_break ( min::printer printer )
 {
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
@@ -8759,18 +8759,10 @@ static bool insert_line_break ( min::printer printer )
     return false;
 }
 
-min::printer MINT::print_unicode
+void MINT::print_item_preface
 	( min::printer printer,
-	  min::unsptr & n,
-	  min::ptr<const min::Uchar> & p,
-	  min::uns32 str_class,
-	  min::uns32 & width,
-	  const min::display_control * display_control,
-	  const min::Uchar * substring,
-	  min::unsptr substring_length,
-	  const min::ustring * replacement )
+	  min::uns32 str_class )
 {
-    if ( n == 0 ) return printer;
 
     if ( printer->state & min::AFTER_LINE_SEPARATOR )
     {
@@ -8778,37 +8770,6 @@ min::printer MINT::print_unicode
 	printer << min::restore_indent
 		<< min::bol;
     }
-    printer->state &= ~ min::PARAGRAPH_POSSIBLE;
-
-    char temp[32];
-
-    min::support_control sc =
-        printer->print_format.support_control;
-    min::display_control dc =
-        display_control != NULL ? * display_control :
-        printer->print_format.display_control;
-    if (   printer->print_format.op_flags
-         & min::DISPLAY_NON_GRAPHIC )
-    {
-        dc.display_char &= ~ min::IS_NON_GRAPHIC;
-        dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
-    }
-    min::break_control bc =
-        printer->print_format.break_control;
-    const min::uns32 * char_flags =
-	printer->print_format.char_flags;
-
-    min::uns32 line_length =
-        printer->line_break.line_length;
-
-    min::packed_vec_insptr<char> buffer =
-        printer->file->buffer;
-    min::uns32 expand_ht =
-        printer->print_format.op_flags & min::EXPAND_HT;
-
-    bool no_line_break_enabled = false;
-        // This prevents repeated checks for an enabled
-	// line break that does not exist.
 
     min::uns32 flags = printer->state
                      & (   min::AFTER_LEADING
@@ -8854,11 +8815,58 @@ min::printer MINT::print_unicode
 
 	if ( printer->state & min::AFTER_SAVE_INDENT )
 	{
-	    printer->state &= ! min::AFTER_SAVE_INDENT;
 	    printer << min::save_indent;
 	}
     }
-    printer->last_str_class = str_class;
+
+    printer->state &= ~ (   min::PARAGRAPH_POSSIBLE
+	                  | min::AFTER_SAVE_INDENT );
+}
+
+min::printer MINT::print_unicode
+	( min::printer printer,
+	  min::unsptr & n,
+	  min::ptr<const min::Uchar> & p,
+	  min::uns32 str_class,
+	  min::uns32 & width,
+	  const min::display_control * display_control,
+	  const min::Uchar * substring,
+	  min::unsptr substring_length,
+	  const min::ustring * replacement )
+{
+    if ( n == 0 ) return printer;
+
+    min::print_item_preface ( printer, str_class );
+
+    char temp[32];
+
+    min::support_control sc =
+        printer->print_format.support_control;
+    min::display_control dc =
+        display_control != NULL ? * display_control :
+        printer->print_format.display_control;
+    if (   printer->print_format.op_flags
+         & min::DISPLAY_NON_GRAPHIC )
+    {
+        dc.display_char &= ~ min::IS_NON_GRAPHIC;
+        dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
+    }
+    min::break_control bc =
+        printer->print_format.break_control;
+    const min::uns32 * char_flags =
+	printer->print_format.char_flags;
+
+    min::uns32 line_length =
+        printer->line_break.line_length;
+
+    min::packed_vec_insptr<char> buffer =
+        printer->file->buffer;
+    min::uns32 expand_ht =
+        printer->print_format.op_flags & min::EXPAND_HT;
+
+    bool no_line_break_enabled = false;
+        // This prevents repeated checks for an enabled
+	// line break that does not exist.
 
     bool rep_is_space;
     while ( n )
@@ -9020,7 +9028,7 @@ min::printer MINT::print_unicode
 		 ! no_line_break_enabled )
 	    {
 	        no_line_break_enabled =
-		    ::insert_line_break ( printer );
+		    MINT::insert_line_break ( printer );
 	    }
 	}
 
