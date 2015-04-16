@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 06:09:13 EDT 2015
+// Date:	Thu Apr 16 15:55:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8010,6 +8010,185 @@ static min::printer space_colon_right_square_pstring
 min::pstring min::space_colon_right_square_pstring =
     & ::space_colon_right_square_pstring;
 
+static min::printer left_square_dollar_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_LEADING + min::IS_GLUABLE );
+     min::print_chars ( printer, "[$", 2, 2 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::left_square_dollar_space_pstring =
+    & ::left_square_dollar_space_pstring;
+
+static min::printer space_dollar_right_square_pstring
+	( min::printer printer )
+{
+     min::print_prefix_space ( printer );
+     return min::print_chars
+         ( printer, "$]", 2, 2,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::space_dollar_right_square_pstring =
+    & ::space_dollar_right_square_pstring;
+
+static min::printer left_curly_right_curly_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_LEADING + min::IS_GLUABLE );
+     return min::print_chars
+         ( printer, "{}", 2, 2,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::left_curly_right_curly_pstring =
+    & ::left_curly_right_curly_pstring;
+
+static min::printer left_curly_pstring
+	( min::printer printer )
+{
+     return min::print_item
+         ( printer, "{", 1, 1,
+	   min::IS_LEADING + min::IS_GLUABLE );
+}
+min::pstring min::left_curly_pstring =
+    & ::left_curly_pstring;
+
+static min::printer right_curly_pstring
+	( min::printer printer )
+{
+     return min::print_item
+         ( printer, "}", 1, 1,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::right_curly_pstring =
+    & ::right_curly_pstring;
+
+static min::printer trailing_vbar_pstring
+	( min::printer printer )
+{
+     return min::print_item
+         ( printer, "|", 1, 1,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::trailing_vbar_pstring =
+    & ::trailing_vbar_pstring;
+
+static min::printer leading_vbar_pstring
+	( min::printer printer )
+{
+     return min::print_item
+         ( printer, "|", 1, 1,
+	   min::IS_LEADING + min::IS_GLUABLE );
+}
+min::pstring min::leading_vbar_pstring =
+    & ::leading_vbar_pstring;
+
+static min::printer trailing_colon_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+     min::print_chars ( printer, ":", 1, 1 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::trailing_colon_space_pstring =
+    & ::trailing_colon_space_pstring;
+
+static min::printer trailing_comma_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+     min::print_chars ( printer, ",", 1, 1 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::trailing_comma_space_pstring =
+    & ::trailing_comma_space_pstring;
+
+static min::printer trailing_colon_pstring
+	( min::printer printer )
+{
+     return min::print_item
+         ( printer, ":", 1, 1,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::trailing_colon_pstring =
+    & ::trailing_colon_pstring;
+
+static min::printer no_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer, min::IS_GLUABLE );
+     min::print_chars ( printer, "no", 2, 2 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::no_space_pstring =
+    & ::no_space_pstring;
+
+static min::printer space_equal_space_pstring
+	( min::printer printer )
+{
+     min::print_prefix_space ( printer );
+     min::print_chars ( printer, "=", 1, 1 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::space_equal_space_pstring =
+    & ::space_equal_space_pstring;
+
+static min::printer left_curly_star_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_LEADING + min::IS_GLUABLE );
+     min::print_chars ( printer, "{*", 2, 2 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::left_curly_star_space_pstring =
+    & ::left_curly_star_space_pstring;
+
+static min::printer space_star_right_curly_pstring
+	( min::printer printer )
+{
+     min::print_prefix_space ( printer );
+     return min::print_chars
+         ( printer, "*}", 2, 2,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::space_star_right_curly_pstring =
+    & ::space_star_right_curly_pstring;
+
+static min::printer space_less_than_equal_space_pstring
+	( min::printer printer )
+{
+     min::print_prefix_space ( printer );
+     min::print_chars ( printer, "<=", 2, 2 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::space_less_than_equal_space_pstring =
+    & ::space_less_than_equal_space_pstring;
+
+static min::printer
+    left_curly_vbar_vbar_right_curly_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_LEADING + min::IS_GLUABLE );
+     return min::print_chars
+         ( printer, "{||}", 4, 4,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring
+	min::left_curly_vbar_vbar_right_curly_pstring =
+    & ::left_curly_vbar_vbar_right_curly_pstring;
+
 // const min::print_format min::default_print_format
 // defined below after top_gen_format.
 
@@ -9739,8 +9918,8 @@ const min::special_format * min::name_special_format =
 
 static min::special_format bracket_special_format =
 {
-    (const min::ustring *) "\x02\x02" "[$",
-    (const min::ustring *) "\x02\x02" "$]",
+    min::left_square_dollar_space_pstring,
+    min::space_dollar_right_square_pstring,
     min::NULL_STUB	    // special_names*
 };
 const min::special_format *
@@ -11913,8 +12092,7 @@ min::printer min::standard_pgen
 	       : (min::packed_vec_ptr<const char *>)
 	         min::NULL_STUB;
 
-	if ( sf ) min::print_ustring
-		      ( printer, sf->special_prefix );
+	if ( sf ) printer << sf->special_prefix;
 	if ( special_names != min::NULL_STUB
 	     &&
 	         0xFFFFFF
@@ -11934,8 +12112,7 @@ min::printer min::standard_pgen
 		              (min::uns64) index );
 	    min::print_cstring ( printer, buffer );
 	}
-	if ( sf ) min::print_ustring
-		      ( printer, sf->special_postfix );
+	if ( sf ) printer << sf->special_postfix;
 	return printer;
     }
 
@@ -12038,11 +12215,9 @@ min::printer min::standard_pgen
 	const min::special_format * sf =
 	    f->special_format;
 
-	if ( sf ) min::print_ustring
-		      ( printer, sf->special_prefix );
+	if ( sf ) printer << sf->special_prefix;
 	min::print_cstring ( printer, buffer );
-	if ( sf ) min::print_ustring
-		      ( printer, sf->special_postfix );
+	if ( sf ) printer << sf->special_postfix;
 	return printer;
     }
 }

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 03:25:52 EDT 2015
+// Date:	Thu Apr 16 15:55:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11672,7 +11672,7 @@ namespace min {
     {
         if ( n == 0 ) return printer;
 	min::print_item_preface ( printer, str_class );
-	print_chars ( printer, p, n, columns );
+	return print_chars ( printer, p, n, columns );
     }
 
     inline min::printer print_spaces
@@ -11857,6 +11857,38 @@ namespace min {
     	left_square_colon_space_pstring;
     extern min::pstring
     	space_colon_right_square_pstring;
+    extern min::pstring
+    	left_square_dollar_space_pstring;
+    extern min::pstring
+    	space_dollar_right_square_pstring;
+    extern min::pstring
+    	left_curly_right_curly_pstring;
+    extern min::pstring
+    	left_curly_pstring;
+    extern min::pstring
+    	right_curly_pstring;
+    extern min::pstring
+    	trailing_vbar_pstring;
+    extern min::pstring
+    	leading_vbar_pstring;
+    extern min::pstring
+    	trailing_colon_space_pstring;
+    extern min::pstring
+    	trailing_comma_space_pstring;
+    extern min::pstring
+    	trailing_colon_pstring;
+    extern min::pstring
+    	no_space_pstring;
+    extern min::pstring
+    	space_equal_space_pstring;
+    extern min::pstring
+    	left_curly_star_space_pstring;
+    extern min::pstring
+    	space_star_right_curly_pstring;
+    extern min::pstring
+    	space_less_than_equal_space_pstring;
+    extern min::pstring
+    	left_curly_vbar_vbar_right_curly_pstring;
 }
 
 min::printer operator <<
@@ -12021,8 +12053,8 @@ namespace min {
 
     struct special_format
     {
-	const min::ustring *	    special_prefix;
-	const min::ustring *	    special_postfix;
+	min::pstring		    special_prefix;
+	min::pstring		    special_postfix;
 	packed_vec_ptr<const char *>
 				    special_names;
     };
