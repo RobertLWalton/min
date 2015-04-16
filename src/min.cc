@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 02:54:45 EDT 2015
+// Date:	Thu Apr 16 06:09:13 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7963,6 +7963,53 @@ const min::line_break min::default_line_break =
     0, 0, 72, 4
 };
 
+static min::printer space_if_none_pstring
+	( min::printer printer )
+{
+     return min::print_space_if_none ( printer );
+}
+min::pstring min::space_if_none_pstring =
+    & ::space_if_none_pstring;
+
+static min::printer leading_always_pstring
+	( min::printer printer )
+{
+     return min::print_leading_always ( printer );
+}
+min::pstring min::leading_always_pstring =
+    & ::leading_always_pstring;
+
+static min::printer trailing_always_pstring
+	( min::printer printer )
+{
+     return min::print_trailing_always ( printer );
+}
+min::pstring min::trailing_always_pstring =
+    & ::trailing_always_pstring;
+
+static min::printer left_square_colon_space_pstring
+	( min::printer printer )
+{
+     min::print_item_preface
+         ( printer,
+	   min::IS_LEADING + min::IS_GLUABLE );
+     min::print_chars ( printer, "[:", 2, 2 );
+     return min::print_postfix_space ( printer );
+}
+min::pstring min::left_square_colon_space_pstring =
+    & ::left_square_colon_space_pstring;
+
+static min::printer space_colon_right_square_pstring
+	( min::printer printer )
+{
+     min::print_prefix_space ( printer );
+     return min::print_chars
+         ( printer, ":]", 2, 2,
+	   min::IS_TRAILING + min::IS_GLUABLE );
+}
+min::pstring min::space_colon_right_square_pstring =
+    & ::space_colon_right_square_pstring;
+
 // const min::print_format min::default_print_format
 // defined below after top_gen_format.
 
@@ -8458,9 +8505,7 @@ min::printer operator <<
 	    min::print_spaces ( printer, 1 );
 	return printer;
     case min::op::SPACE_IF_NONE:
-        if ( printer->last_str_class != 0 )
-	    min::print_spaces ( printer, 1 );
-	return printer;
+	return min::print_space_if_none ( printer );
     case min::op::LEADING:
 	return print_leading ( printer );
     case min::op::TRAILING:
@@ -9649,7 +9694,7 @@ const min::str_format * min::standard_str_format =
 static min::lab_format name_lab_format =
 {
     NULL,
-    (const min::ustring *) "\x01\x00" " ",
+    min::space_if_none_pstring,
     NULL
 };
 const min::lab_format * min::name_lab_format =
@@ -9657,9 +9702,9 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    (const min::ustring *) "\x03\x00" "[: ",
-    (const min::ustring *) "\x01\x00" " ",
-    (const min::ustring *) "\x03\x00" " :]"
+    min::left_square_colon_space_pstring,
+    min::space_if_none_pstring,
+    min::space_colon_right_square_pstring
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
@@ -9667,7 +9712,7 @@ const min::lab_format * min::bracket_lab_format =
 static min::lab_format leading_always_lab_format =
 {
     NULL,
-    (const min::ustring *) "\x40\x00" "",
+    min::leading_always_pstring,
     NULL
 };
 const min::lab_format *
@@ -9677,7 +9722,7 @@ const min::lab_format *
 static min::lab_format trailing_always_lab_format =
 {
     NULL,
-    (const min::ustring *) "\x80\x00" "",
+    min::trailing_always_pstring,
     NULL
 };
 const min::lab_format *
@@ -11845,19 +11890,15 @@ min::printer min::standard_pgen
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
 
-	if ( lf ) min::print_ustring
-	              ( printer, lf->lab_prefix );
+	if ( lf ) printer << lf->lab_prefix;
 
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
-	    if ( i != 0 )
-		min::print_ustring
-		    ( printer, lf->lab_separator );
+	    if ( i != 0 ) printer << lf->lab_separator;
 	    (* f->pgen) ( printer, labp[i], f );
 	}
 
-	if ( lf ) min::print_ustring
-	              ( printer, lf->lab_postfix );
+	if ( lf ) printer << lf->lab_postfix;
 
 	return printer;
     }

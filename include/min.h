@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 02:54:54 EDT 2015
+// Date:	Thu Apr 16 03:25:52 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11646,6 +11646,23 @@ namespace min {
         return printer;
     }
 
+    inline min::printer print_chars
+        ( min::printer printer,
+	  const char * p,
+	  min::unsptr n,
+	  min::uns32 columns,
+	  min::uns32 str_class )
+    {
+	if ( printer->column + columns
+	     >
+	     printer->line_break.line_length )
+	    internal::insert_line_break ( printer );
+	min::push ( printer->file->buffer, n, p );
+	printer->column += columns;
+	printer->last_str_class = str_class;
+        return printer;
+    }
+
     inline min::printer print_item
         ( min::printer printer,
 	  const char * p,
@@ -11704,6 +11721,24 @@ namespace min {
 	    printer->state |= min::BREAK_AFTER;
 	else
 	    printer->state &= ~ min::BREAK_AFTER;
+	return printer;
+    }
+    inline min::printer print_space_if_none
+	    ( min::printer printer )
+    {
+        if ( printer->last_str_class != 0 )
+	{
+	    min::print_item_preface ( printer, 0 );
+	    min::push ( printer->file->buffer ) = ' ';
+	    ++ printer->column;
+	    if ( printer->print_format.break_control
+				      .break_after
+		 &
+		 printer->print_format.char_flags[' '] )
+		printer->state |= min::BREAK_AFTER;
+	    else
+		printer->state &= ~ min::BREAK_AFTER;
+	}
 	return printer;
     }
     inline min::printer print_leading
@@ -11808,11 +11843,33 @@ namespace min {
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
 	  const min::print_format & print_format );
+
+    typedef min::printer (* pstring )
+	    ( min::printer printer );
+
+    extern min::pstring
+    	space_if_none_pstring;
+    extern min::pstring
+    	leading_always_pstring;
+    extern min::pstring
+    	trailing_always_pstring;
+    extern min::pstring
+    	left_square_colon_space_pstring;
+    extern min::pstring
+    	space_colon_right_square_pstring;
 }
 
 min::printer operator <<
 	( min::printer printer,
 	  const min::op & op );
+
+inline min::printer operator <<
+	( min::printer printer,
+	  min::pstring pstring )
+{
+    if ( pstring == NULL ) return printer;
+    else return ( * pstring ) ( printer );
+}
 
 inline min::printer operator <<
 	( min::printer printer,
@@ -11947,9 +12004,9 @@ namespace min {
 
     struct lab_format
     {
-	const min::ustring *	    lab_prefix;
-	const min::ustring *	    lab_separator;
-	const min::ustring *	    lab_postfix;
+	min::pstring	lab_prefix;
+	min::pstring	lab_separator;
+	min::pstring	lab_postfix;
     };
 
     extern const min::lab_format *
