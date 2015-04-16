@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 28, 2015}
+\date{April 16, 2015}
  
 \maketitle
 
@@ -10909,7 +10909,7 @@ prints a \TT{const char *}
 value according to the above formats:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_cstring}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format * str_format = NULL )|
@@ -10923,12 +10923,12 @@ it is quoted.  If \TT{str\_\EOL format} is \TT{NULL},
 the string is simply printed as is without quoting.
 Note that
 \TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
-implicitly used when \TT{min::\EOL print\_\EOL chars} is called directly
+implicitly used when \TT{min::\EOL print\_\EOL cstring} is called directly
 with a \TT{NULL} third argument,
 but it is used as the third argument when a \TT{min::gen} value is
 printed.
 
-\TT{min::print\_chars} copies the string to the stack (converting from
+\TT{min::print\_cstring} copies the string to the stack (converting from
 UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
 any functions that might allocate or relocate objects, so \TT{str}
 \underline{can} be a relocatable address.
@@ -11027,7 +11027,7 @@ The following function may be called to print a string \TT{min::gen} value:
 \begin{center}
 \TT{str\_format = printer->print\_format.gen\_format->str\_format}
 \end{center}
-This function just calls the \TT{min::\EOL print\_\EOL chars} function
+This function just calls the \TT{min::\EOL print\_\EOL cstring} function
 described above with the \TT{const char *} part of the string general value.
 The \TT{str} argument must be a string general value.
 
@@ -20056,7 +20056,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_cstring}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK

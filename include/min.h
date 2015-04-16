@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 15 03:58:25 EDT 2015
+// Date:	Thu Apr 16 02:54:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11631,6 +11631,21 @@ namespace min {
 	return printer;
     }
 
+    inline min::printer print_chars
+        ( min::printer printer,
+	  const char * p,
+	  min::unsptr n,
+	  min::uns32 columns )
+    {
+	if ( printer->column + columns
+	     >
+	     printer->line_break.line_length )
+	    internal::insert_line_break ( printer );
+	min::push ( printer->file->buffer, n, p );
+	printer->column += columns;
+        return printer;
+    }
+
     inline min::printer print_item
         ( min::printer printer,
 	  const char * p,
@@ -11640,13 +11655,7 @@ namespace min {
     {
         if ( n == 0 ) return printer;
 	min::print_item_preface ( printer, str_class );
-	if ( printer->column + columns
-	     >
-	     printer->line_break.line_length )
-	    internal::insert_line_break ( printer );
-	min::push ( printer->file->buffer, n, p );
-	printer->column += columns;
-        return printer;
+	print_chars ( printer, p, n, columns );
     }
 
     inline min::printer print_spaces
@@ -11670,7 +11679,73 @@ namespace min {
 	return printer;
     }
 
-    min::printer print_chars
+    inline min::printer print_prefix_space
+	    ( min::printer printer )
+    {
+        if ( printer->last_str_class != 0 )
+	{
+	    min::print_item_preface ( printer, 0 );
+	    min::push ( printer->file->buffer ) = ' ';
+	    ++ printer->column;
+	}
+	return printer;
+    }
+    inline min::printer print_postfix_space
+	    ( min::printer printer )
+    {
+	min::push ( printer->file->buffer ) = ' ';
+	++ printer->column;
+	printer->last_str_class = 0;
+
+	if ( printer->print_format.break_control
+	                          .break_after
+	     &
+	     printer->print_format.char_flags[' '] )
+	    printer->state |= min::BREAK_AFTER;
+	else
+	    printer->state &= ~ min::BREAK_AFTER;
+	return printer;
+    }
+    inline min::printer print_leading
+	    ( min::printer printer )
+    {
+        if ( ! (   printer->last_str_class
+	         & min::IS_LEADING ) )
+	    return min::print_spaces ( printer, 1 );
+	printer->state |= min::AFTER_LEADING
+	                + min::FORCE_SPACE_OK;
+	return printer;
+    }
+    inline min::printer print_trailing
+	    ( min::printer printer )
+    {
+        if ( ! (   printer->last_str_class
+	         & min::IS_GLUABLE ) )
+	    return min::print_spaces ( printer, 1 );
+	printer->state |= min::AFTER_TRAILING
+	                + min::FORCE_SPACE_OK;
+	return printer;
+    }
+    inline min::printer print_leading_always
+	    ( min::printer printer )
+    {
+        if ( ! (   printer->last_str_class
+	         & min::IS_LEADING ) )
+	    return min::print_spaces ( printer, 1 );
+	printer->state |= min::AFTER_LEADING;
+	return printer;
+    }
+    inline min::printer print_trailing_always
+	    ( min::printer printer )
+    {
+        if ( ! (   printer->last_str_class
+	         & min::IS_GLUABLE ) )
+	    return min::print_spaces ( printer, 1 );
+	printer->state |= min::AFTER_TRAILING;
+	return printer;
+    }
+
+    min::printer print_cstring
     	    ( min::printer printer, const char * s,
 	      const min::str_format * sf = NULL );
 
@@ -11743,21 +11818,21 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const char * s )
 {
-    return min::print_chars ( printer, s );
+    return min::print_cstring ( printer, s );
 }
 
 inline min::printer operator <<
 	( min::printer printer,
 	  min::ptr<const char> s )
 {
-    return min::print_chars ( printer, ! s );
+    return min::print_cstring ( printer, ! s );
 }
 
 inline min::printer operator <<
 	( min::printer printer,
 	  min::ptr<char> s )
 {
-    return min::print_chars
+    return min::print_cstring
         ( printer, ! (min::ptr<const char>) s );
 }
 
@@ -12030,7 +12105,7 @@ namespace min {
 	      const min::str_format * sf = NULL )
     {
         min::str_ptr sp ( str );
-	return min::print_chars
+	return min::print_cstring
 	    ( printer, ! min::begin_ptr_of ( sp ), sf );
     }
 
@@ -12162,7 +12237,7 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const min::str_ptr & s )
 {
-    return min::print_chars
+    return min::print_cstring
         ( printer, ! min::begin_ptr_of ( s ) );
 }
 

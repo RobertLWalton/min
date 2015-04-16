@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 15 03:08:40 EDT 2015
+// Date:	Thu Apr 16 02:54:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8462,31 +8462,13 @@ min::printer operator <<
 	    min::print_spaces ( printer, 1 );
 	return printer;
     case min::op::LEADING:
-        if ( ! (   printer->last_str_class
-	         & min::IS_LEADING ) )
-	    return min::print_spaces ( printer, 1 );
-	printer->state |= min::AFTER_LEADING
-	                + min::FORCE_SPACE_OK;
-	return printer;
+	return print_leading ( printer );
     case min::op::TRAILING:
-        if ( ! (   printer->last_str_class
-	         & min::IS_GLUABLE ) )
-	    return min::print_spaces ( printer, 1 );
-	printer->state |= min::AFTER_TRAILING
-	                + min::FORCE_SPACE_OK;
-	return printer;
+	return print_trailing ( printer );
     case min::op::LEADING_ALWAYS:
-        if ( ! (   printer->last_str_class
-	         & min::IS_LEADING ) )
-	    return min::print_spaces ( printer, 1 );
-	printer->state |= min::AFTER_LEADING;
-	return printer;
+	return print_leading_always ( printer );
     case min::op::TRAILING_ALWAYS:
-        if ( ! (   printer->last_str_class
-	         & min::IS_GLUABLE ) )
-	    return min::print_spaces ( printer, 1 );
-	printer->state |= min::AFTER_TRAILING;
-	return printer;
+	return print_trailing_always ( printer );
     case min::op::PRINT_ASSERT:
         // For debugging only.
 	// Put add hoc MIN_REQUIRE statements here.
@@ -8811,7 +8793,8 @@ void MINT::print_item_preface
 	else
 	    /* Do nothing, i.e., print space. */{}
 
-	if ( flags ) min::print_spaces ( printer );
+	if ( flags )
+	    min::print_postfix_space ( printer );
 
 	if ( printer->state & min::AFTER_SAVE_INDENT )
 	{
@@ -9280,7 +9263,7 @@ min::printer min::print_unicode
 // stack BEFORE calling anything that might relocate
 // memory.
 //
-min::printer min::print_chars
+min::printer min::print_cstring
 	( min::printer printer, const char * s,
 	  const min::str_format * sf )
 {
@@ -9329,7 +9312,7 @@ min::printer MINT::print_ustring
     else if ( flags & USTRING_ADD_SPACE )
         printer << min::space_if_none;
 
-    min::print_chars
+    min::print_cstring
 	( printer, ustring_chars ( s ) );
 
     if ( flags & USTRING_LEADING )
@@ -11899,7 +11882,7 @@ min::printer min::standard_pgen
 	     &&
 	     index <= 0xFFFFFF )
 	{
-	    min::print_chars
+	    min::print_cstring
 	        ( printer,
 		  special_names[0xFFFFFF - index] );
 	}
@@ -11908,7 +11891,7 @@ min::printer min::standard_pgen
 	    char buffer[64];
 	    sprintf ( buffer, "SPECIAL(0x%06llX)",
 		              (min::uns64) index );
-	    min::print_chars ( printer, buffer );
+	    min::print_cstring ( printer, buffer );
 	}
 	if ( sf ) min::print_ustring
 		      ( printer, sf->special_postfix );
@@ -12016,7 +11999,7 @@ min::printer min::standard_pgen
 
 	if ( sf ) min::print_ustring
 		      ( printer, sf->special_prefix );
-	min::print_chars ( printer, buffer );
+	min::print_cstring ( printer, buffer );
 	if ( sf ) min::print_ustring
 		      ( printer, sf->special_postfix );
 	return printer;
