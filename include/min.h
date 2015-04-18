@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 15:55:45 EDT 2015
+// Date:	Sat Apr 18 05:13:30 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11864,17 +11864,19 @@ namespace min {
     extern min::pstring
     	left_curly_right_curly_pstring;
     extern min::pstring
-    	left_curly_pstring;
+    	left_curly_leading_pstring;
     extern min::pstring
-    	right_curly_pstring;
+    	trailing_right_curly_pstring;
     extern min::pstring
     	trailing_vbar_pstring;
     extern min::pstring
-    	leading_vbar_pstring;
+    	vbar_leading_pstring;
     extern min::pstring
     	trailing_colon_space_pstring;
     extern min::pstring
     	trailing_comma_space_pstring;
+    extern min::pstring
+    	trailing_semicolon_space_pstring;
     extern min::pstring
     	trailing_colon_pstring;
     extern min::pstring
@@ -12086,30 +12088,30 @@ namespace min {
 	min::gen		line_sep_type;
 	min::gen		paragraph_type;
 
-	const min::ustring *   	obj_empty;
+	min::pstring		obj_empty;
 
-	const min::ustring *   	obj_bra;
-	const min::ustring *   	obj_braend;
-	const min::ustring *   	obj_ketbegin;
-	const min::ustring *   	obj_ket;
+	min::pstring		obj_bra;
+	min::pstring		obj_braend;
+	min::pstring		obj_ketbegin;
+	min::pstring		obj_ket;
 
-	const min::ustring *   	obj_sep;
+	min::pstring		obj_sep;
 
-	const min::ustring *   	obj_attrbegin;
-	const min::ustring *   	obj_attrsep;
+	min::pstring		obj_attrbegin;
+	min::pstring		obj_attrsep;
 
-	const min::ustring *   	obj_attreol;
+	min::pstring		obj_attreol;
 
-	const min::ustring *   	obj_attrneg;
-	const min::ustring *   	obj_attreq;
+	min::pstring		obj_attrneg;
+	min::pstring		obj_attreq;
 
-	const min::ustring *   	obj_valbegin;
-	const min::ustring *   	obj_valsep;
-	const min::ustring *   	obj_valend;
-	const min::ustring *   	obj_valreq;
+	min::pstring		obj_valbegin;
+	min::pstring		obj_valsep;
+	min::pstring		obj_valend;
+	min::pstring		obj_valreq;
 
-	const min::ustring *   	obj_line_sep;
-	const min::ustring *   	obj_paragraph_begin;
+	min::pstring		obj_line_sep;
+	min::pstring		obj_paragraph_begin;
 
 	packed_vec_ptr<const char *>
 	                   	    attr_flag_names;

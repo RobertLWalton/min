@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 15:55:57 EDT 2015
+// Date:	Sat Apr 18 05:13:39 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7966,7 +7966,7 @@ const min::line_break min::default_line_break =
 static min::printer space_if_none_pstring
 	( min::printer printer )
 {
-     return min::print_space_if_none ( printer );
+    return min::print_space_if_none ( printer );
 }
 min::pstring min::space_if_none_pstring =
     & ::space_if_none_pstring;
@@ -7974,7 +7974,7 @@ min::pstring min::space_if_none_pstring =
 static min::printer leading_always_pstring
 	( min::printer printer )
 {
-     return min::print_leading_always ( printer );
+    return min::print_leading_always ( printer );
 }
 min::pstring min::leading_always_pstring =
     & ::leading_always_pstring;
@@ -7982,7 +7982,7 @@ min::pstring min::leading_always_pstring =
 static min::printer trailing_always_pstring
 	( min::printer printer )
 {
-     return min::print_trailing_always ( printer );
+    return min::print_trailing_always ( printer );
 }
 min::pstring min::trailing_always_pstring =
     & ::trailing_always_pstring;
@@ -7990,11 +7990,11 @@ min::pstring min::trailing_always_pstring =
 static min::printer left_square_colon_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
+    min::print_item_preface
+        ( printer,
 	   min::IS_LEADING + min::IS_GLUABLE );
-     min::print_chars ( printer, "[:", 2, 2 );
-     return min::print_postfix_space ( printer );
+    min::print_chars ( printer, "[:", 2, 2 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::left_square_colon_space_pstring =
     & ::left_square_colon_space_pstring;
@@ -8002,10 +8002,10 @@ min::pstring min::left_square_colon_space_pstring =
 static min::printer space_colon_right_square_pstring
 	( min::printer printer )
 {
-     min::print_prefix_space ( printer );
-     return min::print_chars
-         ( printer, ":]", 2, 2,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_prefix_space ( printer );
+    return min::print_chars
+        ( printer, ":]", 2, 2,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::space_colon_right_square_pstring =
     & ::space_colon_right_square_pstring;
@@ -8013,11 +8013,11 @@ min::pstring min::space_colon_right_square_pstring =
 static min::printer left_square_dollar_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_LEADING + min::IS_GLUABLE );
-     min::print_chars ( printer, "[$", 2, 2 );
-     return min::print_postfix_space ( printer );
+    min::print_item_preface
+        ( printer,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    min::print_chars ( printer, "[$", 2, 2 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::left_square_dollar_space_pstring =
     & ::left_square_dollar_space_pstring;
@@ -8025,10 +8025,10 @@ min::pstring min::left_square_dollar_space_pstring =
 static min::printer space_dollar_right_square_pstring
 	( min::printer printer )
 {
-     min::print_prefix_space ( printer );
-     return min::print_chars
-         ( printer, "$]", 2, 2,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_prefix_space ( printer );
+    return min::print_chars
+        ( printer, "$]", 2, 2,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::space_dollar_right_square_pstring =
     & ::space_dollar_right_square_pstring;
@@ -8036,64 +8036,69 @@ min::pstring min::space_dollar_right_square_pstring =
 static min::printer left_curly_right_curly_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_LEADING + min::IS_GLUABLE );
-     return min::print_chars
-         ( printer, "{}", 2, 2,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_item_preface
+        ( printer,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    return min::print_chars
+        ( printer, "{}", 2, 2,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::left_curly_right_curly_pstring =
     & ::left_curly_right_curly_pstring;
 
-static min::printer left_curly_pstring
+static min::printer left_curly_leading_pstring
 	( min::printer printer )
 {
-     return min::print_item
-         ( printer, "{", 1, 1,
-	   min::IS_LEADING + min::IS_GLUABLE );
+    min::print_item
+	( printer, "{", 1, 1,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    return min::print_leading ( printer );
 }
-min::pstring min::left_curly_pstring =
-    & ::left_curly_pstring;
+min::pstring min::left_curly_leading_pstring =
+    & ::left_curly_leading_pstring;
 
-static min::printer right_curly_pstring
+static min::printer trailing_right_curly_pstring
 	( min::printer printer )
 {
-     return min::print_item
-         ( printer, "}", 1, 1,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_trailing ( printer );
+    return min::print_item
+        ( printer, "}", 1, 1,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
-min::pstring min::right_curly_pstring =
-    & ::right_curly_pstring;
+min::pstring min::trailing_right_curly_pstring =
+    & ::trailing_right_curly_pstring;
 
 static min::printer trailing_vbar_pstring
 	( min::printer printer )
 {
-     return min::print_item
-         ( printer, "|", 1, 1,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_trailing ( printer );
+    return min::print_item
+        ( printer, "|", 1, 1,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::trailing_vbar_pstring =
     & ::trailing_vbar_pstring;
 
-static min::printer leading_vbar_pstring
+static min::printer vbar_leading_pstring
 	( min::printer printer )
 {
-     return min::print_item
-         ( printer, "|", 1, 1,
-	   min::IS_LEADING + min::IS_GLUABLE );
+    min::print_item
+        ( printer, "|", 1, 1,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    return min::print_leading ( printer );
 }
-min::pstring min::leading_vbar_pstring =
-    & ::leading_vbar_pstring;
+min::pstring min::vbar_leading_pstring =
+    & ::vbar_leading_pstring;
 
 static min::printer trailing_colon_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_TRAILING + min::IS_GLUABLE );
-     min::print_chars ( printer, ":", 1, 1 );
-     return min::print_postfix_space ( printer );
+    min::print_trailing ( printer );
+    min::print_item_preface
+        ( printer,
+	  min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_chars ( printer, ":", 1, 1 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::trailing_colon_space_pstring =
     & ::trailing_colon_space_pstring;
@@ -8101,21 +8106,36 @@ min::pstring min::trailing_colon_space_pstring =
 static min::printer trailing_comma_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_TRAILING + min::IS_GLUABLE );
-     min::print_chars ( printer, ",", 1, 1 );
-     return min::print_postfix_space ( printer );
+    min::print_trailing ( printer );
+    min::print_item_preface
+        ( printer,
+	  min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_chars ( printer, ",", 1, 1 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::trailing_comma_space_pstring =
     & ::trailing_comma_space_pstring;
 
+static min::printer trailing_semicolon_space_pstring
+	( min::printer printer )
+{
+    min::print_trailing ( printer );
+    min::print_item_preface
+        ( printer,
+	  min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_chars ( printer, ";", 1, 1 );
+    return min::print_postfix_space ( printer );
+}
+min::pstring min::trailing_semicolon_space_pstring =
+    & ::trailing_semicolon_space_pstring;
+
 static min::printer trailing_colon_pstring
 	( min::printer printer )
 {
-     return min::print_item
-         ( printer, ":", 1, 1,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_trailing ( printer );
+    return min::print_item
+        ( printer, ":", 1, 1,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::trailing_colon_pstring =
     & ::trailing_colon_pstring;
@@ -8123,10 +8143,10 @@ min::pstring min::trailing_colon_pstring =
 static min::printer no_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer, min::IS_GLUABLE );
-     min::print_chars ( printer, "no", 2, 2 );
-     return min::print_postfix_space ( printer );
+    min::print_item_preface
+        ( printer, min::IS_GLUABLE );
+    min::print_chars ( printer, "no", 2, 2 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::no_space_pstring =
     & ::no_space_pstring;
@@ -8134,9 +8154,9 @@ min::pstring min::no_space_pstring =
 static min::printer space_equal_space_pstring
 	( min::printer printer )
 {
-     min::print_prefix_space ( printer );
-     min::print_chars ( printer, "=", 1, 1 );
-     return min::print_postfix_space ( printer );
+    min::print_prefix_space ( printer );
+    min::print_chars ( printer, "=", 1, 1 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::space_equal_space_pstring =
     & ::space_equal_space_pstring;
@@ -8144,11 +8164,10 @@ min::pstring min::space_equal_space_pstring =
 static min::printer left_curly_star_space_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_LEADING + min::IS_GLUABLE );
-     min::print_chars ( printer, "{*", 2, 2 );
-     return min::print_postfix_space ( printer );
+    min::print_item
+        ( printer, "{*", 2, 2,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::left_curly_star_space_pstring =
     & ::left_curly_star_space_pstring;
@@ -8156,10 +8175,10 @@ min::pstring min::left_curly_star_space_pstring =
 static min::printer space_star_right_curly_pstring
 	( min::printer printer )
 {
-     min::print_prefix_space ( printer );
-     return min::print_chars
-         ( printer, "*}", 2, 2,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_prefix_space ( printer );
+    return min::print_chars
+        ( printer, "*}", 2, 2,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring min::space_star_right_curly_pstring =
     & ::space_star_right_curly_pstring;
@@ -8167,9 +8186,9 @@ min::pstring min::space_star_right_curly_pstring =
 static min::printer space_less_than_equal_space_pstring
 	( min::printer printer )
 {
-     min::print_prefix_space ( printer );
-     min::print_chars ( printer, "<=", 2, 2 );
-     return min::print_postfix_space ( printer );
+    min::print_prefix_space ( printer );
+    min::print_chars ( printer, "<=", 2, 2 );
+    return min::print_postfix_space ( printer );
 }
 min::pstring min::space_less_than_equal_space_pstring =
     & ::space_less_than_equal_space_pstring;
@@ -8178,12 +8197,12 @@ static min::printer
     left_curly_vbar_vbar_right_curly_pstring
 	( min::printer printer )
 {
-     min::print_item_preface
-         ( printer,
-	   min::IS_LEADING + min::IS_GLUABLE );
-     return min::print_chars
-         ( printer, "{||}", 4, 4,
-	   min::IS_TRAILING + min::IS_GLUABLE );
+    min::print_item_preface
+        ( printer,
+	  min::IS_LEADING + min::IS_GLUABLE );
+    return min::print_chars
+        ( printer, "{||}", 4, 4,
+	  min::IS_TRAILING + min::IS_GLUABLE );
 }
 min::pstring
 	min::left_curly_vbar_vbar_right_curly_pstring =
@@ -8994,11 +9013,6 @@ void MINT::print_item_preface
 	    /* Do nothing, i.e., print space. */;
 	else if ( ! (   printer->last_str_class
 	              & min::IS_GLUABLE ) )
-	    /* Do nothing, i.e., print space. */;
-	else if ( ( flags & (   min::AFTER_LEADING
-	                      + min::AFTER_TRAILING ) )
-		  == (   min::AFTER_LEADING
-		       + min::AFTER_TRAILING ) )
 	    /* Do nothing, i.e., print space. */;
 	else if ( (   printer->print_format.op_flags
 	            & min::FORCE_SPACE )
@@ -9952,42 +9966,42 @@ static min::obj_format compact_obj_format =
     // USTRING_LEADING   == 0x40
     // USTRING_TRAILING  == 0x80
 
-    (const min::ustring *)
-        "\x02\x02" "{}",    // obj_empty
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
 
-    (const min::ustring *)
-        "\x01\x01" "{",     // obj_bra
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_braend
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_ketbegin
-    (const min::ustring *)
-        "\x01\x01" "}",     // obj_ket
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
 
-    (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
-    (const min::ustring *)
-        "\x81\x21" ":",     // obj_attrbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_attrsep
+    min::trailing_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_comma_space_pstring,
+			    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
@@ -10030,28 +10044,28 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_ketbegin
     NULL,		    // obj_ket
 
-    (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
@@ -10087,40 +10101,40 @@ static min::obj_format embedded_line_obj_format =
     // USTRING_LEADING   == 0x40
     // USTRING_TRAILING  == 0x80
 
-    (const min::ustring *)
-        "\x04\x04" "{||}",  // obj_empty
+    min::left_curly_vbar_vbar_right_curly_pstring,
+			    // obj_empty
 
-    (const min::ustring *)
-        "\x01\x01" "{",     // obj_bra
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_braend
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_ketbegin
-    (const min::ustring *)
-        "\x01\x01" "}",     // obj_ket
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
 
-    (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
@@ -10208,46 +10222,46 @@ static min::obj_format paragraph_element_obj_format =
     // USTRING_LEADING   == 0x40
     // USTRING_TRAILING  == 0x80
 
-    (const min::ustring *)
-        "\x02\x02" "{}",    // obj_empty
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
 
-    (const min::ustring *)
-        "\x01\x01" "{",     // obj_bra
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_braend
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_ketbegin
-    (const min::ustring *)
-        "\x01\x01" "}",     // obj_ket
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
 
-    (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
-    (const min::ustring *)
-        "\x81\x21" ":",     // obj_attrbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_attrsep
+    min::trailing_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_comma_space_pstring,
+			    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
     NULL,		    // obj_line_sep
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_paragraph_begin
+    min::trailing_colon_pstring,
+			    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10281,45 +10295,45 @@ static min::obj_format line_element_obj_format =
     // USTRING_LEADING   == 0x40
     // USTRING_TRAILING  == 0x80
 
-    (const min::ustring *)
-        "\x02\x02" "{}",    // obj_empty
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
 
-    (const min::ustring *)
-        "\x01\x01" "{",     // obj_bra
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_braend
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_ketbegin
-    (const min::ustring *)
-        "\x01\x01" "}",     // obj_ket
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
 
-    (const min::ustring *)
-        "\x80\x00" "",      // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
-    (const min::ustring *)
-        "\x81\x21" ":",     // obj_attrbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_attrsep
+    min::trailing_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_comma_space_pstring,
+			    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
-    (const min::ustring *)
-        "\x81\x01" ";",     // obj_line_sep
+    min::trailing_semicolon_space_pstring,
+			    // obj_line_sep
     NULL,                   // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
@@ -10353,46 +10367,46 @@ static min::obj_format line_obj_format =
     // USTRING_LEADING   == 0x40
     // USTRING_TRAILING  == 0x80
 
-    (const min::ustring *)
-        "\x02\x02" "{}",    // obj_empty
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
 
-    (const min::ustring *)
-        "\x01\x01" "{",     // obj_bra
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_braend
-    (const min::ustring *)
-        "\x01\x01" "|",     // obj_ketbegin
-    (const min::ustring *)
-        "\x01\x01" "}",     // obj_ket
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
 
-    (const min::ustring *)
-        "\x01\x00" " ",     // obj_sep
+    min::space_if_none_pstring,
+			    // obj_sep
 
-    (const min::ustring *)
-        "\x81\x21" ":",     // obj_attrbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_attrsep
+    min::trailing_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_comma_space_pstring,
+			    // obj_attrsep
 
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_attreol
+    min::trailing_colon_pstring,
+			    // obj_attreol
 
-    (const min::ustring *)
-        "\x03\x00" "no ",   // obj_attrneg
-    (const min::ustring *)
-        "\x03\x00" " = ",   // obj_attreq
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
 
-    (const min::ustring *)
-        "\x03\x00" "{* ",   // obj_valbegin
-    (const min::ustring *)
-        "\x81\x21" ",",     // obj_valsep
-    (const min::ustring *)
-        "\x03\x00" " *}",   // obj_valend
-    (const min::ustring *)
-        "\x04\x00" " <= ",  // obj_valreq
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
 
     NULL,		    // obj_line_sep
-    (const min::ustring *)
-        "\x81\x01" ":",     // obj_paragraph_begin
+    min::trailing_colon_pstring,
+			    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
 };
@@ -10785,15 +10799,13 @@ static bool print_attributes
 	    first_attr = false;
 	    if ( line_format )
 	    {
-	        printer << min::pustring
-			       ( objf->obj_attreol )
+	        printer << objf->obj_attreol
 			<< min::eol << min::indent
 			<< min::adjust_indent
 			      ( adjust );
 	    }
 	    else
-		printer << min::pustring
-			       ( objf->obj_attrbegin )
+		printer << objf->obj_attrbegin
 		        << min::save_indent;
 	}
 	else
@@ -10806,9 +10818,8 @@ static bool print_attributes
 			      ( adjust );
 	    else
 	    {
-		min::print_ustring
-		    ( printer, objf->obj_attrsep );
-		printer << min::set_break;
+		printer << objf->obj_attrsep
+		        << min::set_break;
 	    }
 	}
 
@@ -10819,8 +10830,7 @@ static bool print_attributes
 	if ( suppress_value )
 	{
 	    if ( info[i].value == min::FALSE )
-		min::print_ustring
-		    ( printer, objf->obj_attrneg );
+		printer << objf->obj_attrneg;
 	    else if ( info[i].value != min::TRUE )
 		suppress_value = false;
 	}
@@ -10891,13 +10901,11 @@ static bool print_attributes
 	    printer << "]";
 	}
 
-	min::print_ustring
-	    ( printer, objf->obj_attreq );
-	printer << min::set_break;
+	printer << objf->obj_attreq
+	        << min::set_break;
 
 	if ( vc + rc != 1 && ! line_format )
-	    printer << min::pustring
-			   ( objf->obj_valbegin )
+	    printer << objf->obj_valbegin
 		    << min::save_indent;
 
 	bool first_value = true;
@@ -10905,8 +10913,7 @@ static bool print_attributes
 	{
 	    if ( first_value ) first_value = false;
 	    else
-	        printer << min::pustring
-			       ( objf->obj_valsep )
+	        printer << objf->obj_valsep
 			<< min::set_break;
 	    min::print_gen
 		( printer, value[j],
@@ -10916,8 +10923,7 @@ static bool print_attributes
 	{
 	    if ( first_value ) first_value = false;
 	    else
-	        printer << min::pustring
-			       ( objf->obj_valsep )
+	        printer << objf->obj_valsep
 			<< min::set_break;
 	    min::unsptr rvc = rinfo[j].value_count;
 	    min::gen rvalue[rvc];
@@ -10934,8 +10940,7 @@ static bool print_attributes
 	    }
 
 	    if ( rvc > 1 )
-		printer << min::pustring
-			       ( objf->obj_valbegin )
+		printer << objf->obj_valbegin
 			<< min::save_indent;
 
 	    bool first_rvalue = true;
@@ -10944,33 +10949,28 @@ static bool print_attributes
 		if ( first_rvalue )
 		    first_rvalue = false;
 		else
-		    printer << min::pustring
-				   ( objf->obj_valsep )
+		    printer << objf->obj_valsep
 			    << min::set_break;
 		min::print_id ( printer, rvalue[k] );
 	    }
 
 	    if ( rvc > 1 )
-		printer << min::pustring
-			       ( objf->obj_valend )
+		printer << objf->obj_valend
 			<< min::restore_indent;
 	    printer << min::set_break
-	            << min::pustring
-			   ( objf->obj_valreq );
+	            << objf->obj_valreq;
 	    min::print_gen
 		( printer, rinfo[j].name,
 		           objf->label_format );
 	}
 
 	if ( vc + rc != 1 && ! line_format )
-	    printer << min::pustring
-			   ( objf->obj_valend )
+	    printer << objf->obj_valend
 		    << min::restore_indent;
     }
 
     if ( ! line_format )
-        min::print_ustring
-	    ( printer, objf->obj_braend );
+        printer << objf->obj_braend;
 
     if ( ! first_attr )
     {
@@ -11096,8 +11096,7 @@ min::printer min::print_obj
 		  &&
 		  type == NONE() )
 	    return
-	        printer << min::pustring
-		               ( objf->obj_empty )
+	        printer << objf->obj_empty
 			<< min::restore_print_format;
 	else if ( type == objf->quote_type
 	          &&
@@ -11130,11 +11129,10 @@ min::printer min::print_obj
 	    {
 		printer->state &=
 		    ~ min::AFTER_LINE_SEPARATOR;
-		min::print_ustring
-		    ( printer, objf->top_element_format
-				   ->obj_format
-				   ->obj_sep )
-		    << min::set_break;
+		printer << objf->top_element_format
+			       ->obj_format
+			       ->obj_sep
+		        << min::set_break;
 	    }
 	    else
 	    {
@@ -11147,12 +11145,10 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
-		    min::print_ustring
-		        ( printer,
-			  objf->top_element_format
-			      ->obj_format
-			      ->obj_sep )
-		        << min::set_break;
+		    printer << objf->top_element_format
+			           ->obj_format
+			           ->obj_sep
+		            << min::set_break;
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
 			 type == objf->line_type )
@@ -11165,10 +11161,9 @@ min::printer min::print_obj
 	    }
 	    if ( type == objf->line_sep_type )
 	    {
-		min::print_ustring
-		    ( printer, objf->top_element_format
-				   ->obj_format
-				   ->obj_line_sep );
+		printer << objf->top_element_format
+			       ->obj_format
+			       ->obj_line_sep;
 		printer->state |=
 		    min::AFTER_LINE_SEPARATOR;
 		    // See min.h for discussion of when
@@ -11193,10 +11188,9 @@ min::printer min::print_obj
 		    & min::AFTER_LINE_SEPARATOR )
 		  == 0 );
 
-	    min::print_ustring
-		( printer, objf->top_element_format
-			       ->obj_format
-			       ->obj_paragraph_begin );
+	    printer << objf->top_element_format
+			   ->obj_format
+			   ->obj_paragraph_begin;
 	    printer << min::eol
 	            << min::save_line_break;
 		    // As we are printing this from
@@ -11225,8 +11219,7 @@ min::printer min::print_obj
 	}
 	else
 	{
-	    min::print_ustring
-	        ( printer, objf->obj_bra );
+	    printer << objf->obj_bra;
 
 	    const min::print_format & pf =
 	        printer->print_format;
@@ -11284,26 +11277,22 @@ min::printer min::print_obj
 		    min::print_gen
 			( printer, type,
 			  objf->label_format );
-		min::print_ustring
-		    ( printer, objf->obj_braend );
+		printer << objf->obj_braend;
 	    }
 	}
     }
     else if ( embedded_line_format )
     {
 	printer << min::indent;
-	min::print_ustring
-	    ( printer, objf->obj_bra );
+	printer << objf->obj_bra;
 	if ( type != min::NONE() )
 	    min::print_gen
 		( printer, type, objf->label_format );
-	min::print_ustring
-	    ( printer, objf->obj_braend );
+	printer << objf->obj_braend;
     }
     else if ( ! isolated_line_format )
     {
-	min::print_ustring
-	    ( printer, objf->obj_bra );
+	printer << objf->obj_bra;
 	min::print_gen
 	    ( printer, type != min::NONE() ?
 		       type : min::empty_string,
@@ -11339,8 +11328,7 @@ min::printer min::print_obj
 	{
 	    if (    ! compact_format
 	         || separator == min::NONE() )
-		min::print_ustring
-		    ( printer, objf->obj_sep );
+		printer << objf->obj_sep;
 	    else
 	    {
 		min::print_gen
@@ -11369,8 +11357,7 @@ min::printer min::print_obj
 	            << min::indent;
 	else
 	    min::print_spaces ( printer, 1 );
-	min::print_ustring
-	    ( printer, objf->obj_ketbegin );
+	printer << objf->obj_ketbegin;
 	if (    (   obj_op_flags
 		  & min::NO_TRAILING_TYPE )
 	     == 0
@@ -11378,8 +11365,7 @@ min::printer min::print_obj
 	     type != min::NONE() )
 	    min::print_gen
 		( printer, type, objf->label_format );
-	min::print_ustring
-	    ( printer, objf->obj_ket );
+	printer << objf->obj_ket;
 	if ( ! attributes_printed )
 	    printer << min::restore_indent;
 	printer << min::eol;
@@ -11409,13 +11395,11 @@ min::printer min::print_obj
 	    min::print_gen
 		( printer, marking_end_type,
 		  min::never_quote_gen_format );
-	    min::print_ustring
-		( printer, objf->obj_ket );
+	    printer << objf->obj_ket;
 	}
 	else
 	{
-	    min::print_ustring
-		( printer, objf->obj_ketbegin );
+	    printer << objf->obj_ketbegin;
 	    if (    (   obj_op_flags
 	              & min::NO_TRAILING_TYPE )
 		 == 0
@@ -11424,8 +11408,7 @@ min::printer min::print_obj
 		min::print_gen
 		    ( printer, type,
 		      objf->label_format );
-	    min::print_ustring
-		( printer, objf->obj_ket );
+	    printer << objf->obj_ket;
 	}
 
 	if ( ! first ) printer << min::restore_indent;
