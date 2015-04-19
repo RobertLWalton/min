@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 18 05:13:39 EDT 2015
+// Date:	Sun Apr 19 06:02:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8090,55 +8090,57 @@ static min::printer vbar_leading_pstring
 min::pstring min::vbar_leading_pstring =
     & ::vbar_leading_pstring;
 
-static min::printer trailing_colon_space_pstring
+static min::printer trailing_always_colon_space_pstring
 	( min::printer printer )
 {
-    min::print_trailing ( printer );
+    min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
 	  min::IS_TRAILING + min::IS_GLUABLE );
     min::print_chars ( printer, ":", 1, 1 );
     return min::print_postfix_space ( printer );
 }
-min::pstring min::trailing_colon_space_pstring =
-    & ::trailing_colon_space_pstring;
+min::pstring min::trailing_always_colon_space_pstring =
+    & ::trailing_always_colon_space_pstring;
 
-static min::printer trailing_comma_space_pstring
+static min::printer trailing_always_comma_space_pstring
 	( min::printer printer )
 {
-    min::print_trailing ( printer );
+    min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
 	  min::IS_TRAILING + min::IS_GLUABLE );
     min::print_chars ( printer, ",", 1, 1 );
     return min::print_postfix_space ( printer );
 }
-min::pstring min::trailing_comma_space_pstring =
-    & ::trailing_comma_space_pstring;
+min::pstring min::trailing_always_comma_space_pstring =
+    & ::trailing_always_comma_space_pstring;
 
-static min::printer trailing_semicolon_space_pstring
+static min::printer
+    trailing_always_semicolon_space_pstring
 	( min::printer printer )
 {
-    min::print_trailing ( printer );
+    min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
 	  min::IS_TRAILING + min::IS_GLUABLE );
     min::print_chars ( printer, ";", 1, 1 );
     return min::print_postfix_space ( printer );
 }
-min::pstring min::trailing_semicolon_space_pstring =
-    & ::trailing_semicolon_space_pstring;
+min::pstring
+    min::trailing_always_semicolon_space_pstring =
+    & ::trailing_always_semicolon_space_pstring;
 
-static min::printer trailing_colon_pstring
+static min::printer trailing_always_colon_pstring
 	( min::printer printer )
 {
-    min::print_trailing ( printer );
+    min::print_trailing_always ( printer );
     return min::print_item
         ( printer, ":", 1, 1,
 	  min::IS_TRAILING + min::IS_GLUABLE );
 }
-min::pstring min::trailing_colon_pstring =
-    & ::trailing_colon_pstring;
+min::pstring min::trailing_always_colon_pstring =
+    & ::trailing_always_colon_pstring;
 
 static min::printer no_space_pstring
 	( min::printer printer )
@@ -9395,7 +9397,7 @@ static min::uns32 standard_str_classifier_function
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p )
 {
-    if ( n == 0 ) return min::IS_NON_GLUABLE;
+    if ( n == 0 ) return 0;
 
     min::Uchar first = * p ++;
     min::uns32 first_cflags =
@@ -9414,7 +9416,9 @@ static min::uns32 standard_str_classifier_function
 	if ( c != first ) repeating = false;
     }
 
-    if ( ! ( and_of_flags & min::IS_GLUABLE ) )
+    if ( ! ( or_of_flags & min::IS_GRAPHIC ) )
+        return 0;
+    else if ( ! ( and_of_flags & min::IS_GLUABLE ) )
         return min::IS_NON_GLUABLE;
     else if ( or_of_flags & min::IS_SEPARATOR )
     {
@@ -9438,7 +9442,16 @@ static min::uns32 quote_all_str_classifier_function
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p )
 {
-    return min::IS_NON_GLUABLE;
+    for ( min::unsptr i = 0; i < n; ++ i )
+    {
+	min::Uchar c = * p ++;
+	min::uns32 cflags =
+	    min::char_flags ( char_flags, sc, c );
+	if ( cflags & min::IS_GRAPHIC )
+	    return min::IS_NON_GLUABLE;
+    }
+
+    return 0;
 }
 const min::str_classifier min::quote_all_str_classifier =
     & ::quote_all_str_classifier_function;
@@ -9449,16 +9462,6 @@ static min::uns32 null_str_classifier_function
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p )
 {
-    if ( n == 0 ) return 0;
-
-    for ( min::unsptr i = 0; i < n; ++ i )
-    {
-	min::Uchar c = * p ++;
-	min::uns32 cflags =
-	    min::char_flags ( char_flags, sc, c );
-	if ( cflags & min::IS_GRAPHIC )
-	    return min::IS_NON_GLUABLE;
-    }
     return 0;
 }
 const min::str_classifier min::null_str_classifier =
@@ -9482,7 +9485,8 @@ min::printer min::print_unicode
 	         printer->print_format
 		         .support_control,
 	         n, p, sf->str_classifier );
-    if ( sf != NULL && str_class & min::IS_NON_GLUABLE )
+    if (    sf != NULL
+         && ! ( str_class & min::IS_GLUABLE ) )
 	return ::print_quoted_unicode
 	    ( printer, n, p, sf );
     else if ( n == 0 ) return printer;
@@ -9981,12 +9985,12 @@ static min::obj_format compact_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    min::trailing_colon_space_pstring,
+    min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -9996,7 +10000,7 @@ static min::obj_format compact_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
@@ -10050,7 +10054,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -10060,7 +10064,7 @@ static min::obj_format isolated_line_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
@@ -10119,7 +10123,7 @@ static min::obj_format embedded_line_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -10129,7 +10133,7 @@ static min::obj_format embedded_line_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
@@ -10237,12 +10241,12 @@ static min::obj_format paragraph_element_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    min::trailing_colon_space_pstring,
+    min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -10252,7 +10256,7 @@ static min::obj_format paragraph_element_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
@@ -10260,7 +10264,7 @@ static min::obj_format paragraph_element_obj_format =
 			    // obj_valreq
 
     NULL,		    // obj_line_sep
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
@@ -10310,12 +10314,12 @@ static min::obj_format line_element_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    min::trailing_colon_space_pstring,
+    min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -10325,14 +10329,14 @@ static min::obj_format line_element_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    min::trailing_semicolon_space_pstring,
+    min::trailing_always_semicolon_space_pstring,
 			    // obj_line_sep
     NULL,                   // obj_paragraph_begin
 
@@ -10382,12 +10386,12 @@ static min::obj_format line_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    min::trailing_colon_space_pstring,
+    min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_attreol
 
     min::no_space_pstring,
@@ -10397,7 +10401,7 @@ static min::obj_format line_obj_format =
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
-    min::trailing_comma_space_pstring,
+    min::trailing_always_comma_space_pstring,
 			    // obj_valsep
     min::space_star_right_curly_pstring,
 			    // obj_valend
@@ -10405,7 +10409,7 @@ static min::obj_format line_obj_format =
 			    // obj_valreq
 
     NULL,		    // obj_line_sep
-    min::trailing_colon_pstring,
+    min::trailing_always_colon_pstring,
 			    // obj_paragraph_begin
 
     min::NULL_STUB	    // attr_flag_names*
@@ -11331,6 +11335,7 @@ min::printer min::print_obj
 		printer << objf->obj_sep;
 	    else
 	    {
+		min::print_trailing_always ( printer );
 		min::print_gen
 		    ( printer, separator,
 	              objf->separator_format );

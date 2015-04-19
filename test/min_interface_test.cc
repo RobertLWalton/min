@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 16 02:54:35 EDT 2015
+// Date:	Sun Apr 19 06:13:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3080,22 +3080,26 @@ void test_printer ( void )
     // Tests of min::leading/trailing.
     //
     printer << "(" << min::leading
-            << "100" << min::trailing_always << ", "
+            << "100"
+	    << min::trailing_always << "," << " "
 	    << "200" << min::trailing << ")"
             << min::eol;
     printer << min::force_space
             << "(" << min::leading
-            << "100" << min::trailing_always << ", "
+            << "100"
+	    << min::trailing_always << "," << " "
 	    << "200" << min::trailing << ")"
 	    << min::noforce_space
 	    << min::eol;
     printer << "(" << min::leading
-            << "100" << min::trailing_always << ", "
+            << "100"
+	    << min::trailing_always << "," << " "
 	    << min::trailing << ")"
             << min::eol;
     printer << min::force_space
             << "(" << min::leading
-            << "100" << min::trailing_always << ", "
+            << "100"
+	    << min::trailing_always << "," << " "
 	    << min::trailing << ")"
 	    << min::noforce_space
 	    << min::eol;
@@ -4576,11 +4580,11 @@ void test_object_printing ( void )
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::new_str_gen ( "{*" ) );
+	min::set ( ap, min::new_lab_gen ( "{", "*" ) );
 	min::locate ( ap, min::dot_separator );
 	min::set ( ap, min::new_str_gen ( "," ) );
 	min::locate ( ap, min::dot_terminator );
-	min::set ( ap, min::new_str_gen ( "*}" ) );
+	min::set ( ap, min::new_lab_gen ( "*", "}" ) );
 	min::attr_push ( vp, 2 );
 	vp[3] = min::new_num_gen ( 4 );
 	vp[4] = min::new_num_gen ( 5 );

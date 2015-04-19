@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 18 05:13:30 EDT 2015
+// Date:	Sun Apr 19 05:19:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11744,8 +11744,10 @@ namespace min {
     inline min::printer print_leading
 	    ( min::printer printer )
     {
-        if ( ! (   printer->last_str_class
-	         & min::IS_LEADING ) )
+        if ( printer->last_str_class == 0 )
+	    return printer;
+        else if ( ! (   printer->last_str_class
+	              & min::IS_LEADING ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_LEADING
 	                + min::FORCE_SPACE_OK;
@@ -11754,8 +11756,10 @@ namespace min {
     inline min::printer print_trailing
 	    ( min::printer printer )
     {
-        if ( ! (   printer->last_str_class
-	         & min::IS_GLUABLE ) )
+        if ( printer->last_str_class == 0 )
+	    return printer;
+        else if ( ! (   printer->last_str_class
+	              & min::IS_GLUABLE ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING
 	                + min::FORCE_SPACE_OK;
@@ -11764,8 +11768,10 @@ namespace min {
     inline min::printer print_leading_always
 	    ( min::printer printer )
     {
-        if ( ! (   printer->last_str_class
-	         & min::IS_LEADING ) )
+        if ( printer->last_str_class == 0 )
+	    return printer;
+        else if ( ! (   printer->last_str_class
+	              & min::IS_LEADING ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_LEADING;
 	return printer;
@@ -11773,8 +11779,10 @@ namespace min {
     inline min::printer print_trailing_always
 	    ( min::printer printer )
     {
-        if ( ! (   printer->last_str_class
-	         & min::IS_GLUABLE ) )
+        if ( printer->last_str_class == 0 )
+	    return printer;
+        else if ( ! (   printer->last_str_class
+	              & min::IS_GLUABLE ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING;
 	return printer;
@@ -11872,13 +11880,13 @@ namespace min {
     extern min::pstring
     	vbar_leading_pstring;
     extern min::pstring
-    	trailing_colon_space_pstring;
+    	trailing_always_colon_space_pstring;
     extern min::pstring
-    	trailing_comma_space_pstring;
+    	trailing_always_comma_space_pstring;
     extern min::pstring
-    	trailing_semicolon_space_pstring;
+    	trailing_always_semicolon_space_pstring;
     extern min::pstring
-    	trailing_colon_pstring;
+    	trailing_always_colon_pstring;
     extern min::pstring
     	no_space_pstring;
     extern min::pstring
