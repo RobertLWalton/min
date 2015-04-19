@@ -1441,7 +1441,7 @@ int32 -1 = -1
     float64 1.23 = 1.23
     char 'A' = A
 pint ( -3, "%05d" ) = -0003
-    puns ( 3, "%05u" ) = 00003
+    puns ( 3u, "%05u" ) = 00003
     pfloat ( 1.2345, "%04.2f" ) = 1.23
 1
 1.23456789
@@ -1454,7 +1454,6 @@ pint ( -3, "%05d" ) = -0003
 -1 1/3
 this is a string
 "this<SP>is<SP>a<SP>string"
-name
 name
 "name"
 ..name
@@ -1473,18 +1472,18 @@ SUCCESS
 FAILURE
 ERROR
 SPECIAL(0xABCDEF)
-[$SPECIAL(0x000111)$]
-[$MISSING$]
+[$ SPECIAL(0x000111) $]
+[$ MISSING $]
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)
-[$LIST_AUX(0x000000000A)$]
-[$SUBLIST_AUX(0x0000000014)$]
-[$INDIRECT_AUX(0x000000001E)$]
-[$INDEX(0x0000000028)$]
-[$CONTROL_CODE(0x0000FEDCBA)$]
-[$UNDEFINED_GEN(0x7FF4100000000000)$]
-[$MISSING$] MISSING [$MISSING$]
+[$ LIST_AUX(0x000000000A) $]
+[$ SUBLIST_AUX(0x0000000014) $]
+[$ INDIRECT_AUX(0x000000001E) $]
+[$ INDEX(0x0000000028) $]
+[$ CONTROL_CODE(0x0000FEDCBA) $]
+[$ UNDEFINED_GEN(0x7FF4100000000000) $]
+[$ MISSING $] MISSING [$ MISSING $]
 A flush is next:
 The line being flushed
 a␁      ␡<2400>␥
@@ -2548,25 +2547,25 @@ Start Object Printing Test!
         .separator = ";"
     |T}
 {T: no scientific, number = 123, .separator = ";", fraction| A B C |T}
-{"": myattr = [: "MYATTR" "VALUE" :], .initiator = "{*", .separator =
-     ",", .terminator = "*}"| 1 2 3 4 5 |}
+{"": myattr = [: "MYATTR" "VALUE" :], .initiator = [: "{" "*" :],
+     .separator = ",", .terminator = [: "*" "}" :]| 1 2 3 4 5 |}
 @1
 @1 = 1 2 3 4 5:
          myattr = [: "MYATTR" "VALUE" :]
-         .initiator = "{*"
+         .initiator = [: "{" "*" :]
          .separator = ","
-         .terminator = "*}"
+         .terminator = [: "*" "}" :]
 {"": myattr =
      {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = "{*",
-     .separator = ",", .terminator = "*}"| 1 2 3 4 5 |}
+        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
+     .separator = ",", .terminator = [: "*" "}" :]| 1 2 3 4 5 |}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr =
      {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = "{*",
-     myreverse = @2 <= myforward, .separator = ",", .terminator = "*}"|
-     1 2 3 4 5 |}
+        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
+     myreverse = @2 <= myforward, .separator = ",", .terminator =
+     [: "*" "}" :]| 1 2 3 4 5 |}
 
 @2 = A B C:
          no scientific
@@ -2579,16 +2578,16 @@ Start Object Printing Test!
      <= myreverse, fraction| A B C |T}
 {"": myattr[~*~Z,256,512] =
      {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = "{*",
-     myreverse = @2 <= myforward, .separator = ",", .terminator = "*}"|
-     1 2 3 4 5 |}
+        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
+     myreverse = @2 <= myforward, .separator = ",", .terminator =
+     [: "*" "}" :]| 1 2 3 4 5 |}
     {| 1 2 3 4 5:
        myattr[~*~Z,256,512] = [: "MYATTR" "THIRD" "VALUE" :],
            [: "MYATTR" "VALUE" :], [: "MYATTR" "SECOND" "VALUE" :]
-       .initiator = "{*"
+       .initiator = [: "{" "*" :]
        myreverse = @2 <= myforward
        .separator = ","
-       .terminator = "*}"
+       .terminator = [: "*" "}" :]
     |}
 {T| X Y Z |T}
 {+ X Y Z +}

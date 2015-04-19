@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 19 06:02:15 EDT 2015
+// Date:	Sun Apr 19 06:53:30 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9453,7 +9453,8 @@ static min::uns32 quote_all_str_classifier_function
 
     return 0;
 }
-const min::str_classifier min::quote_all_str_classifier =
+const min::str_classifier
+    min::quote_all_str_classifier =
     & ::quote_all_str_classifier_function;
 
 static min::uns32 null_str_classifier_function
@@ -11248,25 +11249,32 @@ min::printer min::print_obj
 		     &&
 		     min::is_str ( lab[0] )
 		     &&
-		     (   min::IS_MARK
-		       & min::str_class
-			     ( pf.char_flags,
-			       pf.support_control, 
-			       lab[0],
-			       objf->marking_type )
-		     )
-		     &&
-		     min::is_str ( lab[1] )
-		     &&
-		     (   min::IS_MARK
-		       & min::str_class
-			     ( pf.char_flags,
-			       pf.support_control, 
-			       lab[1],
-			       objf->marking_type ) ) )
+		     min::is_str ( lab[1] ) )
 		{
-		    marking_begin_type = lab[0];
-		    marking_end_type = lab[1];
+		    min::uns32 class0 =
+		       min::str_class
+			   ( pf.char_flags,
+			     pf.support_control, 
+			     lab[0],
+			     objf->marking_type );
+		    min::uns32 class1 =
+		       min::str_class
+			   ( pf.char_flags,
+			     pf.support_control, 
+			     lab[1],
+			     objf->marking_type );
+		    if ( ( ( min::IS_MARK & class0 )
+		           &&
+			   ( min::IS_MARK & class1 ) )
+			 ||
+			 ( ( min::IS_LEADING & class0 )
+			   &&
+			   ( min::IS_TRAILING & class1 )
+			 ) )
+		    {
+			marking_begin_type = lab[0];
+			marking_end_type = lab[1];
+		    }
 		}
 	    }
 	        
