@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 19 06:53:30 EDT 2015
+// Date:	Sun Apr 19 13:31:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9115,44 +9115,42 @@ min::printer MINT::print_unicode
 	     && c == substring[0]
 	     && n >= substring_length
 	     &&    memcmp ( !p, substring,
-	                        substring_length )
+	                          substring_length
+				* sizeof ( min::Uchar) )
 		== 0 )
 	{
 	    // Found substring; output replacement.
 	    //
-	    columns = min::ustring_columns
-		         ( replacement );
+	    length =
+	        min::ustring_length ( replacement );
+	    columns =
+	        min::ustring_columns ( replacement );
 	    MIN_ASSERT ( columns > 0,
-	                 "replacement ustring_column"
+	                 "replacement ustring_columns"
 			 " is zero" );
-	    length = 0;
-	    prefix = replacement;
+	    rep = min::ustring_chars ( replacement );
 	    clength = substring_length;
 	}
 	else if ( cflags & dc.display_char )
 	{
 	    if ( c == '\t' )
 	    {
+		rep_is_space = true;
+
 		min::uns32 spaces =
 		    8 - printer->column % 8;
 		columns = spaces;
 	        if ( expand_ht )
 		{
-		    ::strcpy ( temp, "        " );
-		    temp[spaces] = 0;
+		    rep = "        ";
 		    length = spaces;
 		}
 		else
-		{
 		    temp[0] = (char) c;
-		    temp[1] = 0;
-		}
-		rep_is_space = true;
 	    }
 	    else if ( 0 < c && c < 128 )
 	    {
 	        temp[0] = (char) c;
-		temp[1] = 0;
 		rep_is_space = ( c == ' ' );
 	    }
 	    else
@@ -9175,6 +9173,7 @@ min::printer MINT::print_unicode
 	{
 	    const min::ustring * picture =
 	        min::unicode::picture[cindex];
+
 	    length = min::ustring_length ( picture );
 	    columns = min::ustring_columns ( picture );
 	    MIN_ASSERT ( columns > 0,
