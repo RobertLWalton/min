@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 16, 2015}
+\date{April 20, 2015}
  
 \maketitle
 
@@ -3845,7 +3845,7 @@ horizontal tabs are handled specially by the printer as far
 as the number of columns they take, and this special handling
 ignores the character flags of the horizontal tab character.
 
-For \TT{min::standard\_char\_flags}, each character gets exactly
+For \TT{min::standard\_char\_flags}, each character gets at least
 one of the following flags:
 
 \begin{center}
@@ -3865,9 +3865,14 @@ one of the following flags:
 \end{tabular}
 \end{center}
 
+With one exception a character gets exactly one of these flags.  The
+exception is that a character can get both the
+\TT{min::\EOL IS\_\EOL LEADING} and \TT{min::\EOL IS\_\EOL TRAILING}
+flags.
+
 Graphic characters
 \label{LEADING/MIDDLING/TRAILING-CHAR-FLAGS}
-which make a mark on the paper get one of the
+which make a mark on the paper get at least one of the
 \TT{min::IS\_LEADING/\EOL MIDDLING/\EOL TRAILING}%
 \minindex{IS\_LEADING}%
 \minindex{IS\_MIDDLING}%
@@ -3882,20 +3887,25 @@ and the trailing separator lexeme \TT{;}, and therefore
 \TT{;} is \TT{IS\_TRAILING}.  See 
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
+
 The assignment of these first three flags for \TT{min::standard\_char\_flags}
 is as follows:
 
-\begin{indpar}
+\begin{indpar}[0.1in]
 \begin{tabular}{l@{~~~~~}l}
 \ttkey{min::IS\_LEADING}: & \TT{`}%
                          ~~~\TT{\textexclamdown}%
                          ~~~\TT{\textquestiondown}%
+                         ~~~\TT{|}%
+                         ~~~\TT{\$}%
 			 ~~~plus categories \TT{Ps} and \TT{Pi}
 			 (includes \TT{\{} \TT{(} \TT{[}
 			  \TT{\guillemotleft}) \\
 \ttkey{min::IS\_TRAILING}: & \TT{'}%
 			 ~~~\TT{!}~~~\TT{?}%
-			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:} \\
+                         ~~~\TT{|}%
+			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:}%
+			 ~~~\TT{\%}\\
 			   & plus categories \TT{Pe} and \TT{Pf}
 			     (includes \TT{\}} \TT{)} \TT{]}
 			      \TT{\guillemotright}) \\

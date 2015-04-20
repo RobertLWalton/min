@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 20 04:04:46 EDT 2015
+// Date:	Mon Apr 20 07:13:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1125,18 +1125,12 @@ static void init_standard_char_flags ( void )
 	    switch ( cat[1] )
 	    {
 	    case 'i':
-		flags = min::IS_LEADING;
-		break;
-
 	    case 's':
 		flags = min::IS_LEADING
 		      + min::IS_SEPARATOR;
 		break;
 
 	    case 'f':
-		flags = min::IS_TRAILING;
-		break;
-
 	    case 'e':
 		flags = min::IS_TRAILING
 		      + min::IS_SEPARATOR;
@@ -1196,20 +1190,15 @@ static void init_standard_char_flags ( void )
 		   break;
 
 	case '`':
-	case 0xAB:	// Left Double Angle Quote, <<
 		    flags = min::IS_LEADING
+		          + min::IS_REPEATER
 			  + min::IS_SEPARATOR;
 		    break;
 
 	case '\'':
 		    flags = min::IS_TRAILING
+		          + min::IS_REPEATER
 			  + min::IS_MARK;
-		    break;
-
-
-	case 0xBB:	// Right Double Angle Quote, >>
-		    flags = min::IS_TRAILING
-			  + min::IS_SEPARATOR;
 		    break;
 
 	case '$':
@@ -1227,7 +1216,8 @@ static void init_standard_char_flags ( void )
 		    break;
 
 	case '|':
-		    flags = min::IS_MIDDLING
+		    flags = min::IS_LEADING
+			  + min::IS_TRAILING
 			  + min::IS_SEPARATOR
 			  + min::IS_REPEATER;
 		    break;
