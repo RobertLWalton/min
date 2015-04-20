@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 19 14:08:15 EDT 2015
+// Date:	Mon Apr 20 04:04:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1125,8 +1125,7 @@ static void init_standard_char_flags ( void )
 	    switch ( cat[1] )
 	    {
 	    case 'i':
-		flags = min::IS_LEADING
-		      + min::IS_MARK;
+		flags = min::IS_LEADING;
 		break;
 
 	    case 's':
@@ -1135,8 +1134,7 @@ static void init_standard_char_flags ( void )
 		break;
 
 	    case 'f':
-		flags = min::IS_TRAILING
-		      + min::IS_MARK;
+		flags = min::IS_TRAILING;
 		break;
 
 	    case 'e':
@@ -1204,27 +1202,34 @@ static void init_standard_char_flags ( void )
 		    break;
 
 	case '\'':
+		    flags = min::IS_TRAILING
+			  + min::IS_MARK;
+		    break;
+
+
 	case 0xBB:	// Right Double Angle Quote, >>
 		    flags = min::IS_TRAILING
 			  + min::IS_SEPARATOR;
 		    break;
 
+	case '$':
 	case 0xA1:	// Inverted !
 	case 0xBF:	// Inverted ?
 		    flags = min::IS_LEADING
+		          + min::IS_REPEATER
 			  + min::IS_MARK;
 		    break;
 	
 	case ',':
 	case ';':
-	case ':':
 		    flags = min::IS_TRAILING
-			  + min::IS_MARK;
+		          + min::IS_MARK;
 		    break;
 
 	case '|':
 		    flags = min::IS_MIDDLING
-			  + min::IS_SEPARATOR;
+			  + min::IS_SEPARATOR
+			  + min::IS_REPEATER;
 		    break;
 
 	case '"':
@@ -1234,13 +1239,16 @@ static void init_standard_char_flags ( void )
 	case '!':
 	case '?':
 	case '.':
+	case ':':
+	case '%':
 		    flags = min::IS_TRAILING
+		          + min::IS_REPEATER
 			  + min::IS_MARK;
 		    break;
 
 	case '-':
-	case '_':
-	case '%':   flags = min::IS_MIDDLING
+	case '_':  
+		    flags = min::IS_MIDDLING
 			  + min::CONDITIONAL_BREAK
 			  + min::IS_MARK;
 		    break;
@@ -9340,7 +9348,7 @@ static min::printer print_quoted_unicode
     {
 	MINT::print_unicode
 	    ( printer, length, p,
-		       min::IS_NON_GLUABLE,
+		       min::NEEDS_QUOTES,
 		       width,
 	               & sf->display_control,
 	               postfix_string,
@@ -9382,6 +9390,7 @@ static min::uns32 standard_str_classifier_function
     min::Uchar first = * p ++;
     min::uns32 first_cflags =
 	    min::char_flags ( char_flags, sc, first );
+    min::uns32 last_cflags = first_cflags;
     min::uns32 and_of_flags = first_cflags;
     min::uns32 or_of_flags = first_cflags;
     bool repeating = true;
@@ -9389,27 +9398,52 @@ static min::uns32 standard_str_classifier_function
     for ( min::unsptr i = 1; i < n; ++ i )
     {
 	min::Uchar c = * p ++;
-	min::uns32 cflags =
+	last_cflags =
 	    min::char_flags ( char_flags, sc, c );
-	and_of_flags &= cflags;
-	or_of_flags |= cflags;
+	and_of_flags &= last_cflags;
+	or_of_flags |= last_cflags;
 	if ( c != first ) repeating = false;
     }
 
     if ( ! ( or_of_flags & min::IS_GRAPHIC ) )
         return 0;
     else if ( or_of_flags & min::IS_NON_GRAPHIC )
-        return min::IS_NON_GLUABLE;
+        return min::NEEDS_QUOTES;
     else if ( or_of_flags & min::IS_SEPARATOR )
     {
         if ( ! repeating )
-	    return min::IS_NON_GLUABLE;
+	    return min::NEEDS_QUOTES;
 	else if ( ! ( first_cflags & min::IS_REPEATER )
 	          &&
 		  n > 1 )
-	    return min::IS_NON_GLUABLE;
+	    return min::NEEDS_QUOTES;
     }
+    else if ( first_cflags & min::IS_LEADING )
+    {
+        if ( ! ( and_of_flags && min::IS_LEADING )
+	     ||
+	     ! repeating
+	     ||
+	     ( ! ( first_cflags & min::IS_REPEATER )
+	       &&
+	       n > 1 ) )
+	    return min::NEEDS_QUOTES;
 
+	else return first_cflags + min::IS_GLUABLE;
+    }
+    else if ( last_cflags & min::IS_TRAILING )
+    {
+        if ( ! ( and_of_flags && min::IS_TRAILING )
+	     ||
+	     ! repeating
+	     ||
+	     ( ! ( last_cflags & min::IS_REPEATER )
+	       &&
+	       n > 1 ) )
+	    return min::NEEDS_QUOTES;
+
+	else return last_cflags + min::IS_GLUABLE;
+    }
 
     return and_of_flags | min::IS_GLUABLE;
 }
@@ -9428,7 +9462,7 @@ static min::uns32 quote_all_str_classifier_function
 	min::uns32 cflags =
 	    min::char_flags ( char_flags, sc, c );
 	if ( cflags & min::IS_GRAPHIC )
-	    return min::IS_NON_GLUABLE;
+	    return min::NEEDS_QUOTES;
     }
 
     return 0;

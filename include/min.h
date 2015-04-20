@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 19 05:19:20 EDT 2015
+// Date:	Mon Apr 20 04:04:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3442,7 +3442,7 @@ namespace min {
     const min::uns32 IS_SEPARATOR	= ( 1 << 25 );
     const min::uns32 IS_REPEATER	= ( 1 << 26 );
     const min::uns32 IS_GLUABLE		= ( 1 << 27 );
-    const min::uns32 IS_NON_GLUABLE	= ( 1 << 28 );
+    const min::uns32 NEEDS_QUOTES	= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
@@ -3460,7 +3460,7 @@ namespace min {
 				    + IS_UNSUPPORTED;
 
     const min::uns32 IS_NON_SPACE_ITEM = IS_GLUABLE
-				       + IS_NON_GLUABLE;
+				       + NEEDS_QUOTES;
 
     extern const min::uns32 * standard_char_flags;
 
@@ -11668,7 +11668,7 @@ namespace min {
 	  const char * p,
 	  min::unsptr n,
 	  min::uns32 columns,
-	  min::uns32 str_class = min::IS_NON_GLUABLE )
+	  min::uns32 str_class = min::NEEDS_QUOTES )
     {
         if ( n == 0 ) return printer;
 	min::print_item_preface ( printer, str_class );
