@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 20 07:13:24 EDT 2015
+// Date:	Tue Apr 21 02:34:28 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1119,45 +1119,47 @@ static void init_standard_char_flags ( void )
 	if ( cat == NULL )
 	    flags = min::IS_UNSUPPORTED;
 	else if ( cat[0] == 'L' )
-	    flags = min::IS_MIDDLING;
+	    flags = min::IS_GRAPHIC;
 	else if ( cat[0] == 'P' )
 	{
 	    switch ( cat[1] )
 	    {
 	    case 'i':
 	    case 's':
-		flags = min::IS_LEADING
+		flags = min::IS_GRAPHIC
+		      + min::IS_LEADING
 		      + min::IS_SEPARATOR;
 		break;
 
 	    case 'f':
 	    case 'e':
-		flags = min::IS_TRAILING
+		flags = min::IS_GRAPHIC
+		      + min::IS_TRAILING
 		      + min::IS_SEPARATOR;
 		break;
 
 	    case 'c':
 	    case 'd':
-	        flags = min::IS_MIDDLING
+	        flags = min::IS_GRAPHIC
 		      + min::CONDITIONAL_BREAK
 		      + min::IS_MARK;
 		break;
 
 	    default:
-		flags = min::IS_MIDDLING
+		flags = min::IS_GRAPHIC
 		      + min::IS_MARK;
 	    }
 	}
 	else if ( cat[0] == 'S' )
-	    flags = min::IS_MIDDLING
+	    flags = min::IS_GRAPHIC
 		  + min::IS_MARK;
 	else if ( strcmp ( cat, "Mn" ) == 0 )
-	    flags = min::IS_MIDDLING
+	    flags = min::IS_GRAPHIC
 	          + min::IS_NON_SPACING;
 	else if ( cat[0] == 'M' )
-	    flags = min::IS_MIDDLING;
+	    flags = min::IS_GRAPHIC;
 	else if ( cat[0] == 'N' )
-	    flags = min::IS_MIDDLING;
+	    flags = min::IS_GRAPHIC;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
 	    flags = min::IS_OTHER_HSPACE;
 	else if ( cat[0] == 'Z' )
@@ -1190,13 +1192,15 @@ static void init_standard_char_flags ( void )
 		   break;
 
 	case '`':
-		    flags = min::IS_LEADING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_LEADING
 		          + min::IS_REPEATER
 			  + min::IS_SEPARATOR;
 		    break;
 
 	case '\'':
-		    flags = min::IS_TRAILING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_TRAILING
 		          + min::IS_REPEATER
 			  + min::IS_MARK;
 		    break;
@@ -1204,26 +1208,29 @@ static void init_standard_char_flags ( void )
 	case '$':
 	case 0xA1:	// Inverted !
 	case 0xBF:	// Inverted ?
-		    flags = min::IS_LEADING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_LEADING
 		          + min::IS_REPEATER
 			  + min::IS_MARK;
 		    break;
 	
 	case ',':
 	case ';':
-		    flags = min::IS_TRAILING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_TRAILING
 		          + min::IS_MARK;
 		    break;
 
 	case '|':
-		    flags = min::IS_LEADING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_LEADING
 			  + min::IS_TRAILING
 			  + min::IS_SEPARATOR
 			  + min::IS_REPEATER;
 		    break;
 
 	case '"':
-		    flags = min::IS_MIDDLING;
+		    flags = min::IS_GRAPHIC;
 		    break;
 
 	case '!':
@@ -1231,14 +1238,15 @@ static void init_standard_char_flags ( void )
 	case '.':
 	case ':':
 	case '%':
-		    flags = min::IS_TRAILING
+		    flags = min::IS_GRAPHIC
+		          + min::IS_TRAILING
 		          + min::IS_REPEATER
 			  + min::IS_MARK;
 		    break;
 
 	case '-':
 	case '_':  
-		    flags = min::IS_MIDDLING
+		    flags = min::IS_GRAPHIC
 			  + min::CONDITIONAL_BREAK
 			  + min::IS_MARK;
 		    break;
@@ -8969,7 +8977,6 @@ void MINT::print_item_preface
 	( min::printer printer,
 	  min::uns32 str_class )
 {
-
     if ( printer->state & min::AFTER_LINE_SEPARATOR )
     {
 	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
@@ -9369,6 +9376,24 @@ static min::printer print_quoted_unicode
     return printer;
 }
 
+void min::debug_str_class
+	( const char * header,
+	  min::uns32 str_class,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    char buffer [7*n+1];
+    char * bp = buffer;
+    const char * endbp = buffer + sizeof ( buffer );
+    const Uchar * q = ! p;
+    unicode_to_utf8 ( bp, endbp, q, q + n );
+    MIN_REQUIRE ( bp < endbp );
+    * bp = 0;
+    std::cout << header << " `" << buffer << "' "
+              << std::hex << str_class << std::dec
+	      << std::endl;
+}
+
 static min::uns32 standard_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
@@ -9397,7 +9422,7 @@ static min::uns32 standard_str_classifier_function
 
     if ( ! ( or_of_flags & min::IS_GRAPHIC ) )
         return 0;
-    else if ( or_of_flags & min::IS_NON_GRAPHIC )
+    else if ( ! ( and_of_flags & min::IS_GRAPHIC ) )
         return min::NEEDS_QUOTES;
     else if ( or_of_flags & min::IS_SEPARATOR )
     {
@@ -9419,7 +9444,7 @@ static min::uns32 standard_str_classifier_function
 	       n > 1 ) )
 	    return min::NEEDS_QUOTES;
 
-	else return first_cflags + min::IS_GLUABLE;
+	else return first_cflags | min::IS_GLUABLE;
     }
     else if ( last_cflags & min::IS_TRAILING )
     {
@@ -9432,7 +9457,7 @@ static min::uns32 standard_str_classifier_function
 	       n > 1 ) )
 	    return min::NEEDS_QUOTES;
 
-	else return last_cflags + min::IS_GLUABLE;
+	else return last_cflags | min::IS_GLUABLE;
     }
 
     return and_of_flags | min::IS_GLUABLE;

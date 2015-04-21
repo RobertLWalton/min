@@ -3686,12 +3686,12 @@ The standard character flags are
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
-\LABEL{MIN::IS_LETTER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
 \LABEL{MIN::IS_SEPARATOR} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
+\LABEL{MIN::IS_REPEATER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3725,8 +3725,7 @@ The standard character flags are
     \verb|+ min::IS_UNSUPPORTED|
 \LABEL{MIN::IS_NON_HSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
-    \verb|  min::IS_HSPACE|\ARGBREAK
-    \verb|+ min::IS_VSPACE + min::IS_OTHER_CONTROL|\ARGBREAK
+    \verb|  min::IS_CONTROL|\ARGBREAK
     \verb|+ min::IS_UNSUPPORTED|
 \LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}

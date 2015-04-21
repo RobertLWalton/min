@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 20 04:04:34 EDT 2015
+// Date:	Tue Apr 21 02:46:49 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3404,6 +3404,12 @@ namespace min {
     extern const min::str_classifier
         null_str_classifier;
 
+    void debug_str_class
+	    ( const char * header,
+	      min::uns32 str_class,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p );
+
     // UTF-8 Conversion Functions
 
     unsptr utf8_to_unicode
@@ -3415,25 +3421,25 @@ namespace min {
     	  const min::Uchar * & u,
 	  const min::Uchar * endu );
 
+    const min::uns32 IS_GRAPHIC		= ( 1 << 0 );
+    const min::uns32 IS_NON_SPACING	= ( 1 << 1 );
+
+    const min::uns32 IS_SP		= ( 1 << 2 );
+    const min::uns32 IS_NB_HSPACE	= ( 1 << 3 );
+    const min::uns32 IS_OTHER_HSPACE	= ( 1 << 4 );
+
+    const min::uns32 IS_VSPACE		= ( 1 << 5 );
+    const min::uns32 IS_OTHER_CONTROL	= ( 1 << 6 );
+
+    const min::uns32 IS_UNSUPPORTED	= ( 1 << 7 );
+
     // WARNING: IS_LEADING/TRAILING are the same bits
     // as AFTER_LEADING/TRAILING in printer->state.
     //
-    const min::uns32 IS_LEADING		= ( 1 << 0 );
-    const min::uns32 IS_TRAILING	= ( 1 << 1 );
-    const min::uns32 IS_MIDDLING	= ( 1 << 2 );
+    const min::uns32 IS_LEADING		= ( 1 << 8 );
+    const min::uns32 IS_TRAILING	= ( 1 << 9 );
 
-    const min::uns32 IS_NON_SPACING	= ( 1 << 3 );
-
-    const min::uns32 IS_SP		= ( 1 << 4 );
-    const min::uns32 IS_NB_HSPACE	= ( 1 << 5 );
-    const min::uns32 IS_OTHER_HSPACE	= ( 1 << 6 );
-
-    const min::uns32 IS_VSPACE		= ( 1 << 7 );
-    const min::uns32 IS_OTHER_CONTROL	= ( 1 << 8 );
-
-    const min::uns32 IS_UNSUPPORTED	= ( 1 << 9 );
-
-    const min::uns32 CONDITIONAL_BREAK	= ( 1 << 15 );
+    const min::uns32 CONDITIONAL_BREAK	= ( 1 << 10 );
 
     const min::uns32 IS_ASCII		= ( 1 << 16 );
     const min::uns32 IS_LATIN1		= ( 1 << 17 );
@@ -3441,23 +3447,21 @@ namespace min {
     const min::uns32 IS_MARK		= ( 1 << 24 );
     const min::uns32 IS_SEPARATOR	= ( 1 << 25 );
     const min::uns32 IS_REPEATER	= ( 1 << 26 );
+
     const min::uns32 IS_GLUABLE		= ( 1 << 27 );
     const min::uns32 NEEDS_QUOTES	= ( 1 << 28 );
 
     const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
 			      	+ IS_OTHER_HSPACE;
-    const min::uns32 IS_GRAPHIC = IS_LEADING
-    				+ IS_MIDDLING
-				+ IS_TRAILING;
     const min::uns32 IS_CONTROL = IS_HSPACE
 				+ IS_VSPACE
 				+ IS_OTHER_CONTROL;
+    const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
+                                    + IS_UNSUPPORTED;
     const min::uns32 IS_NON_HSPACE = IS_GRAPHIC
 				   + IS_VSPACE
 				   + IS_OTHER_CONTROL
 				   + IS_UNSUPPORTED;
-    const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
-				    + IS_UNSUPPORTED;
 
     const min::uns32 IS_NON_SPACE_ITEM = IS_GLUABLE
 				       + NEEDS_QUOTES;
@@ -11113,28 +11117,14 @@ namespace min {
     // Flags for printer->state.
     //
     enum {
-	// WARNING: AFTER_LEADING/TRAILING are the same
-	// bits as IS_LEADING/TRAILING in character
-	// flags.
-	//
-        AFTER_LEADING		= ( 1 << 0 ),
-        AFTER_TRAILING		= ( 1 << 1 ),
-	    // We are immediately after a min::leading/
-	    // trailing or min::leading/trailing_always.
-	    // If min::leading/trailing (not _always)
-	    // then FORCE_SPACE_OK is also set.
-        FORCE_SPACE_OK		= ( 1 << 2 ),
-	AFTER_SAVE_INDENT	= ( 1 << 3 ),
-	    // A min::save_indent was in a sequence
-	    // of min::leading/trailing{,_always}.
 
-        BREAK_AFTER		= ( 1 << 4 ),
+        BREAK_AFTER		= ( 1 << 0 ),
 	    // Set a break before the NEXT character
 	    // (i.e., a break after the last character)
 	    // UNLESS the next character is also a
 	    // break-after character.
 
-	PARAGRAPH_POSSIBLE	= ( 1 << 5 ),
+	PARAGRAPH_POSSIBLE	= ( 1 << 1 ),
 	    // Set when printing the last element of
 	    // an object with more than one element.
 	    // Such an element may be a paragraph, so
@@ -11145,7 +11135,7 @@ namespace min {
 	    // This flag is turned off by printer init,
 	    // ::end_line, and internal::print_unicode.
 
-	AFTER_LINE_SEPARATOR	= ( 1 << 6 )
+	AFTER_LINE_SEPARATOR	= ( 1 << 2 ),
 	    // A line separator (obj_line_sep) has
 	    // just been printed.  This can be used
 	    // to suppress the return to indent that
@@ -11161,6 +11151,21 @@ namespace min {
 	    // min::print_quoted_unicode. When turned
 	    // off by the non-init functions, restore_
 	    // indent and bol are exeucted.
+
+	// WARNING: AFTER_LEADING/TRAILING are the same
+	// bits as IS_LEADING/TRAILING in character
+	// flags.
+	//
+        AFTER_LEADING		= ( 1 << 8 ),
+        AFTER_TRAILING		= ( 1 << 9 ),
+	    // We are immediately after a min::leading/
+	    // trailing or min::leading/trailing_always.
+	    // If min::leading/trailing (not _always)
+	    // then FORCE_SPACE_OK is also set.
+        FORCE_SPACE_OK		= ( 1 << 10 ),
+	AFTER_SAVE_INDENT	= ( 1 << 11 )
+	    // A min::save_indent was in a sequence
+	    // of min::leading/trailing{,_always}.
 
     };
 
