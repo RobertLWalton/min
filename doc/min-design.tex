@@ -3725,27 +3725,26 @@ The standard character flags are
 \LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}
 
-Of these flags, only the first two:
+Of these flags, only the first eight:
 
 \begin{center}
 \begin{tabular}{l}
 \TT{min::IS\_GRAPHIC} \\
 \TT{min::IS\_NON\_SPACING} \\
+\TT{min::IS\_SP} \\
+\TT{min::IS\_NB\_HSPACE} \\
+\TT{min::IS\_OTHER\_HSPACE} \\
+\TT{min::IS\_VSPACE} \\
+\TT{min::IS\_OTHER\_CONTROL} \\
+\TT{min::IS\_UNSUPPORTED} \\
 \end{tabular}
 \end{center}
 
 are built into MIN printer code and need to be in user
 defined character flags as well as standard character flags.
-The \minkey{IS\_GRAPHIC} flag signifies that a character makes
-some visible mark, and the \minkey{IS\_\EOL NON\_\EOL SPACING}
-flag signifies that a character takes zero
-columns, instead of 1 column.
 
-The other flags are used by the printer context data and can
-be adapted according to the application.
-
-The specific assignment of these flags encoded in
-\TT{min::standard\_char\_flags} is according to their
+The specific assignment of these flags is generally done
+according to their
 UNICODE `\key{General Category}' with some exceptions.
 The following are the possible General Category values.
 These have the form \TT{Xy} where \TT{X} denotes the category
@@ -3828,25 +3827,11 @@ and digits).
 \end{tabular}
 \end{center}
 
-For \TT{min::standard\_char\_flags}, the non-spacing combining mark characters
-and all control characters except single space, horizontal tab,
-and non-break space are given the
-\TT{min::\EOL IS\_\EOL NON\_\EOL SPACING}%
-\ttindex{min::IS\_NON\_SPACING}%
-\ttindex{IS\_NON\_SPACING}
-flag.  Note that the
-horizontal tabs are handled specially by the printer as far
-as the number of columns they take, and this special handling
-ignores the character flags of the horizontal tab character.
-
-For \TT{min::standard\_char\_flags}, each character gets at least
-one of the following flags:
+Each character gets exactly one of the following flags:
 
 \begin{center}
 \begin{tabular}{l}
-\TT{min::IS\_LEADING} \\
-\TT{min::IS\_MIDDLING} \\
-\TT{min::IS\_TRAILING} \\
+\TT{min::IS\_GRAPHIC} \\
 \\
 \TT{min::IS\_SP} \\
 \TT{min::IS\_NB\_HSPACE} \\
@@ -3858,6 +3843,84 @@ one of the following flags:
 \TT{min::IS\_UNSUPPORTED} \\
 \end{tabular}
 \end{center}
+
+The \minkey{IS\_GRAPHIC} flag signifies that a character makes
+some visible mark.  It is given to all characters except spacing
+characters, control characters, and unsupported characters, all
+of which are described below.
+
+Horizontal space characters get one of the
+\TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
+\minindex{IS\_SP}%
+\minindex{IS\_NB\_HSPACE}%
+\minindex{IS\_OTHER\_HSPACE}
+flags.  \TT{IS\_SP} is just for the single space character,
+\TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
+(such as LATIN1 \TT{NBSP}, no-break space),
+and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for horizontal tab and
+for characters other than single space and \TT{NBSP} that
+have subcategory \TT{Zs}.
+The printer does some special processing on single space
+and horizontal tab characters \underline{independently} of the flags
+of these characters.
+
+So the assignment of these next three flags is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_SP}: & single space character \\
+\ttkey{min::IS\_NB\_HSPACE}: & \TT{NBSP} (no-break space) \\
+\ttkey{min::IS\_OTHER\_HSPACE}: & horizontal tab plus
+                                  other characters in subcategory \TT{Zs} \\
+\end{tabular}
+\end{indpar}
+
+Vertical space characters that standardly appear in printed output
+get the \minkey{IS\_VSPACE} flag.  There are four such characters:
+form feed \TT{FF}, vertical tab \TT{VT}, line feed \TT{LF},
+and carriage return \TT{CR}.  The last is included because
+it is associated with line feeds.
+
+All other control characters, i.e., other characters in categories
+\TT{C} and \TT{Z}, get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
+flag.  These are often suppressed in printed output.
+
+So the assignment of these next two flags is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_VSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR} \\
+\ttkey{min::IS\_OTHER\_CONTROL}: & other characters in categories
+                                   \TT{C} and \TT{Z} \\
+\end{tabular}
+\end{indpar}
+
+
+All characters not given one of the above flags (i.e., characters
+with \underline{no} UNICODE General Category) get the
+\minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
+is not supported by keyboard input and/or hardware printers,
+and ideally, the character should not be used.  The
+\TT{support\_\EOL control} member of a \TT{printer->\EOL print\_\EOL format}
+is typcally used to reset the flags of a character not supported by
+the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
+see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
+
+The \minkey{IS\_\EOL NON\_\EOL SPACING}
+flag signifies that a character takes zero
+columns, instead of 1 column.  The characters given this flag are
+the non-spacing combining mark characters
+and all control characters except single space, horizontal tab,
+and non-break space.  Note that the
+horizontal tabs are handled specially by the printer as far
+as the number of columns they take, and this special handling
+ignores the character flags of the horizontal tab character.
+
+The other flags, besides the first eight,
+are used by the printer context data and can
+be adapted according to the application.
+
+TBD
 
 With one exception a character gets exactly one of these flags.  The
 exception is that a character can get both the
@@ -3908,65 +3971,6 @@ is as follows:
 			   & (all other graphic characters) \\
 \end{tabular}
 \end{indpar}
-
-Horizontal space characters get one of the
-\TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
-\minindex{IS\_SP}%
-\minindex{IS\_NB\_HSPACE}%
-\minindex{IS\_OTHER\_HSPACE}
-flags.  \TT{IS\_SP} is just for the single space character,
-\TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
-(such as LATIN1 \TT{NBSP}, no-break space),
-and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for horizontal tab and
-for characters other than single space and \TT{NBSP} that
-have subcategory \TT{Zs}.
-The printer does some special processing on single space
-and horizontal tab characters \underline{independently} of the flags
-of these characters.
-
-So the assignment of these next three flags for \TT{min::standard\_char\_flags}
-is:
-
-\begin{indpar}
-\begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_SP}: & single space character \\
-\ttkey{min::IS\_NB\_HSPACE}: & \TT{NBSP} (no-break space) \\
-\ttkey{min::IS\_OTHER\_HSPACE}: & horizontal tab plus
-                                  other characters in subcategory \TT{Zs} \\
-\end{tabular}
-\end{indpar}
-
-Vertical space characters that standardly appear in printed output
-get the \minkey{IS\_VSPACE} flag.  There are four such characters:
-form feed \TT{FF}, vertical tab \TT{VT}, line feed \TT{LF},
-and carriage return \TT{CR}.  The last is included because
-it is associated with line feeds.
-
-All other control characters, i.e., other characters in categories
-\TT{C} and \TT{Z}, get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
-flag.  These are often suppressed in printed output.
-
-So the assignment of these next two flags for \TT{min::standard\_char\_flags}
-is:
-
-\begin{indpar}
-\begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_VSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR} \\
-\ttkey{min::IS\_OTHER\_CONTROL}: & other characters in categories
-                                   \TT{C} and \TT{Z} \\
-\end{tabular}
-\end{indpar}
-
-
-All characters not given one of the above flags (i.e., characters
-with \underline{no} UNICODE General Category) get the
-\minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
-is not supported by keyboard input and/or hardware printers,
-and ideally, the character should not be used.  The
-\TT{support\_\EOL control} member of a \TT{printer->\EOL print\_\EOL format}
-is typcally used to reset the flags of a character not supported by
-the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
-see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
 
 The next five flags are used in conjunction with printer format

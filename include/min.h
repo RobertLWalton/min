@@ -3524,7 +3524,7 @@ namespace min {
 	}
 	inline min::gen new_num_gen ( min::uns32 v )
 	{
-	    if ( v <= GEN_MAX_INT )
+	    if ( v <= (min::uns32) GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
@@ -3538,7 +3538,7 @@ namespace min {
 	}
 	inline min::gen new_num_gen ( min::uns64 v )
 	{
-	    if ( v <= GEN_MAX_INT )
+	    if ( v <= (min::uns64) GEN_MAX_INT )
 		return unprotected::new_direct_int_gen
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
