@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 20, 2015}
+\date{April 21, 2015}
  
 \maketitle
 
@@ -3646,15 +3646,8 @@ possible.
 The standard character flags are
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
-\LABEL{MIN::IS_LEADING} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
-\LABEL{MIN::IS_MIDDLING} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
-\LABEL{MIN::IS_TRAILING} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
+\LABEL{MIN::IS_GRAPHIC} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
 \LABEL{MIN::IS_NON_SPACING} \\
 \end{tabular}\end{indpar}
@@ -3678,6 +3671,13 @@ The standard character flags are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
 \LABEL{MIN::IS_UNSUPPORTED} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{MIN::IS_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{MIN::IS_TRAILING} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3706,11 +3706,6 @@ The standard character flags are
     \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
     \verb|+ min::IS_OTHER_HSPACE|
 \LABEL{MIN::IS_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC} =\ARGBREAK
-    \verb|  min::IS_LEADING|\ARGBREAK
-    \verb|+ min::IS_MIDDLING|\ARGBREAK
-    \verb|+ min::IS_TRAILING|
-\LABEL{MIN::IS_GRAPHIC} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL} =\ARGBREAK
     \verb|  min::IS_HSPACE|\ARGBREAK
     \verb|+ min::IS_VSPACE|\ARGBREAK
@@ -3730,24 +3725,24 @@ The standard character flags are
 \LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}
 
-Of these flags, only the first four:
+Of these flags, only the first two:
 
 \begin{center}
 \begin{tabular}{l}
-\TT{min::IS\_LEADING} \\
-\TT{min::IS\_MIDDLING} \\
-\TT{min::IS\_TRAILING} \\
+\TT{min::IS\_GRAPHIC} \\
 \TT{min::IS\_NON\_SPACING} \\
 \end{tabular}
 \end{center}
 
 are built into MIN printer code and need to be in user
 defined character flags as well as standard character flags.
-\TT{min::IS\_LEADING/MIDDLING/TRAILING}
-are used by the single space suppression feature of MIN printers;
-see below.
-\minkey{IS\_NON\_SPACING} signifies that a character takes zero
+The \minkey{IS\_GRAPHIC} flag signifies that a character makes
+some visible mark, and the \minkey{IS\_\EOL NON\_\EOL SPACING}
+flag signifies that a character takes zero
 columns, instead of 1 column.
+
+The other flags are used by the printer context data and can
+be adapted according to the application.
 
 The specific assignment of these flags encoded in
 \TT{min::standard\_char\_flags} is according to their
