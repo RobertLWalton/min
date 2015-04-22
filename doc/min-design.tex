@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 21, 2015}
+\date{April 22, 2015}
  
 \maketitle
 
@@ -3638,12 +3638,12 @@ These are obtained from
 the \TT{char\_\EOL flags} member of the \TT{print\_\EOL format} member of
 the \TT{printer} being used to print the character, and this
 in turn is usually set to the \TT{min::\EOL standard\_\EOL char\_\EOL flags}
-vector.  Unlike other character attributes, the flags can be computed
-by user code in a very flexible manner, so the standard character
+vector.  Unlike other character attributes, some of these flags can be computed
+by user code in a flexible manner, so some of the standard character
 flags which we describe here are only a special case of what is
 possible.
 
-The standard character flags are
+The standard character flags which must always be defined are
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
@@ -3674,34 +3674,6 @@ The standard character flags are
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
-\LABEL{MIN::IS_LEADING} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
-\LABEL{MIN::IS_TRAILING} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
-\LABEL{MIN::CONDITIONAL_BREAK} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
-\LABEL{MIN::IS_MARK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
-\LABEL{MIN::IS_SEPARATOR} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
-\LABEL{MIN::IS_REPEATER} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_ASCII}
-\LABEL{MIN::IS_ASCII} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
-\LABEL{MIN::IS_LATIN1} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE} =\ARGBREAK
     \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
     \verb|+ min::IS_OTHER_HSPACE|
@@ -3725,25 +3697,7 @@ The standard character flags are
 \LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}
 
-Of these flags, only the first eight:
-
-\begin{center}
-\begin{tabular}{l}
-\TT{min::IS\_GRAPHIC} \\
-\TT{min::IS\_NON\_SPACING} \\
-\TT{min::IS\_SP} \\
-\TT{min::IS\_NB\_HSPACE} \\
-\TT{min::IS\_OTHER\_HSPACE} \\
-\TT{min::IS\_VSPACE} \\
-\TT{min::IS\_OTHER\_CONTROL} \\
-\TT{min::IS\_UNSUPPORTED} \\
-\end{tabular}
-\end{center}
-
-are built into MIN printer code and need to be in user
-defined character flags as well as standard character flags.
-
-The specific assignment of these flags is generally done
+The specific assignment of character flags is generally done
 according to their
 UNICODE `\key{General Category}' with some exceptions.
 The following are the possible General Category values.
@@ -3909,43 +3863,70 @@ see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 The \minkey{IS\_\EOL NON\_\EOL SPACING}
 flag signifies that a character takes zero
 columns, instead of 1 column.  The characters given this flag are
-the non-spacing combining mark characters
-and all control characters except single space, horizontal tab,
-and non-break space.  Note that the
+the non-spacing combining mark characters and
+all control characters (including vertical spacing characters)
+other than horizontal spacing characters.  Note that the
 horizontal tabs are handled specially by the printer as far
 as the number of columns they take, and this special handling
 ignores the character flags of the horizontal tab character.
 
-The other flags, besides the first eight,
-are used by the printer context data and can
-be adapted according to the application.
+Other character flags are used by the printer context data and can
+be adapted according to the application.  The following flags are
+defined by 
+\TT{min::\EOL standard\_\EOL char\_\EOL flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{MIN::IS_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{MIN::IS_TRAILING} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
+\LABEL{MIN::CONDITIONAL_BREAK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
+\LABEL{MIN::IS_MARK} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
+\LABEL{MIN::IS_SEPARATOR} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
+\LABEL{MIN::IS_REPEATER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_ASCII}
+\LABEL{MIN::IS_ASCII} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
+\LABEL{MIN::IS_LATIN1} \\
+\end{tabular}\end{indpar}
+
+These flags are used by the following:
+
+\begin{indpar}[1em]\begin{tabular}{r@{\hspace*{0.3in}}l}
+\TT{min::standard\_str\_classifier} &
+\pagref{MIN::STANDARD_STR_CLASSIFIER} \\
+\end{tabular}\end{indpar}
 
 TBD
 
-With one exception a character gets exactly one of these flags.  The
-exception is that a character can get both the
-\TT{min::\EOL IS\_\EOL LEADING} and \TT{min::\EOL IS\_\EOL TRAILING}
-flags.
-
-Graphic characters
-\label{LEADING/MIDDLING/TRAILING-CHAR-FLAGS}
-which make a mark on the paper get at least one of the
-\TT{min::IS\_LEADING/\EOL MIDDLING/\EOL TRAILING}%
-\minindex{IS\_LEADING}%
-\minindex{IS\_MIDDLING}%
-\minindex{IS\_TRAILING}
-flags.  The rough concept is
+Graphic characters can be given either or both the
+\minkey{IS\_LEADING} or \minkey{IS\_TRAILING} flags.
+The rough concept is
 that a string of characters with no spaces may be separated into
 lexemes by stripping leading separators from its beginning and
 trailing separators from its end, so `\TT{[5;}' becomes the
 leading separator lexeme \TT{[}, the middle lexeme \TT{5},
 and the trailing separator lexeme \TT{;}, and therefore
-\TT{[} is \TT{IS\_LEADING}, \TT{5} is \TT{IS\_MIDDLING}, and
-\TT{;} is \TT{IS\_TRAILING}.  See 
+\TT{[} is \TT{IS\_\EOL LEADING}, \TT{5} is neither \TT{IS\_\EOL LEADING}
+or \TT{IS\_\EOL TRAILING}, and
+\TT{;} is \TT{IS\_\EOL TRAILING}.  See 
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
 
-The assignment of these first three flags for \TT{min::standard\_char\_flags}
+The assignment of these two flags in \TT{min::standard\_char\_flags}
 is as follows:
 
 \begin{indpar}[0.1in]
@@ -3954,21 +3935,18 @@ is as follows:
                          ~~~\TT{\textexclamdown}%
                          ~~~\TT{\textquestiondown}%
                          ~~~\TT{|}%
-                         ~~~\TT{\$}%
-			 ~~~plus categories \TT{Ps} and \TT{Pi}
-			 (includes \TT{\{} \TT{(} \TT{[}
-			  \TT{\guillemotleft}) \\
+                         ~~~\TT{\$}\\
+			   & plus categories \TT{Ps} and \TT{Pi}
+			     which include \TT{\{} \TT{(} \TT{[}
+			      \TT{\guillemotleft} \\
 \ttkey{min::IS\_TRAILING}: & \TT{'}%
 			 ~~~\TT{!}~~~\TT{?}%
                          ~~~\TT{|}%
 			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:}%
 			 ~~~\TT{\%}\\
 			   & plus categories \TT{Pe} and \TT{Pf}
-			     (includes \TT{\}} \TT{)} \TT{]}
-			      \TT{\guillemotright}) \\
-\ttkey{min::IS\_MIDDLING}: & all other characters in categories
-			     \TT{L}, \TT{M}, \TT{N}, \TT{P}, \TT{S} \\
-			   & (all other graphic characters) \\
+			     which include \TT{\}} \TT{)} \TT{]}
+			      \TT{\guillemotright} \\
 \end{tabular}
 \end{indpar}
 
