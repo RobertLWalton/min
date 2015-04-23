@@ -3908,6 +3908,11 @@ defined by
 \TT{min::\EOL standard\_\EOL char\_\EOL flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
+\LABEL{MIN::CONDITIONAL_BREAK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
 \LABEL{MIN::IS_LEADING} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
@@ -3915,17 +3920,15 @@ defined by
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
-\LABEL{MIN::CONDITIONAL_BREAK} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
+\LABEL{MIN::IS_SEPARATOR} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
+\LABEL{MIN::IS_REPEATER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
-\LABEL{MIN::IS_SEPARATOR} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
-\LABEL{MIN::IS_REPEATER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3935,17 +3938,28 @@ defined by
 \LABEL{MIN::IS_LATIN1} \\
 \end{tabular}\end{indpar}
 
-These flags are used by the following:
+The \minkey{CONDITIONAL\_\EOL BREAK} flag is used in
 
-\begin{indpar}[1em]\begin{tabular}{r@{\hspace*{0.3in}}l}
-\TT{min::standard\_str\_classifier} &
-\pagref{MIN::STANDARD_STR_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+\begin{center}
+\TT{printer->print\_format.break\_control.conditional\_break}
+\end{center}
 
-TBD
+to mark graphic characters which when followed immediately by a line break
+indicate that their containing lexeme is continued on the next line.
+See \pagref{CONDITIONAL-BREAK}.
 
-Graphic characters can be given either or both the
-\minkey{IS\_LEADING} or \minkey{IS\_TRAILING} flags.
+The assignment of this flag in \TT{min::standard\_char\_flags} is:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::CONDITIONAL\_BREAK}: & characters in categories \TT{Pc} and \TT{Pd}
+				   (includes \TT{-} and \TT{\_}) \\
+\end{tabular}
+\end{center}
+
+The \minkey{IS\_LEADING} or \minkey{IS\_TRAILING} flags are used
+to mark characters that can be leading separators prepended to
+other lexemes or trailing separators appended to other lexemes.
 The rough concept is
 that a string of characters with no spaces may be separated into
 lexemes by stripping leading separators from its beginning and
@@ -3953,7 +3967,7 @@ trailing separators from its end, so `\TT{[5;}' becomes the
 leading separator lexeme \TT{[}, the middle lexeme \TT{5},
 and the trailing separator lexeme \TT{;}, and therefore
 \TT{[} is \TT{IS\_\EOL LEADING}, \TT{5} is neither \TT{IS\_\EOL LEADING}
-or \TT{IS\_\EOL TRAILING}, and
+nor \TT{IS\_\EOL TRAILING}, and
 \TT{;} is \TT{IS\_\EOL TRAILING}.  See 
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
@@ -3982,12 +3996,14 @@ is as follows:
 \end{tabular}
 \end{indpar}
 
+Note that `\TT{|}' is \underline{both} \TT{IS\_\EOL LEADING} and
+\TT{IS\_\EOL TRAILING}.
+
 
 The next five flags are used in conjunction with printer format
 masks to perform special printer functions.
-The \minkey{CONDITIONAL\_\EOL BREAK} flag marks graphic characters that
-can be followed by a line break, such as \TT{-} and \TT{\_}.
-See \pagref{CONDITIONAL-BREAK}.
+
+
 The \minkey{IS\_\EOL LETTER}
 flag marks letters (including combining
 characters)
