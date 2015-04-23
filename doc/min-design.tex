@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 22, 2015}
+\date{April 23, 2015}
  
 \maketitle
 
@@ -3413,6 +3413,9 @@ Unicode characters are implemented by the following:
 \verb|const min::Uchar min::|
     & \MINKEY{SOFTWARE\_NL}
 \LABEL{MIN::SOFTWARE_NL} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::UNICODE::NO_UCHAR} \\
 \verb|min::Uchar min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
       \verb|( const char * & s, const char * ends )|
@@ -3447,7 +3450,7 @@ which is internally represented by a line-ending NUL character,
 when the end of line is displayed on a printer.
 See \TT{min::\EOL DISPLAY\_\EOL EOL} on \pagref{DISPLAY_EOL}.
 This is actually an arbitrary UNICODE private use character, and is not
-actually input or output itself.
+normally input or output itself.
 
 The \TT{min::uft8\_to\_unicode} function reads a UNICODE character
 encoded as a UTF-8 byte string.  Here \TT{s} points at the first byte
@@ -3550,7 +3553,7 @@ which maps the UNICODE character \TT{c} to its UNICODE
 character index \TT{Uindex~(~c~)}.
 
 Given the index \TT{i = min::Uindex ( c )} of \TT{c}, you can
-find out the name, picture, and flags of \TT{c} by using:
+find out the name and picture of \TT{c} by using:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::ustring * min::|
@@ -3559,19 +3562,10 @@ find out the name, picture, and flags of \TT{c} by using:
 \verb|const min::ustring * min::|
     & \MINKEY{unicode::picture}\verb|[i]|
 \LABEL{MIN::UNICODE::PICTURE} \\
-\verb|const min::uns32 printer->|
-    & \MINKEY{print\_format.char\_flags}\verb|[i]|
-\LABEL{MIN::PRINT_FORMAT.CHAR_FLAGS} \\
-\verb|const min::uns32 * min::|
-    & \MINKEY{standard\_char\_flags}
-\LABEL{MIN::STANDARD_CHAR_FLAGS} \\
 \end{tabular}\end{indpar}
 
-where usually
-
-\begin{center}
-\tt printer->print\_format.char\_flags == min::standard\_char\_flags
-\end{center}
+You can also find out the character flags of \TT{c} as decribed
+below in \itemref{UNICODE-CHARACTER-FLAGS}.
 
 For indices \TT{i} for which there is exactly one character that
 has index \TT{i}, you can find out that character by using:
@@ -3580,9 +3574,6 @@ has index \TT{i}, you can find out that character by using:
 \verb|const min::Uchar min::|
     & \MINKEY{unicode::character}\verb|[i]|
 \LABEL{MIN::UNICODE::CHARACTER} \\
-\verb|const min::Uchar min::|
-    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
-\LABEL{MIN::UNICODE::NO_UCHAR} \\
 \verb|const min::uns16 min::|
     & \MINKEY{unicode::index\_limit}
 \LABEL{MIN::UNICODE::INDEX_LIMIT} \\
@@ -3603,14 +3594,15 @@ Here `\TT{const min::ustring *}' values encode UNICODE character
 strings in a format optimized for printing, or are \TT{NULL} to
 indicate a missing value; see \itemref{UNICODE-STRINGS} for details.
 The \mkey{name}{of UNICODE character}
-is non-missing only for common control characters; examples
+is non-missing only for control characters; examples
 are the name
 \TT{CR} for the ASCII carriage return character with (hex) code \TT{0D},
 \TT{SP} for the ASCII single space character with (hex) code \TT{20},
 and \TT{NBSP} for the LATIN1 non-breaking single space character
 with (hex) code \TT{A0}.
-For ASCII graphic characters (which produce marks on paper) the
-name is \TT{NULL}.
+LATIN1 control characters (including horizontal spaces)
+and some other control characters have
+non-missing names.
 
 The \mkey{picture}{of UNICODE character} is non-missing for
 ASCII control characters, and for these is the UNICODE control picture
@@ -3631,10 +3623,31 @@ The \TT{ustring} name and picture values contain only graphic
 characters (e.g., no spaces) and have non-zero numbers of columns
 encoded in their second bytes (see \pagref{USTRING-ZERO-COLUMNS}).
 
+\subsubsection{Unicode Character Flags}
+\label{UNICODE-CHARACTER-FLAGS}
+
 The most important attributes of a character are its
 \smkey{flag}s{of UNICODE character}\index{character flag}%
 \label{CHARACTER-FLAGS}.
-These are obtained from
+Given the index \TT{i = min::Uindex ( c )} of \TT{c}, you can
+find out the flags of \TT{c} by using:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 printer->|
+    & \MINKEY{print\_format.char\_flags}\verb|[i]|
+\LABEL{MIN::PRINT_FORMAT.CHAR_FLAGS} \\
+\verb|const min::uns32 * min::|
+    & \MINKEY{standard\_char\_flags}
+\LABEL{MIN::STANDARD_CHAR_FLAGS} \\
+\end{tabular}\end{indpar}
+
+where usually
+
+\begin{center}
+\tt printer->print\_format.char\_flags == min::standard\_char\_flags
+\end{center}
+
+Character flags are obtained from
 the \TT{char\_\EOL flags} member of the \TT{print\_\EOL format} member of
 the \TT{printer} being used to print the character, and this
 in turn is usually set to the \TT{min::\EOL standard\_\EOL char\_\EOL flags}
@@ -3708,15 +3721,21 @@ subcategories, and we give here only \underline{some} of the
 subcategories of each category.  We also give the LATIN1 characters
 in each subcategory except where these are obvious (e.g, letters
 and digits).
-\begin{center}
+\begin{indpar}
 \begin{tabular}{ll}
 \TT{L}		& letters \\
-~~~\TT{Ll}	& lower case letters, including \TT{\textmu} \\
+~~~\TT{Ll}	& lower case letters, includes \TT{\textmu} \\
 ~~~\TT{Lu}	& upper case letters \\
 ~~~\TT{Lo}	& other letters, includes
                   \TT{\textordmasculine} and \TT{\textordfeminine} \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{M}		& combining marks \\
 ~~~\TT{Mn}	& non-spacing combining marks \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{N}		& number \\
 ~~~\TT{Nd}	& decimal numbers, includes digits \\
 ~~~\TT{No}	& other numbers, includes
@@ -3726,6 +3745,9 @@ and digits).
 		  \TT{\textonequarter}
 		  \TT{\textonehalf}
 		  \TT{\textthreequarters} \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{P}		& punctuation \\
 ~~~\TT{Pc}	& connector punctuation, includes \TT{\_} \\
 ~~~\TT{Pd}	& dash punctuation, includes \TT{-} \\
@@ -3742,6 +3764,9 @@ and digits).
 		  \TT{\textpilcrow}
 		  \TT{\textperiodcentered}
 		  \TT{\textquestiondown} \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{S}		& symbol \\
 ~~~\TT{Sm}	& math symbol, includes \TT{+} \TT{<} \TT{=} \TT{>} \TT{|}
                   \TT{\textasciitilde}
@@ -3770,16 +3795,23 @@ and digits).
 		  \TT{\textregistered}
 		  \TT{\textdegree}
 		  \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{Z}		& space characters \\
 ~~~\TT{Zs}	& non-zero width horizontal space,
                   includes single space and \TT{NBSP} \\
 		& (but \underline{not} horizontal tab) \\
+\end{tabular}
+
+\begin{tabular}{ll}
 \TT{C}		& control characters \\
 ~~~\TT{Cc}	& LATIN1 control codes in ranges [\TT{00}\ldots\TT{1F}]
-		  and [\TT{7F}\ldots\TT{9F}] \\
+		  and [\TT{7F}\ldots\TT{9F}], \\
+		& includes horizontal tab \\
 ~~~\TT{Cf}	& format control character, includes \TT{SHY} (soft hyphen)
 \end{tabular}
-\end{center}
+\end{indpar}
 
 Each character gets exactly one of the following flags:
 
@@ -3799,9 +3831,9 @@ Each character gets exactly one of the following flags:
 \end{center}
 
 The \minkey{IS\_GRAPHIC} flag signifies that a character makes
-some visible mark.  It is given to all characters except spacing
-characters, control characters, and unsupported characters, all
-of which are described below.
+some visible mark.  It is given to all characters except
+control characters (including spacing characters)
+and unsupported characters, all of which are described below.
 
 Horizontal space characters get one of the
 \TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
@@ -3856,7 +3888,7 @@ with \underline{no} UNICODE General Category) get the
 is not supported by keyboard input and/or hardware printers,
 and ideally, the character should not be used.  The
 \TT{support\_\EOL control} member of a \TT{printer->\EOL print\_\EOL format}
-is typcally used to reset the flags of a character not supported by
+is typically used to reset the flags of a character not supported by
 the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
 see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
