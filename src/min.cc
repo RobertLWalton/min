@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 24 04:40:42 EDT 2015
+// Date:	Fri Apr 24 15:02:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1161,12 +1161,15 @@ static void init_standard_char_flags ( void )
 	else if ( cat[0] == 'N' )
 	    flags = min::IS_GRAPHIC;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
-	    flags = min::IS_OTHER_HSPACE;
+	    flags = min::IS_HSPACE
+	          + min::IS_BHSPACE
+	          + min::IS_VHSPACE
+		  + min::IS_CONTROL;
 	else if ( cat[0] == 'Z' )
-	    flags = min::IS_OTHER_CONTROL
+	    flags = min::IS_CONTROL
 		  + min::IS_NON_SPACING;
 	else if ( cat[0] == 'C' )
-	    flags = min::IS_OTHER_CONTROL
+	    flags = min::IS_CONTROL
 		  + min::IS_NON_SPACING;
 	else
 	    flags = min::IS_UNSUPPORTED;
@@ -1175,19 +1178,30 @@ static void init_standard_char_flags ( void )
 	//
 	switch ( i )
 	{
-	case ' ':   flags = min::IS_SP;
+	case ' ':   flags = min::IS_SP
+		          + min::IS_BHSPACE
+		          + min::IS_HSPACE
+			  + min::IS_VHSPACE
+			  + min::IS_CONTROL;
 		    break;	
 
-	case '\t':  flags = min::IS_OTHER_HSPACE;
+	case '\t':  flags = min::IS_HSPACE
+		          + min::IS_BHSPACE
+			  + min::IS_VHSPACE
+			  + min::IS_CONTROL;
 		    break;
 
 	case 0xA0:	// NBSP
-		    flags = min::IS_NB_HSPACE;
+	case 0x202F:	// NNBSP (Narrow NBSP)
+		    flags = min::IS_HSPACE
+			  + min::IS_VHSPACE
+			  + min::IS_CONTROL;
 		    break;
 	case '\f':
 	case '\v':
 	case '\n':
-	case '\r': flags = min::IS_VSPACE
+	case '\r': flags = min::IS_VHSPACE
+			 + min::IS_CONTROL
 			 + min::IS_NON_SPACING;
 		   break;
 
@@ -2566,7 +2580,7 @@ min::uns32 min::print_line_column
     pf.display_control =
         ( line_display & min::DISPLAY_NON_GRAPHIC ?
 	  min::graphic_only_display_control :
-	  min::graphic_and_space_display_control );
+	  min::graphic_and_hspace_display_control );
     pf.break_control = min::no_auto_break_break_control;
     min::pwidth ( column, ! ( file->buffer + offset ),
     		  position.offset <= length ?
@@ -7887,7 +7901,7 @@ const min::display_control
 };
 
 const min::display_control
-        min::graphic_and_space_display_control =
+        min::graphic_and_hspace_display_control =
 {
     min::IS_HSPACE + min::IS_GRAPHIC,
     0
@@ -7901,11 +7915,10 @@ const min::display_control
 };
 
 const min::display_control
-        min::graphic_and_vspace_display_control =
+        min::graphic_and_vhspace_display_control =
 {
       min::IS_GRAPHIC
-    + min::IS_VSPACE
-    + min::IS_HSPACE,
+    + min::IS_VHSPACE,
     0
 };
 
@@ -7919,7 +7932,7 @@ const min::break_control
 const min::break_control
 	min::break_after_space_break_control =
 {
-    min::IS_SP + min::IS_OTHER_HSPACE, 0, 0, 0
+    min::IS_BHSPACE, 0, 0, 0
 };
 
 const min::break_control
@@ -7931,7 +7944,7 @@ const min::break_control
 const min::break_control
    min::break_after_hyphens_break_control =
 {
-    min::IS_SP + min::IS_OTHER_HSPACE, 0,
+    min::IS_BHSPACE, 0,
     min::CONDITIONAL_BREAK, 4
 };
 
@@ -7978,7 +7991,7 @@ static min::printer left_square_colon_space_pstring
 {
     min::print_item_preface
         ( printer,
-	   min::IS_LEADING + min::IS_GLUABLE );
+	   min::IS_LEADING + min::IS_GRAPHIC );
     min::print_chars ( printer, "[:", 2, 2 );
     return min::print_postfix_space ( printer );
 }
@@ -7991,7 +8004,7 @@ static min::printer space_colon_right_square_pstring
     min::print_prefix_space ( printer );
     return min::print_chars
         ( printer, ":]", 2, 2,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::space_colon_right_square_pstring =
     & ::space_colon_right_square_pstring;
@@ -8001,7 +8014,7 @@ static min::printer left_square_dollar_space_pstring
 {
     min::print_item_preface
         ( printer,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     min::print_chars ( printer, "[$", 2, 2 );
     return min::print_postfix_space ( printer );
 }
@@ -8014,7 +8027,7 @@ static min::printer space_dollar_right_square_pstring
     min::print_prefix_space ( printer );
     return min::print_chars
         ( printer, "$]", 2, 2,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::space_dollar_right_square_pstring =
     & ::space_dollar_right_square_pstring;
@@ -8024,10 +8037,10 @@ static min::printer left_curly_right_curly_pstring
 {
     min::print_item_preface
         ( printer,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_chars
         ( printer, "{}", 2, 2,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::left_curly_right_curly_pstring =
     & ::left_curly_right_curly_pstring;
@@ -8037,7 +8050,7 @@ static min::printer left_curly_leading_pstring
 {
     min::print_item
 	( printer, "{", 1, 1,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_leading ( printer );
 }
 min::pstring min::left_curly_leading_pstring =
@@ -8049,7 +8062,7 @@ static min::printer trailing_right_curly_pstring
     min::print_trailing ( printer );
     return min::print_item
         ( printer, "}", 1, 1,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::trailing_right_curly_pstring =
     & ::trailing_right_curly_pstring;
@@ -8060,7 +8073,7 @@ static min::printer trailing_vbar_pstring
     min::print_trailing ( printer );
     return min::print_item
         ( printer, "|", 1, 1,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::trailing_vbar_pstring =
     & ::trailing_vbar_pstring;
@@ -8070,7 +8083,7 @@ static min::printer vbar_leading_pstring
 {
     min::print_item
         ( printer, "|", 1, 1,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_leading ( printer );
 }
 min::pstring min::vbar_leading_pstring =
@@ -8082,7 +8095,7 @@ static min::printer trailing_always_colon_space_pstring
     min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
     min::print_chars ( printer, ":", 1, 1 );
     return min::print_postfix_space ( printer );
 }
@@ -8095,7 +8108,7 @@ static min::printer trailing_always_comma_space_pstring
     min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
     min::print_chars ( printer, ",", 1, 1 );
     return min::print_postfix_space ( printer );
 }
@@ -8109,7 +8122,7 @@ static min::printer
     min::print_trailing_always ( printer );
     min::print_item_preface
         ( printer,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
     min::print_chars ( printer, ";", 1, 1 );
     return min::print_postfix_space ( printer );
 }
@@ -8123,7 +8136,7 @@ static min::printer trailing_always_colon_pstring
     min::print_trailing_always ( printer );
     return min::print_item
         ( printer, ":", 1, 1,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::trailing_always_colon_pstring =
     & ::trailing_always_colon_pstring;
@@ -8132,7 +8145,7 @@ static min::printer no_space_pstring
 	( min::printer printer )
 {
     min::print_item_preface
-        ( printer, min::IS_GLUABLE );
+        ( printer, min::IS_GRAPHIC );
     min::print_chars ( printer, "no", 2, 2 );
     return min::print_postfix_space ( printer );
 }
@@ -8154,7 +8167,7 @@ static min::printer left_curly_star_space_pstring
 {
     min::print_item
         ( printer, "{*", 2, 2,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_postfix_space ( printer );
 }
 min::pstring min::left_curly_star_space_pstring =
@@ -8166,7 +8179,7 @@ static min::printer space_star_right_curly_pstring
     min::print_prefix_space ( printer );
     return min::print_chars
         ( printer, "*}", 2, 2,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::space_star_right_curly_pstring =
     & ::space_star_right_curly_pstring;
@@ -8187,10 +8200,10 @@ static min::printer
 {
     min::print_item_preface
         ( printer,
-	  min::IS_LEADING + min::IS_GLUABLE );
+	  min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_chars
         ( printer, "{||}", 4, 4,
-	  min::IS_TRAILING + min::IS_GLUABLE );
+	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring
 	min::left_curly_vbar_vbar_right_curly_pstring =
@@ -8487,7 +8500,7 @@ min::printer operator <<
 	printer->print_format.display_control =
 	    flags & min::DISPLAY_NON_GRAPHIC ?
 	    min::graphic_only_display_control :
-	    min::graphic_and_space_display_control;
+	    min::graphic_and_hspace_display_control;
 	printer->print_format.break_control =
 	    min::no_auto_break_break_control;
 	return printer;
@@ -8811,15 +8824,15 @@ const min::op min::support_all
     ( min::op::SET_SUPPORT_CONTROL,
       & min::support_all_support_control );
 
-const min::op min::graphic_and_space
+const min::op min::graphic_and_hspace
     ( min::op::SET_DISPLAY_CONTROL,
-      & min::graphic_and_space_display_control );
+      & min::graphic_and_hspace_display_control );
 const min::op min::graphic_only
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_only_display_control );
-const min::op min::graphic_and_vspace
+const min::op min::graphic_and_vhspace
     ( min::op::SET_DISPLAY_CONTROL,
-      & min::graphic_and_vspace_display_control );
+      & min::graphic_and_vhspace_display_control );
 const min::op min::display_all
     ( min::op::SET_DISPLAY_CONTROL,
       & min::display_all_display_control );
@@ -8991,15 +9004,14 @@ void MINT::print_item_preface
     {
         printer->state &= ~ flags;
 
-	if ( ! ( str_class & IS_NON_SPACE_ITEM ) )
+	if ( str_class == 0 )
 	    flags = 0; // Do NOT print space.
-	else if ( ! (   printer->last_str_class
-	              & IS_NON_SPACE_ITEM ) )
+	else if ( printer->last_str_class == 0 )
 	    flags = 0; // Do NOT print space.
-	else if ( ! ( str_class & min::IS_GLUABLE ) )
+	else if ( ! ( str_class & min::IS_GRAPHIC ) )
 	    /* Do nothing, i.e., print space. */;
 	else if ( ! (   printer->last_str_class
-	              & min::IS_GLUABLE ) )
+	              & min::IS_GRAPHIC ) )
 	    /* Do nothing, i.e., print space. */;
 	else if ( (   printer->print_format.op_flags
 	            & min::FORCE_SPACE )
@@ -9443,7 +9455,7 @@ static min::uns32 standard_str_classifier_function
 	       n > 1 ) )
 	    return min::NEEDS_QUOTES;
 
-	else return first_cflags | min::IS_GLUABLE;
+	else return first_cflags;
     }
     else if ( last_cflags & min::IS_TRAILING )
     {
@@ -9456,10 +9468,10 @@ static min::uns32 standard_str_classifier_function
 	       n > 1 ) )
 	    return min::NEEDS_QUOTES;
 
-	else return last_cflags | min::IS_GLUABLE;
+	else return last_cflags;
     }
 
-    return and_of_flags | min::IS_GLUABLE;
+    return and_of_flags;
 }
 const min::str_classifier min::standard_str_classifier =
     & ::standard_str_classifier_function;
@@ -9515,7 +9527,9 @@ min::printer min::print_unicode
 		         .support_control,
 	         n, p, sf->str_classifier );
     if (    sf != NULL
-         && ! ( str_class & min::IS_GLUABLE ) )
+         && ( ( str_class & min::NEEDS_QUOTES )
+	      ||
+	      ! ( str_class & min::IS_GRAPHIC ) ) )
 	return ::print_quoted_unicode
 	    ( printer, n, p, sf );
     else if ( n == 0 ) return printer;
@@ -9569,33 +9583,6 @@ min::printer min::print_cstring
 
     return min::print_unicode ( printer, i, p, sf );
 }
-
-min::printer MINT::print_ustring
-	( min::printer printer,
-	  const min::ustring * s )
-{
-    min::uns32 flags = ustring_flags ( s );
-
-    if ( flags & USTRING_TRAILING )
-        printer << min::trailing;
-    else if ( flags & USTRING_TRAILING_ALWAYS )
-        printer << min::trailing_always;
-    else if ( flags & USTRING_ADD_SPACE )
-        printer << min::space_if_none;
-
-    min::print_cstring
-	( printer, ustring_chars ( s ) );
-
-    if ( flags & USTRING_LEADING )
-        printer << min::leading;
-    else if ( flags & USTRING_LEADING_ALWAYS )
-        printer << min::leading_always;
-    else if ( flags & USTRING_ADD_SPACE )
-        printer << min::space_if_none;
-
-    return printer;
-}
-    
 
 min::printer operator <<
 	( min::printer printer, min::int64 i )
@@ -10627,7 +10614,7 @@ const min::print_format min::default_print_format =
     ::standard_char_flags,
 
     min::latin1_support_control,
-    min::graphic_and_space_display_control,
+    min::graphic_and_hspace_display_control,
     min::break_after_space_break_control,
 
     & ::standard_char_name_format,

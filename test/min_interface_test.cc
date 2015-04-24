@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 19 06:13:02 EDT 2015
+// Date:	Fri Apr 24 16:15:33 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2793,7 +2793,7 @@ void test_printer ( void )
 			   " quote (\")" ) )
             << min::eol;
 
-    printer << min::graphic_and_space
+    printer << min::graphic_and_hspace
 	    << min::nodisplay_picture
             << min::pgen
                    ( min::new_str_gen
@@ -2918,7 +2918,7 @@ void test_printer ( void )
     MIN_CHECK ( printer->column == 0 );
     column = 0;
     printer << min::display_picture
-            << min::graphic_and_vspace;
+            << min::graphic_and_vhspace;
     WTEST ( '\f' );
     WTEST ( 'a' );
     WTEST ( '\001' );

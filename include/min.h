@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 21 02:46:49 EDT 2015
+// Date:	Fri Apr 24 14:08:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3425,11 +3425,11 @@ namespace min {
     const min::uns32 IS_NON_SPACING	= ( 1 << 1 );
 
     const min::uns32 IS_SP		= ( 1 << 2 );
-    const min::uns32 IS_NB_HSPACE	= ( 1 << 3 );
-    const min::uns32 IS_OTHER_HSPACE	= ( 1 << 4 );
+    const min::uns32 IS_BHSPACE		= ( 1 << 3 );
+    const min::uns32 IS_HSPACE		= ( 1 << 4 );
 
-    const min::uns32 IS_VSPACE		= ( 1 << 5 );
-    const min::uns32 IS_OTHER_CONTROL	= ( 1 << 6 );
+    const min::uns32 IS_VHSPACE		= ( 1 << 5 );
+    const min::uns32 IS_CONTROL		= ( 1 << 6 );
 
     const min::uns32 IS_UNSUPPORTED	= ( 1 << 7 );
 
@@ -3441,30 +3441,17 @@ namespace min {
 
     const min::uns32 CONDITIONAL_BREAK	= ( 1 << 10 );
 
+    const min::uns32 NEEDS_QUOTES	= ( 1 << 11 );
+    const min::uns32 IS_SEPARATOR	= ( 1 << 12 );
+    const min::uns32 IS_REPEATER	= ( 1 << 13 );
+
+    const min::uns32 IS_MARK		= ( 1 << 14 );
+
     const min::uns32 IS_ASCII		= ( 1 << 16 );
     const min::uns32 IS_LATIN1		= ( 1 << 17 );
 
-    const min::uns32 IS_MARK		= ( 1 << 24 );
-    const min::uns32 IS_SEPARATOR	= ( 1 << 25 );
-    const min::uns32 IS_REPEATER	= ( 1 << 26 );
-
-    const min::uns32 IS_GLUABLE		= ( 1 << 27 );
-    const min::uns32 NEEDS_QUOTES	= ( 1 << 28 );
-
-    const min::uns32 IS_HSPACE	= IS_SP + IS_NB_HSPACE
-			      	+ IS_OTHER_HSPACE;
-    const min::uns32 IS_CONTROL = IS_HSPACE
-				+ IS_VSPACE
-				+ IS_OTHER_CONTROL;
     const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
                                     + IS_UNSUPPORTED;
-    const min::uns32 IS_NON_HSPACE = IS_GRAPHIC
-				   + IS_VSPACE
-				   + IS_OTHER_CONTROL
-				   + IS_UNSUPPORTED;
-
-    const min::uns32 IS_NON_SPACE_ITEM = IS_GLUABLE
-				       + NEEDS_QUOTES;
 
     extern const min::uns32 * standard_char_flags;
 
@@ -11048,11 +11035,11 @@ namespace min {
     };
 
     extern const min::display_control
-        graphic_and_space_display_control;
+        graphic_and_hspace_display_control;
     extern const min::display_control
         graphic_only_display_control;
     extern const min::display_control
-        graphic_and_vspace_display_control;
+        graphic_and_vhspace_display_control;
     extern const min::display_control
 	display_all_display_control;
 
@@ -11581,9 +11568,9 @@ namespace min {
     extern const op latin1;
     extern const op support_all;
 
-    extern const op graphic_and_space;
+    extern const op graphic_and_hspace;
     extern const op graphic_only;
-    extern const op graphic_and_vspace;
+    extern const op graphic_and_vhspace;
     extern const op display_all;
 
     extern const op no_auto_break;
@@ -11764,7 +11751,7 @@ namespace min {
         if ( printer->last_str_class == 0 )
 	    return printer;
         else if ( ! (   printer->last_str_class
-	              & min::IS_GLUABLE ) )
+	              & min::IS_GRAPHIC ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING
 	                + min::FORCE_SPACE_OK;
@@ -11787,7 +11774,7 @@ namespace min {
         if ( printer->last_str_class == 0 )
 	    return printer;
         else if ( ! (   printer->last_str_class
-	              & min::IS_GLUABLE ) )
+	              & min::IS_GRAPHIC ) )
 	    return min::print_spaces ( printer, 1 );
 	printer->state |= min::AFTER_TRAILING;
 	return printer;
@@ -11834,20 +11821,13 @@ namespace min {
 	    ( printer, 1, p );
     }
 
-    namespace internal {
-
-	min::printer print_ustring
-	    ( min::printer printer,
-	      const min::ustring * s );
-    }
-
     inline min::printer print_ustring
     	    ( min::printer printer,
 	      const min::ustring * s )
     {
         if ( s != NULL )
-	    return min::internal::print_ustring
-	        ( printer, s );
+	    return print_cstring
+	        ( printer, ustring_chars( s ) );
 	else
 	    return printer;
     }
