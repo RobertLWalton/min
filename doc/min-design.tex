@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 23, 2015}
+\date{April 24, 2015}
  
 \maketitle
 
@@ -3629,8 +3629,13 @@ encoded in their second bytes (see \pagref{USTRING-ZERO-COLUMNS}).
 The most important attributes of a character are its
 \smkey{flag}s{of UNICODE character}\index{character flag}%
 \label{CHARACTER-FLAGS}.
-Given the index \TT{i = min::Uindex ( c )} of \TT{c}, you can
-find out the flags of \TT{c} by using:
+Given the index of \TT{c}:
+
+\begin{center}
+\tt i = min::Uindex ( c )
+\end{center}
+
+you can find out the flags of \TT{c} by using:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 printer->|
@@ -3969,8 +3974,10 @@ and the trailing separator lexeme \TT{;}, and therefore
 \TT{[} is \TT{IS\_\EOL LEADING}, \TT{5} is neither \TT{IS\_\EOL LEADING}
 nor \TT{IS\_\EOL TRAILING}, and
 \TT{;} is \TT{IS\_\EOL TRAILING}.  See 
+the \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+string classifier (\itemref{STRING-CLASSIFIERS})
+and Leading and Trailing Separators
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
-
 
 The assignment of these two flags in \TT{min::standard\_char\_flags}
 is as follows:
@@ -3999,6 +4006,39 @@ is as follows:
 Note that `\TT{|}' is \underline{both} \TT{IS\_\EOL LEADING} and
 \TT{IS\_\EOL TRAILING}.
 
+The \minkey{IS\_SEPARATOR} flag is used by the standard string classifier
+to identify characters that cannot be combined with other characters
+in unquoted strings.  E.g. `\TT{(}', `\TT{)}', and `TT{|}'.
+The \minkey{IS\_REPEATER} flag is used by the standard string classifier
+to identify characters that may be repeated when they appear in unquoted
+separators.  E.g. `\TT{|}'.
+See \itemref{STRING-CLASSIFIERS} for details.
+
+The assignment of these two flags in \TT{min::standard\_char\_flags}
+is as follows:
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_SEPARATOR}: & categories \TT{Ps} and \TT{Pe}
+                            (start and end brackets), \\
+			  & plus \TT{\guillemotleft}
+			    \TT{\guillemotright} \TT{|} \TT{"} \\
+\ttkey{min::IS\_REPEATER}: & \TT{`}
+                             ~~~\TT{\textexclamdown}%
+                             ~~~\TT{\textquestiondown}%
+                             ~~~\TT{|}%
+                             ~~~\TT{\$}\\
+			     ~~~\TT{!}~~~\TT{?}%
+			     ~~~\TT{.}~~~\TT{:}%
+			     ~~~\TT{\%}\\
+\end{tabular}
+\end{center}
+
+
+The next two flags are used by the
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+(\itemref{STRING-CLASSIFIERS}) to identify strings that
+need to be quoted because they contain separator
 
 The next five flags are used in conjunction with printer format
 masks to perform special printer functions.
@@ -4319,64 +4359,14 @@ element in any character flag vector.
 \newpage
 
 
-\subsubsection{Classifying UNICODE Characters and Strings}
-\label{CLASSIFYING-UNICODE-CHARACTERS-AND-STRINGS}
+\subsubsection{String Classifiers}
+\label{STRING-CLASSIFIERS}
 
-The inline function:
+A string classifier is used to identify character strings that
+must be quoted, that are leading or trailing separators,
+and that are marks used as types.
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
-      \verb|( const min::uns32 * char_flags,|\ARGBREAK
-      \verb|  min::support_control sc,|\ARGBREAK
-      \verb|  min::Uchar c )|
-\LABEL{MIN::CHAR_FLAGS} \\
-\end{tabular}\end{indpar}
-
-returns the \skey{character flag}s \TT{cflags} of the UNICODE character
-\TT{c} according to the algorithm:
-
-\begin{indpar}\begin{verbatim}
-min::uns16 cindex = min::Uindex ( c );
-min::uns32 cflags = char_flags[cindex];
-if ( ( cflags & sc.support_mask ) == 0 )
-    cflags = sc.unsupported_char_flags;
-return cflags;
-\end{verbatim}\end{indpar}
-
-The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
-and a support control structure \TT{sc} with the format:
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct     min::| & \MINKEY{support\_\EOL control}
-\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
-\verb|{               | \\
-\verb|     min::uns32 |
-	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
-\verb|     min::uns32 |
-	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
-\verb|}               | \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\multicolumn{2}{l}{\tt const min::uns32
-    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
-\LABEL{MIN::ALL_CHARS} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
-\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
-\end{tabular}\end{indpar}
-
-Both \TT{char\_flags} and \TT{sc} are typically elements of
-\TT{printer->\EOL print\_\EOL format} for the printer being used.
+TBD
 
 It is also necessary to define \skey{character string class}{es}
 such as the class of all strings that do \underline{not} need
@@ -4514,6 +4504,65 @@ The following are some predefined string classifiers:
 \verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_all|\ARGBREAK
 \verb|0                              // not_in_class_if_any|
 \end{tabular}\end{indpar}
+
+\subsubsection{UNICODE Support Control}
+\label{UNICODE-SUPPORT-CONTROL}
+
+The inline function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::Uchar c )|
+\LABEL{MIN::CHAR_FLAGS} \\
+\end{tabular}\end{indpar}
+
+returns the \skey{character flag}s \TT{cflags} of the UNICODE character
+\TT{c} according to the algorithm:
+
+\begin{indpar}\begin{verbatim}
+min::uns16 cindex = min::Uindex ( c );
+min::uns32 cflags = char_flags[cindex];
+if ( ( cflags & sc.support_mask ) == 0 )
+    cflags = sc.unsupported_char_flags;
+return cflags;
+\end{verbatim}\end{indpar}
+
+The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
+and a support control structure \TT{sc} with the format:
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct     min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{               | \\
+\verb|     min::uns32 |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
+\verb|}               | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::uns32
+    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
+\LABEL{MIN::ALL_CHARS} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Both \TT{char\_flags} and \TT{sc} are typically elements of
+\TT{printer->\EOL print\_\EOL format} for the printer being used.
 
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
