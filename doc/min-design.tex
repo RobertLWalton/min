@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 24, 2015}
+\date{April 25, 2015}
  
 \maketitle
 
@@ -3666,49 +3666,29 @@ The standard character flags which must always be defined are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
 \LABEL{MIN::IS_GRAPHIC} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
-\LABEL{MIN::IS_NON_SPACING} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
-\LABEL{MIN::IS_SP} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_NB\_HSPACE}
-\LABEL{MIN::IS_NB_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_HSPACE}
-\LABEL{MIN::IS_OTHER_HSPACE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_VSPACE}
-\LABEL{MIN::IS_VSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_CONTROL}
-\LABEL{MIN::IS_OTHER_CONTROL} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL}
+\LABEL{MIN::IS_CONTROL} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
 \LABEL{MIN::IS_UNSUPPORTED} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE} =\ARGBREAK
-    \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_HSPACE|
+\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
+\LABEL{MIN::IS_SP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_BHSPACE}
+\LABEL{MIN::IS_BHSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE}
 \LABEL{MIN::IS_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL} =\ARGBREAK
-    \verb|  min::IS_HSPACE|\ARGBREAK
-    \verb|+ min::IS_VSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_CONTROL|
-\LABEL{MIN::IS_CONTROL} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_VHSPACE}
+\LABEL{MIN::IS_VHSPACE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_HSPACE} =\ARGBREAK
-    \verb|  min::IS_GRAPHIC|\ARGBREAK
-    \verb|+ min::IS_VSPACE + min::IS_OTHER_CONTROL|\ARGBREAK
-    \verb|+ min::IS_UNSUPPORTED|
-\LABEL{MIN::IS_NON_HSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
+\LABEL{MIN::IS_NON_SPACING} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
     \verb|  min::IS_CONTROL|\ARGBREAK
     \verb|+ min::IS_UNSUPPORTED|
@@ -3823,22 +3803,28 @@ Each character gets exactly one of the following flags:
 \begin{center}
 \begin{tabular}{l}
 \TT{min::IS\_GRAPHIC} \\
-\\
-\TT{min::IS\_SP} \\
-\TT{min::IS\_NB\_HSPACE} \\
-\TT{min::IS\_OTHER\_HSPACE} \\
-\\
-\TT{min::IS\_VSPACE} \\
-\TT{min::IS\_OTHER\_CONTROL} \\
-\\
+\TT{min::IS\_CONTROL} \\
 \TT{min::IS\_UNSUPPORTED} \\
 \end{tabular}
 \end{center}
 
 The \minkey{IS\_GRAPHIC} flag signifies that a character makes
-some visible mark.  It is given to all characters except
-control characters (including spacing characters)
-and unsupported characters, all of which are described below.
+some visible mark.
+
+The \minkey{IS\_CONTROL} flag signifies
+that a character makes no visible mark.
+
+The \minkey{IS\_UNSUPPORTED} flag signifies that the character
+cannot be output (except as a numeric character code) and that no information
+about the character is available.  In
+\TT{min::\EOL standard\_\EOL char\_\EOL flags} all characters defined
+by the UNICODE standard (or at least the most recent version incorporated
+into MIN) are supported.  But the support control part of a print format
+(\pagref{PRINT_FORMAT_SUPPORT_CONTROL})
+permits characters with particular flags to be marked unsupported in
+a give context; so for example, all non-ASCII or all non-LATIN1
+characters can be marked unsupported so they will not be output as is
+(useful is the printer does not support them).
 
 Horizontal space characters get one of the
 \TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
