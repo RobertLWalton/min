@@ -3673,10 +3673,6 @@ The standard character flags which must always be defined are
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
-\LABEL{MIN::IS_SP} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_BHSPACE}
-\LABEL{MIN::IS_BHSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE}
 \LABEL{MIN::IS_HSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_VHSPACE}
@@ -3816,72 +3812,49 @@ that a character makes no visible mark.
 
 The \minkey{IS\_UNSUPPORTED} flag signifies that the character
 cannot be output (except as a numeric character code) and that no information
-about the character is available.  In
-\TT{min::\EOL standard\_\EOL char\_\EOL flags} all characters defined
-by the UNICODE standard (or at least the most recent version incorporated
-into MIN) are supported.  But the support control part of a print format
+about the character is available.
+
+The assignment of these three flags in \TT{min::standard\_char\_flags} is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_GRAPHIC}: & characters in categories \TT{L}, \TT{M},
+                            \TT{N}, \TT{P}, and \TT{S} \\
+\ttkey{min::IS\_CONTROL}: & characters in categories \TT{C} and \TT{Z} \\
+\ttkey{min::IS\_UNSUPPORTED}: & characters not given any category
+\end{tabular}
+\end{indpar}
+
+The support control part of a print format
 (\pagref{PRINT_FORMAT_SUPPORT_CONTROL})
 permits characters with particular flags to be marked unsupported in
 a give context; so for example, all non-ASCII or all non-LATIN1
 characters can be marked unsupported so they will not be output as is
-(useful is the printer does not support them).
+(useful if the printer does not support them).
 
-Horizontal space characters get one of the
-\TT{min::IS\_SP/NB\_HSPACE/OTHER\_HSPACE}%
-\minindex{IS\_SP}%
-\minindex{IS\_NB\_HSPACE}%
-\minindex{IS\_OTHER\_HSPACE}
-flags.  \TT{IS\_SP} is just for the single space character,
-\TT{IS\_NB\_HSPACE} is for non-breaking horizontal space characters
-(such as LATIN1 \TT{NBSP}, no-break space),
-and \TT{IS\_\EOL OTHER\_\EOL HSPACE} is for horizontal tab and
-for characters other than single space and \TT{NBSP} that
-have subcategory \TT{Zs}.
-The printer does some special processing on single space
-and horizontal tab characters \underline{independently} of the flags
-of these characters.
+Horizontal space characters get the
+\minkey{IS\_\EOL HSPACE} flag.  Included is the horizontal tab \TT{HT}.
 
-So the assignment of these next three flags is:
-
-\begin{indpar}
-\begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_SP}: & single space character \\
-\ttkey{min::IS\_NB\_HSPACE}: & \TT{NBSP} (no-break space) \\
-\ttkey{min::IS\_OTHER\_HSPACE}: & horizontal tab plus
-                                  other characters in subcategory \TT{Zs} \\
-\end{tabular}
-\end{indpar}
 
 Vertical space characters that standardly appear in printed output
-get the \minkey{IS\_VSPACE} flag.  There are four such characters:
+get the \minkey{IS\_VHSPACE} flag.  There are four such characters:
 form feed \TT{FF}, vertical tab \TT{VT}, line feed \TT{LF},
 and carriage return \TT{CR}.  The last is included because
 it is associated with line feeds.
+Characters with the \TT{IS\_\EOL HSPACE} flag also get the
+\TT{IS\_\EOL VHSPACE} flag.
 
-All other control characters, i.e., other characters in categories
-\TT{C} and \TT{Z}, get the \minkey{IS\_\EOL OTHER\_\EOL CONTROL}
-flag.  These are often suppressed in printed output.
-
-So the assignment of these next two flags is:
+The assignment of these two flags in \TT{min::standard\_char\_flags} is:
 
 \begin{indpar}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_VSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR} \\
-\ttkey{min::IS\_OTHER\_CONTROL}: & other characters in categories
-                                   \TT{C} and \TT{Z} \\
+\ttkey{min::IS\_HSPACE}: & \TT{HT}, plus
+                           characters in subcategory \TT{Zs} \\
+\ttkey{min::IS\_VHSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR},
+                            plus characters with the {\tt IS\_HSPACE} flag
 \end{tabular}
 \end{indpar}
 
-
-All characters not given one of the above flags (i.e., characters
-with \underline{no} UNICODE General Category) get the
-\minkey{IS\_\EOL UNSUPPORTED} flag.  This means the character
-is not supported by keyboard input and/or hardware printers,
-and ideally, the character should not be used.  The
-\TT{support\_\EOL control} member of a \TT{printer->\EOL print\_\EOL format}
-is typically used to reset the flags of a character not supported by
-the printer to just the \TT{min::\EOL IS\_\EOL UNSUPPORTED} flag:
-see \pagref{MIN::CHAR_FLAGS} and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
 The \minkey{IS\_\EOL NON\_\EOL SPACING}
 flag signifies that a character takes zero
@@ -3893,10 +3866,27 @@ horizontal tabs are handled specially by the printer as far
 as the number of columns they take, and this special handling
 ignores the character flags of the horizontal tab character.
 
+The assignment of this flag in \TT{min::standard\_char\_flags} is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_NON\_SPACING}: & characters with the \TT{IS\_CONTROL} flag,\\
+			& but without the \TT{IS\_HSPACE} flag, \\
+			       & plus characters in subcategory \TT{Mn} \\
+\end{tabular}
+\end{indpar}
+
 Other character flags are used by the printer context data and can
 be adapted according to the application.  The following flags are
 defined by 
 \TT{min::\EOL standard\_\EOL char\_\EOL flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_SP}
+\LABEL{MIN::IS_SP} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_BHSPACE}
+\LABEL{MIN::IS_BHSPACE} \\
+\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
@@ -3915,6 +3905,8 @@ defined by
 \LABEL{MIN::IS_SEPARATOR} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
 \LABEL{MIN::IS_REPEATER} \\
+\verb|const min::uns32 min::| & \MINKEY{NEEDS\_QUOTES}
+\LABEL{MIN::NEEDS_QUOTES} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3929,13 +3921,39 @@ defined by
 \LABEL{MIN::IS_LATIN1} \\
 \end{tabular}\end{indpar}
 
+The \minkey{IS\_SP} is just for the single space character.
+The \minkey{IS\_\EOL BHSPACE} flag is for `breaking'
+horizontal space characters.  These flags can be used in
+
+\begin{center}
+\TT{printer->print\_format.break\_control.break\_after}
+\end{center}
+
+to mark characters after
+which automatic line breaks can be inserted (and then the
+spaces at the end of the broken line are deleted).
+See \pagref{BREAK-AFTER}.
+
+The assignment of these two flags in \TT{min::standard\_char\_flags} is:
+
+\begin{indpar}
+\begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_SP}: & \TT{SP}, the single space character \\
+\ttkey{min::IS\_BHSPACE}: & all characters with the \TT{IS\_HSPACE} flag,\\
+                          & except \TT{NBSP} (LATIN1 no-break space)\\
+			  & and \TT{NNBSP} (narrow no-break space, character
+			    code \TT{0x202F})\\
+\end{tabular}
+\end{indpar}
+
 The \minkey{CONDITIONAL\_\EOL BREAK} flag is used in
 
 \begin{center}
 \TT{printer->print\_format.break\_control.conditional\_break}
 \end{center}
 
-to mark graphic characters which when followed immediately by a line break
+to mark graphic characters which when preceeded by a few graphic
+characters and followed by a line break
 indicate that their containing lexeme is continued on the next line.
 See \pagref{CONDITIONAL-BREAK}.
 
@@ -3994,13 +4012,17 @@ Note that `\TT{|}' is \underline{both} \TT{IS\_\EOL LEADING} and
 
 The \minkey{IS\_SEPARATOR} flag is used by the standard string classifier
 to identify characters that cannot be combined with other characters
-in unquoted strings.  E.g. `\TT{(}', `\TT{)}', and `TT{|}'.
+in unquoted strings; e.g. \TT{(}, \TT{)}, and \TT{|}.
 The \minkey{IS\_REPEATER} flag is used by the standard string classifier
 to identify characters that may be repeated when they appear in unquoted
-separators.  E.g. `\TT{|}'.
-See \itemref{STRING-CLASSIFIERS} for details.
+separators; e.g. \TT{|}.
+The \minkey{NEEDS\_QUOTES} flag is used by the standard string classifier
+to identify graphic characters that require any string containing them to be
+quoted; e.g., \TT{"}.
+See the \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+string classifier (\itemref{STRING-CLASSIFIERS}) for details.
 
-The assignment of these two flags in \TT{min::standard\_char\_flags}
+The assignment of these three flags in \TT{min::standard\_char\_flags}
 is as follows:
 
 \begin{center}
@@ -4017,62 +4039,40 @@ is as follows:
 			     ~~~\TT{!}~~~\TT{?}%
 			     ~~~\TT{.}~~~\TT{:}%
 			     ~~~\TT{\%}\\
+\ttkey{min::NEEDS\_QUOTES}: & \TT{"}
 \end{tabular}
 \end{center}
 
 
-The next two flags are used by the
-\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-(\itemref{STRING-CLASSIFIERS}) to identify strings that
-need to be quoted because they contain separator
+A lexeme all of whose characters have the \minkey{IS\_\EOL MARK} flag is
+called a `\key{mark}', and can be used just inside parentheses
+as the type of a parenthesized list: see the 
+\TT{marking\_\EOL type} string classifier of the object format:
+\pagref{MARKING_TYPE}.
 
-The next five flags are used in conjunction with printer format
-masks to perform special printer functions.
-
-
-The \minkey{IS\_\EOL LETTER}
-flag marks letters (including combining
-characters)
-and can be used in a string classifier to classify strings that
-are names not be be quoted.
-See \TT{quote\_\EOL control.in\_\EOL class\_\EOL if\_\EOL first}
-and \TT{quote\_\EOL control.skip\_\EOL if\_\EOL first}
-on \pagref{IN_CLASS_IF_FIRST}.
-The \minkey{IS\_\EOL SEPARATOR} flag is given to all separators, such as
-\TT{(~)}, \TT{`~'}, \TT{\guillemotleft~\guillemotright}, `\TT{,}',
-`\TT{;}', and `\TT{:}', and is
-used to force quoting of strings containing separators.
-The \minkey{IS\_\EOL MARK} flag is given to all punctuation and symbols
-(i.e., to non-letter, non-combining-mark, non-number characters)
-other that the \TT{IS\_\EOL SEPARATOR} characters,
-and is used to define the \TT{marking\_\EOL type} string category:
-see \pagref{MARKING_TYPE}.
-
-The assignment of these four flags in
-\TT{min::standard\_char\_flags} is:
+The assignment of this flag in \TT{min::standard\_char\_flags}
+is as follows:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::CONDITIONAL\_BREAK}: & \TT{\%} plus categories \TT{Pc} and \TT{Pd}
-				   (includes \TT{-} and \TT{\_}) \\
-\ttkey{min::IS\_LETTER}: & categories \TT{L} and \TT{M}
-				(letters and combining marks) \\
 \ttkey{min::IS\_MARK}: & categories \TT{P} and \TT{S}
                          (punctuation and symbols), \\
-		       & but \underline{not} characters with
-		         \TT{IS\_SEPARATOR} flag below \\
-\ttkey{min::IS\_SEPARATOR}: & categories \TT{Ps} and \TT{Pe}
-                            (start and end brackets), \\
-			  & plus \TT{`} \TT{'} \TT{\guillemotleft}
-			    \TT{\guillemotright} \TT{|} \TT{"} \\
+		       & but \underline{not} characters 
+		         with the \TT{IS\_\EOL SEPARATOR}
+			 or \TT{NEEDS\_\EOL QUOTES} flags
 \end{tabular}
 \end{center}
 
-The last two flags are used in conjunction with printer format
-masks to dynamically control which characters are supported.
+The last two flags are used in
+
+\begin{center}
+\TT{printer->print\_format.support\_control.support\_mask}
+\end{center}
+
+to dynamically control which characters are supported.
 The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters, and
 The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters.
-These are used with \TT{support\_\EOL control}'s: see \pagref{SUPPORT-CONTROL}.
+See \pagref{SUPPORT-CONTROL} for details.
 
 The assignment of these two flags in
 \TT{min::standard\_char\_flags} is:
@@ -8845,7 +8845,7 @@ This \TT{min::break\_control} controls when breaks are automatically
 inserted into the output (see \TT{min::\EOL set\_\EOL break},
 \pagref{MIN::SET_BREAK}).
 
-The \TT{break\_\EOL after} mask
+The \TT{break\_\EOL after} mask\label{BREAK-AFTER}
 (e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL OTHER\_\EOL HSPACE})
 is bitwise AND'ed with
 the character flags and if the result is non-zero,
