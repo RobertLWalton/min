@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Apr 26 06:01:55 EDT 2015
+// Date:	Sun Apr 26 16:39:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1265,6 +1265,13 @@ static void init_standard_char_flags ( void )
 			  + min::CONDITIONAL_BREAK
 			  + min::IS_MARK;
 		    break;
+
+	case '/':
+	case '#':
+	case '&':
+		    flags = min::IS_GRAPHIC
+			  + min::CONDITIONAL_BREAK
+			  + min::IS_MARK;
 	}
 
 	::standard_char_flags[i] =

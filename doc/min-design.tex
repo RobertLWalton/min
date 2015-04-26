@@ -3566,6 +3566,12 @@ find out the name and picture of \TT{c} by using:
 
 You can also find out the character flags of \TT{c} as decribed
 below in \itemref{UNICODE-CHARACTER-FLAGS}.
+So that ASCII and LATIN1 characters can each have their own
+flags, each has its own index\label{ASCII-LATIN1-UNIQUE-INDEX}.  That is:
+\begin{center}
+\verb|min::Uindex ( c ) == c       if c <= 0xFF| \\
+\verb|min::Uindex ( c )  > 0xFF    if c  > 0xFF|
+\end{center}
 
 For indices \TT{i} for which there is exactly one character that
 has index \TT{i}, you can find out that character by using:
@@ -3661,6 +3667,10 @@ by user code in a flexible manner, so some of the standard character
 flags which we describe here are only a special case of what is
 possible.
 
+As mentioned above (\pagref{ASCII-LATIN1-UNIQUE-INDEX}), each ASCII
+and LATIN1 character has its own \TT{char\_\EOL flags} element, so each
+can be assigned flags independently of the flags of any other character.
+
 The standard character flags which must always be defined are
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3673,6 +3683,13 @@ The standard character flags which must always be defined are
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
+    \verb|  min::IS_CONTROL|\ARGBREAK
+    \verb|+ min::IS_UNSUPPORTED|
+\LABEL{MIN::IS_NON_GRAPHIC} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE}
 \LABEL{MIN::IS_HSPACE} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_VHSPACE}
@@ -3682,13 +3699,6 @@ The standard character flags which must always be defined are
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_NON\_SPACING}
 \LABEL{MIN::IS_NON_SPACING} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
-    \verb|  min::IS_CONTROL|\ARGBREAK
-    \verb|+ min::IS_UNSUPPORTED|
-\LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{tabular}\end{indpar}
 
 The specific assignment of character flags is generally done
@@ -3821,16 +3831,23 @@ The assignment of these three flags in \TT{min::standard\_char\_flags} is:
 \ttkey{min::IS\_GRAPHIC}: & characters in categories \TT{L}, \TT{M},
                             \TT{N}, \TT{P}, and \TT{S} \\
 \ttkey{min::IS\_CONTROL}: & characters in categories \TT{C} and \TT{Z} \\
-\ttkey{min::IS\_UNSUPPORTED}: & characters not given any category
+\ttkey{min::IS\_UNSUPPORTED}: & characters not given any category \\
+		          & (or given a new category not mentioned above)
 \end{tabular}
 \end{indpar}
 
 The support control part of a print format
-(\pagref{PRINT_FORMAT_SUPPORT_CONTROL})
+
+\begin{center}
+\TT{printer->print\_format.support\_control}
+\end{center}
+
 permits characters with particular flags to be marked unsupported in
 a give context; so for example, all non-ASCII or all non-LATIN1
 characters can be marked unsupported so they will not be output as is
 (useful if the printer does not support them).
+See \itemref{UNICODE-SUPPORT-CONTROL}
+and \pagref{PRINT_FORMAT_SUPPORT_CONTROL}.
 
 Horizontal space characters get the
 \minkey{IS\_\EOL HSPACE} flag.  Included is the horizontal tab \TT{HT}.
@@ -3961,8 +3978,10 @@ The assignment of this flag in \TT{min::standard\_char\_flags} is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::CONDITIONAL\_BREAK}: & characters in categories \TT{Pc} and \TT{Pd}
-				   (includes \TT{-} and \TT{\_}) \\
+\ttkey{min::CONDITIONAL\_BREAK}: & \TT{/} \TT{\#} \TT{\&} \\
+                                 & plus characters in categories
+				   \TT{Pc} and \TT{Pd} \\
+				 & (includes \TT{-} and \TT{\_}) \\
 \end{tabular}
 \end{center}
 
@@ -3978,8 +3997,8 @@ and the trailing separator lexeme \TT{;}, and therefore
 \TT{[} is \TT{IS\_\EOL LEADING}, \TT{5} is neither \TT{IS\_\EOL LEADING}
 nor \TT{IS\_\EOL TRAILING}, and
 \TT{;} is \TT{IS\_\EOL TRAILING}.  See 
-the \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-string classifier (\itemref{STRING-CLASSIFIERS})
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+(\itemref{STRING-CLASSIFIERS})
 and Leading and Trailing Separators
 \itemref{LEADING-AND-TRAILING-SEPARATORS} for details.
 
@@ -4010,27 +4029,31 @@ is as follows:
 Note that `\TT{|}' is \underline{both} \TT{IS\_\EOL LEADING} and
 \TT{IS\_\EOL TRAILING}.
 
-The \minkey{IS\_SEPARATOR} flag is used by the standard string classifier
+The \minkey{IS\_SEPARATOR} flag is used by
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 to identify characters that cannot be combined with other characters
 in unquoted strings; e.g. \TT{(}, \TT{)}, and \TT{|}.
-The \minkey{IS\_REPEATER} flag is used by the standard string classifier
+The \minkey{IS\_REPEATER} flag is used by
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 to identify characters that may be repeated when they appear in unquoted
 separators; e.g. \TT{|}.
-The \minkey{NEEDS\_QUOTES} flag is used by the standard string classifier
+The \minkey{NEEDS\_QUOTES} flag is used by
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 to identify graphic characters that require any string containing them to be
 quoted; e.g., \TT{"}.
-See the \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-string classifier (\itemref{STRING-CLASSIFIERS}) for details.
+See \itemref{STRING-CLASSIFIERS} for details.
 
 The assignment of these three flags in \TT{min::standard\_char\_flags}
 is as follows:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_SEPARATOR}: & categories \TT{Ps} and \TT{Pe}
-                            (start and end brackets), \\
-			  & plus \TT{\guillemotleft}
-			    \TT{\guillemotright} \TT{|} \TT{"} \\
+\ttkey{min::IS\_SEPARATOR}: & \TT{|} and categories
+                              \TT{Ps}, \TT{Pi}, \TT{Pe}, \TT{Pf}, \\
+			    & which include \TT{\{} \TT{(} \TT{[}
+			      \TT{\guillemotleft}
+			      \TT{\guillemotright}
+			      \TT{]} \TT{)} \TT{\}} \\
 \ttkey{min::IS\_REPEATER}: & \TT{`} ~~~\TT{'}
                              ~~~\TT{\textexclamdown}%
                              ~~~\TT{\textquestiondown}%
@@ -4046,8 +4069,11 @@ is as follows:
 
 A lexeme all of whose characters have the \minkey{IS\_\EOL MARK} flag is
 called a `\key{mark}', and can be used just inside parentheses
-as the type of a parenthesized list: see the 
-\TT{marking\_\EOL type} string classifier of the object format:
+as the type of a parenthesized list: see
+\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+(\itemref{STRING-CLASSIFIERS})
+and the 
+\TT{marking\_\EOL type} string classifier of the object format,
 \pagref{MARKING_TYPE}.
 
 The assignment of this flag in \TT{min::standard\_char\_flags}
@@ -4072,7 +4098,7 @@ The last two flags are used in
 to dynamically control which characters are supported.
 The \minkey{IS\_\EOL ASCII} flag is on for ASCII characters, and
 The \minkey{IS\_\EOL LATIN1} flag is on for LATIN1 non-ASCII characters.
-See \pagref{SUPPORT-CONTROL} for details.
+See \itemref{UNICODE-SUPPORT-CONTROL} for details.
 
 The assignment of these two flags in
 \TT{min::standard\_char\_flags} is:
@@ -4116,10 +4142,7 @@ Printers can usually be configured to support these LATIN1 characters.
 \ttindex{unicode\_data.h} (which is included in the \ttkey{min::unicode}
 namespace by the \ttkey{min\_unicode.h} file that is in turn
 included in \TT{min.h}).  Other character flag vectors can be computed
-using this data.  For \TT{c <= 0xFF}, \TT{min::Uindex(c) == c}, and
-for \TT{c > 0xFF}, \TT{min::Uindex(c) > 0xFF}, so
-each ASCII and LATIN1 character has its own private character flag
-element in any character flag vector.
+using this data.
 
 \begin{boxedfigure}[p]
 \begin{tabular}{llll}
@@ -4443,10 +4466,10 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 			  
-			  For the standard string classifier no flags are
-			  returned if the string is empty or contains only
-			  characters which have the \TT{IS\_\EOL VHSPACE}
-			  flag.
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  no flags are returned if the string is empty
+			  or contains only characters which have the
+			  \TT{IS\_\EOL VHSPACE} flag.
 \label{NO_FLAGS_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4455,8 +4478,8 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 
-			  For the standard string classifier this is
-			  returned if the string contains any character
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned if the string contains any character
 			  that does not have the \TT{IS\_\EOL GRAPHIC}
 			  or \TT{IS\_\EOL VHSPACE}
 			  flags.  It is also returned if the string contains
@@ -4492,8 +4515,8 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 
-			  For the standard string classifier this is
-			  returned for all strings that contain only
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for all strings that contain only
 			  graphic characters unless the \TT{NEEDS\_\EOL QUOTES}
 			  flag is being returned as per above.
 \label{IS_GRAPHIC_CLASSIFIER} \\
@@ -4504,9 +4527,9 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 
-			  For the standard string classifier this is
-			  returned for strings whose first character has
-			  the \TT{IS\_\EOL LEADING} flag and
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings whose first character
+			  has the \TT{IS\_\EOL LEADING} flag and
 			  \TT{NEEDS\_\EOL QUOTES} is not being returned
 			  as per above.
 \label{IS_LEADING_CLASSIFIER} \\
@@ -4517,8 +4540,8 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 
-			  For the standard string classifier this is
-			  returned for strings whose last character has
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings whose last character has
 			  the \TT{IS\_\EOL TRAILING} flag and
 			  \TT{NEEDS\_\EOL QUOTES} is not being returned
 			  as per above.
@@ -4532,8 +4555,8 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  ~~
 
-			  For the standard string classifier this is
-			  returned for strings all of whose characters
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings all of whose characters
 			  have the \TT{IS\_MARK} flag, provided
 			  \TT{NEEDS\_\EOL QUOTES} is not being returned
 			  as per above.
@@ -17032,6 +17055,9 @@ These are in \verb|min_parameters.h|.
 \verb|const min::Uchar min::|
     & \MINKEY{SOFTWARE\_NL}
 \LABEL{MIN::SOFTWARE_NL} \\
+\verb|const min::Uchar min::|
+    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::UNICODE::NO_UCHAR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -17074,6 +17100,20 @@ These are in \verb|min_parameters.h|.
 \verb|const min::ustring * min::|
     & \MINKEY{unicode::picture}\verb|[i]|
 \LABEL{MIN::UNICODE::PICTURE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::Uchar min::|
+    & \MINKEY{unicode::character}\verb|[i]|
+\LABEL{MIN::UNICODE::CHARACTER} \\
+\verb|const min::uns16 min::|
+    & \MINKEY{unicode::index\_limit}
+\LABEL{MIN::UNICODE::INDEX_LIMIT} \\
+\end{TABULAR}
+
+\INDEXHEADER{UNICODE Character Flags}
+
+\begin{TABULAR}{2.4in}
 \verb|const min::uns32 printer->|
     & \MINKEY{print\_format.char\_flags}\verb|[i]|
 \LABEL{MIN::PRINT_FORMAT.CHAR_FLAGS} \\
@@ -17083,24 +17123,26 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::Uchar min::|
-    & \MINKEY{unicode::character}\verb|[i]|
-\LABEL{MIN::UNICODE::CHARACTER} \\
-\verb|const min::Uchar min::|
-    & \MINKEY{NO\_UCHAR} \verb|= 0xFFFFFFFF|
-\LABEL{MIN::UNICODE::NO_UCHAR} \\
-\verb|const min::uns16 min::|
-    & \MINKEY{unicode::index\_limit}
-\LABEL{MIN::UNICODE::INDEX_LIMIT} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
+\LABEL{MIN::IS_GRAPHIC} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL}
+\LABEL{MIN::IS_CONTROL} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
+\LABEL{MIN::IS_UNSUPPORTED} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
-\LABEL{MIN::IS_LEADING} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_MIDDLING}
-\LABEL{MIN::IS_MIDDLING} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
-\LABEL{MIN::IS_TRAILING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
+    \verb|  min::IS_CONTROL|\ARGBREAK
+    \verb|+ min::IS_UNSUPPORTED|
+\LABEL{MIN::IS_NON_GRAPHIC} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE}
+\LABEL{MIN::IS_HSPACE} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_VHSPACE}
+\LABEL{MIN::IS_VHSPACE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17111,33 +17153,34 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_SP}
 \LABEL{MIN::IS_SP} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_NB\_HSPACE}
-\LABEL{MIN::IS_NB_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_HSPACE}
-\LABEL{MIN::IS_OTHER_HSPACE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_VSPACE}
-\LABEL{MIN::IS_VSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_OTHER\_CONTROL}
-\LABEL{MIN::IS_OTHER_CONTROL} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_UNSUPPORTED}
-\LABEL{MIN::IS_UNSUPPORTED} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_BHSPACE}
+\LABEL{MIN::IS_BHSPACE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{CONDITIONAL\_BREAK}
 \LABEL{MIN::CONDITIONAL_BREAK} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
-\LABEL{MIN::IS_LETTER} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
-\LABEL{MIN::IS_MARK} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{MIN::IS_LEADING} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{MIN::IS_TRAILING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{IS\_SEPARATOR}
 \LABEL{MIN::IS_SEPARATOR} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_REPEATER}
+\LABEL{MIN::IS_REPEATER} \\
+\verb|const min::uns32 min::| & \MINKEY{NEEDS\_QUOTES}
+\LABEL{MIN::NEEDS_QUOTES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
+\LABEL{MIN::IS_MARK} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -17145,38 +17188,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_ASCII} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_LATIN1}
 \LABEL{MIN::IS_LATIN1} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_HSPACE} =\ARGBREAK
-    \verb|  min::IS_SP + min::IS_NB_HSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_HSPACE|
-\LABEL{MIN::IS_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC} =\ARGBREAK
-    \verb|  min::IS_LEADING|\ARGBREAK
-    \verb|+ min::IS_MIDDLING|\ARGBREAK
-    \verb|+ min::IS_TRAILING|
-\LABEL{MIN::IS_GRAPHIC} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_CONTROL} =\ARGBREAK
-    \verb|  min::IS_HSPACE|\ARGBREAK
-    \verb|+ min::IS_VSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_CONTROL|
-\LABEL{MIN::IS_CONTROL} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_HSPACE} =\ARGBREAK
-    \verb|  min::IS_GRAPHIC|\ARGBREAK
-    \verb|+ min::IS_VSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_CONTROL|\ARGBREAK
-    \verb|+ min::IS_UNSUPPORTED|
-\LABEL{MIN::IS_NON_HSPACE} \\
-\verb|const min::uns32 min::| & \MINKEY{IS\_NON\_GRAPHIC} =\ARGBREAK
-    \verb|  min::IS_HSPACE|\ARGBREAK
-    \verb|+ min::IS_VSPACE|\ARGBREAK
-    \verb|+ min::IS_OTHER_CONTROL|\ARGBREAK
-    \verb|+ min::IS_UNSUPPORTED|
-\LABEL{MIN::IS_NON_GRAPHIC} \\
 \end{TABULAR}
 
 \INDEXHEADER{Classifying UNICODE Characters and Strings}
