@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Apr 25 15:53:35 EDT 2015
+// Date:	Sun Apr 26 06:01:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9433,7 +9433,7 @@ static min::uns32 standard_str_classifier_function
 	if ( c != first ) repeating = false;
     }
 
-    if ( ! ( or_of_flags & min::IS_GRAPHIC ) )
+    if ( and_of_flags & min::IS_VHSPACE )
         return 0;
     else if ( ! ( and_of_flags & min::IS_GRAPHIC ) )
         return min::NEEDS_QUOTES;
@@ -9484,16 +9484,7 @@ static min::uns32 quote_all_str_classifier_function
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p )
 {
-    for ( min::unsptr i = 0; i < n; ++ i )
-    {
-	min::Uchar c = * p ++;
-	min::uns32 cflags =
-	    min::char_flags ( char_flags, sc, c );
-	if ( cflags & min::IS_GRAPHIC )
-	    return min::NEEDS_QUOTES;
-    }
-
-    return 0;
+    return min::NEEDS_QUOTES;
 }
 const min::str_classifier
     min::quote_all_str_classifier =
@@ -9505,6 +9496,14 @@ static min::uns32 null_str_classifier_function
 	  min::unsptr n,
 	  min::ptr<const min::Uchar> p )
 {
+    for ( min::unsptr i = 0; i < n; ++ i )
+    {
+	min::Uchar c = * p ++;
+	min::uns32 cflags =
+	    min::char_flags ( char_flags, sc, c );
+	if ( ! ( cflags & min::IS_VHSPACE ) )
+	    return min::NEEDS_QUOTES;
+    }
     return 0;
 }
 const min::str_classifier min::null_str_classifier =

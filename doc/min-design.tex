@@ -4348,148 +4348,146 @@ element in any character flag vector.
 \subsubsection{String Classifiers}
 \label{STRING-CLASSIFIERS}
 
-A string classifier is used to identify character strings that
-must be quoted, that are leading or trailing separators,
-and that are marks used as types.
+A \key{string classifier} is a function that inputs a string and
+outputs a set of flags that can be used to determine whether the
+string must be quoted, if it is a separator and whether it is
+or trailing, and if the string is a mark that can be used as a type.
 
-TBD
-
-It is also necessary to define \skey{character string class}{es}
-such as the class of all strings that do \underline{not} need
-to be quoted in a certain context.  This is done with a
-\key{string classifier} that has the format:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct     min::| & \MINKEY{str\_classifier}%
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef min::uns32 ( * min::| & \MINKEY{str\_classifier}
+                                      \verb| )|\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::unsptr n,|\ARGBREAK
+      \verb|  min::ptr<const min::Uchar> p )|
 \LABEL{MIN::STR_CLASSIFIER} \\
-\verb|{               | \\
-\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_first}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{skip\_if\_first}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{not\_in\_class\_if\_any}
-                                {in {\tt min::str\_classifier}} \\
-\verb|};              | \\
 \end{tabular}\end{indpar}
 
-A string is in the string class defined by
-a \TT{min::\EOL str\_\EOL classifier}\label{STRING-CLASSIFIER}
-\TT{sc} if and only if
-
-\begin{itemize}
-\item[(1)] \underline{Every} character in the string has some
-flag in common with \TT{sc.in\_\EOL class\_\EOL if\_\EOL all}.
-If \TT{sc.in\_\EOL class\_\EOL if\_\EOL all} equals
-\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true (and the code, being optimized, may not have to read the entire
-string).
-\end{itemize}
-\underline{and}
-\begin{itemize}
-\item[(2)] \underline{No} character in the string has some
-flag in common with \TT{sc.not\_\EOL in\_\EOL class\_\EOL if\_\EOL any}.
-If \TT{sc.not\_\EOL in\_\EOL class\_\EOL if\_\EOL any} equals
-0, which has no bits on, this is always
-true (and the code, being optimized, may not have to read the entire
-string).
-\end{itemize}
-\underline{and}
-\begin{itemize}
-\item[(3)] The string is of length \TT{n} and begins with \TT{0} to \TT{n-1}
-characters each with a flag in \TT{sc.skip\_\EOL if\_\EOL first},
-followed by a single character with a flag in
-\TT{sc.in\_\EOL class\_\EOL if\_\EOL first}.\label{IN_CLASS_IF_FIRST}
-If \TT{sc.in\_\EOL class\_\EOL if\_\EOL first} equals
-\TT{min::\EOL ALL\_\EOL CHARS}, which has all bits on, this is always
-true unless all characters have a flag in common with
-\TT{sc.skip\_\EOL if\_\EOL first}.
-
-Note that the empty string never satisfies this condition and therefore
-is never in the specified class.
-\end{itemize}
-
-Two uses of string classifiers are:
-\begin{center}
-\begin{tabular}{ll}
-the \TT{quote\_control} member of a \TT{min::str\_format}:
-    & \pagref{QUOTE_CONTROL} \\
-the \TT{marking\_type} member of a \TT{min::obj\_format}:
-    & \pagref{MARKING_TYPE} \\
-\end{tabular}
-\end{center}
-
-The following are some predefined string classifiers:
-
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{never\_str\_classifier}:}
-\LABEL{MIN::NEVER_STR_CLASSIFIER}\ARGBREAK
-\verb|0                              // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|0                              // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::str_classifier min::| & \MINKEY{standard\_str\_classifier}
+\LABEL{MIN::STANDARD_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::| & \MINKEY{quote\_all\_str\_classifier}
+\LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::| & \MINKEY{null\_str\_classifier}
+\LABEL{MIN::NULL_STR_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{always\_str\_classifier}:}
-\LABEL{MIN::ALWAYS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::ALL_CHARS                 // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::ALL_CHARS                 // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+The flags returned by the string classifier are used by the printer
+to make printing decisions as follows:
+
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+no flags (0 returned)	& The string is used just for formatting and
+                          contains no graphic characters.  In some contexts the
+			  string is printed as is and in others it is
+			  quoted.
+
+			  ~~
+			  
+			  For the standard string classifier no flags are
+			  returned if the string is empty or contains only
+			  characters which have the \TT{IS\_\EOL VHSPACE}
+			  flag.
+\label{NO_FLAGS_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_graphics\_str\_classifier}:}
-\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::NEEDS\_QUOTES}	& The string needs to be quoted.
+
+			  ~~
+
+			  For the standard string classifier this is
+			  returned if the string contains any character
+			  that does not have the \TT{IS\_\EOL GRAPHIC}
+			  or \TT{IS\_\EOL VHSPACE}
+			  flags.  It is also returned if the string contains
+			  any character with the \TT{NEEDS\_\EOL QUOTES}
+			  flag, or if any of the following cases apply:
+
+			  \begin{enumerate}
+			  \item The first string character has the
+			  \TT{IS\_\EOL LEADING} flag but not all characters
+			  in the string are identical, or there is more than
+			  one character and it does not have the
+			  \TT{IS\_\EOL REPEATER} flag.
+			  \item The last string character has the
+			  \TT{IS\_\EOL TRAILING} flag but not all characters
+			  in the string are identical, or there is more than
+			  one character and it does not have the
+			  \TT{IS\_\EOL REPEATER} flag.
+			  \item A string character has the
+			  \TT{IS\_\EOL SEPARATOR} flag but not all characters
+			  in the string are identical, or there is more than
+			  one character and it does not have the
+			  \TT{IS\_\EOL REPEATER} flag.
+			  \end{enumerate}
+\label{NEEDS_QUOTED_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-       min::\MINLKEY{all\_non\_bracket\_graphics}{\_str\_classifier}:}
-\LABEL{MIN::ALL_NON_BRACKET_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
-\verb|min::IS_SEPARATOR              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_GRAPHIC}	& Unless the \TT{NEEDS\_QUOTES} flag is present,
+                          the string should be printed unquoted and may be
+                          preceeded by leading separators or followed
+			  by trailing separators.  Separators also have
+			  this flag.
+
+			  ~~
+
+			  For the standard string classifier this is
+			  returned for all strings that contain only
+			  graphic characters unless the \TT{NEEDS\_\EOL QUOTES}
+			  flag is being returned as per above.
+\label{IS_GRAPHIC_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-	   min::\MINKEY{name\_str\_classifier}:}
-\LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
-\verb|min::IS_LETTER                 // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_LEADING}	& The string is a leading separator.
+
+			  ~~
+
+			  For the standard string classifier this is
+			  returned for strings whose first character has
+			  the \TT{IS\_\EOL LEADING} flag and
+			  \TT{NEEDS\_\EOL QUOTES} is not being returned
+			  as per above.
+\label{IS_LEADING_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_marks\_str\_classifier}:}
-\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK                   // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK                   // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_TRAILING}	& The string is a trailing separator.
+
+			  ~~
+
+			  For the standard string classifier this is
+			  returned for strings whose last character has
+			  the \TT{IS\_\EOL TRAILING} flag and
+			  \TT{NEEDS\_\EOL QUOTES} is not being returned
+			  as per above.
+\label{IS_TRAILING_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.5em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-	   min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
-\LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_MARK}	& The string is a mark, and as such can be
+                          used as the type of a bracketed expression
+			  that can be output in compact form.
+
+			  ~~
+
+			  For the standard string classifier this is
+			  returned for strings all of whose characters
+			  have the \TT{IS\_MARK} flag, provided
+			  \TT{NEEDS\_\EOL QUOTES} is not being returned
+			  as per above.
+\label{IS_MARK} \\
 \end{tabular}\end{indpar}
+
+The \minkey{quote\_all\_str\_classifier} always returns just the
+\TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
+
+The \minkey{null\_str\_classifier} is used when printing with a
+\TT{NULL} \TT{min::str\_\EOL format} and returns 0 if all characters
+in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
+\TT{min::\EOL NEEDS\_\EOL QUOTES} otherwise.
+
 
 \subsubsection{UNICODE Support Control}
 \label{UNICODE-SUPPORT-CONTROL}
@@ -8464,10 +8462,9 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 	\verb|{ min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINLKEY{graphic\_and\_vspace}{\_display\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[1.0in]
-	\verb|                 + min::IS_VSPACE, 0 };|
-\LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
+    min::\MINLKEY{graphic\_and\_vhspace}{\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_VHSPACE + min::IS_GRAPHI, 0 };|
+\LABEL{MIN::GRAPHIC_AND_VHSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{display\_all}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ 0xFFFF, 0 };|
@@ -9283,8 +9280,8 @@ printer operations:
 \LABEL{MIN::GRAPHIC_AND_SPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_only}
 \LABEL{MIN::GRAPHIC_ONLY} \\
-\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
-\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_vhspace}
+\LABEL{MIN::GRAPHIC_AND_VHSPACE} \\
 \verb|const min::op min::| & \MINKEY{display\_all}
 \LABEL{MIN::DISPLAY_ALL} \\
 \verb|min::op min::|
