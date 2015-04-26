@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 25, 2015}
+\date{April 26, 2015}
  
 \maketitle
 
@@ -4031,11 +4031,11 @@ is as follows:
                             (start and end brackets), \\
 			  & plus \TT{\guillemotleft}
 			    \TT{\guillemotright} \TT{|} \TT{"} \\
-\ttkey{min::IS\_REPEATER}: & \TT{`}
+\ttkey{min::IS\_REPEATER}: & \TT{`} ~~~\TT{'}
                              ~~~\TT{\textexclamdown}%
                              ~~~\TT{\textquestiondown}%
                              ~~~\TT{|}%
-                             ~~~\TT{\$}\\
+                             ~~~\TT{\$}
 			     ~~~\TT{!}~~~\TT{?}%
 			     ~~~\TT{.}~~~\TT{:}%
 			     ~~~\TT{\%}\\
@@ -4109,6 +4109,7 @@ along with the multi-key sequences commonly used to input them,
 in Figures~\ref{LATIN1-CHARACTERS-I},
 \ref{LATIN1-CHARACTERS-II},
 and \ref{LATIN1-CHARACTERS-III}.
+Printers can usually be configured to support these LATIN1 characters.
 
 \TT{min::standard\_char\_flags} is computed using data taken from
 \ldots\TT{/min/\EOL unicode/\EOL uni\-code\_\EOL data.h}%
@@ -4344,6 +4345,65 @@ element in any character flag vector.
 
 \newpage
 
+\subsubsection{UNICODE Support Control}
+\label{UNICODE-SUPPORT-CONTROL}
+
+The inline function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::Uchar c )|
+\LABEL{MIN::CHAR_FLAGS} \\
+\end{tabular}\end{indpar}
+
+returns the \skey{character flag}s \TT{cflags} of the UNICODE character
+\TT{c} according to the algorithm:
+
+\begin{indpar}\begin{verbatim}
+min::uns16 cindex = min::Uindex ( c );
+min::uns32 cflags = char_flags[cindex];
+if ( ( cflags & sc.support_mask ) == 0 )
+    cflags = sc.unsupported_char_flags;
+return cflags;
+\end{verbatim}\end{indpar}
+
+The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
+and a support control structure \TT{sc} with the format:
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct     min::| & \MINKEY{support\_\EOL control}
+\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
+\verb|{               | \\
+\verb|     min::uns32 |
+	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
+\verb|}               | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::uns32
+    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
+\LABEL{MIN::ALL_CHARS} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
+\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::support\_control
+    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
+\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
+\end{tabular}\end{indpar}
+
+Both \TT{char\_flags} and \TT{sc} are typically elements of
+\TT{printer->\EOL print\_\EOL format} for the printer being used.
+
 
 \subsubsection{String Classifiers}
 \label{STRING-CLASSIFIERS}
@@ -4489,65 +4549,6 @@ in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \TT{min::\EOL NEEDS\_\EOL QUOTES} otherwise.
 
 
-\subsubsection{UNICODE Support Control}
-\label{UNICODE-SUPPORT-CONTROL}
-
-The inline function:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
-      \verb|( const min::uns32 * char_flags,|\ARGBREAK
-      \verb|  min::support_control sc,|\ARGBREAK
-      \verb|  min::Uchar c )|
-\LABEL{MIN::CHAR_FLAGS} \\
-\end{tabular}\end{indpar}
-
-returns the \skey{character flag}s \TT{cflags} of the UNICODE character
-\TT{c} according to the algorithm:
-
-\begin{indpar}\begin{verbatim}
-min::uns16 cindex = min::Uindex ( c );
-min::uns32 cflags = char_flags[cindex];
-if ( ( cflags & sc.support_mask ) == 0 )
-    cflags = sc.unsupported_char_flags;
-return cflags;
-\end{verbatim}\end{indpar}
-
-The function uses the \TT{char\_flags} vector (\pagref{CHARACTER-FLAGS})
-and a support control structure \TT{sc} with the format:
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\verb|struct     min::| & \MINKEY{support\_\EOL control}
-\LABEL{MIN::SUPPORT_CONTROL_STRUCT} \\
-\verb|{               | \\
-\verb|     min::uns32 |
-	& \TTMKEY{support\_mask}{in {\tt min::support\_control}} \\
-\verb|     min::uns32 |
-	& \TTMKEY{unsupported\_char\_flags}{in {\tt min::support\_control}} \\
-\verb|}               | \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{rl}
-\multicolumn{2}{l}{\tt const min::uns32
-    min::\MINKEY{ALL\_CHARS} = \TT{0xFFFFFFFF}}
-\LABEL{MIN::ALL_CHARS} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{ascii\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::ASCII_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{latin1\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_LATIN1 + min::IS_ASCII, min::IS_UNSUPPORTED };|
-\LABEL{MIN::LATIN1_SUPPORT_CONTROL} \\
-\multicolumn{2}{l}{\tt const min::support\_control
-    min::\MINKEY{support\_all\_support\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::ALL_CHARS, min::IS_UNSUPPORTED };|
-\LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
-\end{tabular}\end{indpar}
-
-Both \TT{char\_flags} and \TT{sc} are typically elements of
-\TT{printer->\EOL print\_\EOL format} for the printer being used.
-
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
 
@@ -4556,10 +4557,10 @@ Constant \skey{UNICODE string}s can be represented
 as \TT{const min::\EOL ustring *}\ttindex{ustring}\label{USTRING} values
 which are sequences of 8 bit bytes.  The first two bytes,
 called the \mkey{header}{of {\tt ustring}},
-hold the length of the string (not counting the header) plus some flags
+hold the length of the string (not counting the header)
 in the first byte, and the number of print columns the string will take
 if the string is all graphics,
-plus some flags, in the second byte.  The remainder of the bytes
+in the second byte.  The remainder of the bytes
 constitute a `\TT{const char *}' value that is the Modified UTF-8 encoded,
 NUL-terminated, string itself.
 
@@ -4579,29 +4580,9 @@ The following are for programming with \TT{ustring}'s:
 \verb|min::uns32 min::|
     & \MINKEY{ustring\_columns} \verb|( const min::ustring * p )|
 \LABEL{MIN::USTRING_COLUMNS} \\
-\verb|min::uns32 min::|
-    & \MINKEY{ustring\_flags} \verb|( const min::ustring * p )|
-\LABEL{MIN::USTRING_FLAGS} \\
 \verb|const min::Uchar * min::|
     & \MINKEY{ustring\_chars} \verb|( const min::ustring * p )|
 \LABEL{MIN::USTRING_CHARS} \\
-\end{tabular}\end{indpar}
-
-where the possible \skey{ustring flag}s are:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~}l}
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING}
-			      & \TT{0x40} in second byte
-\LABEL{MIN::USTRING_LEADING} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
-			      & \TT{0x80} in second byte
-\LABEL{MIN::USTRING_TRAILING} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING\_ALWAYS}
-			      & \TT{0x40} in first byte
-\LABEL{MIN::USTRING_LEADING_ALWAYS} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING\_ALWAYS}
-			      & \TT{0x80} in first byte
-\LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
 The \TT{min::ustring\_\EOL length} function returns the number
@@ -4614,45 +4595,6 @@ the returned number of columns;
 but if it is zero,\label{USTRING-ZERO-COLUMNS}
 the string may contain other characters, such as single spaces,
 and may take any number of columns.
-The \TT{min::\EOL ustring\_\EOL flags} function returns the flags,
-which can be tested by AND'ing the returned value with
-the \TT{min::USTRING\_LEADING/TRAILING} or
-\TT{min::USTRING\_LEADING/TRAILING\_\EOL ALWAYS} flags.
-The \TT{min::ustring\_\EOL chars} function returns a pointer
-to the \TT{const char *} string in the \TT{ustring}.
-
-The flags cause the following printer operations, which are described
-in \itemref{LEADING-AND-TRAILING-SEPARATORS}:
-\begin{center}
-\begin{tabular}{ll}
-\TT{min::USTRING\_TRAILING} & preceed by \TT{min::\EOL trailing} \\
-\TT{min::USTRING\_TRAILING\_ALWAYS}
-    & preceed by \TT{min::\EOL trailing\_always} \\
-\TT{min::USTRING\_LEADING} & follow by \TT{min::\EOL leading} \\
-\TT{min::USTRING\_LEADING\_ALWAYS}
-    & follow by \TT{min::\EOL leading\_always} \\
-\end{tabular}
-\end{center}
-The flags are set by OR'ing their designated bits (i.e., \TT{0x80}
-or \TT{0x40}, 
-and \underline{not} the
-values of \TT{min::USTRING\_\ldots}) into the first
-or second byte of a \TT{ustring}.  An example is
-\TT{"\textbackslash x81\textbackslash x41"~","}
-which prints as
-\begin{center}
-\TT{printer << min::trailing\_always << "," << min::leading}
-\end{center}
-If both \TT{min::\EOL USTRING\_\EOL TRAILING} and
-\TT{min::\EOL USTRING\_\EOL TRAILING\_\EOL ALWAYS} are
-given, only \TT{min::\EOL USTRING\_\EOL TRAILING}
-is effective (as the two operations together
-in either order are equivalent to only \TT{min::\EOL trailing}),
-and simularly if
-both \TT{min::\EOL USTRING\_\EOL LEADING} and
-\TT{min::\EOL USTRING\_\EOL LEADING\_\EOL ALWAYS} are
-given, only \TT{min::\EOL USTRING\_\EOL LEADING}
-is effective.
 
 \subsubsection{UNICODE Name Tables}
 \label{UNICODE-NAME-TABLES}
