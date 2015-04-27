@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 26, 2015}
+\date{April 27, 2015}
  
 \maketitle
 
@@ -4434,7 +4434,7 @@ Both \TT{char\_flags} and \TT{sc} are typically elements of
 A \key{string classifier} is a function that inputs a string and
 outputs a set of flags that can be used to determine whether the
 string must be quoted, if it is a separator and whether it is
-or trailing, and if the string is a mark that can be used as a type.
+leading or trailing, and if the string is a mark that can be used as a type.
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|typedef min::uns32 ( * min::| & \MINKEY{str\_classifier}
@@ -4469,7 +4469,9 @@ no flags (0 returned)	& The string is used just for formatting and
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 			  no flags are returned if the string is empty
 			  or contains only characters which have the
-			  \TT{IS\_\EOL VHSPACE} flag.
+			  \TT{IS\_\EOL VHSPACE} flag, and does not contain
+			  any characters with the \TT{NEEDS\_\EOL QUOTES}
+			  flag.
 \label{NO_FLAGS_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4479,12 +4481,13 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned if the string contains any character
-			  that does not have the \TT{IS\_\EOL GRAPHIC}
-			  or \TT{IS\_\EOL VHSPACE}
-			  flags.  It is also returned if the string contains
-			  any character with the \TT{NEEDS\_\EOL QUOTES}
-			  flag, or if any of the following cases apply:
+			  this is returned if the string contains
+			  any character with the \TT{NEEDS\_\EOL QUOTES} flag,
+			  or the string contains a character that does not
+			  have the \TT{IS\_\EOL GRAPHIC} flag and a (possibly
+			  different) character that does not have the
+			  \TT{IS\_\EOL VHSPACE} flag,
+			  or if any of the following cases apply:
 
 			  \begin{enumerate}
 			  \item The first string character has the
@@ -4503,7 +4506,7 @@ no flags (0 returned)	& The string is used just for formatting and
 			  one character and it does not have the
 			  \TT{IS\_\EOL REPEATER} flag.
 			  \end{enumerate}
-\label{NEEDS_QUOTED_CLASSIFIER} \\
+\label{NEEDS_QUOTES_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
@@ -4517,8 +4520,7 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 			  this is returned for all strings that contain only
-			  graphic characters unless the \TT{NEEDS\_\EOL QUOTES}
-			  flag is being returned as per above.
+			  graphic characters.
 \label{IS_GRAPHIC_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4528,10 +4530,8 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings whose first character
-			  has the \TT{IS\_\EOL LEADING} flag and
-			  \TT{NEEDS\_\EOL QUOTES} is not being returned
-			  as per above.
+			  this is returned for strings all of whose characters
+			  have the \TT{IS\_\EOL LEADING} flag.
 \label{IS_LEADING_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4541,10 +4541,8 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings whose last character has
-			  the \TT{IS\_\EOL TRAILING} flag and
-			  \TT{NEEDS\_\EOL QUOTES} is not being returned
-			  as per above.
+			  this is returned for strings all of whose characters
+			  have the \TT{IS\_\EOL TRAILING} flag.
 \label{IS_TRAILING_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4557,10 +4555,8 @@ no flags (0 returned)	& The string is used just for formatting and
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 			  this is returned for strings all of whose characters
-			  have the \TT{IS\_MARK} flag, provided
-			  \TT{NEEDS\_\EOL QUOTES} is not being returned
-			  as per above.
-\label{IS_MARK} \\
+			  have the \TT{IS\_MARK} flag.
+\label{IS_MARK_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
 The \minkey{quote\_all\_str\_classifier} always returns just the
@@ -4612,12 +4608,7 @@ The \TT{min::ustring\_\EOL length} function returns the number
 of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
 (not including the terminating \TT{NUL}); the maximum is 63.
 The \TT{min::ustring\_\EOL columns} function returns the number
-of print columns these take; the maximum is 15.  If this is non-zero,
-the string must consist of only graphics characters and must take
-the returned number of columns;
-but if it is zero,\label{USTRING-ZERO-COLUMNS}
-the string may contain other characters, such as single spaces,
-and may take any number of columns.
+of print columns these take; the maximum is 15.
 
 \subsubsection{UNICODE Name Tables}
 \label{UNICODE-NAME-TABLES}
@@ -17190,7 +17181,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_LATIN1} \\
 \end{TABULAR}
 
-\INDEXHEADER{Classifying UNICODE Characters and Strings}
+\INDEXHEADER{UNICODE Support Control}
 
 \begin{TABULAR}{2.4in}
 \verb|inline min::uns32 min::| & \MINKEY{char\_flags}\ARGBREAK
@@ -17231,108 +17222,41 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SUPPORT_ALL_SUPPORT_CONTROL} \\
 \end{TABULAR}
 
-\bigskip
+\INDEXHEADER{String Classifiers}
 
-\begin{TABULAR}{1.5in}
-\verb|struct     min::| & \MINKEY{str\_classifier}%
+\begin{TABULAR}{2.5in}
+\verb|typedef min::uns32 ( * min::| & \MINKEY{str\_classifier}
+                                      \verb| )|\ARGBREAK
+      \verb|( const min::uns32 * char_flags,|\ARGBREAK
+      \verb|  min::support_control sc,|\ARGBREAK
+      \verb|  min::unsptr n,|\ARGBREAK
+      \verb|  min::ptr<const min::Uchar> p )|
 \LABEL{MIN::STR_CLASSIFIER} \\
-\verb|{               | \\
-\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_first}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{skip\_if\_first}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{in\_class\_if\_all}
-                                {in {\tt min::str\_classifier}} \\
-\verb|     min::uns32 | & \TTMKEY{not\_in\_class\_if\_any}
-                                {in {\tt min::str\_classifier}} \\
-\verb|};              | \\
 \end{TABULAR}
 
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{never\_str\_classifier}:}
-\LABEL{MIN::NEVER_STR_CLASSIFIER}\ARGBREAK
-\verb|0                          // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|0                          // in_class_if_all|
+\begin{TABULAR}{2.8in}
+\verb|const min::str_classifier min::| & \MINKEY{standard\_str\_classifier}
+\LABEL{MIN::STANDARD_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::| & \MINKEY{quote\_all\_str\_classifier}
+\LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::| & \MINKEY{null\_str\_classifier}
+\LABEL{MIN::NULL_STR_CLASSIFIER} \\
 \end{TABULAR}
 
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{always\_str\_classifier}:}
-\LABEL{MIN::ALWAYS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::ALL_CHARS             // in_class_if_all|
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{0} (no flags)
+\LABEL{NO_FLAGS_CLASSIFIER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
+\LABEL{IS_GRAPHIC_CLASSIFIER} \\
+\verb|const min::uns32 min::| & \MINKEY{NEEDS\_QUOTES}
+\LABEL{NEEDS_QUOTES_CLASSIFIER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LEADING}
+\LABEL{IS_LEADING_CLASSIFIER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_TRAILING}
+\LABEL{IS_TRAILING_CLASSIFIER} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
+\LABEL{IS_MARK_CLASSIFIER} \\
 \end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_graphics\_str\_classifier}:}
-\LABEL{MIN::ALL_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC            // in_class_if_all|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier} \\
-\multicolumn{2}{l}%
-    {\tt ~~~~~~~~~~~~~~~
-         min::\MINLKEY{all\_non\_bracket\_graphics}{\_str\_classifier}:}
-\LABEL{MIN::ALL_NON_BRACKET_GRAPHICS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_GRAPHIC                // in_class_if_all|\ARGBREAK
-\verb|min::IS_SEPARATOR              // not_in_class_if_any|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-	   min::\MINKEY{name\_str\_classifier}:}
-\LABEL{MIN::NAME_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_LETTER                 // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_LETTER                 // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier
-                   min::\MINKEY{all\_marks\_str\_classifier}:}
-\LABEL{MIN::ALL_MARKS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK               // in_class_if_first|\ARGBREAK
-\verb|0                          // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK               // in_class_if_all|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0in}
-\multicolumn{2}{l}{\tt const min::str\_classifier} \\
-\multicolumn{2}{l}%
-    {\tt ~~~~~~~~~~~~~~~
-         min::\MINLKEY{all\_marks\_or\_brackets}{\_str\_classifier}:}
-\LABEL{MIN::ALL_MARKS_AND_BRACKETS_STR_CLASSIFIER}\ARGBREAK
-\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_first|\ARGBREAK
-\verb|0                              // skip_if_first|\ARGBREAK
-\verb|min::IS_MARK+min::IS_SEPARATOR // in_class_if_all|\ARGBREAK
-\verb|0                              // not_in_class_if_any|
-\end{TABULAR}
-
-\bigskip
 
 \INDEXHEADER{UNICODE Strings}
 
