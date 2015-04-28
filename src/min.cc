@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Apr 27 06:14:33 EDT 2015
+// Date:	Tue Apr 28 15:51:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9511,7 +9511,7 @@ static min::uns32 null_str_classifier_function
 	min::uns32 cflags =
 	    min::char_flags ( char_flags, sc, c );
 	if ( ! ( cflags & min::IS_VHSPACE ) )
-	    return min::NEEDS_QUOTES;
+	    return min::IS_GRAPHIC;
     }
     return 0;
 }
@@ -9526,7 +9526,7 @@ min::printer min::print_unicode
 {
     min::uns32 str_class =
         sf == NULL ?
-	    ::standard_str_classifier_function
+	    ::null_str_classifier_function
 	       ( printer->print_format.char_flags,
 	         printer->print_format
 		         .support_control,
@@ -10487,7 +10487,7 @@ static min::gen_format leading_always_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    NULL,
+    & ::standard_str_format,
     & ::leading_always_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10501,7 +10501,7 @@ static min::gen_format trailing_always_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    NULL,
+    & ::standard_str_format,
     & ::trailing_always_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,

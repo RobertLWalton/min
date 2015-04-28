@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 24 16:15:33 EDT 2015
+// Date:	Tue Apr 28 17:21:05 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3079,30 +3079,83 @@ void test_printer ( void )
 
     // Tests of min::leading/trailing.
     //
-    printer << "(" << min::leading
-            << "100"
-	    << min::trailing_always << "," << " "
-	    << "200" << min::trailing << ")"
-            << min::eol;
-    printer << min::force_space
-            << "(" << min::leading
-            << "100"
-	    << min::trailing_always << "," << " "
-	    << "200" << min::trailing << ")"
-	    << min::noforce_space
-	    << min::eol;
-    printer << "(" << min::leading
-            << "100"
-	    << min::trailing_always << "," << " "
-	    << min::trailing << ")"
-            << min::eol;
-    printer << min::force_space
-            << "(" << min::leading
-            << "100"
-	    << min::trailing_always << "," << " "
-	    << min::trailing << ")"
-	    << min::noforce_space
-	    << min::eol;
+    min::print_item
+        ( printer, "(", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    min::print_leading ( printer );
+    min::print_item
+        ( printer, "100", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing_always ( printer );
+    min::print_item
+        ( printer, ",", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    min::print_item
+        ( printer, " ", 1, 1, 0 );
+    min::print_item
+        ( printer, "200", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing ( printer );
+    min::print_item
+        ( printer, ")", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    printer << min::eol;
+
+    printer << min::force_space;
+    min::print_item
+        ( printer, "(", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    min::print_leading ( printer );
+    min::print_item
+        ( printer, "100", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing_always ( printer );
+    min::print_item
+        ( printer, ",", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    min::print_item
+        ( printer, " ", 1, 1, 0 );
+    min::print_item
+        ( printer, "200", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing ( printer );
+    min::print_item
+        ( printer, ")", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    printer << min::noforce_space << min::eol;
+
+    min::print_item
+        ( printer, "(", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    min::print_leading ( printer );
+    min::print_item
+        ( printer, "100", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing_always ( printer );
+    min::print_item
+        ( printer, ",", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    min::print_item
+        ( printer, " ", 1, 1, 0 );
+    min::print_trailing ( printer );
+    min::print_item
+        ( printer, ")", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    printer << min::eol;
+
+    printer << min::force_space;
+    min::print_item
+        ( printer, "(", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    min::print_leading ( printer );
+    min::print_item
+        ( printer, "100", 3, 3, min::IS_GRAPHIC );
+    min::print_trailing_always ( printer );
+    min::print_item
+        ( printer, ",", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    min::print_item
+        ( printer, " ", 1, 1, 0 );
+    min::print_trailing ( printer );
+    min::print_item
+        ( printer, ")", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    printer << min::noforce_space << min::eol;
 
     // Tests of files and printers.
 

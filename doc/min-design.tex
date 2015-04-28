@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 27, 2015}
+\date{April 28, 2015}
  
 \maketitle
 
@@ -4565,7 +4565,7 @@ The \minkey{quote\_all\_str\_classifier} always returns just the
 The \minkey{null\_str\_classifier} is used when printing with a
 \TT{NULL} \TT{min::str\_\EOL format} and returns 0 if all characters
 in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
-\TT{min::\EOL NEEDS\_\EOL QUOTES} otherwise.
+\TT{min::\EOL IS\_\EOL GRAPHIC} otherwise.
 
 
 \subsubsection{UNICODE Strings}
@@ -8726,16 +8726,6 @@ If this flag is on, a \TT{min::eom()} printer operation performs
 a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 (\pagref{MIN::FLUSH_ID_MAP}) right after its
 \TT{min::\EOL bol} operation.
-
-\item[\ttmkey{LEADING}%
-{in {\tt print\_\EOL format.op\_\EOL flags}}]
-\item[\ttmkey{TRAILING}%
-{in {\tt print\_\EOL format.op\_\EOL flags}}]%
-\vspace{-1ex}~\\
-These flags are set by the \TT{min::\EOL leading} and
-\TT{min::\EOL trailing} printer operations to indicate that
-a single space is to be printed before the next character
-representative provided certain conditions are met.
 
 \item[\ttmkey{FORCE\_SPACE}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
