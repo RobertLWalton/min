@@ -8326,7 +8326,7 @@ following printer parameters:
       & & \verb|//   support_control| \\
 \verb|     min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
-        & \verb|// min::graphic_and_space_| \\
+        & \verb|// min::graphic_and_hspace_| \\
       & & \verb|//   display_control| \\
 \verb|       min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
@@ -8410,9 +8410,9 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::\MINLKEY{graphic\_and\_space}{\_display\_control} =}\ARGBREAK[1.0in]
+    min::\MINLKEY{graphic\_and\_hspace}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
-\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\LABEL{MIN::GRAPHIC_AND_HSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_only}{\_display\_control} =}\ARGBREAK[1.0in]
 	\verb|{ min::IS_GRAPHIC, 0 };|
@@ -8423,7 +8423,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \LABEL{MIN::GRAPHIC_AND_VHSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{display\_all}{\_display\_control} =}\ARGBREAK[1.0in]
-	\verb|{ 0xFFFF, 0 };|
+	\verb|{ min::ALL_CHARS, 0 };|
 \LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
@@ -8455,7 +8455,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINLKEY{break\_before\_all}{\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ 0, 0xFFFF, 0, 0 };|
+\verb|{ 0, min::ALL_CHARS, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINLKEY{break\_after\_hyphens}{\_break\_control} =}\ARGBREAK[1.0in]
@@ -8798,7 +8798,7 @@ of the next character if that character is not also having
 a break automatically inserted after it..
 
 The \TT{break\_\EOL before} mask
-(e.g., \TT{0xFFFF})
+(e.g., \TT{min::ALL\_CHARS})
 is bitwise AND'ed with
 the character flags and if the result is non-zero,
 a break is inserted before the character representative.
@@ -9239,8 +9239,8 @@ The \TT{printer\_format.display\_control} can be set by the following
 printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
-\LABEL{MIN::GRAPHIC_AND_SPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_hspace}
+\LABEL{MIN::GRAPHIC_AND_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_only}
 \LABEL{MIN::GRAPHIC_ONLY} \\
 \verb|const min::op min::| & \MINKEY{graphic\_and\_vhspace}
@@ -9253,12 +9253,12 @@ printer operations:
 \LABEL{MIN::SET_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
-Here \TT{min::graphic\_and\_space} is equivalent to
+Here \TT{min::graphic\_and\_hspace} is equivalent to
 \begin{center}
-\verb|min::set_display_control ( min::graphic_and_space_display_control )|
+\verb|min::set_display_control ( min::graphic_and_hspace_display_control )|
 \end{center}
 and similarly for \TT{min::\EOL graphic\_\EOL only},
-\TT{min::\EOL graphic\_\EOL and\_vspace}, and \TT{min::\EOL display\_\EOL all}.
+\TT{min::\EOL graphic\_\EOL and\_vhspace}, and \TT{min::\EOL display\_\EOL all}.
 
 The \TT{printer\_format.break\_control} can be set by the following
 printer operations:
@@ -9340,7 +9340,7 @@ printer << min::clear_op_flags ( flags )
         << min::set_display_control
                ( line_display & min::DISPLAY_NON_GRAPHIC ?
                  min::graphic_only_display_control :
-                 min::graphic_and_space_display_control )
+                 min::graphic_and_hspace_display_control )
         << min::no_auto_break
 \end{verbatim}\end{indpar}
 
@@ -18922,21 +18922,21 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::~{graphic\_and\_space\_display\_control} =}\ARGBREAK[0.5in]
+    min::~{graphic\_and\_hspace\_display\_control} =}\ARGBREAK[0.5in]
 	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
-\LABEL{MIN::GRAPHIC_AND_SPACE_DISPLAY_CONTROL} \\
+\LABEL{MIN::GRAPHIC_AND_HSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{graphic\_only\_display\_control} =}\ARGBREAK[0.5in]
 	\verb|{ min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
-    min::~{graphic\_and\_vspace\_display\_control} =}\ARGBREAK[0.5in]
+    min::~{graphic\_and\_vhspace\_display\_control} =}\ARGBREAK[0.5in]
 	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[0.5in]
 	\verb|                 + min::IS_VSPACE, 0 };|
-\LABEL{MIN::GRAPHIC_AND_VSPACE_DISPLAY_CONTROL} \\
+\LABEL{MIN::GRAPHIC_AND_VHSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{display\_all\_display\_control} =}\ARGBREAK[0.5in]
-	\verb|{ 0xFFFF, 0 };|
+	\verb|{ min::ALL_CHARS, 0 };|
 \LABEL{MIN::DISPLAY_ALL_DISPLAY_CONTROL} \\
 \end{TABULAR}
 
@@ -18972,7 +18972,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINKEY{break\_before\_all\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ 0, 0xFFFF, 0, 0 };|
+\verb|{ 0, min::ALL_CHARS, 0, 0 };|
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINKEY{break\_after\_hyphens\_break\_control} =}\ARGBREAK[1.0in]
@@ -19256,12 +19256,12 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{graphic\_and\_space}
-\LABEL{MIN::GRAPHIC_AND_SPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_hspace}
+\LABEL{MIN::GRAPHIC_AND_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_only}
 \LABEL{MIN::GRAPHIC_ONLY} \\
-\verb|const min::op min::| & \MINKEY{graphic\_and\_vspace}
-\LABEL{MIN::GRAPHIC_AND_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_and\_vhspace}
+\LABEL{MIN::GRAPHIC_AND_VHSPACE} \\
 \verb|const min::op min::| & \MINKEY{display\_all}
 \LABEL{MIN::DISPLAY_ALL} \\
 \verb|min::op min::|
