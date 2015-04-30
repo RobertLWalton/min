@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 28 16:18:20 EDT 2015
+// Date:	Wed Apr 29 05:01:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11201,7 +11201,6 @@ namespace min {
 	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
-	    PUSTRING,
 	    PINT32,
 	    PINT64,
 	    PUNS32,
@@ -11400,12 +11399,6 @@ namespace min {
     {
         return op ( op::PUNICODE2, length,
 	            min::new_ptr ( str ) );
-    }
-
-    inline op pustring
-	    ( const min::ustring * str )
-    {
-        return op ( op::PUSTRING, str );
     }
 
     inline op pint
@@ -11835,7 +11828,7 @@ namespace min {
 	    return printer;
     }
 
-    void pwidth
+    min::uns32 pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
 	  const min::print_format & print_format );

@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 28 15:51:04 EDT 2015
+// Date:	Wed Apr 29 05:01:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8434,30 +8434,56 @@ min::printer operator <<
 	return min::print_unicode
 	    ( printer, length, p );
     }
-    case min::op::PUSTRING:
-        return min::print_ustring
-	         ( printer,
-		   (const min::ustring *) op.v1.p );
     case min::op::PINT32:
-	sprintf ( buffer, (const char *) op.v2.p,
+	{
+	    min::unsptr n =
+		sprintf ( buffer,
+		          (const char *) op.v2.p,
 			  op.v1.i32 );
-	return printer << buffer;
+	    return min::print_item
+		( printer, buffer, n, n,
+		  min::IS_GRAPHIC );
+	}
     case min::op::PINT64:
-	sprintf ( buffer, (const char *) op.v2.p,
+	{
+	    min::unsptr n =
+		sprintf ( buffer,
+		          (const char *) op.v2.p,
 			  op.v1.i64 );
-	return printer << buffer;
+	    return min::print_item
+		( printer, buffer, n, n,
+		  min::IS_GRAPHIC );
+	}
     case min::op::PUNS32:
-	sprintf ( buffer, (const char *) op.v2.p,
+	{
+	    min::unsptr n =
+		sprintf ( buffer,
+		          (const char *) op.v2.p,
 			  op.v1.u32 );
-	return printer << buffer;
+	    return min::print_item
+		( printer, buffer, n, n,
+		  min::IS_GRAPHIC );
+	}
     case min::op::PUNS64:
-	sprintf ( buffer, (const char *) op.v2.p,
+	{
+	    min::unsptr n =
+		sprintf ( buffer,
+		          (const char *) op.v2.p,
 			  op.v1.u64 );
-	return printer << buffer;
+	    return min::print_item
+		( printer, buffer, n, n,
+		  min::IS_GRAPHIC );
+	}
     case min::op::PFLOAT64:
-	sprintf ( buffer, (const char *) op.v2.p,
+	{
+	    min::unsptr n =
+		sprintf ( buffer,
+		          (const char *) op.v2.p,
 			  op.v1.f64 );
-	return printer << buffer;
+	    return min::print_item
+		( printer, buffer, n, n,
+		  min::IS_GRAPHIC );
+	}
     case min::op::SET_LINE_LENGTH:
 	printer->line_break.line_length = op.v1.u32;
 	return printer;
@@ -9358,7 +9384,7 @@ static min::printer print_quoted_unicode
 	postfix_length = q - postfix_string;
     }
 
-    printer << min::pustring ( bf.str_prefix );
+    min::print_ustring ( printer, bf.str_prefix );
 
     min::uns32 width = reduced_width;
     while ( length > 0 )
@@ -9374,14 +9400,16 @@ static min::printer print_quoted_unicode
 
 	if ( length == 0 ) break;
 
-	printer << min::pustring ( bf.str_postfix )
-		<< " "
-		<< min::set_break;
+	min::print_ustring ( printer, bf.str_postfix );
+	min::print_spaces ( printer, 1 );
+	printer << min::set_break;
 	if ( bf.str_concatenator != NULL )
-	    printer << min::pustring
-	                   ( bf.str_concatenator )
-		    << " ";
-	printer << min::pustring ( bf.str_prefix );
+	{
+	    min::print_ustring
+	        ( printer, bf.str_concatenator );
+	    min::print_spaces ( printer, 1 );
+	}
+	min::print_ustring ( printer, bf.str_prefix );
 
 	min::uns32 cat_columns =
 	      min::ustring_columns
@@ -9391,7 +9419,7 @@ static min::printer print_quoted_unicode
 		     " is zero" );
 	width = reduced_width - 1 - cat_columns;
     }
-    printer << min::pustring ( bf.str_postfix );
+    min::print_ustring ( printer, bf.str_postfix );
 
     return printer;
 }
@@ -9598,30 +9626,33 @@ min::printer operator <<
 	( min::printer printer, min::int64 i )
 {
     char buffer[32];
-    sprintf ( buffer, "%lld", i );
-    return printer << buffer;
+    min::unsptr n = sprintf ( buffer, "%lld", i );
+    return min::print_item
+        ( printer, buffer, n, n, min::IS_GRAPHIC );
 }
 
 min::printer operator <<
 	( min::printer printer, min::uns64 u )
 {
     char buffer[32];
-    sprintf ( buffer, "%llu", u );
-    return printer << buffer;
+    min::unsptr n = sprintf ( buffer, "%llu", u );
+    return min::print_item
+        ( printer, buffer, n, n, min::IS_GRAPHIC );
 }
 
 min::printer operator <<
 	( min::printer printer, min::float64 f )
 {
     char buffer[64];
-    sprintf ( buffer, "%.15g", f );
-    return printer << buffer;
+    min::unsptr n = sprintf ( buffer, "%.15g", f );
+    return min::print_item
+        ( printer, buffer, n, n, min::IS_GRAPHIC );
 }
 
-void min::pwidth ( min::uns32 & column,
-                   const char * s, min::unsptr n,
-		   const min::print_format &
-		       print_format )
+min::uns32 min::pwidth ( min::uns32 & column,
+                         const char * s, min::unsptr n,
+		         const min::print_format &
+		             print_format )
 {
     min::support_control sc =
         print_format.support_control;
@@ -9639,6 +9670,7 @@ void min::pwidth ( min::uns32 & column,
     const char * ends = s + n;
     char temp[32];
 
+    min::uns32 original_column = column;
     while ( s < ends )
     {
         Uchar c = utf8_to_unicode ( s, ends );
@@ -9710,6 +9742,7 @@ void min::pwidth ( min::uns32 & column,
 	    column += prefix_columns + postfix_columns;
 	}
     }
+    return column - original_column;
 }
 
 

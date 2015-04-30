@@ -9045,19 +9045,35 @@ printed by using the following operations:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{pint}\ARGBREAK
+	  \verb|( min::int32 i,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PINT32} \\
+\verb|min::op min::|
+    & \MINKEY{pint}\ARGBREAK
 	  \verb|( min::int64 i,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PINT} \\
+\LABEL{MIN::PINT64} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{puns}\ARGBREAK
-	  \verb|( min::uns64 u,|\ARGBREAK
+	  \verb|( min::uns32 u,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PUNS} \\
+\LABEL{MIN::PUNS32} \\
+\verb|min::op min::|
+    & \MINKEY{puns}\ARGBREAK
+	  \verb|( min::uns32 u,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PUNS64} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
     & \MINKEY{pfloat}\ARGBREAK
 	  \verb|( min::float64 f,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PFLOAT} \\
+\LABEL{MIN::PFLOAT64} \\
 \end{tabular}\end{indpar}
 
 \TT{min::gen} values may be printed under the control of a
@@ -9076,7 +9092,7 @@ and whose final value is \TT{printer->\EOL column}
 after the string is printed.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
@@ -9089,6 +9105,7 @@ the \TT{n} byte string \TT{s} were printed with the given
 \TT{print\_\EOL format}.
 Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
 function does not allocate or resize objects.
+The number of columns added to `\TT{column}' is returned.
 
 \subsubsection{Adjusting Printer Parameters}
 \label{ADJUSTING-PRINTER-PARAMETERS}
@@ -19111,25 +19128,35 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.4in}
 \verb|min::op min::|
     & \MINKEY{pint}\ARGBREAK
+	  \verb|( min::int32 i,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PINT32} \\
+\verb|min::op min::|
+    & \MINKEY{pint}\ARGBREAK
 	  \verb|( min::int64 i,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PINT} \\
+\LABEL{MIN::PINT64} \\
 \verb|min::op min::|
     & \MINKEY{puns}\ARGBREAK
-	  \verb|( min::uns64 u,|\ARGBREAK
+	  \verb|( min::uns32 u,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PUNS} \\
+\LABEL{MIN::PUNS32} \\
+\verb|min::op min::|
+    & \MINKEY{puns}\ARGBREAK
+	  \verb|( min::uns32 u,|\ARGBREAK
+	  \verb|  const char * printf_format )|
+\LABEL{MIN::PUNS64} \\
 \verb|min::op min::|
     & \MINKEY{pfloat}\ARGBREAK
 	  \verb|( min::float64 f,|\ARGBREAK
 	  \verb|  const char * printf_format )|
-\LABEL{MIN::PFLOAT}
+\LABEL{MIN::PFLOAT64} \\
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{1.4in}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
