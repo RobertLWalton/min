@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 29 05:01:50 EDT 2015
+// Date:	Thu Apr 30 10:36:33 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11025,6 +11025,7 @@ namespace min {
     const min::uns32 FLUSH_ON_EOL	  = ( 1 << 4 );
     const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 5 );
     const min::uns32 FORCE_SPACE	  = ( 1 << 6 );
+    const min::uns32 FORCE_PGEN		  = ( 1 << 7 );
 
     extern const min::uns32 standard_op_flags;
 
@@ -11548,6 +11549,8 @@ namespace min {
 
     extern const op force_space;
     extern const op noforce_space;
+    extern const op force_pgen;
+    extern const op noforce_pgen;
 
     extern const op verbatim;
 
@@ -11948,7 +11951,7 @@ inline min::printer operator <<
 
 min::printer operator <<
 	( min::printer printer,
-	  min::float64 i );
+	  min::float64 f );
 
 inline std::ostream & operator <<
         ( std::ostream & out, min::printer printer )

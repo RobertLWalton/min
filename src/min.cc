@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 29 05:01:42 EDT 2015
+// Date:	Thu Apr 30 10:36:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8834,6 +8834,12 @@ const min::op min::force_space
 const min::op min::noforce_space
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FORCE_SPACE );
+const min::op min::force_pgen
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::FORCE_PGEN );
+const min::op min::noforce_pgen
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::FORCE_PGEN );
 
 const min::op min::leading
     ( min::op::LEADING );
@@ -9552,6 +9558,13 @@ min::printer min::print_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
+    if ( sf == NULL
+         &&
+	   printer->print_format.op_flags
+	 & min::FORCE_PGEN )
+        sf = printer->print_format.gen_format
+	            ->str_format;
+
     min::uns32 str_class =
         sf == NULL ?
 	    ::null_str_classifier_function
@@ -9590,6 +9603,13 @@ min::printer min::print_cstring
 	( min::printer printer, const char * s,
 	  const min::str_format * sf )
 {
+    if ( sf == NULL
+         &&
+	   printer->print_format.op_flags
+	 & min::FORCE_PGEN )
+        sf = printer->print_format.gen_format
+	            ->str_format;
+
     // We translate this case to the punicode case
     // because we need to be able to perform look-ahead
     // for combining diacritics, and in the future for
@@ -9625,6 +9645,13 @@ min::printer min::print_cstring
 min::printer operator <<
 	( min::printer printer, min::int64 i )
 {
+    if (   printer->print_format.op_flags
+	 & min::FORCE_PGEN )
+        return min::print_num
+	    ( printer, (min::float64) i,
+	      printer->print_format.gen_format
+		     ->num_format );
+
     char buffer[32];
     min::unsptr n = sprintf ( buffer, "%lld", i );
     return min::print_item
@@ -9634,6 +9661,13 @@ min::printer operator <<
 min::printer operator <<
 	( min::printer printer, min::uns64 u )
 {
+    if (   printer->print_format.op_flags
+	 & min::FORCE_PGEN )
+        return min::print_num
+	    ( printer, (min::float64) u,
+	      printer->print_format.gen_format
+		     ->num_format );
+
     char buffer[32];
     min::unsptr n = sprintf ( buffer, "%llu", u );
     return min::print_item
@@ -9643,6 +9677,13 @@ min::printer operator <<
 min::printer operator <<
 	( min::printer printer, min::float64 f )
 {
+    if (   printer->print_format.op_flags
+	 & min::FORCE_PGEN )
+        return min::print_num
+	    ( printer, f,
+	      printer->print_format.gen_format
+		     ->num_format );
+
     char buffer[64];
     min::unsptr n = sprintf ( buffer, "%.15g", f );
     return min::print_item

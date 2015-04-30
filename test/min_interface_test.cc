@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 28 17:21:05 EDT 2015
+// Date:	Thu Apr 30 14:28:31 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3120,6 +3120,21 @@ void test_printer ( void )
 	  min::IS_TRAILING + min::IS_GRAPHIC );
     printer << min::noforce_space << min::eol;
 
+    printer << min::force_pgen
+            << "(" << min::leading
+	    << "100" << min::trailing_always << ","
+	    << min::space
+	    << "200" << min::trailing << ")"
+	    << min::eol
+	    << min::force_space
+            << "(" << min::leading
+	    << "100" << min::trailing_always << ","
+	    << min::space
+	    << "200" << min::trailing << ")"
+	    << min::eol
+	    << min::noforce_space
+	    << min::noforce_pgen;
+
     min::print_item
         ( printer, "(", 1, 1,
 	  min::IS_LEADING + min::IS_GRAPHIC );
@@ -3156,6 +3171,21 @@ void test_printer ( void )
         ( printer, ")", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
     printer << min::noforce_space << min::eol;
+
+    printer << min::force_pgen
+            << "(" << min::leading
+	    << "100" << min::trailing_always << ","
+	    << min::space
+	    << min::trailing << ")"
+	    << min::eol
+	    << min::force_space
+            << "(" << min::leading
+	    << "100" << min::trailing_always << ","
+	    << min::space
+	    << min::trailing << ")"
+	    << min::eol
+	    << min::noforce_space
+	    << min::noforce_pgen;
 
     // Tests of files and printers.
 
