@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 30 10:36:23 EDT 2015
+// Date:	Thu Apr 30 23:54:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9558,13 +9558,6 @@ min::printer min::print_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
-    if ( sf == NULL
-         &&
-	   printer->print_format.op_flags
-	 & min::FORCE_PGEN )
-        sf = printer->print_format.gen_format
-	            ->str_format;
-
     min::uns32 str_class =
         sf == NULL ?
 	    ::null_str_classifier_function
@@ -9599,12 +9592,15 @@ min::printer min::print_unicode
 // stack BEFORE calling anything that might relocate
 // memory.
 //
-min::printer min::print_cstring
+min::printer MINT::print_cstring
 	( min::printer printer, const char * s,
-	  const min::str_format * sf )
+	  const min::str_format * sf,
+	  bool allow_force_pgen )
 {
     if ( sf == NULL
          &&
+	 allow_force_pgen
+	 &&
 	   printer->print_format.op_flags
 	 & min::FORCE_PGEN )
         sf = printer->print_format.gen_format

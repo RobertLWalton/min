@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 30 10:36:33 EDT 2015
+// Date:	Thu Apr 30 23:52:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11776,9 +11776,21 @@ namespace min {
 	return printer;
     }
 
-    min::printer print_cstring
+    namespace internal {
+
+	min::printer print_cstring
+		( min::printer printer, const char * s,
+		  const min::str_format * sf,
+		  bool allow_force_pgen );
+    }
+
+    inline min::printer print_cstring
     	    ( min::printer printer, const char * s,
-	      const min::str_format * sf = NULL );
+	      const min::str_format * sf = NULL )
+    {
+        return internal::print_cstring
+	    ( printer, s, sf, false );
+    }
 
     // Rather than have a default NULL str_format,
     // we default to an inline purely to optimize.
@@ -11901,22 +11913,25 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const char * s )
 {
-    return min::print_cstring ( printer, s );
+    return min::internal::print_cstring
+        ( printer, s, NULL, true );
 }
 
 inline min::printer operator <<
 	( min::printer printer,
 	  min::ptr<const char> s )
 {
-    return min::print_cstring ( printer, ! s );
+    return min::internal::print_cstring
+        ( printer, ! s, NULL, true );
 }
 
 inline min::printer operator <<
 	( min::printer printer,
 	  min::ptr<char> s )
 {
-    return min::print_cstring
-        ( printer, ! (min::ptr<const char>) s );
+    return min::internal::print_cstring
+        ( printer, ! (min::ptr<const char>) s,
+	  NULL, true );
 }
 
 inline min::printer operator <<
@@ -12188,8 +12203,9 @@ namespace min {
 	      const min::str_format * sf = NULL )
     {
         min::str_ptr sp ( str );
-	return min::print_cstring
-	    ( printer, ! min::begin_ptr_of ( sp ), sf );
+	return min::internal::print_cstring
+	    ( printer, ! min::begin_ptr_of ( sp ),
+	      sf, false );
     }
 
     min::printer print_obj
@@ -12320,8 +12336,9 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const min::str_ptr & s )
 {
-    return min::print_cstring
-        ( printer, ! min::begin_ptr_of ( s ) );
+    return min::internal::print_cstring
+        ( printer, ! min::begin_ptr_of ( s ),
+	  NULL, true );
 }
 
 inline min::printer operator <<

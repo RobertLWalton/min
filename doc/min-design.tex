@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 28, 2015}
+\date{April 30, 2015}
  
 \maketitle
 
@@ -8390,6 +8390,8 @@ following printer parameters:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
+\LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{tabular}\end{indpar}
 
 \TT{print\_format.support\_control}:
@@ -8732,6 +8734,19 @@ a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 This flag forces the \TT{min::leading} and \TT{min::trailing}
 printer operations to output a single space character.
 See \pagref{FORCE_SPACE}.
+
+\item[\ttmkey{FORCE\_PGEN}%
+    {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+This flag causes the \TT{<<} operator to treat numbers and
+characters strings that are to be printed directly by the
+\TT{<<} operator as
+\TT{min::gen} numbers or strings, which just means that
+\TT{print\_\EOL format.gen\_\EOL format} is used to format them.
+Printer operations such as \TT{min::\EOL space}, \TT{min::\EOL pint},
+and \TT{min::\EOL punicode} are \underline{not} affected.
+This flag is used mostly for debugging and demonstrations of
+\TT{min::\EOL leading/\EOL trailing}.
+See \pagref{FORCE_PGEN}.
 
 \end{itemlist}\end{indpar}
 
@@ -9205,6 +9220,10 @@ following printer operations:
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
 \LABEL{MIN::NOFORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{force\_pgen}
+\LABEL{MIN::FORCE_PGEN} \\
+\verb|const min::op min::| & \MINKEY{noforce\_pgen}
+\LABEL{MIN::NOFORCE_PGEN} \\
 \end{tabular}\end{indpar}
 
 Here \TT{printer << min::display\_picture} sets the
@@ -18896,6 +18915,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
+\LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{TABULAR}
 
 \bigskip
@@ -19235,7 +19256,11 @@ These are in \verb|min_parameters.h|.
 \verb|const min::op min::| & \MINKEY{force\_space}
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
-\LABEL{MIN::NOFORCE_SPACE}
+\LABEL{MIN::NOFORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{force\_pgen}
+\LABEL{MIN::FORCE_PGEN} \\
+\verb|const min::op min::| & \MINKEY{noforce\_pgen}
+\LABEL{MIN::NOFORCE_PGEN} \\
 \end{TABULAR}
 
 \bigskip
