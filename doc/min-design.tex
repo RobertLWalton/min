@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 30, 2015}
+\date{May 1, 2015}
  
 \maketitle
 
@@ -9773,14 +9773,14 @@ no space characters are first scanned, and then `\skey{leading separator}s'
 such as the opening single quote (\TT{`}) and dollar sign (\TT{\$})
 are removed from the beginning of the proto-lexeme,
 `\skey{trailing separator}s' such as closing single quote (\TT{'})
-and comma are removed from the end of the proto-lexeme,
+and comma (\TT{,}) are removed from the end of the proto-lexeme,
 and anything left over of the proto-lexeme is designated to be a
 `\key{middle lexeme}'.  So the proto-lexeme \TT{\$10,000,} translates
 to the three lexemes \TT{\$}, \TT{10,000}, and comma (\TT{,}).  Note
 that the first comma is part of the middle lexeme and the last is
 a trailing separator by itself.
 
-The same effect can be achieved by a different kind of scanner
+The same effect can be somewhat achieved by a different kind of scanner
 that declares a \TT{\$} character to be a separator only if it is
 followed by a digit and a comma to be a separator unless
 it is surrounded by digits.
@@ -9790,10 +9790,25 @@ Suppose you want to print the 3 element list of strings,
 may be a leading separator, the second may be middle, and the last
 may be trailing.  But maybe not.
 
-You can do this with the code
-\begin{center}
-\verb|printer << "$" << min::leading << "10,000" << min::trailing << ",";|
-\end{center}
+You can do this with the code:
+
+\begin{indpar}\begin{verbatim}
+printer << min::new_str_gen ( "$")
+        << min::leading
+        << min::new_str_gen ( "10,000" )
+        << min::trailing
+        << min::new_str_gen ( "," );
+\end{verbatim}\end{indpar}
+
+or if the \TT{min::FORCE\_PGEN} flag is on, with the equivalent
+code:
+
+\begin{indpar}\begin{verbatim}
+printer << "$" << min::leading << "10,000" << min::trailing << ",";
+\end{verbatim}\end{indpar}
+
+(The \TT{min::FORCE\_PGEN} flag is mostly of use in testing
+and debugging \TT{min::\EOL leading/\EOL trailing}.)
 
 Here we have used the printer operations:
 
@@ -9807,7 +9822,8 @@ Here we have used the printer operations:
 Each of these denotes a space character with may be output or
 not according to its context.
 
-To give as second example, consider the code:
+To give as second example,
+consider the code, with \TT{min::\EOL FORCE\_\EOL PGEM} flag on:
 \begin{indpar}\begin{verbatim}
 printer << "100" << min::trailing << "," << " " << "200";
 printer << "100" << min::trailing << "#" << " " << "200";
@@ -9818,7 +9834,8 @@ We want the first line to output `\TT{100, 200}' in which
 while we want the second line to output `\TT{100 \# 200}'
 in which \TT{min::\EOL trailing} \underline{does} output a space.
 
-And to consider one last example, consider the code:
+And to consider one last example,
+consider the code, with \TT{min::\EOL FORCE\_\EOL PGEM} flag on:
 \begin{indpar}\begin{verbatim}
 printer << "("   << min::leading << "100" << min::trailing <<  ")";
 printer << "(+"  << min::leading << "100" << min::trailing << "+)";
