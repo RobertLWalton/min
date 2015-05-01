@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 30 23:52:37 EDT 2015
+// Date:	Fri May  1 17:33:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11781,7 +11781,7 @@ namespace min {
 	min::printer print_cstring
 		( min::printer printer, const char * s,
 		  const min::str_format * sf,
-		  bool allow_force_pgen );
+		  bool use_gen_str_format );
     }
 
     inline min::printer print_cstring
@@ -11914,7 +11914,9 @@ inline min::printer operator <<
 	  const char * s )
 {
     return min::internal::print_cstring
-        ( printer, s, NULL, true );
+        ( printer, s, NULL,
+	    printer->print_format.op_flags
+	  & min::FORCE_PGEN );
 }
 
 inline min::printer operator <<
@@ -11922,7 +11924,9 @@ inline min::printer operator <<
 	  min::ptr<const char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! s, NULL, true );
+        ( printer, ! s, NULL,
+	    printer->print_format.op_flags
+	  & min::FORCE_PGEN );
 }
 
 inline min::printer operator <<
@@ -11930,8 +11934,9 @@ inline min::printer operator <<
 	  min::ptr<char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! (min::ptr<const char>) s,
-	  NULL, true );
+        ( printer, ! (min::ptr<const char>) s, NULL,
+	    printer->print_format.op_flags
+	  & min::FORCE_PGEN );
 }
 
 inline min::printer operator <<

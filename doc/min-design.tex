@@ -9846,43 +9846,53 @@ We want the first line to output `\TT{(100)}' in which there are
 while we want the second line to output `\TT{(+ 100 +)}'
 in which there are \underline{two} spaces.
 
-So how to we compute the context?
+So how to we compute whether \TT{min::leading/trailing} output
+a space? 
 
-First, we classify graphic characters into leading, trailing, or middling
-using the character flags:
+First, we run every string that is output though a string classifier.
+If we use \TT{min::\EOL standard\_\EOL str\_\EOL classifier} on the
+strings in the above examples we get:
+
 \begin{center}
-\TT{min::IS\_LEADING ~~~~~ min::IS\_TRAILING ~~~~~ min::IS\_MIDDLING}
+\begin{tabular}{l@{~~~~~}l}
+String & Class \\[2ex]
+\TT{"\$"} & \TT{IS\_LEADING+IS\_GRAPHIC} \\
+\TT{"10,000"} & \TT{IS\_GRAPHIC} \\
+\TT{","} & \TT{IS\_GRAPHIC+IS\_TRAILING} \\
+\TT{"100"} & \TT{IS\_GRAPHIC} \\
+\TT{"~"} & \TT{0} \\
+\TT{"200"} & \TT{IS\_GRAPHIC} \\
+\TT{"\#"} & \TT{IS\_GRAPHIC} \\
+\end{tabular}
 \end{center}
-Characters that have none of these flags are non-graphic.
-See \pagref{LEADING/MIDDLING/TRAILING-CHAR-FLAGS} for details.
 
-Then we classify a string of graphic characters
-as `\mkey{leading}{string}' if it contains only
-\TT{IS\_\EOL LEADING} characters, `\mkey{trailing}{string}' if it contains
-only \TT{IS\_\EOL TRAILING} characters, and `other'.  Note there
-are no middling strings.
+Then \TT{min::leading} produces a single
+space if both the string before it and the string after it have
+the \TT{IS\_\EOL GRAPHIC} flag and the string before it does
+\underline{not} have the \TT{IS\_\EOL LEADING} flag, and
+similarly \TT{min::trailing} produces a single
+space if both the string before it and the string after it have
+the \TT{IS\_\EOL GRAPHIC} flag and the string after it does
+\underline{not} have the \TT{IS\_\EOL TRAILING} flag.
 
-Now the rough idea of \TT{min::leading}
-is that it will output a space \underline{unless}
-it is part of a sequence of leading strings each followed by an
-\TT{min::leading} operation, with the sequence being
-prefaced by a non-graphic character (e.g., whitespace)
-or line beginning and followed
-by either a non-graphic or middling character, or a line end.
+Thus \TT{"100" << min::trailing << ","} does not output a space
+while \TT{"100" << min::trail\-ing << "\#"} does output a space.
 
-Similarly the rough idea of \TT{min::trailing}
-is that it will output a space \underline{unless}
-it is part of a sequence of trailing strings each preceeded by a
-\TT{min::trailing} operation, with the sequence
-being followed by a non-graphic character or line end and preceded
-by either a non-graphic or middling character or a line beginning.
+There are a number of extra details.
 
-In the above examples these ideas succeed because
-\TT{\$} and \TT{(} have the \TT{IS\_\EOL LEADING} flag,
-comma and \TT{)} have the \TT{IS\_\EOL TRAILING} flag,
-while \TT{\#}, \TT{+}, and digits have the \TT{IS\_\EOL MIDDLING} flag.
+First, if the above had not been printed with the \TT{FORCE\_\EOL PGEN}
+flag on, then \TT{min::\EOL null\_\EOL str\_\EOL classifier} would have
+been used instead of \TT{min::\EOL standard\_\EOL str\_\EOL classifier},
+and the string classes would have been the same but \underline{without}
+the \TT{IS\_\EOL LEADING} or \TT{IS\_EOL TRAILING} flags, so that the
+\TT{min::\EOL leading} and \TT{min::\EOL trailing} would have all
+produced spaces.
 
-The \TT{min::leading/trailing} operations have variants:
+Second, if the \TT{min::FORCE\_SPACE} flag is on, \TT{min::leading}
+and \TT{min::trailing} always output a space \underline{unless}
+either the preceeding or following string does \underline{not} have
+the \TT{IS\_\EOL GRAPHIC} flag.  But there are variant printer
+operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::| & \MINKEY{leading\_always}
@@ -9891,11 +9901,10 @@ The \TT{min::leading/trailing} operations have variants:
 \LABEL{MIN::TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
-The difference is that the \minkey{FORCE\_SPACE}\label{FORCE_SPACE}
-printer operation
-flag causes \TT{min::\EOL leading} or \TT{min::\EOL trailing} to output a single
-space, but has no effect on \TT{min::\EOL leading\_\EOL always} or
-\TT{min::\EOL trailing\_\EOL always}.  So
+which are just like \TT{min::leading/trailing} except they
+ignore the \TT{min::\EOL FORCE\_\EOL SPACE} flag.  So if
+the \TT{FORCE\_\EOL PGEN} flag is on:
+
 \begin{indpar}\begin{verbatim}
 printer << "(" << min::leading
         << "100" << min::trailing_always << ", " << "200"
@@ -9906,109 +9915,29 @@ prints `\TT{( 100, 200 )}' if \TT{min::\EOL FORCE\_\EOL SPACE} is on.
 Some people prefer extra spacing next to parentheses, and
 \TT{min::\EOL FORCE\_\EOL SPACE} accommodates this.
 
-To make all this precise
-we define a \key{maximal graphic substring} of a string being output to be
-a non-empty substring of graphic characters that cannot be made
-larger; that is, it is proceeded by either the beginning of its
-containing string or by a non-graphic character, and is similarly
-followed by either the end of its containing string or by a
-non-graphic character.  We will refer to maximal graphic substrings
-that either end or begin a string being printed, and to whether
-these are leading or trailing graphic substrings.
+Third, above we have dealt with `strings', but the printer actually
+deals with `\ikey{items}{printer item}\index{item!printer}'.  A
+character string is an item, but so is a number, and so are
+\TT{min::gen} values that are not labels or objects.  Labels and
+objects are `\key{composite}' and output multiple items.
+The default rule is that \TT{min::gen} string values are classified by
 
-Then our precise implementation is as follows.
-
-The printer may be in any or none of the following states:
 \begin{center}
-\begin{tabular}{l}
-\mkey{non-graphic state}{of printer} \\
-\mkey{leading state}{of printer} \\
-\mkey{trailing state}{of printer} \\
-\end{tabular}
+\TT{printer->print\_format.gen\_format->str\_format.str\_classifer}
 \end{center}
 
-A printer is put into the non-graphic state when a non-graphic
-character is output, or the printer is initialized, or a line
-end is output.  This also applies when a picture is output to
-represent the non-graphic character, and when the non-graphic
-character is inside a string being printed.
-The printer leaves the non-graphic state after printing a
-character string whose last character is graphic.
+if it exists, whereas in all other cases items are classified by
+the \TT{min::\EOL null\_\EOL str\_\EOL classifier}.
 
-The rules regarding leading state are:
-\begin{enumerate}
-\item The printer leaves the leading state when it is put into
-the non-graphic state.
-\item Outputting a string that ends with a maximal graphic substring that
-\underline{is} leading enters the leading state if the substring was
-output in the non-graphic state.  This includes the case where the
-substring is preceeded within the string being output by a non-graphic
-character.
-\item Outputting a string that ends with a maximal graphic substring that
-is \underline{not} leading leaves the leading state.
-\item \TT{min::leading} and \TT{min::leading\_\EOL always}
-do \underline{not} output a space if
-that space would be preceeded or followed by a non-graphic character,
-line beginning, or line end.
-\item Otherwise \TT{min::leading} outputs a single space character
-if \TT{min::\EOL FORCE\_\EOL SPACE} is on.  However,
-\TT{min::leading\_always} is not affected by \TT{min::\EOL FORCE\_\EOL SPACE}.
-\item Otherwise \TT{min::leading} or \TT{min::leading\_\EOL always}
-outputs a single space character
-\underline{unless} the printer is in the leading state and the next thing to be
-printeed is \underline{not}
-\begin{enumerate}
-\item a string beginning with a maximal leading graphic substring
-\item a string beginning with a middling character
-\end{enumerate}
-\end{enumerate}
+Fourth, a \TT{min::gen} string whose string class contains the
+\TT{NEEDS\_\EOL QUOTES} flag, or does \underline{not}
+contain the \TT{IS\_\EOL GRAPHIC} flag, is quoted,
+and the whole quoted string is treated as a single item with just the
+\TT{IS\_ GRAPHIC} flag.
 
-This works provided every leading string output in the leading or
-non-graphic state is followed by a \TT{min::\EOL leading}
-or \TT{min::\EOL leading\_\EOL always} operation.
-
-Note that the leading state only affects whether \TT{min::\EOL leading}
-and \TT{min::\EOL leading\_\EOL always}
-operations output spaces.
-
-The rules regarding trailing state are:
-\begin{enumerate}
-\item The printer leaves the trailing state when it is put into
-the non-graphic state.
-\item Outputting a string that ends in a middling character enters
-the trailing state.
-\item Outputting a string that ends with a maximal graphic substring that
-\underline{is} trailing enters the trailing state if the substring was
-output in the non-graphic state.  This includes the case where the
-substring is preceeded within the string being output by a non-graphic
-character.
-\item Outputting a string that ends with a maximal graphic substring that
-is \underline{not} trailing and does not end with a middling
-character leaves the trailing state.
-\item \TT{min::trailing} and \TT{min::trailing\_\EOL always} do
-\underline{not} output a space if
-that space would be preceeded or followed by a non-graphic character,
-line beginning, or line end.
-\item Otherwise \TT{min::trailing} outputs a single space character
-if \TT{min::\EOL FORCE\_\EOL SPACE} is on.  However,
-\TT{min::trailing\_always} is not affected by \TT{min::\EOL FORCE\_\EOL SPACE}.
-\item Otherwise \TT{min::trailing} or \TT{min::trailing\_\EOL always}
-outputs a single space character
-\underline{unless} the printer is in the trailing state and the next thing to be
-printeed is \underline{not}
-a string beginning with a maximal trailing graphic substring
-\end{enumerate}
-
-This works provided every trailing string output in the trailing or
-non-graphic state is preceded by a \TT{min::\EOL trailing}
-or \TT{min::\EOL trailing\_\EOL always} operation.
-
-Note that the trailing state only affects whether \TT{min::\EOL trailing}
-and \TT{min::\EOL trailing\_\EOL always}
-operations output spaces.
-
-Consecutive sequences of \underline{more than one} of the operations
-\label{SPECIAL-LEADING-TRAILING-RULES}:
+In general items may be separated by
+consecutive sequences of one \underline{or more} of the operations
+\label{LEADING-TRAILING-RULES}:
 \begin{center}
 \TTALL
 \begin{tabular}{l}
@@ -10019,36 +9948,30 @@ min::trailing\_always \\
 min::save\_indent \\
 \end{tabular}
 \end{center}
-are treated specially according to the following rules:
+Such a sequence of operations can output at most one space, and
+does so according to the following rules.
 \begin{enumerate}
-\item If the sequence contains both
-a \TT{min::\EOL leading} or \TT{min::\EOL leading\_\EOL always}
-\underline{and}
-a \TT{min::\EOL trailing} or \TT{min::\EOL trailing\_\EOL always}
-then the sequence outputs a single space character unless that would
-be preceeded or followed by a non-graphic character, and has no other
-effect.
-\item Otherwise if the sequence contains a \TT{min::leading} operation
-it is equivalent to a single \TT{min::\EOL leading} operation (the
-only other operation the sequence might contain is
-\TT{min::\EOL leading\_\EOL always}).
-\item Otherwise if the sequence contains only
-\TT{min::\EOL leading\_\EOL always} operations it is equivalent
-to a single \TT{min::\EOL leading\_\EOL always} operation.
-\item Otherwise if the sequence contains a \TT{min::trailing} operation
-it is equivalent to a single \TT{min::\EOL trailing} operation (the
-only other operation the sequence might contain is
-\TT{min::\EOL trailing\_\EOL always}).
-\item Otherwise if the sequence contains only
-\TT{min::\EOL trailing\_\EOL always} operations it is equivalent
-to a single \TT{min::\EOL trailing\_\EOL always} operation.
-\item If the sequence contains a \TT{min::save\_indent} that is
-\underline{not} the first member of the sequence, this operation
-is delayed until the other operations have been performed.
-\item The sequence must not contain more than one
-\TT{min::save\_indent} operation, not counting the first
-operation in the sequence, due to implementation limitations.
+\item If either preceeding or following items do not have the
+\TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
+\item Otherwise if either \TT{min::leading} or \TT{min::trailing}
+is in the sequence and the the \TT{FORCE\_\EOL SPACE} printer
+operation flag is on, a space is output.
+\item Otherwise if either \TT{min::leading} or \TT{min::leading\_\EOL always}
+is in the sequence and the preceeding item has the \TT{IS\_\EOL LEADING}
+flag, no space is output.
+\item Otherwise if either \TT{min::trailing} or \TT{min::trailing\_\EOL always}
+is in the sequence and the following item has the \TT{IS\_\EOL TRAILING}
+flag, no space is output.
+\item Otherwise a space is output.
 \end{enumerate}
+
+If the sequence contains a \TT{min::save\_indent} that is
+\underline{not} the first member of the sequence, this operation
+is delayed until the space is output or a decision not to output
+the space has been made.
+The sequence must not contain more than one \TT{min::save\_indent}
+operation, not counting the first operation in the sequence,
+due to implementation limitations.
 
 
 \subsubsection{Printing File Lines and Phrases}

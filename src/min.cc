@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 30 23:54:43 EDT 2015
+// Date:	Fri May  1 17:34:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9045,15 +9045,11 @@ void MINT::print_item_preface
     {
         printer->state &= ~ flags;
 
-	if ( str_class == 0 )
+	if ( ! ( str_class & min::IS_GRAPHIC ) )
 	    flags = 0; // Do NOT print space.
-	else if ( printer->last_str_class == 0 )
-	    flags = 0; // Do NOT print space.
-	else if ( ! ( str_class & min::IS_GRAPHIC ) )
-	    /* Do nothing, i.e., print space. */;
 	else if ( ! (   printer->last_str_class
 	              & min::IS_GRAPHIC ) )
-	    /* Do nothing, i.e., print space. */;
+	    flags = 0; // Do NOT print space.
 	else if ( (   printer->print_format.op_flags
 	            & min::FORCE_SPACE )
 		  &&
@@ -9910,18 +9906,17 @@ min::printer min::print_num
 	            ->num_format;
 
     char buffer[128];
+    min::uns32 len;
     if ( fabs ( value ) < nf->non_float_bound )
     {
 	long long I = (long long) floor ( value );
-	if ( I == value )
-	{
-	    sprintf ( buffer,
-		      nf->int_printf_format,
-		      value );
-	    return printer << buffer;
-	}
 
-	if ( nf->fraction_divisors != NULL )
+	if ( I == value )
+	    len = sprintf ( buffer,
+		            nf->int_printf_format,
+		            value );
+
+	else if ( nf->fraction_divisors != NULL )
 	{
 	    min::uns32 N, D;
 	    double f = value - I;
@@ -9946,14 +9941,25 @@ min::printer min::print_num
 		    p += sprintf ( p, "%lld ", I + 1 );
 		else if ( I < 0 )
 		    * p ++ = '-';
-	        sprintf ( p, "%d/%d", N, D );
-		return printer << buffer;
+	        p += sprintf ( p, "%d/%d", N, D );
+		len = p - buffer;
 	    }
+	    else
+		len = sprintf ( buffer,
+		                nf->float_printf_format,
+			        value );
 	}
+	else
+	    len = sprintf ( buffer,
+			    nf->float_printf_format,
+			    value );
     }
+    else
+	len = sprintf ( buffer, nf->float_printf_format,
+	                value );
 
-    sprintf ( buffer, nf->float_printf_format, value );
-    return printer << buffer;
+    return min::print_item
+	( printer, buffer, len, len );
 }
 
 const min::bracket_format min::quote_bracket_format =
