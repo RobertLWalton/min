@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  2 04:27:46 EDT 2015
+// Date:	Sat May  2 14:32:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11895,6 +11895,10 @@ namespace min {
     	space_less_than_equal_space_pstring;
     extern min::pstring
     	left_curly_vbar_vbar_right_curly_pstring;
+    extern min::pstring
+    	left_square_leading_always_pstring;
+    extern min::pstring
+    	trailing_always_right_square_pstring;
 }
 
 min::printer operator <<
@@ -12078,6 +12082,17 @@ namespace min {
     extern const min::special_format *
         bracket_special_format;
 
+    struct flag_format
+    {
+	min::pstring		    flag_prefix;
+	min::pstring		    flag_postfix;
+	packed_vec_ptr<const char *>
+				    flag_names;
+    };
+
+    extern const min::flag_format *
+        standard_flag_format;
+
     struct gen_format;
     struct obj_format
     {
@@ -12117,6 +12132,9 @@ namespace min {
 	min::pstring		obj_attrneg;
 	min::pstring		obj_attreq;
 
+	const min::flag_format *
+				flag_format;
+
 	min::pstring		obj_valbegin;
 	min::pstring		obj_valsep;
 	min::pstring		obj_valend;
@@ -12124,9 +12142,6 @@ namespace min {
 
 	min::pstring		obj_line_sep;
 	min::pstring		obj_paragraph_begin;
-
-	packed_vec_ptr<const char *>
-	                   	    attr_flag_names;
     };
     const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
     const min::uns32 PRINT_ID		= ( 1 << 1 );

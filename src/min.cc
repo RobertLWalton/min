@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  2 04:27:57 EDT 2015
+// Date:	Sat May  2 14:32:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8219,6 +8219,32 @@ min::pstring
 	min::left_curly_vbar_vbar_right_curly_pstring =
     & ::left_curly_vbar_vbar_right_curly_pstring;
 
+static min::printer
+    left_square_leading_always_pstring
+	( min::printer printer )
+{
+    min::print_item
+        ( printer, "[", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    return min::print_leading_always ( printer );
+}
+min::pstring
+    	min::left_square_leading_always_pstring =
+    & ::left_square_leading_always_pstring;
+
+static min::printer
+    trailing_always_right_square_pstring
+	( min::printer printer )
+{
+    min::print_trailing_always ( printer );
+    return min::print_item
+        ( printer, "]", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+}
+min::pstring
+    	min::trailing_always_right_square_pstring =
+    & ::trailing_always_right_square_pstring;
+
 // const min::print_format min::default_print_format
 // defined below after top_gen_format.
 
@@ -10053,6 +10079,16 @@ const min::special_format *
 	min::bracket_special_format =
     & ::bracket_special_format;
 
+static min::flag_format standard_flag_format =
+{
+    min::left_square_leading_always_pstring,
+    min::trailing_always_right_square_pstring,
+    min::NULL_STUB	    // flag_names*
+};
+const min::flag_format *
+	min::standard_flag_format =
+    & ::standard_flag_format;
+
 static min::obj_format compact_obj_format =
 {
     min::ENABLE_COMPACT,    // obj_op_flags
@@ -10107,6 +10143,9 @@ static min::obj_format compact_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10118,8 +10157,6 @@ static min::obj_format compact_obj_format =
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
@@ -10171,6 +10208,9 @@ static min::obj_format isolated_line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10182,8 +10222,6 @@ static min::obj_format isolated_line_obj_format =
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::isolated_line_obj_format =
     & ::isolated_line_obj_format;
@@ -10240,6 +10278,9 @@ static min::obj_format embedded_line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10251,8 +10292,6 @@ static min::obj_format embedded_line_obj_format =
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::embedded_line_obj_format =
     & ::embedded_line_obj_format;
@@ -10296,6 +10335,8 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_attrneg
     NULL,		    // obj_attreq
 
+    NULL,		    // flag_format
+
     NULL,		    // obj_valbegin
     NULL,		    // obj_valsep
     NULL,		    // obj_valend
@@ -10303,8 +10344,6 @@ static min::obj_format id_obj_format =
 
     NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names
 };
 const min::obj_format * min::id_obj_format =
     & ::id_obj_format;
@@ -10363,6 +10402,9 @@ static min::obj_format paragraph_element_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10375,8 +10417,6 @@ static min::obj_format paragraph_element_obj_format =
     NULL,		    // obj_line_sep
     min::trailing_always_colon_pstring,
 			    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format *
 	min::paragraph_element_obj_format =
@@ -10436,6 +10476,9 @@ static min::obj_format line_element_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10448,8 +10491,6 @@ static min::obj_format line_element_obj_format =
     min::trailing_always_semicolon_space_pstring,
 			    // obj_line_sep
     NULL,                   // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format * min::line_element_obj_format =
     & ::line_element_obj_format;
@@ -10508,6 +10549,9 @@ static min::obj_format line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
+    min::standard_flag_format,
+    			    // flag_format
+
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
     min::trailing_always_comma_space_pstring,
@@ -10520,8 +10564,6 @@ static min::obj_format line_obj_format =
     NULL,		    // obj_line_sep
     min::trailing_always_colon_pstring,
 			    // obj_paragraph_begin
-
-    min::NULL_STUB	    // attr_flag_names*
 };
 const min::obj_format *
 	min::line_obj_format =
@@ -10722,6 +10764,9 @@ static void init_pgen_formats ( void )
     ::bracket_special_format.special_names =
         min::standard_special_names;
 
+    ::standard_flag_format.flag_names =
+        min::standard_attr_flag_names;
+
     ::compact_obj_format.element_format =
         min::element_gen_format;
     ::compact_obj_format.compact_element_format =
@@ -10740,8 +10785,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::compact_obj_format.quote_type =
         min::doublequote;
-    ::compact_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::isolated_line_obj_format.element_format =
         min::id_gen_format;
@@ -10759,8 +10802,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::isolated_line_obj_format.quote_type =
         min::doublequote;
-    ::isolated_line_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::embedded_line_obj_format.element_format =
         min::element_gen_format;
@@ -10778,8 +10819,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::embedded_line_obj_format.quote_type =
         min::doublequote;
-    ::embedded_line_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::paragraph_element_obj_format.element_format =
         min::element_gen_format;
@@ -10804,8 +10843,6 @@ static void init_pgen_formats ( void )
         min::line_feed;
     ::paragraph_element_obj_format.line_sep_type =
         min::semicolon;
-    ::paragraph_element_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::line_element_obj_format.element_format =
         min::element_gen_format;
@@ -10827,8 +10864,6 @@ static void init_pgen_formats ( void )
         min::doublequote;
     ::line_element_obj_format.paragraph_type =
         min::colon;
-    ::line_element_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::line_obj_format.element_format =
         min::element_gen_format;
@@ -10852,8 +10887,6 @@ static void init_pgen_formats ( void )
         min::line_feed;
     ::line_obj_format.line_sep_type =
         min::semicolon;
-    ::line_obj_format.attr_flag_names =
-        min::standard_attr_flag_names;
 
     ::top_gen_format.id_map_format =
         min::id_map_gen_format;
@@ -10971,19 +11004,29 @@ static bool print_attributes
 
 	if ( fc > 0 )
 	{
-	    min::packed_vec_ptr<const char *>
-		names = objf->attr_flag_names;
+	    const min::flag_format * ff =
+	        objf->flag_format;
+	    min::packed_vec_ptr<const char *> names =
+	        ff->flag_names;
 	    min::unsptr length =
 	        ( names == min::NULL_STUB ?
 		  0 : names->length );
-	    printer << "[";
+
+	    printer << ff->flag_prefix;
+	    min::print_item_preface
+	        ( printer, min::IS_GRAPHIC );
 	    if ( fc * min::VSIZE <= 64 && length >= 64 )
 	    {
 		min::uns64 f = info[i].flags;
 		for ( unsigned j = 0; j < 64; ++ j )
 		{
 		    if ( f & 1 )
-			printer << names[j];
+		    {
+		        min::uns32 n =
+			    ::strlen ( names[j] );
+			min::print_chars
+			    ( printer, names[j], n, n );
+		    }
 		    f >>= 1;
 		}
 	    }
@@ -10991,7 +11034,7 @@ static bool print_attributes
 	    {
 		min::gen flags[fc];
 		min::get_flags ( flags, fc, ap );
-		min::unsptr n = 0;
+		min::uns32 n = 0;
 		for ( min::unsptr j = 0;
 		      j < fc; ++ j )
 		{
@@ -11003,17 +11046,33 @@ static bool print_attributes
 		    {
 			if ( flags2 & 1 )
 			{
+
 			    if ( n < length )
-				printer << names[n];
+			    {
+			        min::uns32 m =
+				    ::strlen
+				        ( names[n] );
+				min::print_chars
+				    ( printer, names[n],
+				      m, m );
+			    }
 			    else
-				printer << "," << n;
+			    {
+			        char buffer[100];
+				min::uns32 m = sprintf
+				    ( buffer, ",%u",
+				      n );
+				min::print_chars
+				    ( printer, buffer,
+				      m, m );
+			    }
 			}
 			flags2 >>= 1;
 			++ n;
 		    }
 		}
 	    }
-	    printer << "]";
+	    printer << ff->flag_postfix;
 	}
 
 	printer << objf->obj_attreq
@@ -11601,10 +11660,10 @@ min::printer min::standard_pgen
 	       : (min::packed_vec_ptr<const char *>)
 	         min::NULL_STUB;
 
-	min::print_item_preface
-	    ( printer, min::IS_GRAPHIC );
 	if ( sf ) printer << sf->special_prefix;
 
+	min::print_item_preface
+	    ( printer, min::IS_GRAPHIC );
 	char buffer[64];
 	const char * name;
 	min::uns32 n;
@@ -11626,6 +11685,7 @@ min::printer min::standard_pgen
 	    name = buffer;
 	}
 	min::print_item ( printer, name, n, n );
+
 	if ( sf ) printer << sf->special_postfix;
 	return printer;
     }
