@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  1 17:33:59 EDT 2015
+// Date:	Fri May  1 22:29:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11588,7 +11588,6 @@ namespace min {
 		( min::printer printer,
 		  min::unsptr & n,
 		  min::ptr<const min::Uchar> & p,
-		  min::uns32 str_class,
 		  min::uns32 & width,
 		  const min::display_control *
 		      display_control = NULL,
@@ -11815,8 +11814,9 @@ namespace min {
 		  printer->print_format.support_control,
 		  n, p, min::null_str_classifier );
 
+	min::print_item_preface ( printer, str_class );
 	return internal::print_unicode
-		( printer, n, p, str_class, width );
+		( printer, n, p, width );
     }
 
     inline min::printer print_Uchar

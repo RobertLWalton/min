@@ -9885,7 +9885,7 @@ flag on, then \TT{min::\EOL null\_\EOL str\_\EOL classifier} would have
 been used instead of \TT{min::\EOL standard\_\EOL str\_\EOL classifier},
 and the string classes would have been the same but \underline{without}
 the \TT{IS\_\EOL LEADING} or \TT{IS\_EOL TRAILING} flags, so that the
-\TT{min::\EOL leading} and \TT{min::\EOL trailing} would have all
+\TT{min::\EOL leading} and \TT{min::\EOL trailing} operations would have all
 produced spaces.
 
 Second, if the \TT{min::FORCE\_SPACE} flag is on, \TT{min::leading}
@@ -9920,7 +9920,7 @@ deals with `\ikey{items}{printer item}\index{item!printer}'.  A
 character string is an item, but so is a number, and so are
 \TT{min::gen} values that are not labels or objects.  Labels and
 objects are `\key{composite}' and output multiple items.
-The default rule is that \TT{min::gen} string values are classified by
+The default rule is that \TT{min::gen} string values are items classified by
 
 \begin{center}
 \TT{printer->print\_format.gen\_format->str\_format.str\_classifer}
@@ -9933,7 +9933,7 @@ Fourth, a \TT{min::gen} string whose string class contains the
 \TT{NEEDS\_\EOL QUOTES} flag, or does \underline{not}
 contain the \TT{IS\_\EOL GRAPHIC} flag, is quoted,
 and the whole quoted string is treated as a single item with just the
-\TT{IS\_ GRAPHIC} flag.
+\TT{IS\_\EOL GRAPHIC} flag.
 
 In general items may be separated by
 consecutive sequences of one \underline{or more} of the operations
@@ -9965,7 +9965,7 @@ flag, no space is output.
 \item Otherwise a space is output.
 \end{enumerate}
 
-If the sequence contains a \TT{min::save\_indent} that is
+If the operation sequence contains a \TT{min::save\_indent} that is
 \underline{not} the first member of the sequence, this operation
 is delayed until the space is output or a decision not to output
 the space has been made.

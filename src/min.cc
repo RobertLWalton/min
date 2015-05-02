@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  1 17:34:10 EDT 2015
+// Date:	Fri May  1 22:31:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9084,7 +9084,6 @@ min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr & n,
 	  min::ptr<const min::Uchar> & p,
-	  min::uns32 str_class,
 	  min::uns32 & width,
 	  const min::display_control * display_control,
 	  const min::Uchar * substring,
@@ -9092,8 +9091,6 @@ min::printer MINT::print_unicode
 	  const min::ustring * replacement )
 {
     if ( n == 0 ) return printer;
-
-    min::print_item_preface ( printer, str_class );
 
     char temp[32];
 
@@ -9331,6 +9328,9 @@ static min::printer print_quoted_unicode
 		<< min::bol;
     }
 
+    min::print_item_preface
+        ( printer, min::IS_GRAPHIC );
+
     min::bracket_format bf = sf->bracket_format;
     min::line_break_stack line_break_stack =
         printer->line_break_stack;
@@ -9392,9 +9392,7 @@ static min::printer print_quoted_unicode
     while ( length > 0 )
     {
 	MINT::print_unicode
-	    ( printer, length, p,
-		       min::NEEDS_QUOTES,
-		       width,
+	    ( printer, length, p, width,
 	               & sf->display_control,
 	               postfix_string,
 		       postfix_length,
@@ -9577,8 +9575,9 @@ min::printer min::print_unicode
     {
 	min::uns32 width = 0xFFFFFFFF;
 
+	min::print_item_preface ( printer, str_class );
 	return MINT::print_unicode
-	    ( printer, n, p, str_class, width );
+	    ( printer, n, p, width );
     }
 }
 
