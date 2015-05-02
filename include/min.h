@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  1 22:29:11 EDT 2015
+// Date:	Sat May  2 04:27:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12343,7 +12343,9 @@ inline min::printer operator <<
 {
     return min::internal::print_cstring
         ( printer, ! min::begin_ptr_of ( s ),
-	  NULL, true );
+	  NULL,
+	    printer->print_format.op_flags
+	  & min::FORCE_PGEN );
 }
 
 inline min::printer operator <<

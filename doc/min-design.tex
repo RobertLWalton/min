@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 1, 2015}
+\date{May 2, 2015}
  
 \maketitle
 
@@ -9928,6 +9928,9 @@ The default rule is that \TT{min::gen} string values are items classified by
 
 if it exists, whereas in all other cases items are classified by
 the \TT{min::\EOL null\_\EOL str\_\EOL classifier}.
+This last classifier just separates out whitespace strings, to which
+it gives the class \TT{0}, from other strings, to which it gives
+the class \TT{IS\_\EOL GRAPHIC}.
 
 Fourth, a \TT{min::gen} string whose string class contains the
 \TT{NEEDS\_\EOL QUOTES} flag, or does \underline{not}
@@ -9935,8 +9938,8 @@ contain the \TT{IS\_\EOL GRAPHIC} flag, is quoted,
 and the whole quoted string is treated as a single item with just the
 \TT{IS\_\EOL GRAPHIC} flag.
 
-In general items may be separated by
-consecutive sequences of one \underline{or more} of the operations
+In general print items may be separated by
+consecutive sequences of one \underline{or more} of the print operations
 \label{LEADING-TRAILING-RULES}:
 \begin{center}
 \TTALL
@@ -9948,10 +9951,10 @@ min::trailing\_always \\
 min::save\_indent \\
 \end{tabular}
 \end{center}
-Such a sequence of operations can output at most one space, and
-does so according to the following rules.
+Such a sequence of print operations outputs either a single space or
+nothing according to the following rules:
 \begin{enumerate}
-\item If either preceeding or following items do not have the
+\item If either the preceeding or following items do not have the
 \TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
 \item Otherwise if either \TT{min::leading} or \TT{min::trailing}
 is in the sequence and the the \TT{FORCE\_\EOL SPACE} printer
@@ -9965,7 +9968,7 @@ flag, no space is output.
 \item Otherwise a space is output.
 \end{enumerate}
 
-If the operation sequence contains a \TT{min::save\_indent} that is
+If the operation sequence contains a \TT{min::save\_indent} operation that is
 \underline{not} the first member of the sequence, this operation
 is delayed until the space is output or a decision not to output
 the space has been made.
