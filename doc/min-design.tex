@@ -4571,7 +4571,6 @@ in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \subsubsection{UNICODE Strings}
 \label{UNICODE-STRINGS}
 
-
 Constant \skey{UNICODE string}s can be represented
 as \TT{const min::\EOL ustring *}\ttindex{ustring}\label{USTRING} values
 which are sequences of 8 bit bytes.  The first two bytes,
@@ -7335,7 +7334,7 @@ The \TT{min::print\_line} function, and the other functions that use
 it, print file lines with the printer \TT{op\_flags} and \TT{print\_\EOL format}
 set by
 \begin{center}
-\tt printer << min::set\_line\_display ( file->line\_display )
+\tt printer <{}< min::set\_line\_display ( file->line\_display )
 \end{center}
 
 \TT{line\_display} is set
@@ -8004,7 +8003,7 @@ Note that neither of these functions calls \TT{min::\EOL next\_\EOL line},
 the \TT{min::\EOL flush\_file/\EOL line/\EOL remaining}
 functions call \TT{min::\EOL flush\_\EOL spool}.
 
-The following \TT{<<} operators do the same thing as
+The following \TT{<{}<} operators do the same thing as
 \TT{min::\EOL flush\_\EOL file} with a \TT{false} \TT{copy\_\EOL complete}
 argument, except that, instead of copying
 to the file's \TT{ostream}, \TT{ofile}, and/or
@@ -8012,33 +8011,33 @@ to the file's \TT{ostream}, \TT{ofile}, and/or
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}%
+    & \TTOMKEY{<<}{<{}<}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::file ofile,|\ARGBREAK
       \verb|  min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Note that these \TT{<<} operators call the \TT{min::\EOL next\_\EOL line}
+Note that these \TT{<{}<} operators call the \TT{min::\EOL next\_\EOL line}
 and \TT{min::\EOL skip\_\EOL remaining} functions in the same way as
 \TT{min::\EOL flush\_\EOL file} does, and therefore
-these \TT{<<} operators interact with each other and with the
+these \TT{<{}<} operators interact with each other and with the
 \TT{min::\EOL flush\_\EOL file} function.  Generally such interaction
-is avoided by using only one of the \TT{<<} operators or only
+is avoided by using only one of the \TT{<{}<} operators or only
 the \TT{min::\EOL flush\_\EOL file} function on a given file.
-Also note that the \TT{<<} operators never
+Also note that the \TT{<{}<} operators never
 call \TT{min::\EOL complete\_\EOL file}.
 
 \subsection{Identifier Maps}
@@ -8187,7 +8186,7 @@ control characters, and break long lines to enforce line length.
 Internally a \TT{min::\EOL printer} is
 a packed structure that points at a \TT{min::\EOL file} and contains
 additional information used to format lines put into the file.
-Values are written to printers via the \TT{<<} operator, much like the
+Values are written to printers via the \TT{<{}<} operator, much like the
 way values are written to \TT{std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating \TT{NUL}
 at the end of the printer file buffer, and optionally flushes the file.
@@ -8737,9 +8736,9 @@ See \pagref{FORCE_SPACE}.
 
 \item[\ttmkey{FORCE\_PGEN}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-This flag causes the \TT{<<} operator to treat numbers and
+This flag causes the \TT{<{}<} operator to treat numbers and
 characters strings that are to be printed directly by the
-\TT{<<} operator as
+\TT{<{}<} operator as
 \TT{min::gen} numbers or strings, which just means that
 \TT{print\_\EOL format.gen\_\EOL format} is used to format them.
 Printer operations such as \TT{min::\EOL space}, \TT{min::\EOL pint},
@@ -8858,21 +8857,21 @@ See \itemref{IDENTIFIER-MAPS} and
 \end{itemlist}
 
 Copying characters into a printer is done by the
-\TT{<<} operator:
+\TT{<{}<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::str_ptr const & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
@@ -8880,32 +8879,32 @@ Copying characters into a printer is done by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -8916,7 +8915,7 @@ string of UNICODE characters as per
 \TT{min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 However, a `\TT{const char *}' cannot be an unprotected body pointer,
 as the body it points into may be relocated during the execution of the
-\TT{<<\RESIZE} operator on a printer.
+\TT{<{}<\RESIZE} operator on a printer.
 A `\TT{min::\EOL ptr<char>}' value can be used
 instead as a pointer to a `\TT{const char *}' string inside a body.
 And a `\TT{min::\EOL str\_\EOL ptr}' can be used instead to
@@ -8934,7 +8933,7 @@ it is encoded as the overlong UTF-8 encoding
 \TT{"\textbackslash xC0\textbackslash x80"}.
 
 Values of types other than `\TT{const char *}'
-which are presented to \TT{<<} are converted to `\TT{const char~*}' strings
+which are presented to \TT{<{}<} are converted to `\TT{const char~*}' strings
 as follows:
 `\TT{char}' converts to a 1-\TT{char} string whose only element
 is the \TT{char} value.  Numbers are converted by \TT{printf}
@@ -8951,11 +8950,11 @@ min::float64	& "\%.15g" \\
 \end{center}
 
 Operations can be performed on printers by applying the
-\TT{<<} operator to a \TT{min::}\MINKEY{op}:
+\TT{<{}<} operator to a \TT{min::}\MINKEY{op}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{<{}<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::op const & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -8997,34 +8996,34 @@ The \key{beginning of line} operation:
 executes \TT{min::eol} if and only if the printer is \underline{not}
 already at the beginning of a line.
 
-A {\ldots{} \tt << printer} operation can be used to
+A {\ldots{} \tt <{}< printer} operation can be used to
 flush the contents of \TT{printer->\EOL file} into
 an \TT{std::\EOL ostream}, a \TT{min::\EOL file}, or
 into another \TT{min::\EOL printer}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}%
+    & \TTOMKEY{<<}{<{}<}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer oprinter,|\ARGBREAK
       \verb|  min::printer iprinter )|
 \LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
-In general {\ldots{} \tt << printer} is equivalent to
-{\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
+In general {\ldots{} \tt <{}< printer} is equivalent to
+{\ldots{} \tt <{}< printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
 A single UNICODE character \TT{c}, or a string of UNICODE characters
 \TT{str} of a given \TT{length},
@@ -9174,7 +9173,7 @@ the bitwise complement of its argument into
 \TT{print\_\EOL op\_\EOL flags} when used as arguments to functions).
 For example, 
 \begin{center}
-\tt printer<<min::set\_print\_op\_flags(min::DISPLAY\_PICTURE)
+\tt printer<{}<min::set\_print\_op\_flags(min::DISPLAY\_PICTURE)
 \end{center}
 sets the \TT{min::DISPLAY\_PICTURE} flag of
 \TT{printer->\EOL print\_\EOL format.op\_\EOL flags}.
@@ -9226,10 +9225,10 @@ following printer operations:
 \LABEL{MIN::NOFORCE_PGEN} \\
 \end{tabular}\end{indpar}
 
-Here \TT{printer << min::display\_picture} sets the
+Here \TT{printer <{}< min::display\_picture} sets the
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} prin\-ter operation flag in
 \TT{printer->\EOL print\_\EOL format.op\_\EOL flags},
-while the \TT{printer << min::\EOL nodisplay\_\EOL picture} clears this flag.
+while the \TT{printer <{}< min::\EOL nodisplay\_\EOL picture} clears this flag.
 The other operations similarly set or clear their associated flags.
 
 The \TT{printer\_format.support\_control} can be set by the following
@@ -9313,7 +9312,7 @@ The printer operation:
 \end{tabular}\end{indpar}
 
 is used when it is desired to copy characters verbatim to the
-printer buffer.  \TT{printer << min::\EOL verbatim} is equivalent to:
+printer buffer.  \TT{printer <{}< min::\EOL verbatim} is equivalent to:
 
 \begin{indpar}\begin{verbatim}
 printer << min::noexpand_ht
@@ -9345,7 +9344,7 @@ The printer operation:
 is used when it is desired print a line in a file as part of an
 error message, and is used, for example, by the
 \TT{min::\EOL print\_\EOL line} function, \pagref{MIN::PRINT_LINE}.
-\TT{printer << min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
+\TT{printer <{}< min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
 is equivalent to:
 
 \begin{indpar}\begin{verbatim}
@@ -9374,7 +9373,7 @@ The \TT{min::set\_\EOL break} printer operation:
 \end{tabular}\end{indpar}
 
 can be used to explicitly set a break point:
-More specifically, \TT{printer<<min::set\_\EOL break} sets a break point after
+More specifically, \TT{printer<{}<min::set\_\EOL break} sets a break point after
 the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
 printer->line_break.offset = printer->buffer->length;
@@ -9478,7 +9477,7 @@ current line.  The \TT{min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
 \TT{min::\EOL set\_\EOL break} that resets the breakpoint.
 Both operations behave exactly as if spaces were inserted at the
-appropriate point by \TT{printer << "~"}, except that
+appropriate point by \TT{printer <{}< "~"}, except that
 \TT{min::right} will give undefined results if a horizontal
 tab has been output since the last break point (which can only
 happen if the horizontal tab is to represent itself and the
@@ -9875,8 +9874,8 @@ space if both the string before it and the string after it have
 the \TT{IS\_\EOL GRAPHIC} flag and the string after it does
 \underline{not} have the \TT{IS\_\EOL TRAILING} flag.
 
-Thus \TT{"100" << min::trailing << ","} does not output a space
-while \TT{"100" << min::trail\-ing << "\#"} does output a space.
+Thus \TT{"100" <{}< min::trailing <{}< ","} does not output a space
+while \TT{"100" <{}< min::trail\-ing <{}< "\#"} does output a space.
 
 There are a number of extra details.
 
@@ -9977,6 +9976,29 @@ operation, not counting the first operation in the sequence,
 due to implementation limitations.
 
 
+\subsubsection{Printer Strings}
+\label{PRINTER-STRINGS}
+
+Sequence of printer items can be represented by `\skey{printer string}s':
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef min::printer (* min::| & \MINKEY{pstring}
+				       \verb|) ( min::printer printer )|
+\LABEL{MIN::PSTRING} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::pstring}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pstring pstring )|
+\LABEL{PRINTER_OPERATOR<<_OF_PSTRING} \\
+\end{tabular}\end{indpar}
+
+where the \TT{<{}<} operator is defined so that if \TT{p} is a
+\TT{min::\EOL pstring} then
+\begin{center}
+\TT{printer<{}<p} ~~~ is equivalent to ~~~ \TT{(*p)(printer)}
+\end{center}
+
 \subsubsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
 
@@ -10001,7 +10023,7 @@ an error message:
 The \TT{file} line with the given \TT{line\_number}
 is printed on a single \TT{printer} line.
 \begin{center}
-\TT{printer << min::set\_line\_display ( file->line\_display )}
+\TT{printer <{}< min::set\_line\_display ( file->line\_display )}
 \end{center}
 is used to print this line
 (see \pagref{FILE_LINE_DISPLAY} and \pagref{MIN::SET_LINE_DISPLAY}),
@@ -10065,7 +10087,7 @@ by the code:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::pline_numbers const & pline_numbers )|
@@ -10379,13 +10401,13 @@ operations:
 	  \verb|  const min::gen_format * gen_format )|
 \LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The expression `\TT{printer\,<<\,min::pgen(v)}'
+The expression `\TT{printer\,<{}<\,min::pgen(v)}'
 prints the \TT{min::gen} value \TT{v} to the
 \TT{printer} using the \TT{printer}'s \TT{gen\_\EOL format} value
 \begin{center}
@@ -10393,8 +10415,8 @@ prints the \TT{min::gen} value \TT{v} to the
 \end{center}
 to control the printing.
 
-`\TT{printer\,<<\,v}' can be used as the equivalent of
-`\TT{printer\,<<\,min::pgen(v)}'.
+`\TT{printer\,<{}<\,v}' can be used as the equivalent of
+`\TT{printer\,<{}<\,min::pgen(v)}'.
 The following function has the same effect:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -10404,7 +10426,7 @@ The following function has the same effect:
 \LABEL{MIN::PRINT_GEN} \\
 \end{tabular}\end{indpar}
 
-The expression `\TT{printer\,<<\,min::pgen(v,f)}' is similar but
+The expression `\TT{printer\,<{}<\,min::pgen(v,f)}' is similar but
 uses \TT{f} as the \TT{gen\_\EOL format} value.
 The following function has the same effect:
 
@@ -10762,14 +10784,14 @@ value according to the above formats:
 If the third argument is not provided,
 \TT{printer->\EOL print\_\EOL format.num\_\EOL format} is used.
 
-Given an \TT{min::gen} numeric value \TT{g}, \TT{printer << g}
-and \TT{printer << min::\EOL pgen~(~g~)} are both
+Given an \TT{min::gen} numeric value \TT{g}, \TT{printer <{}< g}
+and \TT{printer <{}< min::\EOL pgen~(~g~)} are both
 equivalent to
 \begin{center}
 \verb|min::print_num ( printer, min::float_of ( g ) )|
 \end{center}
 
-\TT{printer << min::\EOL pgen~(~g,~f~)} is equivalent to
+\TT{printer <{}< min::\EOL pgen~(~g,~f~)} is equivalent to
 \begin{center}
 \verb|min::print_num ( printer, min::float_of ( g ), f->num_format )| \\
 \end{center}
@@ -11014,7 +11036,7 @@ The following function may be called to print a string \TT{min::gen} value:
 \LABEL{MIN::PRINT_STR} \\
 \end{tabular}\end{indpar}
 
-`\TT{printer << min::pgen ( str )}' calls this function with
+`\TT{printer <{}< min::pgen ( str )}' calls this function with
 \begin{center}
 \TT{str\_format = printer->print\_format.gen\_format->str\_format}
 \end{center}
@@ -15480,7 +15502,7 @@ of the initial column position, and at the end of the compact line, a
 This member is only enabled if it
 is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
 \TT{attr\_\EOL flag\_\EOL names[i]} is printed as the representation of
-control flag \TT{1 << i} of an attribute.
+control flag \TT{1 <{}< i} of an attribute.
 
 WARNING: The \TT{attr\_\EOL flag\_\EOL names}
 member of a \TT{min::gen\_format} is
@@ -15812,7 +15834,7 @@ is used in its place.  If \TT{obj\_op\_flags} is omitted,
 `\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} is used
 in its place.
 
-The expression `\TT{printer~<<~min::pgen(v)}' is equivalent to
+The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 \begin{center}
 \TT{min::print\_obj(printer,v)}
 \end{center}
@@ -15840,7 +15862,7 @@ are not working, general values can be printed to \TT{std::ostreams}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}{of {\tt std::ostream \&}}\ARGBREAK
+    & \TTOMKEY{<<}{<{}<}{of {\tt std::ostream \&}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::gen g )|
 \LABEL{OPERATOR<<_OF_OSTREAM_AND_GEN} \\
@@ -18628,19 +18650,19 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}%
+    & \TTOMKEY{<<}{<{}<}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::file ofile,|\ARGBREAK
       \verb|  min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file )|
@@ -18974,49 +18996,49 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::str_ptr const & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -19024,7 +19046,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{<{}<\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::op const & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -19045,19 +19067,19 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTOMKEY{<<}{<<}%
+    & \TTOMKEY{<<}{<{}<}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( std::ostream & out,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer oprinter,|\ARGBREAK
       \verb|  min::printer iprinter )|
@@ -19370,7 +19392,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::pline_numbers const & pline_numbers )|
@@ -19541,7 +19563,7 @@ These are in \verb|min_parameters.h|.
 	  \verb|  const min::gen_format * gen_format )|
 \LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{<<\RESIZE}%
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
