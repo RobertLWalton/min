@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 2, 2015}
+\date{May 3, 2015}
  
 \maketitle
 
@@ -3627,7 +3627,7 @@ has name \TT{UUC} and picture $/\!\!/\!\!/$, and the
 
 The \TT{ustring} name and picture values contain only graphic
 characters (e.g., no spaces) and have non-zero numbers of columns
-encoded in their second bytes (see \pagref{USTRING-ZERO-COLUMNS}).
+encoded in their second bytes.
 
 \subsubsection{Unicode Character Flags}
 \label{UNICODE-CHARACTER-FLAGS}
@@ -8325,11 +8325,13 @@ following printer parameters:
       & & \verb|//   support_control| \\
 \verb|     min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
-        & \verb|// min::graphic_and_hspace_| \\
+        & \verb|// min::graphic_and_| \\
+      & & \verb|//   hspace_| \\
       & & \verb|//   display_control| \\
 \verb|       min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
-        & \verb|// min::break_after_space_| \\
+        & \verb|// min::break_after_| \\
+      & & \verb|//   space_| \\
       & & \verb|//   break_control| \\
 \verb|  min::char_name_format *|
 	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
@@ -8745,7 +8747,6 @@ Printer operations such as \TT{min::\EOL space}, \TT{min::\EOL pint},
 and \TT{min::\EOL punicode} are \underline{not} affected.
 This flag is used mostly for debugging and demonstrations of
 \TT{min::\EOL leading/\EOL trailing}.
-See \pagref{FORCE_PGEN}.
 
 \end{itemlist}\end{indpar}
 
@@ -9701,7 +9702,7 @@ member of a sequence of
 and \TT{min::\EOL save\_\EOL indent} operations, then the
 \TT{min::\EOL save\_\EOL indent} operation is delayed until
 after the other operations in the sequence have executed.  See
-\pagref{SPECIAL-LEADING-TRAILING-RULES} for details.
+\pagref{LEADING-TRAILING-SAVE-INDENT} for details.
 
 The \key{begin message} and \key{end message} operations can be used
 to surround the body of an error message or other message:
@@ -9875,7 +9876,7 @@ the \TT{IS\_\EOL GRAPHIC} flag and the string after it does
 \underline{not} have the \TT{IS\_\EOL TRAILING} flag.
 
 Thus \TT{"100" <{}< min::trailing <{}< ","} does not output a space
-while \TT{"100" <{}< min::trail\-ing <{}< "\#"} does output a space.
+while \TT{"100" <{}< min::\EOL trail\-ing <{}< "\#"} does output a space.
 
 There are a number of extra details.
 
@@ -9956,7 +9957,7 @@ nothing according to the following rules:
 \item If either the preceeding or following items do not have the
 \TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
 \item Otherwise if either \TT{min::leading} or \TT{min::trailing}
-is in the sequence and the the \TT{FORCE\_\EOL SPACE} printer
+is in the sequence and the \TT{FORCE\_\EOL SPACE} printer\label{FORCE_SPACE}
 operation flag is on, a space is output.
 \item Otherwise if either \TT{min::leading} or \TT{min::leading\_\EOL always}
 is in the sequence and the preceeding item has the \TT{IS\_\EOL LEADING}
@@ -9967,8 +9968,9 @@ flag, no space is output.
 \item Otherwise a space is output.
 \end{enumerate}
 
-If the operation sequence contains a \TT{min::save\_indent} operation that is
-\underline{not} the first member of the sequence, this operation
+If the operation sequence contains a
+\TT{min::save\_indent} operation\label{LEADING-TRAILING-SAVE-INDENT}
+that is \underline{not} the first member of the sequence, this operation
 is delayed until the space is output or a decision not to output
 the space has been made.
 The sequence must not contain more than one \TT{min::save\_indent}
@@ -9998,6 +10000,120 @@ where the \TT{<{}<} operator is defined so that if \TT{p} is a
 \begin{center}
 \TT{printer<{}<p} ~~~ is equivalent to ~~~ \TT{(*p)(printer)}
 \end{center}
+
+\TT{min::pstring} functions usually call the following primitive
+string functions:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_item}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  const char * p,|\ARGBREAK
+	\verb|  min::unsptr n,|\ARGBREAK
+	\verb|  min::uns32 columns,|\ARGBREAK
+	\verb|  min::uns32 str_class = min::IS_GRAPHIC )|
+\LABEL{MIN::PRINT_ITEM} \\
+\verb|min::printer min::| & \MINKEY{print\_space}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::unsptr n = 1 )|
+\LABEL{MIN::PRINT_SPACES} \\
+\verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NONE} \\
+\verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_LEADING} \\
+\verb|min::printer min::| & \MINKEY{print\_trailing}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_TRAILING} \\
+\verb|min::printer min::| & \MINKEY{print\_leading\_always}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_LEADING_ALWAYS} \\
+\verb|min::printer min::| & \MINKEY{print\_trailing\_always}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::print\_item} function prints a single printer item
+that is a UTF-8 string of \TT{n} \TT{chars} taking the given
+number of columns and having the given string class.  However,
+this function \underline{ignores} the \TT{printer->\EOL print\_\EOL format},
+and in particular the \TT{support\_\EOL control},
+\TT{display\_\EOL control}, and \TT{break\_\EOL control} parts.
+Instead only the following is done in order:
+
+\begin{enumerate}
+\item If \TT{n == 0} this function does nothing.
+\item The string class is used to determine whether preceeding
+\TT{min::\EOL leading/\EOL trailing\ldots} operations should
+produce a space.
+\item The string class is saved for use in processing subsequent
+\TT{min::\EOL leading/\EOL trailing\ldots} operations.
+\item The UTF-8 string is copied directly to the printer buffer.
+\item The printer column is updated.
+\item If the printer column exceeds the printer line length,
+and the printer line break information warrents, a line break
+is inserted.
+\end{enumerate}
+
+Therefore the UTF-8 string should encode only of characters
+that are graphic, that are supported according to
+the printer format \TT{support\_\EOL control},
+that display as themselves according to the
+printer format \TT{display\_\EOL control},
+and that do not cause breaks according to the
+printer format \TT{break\_\EOL control}.
+Short items containing only ASCII graphics characters
+typically meet these qualifications except possibly for
+the \TT{break\_\EOL control} in cases where a break is not
+really necessary (the item being short).
+
+Therefore \TT{min::print\_item} is mostly of use for inserting
+punctuation.
+
+The \TT{min::print\_space} function outputs \TT{n} single spaces
+as an item with \TT{0} string class.  It does the same thing
+as \TT{print\_item} would do it the item were \TT{n} single spaces,
+except it does not insert line breaks and it does do the
+printer format \TT{break\_\EOL control.break\_\EOL after}
+processing, so it respects the common case where breaks are inserted
+automatically \underline{after} single spaces.
+
+The \TT{min::print\_space\_if\_none} function outputs a single space
+as per \TT{print\_space} if and only if the string class of the
+previous item is not \TT{0}, and does nothing if it is \TT{0}.
+
+The \TT{min::print\_leading/trailing\ldots} functions do the same thing as the
+corresponding \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
+
+Sometimes it is useful to perform parts of \TT{min::\EOL print\_EOL item}
+using the functions:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_item\_preface}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::uns32 str_class )|
+\LABEL{MIN::PRINT_ITEM_PREFACE} \\
+\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  const char * p,|\ARGBREAK
+	\verb|  min::unsptr n,|\ARGBREAK
+	\verb|  min::uns32 columns )|
+\LABEL{MIN::PRINT_CHARS} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::print\_item\_preface} function does the string class
+processing steps of \TT{min::\EOL print\_\EOL item}, while the
+\TT{min::print\_\EOL chars} function does the string buffer and column
+processing steps.  Both functions assume the string is of non-zero
+length.  The main use of these is to concatenate several strings
+using multiple calls to \TT{min::\EOL print\_\EOL chars} after a
+single call to \TT{min::\EOL print\_\EOL item\_\EOL preface}.
+Its also possible to optimize by replacing a call to
+\TT{min::\EOL print\_\EOL item} by a call to
+\TT{min::\EOL print\_\EOL chars} if that call is sandwiched between
+calls to \TT{min::\EOL print\_\EOL space}.
+
+
 
 \subsubsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}

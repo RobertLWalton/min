@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  2 14:32:34 EDT 2015
+// Date:	Sun May  3 07:08:29 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -398,7 +398,7 @@ void MINT::initialize ( void )
         i->init();
 
     MIN_REQUIRE ( min::Uindex ( ' ' ) == ' ' );
-        // Used by min::print_spaces
+        // Used by min::print_space
 }
 
 // Names
@@ -7999,11 +7999,9 @@ min::pstring min::trailing_always_pstring =
 static min::printer left_square_colon_space_pstring
 	( min::printer printer )
 {
-    min::print_item_preface
-        ( printer,
+    min::print_item ( printer, "[:", 2, 2,
 	   min::IS_LEADING + min::IS_GRAPHIC );
-    min::print_chars ( printer, "[:", 2, 2 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::left_square_colon_space_pstring =
     & ::left_square_colon_space_pstring;
@@ -8011,8 +8009,8 @@ min::pstring min::left_square_colon_space_pstring =
 static min::printer space_colon_right_square_pstring
 	( min::printer printer )
 {
-    min::print_prefix_space ( printer );
-    return min::print_chars
+    min::print_space_if_none ( printer );
+    return min::print_item
         ( printer, ":]", 2, 2,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
@@ -8022,11 +8020,9 @@ min::pstring min::space_colon_right_square_pstring =
 static min::printer left_square_dollar_space_pstring
 	( min::printer printer )
 {
-    min::print_item_preface
-        ( printer,
+    min::print_item ( printer, "[$", 2, 2,
 	  min::IS_LEADING + min::IS_GRAPHIC );
-    min::print_chars ( printer, "[$", 2, 2 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::left_square_dollar_space_pstring =
     & ::left_square_dollar_space_pstring;
@@ -8034,8 +8030,8 @@ min::pstring min::left_square_dollar_space_pstring =
 static min::printer space_dollar_right_square_pstring
 	( min::printer printer )
 {
-    min::print_prefix_space ( printer );
-    return min::print_chars
+    min::print_space_if_none ( printer );
+    return min::print_item
         ( printer, "$]", 2, 2,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
@@ -8045,11 +8041,11 @@ min::pstring min::space_dollar_right_square_pstring =
 static min::printer left_curly_right_curly_pstring
 	( min::printer printer )
 {
-    min::print_item_preface
-        ( printer,
+    min::print_item
+        ( printer, "{", 1, 1,
 	  min::IS_LEADING + min::IS_GRAPHIC );
-    return min::print_chars
-        ( printer, "{}", 2, 2,
+    return min::print_item
+        ( printer, "}", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring min::left_curly_right_curly_pstring =
@@ -8103,11 +8099,10 @@ static min::printer trailing_always_colon_space_pstring
 	( min::printer printer )
 {
     min::print_trailing_always ( printer );
-    min::print_item_preface
-        ( printer,
+    min::print_item
+        ( printer, ":", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
-    min::print_chars ( printer, ":", 1, 1 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::trailing_always_colon_space_pstring =
     & ::trailing_always_colon_space_pstring;
@@ -8116,11 +8111,10 @@ static min::printer trailing_always_comma_space_pstring
 	( min::printer printer )
 {
     min::print_trailing_always ( printer );
-    min::print_item_preface
-        ( printer,
+    min::print_item
+        ( printer, ",", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
-    min::print_chars ( printer, ",", 1, 1 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::trailing_always_comma_space_pstring =
     & ::trailing_always_comma_space_pstring;
@@ -8130,11 +8124,10 @@ static min::printer
 	( min::printer printer )
 {
     min::print_trailing_always ( printer );
-    min::print_item_preface
-        ( printer,
+    min::print_item
+        ( printer, ";", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
-    min::print_chars ( printer, ";", 1, 1 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring
     min::trailing_always_semicolon_space_pstring =
@@ -8154,10 +8147,9 @@ min::pstring min::trailing_always_colon_pstring =
 static min::printer no_space_pstring
 	( min::printer printer )
 {
-    min::print_item_preface
-        ( printer, min::IS_GRAPHIC );
-    min::print_chars ( printer, "no", 2, 2 );
-    return min::print_postfix_space ( printer );
+    min::print_item
+        ( printer, "no", 2, 2, min::IS_GRAPHIC );
+    return min::print_space ( printer );
 }
 min::pstring min::no_space_pstring =
     & ::no_space_pstring;
@@ -8165,9 +8157,9 @@ min::pstring min::no_space_pstring =
 static min::printer space_equal_space_pstring
 	( min::printer printer )
 {
-    min::print_prefix_space ( printer );
+    min::print_space_if_none ( printer );
     min::print_chars ( printer, "=", 1, 1 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::space_equal_space_pstring =
     & ::space_equal_space_pstring;
@@ -8178,7 +8170,7 @@ static min::printer left_curly_star_space_pstring
     min::print_item
         ( printer, "{*", 2, 2,
 	  min::IS_LEADING + min::IS_GRAPHIC );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::left_curly_star_space_pstring =
     & ::left_curly_star_space_pstring;
@@ -8186,8 +8178,8 @@ min::pstring min::left_curly_star_space_pstring =
 static min::printer space_star_right_curly_pstring
 	( min::printer printer )
 {
-    min::print_prefix_space ( printer );
-    return min::print_chars
+    min::print_space_if_none ( printer );
+    return min::print_item
         ( printer, "*}", 2, 2,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
@@ -8197,9 +8189,9 @@ min::pstring min::space_star_right_curly_pstring =
 static min::printer space_less_than_equal_space_pstring
 	( min::printer printer )
 {
-    min::print_prefix_space ( printer );
+    min::print_space_if_none ( printer );
     min::print_chars ( printer, "<=", 2, 2 );
-    return min::print_postfix_space ( printer );
+    return min::print_space ( printer );
 }
 min::pstring min::space_less_than_equal_space_pstring =
     & ::space_less_than_equal_space_pstring;
@@ -8208,11 +8200,11 @@ static min::printer
     left_curly_vbar_vbar_right_curly_pstring
 	( min::printer printer )
 {
-    min::print_item_preface
-        ( printer,
+    min::print_item
+        ( printer, "{|", 2, 2,
 	  min::IS_LEADING + min::IS_GRAPHIC );
-    return min::print_chars
-        ( printer, "{||}", 4, 4,
+    return min::print_item
+        ( printer, "|}", 2, 2,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
 min::pstring
@@ -8597,7 +8589,7 @@ min::printer operator <<
 	    min::no_auto_break_break_control;
 	return printer;
     case min::op::SPACE:
-	return min::print_spaces ( printer, 1 );
+	return min::print_space ( printer );
     case min::op::SAVE_LINE_BREAK:
         min::push ( printer->line_break_stack ) =
 	    printer->line_break;
@@ -8683,7 +8675,7 @@ min::printer operator <<
         if (   printer->column
 	     <   printer->line_break.column
 	       + op.v1.u32 )
-	    min::print_spaces
+	    min::print_space
 	        ( printer,
 	            printer->line_break.column
 	          + op.v1.u32
@@ -8756,7 +8748,7 @@ min::printer operator <<
     execute_indent:
 	if (   printer->column
 	     < printer->line_break.indent )
-	    min::print_spaces
+	    min::print_space
 	        ( printer,
 		    printer->line_break.indent
 		  - printer->column );
@@ -8770,7 +8762,7 @@ min::printer operator <<
     case min::op::SPACE_IF_AFTER_INDENT:
         if (   printer->column
 	     > printer->line_break.indent )
-	    min::print_spaces ( printer, 1 );
+	    min::print_space ( printer );
 	return printer;
     case min::op::SPACE_IF_NONE:
 	return min::print_space_if_none ( printer );
@@ -9102,7 +9094,7 @@ void MINT::print_item_preface
 	    /* Do nothing, i.e., print space. */{}
 
 	if ( flags )
-	    min::print_postfix_space ( printer );
+	    min::print_space ( printer );
 
 	if ( printer->state & min::AFTER_SAVE_INDENT )
 	{
@@ -9435,13 +9427,13 @@ static min::printer print_quoted_unicode
 	if ( length == 0 ) break;
 
 	min::print_ustring ( printer, bf.str_postfix );
-	min::print_spaces ( printer, 1 );
+	min::print_space ( printer );
 	printer << min::set_break;
 	if ( bf.str_concatenator != NULL )
 	{
 	    min::print_ustring
 	        ( printer, bf.str_concatenator );
-	    min::print_spaces ( printer, 1 );
+	    min::print_space ( printer );
 	}
 	min::print_ustring ( printer, bf.str_prefix );
 
@@ -11282,7 +11274,7 @@ min::printer min::print_obj
 	          i < min::size_of ( vp ); ++ i )
 	    {
 		if ( i != 0 )
-		    min::print_spaces ( printer, 1 );
+		    min::print_space ( printer );
 		min::print_gen
 		    ( printer,
 		      vp[i],
@@ -11494,11 +11486,11 @@ min::printer min::print_obj
 		printer << min::save_indent
 	                << min::adjust_indent ( 8 );
 	    else if ( embedded_line_format )
-		min::print_spaces ( printer, 1 )
+		min::print_space ( printer )
 		    << min::save_indent;
 	    else
 	    {
-		min::print_spaces ( printer, 1 );
+		min::print_space ( printer );
 		if ( ! compact_format )
 		    printer << min::set_break;
 		else
@@ -11516,7 +11508,7 @@ min::printer min::print_obj
 		min::print_gen
 		    ( printer, separator,
 	              objf->separator_format );
-		min::print_spaces ( printer, 1 );
+		min::print_space ( printer );
 	    }
 	    printer << min::set_break;
 	}
@@ -11538,7 +11530,7 @@ min::printer min::print_obj
 	    printer << min::restore_indent
 	            << min::indent;
 	else
-	    min::print_spaces ( printer, 1 );
+	    min::print_space ( printer );
 	printer << objf->obj_ketbegin;
 	if (    (   obj_op_flags
 		  & min::NO_TRAILING_TYPE )
@@ -11564,7 +11556,7 @@ min::printer min::print_obj
     }
     else
     {
-	min::print_spaces ( printer, 1 )
+	min::print_space ( printer )
 	    << min::set_break;
 
 	if (    compact_format
@@ -11771,9 +11763,9 @@ static min::printer flush_one_id
     char buffer[100];
     min::uns32 n = sprintf ( buffer, "@%u", id );
     min::print_item ( printer, buffer, n, n );
-    min::print_spaces ( printer, 1 );
+    min::print_space ( printer );
     min::print_item ( printer, "=", 1, 1 );
-    min::print_spaces ( printer, 1 );
+    min::print_space ( printer );
     printer << min::save_indent;
 
     min::print_gen ( printer, v, id_map_f );

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  2 14:32:44 EDT 2015
+// Date:	Sun May  3 07:08:40 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11662,7 +11662,7 @@ namespace min {
 	return print_chars ( printer, p, n, columns );
     }
 
-    inline min::printer print_spaces
+    inline min::printer print_space
     	    ( min::printer printer, min::unsptr n = 1 )
     {
         if ( n == 0 ) return printer;
@@ -11683,33 +11683,6 @@ namespace min {
 	return printer;
     }
 
-    inline min::printer print_prefix_space
-	    ( min::printer printer )
-    {
-        if ( printer->last_str_class != 0 )
-	{
-	    min::print_item_preface ( printer, 0 );
-	    min::push ( printer->file->buffer ) = ' ';
-	    ++ printer->column;
-	}
-	return printer;
-    }
-    inline min::printer print_postfix_space
-	    ( min::printer printer )
-    {
-	min::push ( printer->file->buffer ) = ' ';
-	++ printer->column;
-	printer->last_str_class = 0;
-
-	if ( printer->print_format.break_control
-	                          .break_after
-	     &
-	     printer->print_format.char_flags[' '] )
-	    printer->state |= min::BREAK_AFTER;
-	else
-	    printer->state &= ~ min::BREAK_AFTER;
-	return printer;
-    }
     inline min::printer print_space_if_none
 	    ( min::printer printer )
     {
@@ -11728,6 +11701,7 @@ namespace min {
 	}
 	return printer;
     }
+
     inline min::printer print_leading
 	    ( min::printer printer )
     {
@@ -11735,11 +11709,12 @@ namespace min {
 	    return printer;
         else if ( ! (   printer->last_str_class
 	              & min::IS_LEADING ) )
-	    return min::print_spaces ( printer, 1 );
+	    return min::print_space ( printer );
 	printer->state |= min::AFTER_LEADING
 	                + min::FORCE_SPACE_OK;
 	return printer;
     }
+
     inline min::printer print_trailing
 	    ( min::printer printer )
     {
@@ -11747,11 +11722,12 @@ namespace min {
 	    return printer;
         else if ( ! (   printer->last_str_class
 	              & min::IS_GRAPHIC ) )
-	    return min::print_spaces ( printer, 1 );
+	    return min::print_space ( printer );
 	printer->state |= min::AFTER_TRAILING
 	                + min::FORCE_SPACE_OK;
 	return printer;
     }
+
     inline min::printer print_leading_always
 	    ( min::printer printer )
     {
@@ -11759,10 +11735,11 @@ namespace min {
 	    return printer;
         else if ( ! (   printer->last_str_class
 	              & min::IS_LEADING ) )
-	    return min::print_spaces ( printer, 1 );
+	    return min::print_space ( printer );
 	printer->state |= min::AFTER_LEADING;
 	return printer;
     }
+
     inline min::printer print_trailing_always
 	    ( min::printer printer )
     {
@@ -11770,7 +11747,7 @@ namespace min {
 	    return printer;
         else if ( ! (   printer->last_str_class
 	              & min::IS_GRAPHIC ) )
-	    return min::print_spaces ( printer, 1 );
+	    return min::print_space ( printer );
 	printer->state |= min::AFTER_TRAILING;
 	return printer;
     }
