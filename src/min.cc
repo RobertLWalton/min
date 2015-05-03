@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  3 07:08:29 EDT 2015
+// Date:	Sun May  3 15:16:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7881,10 +7881,6 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
-
-const min::uns32 min::standard_op_flags =
-    min::EXPAND_HT;
-
 const min::support_control
         min::ascii_support_control =
 {
@@ -7905,31 +7901,27 @@ const min::support_control
 };
 
 const min::display_control
-        min::display_all_display_control =
-{
-    min::ALL_CHARS, 0
-};
-
-const min::display_control
         min::graphic_and_hspace_display_control =
 {
-    min::IS_HSPACE + min::IS_GRAPHIC,
-    0
+    min::IS_HSPACE + min::IS_GRAPHIC, 0
 };
 
 const min::display_control
         min::graphic_only_display_control =
 {
-    min::IS_GRAPHIC,
-    0
+    min::IS_GRAPHIC, 0
 };
 
 const min::display_control
         min::graphic_and_vhspace_display_control =
 {
-      min::IS_GRAPHIC
-    + min::IS_VHSPACE,
-    0
+    min::IS_GRAPHIC + min::IS_VHSPACE, 0
+};
+
+const min::display_control
+        min::display_all_display_control =
+{
+    min::ALL_CHARS, 0
 };
 
 
@@ -7960,8 +7952,8 @@ const min::break_control
 
 static min::char_name_format standard_char_name_format =
 {
-    (const min::ustring *) "\x01\x01<",
-    (const min::ustring *) "\x01\x01>"
+    (const min::ustring *) "\x01\x01" "<",
+    (const min::ustring *) "\x01\x01" ">"
 };
 const min::char_name_format *
 	min::standard_char_name_format =

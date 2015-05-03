@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  3 07:08:40 EDT 2015
+// Date:	Sun May  3 15:21:09 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11027,7 +11027,15 @@ namespace min {
     const min::uns32 FORCE_SPACE	  = ( 1 << 6 );
     const min::uns32 FORCE_PGEN		  = ( 1 << 7 );
 
-    extern const min::uns32 standard_op_flags;
+    struct line_break
+    {
+	uns32 offset;
+	uns32 column;
+	uns32 line_length;
+	uns32 indent;
+    };
+
+    extern const line_break default_line_break;
 
     struct display_control
     {
@@ -11060,16 +11068,6 @@ namespace min {
         break_before_all_break_control;
     extern const min::break_control
         break_after_hyphens_break_control;
-
-    struct line_break
-    {
-	uns32 offset;
-	uns32 column;
-	uns32 line_length;
-	uns32 indent;
-    };
-
-    extern const line_break default_line_break;
 
     typedef min::packed_vec_insptr<min::line_break>
         line_break_stack;

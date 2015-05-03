@@ -3963,7 +3963,7 @@ The assignment of these two flags in \TT{min::standard\_char\_flags} is:
 \end{tabular}
 \end{indpar}
 
-The \minkey{CONDITIONAL\_\EOL BREAK} flag is used in
+The \minkey{CONDITIONAL\_BREAK} flag is used in
 
 \begin{center}
 \TT{printer->print\_format.break\_control.conditional\_break}
@@ -8422,7 +8422,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_and\_vhspace}{\_display\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_VHSPACE + min::IS_GRAPHI, 0 };|
+	\verb|{ min::IS_VHSPACE + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VHSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{display\_all}{\_display\_control} =}\ARGBREAK[1.0in]
@@ -8454,7 +8454,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINLKEY{break\_after\_space}{\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ min::IS_HSPACE, 0, 0, 0 };|
+\verb|{ min::IS_BHSPACE, 0, 0, 0 };|
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINLKEY{break\_before\_all}{\_break\_control} =}\ARGBREAK[1.0in]
@@ -8462,7 +8462,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINLKEY{break\_after\_hyphens}{\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
+\verb|{ min::IS_BHSPACE, 0, min::CONDITIONAL_BREAK, 4 };|
 \LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
 \end{tabular}\end{indpar}
 
@@ -8869,7 +8869,14 @@ Copying characters into a printer is done by the
 \verb|min::printer |
     & \TTOMKEY{<<}{<{}<\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer, min::ptr<const char> s )|
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::ptr<const char> s )|
+\LABEL{PRINTER_OPERATOR<<_OF_PTR_CONST_CHAR} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::ptr<char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<{}<\RESIZE}%
@@ -9522,6 +9529,8 @@ and \TT{printer->\EOL column}, the printer column:
 \LABEL{MIN::SPACES_IF_BEFORE_INDENT} \\
 \verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL after\_\EOL indent}
 \LABEL{MIN::SPACE_IF_AFTER_INDENT} \\
+\verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL none}
+\LABEL{MIN::SPACE_IF_NONE} \\
 \end{tabular}\end{indpar}
 
 The \TT{min::eol\_\EOL if\_\EOL after\_\EOL indent} operation performs
@@ -9534,6 +9543,12 @@ column equal to the indent in this case.
 The \TT{min::space\_\EOL if\_\EOL after\_\EOL indent} operation outputs
 a single space character if and only if the printer column is after
 the printer indent.
+The \TT{min::space\_\EOL if\_\EOL none} operation outputs
+a single space character if and only if the last thing in the current
+line is a non-space (more specifically, if the last item has non-zero
+string class, i.e., it executes the
+\TT{min::\EOL print\_\EOL space\_\EOL if\_\EOL none} function,
+\pagref{MIN::PRINT_SPACE_IF_NONE}).
 
 The line break parameters of a printer
 may be saved in the
@@ -18980,10 +18995,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_NON\_GRAPHIC}
 \LABEL{MIN::DISPLAY_NON_GRAPHIC_FLAG} \\
-\verb|const min::op min::| & \MINKEY{display\_non\_graphic}
-\LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
-\verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
-\LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -19033,8 +19044,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::GRAPHIC_ONLY_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{graphic\_and\_vhspace\_display\_control} =}\ARGBREAK[0.5in]
-	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC|\ARGBREAK[0.5in]
-	\verb|                 + min::IS_VSPACE, 0 };|
+	\verb|{ min::IS_VHSPACE + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_VHSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{display\_all\_display\_control} =}\ARGBREAK[0.5in]
@@ -19070,7 +19080,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NO_AUTO_BREAK_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINKEY{break\_after\_space\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ min::IS_HSPACE, 0, 0, 0 };|
+\verb|{ min::IS_BHSPACE, 0, 0, 0 };|
 \LABEL{MIN::BREAK_AFTER_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINKEY{break\_before\_all\_break\_control} =}\ARGBREAK[1.0in]
@@ -19078,7 +19088,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::BREAK_BEFORE_NON_SPACE_BREAK_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::break\_control
     min::\MINKEY{break\_after\_hyphens\_break\_control} =}\ARGBREAK[1.0in]
-\verb|{ min::IS_HSPACE, 0, min::BREAK_CONTROL, 4 };|
+\verb|{ min::IS_BHSPACE, 0, min::CONDITIONAL_BREAK, 4 };|
 \LABEL{MIN::BREAK_AFTER_HYPHENS_BREAK_CONTROL} \\
 \end{TABULAR}
 
@@ -19121,6 +19131,12 @@ These are in \verb|min_parameters.h|.
               {of {\tt min::printer}}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::ptr<const char> s )|
+\LABEL{PRINTER_OPERATOR<<_OF_PTR_CONST_CHAR} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::ptr<char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{<{}<\RESIZE}%
@@ -19319,7 +19335,11 @@ These are in \verb|min_parameters.h|.
 \verb|const min::op min::| & \MINKEY{display\_picture}
 \LABEL{MIN::DISPLAY_PICTURE} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_picture}
-\LABEL{MIN::NODISPLAY_PICTURE}
+\LABEL{MIN::NODISPLAY_PICTURE} \\
+\verb|const min::op min::| & \MINKEY{display\_non\_graphic}
+\LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
+\LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -19430,6 +19450,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SPACES_IF_BEFORE_INDENT} \\
 \verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL after\_\EOL indent}
 \LABEL{MIN::SPACE_IF_AFTER_INDENT} \\
+\verb|const min::op min::| & \MINKEY{space\_\EOL if\_\EOL none}
+\LABEL{MIN::SPACE_IF_NONE} \\
 \end{TABULAR}
 
 \bigskip
