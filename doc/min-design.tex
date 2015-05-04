@@ -11080,7 +11080,7 @@ any functions that might allocate or relocate objects, so \TT{str}
 A \TT{min::quote\_control}\label{QUOTE_CONTROL} value is
 a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
 \underline{unless} the string is in the specified class.  See
-\pagref{STRING-CLASSIFIER} for details on string classifiers.
+\pagref{STRING-CLASSIFIERS} for details on string classifiers.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
 determines how the string is quoted.  The quoted string is preceeded
@@ -15695,7 +15695,7 @@ with a \TT{.type}, then if
 \end{tabular}
 \end{center}
 where \TT{T} is a string \underline{not} in the string
-class (\pagref{STRING-CLASSIFIER})
+class (\pagref{STRING-CLASSIFIERS})
 defined by the \TT{marking\_\EOL type}\label{MARKING_TYPE} member of the object
 format, then the format is
 \begin{center}
@@ -19496,9 +19496,98 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ADJUST_INDENT} \\
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
 
+\INDEXHEADER{Leading and Trailing Separators}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::op min::| & \MINKEY{leading}
+\LABEL{MIN::LEADING} \\
+\verb|min::op min::| & \MINKEY{trailing}
+\LABEL{MIN::TRAILING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::op min::| & \MINKEY{leading\_always}
+\LABEL{MIN::LEADING_ALWAYS} \\
+\verb|min::op min::| & \MINKEY{trailing\_always}
+\LABEL{MIN::TRAILING_ALWAYS} \\
+\end{TABULAR}
+
 \end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Printer Strings}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.4in}
+\verb|typedef min::printer (* min::| & \MINKEY{pstring}\verb|)|\ARGBREAK
+	    \verb|( min::printer printer )|
+\LABEL{MIN::PSTRING} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::pstring}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pstring pstring )|
+\LABEL{PRINTER_OPERATOR<<_OF_PSTRING} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::printer min::| & \MINKEY{print\_item}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  const char * p,|\ARGBREAK
+	\verb|  min::unsptr n,|\ARGBREAK
+	\verb|  min::uns32 columns,|\ARGBREAK
+	\verb|  min::uns32 str_class =|\ARGBREAK
+	\verb|      min::IS_GRAPHIC )|
+\LABEL{MIN::PRINT_ITEM} \\
+\verb|min::printer min::| & \MINKEY{print\_space}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::unsptr n = 1 )|
+\LABEL{MIN::PRINT_SPACES} \\
+\verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NONE} \\
+\verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_LEADING} \\
+\verb|min::printer min::| & \MINKEY{print\_trailing}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_TRAILING} \\
+\verb|min::printer min::| & \MINKEY{print\_leading\_always}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_LEADING_ALWAYS} \\
+\verb|min::printer min::| & \MINKEY{print\_trailing\_always}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::printer min::| & \MINKEY{print\_item\_preface}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::uns32 str_class )|
+\LABEL{MIN::PRINT_ITEM_PREFACE} \\
+\verb|min::printer min::| & \MINKEY{print\_chars}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  const char * p,|\ARGBREAK
+	\verb|  min::unsptr n,|\ARGBREAK
+	\verb|  min::uns32 columns )|
+\LABEL{MIN::PRINT_CHARS} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\bigskip
 
 \INDEXHEADER{Printing File Lines and Phrases}
 
