@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  3 15:21:09 EDT 2015
+// Date:	Mon May  4 03:59:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11809,7 +11809,7 @@ namespace min {
 	      const min::ustring * s )
     {
         if ( s != NULL )
-	    return print_item
+	    return print_chars
 	        ( printer,
 		  ustring_chars( s ),
 		  ustring_length ( s ),

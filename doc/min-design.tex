@@ -10030,7 +10030,7 @@ string functions:
 \verb|min::printer min::| & \MINKEY{print\_space}\ARGBREAK
 	\verb|( min::printer printer,|\ARGBREAK
 	\verb|  min::unsptr n = 1 )|
-\LABEL{MIN::PRINT_SPACES} \\
+\LABEL{MIN::PRINT_SPACE} \\
 \verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_SPACE_IF_NONE} \\
@@ -10128,6 +10128,18 @@ Its also possible to optimize by replacing a call to
 \TT{min::\EOL print\_\EOL chars} if that call is sandwiched between
 calls to \TT{min::\EOL print\_\EOL space}.
 
+Lastly a \TT{min::ustring} can be printed using
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const min::ustring * s )|
+\LABEL{MIN::PRINT_USTRING} \\
+\end{tabular}\end{indpar}
+
+This performs the same actions as \TT{min::print\_chars} but
+uses the length and number of columns encoded in the
+\TT{ustring} argument.  It also does nothing if \TT{s} is \TT{NULL}.
 
 
 \subsubsection{Printing File Lines and Phrases}
@@ -11057,7 +11069,7 @@ value according to the above formats:
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format * str_format = NULL )|
-\LABEL{MIN::PRINT_CHARS} \\
+\LABEL{MIN::PRINT_CSTRING} \\
 \end{tabular}\end{indpar}
 
 Here \TT{str\_format->quote\_control}
@@ -11122,15 +11134,7 @@ function:
 
 Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
 
-You can also print \TT{n} single space characters with:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_spaces}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n )|
-\LABEL{MIN::PRINT_SPACES} \\
-\end{tabular}\end{indpar}
-
+You can also print 
 a single unquoted \TT{min::Uchar} with:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11139,23 +11143,6 @@ a single unquoted \TT{min::Uchar} with:
     \verb|  min::Uchar c )|
 \LABEL{MIN::PRINT_UCHAR} \\
 \end{tabular}\end{indpar}
-
-and an unquoted \TT{min::ustring} with:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  const min::ustring * s )|
-\LABEL{MIN::PRINT_USTRING} \\
-\end{tabular}\end{indpar}
-
-This last has the special property that it prints nothing if
-\TT{s} is \TT{NULL}.  It also inserts a \TT{min::\EOL trailing}
-operation before printing \TT{s} if \TT{s} has the
-\TT{min::\EOL USTRING\_\EOL TRAILING} flag,
-and a \TT{min::\EOL leading}
-operation after printing \TT{s} if \TT{s} has the
-\TT{min::\EOL USTRING\_\EOL LEADING} flag.
 
 The following function may be called to print a string \TT{min::gen} value:
 
@@ -17396,25 +17383,10 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{ustring\_columns} \ARGBREAK
       \verb|( const min::ustring * p )|
 \LABEL{MIN::USTRING_COLUMNS} \\
-\verb|min::uns32 min::|
-    & \MINKEY{ustring\_flags} \ARGBREAK
-      \verb|( const min::ustring * p )|
-\LABEL{MIN::USTRING_FLAGS} \\
 \verb|const min::Uchar * min::|
     & \MINKEY{ustring\_chars} \ARGBREAK
       \verb|( const min::ustring * p )|
 \LABEL{MIN::USTRING_CHARS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING}
-\LABEL{MIN::USTRING_LEADING} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING}
-\LABEL{MIN::USTRING_TRAILING} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_LEADING\_ALWAYS}
-\LABEL{MIN::USTRING_LEADING_ALWAYS} \\
-\verb|const min::uns32 min::| & \MINKEY{USTRING\_TRAILING\_ALWAYS}
-\LABEL{MIN::USTRING_TRAILING_ALWAYS} \\
 \end{TABULAR}
 
 \INDEXHEADER{UNICODE Name Tables}
@@ -19552,7 +19524,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::printer min::| & \MINKEY{print\_space}\ARGBREAK
 	\verb|( min::printer printer,|\ARGBREAK
 	\verb|  min::unsptr n = 1 )|
-\LABEL{MIN::PRINT_SPACES} \\
+\LABEL{MIN::PRINT_SPACE} \\
 \verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_SPACE_IF_NONE} \\
@@ -19583,6 +19555,15 @@ These are in \verb|min_parameters.h|.
 	\verb|  min::unsptr n,|\ARGBREAK
 	\verb|  min::uns32 columns )|
 \LABEL{MIN::PRINT_CHARS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  const min::ustring * s )|
+\LABEL{MIN::PRINT_USTRING} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -20238,7 +20219,7 @@ These are in \verb|min_parameters.h|.
     \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK
     \verb|        str_format = NULL )|
-\LABEL{MIN::PRINT_CHARS} \\
+\LABEL{MIN::PRINT_CSTRING} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -20252,24 +20233,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_spaces}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n )|
-\LABEL{MIN::PRINT_SPACES} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
 \verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::Uchar c )|
 \LABEL{MIN::PRINT_UCHAR} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  const min::ustring * s )|
-\LABEL{MIN::PRINT_USTRING} \\
 \end{TABULAR}
 
 \bigskip
