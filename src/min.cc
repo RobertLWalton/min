@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May  3 15:16:16 EDT 2015
+// Date:	Mon May  4 05:57:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10561,7 +10561,7 @@ static min::gen_format top_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL /* id_map_gen_format */    // id_map_format
 };
 const min::gen_format * min::top_gen_format =
     & ::top_gen_format;
@@ -10574,7 +10574,7 @@ static min::gen_format id_map_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::id_map_gen_format =
     & ::id_map_gen_format;
@@ -10587,7 +10587,7 @@ static min::gen_format name_gen_format =
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::name_gen_format =
     & ::name_gen_format;
@@ -10628,7 +10628,7 @@ static min::gen_format value_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::value_gen_format =
     & ::value_gen_format;
@@ -10641,7 +10641,7 @@ static min::gen_format element_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::element_gen_format =
     & ::element_gen_format;
@@ -10654,7 +10654,7 @@ static min::gen_format id_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::id_gen_format =
     & ::id_gen_format;
@@ -10667,7 +10667,7 @@ static min::gen_format always_quote_gen_format =
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL /* id_map_gen_format */    // id_map_format
 };
 const min::gen_format * min::always_quote_gen_format =
     & ::always_quote_gen_format;
@@ -10680,7 +10680,7 @@ static min::gen_format never_quote_gen_format =
     & ::name_lab_format,
     & ::name_special_format,
     & ::compact_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
@@ -10691,9 +10691,9 @@ static min::gen_format line_element_gen_format =
     & ::long_num_format,
     & ::standard_str_format,
     & ::bracket_lab_format,
-    & ::name_special_format,
+    & ::bracket_special_format,
     & ::line_element_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format *
 	min::line_element_gen_format =
@@ -10705,9 +10705,9 @@ static min::gen_format paragraph_element_gen_format =
     & ::long_num_format,
     & ::standard_str_format,
     & ::bracket_lab_format,
-    & ::name_special_format,
+    & ::bracket_special_format,
     & ::paragraph_element_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format *
 	min::paragraph_element_gen_format =
@@ -10719,9 +10719,9 @@ static min::gen_format line_gen_format =
     & ::long_num_format,
     & ::standard_str_format,
     & ::bracket_lab_format,
-    & ::name_special_format,
+    & ::bracket_special_format,
     & ::line_obj_format,
-    NULL,			    // id_map_format
+    NULL			    // id_map_format
 };
 const min::gen_format *
 	min::line_gen_format =
@@ -10873,6 +10873,8 @@ static void init_pgen_formats ( void )
         min::semicolon;
 
     ::top_gen_format.id_map_format =
+        min::id_map_gen_format;
+    ::always_quote_gen_format.id_map_format =
         min::id_map_gen_format;
 }
 
