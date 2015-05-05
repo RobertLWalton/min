@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  4 05:57:45 EDT 2015
+// Date:	Tue May  5 06:17:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9349,7 +9349,7 @@ static min::printer print_quoted_unicode
     min::print_item_preface
         ( printer, min::IS_GRAPHIC );
 
-    min::bracket_format bf = sf->bracket_format;
+    min::quote_format qf = sf->quote_format;
     min::line_break_stack line_break_stack =
         printer->line_break_stack;
 
@@ -9372,12 +9372,12 @@ static min::printer print_quoted_unicode
     }
 
     min::uns32 prefix_columns =
-        min::ustring_columns ( bf.str_prefix );
+        min::ustring_columns ( qf.str_prefix );
     MIN_ASSERT ( prefix_columns > 0,
                  "str_prefix ustring_columns"
 		 " is zero" );
     min::uns32 postfix_columns =
-        min::ustring_columns ( bf.str_postfix );
+        min::ustring_columns ( qf.str_postfix );
     MIN_ASSERT ( postfix_columns > 0,
                  "str_postfix ustring_columns"
 		 " is zero" );
@@ -9390,11 +9390,11 @@ static min::printer print_quoted_unicode
     if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 postfix_length =
-        min::ustring_length ( bf.str_postfix );
+        min::ustring_length ( qf.str_postfix );
     min::Uchar postfix_string[postfix_length+1];
     {
 	const char * p =
-	    min::ustring_chars ( bf.str_postfix );
+	    min::ustring_chars ( qf.str_postfix );
 	const char * endp = p + postfix_length;
 	min::Uchar * q = postfix_string;
 	while ( p != endp )
@@ -9404,7 +9404,7 @@ static min::printer print_quoted_unicode
 	postfix_length = q - postfix_string;
     }
 
-    min::print_ustring ( printer, bf.str_prefix );
+    min::print_ustring ( printer, qf.str_prefix );
 
     min::uns32 width = reduced_width;
     while ( length > 0 )
@@ -9414,30 +9414,30 @@ static min::printer print_quoted_unicode
 	               & sf->display_control,
 	               postfix_string,
 		       postfix_length,
-		       bf.str_postfix_replacement );
+		       qf.str_postfix_replacement );
 
 	if ( length == 0 ) break;
 
-	min::print_ustring ( printer, bf.str_postfix );
+	min::print_ustring ( printer, qf.str_postfix );
 	min::print_space ( printer );
 	printer << min::set_break;
-	if ( bf.str_concatenator != NULL )
+	if ( qf.str_concatenator != NULL )
 	{
 	    min::print_ustring
-	        ( printer, bf.str_concatenator );
+	        ( printer, qf.str_concatenator );
 	    min::print_space ( printer );
 	}
-	min::print_ustring ( printer, bf.str_prefix );
+	min::print_ustring ( printer, qf.str_prefix );
 
 	min::uns32 cat_columns =
 	      min::ustring_columns
-		  ( bf.str_concatenator );
+		  ( qf.str_concatenator );
 	MIN_ASSERT ( cat_columns > 0,
 	             "str_concatenator ustring_columns"
 		     " is zero" );
 	width = reduced_width - 1 - cat_columns;
     }
-    min::print_ustring ( printer, bf.str_postfix );
+    min::print_ustring ( printer, qf.str_postfix );
 
     return printer;
 }
@@ -9979,7 +9979,7 @@ min::printer min::print_num
 	( printer, buffer, len, len );
 }
 
-const min::bracket_format min::quote_bracket_format =
+const min::quote_format min::standard_quote_format =
 {
     (const min::ustring *) "\x01\x01" "\"",
     (const min::ustring *) "\x01\x01" "\"",
@@ -9990,7 +9990,7 @@ const min::bracket_format min::quote_bracket_format =
 static min::str_format quote_all_str_format =
 {
     min::quote_all_str_classifier,
-    min::quote_bracket_format,
+    min::standard_quote_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
 };
@@ -10000,7 +10000,7 @@ const min::str_format * min::quote_all_str_format =
 static min::str_format standard_str_format =
 {
     min::standard_str_classifier,
-    min::quote_bracket_format,
+    min::standard_quote_format,
     min::graphic_only_display_control,
     0xFFFFFFFF
 };

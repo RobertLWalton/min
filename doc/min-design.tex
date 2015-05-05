@@ -9971,16 +9971,16 @@ min::save\_indent \\
 Such a sequence of print operations outputs either a single space or
 nothing according to the following rules:
 \begin{enumerate}
-\item If either the preceeding or following items do not have the
+\item If either the preceeding or following print items do not have the
 \TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
 \item Otherwise if either \TT{min::leading} or \TT{min::trailing}
 is in the sequence and the \TT{FORCE\_\EOL SPACE} printer\label{FORCE_SPACE}
 operation flag is on, a space is output.
 \item Otherwise if either \TT{min::leading} or \TT{min::leading\_\EOL always}
-is in the sequence and the preceeding item has the \TT{IS\_\EOL LEADING}
+is in the sequence and the preceeding print item has the \TT{IS\_\EOL LEADING}
 flag, no space is output.
 \item Otherwise if either \TT{min::trailing} or \TT{min::trailing\_\EOL always}
-is in the sequence and the following item has the \TT{IS\_\EOL TRAILING}
+is in the sequence and the following print item has the \TT{IS\_\EOL TRAILING}
 flag, no space is output.
 \item Otherwise a space is output.
 \end{enumerate}
@@ -10978,8 +10978,8 @@ The formats for printing string \TT{min::gen} values are:
     \verb|{|\ARGBREAK
     \verb|  min::str_classifier   str_classifier;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::bracket_format   bracket_format;|%
-\ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::quote_format     quote_format;|%
+\ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_map_of_longer;|%
@@ -10993,7 +10993,7 @@ The formats for printing string \TT{min::gen} values are:
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
 \verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{tabular}\end{indpar}
@@ -11003,38 +11003,38 @@ The formats for printing string \TT{min::gen} values are:
     min::\MINKEY{standard\_str\_format}:}
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{bracket\_format}}\ARGBREAK
+                       min::\MINKEY{quote\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::ustring *    str_prefix;|%
-\ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_prefix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix;|%
-\ttmindex{str\_postfix}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix_name;|%
-\ttmindex{str\_postfix\_name}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_concatenator;|%
-\ttmindex{str\_concatenator}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::BRACKET_FORMAT}
+\LABEL{MIN::QUOTE_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::bracket\_format
-                   min::\MINKEY{quote\_bracket\_format}:}\ARGBREAK
+\multicolumn{2}{l}{\tt const min::quote\_format
+                   min::\MINKEY{standard\_quote\_format}:}\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
-\LABEL{MIN::QUOTE_BRACKET_FORMAT}
+\LABEL{MIN::STANDARD_QUOTE_FORMAT}
 \end{tabular}\end{indpar}
 
-The \TT{ustring} members of \TT{min::bracket\_format} \underline{must not}
+The \TT{ustring} members of \TT{min::quote\_format} \underline{must not}
 contain non-graphic characters (e.g., no spaces).
 
 The following function, which is used to print string general values,
@@ -11068,12 +11068,15 @@ and \itemref{LEADING-AND-TRAILING-SEPARATORS} for the uses of string
 classes in determining the behavior of the
 \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
 
-Note that
+`\TT{printer <{}< min::pgen ( str )}' calls \TT{min::\EOL print\_\EOL cstring}
+with
+\begin{center}
+\TT{str\_format = printer->print\_format.gen\_format->str\_format}
+\end{center}
+However,
 \TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
 implicitly used when \TT{min::\EOL print\_\EOL cstring} is called directly
-with a \TT{NULL} third argument,
-but it is used implicitly when a \TT{min::gen} value is
-printed.
+with a \TT{NULL} third argument.
 
 \TT{min::print\_cstring} copies the string to the stack (converting from
 UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
@@ -11081,7 +11084,7 @@ any functions that might allocate or relocate objects, so \TT{str}
 \underline{can} be a relocatable address.
 
 
-If the string is to be quoted, \TT{str\_format->bracket\_format}
+If the string is to be quoted, \TT{str\_format->quote\_format}
 determines how the string is quoted.  The quoted string is preceeded
 by the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and followed by the
 \TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the quoted string itself
@@ -11098,7 +11101,7 @@ fitting within the columns, separated by copies of
 surroundsed by single spaces.
 
 Lastly, the characters of the string being quoted (but \underline{not}
-those of \TT{str\_\EOL format->\EOL bracket\_\EOL format.str\_\ldots})
+those of \TT{str\_\EOL format->\EOL quote\_\EOL format.str\_\ldots})
 are printed using \TT{str\_\EOL format->\EOL display\_\EOL control}
 instead of \TT{printer->\EOL print\_\EOL format.display\_\EOL control}.
 E.g., only graphic characters may be allowed to print as themselves,
@@ -11131,10 +11134,6 @@ The following function may be called to print a string \TT{min::gen} value:
 \LABEL{MIN::PRINT_STR} \\
 \end{tabular}\end{indpar}
 
-`\TT{printer <{}< min::pgen ( str )}' calls this function with
-\begin{center}
-\TT{str\_format = printer->print\_format.gen\_format->str\_format}
-\end{center}
 This function just calls the \TT{min::\EOL print\_\EOL cstring} function
 described above with the \TT{const char *} part of the string general value.
 The \TT{str} argument must be a string general value.
@@ -20096,8 +20095,8 @@ These are in \verb|min_parameters.h|.
     \verb|{|\ARGBREAK
     \verb|  min::str_classifier   quote_control;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::bracket_format   bracket_format;|%
-\ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::quote_format     quote_format;|%
+\ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_map_of_longer;|%
@@ -20112,7 +20111,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
 \verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{TABULAR}
@@ -20124,7 +20123,7 @@ These are in \verb|min_parameters.h|.
     min::\MINKEY{standard\_str\_format}:}
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
+\verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{TABULAR}
@@ -20133,26 +20132,26 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{bracket\_format}}
-\LABEL{MIN::BRACKET_FORMAT}\ARGBREAK
+                       min::\MINKEY{quote\_format}}
+\LABEL{MIN::QUOTE_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::ustring *    str_prefix;|%
-\ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_prefix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix;|%
-\ttmindex{str\_postfix}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix_name;|%
-\ttmindex{str\_postfix\_name}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_concatenator;|%
-\ttmindex{str\_concatenator}{in {\tt min::bracket\_format}}\ARGBREAK
+\ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::bracket\_format
-                   min::\MINKEY{quote\_bracket\_format}:}
-\LABEL{MIN::QUOTE_BRACKET_FORMAT}\ARGBREAK
+\multicolumn{2}{l}{\tt const min::quote\_format
+                   min::\MINKEY{standard\_quote\_format}:}
+\LABEL{MIN::STANDARD_QUOTE_FORMAT}\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
 \verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
 \verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
