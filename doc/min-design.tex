@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 3, 2015}
+\date{May 5, 2015}
  
 \maketitle
 
@@ -10974,12 +10974,14 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{str\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::str_classifier   quote_control;|%
+    \verb|  min::str_classifier   str_classifier;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::bracket_format   bracket_format;|%
 \ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::uns32            id_map_of_longer;|%
+\ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
 \end{tabular}\end{indpar}
@@ -10988,52 +10990,26 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{const min::str\_format *
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
-\verb|min::never_str_classifier              // quote_control|\ARGBREAK
+\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{quote\_non\_name\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_NAME_STR_FORMAT}\ARGBREAK
-\verb|min::name_str_classifier               // quote_control|\ARGBREAK
+    min::\MINKEY{standard\_str\_format}:}
+\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
+\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{const min::str\_format *
-                   min::\MINLKEY{quote\_non\_graphic}{\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
-\verb|min::all_graphics_str_classifier       // quote_control|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{const min::str\_format *
-   min::\MINLKEY{quote\_bracket\_or\_non\_graphic}{\_str\_format}:}
-\LABEL{MIN::QUOTE_BRACKET_OR_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
-\verb|min::all_non_bracket_graphics_str_classifier|\ARGBREAK
-\verb|                                       // quote_control|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{str\_classifier}:
-		       See \pagref{MIN::STR_CLASSIFIER}}
-\end{tabular}
-\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{bracket\_format}}\ARGBREAK
-    \verb|{| \\
-\multicolumn{2}{l}%
-    {\tt ~~~~~// Members must encode non-zero numbers of columns.}\ARGBREAK
+    \verb|{|\ARGBREAK
     \verb|  const min::ustring *    str_prefix;|%
 \ttmindex{str\_prefix}{in {\tt min::bracket\_format}}\ARGBREAK
     \verb|  const min::ustring *    str_postfix;|%
@@ -11057,11 +11033,10 @@ The formats for printing string \TT{min::gen} values are:
 \end{tabular}\end{indpar}
 
 The \TT{ustring} members of \TT{min::bracket\_format} \underline{must not}
-contain non-graphic characters (e.g., no spaces) and \underline{must}
-have non-zero numbers of columns encoded in their second bytes.
+contain non-graphic characters (e.g., no spaces).
 
 The following function, which is used to print string general values,
-prints a \TT{const char *}
+prints a UTF-8 encoded \TT{const char *}
 value according to the above formats:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11072,7 +11047,7 @@ value according to the above formats:
 \LABEL{MIN::PRINT_CSTRING} \\
 \end{tabular}\end{indpar}
 
-Here \TT{str\_format->quote\_control}
+Here \TT{str\_format->str\_classifier}
 determines whether the string will be printed plain or as a quoted string, and 
 if it is quoted, the other parts of \TT{str\_\EOL format} determine how
 it is quoted.  If \TT{str\_\EOL format} is \TT{NULL},
@@ -11133,16 +11108,6 @@ function:
 \end{tabular}\end{indpar}
 
 Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
-
-You can also print 
-a single unquoted \TT{min::Uchar} with:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::Uchar c )|
-\LABEL{MIN::PRINT_UCHAR} \\
-\end{tabular}\end{indpar}
 
 The following function may be called to print a string \TT{min::gen} value:
 
@@ -20123,6 +20088,8 @@ These are in \verb|min_parameters.h|.
 \ttmindex{bracket\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::uns32            id_map_of_longer;|%
+\ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -20132,48 +20099,26 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{const min::str\_format *
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
-\verb|min::never_str_classifier              // quote_control|\ARGBREAK
+\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{quote\_non\_name\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_NAME_STR_FORMAT}\ARGBREAK
-\verb|min::name_str_classifier               // quote_control|\ARGBREAK
+    min::\MINKEY{standard\_str\_format}:}
+\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
+\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|0xFFFFFFFF                             // id_map_if_longer|
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.1in}
-\multicolumn{2}{l}{const min::str\_format *
-                   min::\MINKEY{quote\_non\_graphic\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
-\verb|min::all_graphics_str_classifier       // quote_control|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.1in}
-\multicolumn{2}{l}{const min::str\_format *
-   min::\MINLKEY{quote\_bracket\_or\_non\_graphic}{\_str\_format}:}
-\LABEL{MIN::QUOTE_BRACKET_OR_NON_GRAPHIC_STR_FORMAT}\ARGBREAK
-\verb|min::all_non_bracket_graphics_str_classifier|\ARGBREAK
-\verb|                                       // quote_control|\ARGBREAK
-\verb|min::quote_bracket_format              // bracket_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
-\end{TABULAR}
-
-\bigskip
-
-\bigskip
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{bracket\_format}}
@@ -20230,13 +20175,6 @@ These are in \verb|min_parameters.h|.
     \verb|  const min::str_format *|\ARGBREAK
     \verb|        str_format = NULL )|
 \LABEL{MIN::PRINT_UNICODE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_Uchar}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::Uchar c )|
-\LABEL{MIN::PRINT_UCHAR} \\
 \end{TABULAR}
 
 \bigskip

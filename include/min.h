@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  4 03:59:44 EDT 2015
+// Date:	Tue May  5 02:34:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11119,7 +11119,7 @@ namespace min {
 	    // NONE paragraph_type.
 	    //
 	    // This flag is turned off by printer init,
-	    // ::end_line, and internal::print_unicode.
+	    // ::end_line, and min::print_item_preface.
 
 	AFTER_LINE_SEPARATOR	= ( 1 << 2 ),
 	    // A line separator (obj_line_sep) has
@@ -11132,11 +11132,12 @@ namespace min {
 	    // is no object of following line_type or
 	    // line_sep_type.
 	    //
-	    // This flag is turned off by printer init,
-	    // ::end_line, internal::print_unicode, and
-	    // min::print_quoted_unicode. When turned
-	    // off by the non-init functions, restore_
-	    // indent and bol are exeucted.
+	    // This flag is turned off by ::end_line,
+	    // min::print_item_preface, min::print_
+	    // quoted_unicode.  When turned off by
+	    // these functions, restore_indent and bol
+	    // are executed.  This flag is also turned
+	    // off by printer init and min::print_obj.
 
 	// WARNING: AFTER_LEADING/TRAILING are the same
 	// bits as IS_LEADING/TRAILING in character
@@ -11794,16 +11795,6 @@ namespace min {
 		( printer, n, p, width );
     }
 
-    inline min::printer print_Uchar
-	    ( min::printer printer,
-	      min::Uchar c )
-    {
-	min::ptr<const Uchar> p =
-	    min::new_ptr<const Uchar> ( & c );
-	return min::print_unicode
-	    ( printer, 1, p );
-    }
-
     inline min::printer print_ustring
     	    ( min::printer printer,
 	      const min::ustring * s )
@@ -11922,8 +11913,11 @@ inline min::printer operator <<
 	( min::printer printer,
 	  char c )
 {
-    return min::print_Uchar
-        ( printer, (min::uns8) c );
+    const min::Uchar uc = (min::uns8) c;
+    min::ptr<const min::Uchar> p =
+        min::new_ptr<const min::Uchar> ( & uc );
+    return min::print_unicode
+        ( printer, 1, p );
 }
 
 min::printer operator <<
