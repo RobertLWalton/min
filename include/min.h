@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 06:08:54 EDT 2015
+// Date:	Tue May  5 16:17:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6377,7 +6377,7 @@ namespace min {
 	struct unicode_name_entry
 	{
 	    min::Uchar c;
-	    const min::ustring * name;
+	    min::ustring name;
 	};
     }
     
@@ -6395,7 +6395,7 @@ namespace min {
 	      min::uns32 extras = 10 );
     void add
             ( min::unicode_name_table table,
-	      const min::ustring * name,
+	      min::ustring name,
 	      min::Uchar c );
     Uchar find
             ( min::unicode_name_table table,
@@ -11074,8 +11074,8 @@ namespace min {
 
     struct char_name_format
     {
-	const min::ustring *	      char_name_prefix;
-	const min::ustring *	      char_name_postfix;
+	min::ustring	      char_name_prefix;
+	min::ustring	      char_name_postfix;
     };
 
     extern const char_name_format *
@@ -11312,7 +11312,7 @@ namespace min {
 	    v3.uptr = buffer.offset;
 	}
 	op ( op::OPCODE opcode,
-	     const min::ustring * str )
+	     min::ustring str )
 	    : opcode ( opcode )
 	{
 	    v1.p = (void *) str;
@@ -11592,8 +11592,7 @@ namespace min {
 		      display_control = NULL,
 		  const min::Uchar * substring = NULL,
 		  min::unsptr substring_length = 0,
-		  const min::ustring * replacement =
-		      NULL );
+		  min::ustring replacement = NULL );
 
 	bool insert_line_break
 	    ( min::printer printer );
@@ -11797,7 +11796,7 @@ namespace min {
 
     inline min::printer print_ustring
     	    ( min::printer printer,
-	      const min::ustring * s )
+	      min::ustring s )
     {
         if ( s != NULL )
 	    return print_chars
@@ -11998,10 +11997,10 @@ namespace min {
 
     struct quote_format
     {
-	const min::ustring *	str_prefix;
-	const min::ustring *	str_postfix;
-	const min::ustring *	str_postfix_replacement;
-	const min::ustring *	str_concatenator;
+	min::ustring	str_prefix;
+	min::ustring	str_postfix;
+	min::ustring	str_postfix_replacement;
+	min::ustring	str_concatenator;
     };
 
     extern const min::quote_format

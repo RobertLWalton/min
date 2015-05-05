@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 01:16:19 EST 2015
+// Date:	Tue May  5 16:21:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,10 +73,10 @@ char const
 UNI::uns64 const
     UNI::properties[UNI::index_limit] =
         { UNICODE_PROPERTIES };
-const UNI::ustring * const
+UNI::ustring const
     UNI::name[UNI::index_limit] =
         { UNICODE_NAME };
-const UNI::ustring * const
+UNI::ustring const
     UNI::picture[UNI::index_limit] =
         { UNICODE_PICTURE };
 const UNI::uns32

@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  5 11:12:06 EST 2015
+// Date:	Tue May  5 16:09:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,8 +69,7 @@ inline bool eq ( const char * s1, const char * s2 )
 // possible.  The ustring_chars values determine the
 // length and columns uniquely.
 //
-inline bool ustring_eq
-    ( const ustring * s1, const ustring * s2 )
+inline bool ustring_eq ( ustring s1, ustring s2 )
 {
     if ( s1 == NULL )  return s2 == NULL;
     else if ( s2 == NULL ) return false;
@@ -300,7 +299,7 @@ void output ( ostream & out,
 //
 void ustring_output
 	( ostream & out,
-	  const ustring * const * vector,
+	  ustring const * vector,
 	  unsigned size )
 {
     const char * finish = "";
@@ -318,7 +317,7 @@ void ustring_output
 	    sprintf ( buffer, "\"\\x%02X\\x%02X\"",
 	              ustring_length ( vector[i] ),
 	              ustring_columns ( vector[i] ) );
-	    out << "(const ustring *) " << buffer
+	    out << "(ustring) " << buffer
 	        << " \"";
 	    const char * p =
 	        ustring_chars ( vector[i] );

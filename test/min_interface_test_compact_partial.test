@@ -1367,11 +1367,11 @@ min_interface_test.cc:XXXX:
 min_interface_test.cc:XXXX:
     c == 0x5678 => true
 min_interface_test.cc:XXXX desire success:
-    min::add ( ::unicode_table, (const min::ustring *) "\x05\x05YYYYY", 0x5678 );
+    min::add ( ::unicode_table, (min::ustring) "\x05\x05YYYYY", 0x5678 );
 min_interface_test.cc:XXXX desire failure:
-    min::add ( ::unicode_table, (const min::ustring *) "\x05\x05YYYYY", 0x1234 );
+    min::add ( ::unicode_table, (min::ustring) "\x05\x05YYYYY", 0x1234 );
 ../src/min.cc:XXXX:
-    in void min::add(min::unicode_name_table, const ustring*, min::Uchar):
+    in void min::add(min::unicode_name_table, min::unicode::ustring, min::Uchar):
     c2 == NO_UCHAR => false
 min_interface_test.cc:XXXX:
     c == 0x1234 => true

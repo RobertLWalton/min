@@ -3556,10 +3556,10 @@ Given the index \TT{i = min::Uindex ( c )} of \TT{c}, you can
 find out the name and picture of \TT{c} by using:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::ustring * min::|
+\verb|min::ustring min::|
     & \MINKEY{unicode::name}\verb|[i]|
 \LABEL{MIN::UNICODE::NAME} \\
-\verb|const min::ustring * min::|
+\verb|min::ustring min::|
     & \MINKEY{unicode::picture}\verb|[i]|
 \LABEL{MIN::UNICODE::PICTURE} \\
 \end{tabular}\end{indpar}
@@ -3596,7 +3596,7 @@ The size of all the above vectors is
 which is a strict upper bound on the index \TT{i}
 (i.e., \TT{0 <= i < index\_limit}).
 
-Here `\TT{const min::ustring *}' values encode UNICODE character
+Here `\TT{min::ustring}' values encode UNICODE character
 strings in a format optimized for printing, or are \TT{NULL} to
 indicate a missing value; see \itemref{UNICODE-STRINGS} for details.
 The \mkey{name}{of UNICODE character}
@@ -4572,7 +4572,7 @@ in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \label{UNICODE-STRINGS}
 
 Constant \skey{UNICODE string}s can be represented
-as \TT{const min::\EOL ustring *}\ttindex{ustring}\label{USTRING} values
+as \TT{min::\EOL ustring}\ttindex{ustring}\label{USTRING} values
 which are sequences of 8 bit bytes.  The first two bytes,
 called the \mkey{header}{of {\tt ustring}},
 hold the length of the string (not counting the header)
@@ -4582,7 +4582,7 @@ in the second byte.  The remainder of the bytes
 constitute a `\TT{const char *}' value that is the Modified UTF-8 encoded,
 NUL-terminated, string itself.
 
-Importantly \TT{const ustring *} values are pointers into
+Importantly \TT{ustring} values are pointers into
 \underline{unrelocatable}
 memory.  It is intended that \TT{ustrings} be used as parametric values in
 printing formats, as character names and pictures, etc.
@@ -4590,16 +4590,16 @@ printing formats, as character names and pictures, etc.
 The following are for programming with \TT{ustring}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|typedef min::uns8 min::| & \MINKEY{ustring}
+\verb|typedef const min::uns8 * min::| & \MINKEY{ustring}
 \LABEL{MIN::USTRING} \\
 \verb|min::uns32 min::|
-    & \MINKEY{ustring\_length} \verb|( const min::ustring * p )|
+    & \MINKEY{ustring\_length} \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{ustring\_columns} \verb|( const min::ustring * p )|
+    & \MINKEY{ustring\_columns} \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_COLUMNS} \\
-\verb|const min::Uchar * min::|
-    & \MINKEY{ustring\_chars} \verb|( const min::ustring * p )|
+\verb|const char * min::|
+    & \MINKEY{ustring\_chars} \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_CHARS} \\
 \end{tabular}\end{indpar}
 
@@ -4641,7 +4641,7 @@ read using the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
-    \verb|  const min::ustring * name,|\ARGBREAK
+    \verb|  min::ustring name,|\ARGBREAK
     \verb|  min::Uchar c )|
 \LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
@@ -8475,9 +8475,9 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \verb|{                         | \\
 \multicolumn{2}{l}%
     {\tt ~~~~~// Members must encode non-zero numbers of columns.} \\
-\verb|     const min::ustring * |
+\verb|     min::ustring |
 	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}} \\
-\verb|     const min::ustring * |
+\verb|     min::ustring |
 	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}} \\
 \verb|}                         | \\
 \end{tabular}\end{indpar}
@@ -8485,8 +8485,8 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::char\_name\_format
     min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
-\verb|{ (const min::ustring *) "\x01\x01" "<",|\ARGBREAK[1.0in]
-\verb|  (const min::ustring *) "\x01\x01" ">" };|
+\verb|{ (min::ustring) "\x01\x01" "<",|\ARGBREAK[1.0in]
+\verb|  (min::ustring) "\x01\x01" ">" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -10135,7 +10135,7 @@ Lastly a \TT{min::ustring} can be printed using
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  const min::ustring * s )|
+    \verb|  min::ustring s )|
 \LABEL{MIN::PRINT_USTRING} \\
 \end{tabular}\end{indpar}
 
@@ -11012,13 +11012,13 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{quote\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *    str_prefix;|%
+    \verb|  min::ustring    str_prefix;|%
 \ttmindex{str\_prefix}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_postfix;|%
+    \verb|  min::ustring    str_postfix;|%
 \ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_postfix_name;|%
+    \verb|  min::ustring    str_postfix_name;|%
 \ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_concatenator;|%
+    \verb|  min::ustring    str_concatenator;|%
 \ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::QUOTE_FORMAT}
@@ -11027,10 +11027,10 @@ The formats for printing string \TT{min::gen} values are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::quote\_format
                    min::\MINKEY{standard\_quote\_format}:}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \LABEL{MIN::STANDARD_QUOTE_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -14663,53 +14663,53 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_empty;|%
+    \verb|  min::ustring                         obj_empty;|%
 \ttmindex{obj\_empty}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_bra;|%
+    \verb|  min::ustring                         obj_bra;|%
 \label{OBJ_BRA}%
 \ttmindex{obj\_bra}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_braend;|%
+    \verb|  min::ustring                         obj_braend;|%
 \ttmindex{obj\_braend}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_sep;|%
+    \verb|  min::ustring                         obj_sep;|%
 \ttmindex{obj\_sep}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_ketbegin;|%
+    \verb|  min::ustring                         obj_ketbegin;|%
 \label{OBJ_SEP}%
 \ttmindex{obj\_ketbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_ket;|%
+    \verb|  min::ustring                         obj_ket;|%
 \label{OBJ_KET}%
 \ttmindex{obj\_ket}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attrbegin;|%
+    \verb|  min::ustring                         obj_attrbegin;|%
 \ttmindex{obj\_attrbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attrsep;|%
+    \verb|  min::ustring                         obj_attrsep;|%
 \ttmindex{obj\_attrsep}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attreol;|%
+    \verb|  min::ustring                         obj_attreol;|%
 \ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attrneg;|%
+    \verb|  min::ustring                         obj_attrneg;|%
 \ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_attreq;|%
+    \verb|  min::ustring                         obj_attreq;|%
 \ttmindex{obj\_attreq}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::ustring *                 obj_valbegin;|%
+    \verb|  min::ustring                        obj_valbegin;|%
 \ttmindex{obj\_valbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_valsep;|%
+    \verb|  min::ustring                        obj_valsep;|%
 \ttmindex{obj\_valsep}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_valend;|%
+    \verb|  min::ustring                        obj_valend;|%
 \ttmindex{obj\_valend}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_valreq;|%
+    \verb|  min::ustring                        obj_valreq;|%
 \ttmindex{obj\_valreq}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
@@ -14735,14 +14735,14 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             line_sep_type;|%
 \ttmindex{line\_sep\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_line_sep;|%
+    \verb|  min::ustring                         obj_line_sep;|%
 \ttmindex{obj\_line\_sep}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             paragraph_type;|%
 \ttmindex{paragraph\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 obj_paragraph_begin;|%
+    \verb|  min::ustring                         obj_paragraph_begin;|%
 \ttmindex{obj\_paragraph\_begin}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
@@ -14789,44 +14789,39 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\verb|(min::ustring) "\x02\x02" "{}"           // obj_empty|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
+\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14878,11 +14873,6 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_empty|\ARGBREAK
 \end{tabular}
 
@@ -14894,7 +14884,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14903,19 +14893,19 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14967,23 +14957,18 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\verb$(min::ustring) "\x04\x04" "{||}" // obj_empty$\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb$(const min::ustring *) "\x04\x04" "{||}" // obj_empty$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14992,19 +14977,19 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15140,44 +15125,39 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
+\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15196,12 +15176,12 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15229,44 +15209,39 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
+\verb|(min::ustring) "\x80\x00" ""     // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x80\x00" ""     // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15318,44 +15293,39 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|// USTRING_LEADING = 0x40, USTRING_TRAILING = 0x80|\ARGBREAK
-\verb|// In first byte if _ALWAYS; in second byte if not.|\ARGBREAK
+\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
+\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(const min::ustring *) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "}"    // obj_ket|\ARGBREAK
+\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // obj_sep|\ARGBREAK
+\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(const min::ustring *) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
+\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
+\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
+\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15374,12 +15344,12 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|(const min::ustring *) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
+\verb|(min::ustring) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -17175,10 +17145,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::ustring * min::|
+\verb|min::ustring min::|
     & \MINKEY{unicode::name}\verb|[i]|
 \LABEL{MIN::UNICODE::NAME} \\
-\verb|const min::ustring * min::|
+\verb|min::ustring min::|
     & \MINKEY{unicode::picture}\verb|[i]|
 \LABEL{MIN::UNICODE::PICTURE} \\
 \end{TABULAR}
@@ -17351,22 +17321,22 @@ These are in \verb|min_parameters.h|.
 \INDEXHEADER{UNICODE Strings}
 
 \begin{TABULAR}{2.4in}
-\verb|typedef min::uns8 min::| & \MINKEY{ustring}
+\verb|typedef const min::uns8 * min::| & \MINKEY{ustring}
 \LABEL{MIN::USTRING} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
 \verb|min::uns32 min::|
     & \MINKEY{ustring\_length}\ARGBREAK
-      \verb|( const min::ustring * p )|
+      \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_LENGTH} \\
 \verb|min::uns32 min::|
     & \MINKEY{ustring\_columns} \ARGBREAK
-      \verb|( const min::ustring * p )|
+      \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_COLUMNS} \\
-\verb|const min::Uchar * min::|
+\verb|const char * min::|
     & \MINKEY{ustring\_chars} \ARGBREAK
-      \verb|( const min::ustring * p )|
+      \verb|( min::ustring s )|
 \LABEL{MIN::USTRING_CHARS} \\
 \end{TABULAR}
 
@@ -17391,7 +17361,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.0in}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
-    \verb|  const min::ustring * name,|\ARGBREAK
+    \verb|  min::ustring name,|\ARGBREAK
     \verb|  min::Uchar c )|
 \LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
@@ -19056,9 +19026,9 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{char\_\EOL name\_\EOL format}
 \LABEL{MIN::CHAR_NAME_FORMAT_STRUCT} \\
 \verb|{                         | \\
-\verb|     const min::ustring * |
+\verb|     min::ustring |
 	& \TTMKEY{char\_name\_prefix}{in {\tt min::char\_name\_format}} \\
-\verb|     const min::ustring * |
+\verb|     min::ustring |
 	& \TTMKEY{char\_name\_postfix}{in {\tt min::char\_name\_format}} \\
 \verb|}                         | \\
 \end{TABULAR}
@@ -19066,8 +19036,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::char\_name\_format
     min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
-\verb|{ (const min::ustring *) "\x01\x01" "<",|\ARGBREAK[1.0in]
-\verb|  (const min::ustring *) "\x01\x01" ">" };|
+\verb|{ (min::ustring) "\x01\x01" "<",|\ARGBREAK[1.0in]
+\verb|  (min::ustring) "\x01\x01" ">" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{TABULAR}
 
@@ -19543,7 +19513,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|min::printer min::| & \MINKEY{print\_ustring}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  const min::ustring * s )|
+    \verb|  min::ustring s )|
 \LABEL{MIN::PRINT_USTRING} \\
 \end{TABULAR}
 
@@ -20140,13 +20110,13 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{quote\_format}}
 \LABEL{MIN::QUOTE_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *    str_prefix;|%
+    \verb|  min::ustring    str_prefix;|%
 \ttmindex{str\_prefix}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_postfix;|%
+    \verb|  min::ustring    str_postfix;|%
 \ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_postfix_name;|%
+    \verb|  min::ustring    str_postfix_name;|%
 \ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  const min::ustring *    str_concatenator;|%
+    \verb|  min::ustring    str_concatenator;|%
 \ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
@@ -20157,10 +20127,10 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt const min::quote\_format
                    min::\MINKEY{standard\_quote\_format}:}
 \LABEL{MIN::STANDARD_QUOTE_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "\""   // str_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "\""   // str_postfix|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \end{TABULAR}
 
 \bigskip

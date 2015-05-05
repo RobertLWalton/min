@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 30 14:28:31 EDT 2015
+// Date:	Tue May  5 16:20:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2492,7 +2492,7 @@ void test_unicode_name_table ( void )
     MIN_CHECK ( c == min::NO_UCHAR );
 
     min::add ( ::unicode_table,
-               (const min::ustring *) "\x06\x06XXXXXX",
+               (min::ustring) "\x06\x06XXXXXX",
 	       0x1234 );
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
@@ -2500,7 +2500,7 @@ void test_unicode_name_table ( void )
     MIN_CHECK ( c == min::NO_UCHAR );
 
     min::add ( ::unicode_table,
-               (const min::ustring *) "\x05\x05YYYYY",
+               (min::ustring) "\x05\x05YYYYY",
 	       0x5678 );
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
@@ -2509,13 +2509,13 @@ void test_unicode_name_table ( void )
 
     desire_success (
 	min::add ( ::unicode_table,
-		   (const min::ustring *)
+		   (min::ustring)
 		       "\x05\x05YYYYY",
 		   0x5678 );
     );
     desire_failure (
 	min::add ( ::unicode_table,
-		   (const min::ustring *)
+		   (min::ustring)
 		       "\x05\x05YYYYY",
 		   0x1234 );
     );

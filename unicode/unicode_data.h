@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr 14 03:23:28 EDT 2015
+// Date:	Tue May  5 16:07:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,9 +37,9 @@ const Uchar SOFTWARE_NL = 0xF0FF;
 const Uchar NO_UCHAR = 0xFFFFFFFF;
     // Denotes a missing Uchar value.
 
-typedef uns8 ustring;
-    // A `ustring *' value is a sequence of 8 bit bytes
-    // the first two of which are the `header' and the
+typedef const uns8 * ustring;
+    // A `ustring' value is a vector of 8 bit bytes, the
+    // first two of which are the `header' and the
     // remainder of which is a NUL terminated `const
     // char *' UTF8 encoded string.
     // 
@@ -65,44 +65,20 @@ typedef uns8 ustring;
 // `const char *' UTF8 string in the ustring.
 //
 inline uns32 ustring_length
-	( const ustring * p )
+	( ustring s )
 {
-    return p[0] & 0x3F;
+    return s[0] & 0x3F;
 }
 inline uns32 ustring_columns
-	( const ustring * p )
+	( ustring s )
 {
-    return p[1] & 0x0F;
+    return s[1] & 0x0F;
 }
 inline const char * ustring_chars
-	( const ustring * p )
+	( ustring s )
 {
-    return (const char *) ( p + 2 );
+    return (const char *) ( s + 2 );
 }
-
-// Ustring flags as returned by ustring_flags function
-// (and NOT as encode in ustring bytes).
-//
-const uns32 USTRING_ADD_SPACE		= ( 1 << 5 );
-    // 0x20 in second byte
-const uns32 USTRING_LEADING		= ( 1 << 6 );
-    // 0x40 in second byte
-const uns32 USTRING_TRAILING		= ( 1 << 7 );
-    // 0x80 in second byte
-const uns32 USTRING_LEADING_ALWAYS	= ( 1 << 14 );
-    // 0x40 in first byte
-const uns32 USTRING_TRAILING_ALWAYS	= ( 1 << 15 );
-    // 0x80 in first byte
-
-// Return flags as per above.  Non-flag bits are set at
-// random.
-//
-inline uns32 ustring_flags
-    ( const ustring * str )
-{
-    return ( str[0] << 8 ) + str[1];
-}
-
 
 // Return the UTF8 encoded unicode character at the
 // beginning of the string s and move s to just after
@@ -397,7 +373,7 @@ enum {
     White_Space
 };
 
-extern const ustring * const name[];
+extern ustring const name[];
     // name[index[c]] is the ustring name of c, or NULL
     // if c has no name.  For example, character code
     // 0A has as ustring name "\x02\x02" "LF" (where
@@ -408,7 +384,7 @@ extern const ustring * const name[];
     // Names are `alias'es read from NameAliases.txt.
     // NULL if missing.
 
-extern const ustring * const picture[];
+extern ustring const picture[];
     // picture[index[c]] is the ustring picture name of
     // c, or NULL if c has no picture name.  E.g.,
     // character code 0A has as picture the ustring

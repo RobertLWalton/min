@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 13:39:50 EDT 2015
+// Date:	Tue May  5 16:18:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3274,8 +3274,7 @@ min::unicode_name_table min::init
 	{
 	    if ( ( char_flags[i] & flags ) == 0 )
 		continue;
-	    const ustring * name =
-	        min::unicode::name[i];
+	    ustring name = min::unicode::name[i];
 	    Uchar c = min::unicode::character[i];
 	    if ( name == NULL ) continue;
 	    MIN_ASSERT ( c != NO_UCHAR,
@@ -3291,7 +3290,7 @@ min::unicode_name_table min::init
 
 void min::add
 	( min::unicode_name_table table,
-	  const min::ustring * name,
+	  min::ustring name,
 	  min::Uchar c )
 {
     Uchar c2 = min::find
@@ -7952,8 +7951,8 @@ const min::break_control
 
 static min::char_name_format standard_char_name_format =
 {
-    (const min::ustring *) "\x01\x01" "<",
-    (const min::ustring *) "\x01\x01" ">"
+    (min::ustring) "\x01\x01" "<",
+    (min::ustring) "\x01\x01" ">"
 };
 const min::char_name_format *
 	min::standard_char_name_format =
@@ -8300,7 +8299,7 @@ min::printer min::init_ostream
 
 inline void push
 	( min::packed_vec_insptr<char> buffer,
-	  const min::ustring * str )
+	  min::ustring str )
 {
     min::uns32 length = min::ustring_length ( str );
     const char * p = min::ustring_chars ( str );
@@ -9106,7 +9105,7 @@ min::printer MINT::print_unicode
 	  const min::display_control * display_control,
 	  const min::Uchar * substring,
 	  min::unsptr substring_length,
-	  const min::ustring * replacement )
+	  min::ustring replacement )
 {
     if ( n == 0 ) return printer;
 
@@ -9156,8 +9155,8 @@ min::printer MINT::print_unicode
 	min::uns32 length = 1;
 	min::unsptr clength = 1;
 	const char * rep = temp;
-	const min::ustring * prefix = NULL;
-	const min::ustring * postfix = NULL;
+	min::ustring prefix = NULL;
+	min::ustring postfix = NULL;
 	rep_is_space = false;
 
 	if (    substring != NULL
@@ -9220,7 +9219,7 @@ min::printer MINT::print_unicode
 		     min::unicode::picture[cindex]
 		  != NULL )
 	{
-	    const min::ustring * picture =
+	    min::ustring picture =
 	        min::unicode::picture[cindex];
 
 	    length = min::ustring_length ( picture );
@@ -9234,7 +9233,7 @@ min::printer MINT::print_unicode
 	{
 	    if ( min::unicode::name[cindex] != NULL )
 	    {
-		const min::ustring * name =
+		min::ustring name =
 		    min::unicode::name[cindex];
 		length = min::ustring_length ( name );
 		columns = min::ustring_columns ( name );
@@ -9746,7 +9745,7 @@ min::uns32 min::pwidth ( min::uns32 & column,
 		  &&
 		  unicode::picture[cindex] != NULL )
 	{
-	    const ustring * picture =
+	    ustring picture =
 	        unicode::picture[cindex];
 	    min::uns32 picture_columns =
 	        ustring_columns ( picture );
@@ -9759,7 +9758,7 @@ min::uns32 min::pwidth ( min::uns32 & column,
 	{
 	    if ( unicode::name[cindex] != NULL )
 	    {
-		const ustring * name =
+		ustring name =
 		    unicode::name[cindex];
 		min::uns32 name_columns =
 		    ustring_columns ( name );
@@ -9981,10 +9980,10 @@ min::printer min::print_num
 
 const min::quote_format min::standard_quote_format =
 {
-    (const min::ustring *) "\x01\x01" "\"",
-    (const min::ustring *) "\x01\x01" "\"",
-    (const min::ustring *) "\x03\x03" "<Q>",
-    (const min::ustring *) "\x01\x01" "#"
+    (min::ustring) "\x01\x01" "\"",
+    (min::ustring) "\x01\x01" "\"",
+    (min::ustring) "\x03\x03" "<Q>",
+    (min::ustring) "\x01\x01" "#"
 };
 
 static min::str_format quote_all_str_format =

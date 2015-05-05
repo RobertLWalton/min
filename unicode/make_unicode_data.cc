@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 00:10:51 EST 2015
+// Date:	Tue May  5 16:08:40 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -83,8 +83,8 @@ double denominator[index_size];
 double numeric_value[index_size];
 char bidi_mirrored[index_size];
 uns64 properties[index_size];
-const ustring * name[index_size];
-const ustring * picture[index_size];
+ustring name[index_size];
+ustring picture[index_size];
 uns32 support_sets[index_size];
 uns32 reference_count[index_size];
 
@@ -211,7 +211,7 @@ void store_name ( Uchar c, const char * n )
     unsigned length = strlen ( n );
     assert ( length > 0 );
     assert ( length < 256 );
-    ustring buffer[length+3];
+    uns8 buffer[length+3];
     buffer[0] = buffer[1] = length;
     memcpy ( buffer + 2, n, length );
     buffer[length+2] = 0;
@@ -226,7 +226,7 @@ void store_name ( Uchar c, const char * n )
 	return;
     }
 
-    name[c] = (ustring *) strdup ( (char *) buffer );
+    name[c] = (ustring) strdup ( (char *) buffer );
 
     // Check for name being used more than once.
     //
@@ -931,7 +931,7 @@ void set_pictures ( void )
 	buffer[0] = length;
 	buffer[1] = 1;
 	buffer[length+2] = 0;
-	picture[c] = (ustring *) strdup ( buffer );
+	picture[c] = (ustring) strdup ( buffer );
 
 	if ( c == 0x20 ) c = 0x7F;
 	else if ( c == 0x7F) c = 0xA0;
