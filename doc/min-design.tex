@@ -11219,7 +11219,7 @@ The format for printing special \TT{min::gen} values is:
 \ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
     \verb|  min::pstring                         special_postfix;|%
 \ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>    special_names;|%
+    \verb|  min::packed_vec_ptr<min::ustring>    special_names;|%
 \ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::SPECIAL_FORMAT}
@@ -11244,12 +11244,18 @@ The format for printing special \TT{min::gen} values is:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{rl}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char *>
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// [0 .. 7] == |\ARGBREAK
-\verb|//        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\ARGBREAK
-\verb|//        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|
+\verb|//        (min::ustring) "\x07\x07" "MISSING",|\ARGBREAK
+\verb|//        (min::ustring) "\x04\x04" "NONE",|\ARGBREAK
+\verb|//        (min::ustring) "\x03\x03" "ANY",|\ARGBREAK
+\verb|//        (min::ustring) "\x0C\x0C" "MULTI_VALUED",|\ARGBREAK
+\verb|//        (min::ustring) "\x09\x09" "UNDEFINED",|\ARGBREAK
+\verb|//        (min::ustring) "\x07\x07" "SUCCESS",|\ARGBREAK
+\verb|//        (min::ustring) "\x07\x07" "FAILURE",|\ARGBREAK
+\verb|//        (min::ustring) "\x05\x05" "ERROR"|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -20240,7 +20246,7 @@ These are in \verb|min_parameters.h|.
 \ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
     \verb|  min::pstring                         special_postfix;|%
 \ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>    special_names;|%
+    \verb|  min::packed_vec_ptr<min::ustring>    special_names;|%
 \ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
@@ -20270,7 +20276,7 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{0.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char *>
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// [0 .. 7] == |\ARGBREAK

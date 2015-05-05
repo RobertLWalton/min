@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:17:50 EDT 2015
+// Date:	Tue May  5 17:10:32 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5923,6 +5923,8 @@ namespace min {
     extern packed_vec<min::uns32> uns32_packed_vec_type;
     extern packed_vec<const char *> 
         const_char_ptr_packed_vec_type;
+    extern packed_vec<min::ustring> 
+        ustring_packed_vec_type;
 
 }
 
@@ -12039,10 +12041,9 @@ namespace min {
 
     struct special_format
     {
-	min::pstring		    special_prefix;
-	min::pstring		    special_postfix;
-	packed_vec_ptr<const char *>
-				    special_names;
+	min::pstring		         special_prefix;
+	min::pstring		         special_postfix;
+	packed_vec_ptr<min::ustring>     special_names;
     };
 
     extern const min::special_format *
@@ -12175,7 +12176,7 @@ namespace min {
     extern const gen_format *
         line_gen_format;
 
-    extern packed_vec_ptr<const char *>
+    extern packed_vec_ptr<min::ustring>
            standard_special_names;
 
     extern packed_vec_ptr<const char *>

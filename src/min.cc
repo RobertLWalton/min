@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:18:03 EDT 2015
+// Date:	Tue May  5 17:10:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -103,19 +103,28 @@ min::packed_vec<min::uns32>
 min::packed_vec<const char *>
     min::const_char_ptr_packed_vec_type
         ( "min::const_char_ptr_packed_vec_type" );
+min::packed_vec<min::ustring>
+    min::ustring_packed_vec_type
+        ( "min::ustring_packed_vec_type" );
 min::packed_vec<min::gen> min::gen_packed_vec_type
     ( "min::gen_packed_vec_type",
       gen_element_disp );
 
 static const unsigned standard_special_names_length = 8;
-static char const * standard_special_names_value
+static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
-    { "MISSING", "NONE", "ANY", "MULTI_VALUED",
-      "UNDEFINED", "SUCCESS", "FAILURE", "ERROR" };
-min::packed_vec_ptr<const char *>
+    { (min::ustring) "\x07\x07" "MISSING",
+      (min::ustring) "\x04\x04" "NONE",
+      (min::ustring) "\x03\x03" "ANY",
+      (min::ustring) "\x0C\x0C" "MULTI_VALUED",
+      (min::ustring) "\x09\x09" "UNDEFINED",
+      (min::ustring) "\x07\x07" "SUCCESS",
+      (min::ustring) "\x07\x07" "FAILURE",
+      (min::ustring) "\x05\x05" "ERROR" };
+min::packed_vec_ptr<min::ustring>
     min::standard_special_names;
 static min::locatable_var
-	< min::packed_vec_ptr<const char *> >
+	< min::packed_vec_ptr<min::ustring> >
     standard_special_names;
 
 static const unsigned
@@ -369,8 +378,8 @@ void MINT::initialize ( void )
         min::new_str_gen ( ".operator" );
 
     {
-	min::packed_vec_insptr<const char *> p =
-	    min::const_char_ptr_packed_vec_type.new_stub
+	min::packed_vec_insptr<min::ustring> p =
+	    min::ustring_packed_vec_type.new_stub
 		( ::standard_special_names_length );
 	::standard_special_names = p;
 	min::standard_special_names = p;
@@ -11640,10 +11649,9 @@ min::printer min::standard_pgen
 	    f->special_format;
 	if ( sf == NULL ) sf = min::bracket_special_format;
         min::unsgen index = MUP::special_index_of ( v );
-	min::packed_vec_ptr<const char *>
-	        special_names =
+	min::packed_vec_ptr<min::ustring> special_names =
 	    sf ? sf->special_names
-	       : (min::packed_vec_ptr<const char *>)
+	       : (min::packed_vec_ptr<min::ustring>)
 	         min::NULL_STUB;
 
 	printer << sf->special_prefix;
@@ -11651,8 +11659,6 @@ min::printer min::standard_pgen
 	min::print_item_preface
 	    ( printer, min::IS_GRAPHIC );
 	char buffer[64];
-	const char * name;
-	min::uns32 n;
 	if ( special_names != min::NULL_STUB
 	     &&
 	         0xFFFFFF
@@ -11661,16 +11667,19 @@ min::printer min::standard_pgen
 	     &&
 	     index <= 0xFFFFFF )
 	{
-	    name = special_names[0xFFFFFF - index];
-	    n = ::strlen ( name );
+	    min::print_item_preface
+	        ( printer, min::IS_GRAPHIC );
+	    min::print_ustring
+	        ( printer,
+		  special_names[0xFFFFFF - index] );
 	}
 	else
 	{
-	    n = sprintf ( buffer, "SPECIAL(0x%06llX)",
+	    min::uns32 n =
+	        sprintf ( buffer, "SPECIAL(0x%06llX)",
 		                  (min::uns64) index );
-	    name = buffer;
+	    min::print_item ( printer, buffer, n, n );
 	}
-	min::print_item ( printer, name, n, n );
 
 	printer << sf->special_postfix;
 	return printer;
