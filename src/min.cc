@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 06:17:38 EDT 2015
+// Date:	Tue May  5 13:39:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11618,12 +11618,12 @@ min::printer min::standard_pgen
     else if ( min::is_lab ( v ) )
     {
         const min::lab_format * lf = f->lab_format;
-	if ( lf == NULL ) lf = min::name_lab_format;
+	if ( lf == NULL ) lf = min::bracket_lab_format;
 
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
 
-	if ( lf ) printer << lf->lab_prefix;
+	printer << lf->lab_prefix;
 
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
@@ -11631,7 +11631,7 @@ min::printer min::standard_pgen
 	    (* f->pgen) ( printer, labp[i], f );
 	}
 
-	if ( lf ) printer << lf->lab_postfix;
+	printer << lf->lab_postfix;
 
 	return printer;
     }
@@ -11639,6 +11639,7 @@ min::printer min::standard_pgen
     {
 	const min::special_format * sf =
 	    f->special_format;
+	if ( sf == NULL ) sf = min::bracket_special_format;
         min::unsgen index = MUP::special_index_of ( v );
 	min::packed_vec_ptr<const char *>
 	        special_names =
@@ -11646,7 +11647,7 @@ min::printer min::standard_pgen
 	       : (min::packed_vec_ptr<const char *>)
 	         min::NULL_STUB;
 
-	if ( sf ) printer << sf->special_prefix;
+	printer << sf->special_prefix;
 
 	min::print_item_preface
 	    ( printer, min::IS_GRAPHIC );
@@ -11672,7 +11673,7 @@ min::printer min::standard_pgen
 	}
 	min::print_item ( printer, name, n, n );
 
-	if ( sf ) printer << sf->special_postfix;
+	printer << sf->special_postfix;
 	return printer;
     }
 

@@ -11148,11 +11148,11 @@ The format for printing label \TT{min::gen} values is:
                        min::\MINKEY{lab\_format}}
 \LABEL{MIN::LAB_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *    lab_prefix;|%
+    \verb|  min::pstring         lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_separator;|%
+    \verb|  min::pstring         lab_separator;|%
 \ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_postfix;|%
+    \verb|  min::pstring         lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \end{tabular}\end{indpar}
@@ -11162,7 +11162,7 @@ The format for printing label \TT{min::gen} values is:
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
+\verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -11171,7 +11171,8 @@ The format for printing label \TT{min::gen} values is:
                    min::\MINKEY{leading\_always\_lab\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x40\x00" ""     // lab_separator|\ARGBREAK
+\verb|min::leading_always_pstring              // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::leading|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -11180,7 +11181,8 @@ The format for printing label \TT{min::gen} values is:
                    min::\MINKEY{trailing\_always\_lab\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x80\x00" ""     // lab_separator|\ARGBREAK
+\verb|min::trailing_always_pstring             // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::trailing|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -11188,9 +11190,9 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "[: "  // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " :]"  // lab_postfix|\ARGBREAK
+\verb|min::left_square_colon_space_pstring     // lab_prefix    "[: "|\ARGBREAK
+\verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
+\verb|min::space_colon_right_square_pstring    // lab_postfix   " :]"|\ARGBREAK
 \end{tabular}\end{indpar}
 
 A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
@@ -11202,7 +11204,7 @@ Given a label format \TT{lf}, a \TT{min::gen} label value is printed as
 \TT{lf->\EOL lab\_\EOL postfix}.  Note that \TT{NULL} values for
 \TT{lf->\EOL lab\_\EOL prefix/separator/postfix} act like empty strings
 that print nothing, and a \TT{NULL} value for \TT{lf} acts like
-\TT{min::\EOL name\_\EOL lab\_\EOL format}.
+\TT{min::\EOL bracket\_\EOL lab\_\EOL format}.
 
 \subsubsection{Printing Special General Values}
 \label{PRINTING-SPECIAL-GENERAL-VALUES}
@@ -11213,9 +11215,9 @@ The format for printing special \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{special\_format}}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *                 special_prefix;|%
+    \verb|  min::pstring                         special_prefix;|%
 \ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 special_postfix;|%
+    \verb|  min::pstring                         special_postfix;|%
 \ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    special_names;|%
 \ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
@@ -11235,8 +11237,8 @@ The format for printing special \TT{min::gen} values is:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{bracket\_special\_format}:}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "[$"   // special_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "$]"   // special_postfix|\ARGBREAK
+\verb|min::left_square_dollar_space_pstring    // special_prefix   "[$ "|\ARGBREAK
+\verb|min::space_dollar_right_square_pstring   // special_postfix  " $]"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \LABEL{MIN::BRACKET_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
@@ -11255,28 +11257,31 @@ a \TT{min::gen} special value \TT{v} is printed as its name surrounded
 by \TT{lf->\EOL special\_\EOL prefix/\EOL postfix}.
 Let
 \begin{center}
+\begin{tabular}{l}
 \tt i = min::special\_index\_of ( v ) \\
 \tt j = 0xFFFFFF - i
+\end{tabular}
 \end{center}
 Here \TT{i} is the index of \TT{v} and \TT{0xFFFFFF} is the maximum possible
 value of \TT{i}.
-Then if \TT{lf->\EOL special\_\EOL names} is not \TT{min::\EOL NULL\_\EOL STUB},
+Then if \TT{sf->\EOL special\_\EOL names} is not \TT{min::\EOL NULL\_\EOL STUB},
 and
 \begin{center}
-\tt 0 <= j < lf->special\_names->length
+\tt 0 <= j < sf->special\_names->length
 \end{center}
-then \TT{lf->\EOL special\_\EOL names[j]} is the name of \TT{v}.
+then \TT{sf->\EOL special\_\EOL names[j]} is the name of \TT{v}.
 
 Otherwise
 \TT{SPECIAL(}$i$\TT{)} is he name of \TT{v}, where $i$ is represented as
 a 6-digit hexadecimal integer (e.g., \TT{0x000000}, \TT{0x000001},
 \ldots, \TT{0xFFFFFF}).
 
-If \TT{lf} is \TT{NULL}, it is treated as if its
-\TT{special\_\EOL prefix/\EOL postfix/\EOL names} components were
-\TT{NULL} or \TT{NULL\_\EOL STUB}.
+\TT{NULL} values for
+\TT{sf->\EOL lab\_\EOL prefix/postfix} act like empty strings
+that print nothing, and a \TT{NULL} value for \TT{sf} acts like
+\TT{min::\EOL bracket\_\EOL special\_\EOL format}.
 
-WARNING: The {\tt special\_\EOL names} member of a {\tt min::gen\_format} is
+WARNING: The \TT{special\_\EOL names} member of a \TT{min::special\_format} is
 \underline{not} locatable by the ACC, and its value must therefore be
 stored elsewhere in a locatable variable.  It is expected that values of
 {\tt special\_\EOL names} will never be garbage collected and
@@ -20197,57 +20202,59 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{lab\_format}}
 \LABEL{MIN::LAB_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *    lab_prefix;|%
+    \verb|  min::pstring         lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_separator;|%
+    \verb|  min::pstring         lab_separator;|%
 \ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  const min::ustring *    lab_postfix;|%
+    \verb|  min::pstring         lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
+\verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{leading\_always\_lab\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x40\x00" ""     // lab_separator|\ARGBREAK
+\verb|min::leading_always_pstring              // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::leading|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{trailing\_always\_lab\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x80\x00" ""     // lab_separator|\ARGBREAK
+\verb|min::trailing_always_pstring             // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::trailing|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" "[: "  // lab_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x01\x00" " "    // lab_separator|\ARGBREAK
-\verb|(const min::ustring *) "\x03\x00" " :]"  // lab_postfix|\ARGBREAK
+\verb|min::left_square_colon_space_pstring     // lab_prefix    "[: "|\ARGBREAK
+\verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
+\verb|min::space_colon_right_square_pstring    // lab_postfix   " :]"|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
@@ -20259,9 +20266,9 @@ These are in \verb|min_parameters.h|.
                        min::\MINKEY{special\_format}}
 \LABEL{MIN::SPECIAL_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::ustring *                 special_prefix;|%
+    \verb|  min::pstring                         special_prefix;|%
 \ttmindex{special\_prefix}{in {\tt min::special\_format}}\ARGBREAK
-    \verb|  const min::ustring *                 special_postfix;|%
+    \verb|  min::pstring                         special_postfix;|%
 \ttmindex{special\_postfix}{in {\tt min::special\_format}}\ARGBREAK
     \verb|  min::packed_vec_ptr<const char *>    special_names;|%
 \ttmindex{special\_names}{in {\tt min::special\_format}}\ARGBREAK
@@ -20270,7 +20277,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}
 \LABEL{MIN::NAME_SPECIAL_FORMAT}\ARGBREAK
@@ -20281,18 +20288,18 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{bracket\_special\_format}:}
 \LABEL{MIN::BRACKET_SPECIAL_FORMAT}\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "[$"   // special_prefix|\ARGBREAK
-\verb|(const min::ustring *) "\x02\x02" "$]"   // special_postfix|\ARGBREAK
+\verb|min::left_square_dollar_space_pstring    // special_prefix   "[$ "|\ARGBREAK
+\verb|min::space_dollar_right_square_pstring   // special_postfix  " $]"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
+\begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char *>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
