@@ -9931,17 +9931,19 @@ Some people prefer extra spacing next to parentheses, and
 \TT{min::\EOL FORCE\_\EOL SPACE} accommodates this.
 
 Third, above we have dealt with `strings', but the printer actually
-deals with `\ikey{items}{printer item}\index{item!printer}'.  A
-character string is an item, but so is a number, and so are
+deals with
+`\ikey{print items}{print item}\index{item!print}'\label{PRINT-ITEM}.
+A character string is a print item, but so is a number, and so are
 \TT{min::gen} values that are not labels or objects.  Labels and
-objects are `\key{composite}' and output multiple items.
-The default rule is that \TT{min::gen} string values are items classified by
+objects are `\key{composite}' and output multiple print items.
+The default rule is that \TT{min::gen} string values are print
+items classified by
 
 \begin{center}
 \TT{printer->print\_format.gen\_format->str\_format.str\_classifer}
 \end{center}
 
-if it exists, whereas in all other cases items are classified by
+if it exists, whereas in all other cases print items are classified by
 the \TT{min::\EOL null\_\EOL str\_\EOL classifier}.
 This last classifier just separates out whitespace strings, to which
 it gives the class \TT{0}, from other strings, to which it gives
@@ -9950,7 +9952,7 @@ the class \TT{IS\_\EOL GRAPHIC}.
 Fourth, a \TT{min::gen} string whose string class contains the
 \TT{NEEDS\_\EOL QUOTES} flag, or does \underline{not}
 contain the \TT{IS\_\EOL GRAPHIC} flag, is quoted,
-and the whole quoted string is treated as a single item with just the
+and the whole quoted string is treated as a single print item with just the
 \TT{IS\_\EOL GRAPHIC} flag.
 
 In general print items may be separated by
@@ -9996,7 +9998,7 @@ due to implementation limitations.
 \subsubsection{Printer Strings}
 \label{PRINTER-STRINGS}
 
-Sequence of printer items can be represented by `\skey{printer string}s':
+Sequence of print items can be represented by `\skey{printer string}s':
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|typedef min::printer (* min::| & \MINKEY{pstring}
@@ -10048,7 +10050,7 @@ string functions:
 \LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
-The \TT{min::print\_item} function prints a single printer item
+The \TT{min::print\_item} function prints a single print item
 that is a UTF-8 string of \TT{n} \TT{chars} taking the given
 number of columns and having the given string class.  However,
 this function \underline{ignores} the \TT{printer->\EOL print\_\EOL format},
@@ -11047,16 +11049,30 @@ value according to the above formats:
 \LABEL{MIN::PRINT_CSTRING} \\
 \end{tabular}\end{indpar}
 
-Here \TT{str\_format->str\_classifier}
-determines whether the string will be printed plain or as a quoted string, and 
-if it is quoted, the other parts of \TT{str\_\EOL format} determine how
-it is quoted.  If \TT{str\_\EOL format} is \TT{NULL},
-the string is simply printed as is without quoting.
+If \TT{str\_\EOL format} is \TT{NULL},
+the string is printed as is without quoting.
+Otherwise \TT{str\_\EOL format->\EOL str\_\EOL classifier}
+is used to compute the
+string class of the string, and if that has the
+\TT{min::\EOL NEEDS\_\EOL QUOTES} flag or does \underline{not} have the
+\TT{min::\EOL IS\_\EOL GRAPHIC} flag, the string is quoted.
+
+If not quoted, the string
+is considered to be a print item (\pagref{PRINT-ITEM}).
+As such its string class is computed by
+\TT{str\_\EOL format->\EOL str\_\EOL classifier} if \TT{str\_\EOL format}
+is not \TT{NULL}, and by \TT{min::\EOL null\_\EOL str\_\EOL classifier}
+otherwise.
+See \itemref{STRING-CLASSIFIERS} for details on string classifiers
+and \itemref{LEADING-AND-TRAILING-SEPARATORS} for the uses of string
+classes in determining the behavior of the
+\TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
+
 Note that
 \TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
 implicitly used when \TT{min::\EOL print\_\EOL cstring} is called directly
 with a \TT{NULL} third argument,
-but it is used as the third argument when a \TT{min::gen} value is
+but it is used implicitly when a \TT{min::gen} value is
 printed.
 
 \TT{min::print\_cstring} copies the string to the stack (converting from
@@ -11064,10 +11080,6 @@ UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
 any functions that might allocate or relocate objects, so \TT{str}
 \underline{can} be a relocatable address.
 
-A \TT{min::quote\_control}\label{QUOTE_CONTROL} value is
-a \TT{min::\EOL str\_\EOL classifier} that causes the string to be quoted
-\underline{unless} the string is in the specified class.  See
-\pagref{STRING-CLASSIFIERS} for details on string classifiers.
 
 If the string is to be quoted, \TT{str\_format->bracket\_format}
 determines how the string is quoted.  The quoted string is preceeded
