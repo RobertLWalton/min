@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  6 07:04:04 EDT 2015
+// Date:	Wed May  6 17:44:58 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10119,10 +10119,6 @@ static min::obj_format compact_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
-
     min::left_curly_right_curly_pstring,
 			    // obj_empty
 
@@ -10169,190 +10165,6 @@ static min::obj_format compact_obj_format =
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
 
-static min::obj_format isolated_line_obj_format =
-{
-    min::ISOLATED_LINE,	    // obj_op_flags
-
-    NULL,		    // element_format*
-    NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
-    NULL,		    // label_format*
-    NULL,		    // value_format*
-
-    NULL,		    // initiator_format*
-    NULL,		    // separator_format*
-    NULL,		    // terminator_format*
-
-    min::null_str_classifier,
-    			    // marking_type
-    min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
-    min::NONE(),	    // paragraph_type
-
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
-
-    NULL,		    // obj_empty
-
-    NULL,		    // obj_bra
-    NULL,		    // obj_braend
-    NULL,		    // obj_ketbegin
-    NULL,		    // obj_ket
-
-    min::space_if_none_pstring,
-			    // obj_sep
-
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
-
-    min::trailing_always_colon_pstring,
-			    // obj_attreol
-
-    min::no_space_pstring,
-			    // obj_attrneg
-    min::space_equal_space_pstring,
-			    // obj_attreq
-
-    min::standard_attr_flag_format,
-    			    // flag_format
-
-    min::left_curly_star_space_pstring,
-			    // obj_valbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_valsep
-    min::space_star_right_curly_pstring,
-			    // obj_valend
-    min::space_less_than_equal_space_pstring,
-			    // obj_valreq
-
-    NULL,		    // obj_line_sep
-    NULL,		    // obj_paragraph_begin
-};
-const min::obj_format * min::isolated_line_obj_format =
-    & ::isolated_line_obj_format;
-
-static min::obj_format embedded_line_obj_format =
-{
-    min::EMBEDDED_LINE,	    // obj_op_flags
-
-    NULL,		    // element_format*
-    NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
-    NULL,		    // label_format*
-    NULL,		    // value_format*
-
-    NULL,		    // initiator_format*
-    NULL,		    // separator_format*
-    NULL,		    // terminator_format*
-
-    min::null_str_classifier,
-    			    // marking_type
-    min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
-    min::NONE(),	    // paragraph_type
-
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
-
-    min::left_curly_vbar_vbar_right_curly_pstring,
-			    // obj_empty
-
-    min::left_curly_leading_pstring,
-			    // obj_bra
-    min::trailing_vbar_pstring,
-			    // obj_braend
-    min::vbar_leading_pstring,
-			    // obj_ketbegin
-    min::trailing_right_curly_pstring,
-			    // obj_ket
-
-    min::space_if_none_pstring,
-			    // obj_sep
-
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
-
-    min::trailing_always_colon_pstring,
-			    // obj_attreol
-
-    min::no_space_pstring,
-			    // obj_attrneg
-    min::space_equal_space_pstring,
-			    // obj_attreq
-
-    min::standard_attr_flag_format,
-    			    // flag_format
-
-    min::left_curly_star_space_pstring,
-			    // obj_valbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_valsep
-    min::space_star_right_curly_pstring,
-			    // obj_valend
-    min::space_less_than_equal_space_pstring,
-			    // obj_valreq
-
-    NULL,		    // obj_line_sep
-    NULL,		    // obj_paragraph_begin
-};
-const min::obj_format * min::embedded_line_obj_format =
-    & ::embedded_line_obj_format;
-
-static min::obj_format id_obj_format =
-{
-    min::PRINT_ID,	    // obj_op_flags
-
-    NULL,		    // element_format
-    NULL,		    // top_element_format
-    NULL,		    // quote_element_format
-    NULL,		    // label_format
-    NULL,		    // value_format
-
-    NULL,		    // initiator_format
-    NULL,		    // separator_format
-    NULL,		    // terminator_format
-
-    min::null_str_classifier,
-    			    // marking_type
-    min::NONE(),	    // quote_type
-    min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
-    min::NONE(),	    // paragraph_type
-
-    NULL,		    // obj_empty
-
-    NULL,		    // obj_bra
-    NULL,		    // obj_braend
-    NULL,		    // obj_ketbegin
-    NULL,		    // obj_ket
-
-    NULL,		    // obj_sep
-
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
-
-    NULL,		    // obj_attreol
-
-    NULL,		    // obj_attrneg
-    NULL,		    // obj_attreq
-
-    NULL,		    // flag_format
-
-    NULL,		    // obj_valbegin
-    NULL,		    // obj_valsep
-    NULL,		    // obj_valend
-    NULL,		    // obj_valreq
-
-    NULL,		    // obj_line_sep
-    NULL,		    // obj_paragraph_begin
-};
-const min::obj_format * min::id_obj_format =
-    & ::id_obj_format;
-
 static min::obj_format paragraph_element_obj_format =
 {
     min::ENABLE_COMPACT,    // obj_op_flags
@@ -10373,10 +10185,6 @@ static min::obj_format paragraph_element_obj_format =
     min::NONE(),	    // line_type*
     min::NONE(),	    // line_sep_type*
     min::NONE(),	    // paragraph_type
-
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10447,10 +10255,6 @@ static min::obj_format line_element_obj_format =
     min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type*
 
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
-
     min::left_curly_right_curly_pstring,
 			    // obj_empty
 
@@ -10519,10 +10323,6 @@ static min::obj_format line_obj_format =
     min::NONE(),	    // line_sep_type*
     min::NONE(),	    // paragraph_type
 
-    // USTRING_ADD_SPACE == 0x20
-    // USTRING_LEADING   == 0x40
-    // USTRING_TRAILING  == 0x80
-
     min::left_curly_right_curly_pstring,
 			    // obj_empty
 
@@ -10570,6 +10370,181 @@ static min::obj_format line_obj_format =
 const min::obj_format *
 	min::line_obj_format =
     & ::line_obj_format;
+
+static min::obj_format embedded_line_obj_format =
+{
+    min::EMBEDDED_LINE,	    // obj_op_flags
+
+    NULL,		    // element_format*
+    NULL,		    // top_element_format
+    NULL,		    // quote_element_format*
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    NULL,		    // initiator_format*
+    NULL,		    // separator_format*
+    NULL,		    // terminator_format*
+
+    min::null_str_classifier,
+    			    // marking_type
+    min::NONE(),	    // quote_type*
+    min::NONE(),	    // line_type
+    min::NONE(),	    // line_sep_type
+    min::NONE(),	    // paragraph_type
+
+    min::left_curly_vbar_vbar_right_curly_pstring,
+			    // obj_empty
+
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_pstring,
+			    // obj_braend
+    min::vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
+
+    min::space_if_none_pstring,
+			    // obj_sep
+
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
+
+    min::trailing_always_colon_pstring,
+			    // obj_attreol
+
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
+
+    min::standard_attr_flag_format,
+    			    // flag_format
+
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
+
+    NULL,		    // obj_line_sep
+    NULL,		    // obj_paragraph_begin
+};
+const min::obj_format * min::embedded_line_obj_format =
+    & ::embedded_line_obj_format;
+
+static min::obj_format isolated_line_obj_format =
+{
+    min::ISOLATED_LINE,	    // obj_op_flags
+
+    NULL,		    // element_format*
+    NULL,		    // top_element_format
+    NULL,		    // quote_element_format*
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    NULL,		    // initiator_format*
+    NULL,		    // separator_format*
+    NULL,		    // terminator_format*
+
+    min::null_str_classifier,
+    			    // marking_type
+    min::NONE(),	    // quote_type*
+    min::NONE(),	    // line_type
+    min::NONE(),	    // line_sep_type
+    min::NONE(),	    // paragraph_type
+
+    NULL,		    // obj_empty
+
+    NULL,		    // obj_bra
+    NULL,		    // obj_braend
+    NULL,		    // obj_ketbegin
+    NULL,		    // obj_ket
+
+    min::space_if_none_pstring,
+			    // obj_sep
+
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
+
+    min::trailing_always_colon_pstring,
+			    // obj_attreol
+
+    min::no_space_pstring,
+			    // obj_attrneg
+    min::space_equal_space_pstring,
+			    // obj_attreq
+
+    min::standard_attr_flag_format,
+    			    // flag_format
+
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+    min::space_less_than_equal_space_pstring,
+			    // obj_valreq
+
+    NULL,		    // obj_line_sep
+    NULL,		    // obj_paragraph_begin
+};
+const min::obj_format * min::isolated_line_obj_format =
+    & ::isolated_line_obj_format;
+
+static min::obj_format id_obj_format =
+{
+    min::PRINT_ID,	    // obj_op_flags
+
+    NULL,		    // element_format
+    NULL,		    // top_element_format
+    NULL,		    // quote_element_format
+    NULL,		    // label_format
+    NULL,		    // value_format
+
+    NULL,		    // initiator_format
+    NULL,		    // separator_format
+    NULL,		    // terminator_format
+
+    NULL,                   // marking_type
+    min::NONE(),	    // quote_type
+    min::NONE(),	    // line_type
+    min::NONE(),	    // line_sep_type
+    min::NONE(),	    // paragraph_type
+
+    NULL,		    // obj_empty
+
+    NULL,		    // obj_bra
+    NULL,		    // obj_braend
+    NULL,		    // obj_ketbegin
+    NULL,		    // obj_ket
+
+    NULL,		    // obj_sep
+
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
+
+    NULL,		    // obj_attreol
+
+    NULL,		    // obj_attrneg
+    NULL,		    // obj_attreq
+
+    NULL,		    // flag_format
+
+    NULL,		    // obj_valbegin
+    NULL,		    // obj_valsep
+    NULL,		    // obj_valend
+    NULL,		    // obj_valreq
+
+    NULL,		    // obj_line_sep
+    NULL,		    // obj_paragraph_begin
+};
+const min::obj_format * min::id_obj_format =
+    & ::id_obj_format;
 
 static min::gen_format top_gen_format =
 {

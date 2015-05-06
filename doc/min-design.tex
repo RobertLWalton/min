@@ -14793,6 +14793,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]
+
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{compact\_obj\_format}:}%
@@ -14801,9 +14802,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::top_gen_format                      // element_format|\ARGBREAK
+\verb|min::element_gen_format                  // element_format|\ARGBREAK
+\verb|NULL                                     // top_element_format|\ARGBREAK
+\verb|min::always_quote_gen_format             // quote_element_format|\ARGBREAK
+\verb|min::value_gen_format                    // value_format|\ARGBREAK
 \verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14813,87 +14816,181 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x02\x02" "{}"           // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::all_marks_str_classifier            // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::standard_str_classifier             // marking_type|\ARGBREAK
 \verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|NULL                                     // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::NONE()                              // line_sep_type|\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
+\verb|min::NONE()                              // paragraph_type|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
+\verb|min::left_curly_right_curly_pstring      // obj_empty|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::left_curly_leading_pstring          // obj_bra|\ARGBREAK
+\verb|min::trailing_vbar_pstring               // obj_braend|\ARGBREAK
+\verb|min::vbar_leading_pstring                // obj_ketbegin|\ARGBREAK
+\verb|min::trailing_right_curly_pstring        // obj_ket|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::space_if_none_pstring               // obj_sep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::trailing_always_colon_space_pstring // obj_attrbegin|\ARGBREAK
+\verb|min::trailing_always_comma_space_pstring // obj_attrsep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::trailing_always_colon_pstring       // obj_attreol|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::no_space_pstring                    // obj_attrneg|\ARGBREAK
+\verb|min::space_equal_space_pstring           // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::standard_attr_flag_format           // flag_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::left_curly_star_space_pstring       // obj_valbegin|\ARGBREAK
+\verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK
+\verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK
+\verb|min::space_less_than_equal_space_pstring // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_line_sep|\ARGBREAK
 \verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
+\end{indpar}
 
 \begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
+\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::line_feed                           // line_type|\ARGBREAK
+\verb|min::semicolon                           // line_sep_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{line\_element\_obj\_format}:}%
+\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::paragraph_element_gen_format        // top_element_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::colon                               // paragraph_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{line\_obj\_format}:}%
+\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::line_feed                           // line_type|\ARGBREAK
+\verb|min::semicolon                           // line_sep_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{embedded\_line\_obj\_format}:}%
+\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::left_curly_vbar_vbar_right_curly_pstring // obj_empty|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{isolated\_line\_obj\_format}:}%
 \LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::id_gen_format                       // element_format|\ARGBREAK
-\verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::id_gen_format                       // value_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
+\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14908,477 +15005,24 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
 \verb|NULL                                     // obj_attrsep|\ARGBREAK
 \end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|{0,0,0}                                  // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|NULL                                     // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
+\end{indpar}
 
 \begin{indpar}[1em]
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{embedded\_line\_obj\_format}:}%
-\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK
-\verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK
-\end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::top_gen_format                      // element_format|\ARGBREAK
-\verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb$(min::ustring) "\x04\x04" "{||}" // obj_empty$\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|{0,0,0}                                  // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|NULL                                     // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{id\_obj\_format}:}%
 \LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
-\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
+\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK[0in]
+\verb|// All other members are NULL or NONE().|
 \end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // element_format|\ARGBREAK
-\verb|NULL                                     // label_format|\ARGBREAK
-\verb|NULL                                     // value_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // initiator_format|\ARGBREAK
-\verb|NULL                                     // separator_format|\ARGBREAK
-\verb|NULL                                     // terminator_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_bra|\ARGBREAK
-\verb$NULL                                     // obj_braend$\ARGBREAK
-\verb$NULL                                     // obj_ketbegin$\ARGBREAK
-\verb|NULL                                     // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrneg|\ARGBREAK
-\verb|NULL                                     // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_valbegin|\ARGBREAK
-\verb|NULL                                     // obj_valsep|\ARGBREAK
-\verb|NULL                                     // obj_valend|\ARGBREAK
-\verb|NULL                                     // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|{0,0,0}                                  // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                             // quote_type|\ARGBREAK
-\verb|NULL                                    // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|NULL                                     // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK
-\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::paragraph_element_gen_format        // element_format|\ARGBREAK
-\verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::all_marks_str_classifier            // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_feed                           // line_type|\ARGBREAK
-\verb|min::line_element_gen_format             // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{line\_element\_obj\_format}:}%
-\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK
-\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_element_gen_format             // element_format|\ARGBREAK
-\verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x80\x00" ""     // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::all_marks_str_classifier            // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|min::paragraph_element_gen_format        // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::colon                               // paragraph_type|\ARGBREAK
-\verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{line\_obj\_format}:}%
-\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK
-\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::top_gen_format                      // element_format|\ARGBREAK
-\verb|min::name_gen_format                     // label_format|\ARGBREAK
-\verb|min::top_gen_format                      // value_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
-\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x02\x02" "{}"   // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "{"    // obj_bra|\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_braend$\ARGBREAK
-\verb$(min::ustring) "\x01\x01" "|"    // obj_ketbegin$\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "}"    // obj_ket|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x01\x00" " "    // obj_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x82\x00" ": "   // obj_attrbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_attrsep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_attreol|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "no "  // obj_attrneg|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " = "  // obj_attreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|(min::ustring) "\x03\x00" "{* "  // obj_valbegin|\ARGBREAK
-\verb|(min::ustring) "\x02\x00" ", "   // obj_valsep|\ARGBREAK
-\verb|(min::ustring) "\x03\x00" " *}"  // obj_valend|\ARGBREAK
-\verb|(min::ustring) "\x04\x00" " <= " // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::all_marks_str_classifier            // marking_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_feed                           // line_type|\ARGBREAK
-\verb|min::line_element_gen_format             // line_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ";"    // obj_line_sep|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::NONE()                              // paragraph_type|\ARGBREAK
-\verb|(min::ustring) "\x81\x01" ":"    // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_attr_flag_names            // attr_flag_names|\ARGBREAK
-\end{tabular}\end{indpar}
+\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
 \verb|min::packed_vec_ptr<min::ustring> min::|%
