@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  6 02:49:01 EDT 2015
+// Date:	Wed May  6 07:03:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12066,50 +12066,48 @@ namespace min {
     {
         min::uns32		    obj_op_flags;
 
-	const min::gen_format * element_format;
-	const min::gen_format * compact_element_format;
-	const min::gen_format * top_element_format;
-	const min::gen_format * quote_element_format;
-        const min::gen_format *	label_format;
-	const min::gen_format * value_format;
+	const min::gen_format *     element_format;
+	const min::gen_format *     top_element_format;
+	const min::gen_format *     quote_element_format;
+        const min::gen_format *	    label_format;
+	const min::gen_format *     value_format;
 
-	const min::gen_format * initiator_format;
-        const min::gen_format *	separator_format;
-	const min::gen_format * terminator_format;
+	const min::gen_format *     initiator_format;
+        const min::gen_format *	    separator_format;
+	const min::gen_format *     terminator_format;
 
-	const min::str_classifier marking_type;
-	min::gen		quote_type;
-	min::gen		line_type;
-	min::gen		line_sep_type;
-	min::gen		paragraph_type;
+	min::str_classifier	    marking_type;
+	min::gen		    quote_type;
+	min::gen		    line_type;
+	min::gen		    line_sep_type;
+	min::gen		    paragraph_type;
 
-	min::pstring		obj_empty;
+	min::pstring		    obj_empty;
 
-	min::pstring		obj_bra;
-	min::pstring		obj_braend;
-	min::pstring		obj_ketbegin;
-	min::pstring		obj_ket;
+	min::pstring		    obj_bra;
+	min::pstring		    obj_braend;
+	min::pstring		    obj_ketbegin;
+	min::pstring		    obj_ket;
 
-	min::pstring		obj_sep;
+	min::pstring		    obj_sep;
 
-	min::pstring		obj_attrbegin;
-	min::pstring		obj_attrsep;
+	min::pstring		    obj_attrbegin;
+	min::pstring		    obj_attrsep;
 
-	min::pstring		obj_attreol;
+	min::pstring		    obj_attreol;
 
-	min::pstring		obj_attrneg;
-	min::pstring		obj_attreq;
+	min::pstring		    obj_attrneg;
+	min::pstring		    obj_attreq;
 
-	const min::flag_format *
-				flag_format;
+	const min::flag_format *    flag_format;
 
-	min::pstring		obj_valbegin;
-	min::pstring		obj_valsep;
-	min::pstring		obj_valend;
-	min::pstring		obj_valreq;
+	min::pstring		    obj_valbegin;
+	min::pstring		    obj_valsep;
+	min::pstring		    obj_valend;
+	min::pstring		    obj_valreq;
 
-	min::pstring		obj_line_sep;
-	min::pstring		obj_paragraph_begin;
+	min::pstring		    obj_line_sep;
+	min::pstring		    obj_paragraph_begin;
     };
     const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
     const min::uns32 PRINT_ID		= ( 1 << 1 );

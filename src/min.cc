@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  6 02:50:41 EDT 2015
+// Date:	Wed May  6 07:04:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10103,7 +10103,6 @@ static min::obj_format compact_obj_format =
     min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format*
     NULL,		    // top_element_format
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10175,7 +10174,6 @@ static min::obj_format isolated_line_obj_format =
     min::ISOLATED_LINE,	    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format
     NULL,		    // top_element_format
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10240,7 +10238,6 @@ static min::obj_format embedded_line_obj_format =
     min::EMBEDDED_LINE,	    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format
     NULL,		    // top_element_format
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10310,7 +10307,6 @@ static min::obj_format id_obj_format =
     min::PRINT_ID,	    // obj_op_flags
 
     NULL,		    // element_format
-    NULL,		    // compact_element_format
     NULL,		    // top_element_format
     NULL,		    // quote_element_format
     NULL,		    // label_format
@@ -10362,7 +10358,6 @@ static min::obj_format paragraph_element_obj_format =
     min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format*
     NULL,		    // top_element_format*
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10436,7 +10431,6 @@ static min::obj_format line_element_obj_format =
     min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format*
     NULL,		    // top_element_format*
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10509,7 +10503,6 @@ static min::obj_format line_obj_format =
     min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
-    NULL,		    // compact_element_format*
     NULL,		    // top_element_format*
     NULL,		    // quote_element_format*
     NULL,		    // label_format*
@@ -10778,8 +10771,6 @@ static void init_pgen_formats ( void )
 
     ::compact_obj_format.element_format =
         min::element_gen_format;
-    ::compact_obj_format.compact_element_format =
-        min::top_gen_format;
     ::compact_obj_format.quote_element_format =
         min::always_quote_gen_format;
     ::compact_obj_format.label_format =

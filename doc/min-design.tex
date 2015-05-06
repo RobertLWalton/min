@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 5, 2015}
+\date{May 6, 2015}
  
 \maketitle
 
@@ -14647,116 +14647,134 @@ The format for printing object \TT{min::gen} values is:
 \LABEL{MIN::OBJ_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::uns32                           obj_op_flags;|%
-\ttmindex{obj\_op\_flags}{in {\tt min::obj\_format}}\ARGBREAK
+\ttmindex{obj\_op\_flags}{in {\tt min::obj\_format}}
 \end{tabular}
 
+\bigskip
+
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::gen_format *                    element_format;|%
+    \verb|  const min::gen_format *              element_format;|%
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    label_format;|%
+    \verb|  const min::gen_format *              top_element_format;|%
+\ttmindex{top\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::gen_format *              quote_element_format;|%
+\ttmindex{quote\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::gen_format *              label_format;|%
 \ttmindex{label\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    value_format;|%
-\ttmindex{value\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::gen_format *              value_format;|%
+\ttmindex{value\_format}{in {\tt min::obj\_format}}
 \end{tabular}
 
+\bigskip
+
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::gen_format *                    initiator_format;|%
+    \verb|  const min::gen_format *              initiator_format;|%
 \ttmindex{initiator\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    separator_format;|%
+    \verb|  const min::gen_format *              separator_format;|%
 \ttmindex{separator\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    terminator_format;|%
-\ttmindex{terminator\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::gen_format *              terminator_format;|%
+\ttmindex{terminator\_format}{in {\tt min::obj\_format}}
 \end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                         obj_empty;|%
-\ttmindex{obj\_empty}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                         obj_bra;|%
-\label{OBJ_BRA}%
-\ttmindex{obj\_bra}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_braend;|%
-\ttmindex{obj\_braend}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_sep;|%
-\ttmindex{obj\_sep}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_ketbegin;|%
-\label{OBJ_SEP}%
-\ttmindex{obj\_ketbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_ket;|%
-\label{OBJ_KET}%
-\ttmindex{obj\_ket}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                         obj_attrbegin;|%
-\ttmindex{obj\_attrbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_attrsep;|%
-\ttmindex{obj\_attrsep}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                         obj_attreol;|%
-\ttmindex{obj\_attreol}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                         obj_attrneg;|%
-\ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_attreq;|%
-\ttmindex{obj\_attreq}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::ustring                        obj_valbegin;|%
-\ttmindex{obj\_valbegin}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                        obj_valsep;|%
-\ttmindex{obj\_valsep}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                        obj_valend;|%
-\ttmindex{obj\_valend}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                        obj_valreq;|%
-\ttmindex{obj\_valreq}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
+\bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::str_classifier                  marking_type;|%
 \ttmindex{marking\_type}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             quote_type;|%
 \ttmindex{quote\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    quote_format;|%
-\ttmindex{quote\_format}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             line_type;|%
 \ttmindex{line\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen_format *                    line_format;|%
-\ttmindex{line\_format}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             line_sep_type;|%
 \ttmindex{line\_sep\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_line_sep;|%
-\ttmindex{obj\_line\_sep}{in {\tt min::obj\_format}}\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::gen                             paragraph_type;|%
-\ttmindex{paragraph\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::ustring                         obj_paragraph_begin;|%
-\ttmindex{obj\_paragraph\_begin}{in {\tt min::obj\_format}}\ARGBREAK
+\ttmindex{paragraph\_type}{in {\tt min::obj\_format}}
 \end{tabular}
 
+\bigskip
+
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::packed_vec_ptr<min::ustring>    attr_flag_names;|%
-\ttmindex{attr\_flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|};|
+    \verb|  min::pstring                         obj_empty;|%
+\ttmindex{obj\_empty}{in {\tt min::obj\_format}}
 \end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_bra;|%
+\label{OBJ_BRA}%
+\ttmindex{obj\_bra}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_braend;|%
+\ttmindex{obj\_braend}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_ketbegin;|%
+\ttmindex{obj\_ketbegin}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_ket;|%
+\label{OBJ_KET}%
+\ttmindex{obj\_ket}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_sep;|%
+\label{OBJ_SEP}%
+\ttmindex{obj\_sep}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_attrbegin;|%
+\ttmindex{obj\_attrbegin}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_attrsep;|%
+\ttmindex{obj\_attrsep}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_attreol;|%
+\ttmindex{obj\_attreol}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_attrneg;|%
+\ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_attreq;|%
+\ttmindex{obj\_attreq}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  const min::flag_format               flag_format;|%
+\ttmindex{flag\_format}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_valbegin;|%
+\ttmindex{obj\_valbegin}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_valsep;|%
+\ttmindex{obj\_valsep}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_valend;|%
+\ttmindex{obj\_valend}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_valreq;|%
+\ttmindex{obj\_valreq}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_line_sep;|%
+\ttmindex{obj\_line\_sep}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_paragraph_begin;|%
+\ttmindex{obj\_paragraph\_begin}{in {\tt min::obj\_format}}
+\end{tabular}
+
 \end{indpar}
 
 \TT{obj\_format.obj\_op\_flags}:
