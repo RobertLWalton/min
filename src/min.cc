@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 17:10:23 EDT 2015
+// Date:	Wed May  6 02:50:41 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -128,66 +128,83 @@ static min::locatable_var
     standard_special_names;
 
 static const unsigned
-    standard_attr_flag_names_length = 256;
-static char const *
+    standard_attr_flag_names_length = 64;
+static min::ustring
     standard_attr_flag_names_value
 	[::standard_attr_flag_names_length] =
-    { "!", "#", "$", "%", "&", "*",
-      "+", "-", "/", "=", "?", "@",
+    {
+      (min::ustring) "\x01\x01" "*",
+      (min::ustring) "\x01\x01" "+",
+      (min::ustring) "\x01\x01" "-",
+      (min::ustring) "\x01\x01" "/",
+      (min::ustring) "\x01\x01" "@",
+      (min::ustring) "\x01\x01" "&",
+      (min::ustring) "\x01\x01" "#",
+      (min::ustring) "\x01\x01" "=",
+      (min::ustring) "\x01\x01" "~",
+      (min::ustring) "\x01\x01" "^",
+      (min::ustring) "\x01\x01" "<",
+      (min::ustring) "\x01\x01" ">",
 
-      "a", "b", "c", "d", "e", "f", "g",
-      "h", "i", "j", "k", "l", "m",
-      "n", "o", "p", "q", "r", "s", "t",
-      "u", "v", "w", "x", "y", "z",
+      (min::ustring) "\x01\x01" "a",
+      (min::ustring) "\x01\x01" "b",
+      (min::ustring) "\x01\x01" "c",
+      (min::ustring) "\x01\x01" "d",
+      (min::ustring) "\x01\x01" "e",
+      (min::ustring) "\x01\x01" "f",
+      (min::ustring) "\x01\x01" "g",
+      (min::ustring) "\x01\x01" "h",
+      (min::ustring) "\x01\x01" "i",
+      (min::ustring) "\x01\x01" "j",
+      (min::ustring) "\x01\x01" "k",
+      (min::ustring) "\x01\x01" "l",
+      (min::ustring) "\x01\x01" "m",
+      (min::ustring) "\x01\x01" "n",
+      (min::ustring) "\x01\x01" "o",
+      (min::ustring) "\x01\x01" "p",
+      (min::ustring) "\x01\x01" "q",
+      (min::ustring) "\x01\x01" "r",
+      (min::ustring) "\x01\x01" "s",
+      (min::ustring) "\x01\x01" "t",
+      (min::ustring) "\x01\x01" "u",
+      (min::ustring) "\x01\x01" "v",
+      (min::ustring) "\x01\x01" "w",
+      (min::ustring) "\x01\x01" "x",
+      (min::ustring) "\x01\x01" "y",
+      (min::ustring) "\x01\x01" "z",
 
-      "A", "B", "C", "D", "E", "F", "G",
-      "H", "I", "J", "K", "L", "M",
-      "N", "O", "P", "Q", "R", "S", "T",
-      "U", "V", "W", "X", "Y", "Z",
+      (min::ustring) "\x01\x01" "A",
+      (min::ustring) "\x01\x01" "B",
+      (min::ustring) "\x01\x01" "C",
+      (min::ustring) "\x01\x01" "D",
+      (min::ustring) "\x01\x01" "E",
+      (min::ustring) "\x01\x01" "F",
+      (min::ustring) "\x01\x01" "G",
+      (min::ustring) "\x01\x01" "H",
+      (min::ustring) "\x01\x01" "I",
+      (min::ustring) "\x01\x01" "J",
+      (min::ustring) "\x01\x01" "K",
+      (min::ustring) "\x01\x01" "L",
+      (min::ustring) "\x01\x01" "M",
+      (min::ustring) "\x01\x01" "N",
+      (min::ustring) "\x01\x01" "O",
+      (min::ustring) "\x01\x01" "P",
+      (min::ustring) "\x01\x01" "Q",
+      (min::ustring) "\x01\x01" "R",
+      (min::ustring) "\x01\x01" "S",
+      (min::ustring) "\x01\x01" "T",
+      (min::ustring) "\x01\x01" "U",
+      (min::ustring) "\x01\x01" "V",
+      (min::ustring) "\x01\x01" "W",
+      (min::ustring) "\x01\x01" "X",
+      (min::ustring) "\x01\x01" "Y",
+      (min::ustring) "\x01\x01" "Z"
 
-      "~!", "~#", "~$", "~%", "~&", "~*",
-      "~+", "~-", "~/", "~=", "~?", "~@",
-
-      "~a", "~b", "~c", "~d", "~e", "~f", "~g",
-      "~h", "~i", "~j", "~k", "~l", "~m",
-      "~n", "~o", "~p", "~q", "~r", "~s", "~t",
-      "~u", "~v", "~w", "~x", "~y", "~z",
-
-      "~A", "~B", "~C", "~D", "~E", "~F", "~G",
-      "~H", "~I", "~J", "~K", "~L", "~M",
-      "~N", "~O", "~P", "~Q", "~R", "~S", "~T",
-      "~U", "~V", "~W", "~X", "~Y", "~Z",
-
-      "^!", "^#", "^$", "^%", "^&", "^*",
-      "^+", "^-", "^/", "^=", "^?", "^@",
-
-      "^a", "^b", "^c", "^d", "^e", "^f", "^g",
-      "^h", "^i", "^j", "^k", "^l", "^m",
-      "^n", "^o", "^p", "^q", "^r", "^s", "^t",
-      "^u", "^v", "^w", "^x", "^y", "^z",
-
-      "^A", "^B", "^C", "^D", "^E", "^F", "^G",
-      "^H", "^I", "^J", "^K", "^L", "^M",
-      "^N", "^O", "^P", "^Q", "^R", "^S", "^T",
-      "^U", "^V", "^W", "^X", "^Y", "^Z",
-
-      "\\!", "\\#", "\\$", "\\%", "\\&", "\\*",
-      "\\+", "\\-", "\\/", "\\=", "\\?", "\\@",
-
-      "\\a", "\\b", "\\c", "\\d", "\\e", "\\f", "\\g",
-      "\\h", "\\i", "\\j", "\\k", "\\l", "\\m",
-      "\\n", "\\o", "\\p", "\\q", "\\r", "\\s", "\\t",
-      "\\u", "\\v", "\\w", "\\x", "\\y", "\\z",
-
-      "\\A", "\\B", "\\C", "\\D", "\\E", "\\F", "\\G",
-      "\\H", "\\I", "\\J", "\\K", "\\L", "\\M",
-      "\\N", "\\O", "\\P", "\\Q", "\\R", "\\S", "\\T",
-      "\\U", "\\V", "\\W", "\\X", "\\Y", "\\Z"
     };
-min::packed_vec_ptr<const char *>
+min::packed_vec_ptr<min::ustring>
     min::standard_attr_flag_names;
 static min::locatable_var
-	< min::packed_vec_ptr<const char *> >
+	< min::packed_vec_ptr<min::ustring> >
     standard_attr_flag_names;
 
 static void lab_scavenger_routine
@@ -388,8 +405,8 @@ void MINT::initialize ( void )
     }
 
     {
-	min::packed_vec_insptr<const char *> p =
-	    min::const_char_ptr_packed_vec_type.new_stub
+	min::packed_vec_insptr<min::ustring> p =
+	    min::ustring_packed_vec_type.new_stub
 		( ::standard_attr_flag_names_length );
 	::standard_attr_flag_names = p;
 	min::standard_attr_flag_names = p;
@@ -10071,15 +10088,15 @@ const min::special_format *
 	min::bracket_special_format =
     & ::bracket_special_format;
 
-static min::flag_format standard_flag_format =
+static min::flag_format standard_attr_flag_format =
 {
     min::left_square_leading_always_pstring,
     min::trailing_always_right_square_pstring,
-    min::NULL_STUB	    // flag_names*
+    min::NULL_STUB	    // standard_attr_flag_names*
 };
 const min::flag_format *
-	min::standard_flag_format =
-    & ::standard_flag_format;
+	min::standard_attr_flag_format =
+    & ::standard_attr_flag_format;
 
 static min::obj_format compact_obj_format =
 {
@@ -10135,7 +10152,7 @@ static min::obj_format compact_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10200,7 +10217,7 @@ static min::obj_format isolated_line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10270,7 +10287,7 @@ static min::obj_format embedded_line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10394,7 +10411,7 @@ static min::obj_format paragraph_element_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10468,7 +10485,7 @@ static min::obj_format line_element_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10541,7 +10558,7 @@ static min::obj_format line_obj_format =
     min::space_equal_space_pstring,
 			    // obj_attreq
 
-    min::standard_flag_format,
+    min::standard_attr_flag_format,
     			    // flag_format
 
     min::left_curly_star_space_pstring,
@@ -10756,7 +10773,7 @@ static void init_pgen_formats ( void )
     ::bracket_special_format.special_names =
         min::standard_special_names;
 
-    ::standard_flag_format.flag_names =
+    ::standard_attr_flag_format.flag_names =
         min::standard_attr_flag_names;
 
     ::compact_obj_format.element_format =
@@ -11000,7 +11017,7 @@ static bool print_attributes
 	{
 	    const min::flag_format * ff =
 	        objf->flag_format;
-	    min::packed_vec_ptr<const char *> names =
+	    min::packed_vec_ptr<min::ustring> names =
 	        ff->flag_names;
 	    min::unsptr length =
 	        ( names == min::NULL_STUB ?
@@ -11015,12 +11032,8 @@ static bool print_attributes
 		for ( unsigned j = 0; j < 64; ++ j )
 		{
 		    if ( f & 1 )
-		    {
-		        min::uns32 n =
-			    ::strlen ( names[j] );
-			min::print_chars
-			    ( printer, names[j], n, n );
-		    }
+		        min::print_ustring
+			    ( printer, names[j] );
 		    f >>= 1;
 		}
 	    }
@@ -11029,6 +11042,7 @@ static bool print_attributes
 		min::gen flags[fc];
 		min::get_flags ( flags, fc, ap );
 		min::uns32 n = 0;
+		bool first = true;
 		for ( min::unsptr j = 0;
 		      j < fc; ++ j )
 		{
@@ -11042,14 +11056,9 @@ static bool print_attributes
 			{
 
 			    if ( n < length )
-			    {
-			        min::uns32 m =
-				    ::strlen
-				        ( names[n] );
-				min::print_chars
-				    ( printer, names[n],
-				      m, m );
-			    }
+				min::print_ustring
+				    ( printer,
+				      names[n] );
 			    else
 			    {
 			        char buffer[100];
@@ -11057,9 +11066,12 @@ static bool print_attributes
 				    ( buffer, ",%u",
 				      n );
 				min::print_chars
-				    ( printer, buffer,
-				      m, m );
+				    ( printer,
+				      buffer + first,
+				      m - first,
+				      m - first );
 			    }
+			    first = false;
 			}
 			flags2 >>= 1;
 			++ n;

@@ -1223,8 +1223,6 @@ Start File Test!
 min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-min_interface_test.cc:XXXX:
     strcmp ( "Line 1", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
 min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
@@ -1234,6 +1232,8 @@ min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file1 ) => true
 min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ! & file1->buffer [min::line(file1,1)] ) == 0 => true
+min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
@@ -1267,8 +1267,6 @@ min_interface_test.cc:XXXX:
 min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-min_interface_test.cc:XXXX:
     data == ostream.str() => true
 min_interface_test.cc:XXXX:
     file4->buffer->length == file5->buffer->length => true
@@ -1290,6 +1288,8 @@ min_interface_test.cc:XXXX:
     ::id_map->occupied == 0 => true
 min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
+min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
@@ -2941,15 +2941,15 @@ Start Object Printing Test!
          myforward = @1 <= myreverse
          fraction
          .type = "T"
-{T: no scientific, number = 123, .separator = ";", myforward[*aZ] = @1
+{T: no scientific, number = 123, .separator = ";", myforward[#aZ] = @1
      <= myreverse, fraction| A B C |T}
-{"": myattr[~*~Z,256,512] =
+{"": myattr[#Z,64,512] =
      {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
         [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
      myreverse = @2 <= myforward, .separator = ",", .terminator =
      [: "*" "}" :]| 1 2 3 4 5 |}
     {| 1 2 3 4 5:
-       myattr[~*~Z,256,512] = [: "MYATTR" "THIRD" "VALUE" :],
+       myattr[#Z,64,512] = [: "MYATTR" "THIRD" "VALUE" :],
            [: "MYATTR" "VALUE" :], [: "MYATTR" "SECOND" "VALUE" :]
        .initiator = [: "{" "*" :]
        myreverse = @2 <= myforward

@@ -14753,7 +14753,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::packed_vec_ptr<const char *>    attr_flag_names;|%
+    \verb|  min::packed_vec_ptr<min::ustring>    attr_flag_names;|%
 \ttmindex{attr\_flag\_names}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|};|
 \end{tabular}
@@ -15363,14 +15363,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::packed_vec_ptr<const char *> min::|%
+\verb|min::packed_vec_ptr<min::ustring> min::|%
     \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
 \LABEL{MIN::STANDARD_ATTR_FLAG_NAMES} \\
-\verb|    // Names of flags numbered 0, 1, 2, ... 255 are:| \\
-\verb|    //     ! # $ % & * + - / = ? @ a ... z A ... Z| \\
-\verb|    //     ~! ~# ~$ ~% ~& ~* ~+ ~- ~/ ~= ~? ~@ ~a ... ~z ~A ... ~Z| \\
-\verb|    //     ^! ^# ^$ ^% ^& ^* ^+ ^- ^/ ^= ^? ^@ ^a ... ^z ^A ... ^Z| \\
-\verb|    //     \! \# \$ \% \& \* \+ \- \/ \= \? \@ \a ... \z \A ... \Z| \\
+\verb|    // Names of flags numbered 0, 1, 2, ... 63 are:| \\
+\verb|    //     * + - / @ & # = ~ ^ < > a ... z A ... Z| \\
 \end{tabular}\end{indpar}
 
 Here the \TT{min::ustring}'s (\pagref{USTRING}) are UTF-8 strings
@@ -15825,25 +15822,10 @@ if the attribute has any flags:
 {\em attribute-flags}
     & ::= & \TT{[}{\em attribute-flag-name}$^\star$\TT{]} \\
 {\em attribute-flag-name} & ::= &
-        \TT{!} $|$ \TT{\#} $|$ \TT{\$} $|$ \TT{\%} $|$ \TT{\&}
-    $|$ \TT{*} $|$ \TT{+} $|$ \TT{-} $|$ \TT{/} $|$ \TT{=}
-    $|$ \TT{?} $|$ \TT{@} \\
+        \TT{*} $|$ \TT{+} $|$ \TT{-} $|$ \TT{/} $|$ \TT{@}
+    $|$ \TT{\&} $|$ \TT{\#} $|$ \TT{=} $|$ \TT{\textasciitilde}
+    $|$ \TT{\textasciicircum} $|$ \TT{<} $|$ \TT{>} \\
 & $|$ & \TT{a} $|$ \ldots{} $|$ \TT{z} $|$ \TT{A} $|$ \ldots{} $|$ \TT{Z} \\
-& $|$ & \TT{\~{ }!} $|$ \TT{\~{ }\#} $|$ \TT{\~{ }\$} $|$ \TT{\~{ }\%}
-  $|$ \TT{\~{ }\&} $|$ \TT{\~{ }*} $|$ \TT{\~{ }+} $|$ \TT{\~{ }-}
-  $|$ \TT{\~{ }/} $|$ \TT{\~{ }=} $|$ \TT{\~{ }?} $|$ \TT{\~{ }@} \\
-& $|$ & \TT{\~{ }a} $|$ \ldots{} $|$ \TT{\~{ }z}
-  $|$ \TT{\~{ }A} $|$ \ldots{} $|$ \TT{\~{ }Z} \\
-& $|$ & \TT{\^{ }!} $|$ \TT{\^{ }\#} $|$ \TT{\^{ }\$} $|$ \TT{\^{ }\%}
-  $|$ \TT{\^{ }\&} $|$ \TT{\^{ }*} $|$ \TT{\^{ }+} $|$ \TT{\^{ }-}
-  $|$ \TT{\^{ }/} $|$ \TT{\^{ }=} $|$ \TT{\^{ }?} $|$ \TT{\^{ }@} \\
-& $|$ & \TT{\^{ }a} $|$ \ldots{} $|$ \TT{\^{ }z} $|$ \TT{\^{ }A}
-  $|$ \ldots{} $|$ \TT{\^{ }Z} \\
-& $|$ & \TTBS{!} $|$ \TTBS{\#} $|$ \TTBS{\$} $|$ \TTBS{\%} $|$ \TTBS{\&}
-  $|$ \TTBS{*} $|$ \TTBS{+} $|$ \TTBS{-} $|$ \TTBS{/} $|$ \TTBS{=}
-  $|$ \TTBS{?} $|$ \TTBS{@} \\
-& $|$ & \TTBS{a} $|$ \ldots{} $|$ \TTBS{z}
-  $|$ \TTBS{A} $|$ \ldots{} $|$ \TTBS{Z} \\
 & $|$ & \TT{,}{\em flag-number}
 \end{tabular}
 \end{center}
@@ -15852,10 +15834,9 @@ Here {\em attribute-flag-names} are listed in the order of their flag number,
 where the default correspondence is
 \begin{center}
 \begin{tabular}{r@{~correspond to flag numbers~}l}
-\TT{!} \ldots{} \TT{Z} & \TT{0} \ldots{} \TT{63} \\
-\TT{\~{ }!} \ldots{} \TT{\~{ }Z} & \TT{64} \ldots{} \TT{127} \\
-\TT{\^{ }!} \ldots{} \TT{\^{ }Z} & \TT{128} \ldots{} \TT{191} \\
-\TTBS{!} \ldots{} \TTBS{Z} & \TT{192} \ldots{} \TT{255} \\
+\TT{*} \ldots{} \TT{>} & \TT{0} \ldots{} \TT{11} \\
+\TT{a} \ldots{} \TT{z} & \TT{12} \ldots{} \TT{37} \\
+\TT{A} \ldots{} \TT{Z} & \TT{38} \ldots{} \TT{63} \\
 \end{tabular}
 \end{center}
 The {\tt attr\_flag\_names} member of the effective {\tt gen\_format}
@@ -20280,8 +20261,14 @@ These are in \verb|min_parameters.h|.
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// [0 .. 7] == |\ARGBREAK
-\verb|//        "MISSING", "NONE", "ANY", "MULTI_VALUED",|\ARGBREAK
-\verb|//        "UNDEFINED", "SUCCESS", "FAILURE", "ERROR"|
+\verb|//        (min::ustring) "\x07\x07" "MISSING",|\ARGBREAK
+\verb|//        (min::ustring) "\x04\x04" "NONE",|\ARGBREAK
+\verb|//        (min::ustring) "\x03\x03" "ANY",|\ARGBREAK
+\verb|//        (min::ustring) "\x0C\x0C" "MULTI_VALUED",|\ARGBREAK
+\verb|//        (min::ustring) "\x09\x09" "UNDEFINED",|\ARGBREAK
+\verb|//        (min::ustring) "\x07\x07" "SUCCESS",|\ARGBREAK
+\verb|//        (min::ustring) "\x07\x07" "FAILURE",|\ARGBREAK
+\verb|//        (min::ustring) "\x05\x05" "ERROR"|
 \end{TABULAR}
 
 \bigskip
@@ -21545,16 +21532,12 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::gen>} \\
-\verb|min::| & \MINKEY{default\_\EOL exp\_\EOL ok\_\EOL attrs}
-\LABEL{MIN::STANDARD_EXP_OK_ATTRS}
-\end{TABULAR}
-
-\begin{TABULAR}{2.0in}
-\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<const char \&>} \\
-\verb|min::| & \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
-\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES}
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>}\\
+\verb|min:: | & \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
+\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES}\ARGBREAK
+\verb|// Names of flags numbered 0, 1, 2, ... 63 are:|\ARGBREAK
+\verb|//     * + - / @ & # = ~ ^ < > a ... z A ... Z|
 \end{TABULAR}
 
 \bigskip

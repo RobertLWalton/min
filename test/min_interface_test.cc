@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:20:59 EDT 2015
+// Date:	Wed May  6 02:48:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4798,7 +4798,7 @@ void test_object_printing ( void )
 	min::locatable_gen myforward =
 	    min::new_str_gen ( "myforward" );
 	min::locate ( ap, myforward );
-	min::set_flag ( ap, 5 );
+	min::set_flag ( ap, 6 );
 	min::set_flag ( ap, 12 );
 	min::set_flag ( ap, 63 );
     }
@@ -4810,9 +4810,9 @@ void test_object_printing ( void )
 	min::locatable_gen myattr =
 	    min::new_str_gen ( "myattr" );
 	min::locate ( ap, myattr );
-	min::set_flag ( ap, 64+5 );
-	min::set_flag ( ap, 64+63 );
-	min::set_flag ( ap, 256 );
+	min::set_flag ( ap, 6 );
+	min::set_flag ( ap, 63 );
+	min::set_flag ( ap, 64 );
 	min::set_flag ( ap, 512 );
     }
     printer << min::pgen ( obj ) << min::eol;

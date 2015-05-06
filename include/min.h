@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 17:10:32 EDT 2015
+// Date:	Wed May  6 02:49:01 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12053,14 +12053,13 @@ namespace min {
 
     struct flag_format
     {
-	min::pstring		    flag_prefix;
-	min::pstring		    flag_postfix;
-	packed_vec_ptr<const char *>
-				    flag_names;
+	min::pstring		        flag_prefix;
+	min::pstring		        flag_postfix;
+	packed_vec_ptr<min::ustring>    flag_names;
     };
 
     extern const min::flag_format *
-        standard_flag_format;
+        standard_attr_flag_format;
 
     struct gen_format;
     struct obj_format
@@ -12179,7 +12178,7 @@ namespace min {
     extern packed_vec_ptr<min::ustring>
            standard_special_names;
 
-    extern packed_vec_ptr<const char *>
+    extern packed_vec_ptr<min::ustring>
            standard_attr_flag_names;
 
     min::printer standard_pgen
