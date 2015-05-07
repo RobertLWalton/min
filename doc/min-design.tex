@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 6, 2015}
+\date{May 7, 2015}
  
 \maketitle
 
@@ -15032,20 +15032,6 @@ The format for printing object \TT{min::gen} values is:
 \verb|    //     * + - / @ & # = ~ ^ < > a ... z A ... Z| \\
 \end{tabular}\end{indpar}
 
-Here the \TT{min::ustring}'s (\pagref{USTRING}) are UTF-8 strings
-with two prefix bytes, the first giving the number of UTF-8 characters,
-and the second giving the number of columns these take when printed.
-Only graphic
-characters and single spaces are allowed in the UTF-8 strings.
-The second prefix byte can have either or both of two flags:
-the \TT{min::\EOL USTRING\_\EOL LEADING} flag indicates that when
-printed the UTF-8 string is to be followed by a \TT{min::\EOL leading}
-printer operation, and
-the \TT{min::\EOL USTRING\_\EOL TRAILING} flag indicates that when
-printed the UTF-8 string is to be preceded by a \TT{min::\EOL trailing}
-printer operation.  Note that printing a \TT{NULL} \TT{min::\EOL ustring}
-is a no-operation.
-
 An object is printed in `\mkey{compact format}{for printing object}'
 if all of the following are true:
 \begin{enumerate}
@@ -15080,8 +15066,37 @@ in isolated line format.
 If none of the above apply, the object is printed in
 `\mkey{normal format}{for printing object}'.
 
+The compact format has several variants:
+\begin{enumerate}
+\item The `\key{bracketed compact format}'
+is used if the object has an \TT{.initiator} and \TT{.terminator}.
 
-Keeping these formats in mind, the members of a \TT{min::obj\_format} are:
+\item Otherwise the `\key{empty compact format}' is used if the object has
+no elements and no \TT{.type}.  Note that the object may have a
+\TT{.separator} which will not be printed.
+
+\item Otherwise the `\key{quote compact format}' is used if
+the object has a \TT{.type} equal to the object format
+\TT{quote\_\EOL type} and the object has no \TT{.separator}.
+
+\item Otherwise the `\key{line compact format}' is used if
+the object has a \TT{.type} equal to either the object format
+\TT{line\_\EOL type} or \TT{line\_\EOL sep\_\EOL type}
+and the object has no \TT{.separator}.
+
+\item Otherwise the `\key{paragraph compact format}' is used if
+the object has a \TT{.type} equal to the object format
+\TT{paragraph\_\EOL type}, the object has no \TT{.separator},
+and the object is being printed as the last element of a containing
+object printed with line compact format.
+
+\item Otherwise the `\key{default compact format}' is used.
+
+\end{enumerate}
+
+
+Keeping these formats and variants in mind,
+the members of a \TT{min::obj\_format} are:
 
 \begin{itemlist}[0.2in]
 
@@ -15103,10 +15118,12 @@ See text above.
 
 \item[\ttmkey{NO\_TRAILING\_TYPE}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]~\\
-This flag suppressed printing the type in the closing bracket
+This flag suppresses printing the type in the closing bracket
 of a non-\TT{.ini\-ti\-ator} compact format object and an embedded line
 format object.  That is, if the type is \TT{T}, this flag
-replaces \TT{|T\}} with \TT{|\}}.
+replaces \TT{|T\}} with \TT{|\}}.  This flag has \underline{no} effect
+on compact format objects printed as per the \TT{marking\_\EOL type}
+as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 
 \end{itemlist}\end{indpar}
 
@@ -15115,12 +15132,25 @@ replaces \TT{|T\}} with \TT{|\}}.
 \item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements,
-attribute labels, and attribute values, respectively.
+attribute labels, and attribute values, respectively, in all formats
+except empty compact, quote compact, line compact, and paragraph compact.
+
 \TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
 and not as attribute values.
-\underline{None} of these values may be \TT{NULL} unless the
+\underline{None} of these members may be \TT{NULL} unless the
 \TT{PRINT\_\EOL ID} flag is on.
+
+\item[\ttmkey{quote\_element\_format}{in {\tt min::obj\_format}}]~\\
+The is the \TT{min::gen\_format} used to print object elements
+in quote compact format.  No attributes are printed in this format.
+
+\item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]~\\
+The is the \TT{min::gen\_format} used to print object elements
+in line and paragraph compact formats.
+No attributes are printed in these formats, which are used for
+objects that represent lines and paragraphs and are not inside
+any other kinds of objects or inside lines not representing objects.
 
 \item[\ttmkey{initiator\_format}{in {\tt min::obj\_format}}]
 \item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -15129,19 +15159,19 @@ These are the \TT{min::gen\_format}'s used to print the
 \TT{.initiator}, \TT{.separator}, and \TT{.terminator} in compact
 format, and the \TT{.separator} in normal format.
 \TT{Separator\_\EOL format} should never be \TT{NULL}, and the
-other values may be not be \TT{NULL} if compact
+other members must be not be \TT{NULL} if compact
 format is enabled.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
-This is the \TT{min::ustring} printed in compact format
+This is the \TT{min::pstring} printed in empty compact format
 to represent an empty object that has no elements and no attributes
-other than \TT{.position}.
+other than \TT{.position} and \TT{.separator}.
 
 \item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ketbegin}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::ustring}'s printed to bracket
+These are the \TT{min::pstring}'s printed to bracket
 object elements and attributes in compact, normal, and embedded line format.
 
 \item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]~\\
@@ -15151,16 +15181,16 @@ not have a \TT{.separator} attribute.
 
 \item[\ttmkey{obj\_attrbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::ustring}'s printed in normal format to introduce
+These are the \TT{min::pstring}'s printed in normal format to introduce
 an object attribute list and separate attributes in that list.
 
 \item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]~\\
-This is the \TT{min::ustring} printed in line formats at the end of a line
+This is the \TT{min::pstring} printed in line formats at the end of a line
 to introduce the indented paragraph containing the object attributes.
 
 \item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::ustring}'s printed to indicate
+These are the \TT{min::pstring}'s printed to indicate
 negation of attributes whose value is \TT{FALSE}, and
 separate an attribute label from its value.
 Attributes with value \TT{TRUE} are printed as just
@@ -15172,14 +15202,14 @@ the attribute label with no following \TT{obj\_\EOL attreq} or value.
 \item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::ustring}'s printed to surround and
+These are the \TT{min::pstring}'s printed to surround and
 separate values of an attribute that has more than one
 value.
 
 \item[\ttmkey{obj\_valreq}{in {\tt min::obj\_format}}]~\\
-This is a \TT{min::ustring} printed to separate a reverse
+This is a \TT{min::pstring} printed to separate a reverse
 attribute value or list of reverse attribute values from
-their reverse attribute label, which follows this \TT{min::ustring}.
+their reverse attribute label, which follows this \TT{min::pstring}.
 
 \item[\ttmkey{marking\_type}{in {\tt min::obj\_format}}]~\\
 This is a \TT{min::str\_classifier} that specifies a class of
@@ -15250,7 +15280,7 @@ will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 
 In \mkey{compact format}{of printed object}
 with an \TT{.initiator} attribute, the only one of the
-above \TT{ustring}'s that might be used is \TT{obj\_sep}, which is
+above \TT{pstring}'s that might be used is \TT{obj\_sep}, which is
 used if there is no \TT{.separator} attribute.
 If
 \begin{center}
@@ -15315,7 +15345,7 @@ by `\TT{|T\}}' where `\TT{|}' is what \TT{obj\_\EOL ketend} prints and
 If any explicit
 spaces, leading spaces, or trailing spaces
 are to be printed, these must be encoded in
-the \TT{obj\_}\ldots{} \TT{ustring}'s.
+the \TT{obj\_}\ldots{} \TT{pstring}'s.
 
 If instead \TT{T} \underline{is} in the string
 class defined by the \TT{marking\_\EOL type} member of the object
