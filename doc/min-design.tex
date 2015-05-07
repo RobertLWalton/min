@@ -4073,8 +4073,8 @@ as the type of a parenthesized list: see
 \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 (\itemref{STRING-CLASSIFIERS})
 and the 
-\TT{marking\_\EOL type} string classifier of the object format,
-\pagref{MARKING_TYPE}.
+\TT{mark\_\EOL classifier} of the object format,
+\pagref{MARK_CLASSIFIER}.
 
 The assignment of this flag in \TT{min::standard\_char\_flags}
 is as follows:
@@ -14679,8 +14679,8 @@ The format for printing object \TT{min::gen} values is:
 \bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::str_classifier                  marking_type;|%
-\ttmindex{marking\_type}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::str_classifier                  mark_classifier;|%
+\ttmindex{mark\_classifier}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen                             quote_type;|%
 \ttmindex{quote\_type}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen                             line_type;|%
@@ -14740,10 +14740,15 @@ The format for printing object \TT{min::gen} values is:
 \bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::pstring                         obj_attrneg;|%
-\ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::pstring                         obj_attreq;|%
 \ttmindex{obj\_attreq}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  min::pstring                         obj_attrneg;|%
+\ttmindex{obj\_attrneg}{in {\tt min::obj\_format}}\ARGBREAK
 \end{tabular}
 
 \bigskip
@@ -14816,7 +14821,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::standard_str_classifier             // marking_type|\ARGBREAK
+\verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK
 \verb|min::doublequote                         // quote_type|\ARGBREAK
 \verb|min::NONE()                              // line_type|\ARGBREAK
 \verb|min::NONE()                              // line_sep_type|\ARGBREAK
@@ -14848,8 +14853,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::no_space_pstring                    // obj_attrneg|\ARGBREAK
 \verb|min::space_equal_space_pstring           // obj_attreq|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::no_space_pstring                    // obj_attrneg|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14884,7 +14892,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \verb|min::line_feed                           // line_type|\ARGBREAK
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK
 \end{tabular}
@@ -14909,7 +14917,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \verb|min::colon                               // paragraph_type|\ARGBREAK
 \end{tabular}
 
@@ -14933,7 +14941,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \verb|min::line_feed                           // line_type|\ARGBREAK
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK
 \end{tabular}
@@ -14958,7 +14966,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14990,7 +14998,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // marking_type|\ARGBREAK
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15122,7 +15130,7 @@ This flag suppresses printing the type in the closing bracket
 of a non-\TT{.ini\-ti\-ator} compact format object and an embedded line
 format object.  That is, if the type is \TT{T}, this flag
 replaces \TT{|T\}} with \TT{|\}}.  This flag has \underline{no} effect
-on compact format objects printed as per the \TT{marking\_\EOL type}
+on compact format objects printed as per the \TT{mark\_\EOL classifier}
 as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 
 \end{itemlist}\end{indpar}
@@ -15156,11 +15164,23 @@ any other kinds of objects or inside lines not representing objects.
 \item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{terminator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
-\TT{.initiator}, \TT{.separator}, and \TT{.terminator} in compact
-format, and the \TT{.separator} in normal format.
+\TT{.initiator} and \TT{.terminator} in bracketed compact
+format, and the \TT{.separator} in compact or normal format.
 \TT{Separator\_\EOL format} should never be \TT{NULL}, and the
 other members must be not be \TT{NULL} if compact
 format is enabled.
+
+\item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
+This is a \TT{min::str\_classifier} used to classifiy
+a \TT{.type} value \TT{"T"} to see if
+a compact object printout of the
+form `\TT{\{T|}\ldots\TT{|\}}' may be replaced by `\TT{\{T}\ldots\TT{T\}}',
+and to classify the two strings in a \TT{.type} value \TT{"T1" "T2"} that is
+a two element label to see if
+a compact object printout of the
+form `\TT{\{T1 T2|}\ldots\TT{|\}}' may be replaced by
+`\TT{\{T1}\ldots\TT{T2\}}',
+See \pagref{MARK_CLASSIFIER}.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
@@ -15188,11 +15208,13 @@ an object attribute list and separate attributes in that list.
 This is the \TT{min::pstring} printed in line formats at the end of a line
 to introduce the indented paragraph containing the object attributes.
 
-\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]
-\item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-These are the \TT{min::pstring}'s printed to indicate
-negation of attributes whose value is \TT{FALSE}, and
+\item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]~\\
+This is the \TT{min::pstring} printed to
 separate an attribute label from its value.
+
+\item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]~\\
+This is the \TT{min::pstring} printed to indicate
+negation of attributes whose value is \TT{FALSE}.
 Attributes with value \TT{TRUE} are printed as just
 the attribute label with no following \TT{obj\_\EOL attreq} or value.
 Attributes with value \TT{FALSE} are printed as just
@@ -15210,12 +15232,6 @@ value.
 This is a \TT{min::pstring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::pstring}.
-
-\item[\ttmkey{marking\_type}{in {\tt min::obj\_format}}]~\\
-This is a \TT{min::str\_classifier} that specifies a class of
-\TT{.type} values \TT{"T"} for which a compact object printout of the
-form `\TT{\{"T"|}\ldots\TT{|\}}' is replaced by `\TT{\{T}\ldots\TT{T\}}'.
-See \pagref{MARKING_TYPE}.
 
 \item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]
 \item[\ttmkey{quote\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
@@ -15329,7 +15345,8 @@ with a \TT{.type}, then if
 \end{center}
 where \TT{T} is a string \underline{not} in the string
 class (\pagref{STRING-CLASSIFIERS})
-defined by the \TT{marking\_\EOL type}\label{MARKING_TYPE} member of the object
+defined by the \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER}
+member of the object
 format, then the format is
 \begin{center}
 \TT{\{}\TT{T}\TT{|} {\em <element>}
@@ -15348,7 +15365,7 @@ are to be printed, these must be encoded in
 the \TT{obj\_}\ldots{} \TT{pstring}'s.
 
 If instead \TT{T} \underline{is} in the string
-class defined by the \TT{marking\_\EOL type} member of the object
+class defined by the \TT{mark\_\EOL classifier} member of the object
 format, then the format is
 \begin{center}
 \TT{\{}\TT{T} {\em <element>}
@@ -15356,13 +15373,13 @@ format, then the format is
     \TT{T}\TT{\}}
 \end{center}
 which is the same as before but with the \TT{|}'s omitted.
-E.g., if \TT{"+"} is a \TT{.type} value in the \TT{marking\_\EOL type} class,
+E.g., if \TT{"+"} is a \TT{.type} value in the \TT{mark\_\EOL classifier} class,
 the format is `\TT{\{+}\ldots\TT{+\}}'.
 
 If instead the \TT{.type} is a two element label created by
 \TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
 \TT{T1} and \TT{T2} are strings in the string
-class defined by the \TT{marking\_\EOL type} member of the object
+class defined by the \TT{mark\_\EOL classifier} member of the object
 format, then the format is
 \begin{center}
 \TT{\{}\TT{T1} {\em <element>}
@@ -15373,7 +15390,7 @@ in which \TT{T1} is used with the opening bracket and \TT{T2} is used
 with the closing bracket.
 E.g., if \TT{min::\EOL new\_\EOL lab\_\EOL gen("<",">")} is a \TT{.type}
 value with both \TT{"<"} and \TT{">"} being strings in
-the \TT{marking\_\EOL type} class,
+the \TT{mark\_\EOL classifier} class,
 the format is `\TT{\{<}\ldots\TT{>\}}'.
 
 If instead the \TT{.type} exists and equals \TT{quote\_\EOL type},
