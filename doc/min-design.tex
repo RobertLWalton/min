@@ -15243,8 +15243,15 @@ will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
 
 \end{itemlist}
 
-In \mkey{compact format}{of printed object}
-with an \TT{.initiator} attribute, the only one of the
+Whenever an object is printed using an object format, the printer
+format is first saved, automatic
+breaks are disabled by \TT{min::\EOL no\_\EOL auto\_\EOL break},
+and a break is set by \TT{min::set\_\EOL break} before
+the object is printed.  The printer format is restored after the
+object is printed.
+
+In \mkey{bracketed compact format}{of printed object}, where there are
+\TT{.initiator} and \TT{.terminator} attributes, the only one of the
 above \TT{pstring}'s that might be used is \TT{obj\_sep}, which is
 used if there is no \TT{.separator} attribute.
 If
@@ -15271,13 +15278,30 @@ $\ell$			& is	& \TT{min::leading} \\
 \end{tabular}
 \end{center}
 
+The indent is saved and set by \TT{min::save\_\EOL indent} just before
+printing the first elements, and a break is set by
+\TT{min::set\_break} just before printing every other element.
 If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
-character if \TT{ob\_sep}'s  value were
-\TT{"\textbackslash x01\textbackslash x00" " "}.
+character for all the above object formats for which compact
+printing is enabled.
 
-Any \TT{.type} present in compact format with an \TT{.initiator}
+In \mkey{empty compact format}{of printed object}, where there are
+are no elements and no attributes other than
+\TT{.position} and \TT{.separator},
+just \TT{obj\_empty} is printed, which for the above compact
+enabled object formats is just `\TT{\{\}}'.
+
+In \mkey{quote compact format}{of printed object}, where there are
+are no attributes other than \TT{.type} and \TT{.position},
+with \TT{.type} being equal to \TT{quote\_\EOL type},
+the object elements are just printed using
+\TT{quote\_\EOL element\_\EOL format} with elements being
+separated by a single space.  A break is set by
+\TT{min::set\_\EOL break} just before each element is printed.
+
+Any \TT{.type} present in bracketed compact format with an \TT{.initiator}
 attribute is not printed, as it must be a label formed from the
 \TT{.initiator} and \TT{.terminator}.
 
