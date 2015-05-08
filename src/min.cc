@@ -11157,7 +11157,10 @@ min::printer min::print_obj
 	          i < min::size_of ( vp ); ++ i )
 	    {
 		if ( i != 0 )
+		{
 		    min::print_space ( printer );
+		    printer << min::set_break;
+		}
 		min::print_gen
 		    ( printer,
 		      vp[i],
