@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  8 06:07:31 EDT 2015
+// Date:	Fri May  8 10:42:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10228,9 +10228,9 @@ static min::obj_format paragraph_element_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    NULL,		    // obj_line_sep
-    min::trailing_always_colon_pstring,
-			    // obj_paragraph_begin
+    min::trailing_always_semicolon_space_pstring,
+			    // obj_line_sep
+    NULL,                   // obj_paragraph_begin
 };
 const min::obj_format *
 	min::paragraph_element_obj_format =
@@ -10299,9 +10299,9 @@ static min::obj_format line_element_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    min::trailing_always_semicolon_space_pstring,
-			    // obj_line_sep
-    NULL,                   // obj_paragraph_begin
+    NULL,		    // obj_line_sep
+    min::trailing_always_colon_pstring,
+			    // obj_paragraph_begin
 };
 const min::obj_format * min::line_element_obj_format =
     & ::line_element_obj_format;
@@ -11178,9 +11178,7 @@ min::printer min::print_obj
 	    {
 		printer->state &=
 		    ~ min::AFTER_LINE_SEPARATOR;
-		printer << objf->top_element_format
-			       ->obj_format
-			       ->obj_sep
+		printer << objf->obj_sep
 		        << min::set_break;
 	    }
 	    else
@@ -11194,9 +11192,7 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
-		    printer << objf->top_element_format
-			           ->obj_format
-			           ->obj_sep
+		    printer << objf->obj_sep
 		            << min::set_break;
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
@@ -11210,9 +11206,7 @@ min::printer min::print_obj
 	    }
 	    if ( type == objf->line_sep_type )
 	    {
-		printer << objf->top_element_format
-			       ->obj_format
-			       ->obj_line_sep;
+		printer << objf->obj_line_sep;
 		printer->state |=
 		    min::AFTER_LINE_SEPARATOR;
 		    // See min.h for discussion of when
@@ -11237,9 +11231,7 @@ min::printer min::print_obj
 		    & min::AFTER_LINE_SEPARATOR )
 		  == 0 );
 
-	    printer << objf->top_element_format
-			   ->obj_format
-			   ->obj_paragraph_begin;
+	    printer << objf->obj_paragraph_begin;
 	    printer << min::eol
 	            << min::save_line_break;
 		    // As we are printing this from

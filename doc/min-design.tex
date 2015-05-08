@@ -14885,7 +14885,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
+\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -14909,7 +14909,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|\ARGBREAK
+\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -15163,14 +15163,10 @@ and does not have
 the object is printed in line compact format
 as a list of its elements with each element
 being printed using the \TT{top\_EOL element \_\EOL format}
-and the elements being separated by
-\TT{top\_EOL element\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL sep}.
+and the elements being separated by \TT{obj\_\EOL sep}.
 
 If the \TT{.type} is equal to \TT{line\_\EOL sep\_\EOL type},
-\begin{center}
-\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL line\_\EOL sep}
-\end{center}
-is printed after the last element.
+\TT{obj\_\EOL line\_\EOL sep} is printed after the last element.
 
 A \key{compact line} is defined as a longest sequence of line compact format
 printed objects where all but the last have \TT{.type} equal to
