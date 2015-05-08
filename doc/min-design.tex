@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 7, 2015}
+\date{May 8, 2015}
  
 \maketitle
 
@@ -10797,19 +10797,6 @@ for general value formats is as follows:
 \verb|NULL                                    // id_map_format|
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{line\_gen\_format}:}
-\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK
-\verb|& min::standard_pgen                    // pgen |\ARGBREAK
-\verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::standard_str_format                // str_format|\ARGBREAK
-\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
-\verb|min::bracket_special_format             // special_format|\ARGBREAK
-\verb|min::line_obj_format                    // obj_format|\ARGBREAK
-\verb|NULL                                    // id_map_format|
-\end{tabular}\end{indpar}
-
 A general value format can be any structure whose first member
 is:
 
@@ -11190,9 +11177,9 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|min::left_square_colon_space_pstring     // lab_prefix    "[: "|\ARGBREAK
+\verb|min::left_square_angle_space_pstring     // lab_prefix    "[< "|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
-\verb|min::space_colon_right_square_pstring    // lab_postfix   " :]"|\ARGBREAK
+\verb|min::space_right_angle_square_pstring    // lab_postfix   " >]"|\ARGBREAK
 \end{tabular}\end{indpar}
 
 A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
@@ -14931,31 +14918,6 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{line\_obj\_format}:}%
-\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
-\verb|min::line_feed                           // line_type|\ARGBREAK
-\verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
-\end{tabular}
-
-\end{indpar}
-
-\begin{indpar}[1em]
-
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{embedded\_line\_obj\_format}:}%
 \LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
@@ -15172,15 +15134,51 @@ format is enabled.
 
 \item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
 This is a \TT{min::str\_classifier} used to classifiy
-a \TT{.type} value \TT{"T"} to see if
+a \TT{.type} string value \TT{T} to see if
 a compact object printout of the
 form `\TT{\{T|}\ldots\TT{|\}}' may be replaced by `\TT{\{T}\ldots\TT{T\}}',
-and to classify the two strings in a \TT{.type} value \TT{"T1" "T2"} that is
-a two element label to see if
-a compact object printout of the
-form `\TT{\{T1 T2|}\ldots\TT{|\}}' may be replaced by
+and to classify the two strings in a \TT{.type} label value \TT{[< T1 T2 >]}
+to see if a compact object printout of the
+form `\TT{\{[< T1 T2 >]|}\ldots\TT{|\}}' may be replaced by
 `\TT{\{T1}\ldots\TT{T2\}}',
 See \pagref{MARK_CLASSIFIER}.
+
+\item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]~\\
+If an object being printed in compact format has \TT{.type} attribute
+equal to \TT{quote\_\EOL type} and does not have
+\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
+the object is printed in quote compact format
+as a list of its elements with each element
+being printed using the \TT{quote\_\EOL element\EOL format}.
+This is typically used to replace \TT{\{"~...~"\}} by
+\TT{"..."}.
+
+\item[\ttmkey{line\_type}{in {\tt min::obj\_format}}]
+\item[\ttmkey{line\_sep\_type}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{obj\_line\_sep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+If an object being printed in compact format has \TT{.type} attribute
+equal to \TT{line\_\EOL type} or \TT{line\_\EOL sep\_\EOL type}
+and does not have
+\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
+the object is printed in line compact format
+as a list of its elements with each element
+being printed using the \TT{top\_EOL element \_\EOL format}
+and the elements being separated by
+\TT{top\_EOL element\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL sep}.
+
+If the \TT{.type} is equal to \TT{line\_\EOL sep\_\EOL type},
+\begin{center}
+\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL line\_\EOL sep}
+\end{center}
+is printed after the last element.
+
+A \key{compact line} is defined as a longest sequence of line compact format
+printed objects where all but the last have \TT{.type} equal to
+to \TT{line\_\EOL sep\_\EOL type}.
+Just before printing a compact line, the indent
+is set to 4 spaces to the right
+of the initial column position, and at the end of the compact line, a
+\TT{min::bol} is executed.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
@@ -15232,51 +15230,6 @@ value.
 This is a \TT{min::pstring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::pstring}.
-
-\item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]
-\item[\ttmkey{quote\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-If \TT{quote\_type} is \underline{not} \TT{min::NONE()} and
-an object being printed in compact format has \TT{.type} attribute
-equal to \TT{quote\_\EOL type} and does not have
-\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
-the object is printed as a list of its elements with each element
-being printed using the \TT{quote\_\EOL format} general format.
-These members are typically used to replace \TT{\{"~...~"\}} by
-\TT{"..."}.
-
-\item[\ttmkey{line\_type}{in {\tt min::obj\_format}}]
-\item[\ttmkey{line\_sep\_type}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{line\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{obj\_line\_sep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
-If \TT{line\_type} is \underline{not} \TT{min::NONE()} and
-an object being printed in compact format has \TT{.type} attribute
-equal to \TT{line\_\EOL type} and does not have
-\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
-the object is printed in \key{compact non-separator line format},
-and if all this applies except
-the \TT{.type} attribute equals
-\TT{line\_\EOL sep\_\EOL type} instead of \TT{line\_\EOL type},
-the object is printed in \key{compact line separator format}.
-These two formats are collectively referred to as \skey{compact line format}s.
-
-In compact line formats the
-object is printed as a list of its elements with each element
-being printed using the \TT{line\_\EOL format} general format,
-and the elements being separated by
-\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL sep}.
-
-In compact separator line format
-\begin{center}
-\TT{line\_\EOL format->\EOL obj\_\EOL format->\EOL obj\_\EOL line\_\EOL sep}
-\end{center}
-is printed after the last element.
-
-A \key{compact line} is defined as a longest sequence of compact line format
-printed objects where only the last may be in non-separator format.
-Just before printing a compact line, the indent
-is set to 4 spaces to the right
-of the initial column position, and at the end of the compact line, a
-\TT{min::bol} is executed.
 
 \item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
 This member is only enabled if it
@@ -19650,21 +19603,6 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{line\_gen\_format}:}
-\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK[0in]
-\verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
-\verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
-\verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
-\verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
-\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
-\verb|min::line_obj_format                    // obj_format|\ARGBREAK[0in]
-\verb|NULL                                    // id_map_format|
-\end{TABULAR}
-
-\bigskip
-
 \begin{TABULAR}{1.6in}
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
@@ -19918,9 +19856,9 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
-\verb|min::left_square_colon_space_pstring     // lab_prefix    "[: "|\ARGBREAK
+\verb|min::left_square_angle_space_pstring     // lab_prefix    "[< "|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
-\verb|min::space_colon_right_square_pstring    // lab_postfix   " :]"|\ARGBREAK
+\verb|min::space_angle_right_square_pstring    // lab_postfix   " >]"|\ARGBREAK
 \end{TABULAR}
 
 \bigskip

@@ -1475,8 +1475,8 @@ name
 "this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")
-[: 5.6 [: 1.234 "str<SP>1" :] "str<SP>2" :]
-A , B / [: A , B :]
+[< 5.6 [< 1.234 "str<SP>1" >] "str<SP>2" >]
+A , B / [< A , B >]
 MISSING
 NONE
 ANY
@@ -2926,25 +2926,25 @@ Start Object Printing Test!
         .separator = ";"
     |T}
 {T: no scientific, number = 123, .separator = ";", fraction| A B C |T}
-{"": myattr = [: "MYATTR" "VALUE" :], .initiator = [: "{" "*" :],
-     .separator = ",", .terminator = [: "*" "}" :]| 1 2 3 4 5 |}
+{"": myattr = [< "MYATTR" "VALUE" >], .initiator = [< "{" "*" >],
+     .separator = ",", .terminator = [< "*" "}" >]| 1 2 3 4 5 |}
 @1
 @1 = 1 2 3 4 5:
-         myattr = [: "MYATTR" "VALUE" :]
-         .initiator = [: "{" "*" :]
+         myattr = [< "MYATTR" "VALUE" >]
+         .initiator = [< "{" "*" >]
          .separator = ","
-         .terminator = [: "*" "}" :]
+         .terminator = [< "*" "}" >]
 {"": myattr =
-     {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
-     .separator = ",", .terminator = [: "*" "}" :]| 1 2 3 4 5 |}
+     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
+     .separator = ",", .terminator = [< "*" "}" >]| 1 2 3 4 5 |}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr =
-     {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
+     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
      myreverse = @2 <= myforward, .separator = ",", .terminator =
-     [: "*" "}" :]| 1 2 3 4 5 |}
+     [< "*" "}" >]| 1 2 3 4 5 |}
 
 @2 = A B C:
          no scientific
@@ -2956,17 +2956,17 @@ Start Object Printing Test!
 {T: no scientific, number = 123, .separator = ";", myforward[#aZ] = @1
      <= myreverse, fraction| A B C |T}
 {"": myattr[#Z,64,512] =
-     {* [: "MYATTR" "THIRD" "VALUE" :], [: "MYATTR" "VALUE" :],
-        [: "MYATTR" "SECOND" "VALUE" :] *}, .initiator = [: "{" "*" :],
+     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
      myreverse = @2 <= myforward, .separator = ",", .terminator =
-     [: "*" "}" :]| 1 2 3 4 5 |}
+     [< "*" "}" >]| 1 2 3 4 5 |}
     {| 1 2 3 4 5:
-       myattr[#Z,64,512] = [: "MYATTR" "THIRD" "VALUE" :],
-           [: "MYATTR" "VALUE" :], [: "MYATTR" "SECOND" "VALUE" :]
-       .initiator = [: "{" "*" :]
+       myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
+           [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+       .initiator = [< "{" "*" >]
        myreverse = @2 <= myforward
        .separator = ","
-       .terminator = [: "*" "}" :]
+       .terminator = [< "*" "}" >]
     |}
 {T| X Y Z |T}
 {+ X Y Z +}

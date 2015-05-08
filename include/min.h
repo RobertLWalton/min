@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  7 16:45:33 EDT 2015
+// Date:	Fri May  8 06:06:48 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11825,9 +11825,9 @@ namespace min {
     extern min::pstring
     	trailing_always_pstring;
     extern min::pstring
-    	left_square_colon_space_pstring;
+    	left_square_angle_space_pstring;
     extern min::pstring
-    	space_colon_right_square_pstring;
+    	space_right_angle_square_pstring;
     extern min::pstring
     	left_square_dollar_space_pstring;
     extern min::pstring
@@ -12129,8 +12129,6 @@ namespace min {
         paragraph_element_obj_format;
     extern const min::obj_format *
         line_element_obj_format;
-    extern const min::obj_format *
-        line_obj_format;
 
     struct gen_format
     {
@@ -12172,8 +12170,6 @@ namespace min {
         line_element_gen_format;
     extern const gen_format *
         paragraph_element_gen_format;
-    extern const gen_format *
-        line_gen_format;
 
     extern packed_vec_ptr<min::ustring>
            standard_special_names;

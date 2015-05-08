@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May  7 16:45:22 EDT 2015
+// Date:	Fri May  8 06:07:31 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8013,26 +8013,26 @@ static min::printer trailing_always_pstring
 min::pstring min::trailing_always_pstring =
     & ::trailing_always_pstring;
 
-static min::printer left_square_colon_space_pstring
+static min::printer left_square_angle_space_pstring
 	( min::printer printer )
 {
-    min::print_item ( printer, "[:", 2, 2,
+    min::print_item ( printer, "[<", 2, 2,
 	   min::IS_LEADING + min::IS_GRAPHIC );
     return min::print_space ( printer );
 }
-min::pstring min::left_square_colon_space_pstring =
-    & ::left_square_colon_space_pstring;
+min::pstring min::left_square_angle_space_pstring =
+    & ::left_square_angle_space_pstring;
 
-static min::printer space_colon_right_square_pstring
+static min::printer space_right_angle_square_pstring
 	( min::printer printer )
 {
     min::print_space_if_none ( printer );
     return min::print_item
-        ( printer, ":]", 2, 2,
+        ( printer, ">]", 2, 2,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
-min::pstring min::space_colon_right_square_pstring =
-    & ::space_colon_right_square_pstring;
+min::pstring min::space_right_angle_square_pstring =
+    & ::space_right_angle_square_pstring;
 
 static min::printer left_square_dollar_space_pstring
 	( min::printer printer )
@@ -10043,9 +10043,9 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
-    min::left_square_colon_space_pstring,
+    min::left_square_angle_space_pstring,
     min::space_if_none_pstring,
-    min::space_colon_right_square_pstring
+    min::space_right_angle_square_pstring
 };
 const min::lab_format * min::bracket_lab_format =
     & ::bracket_lab_format;
@@ -10305,77 +10305,6 @@ static min::obj_format line_element_obj_format =
 };
 const min::obj_format * min::line_element_obj_format =
     & ::line_element_obj_format;
-
-static min::obj_format line_obj_format =
-{
-    min::ENABLE_COMPACT,    // obj_op_flags
-
-    NULL,		    // element_format*
-    NULL,		    // top_element_format*
-    NULL,		    // quote_element_format*
-    NULL,		    // label_format*
-    NULL,		    // value_format*
-
-    NULL,		    // initiator_format*
-    NULL,		    // separator_format*
-    NULL,		    // terminator_format*
-
-    min::null_str_classifier,
-    			    // mark_classifier
-    min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type*
-    min::NONE(),	    // line_sep_type*
-    min::NONE(),	    // paragraph_type
-
-    min::left_curly_right_curly_pstring,
-			    // obj_empty
-
-    min::left_curly_leading_pstring,
-			    // obj_bra
-    min::trailing_vbar_pstring,
-			    // obj_braend
-    min::vbar_leading_pstring,
-			    // obj_ketbegin
-    min::trailing_right_curly_pstring,
-			    // obj_ket
-
-    min::space_if_none_pstring,
-			    // obj_sep
-
-    min::trailing_always_colon_space_pstring,
-			    // obj_attrbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_attrsep
-
-    min::trailing_always_colon_pstring,
-			    // obj_attreol
-
-    min::space_equal_space_pstring,
-			    // obj_attreq
-
-    min::no_space_pstring,  // obj_attrneg
-
-
-    min::standard_attr_flag_format,
-    			    // flag_format
-
-    min::left_curly_star_space_pstring,
-			    // obj_valbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_valsep
-    min::space_star_right_curly_pstring,
-			    // obj_valend
-
-    min::space_less_than_equal_space_pstring,
-			    // obj_valreq
-
-    NULL,		    // obj_line_sep
-    min::trailing_always_colon_pstring,
-			    // obj_paragraph_begin
-};
-const min::obj_format *
-	min::line_obj_format =
-    & ::line_obj_format;
 
 static min::obj_format embedded_line_obj_format =
 {
@@ -10717,20 +10646,6 @@ const min::gen_format *
 	min::paragraph_element_gen_format =
     & ::paragraph_element_gen_format;
 
-static min::gen_format line_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::standard_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::line_obj_format,
-    NULL			    // id_map_format
-};
-const min::gen_format *
-	min::line_gen_format =
-    & ::line_gen_format;
-
 const min::print_format min::default_print_format =
 {
     min::EXPAND_HT,
@@ -10850,29 +10765,6 @@ static void init_pgen_formats ( void )
         min::doublequote;
     ::line_element_obj_format.paragraph_type =
         min::colon;
-
-    ::line_obj_format.element_format =
-        min::element_gen_format;
-    ::line_obj_format.top_element_format =
-        min::line_element_gen_format;
-    ::line_obj_format.quote_element_format =
-        min::always_quote_gen_format;
-    ::line_obj_format.label_format =
-        min::name_gen_format;
-    ::line_obj_format.value_format =
-        min::value_gen_format;
-    ::line_obj_format.initiator_format =
-        min::leading_always_gen_format;
-    ::line_obj_format.separator_format =
-        min::trailing_always_gen_format;
-    ::line_obj_format.terminator_format =
-        min::trailing_always_gen_format;
-    ::line_obj_format.quote_type =
-        min::doublequote;
-    ::line_obj_format.line_type =
-        min::line_feed;
-    ::line_obj_format.line_sep_type =
-        min::semicolon;
 
     ::top_gen_format.id_map_format =
         min::id_map_gen_format;
