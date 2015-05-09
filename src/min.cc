@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  8 21:52:15 EDT 2015
+// Date:	Sat May  9 16:08:54 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11176,27 +11176,12 @@ min::printer min::print_obj
 		  &&
 		  separator == min::NONE() )
 	{
-	    if (   printer->state
-		 & min::AFTER_LINE_SEPARATOR )
-	    {
-		printer->state &=
-		    ~ min::AFTER_LINE_SEPARATOR;
-		min::print_space ( printer );
-		printer << min::set_break;
-	    }
-	    else
-	    {
-		printer << min::save_indent
-			<< min::place_indent ( 4 );
-	    }
-
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
 		if ( i != 0 )
 		{
 		    min::print_space ( printer );
-		    printer << min::set_break;
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
 			 type == objf->line_type )
@@ -11215,9 +11200,6 @@ min::printer min::print_obj
 		    // See min.h for discussion of when
 		    // this flag will be turned off.
 	    }
-	    else
-	        printer << min::restore_indent
-		        << min::bol;
 	    return printer << min::restore_print_format;
 	}
 	else if ( type == objf->paragraph_type
@@ -11234,31 +11216,49 @@ min::printer min::print_obj
 		    & min::AFTER_LINE_SEPARATOR )
 		  == 0 );
 
-	    printer << objf->obj_paragraph_begin;
-	    printer << min::eol
-	            << min::save_line_break;
+	    printer << objf->obj_paragraph_begin
+	            << min::eol;
 		    // As we are printing this from
 		    // inside a line, indent is already
 		    // adjusted to line indent + 4.
 
+	    bool indent_saved = false;
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
 	    {
-		if ( (   printer->state
-	               & min::AFTER_LINE_SEPARATOR )
-		     == 0 )
-		    printer << min::indent;
+		if (   printer->state
+	             & min::AFTER_LINE_SEPARATOR )
+		{
+		    printer->state &=
+			~ min::AFTER_LINE_SEPARATOR;
+		    min::print_space ( printer );
+		}
+		else
+		{
+		    if ( indent_saved )
+		        printer << min::restore_indent;
+
+		    printer << min::indent
+		            << min::save_indent
+			    << min::place_indent ( 4 );
+
+		    indent_saved = true;
+		}
 
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );
 
-		if ( (   printer->state
-	               & min::AFTER_LINE_SEPARATOR )
-		     == 0 )
-		    printer << min::bol;
 	    }
-	    return printer << min::restore_line_break
+
+	    printer->state &=
+		~ min::AFTER_LINE_SEPARATOR;
+
+	    if ( indent_saved )
+		printer << min::restore_indent;
+
+	    return printer << min::bol
+	                   << min::restore_line_break
 	                   << min::restore_print_format;
 	}
 	else

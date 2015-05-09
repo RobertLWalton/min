@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 8, 2015}
+\date{May 9, 2015}
  
 \maketitle
 
@@ -15312,31 +15312,36 @@ separated by a single space.  A break is set by
 If the \TT{.type} equals \TT{line\_\EOL sep\_\EOL type},
 then the line is called a \key{separated line} and
 \TT{obj\_\EOL line\_\EOL sep} is printed (e.g. `\TT{;}') just after the line.
-If a line is printed immediately after a separated line,
-a single space is printed before the line; otherwise the
-indent is saved with \TT{min::\EOL save\_\EOL indent} and
-then incremented by 4.  If a line is not a separated line,
-then \TT{min::\EOL restore\_\EOL indent} and then \TT{min::\EOL bol}
-are executed after the line.
+Note that nothing is done before the first element to indent
+the line and \underline{no} end of line is output after the line.
+Lines are elements of other objects whose format is supposed to
+supply pre-line indentation and post line end of lines, or they
+are top level lines which should to be separated by \TT{min::\EOL eol}'s.
 
 In \mkey{paragraph compact format}{of printed object}, there are
 are no attributes other than \TT{.type} and \TT{.posi\-tion},
 the \TT{.type} is equal to \TT{paragraph\_\EOL type},
 and the object is the last element of a non-separated line printed with
-line compact format that has at least one line element preceeding
+line compact format with at least one line element preceeding
 the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin} is
-printed (e.g. `\TT{:}'), followed by the object elements which are
-printed using \TT{top\_\EOL element\_\EOL format}.
+printed (e.g. `\TT{:}'), followed \TT{min::eol}, and then the
+object elements which are printed using \TT{top\_\EOL element\_\EOL format}.
 
+The elements of a paragraph are supposed to be lines printed in
+line compact format, and elements which are not thus are printed as if
+they were one element non-separated lines.
 Define a \key{line group} as a sequence of separated lines followed
-by a non-separated line, where a non-line is treated as if it were
-a 1-element line (and therefore cannot contain a paragraph).
+by a non-separated line.
 Because the paragraph is the last thing in a line group, the indent
 at the beginning of the paragraph is already set to 4 plus the indent
 of the paragraph's containing line group, so the indent is already
-correctly set.  A paragrah is itself a sequence of line groups,
-and each of these is preceded by executing \TT{min::indent} to
-indent the line group.
+correctly set.  A paragraph is itself a sequence of line groups,
+and each of these is preceded by executing \TT{min::\EOL indent} to
+indent the line group and then \TT{min::\EOL place\_\EOL indent(4)}
+to indent continuations of the line group beyond the beginning
+of the line group.  Each line group is ended with \TT{min::\EOL bol}.
+
+An empty paragraph output nothing but
 
 TBD
 
