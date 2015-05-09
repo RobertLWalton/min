@@ -15301,6 +15301,45 @@ the object elements are just printed using
 separated by a single space.  A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
 
+In \mkey{line compact format}{of printed object}, where there are
+are no attributes other than \TT{.type} and \TT{.posi\-tion},
+with \TT{.type} being equal to \TT{line\_\EOL type}
+or \TT{line\_\EOL sep\_\EOL type},
+the object elements are just printed using
+\TT{top\_\EOL element\_\EOL format} with elements being
+separated by a single space.  A break is set by
+\TT{min::set\_\EOL break} just before each element is printed.
+If the \TT{.type} equals \TT{line\_\EOL sep\_\EOL type},
+then the line is called a \key{separated line} and
+\TT{obj\_\EOL line\_\EOL sep} is printed (e.g. `\TT{;}') just after the line.
+If a line is printed immediately after a separated line,
+a single space is printed before the line; otherwise the
+indent is saved with \TT{min::\EOL save\_\EOL indent} and
+then incremented by 4.  If a line is not a separated line,
+then \TT{min::\EOL restore\_\EOL indent} and then \TT{min::\EOL bol}
+are executed after the line.
+
+In \mkey{paragraph compact format}{of printed object}, there are
+are no attributes other than \TT{.type} and \TT{.posi\-tion},
+the \TT{.type} is equal to \TT{paragraph\_\EOL type},
+and the object is the last element of a non-separated line printed with
+line compact format that has at least one line element preceeding
+the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin} is
+printed (e.g. `\TT{:}'), followed by the object elements which are
+printed using \TT{top\_\EOL element\_\EOL format}.
+
+Define a \key{line group} as a sequence of separated lines followed
+by a non-separated line, where a non-line is treated as if it were
+a 1-element line (and therefore cannot contain a paragraph).
+Because the paragraph is the last thing in a line group, the indent
+at the beginning of the paragraph is already set to 4 plus the indent
+of the paragraph's containing line group, so the indent is already
+correctly set.  A paragrah is itself a sequence of line groups,
+and each of these is preceded by executing \TT{min::indent} to
+indent the line group.
+
+TBD
+
 Any \TT{.type} present in bracketed compact format with an \TT{.initiator}
 attribute is not printed, as it must be a label formed from the
 \TT{.initiator} and \TT{.terminator}.

@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May  8 10:42:38 EDT 2015
+// Date:	Fri May  8 21:52:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11181,8 +11181,8 @@ min::printer min::print_obj
 	    {
 		printer->state &=
 		    ~ min::AFTER_LINE_SEPARATOR;
-		printer << objf->obj_sep
-		        << min::set_break;
+		min::print_space ( printer );
+		printer << min::set_break;
 	    }
 	    else
 	    {
@@ -11195,8 +11195,8 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
-		    printer << objf->obj_sep
-		            << min::set_break;
+		    min::print_space ( printer );
+		    printer << min::set_break;
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
 			 type == objf->line_type )
