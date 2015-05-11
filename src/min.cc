@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May  9 16:08:54 EDT 2015
+// Date:	Sun May 10 21:47:33 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8090,27 +8090,18 @@ static min::printer trailing_right_curly_pstring
 min::pstring min::trailing_right_curly_pstring =
     & ::trailing_right_curly_pstring;
 
-static min::printer trailing_vbar_pstring
+static min::printer trailing_vbar_leading_pstring
 	( min::printer printer )
 {
     min::print_trailing ( printer );
-    return min::print_item
-        ( printer, "|", 1, 1,
-	  min::IS_TRAILING + min::IS_GRAPHIC );
-}
-min::pstring min::trailing_vbar_pstring =
-    & ::trailing_vbar_pstring;
-
-static min::printer vbar_leading_pstring
-	( min::printer printer )
-{
     min::print_item
         ( printer, "|", 1, 1,
-	  min::IS_LEADING + min::IS_GRAPHIC );
+	  min::IS_TRAILING + min::IS_LEADING
+	                   + min::IS_GRAPHIC );
     return min::print_leading ( printer );
 }
-min::pstring min::vbar_leading_pstring =
-    & ::vbar_leading_pstring;
+min::pstring min::trailing_vbar_leading_pstring =
+    & ::trailing_vbar_leading_pstring;
 
 static min::printer trailing_always_colon_space_pstring
 	( min::printer printer )
@@ -10124,9 +10115,9 @@ static min::obj_format compact_obj_format =
 
     min::left_curly_leading_pstring,
 			    // obj_bra
-    min::trailing_vbar_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_braend
-    min::vbar_leading_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_ketbegin
     min::trailing_right_curly_pstring,
 			    // obj_ket
@@ -10192,9 +10183,9 @@ static min::obj_format paragraph_element_obj_format =
 
     min::left_curly_leading_pstring,
 			    // obj_bra
-    min::trailing_vbar_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_braend
-    min::vbar_leading_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_ketbegin
     min::trailing_right_curly_pstring,
 			    // obj_ket
@@ -10262,9 +10253,9 @@ static min::obj_format line_element_obj_format =
 
     min::left_curly_leading_pstring,
 			    // obj_bra
-    min::trailing_vbar_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_braend
-    min::vbar_leading_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_ketbegin
     min::trailing_right_curly_pstring,
 			    // obj_ket
@@ -10332,9 +10323,9 @@ static min::obj_format embedded_line_obj_format =
 
     min::left_curly_leading_pstring,
 			    // obj_bra
-    min::trailing_vbar_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_braend
-    min::vbar_leading_pstring,
+    min::trailing_vbar_leading_pstring,
 			    // obj_ketbegin
     min::trailing_right_curly_pstring,
 			    // obj_ket
@@ -11134,7 +11125,7 @@ min::printer min::print_obj
             << min::no_auto_break
             << min::set_break;
 
-    min::gen marking_end_type = min::NONE();
+    min::gen mark_end_type = min::NONE();
     if ( compact_format )
     {
         if ( initiator != min::NONE() )
@@ -11211,10 +11202,8 @@ min::printer min::print_obj
 		  (   printer->state
 		    & min::PARAGRAPH_POSSIBLE ) )
 	{
-	    MIN_REQUIRE
-	        ( (   printer->state
-		    & min::AFTER_LINE_SEPARATOR )
-		  == 0 );
+	    printer->state &=
+	        ~ min::AFTER_LINE_SEPARATOR;
 
 	    printer << objf->obj_paragraph_begin
 	            << min::eol;
@@ -11258,7 +11247,6 @@ min::printer min::print_obj
 		printer << min::restore_indent;
 
 	    return printer << min::bol
-	                   << min::restore_line_break
 	                   << min::restore_print_format;
 	}
 	else
@@ -11267,7 +11255,7 @@ min::printer min::print_obj
 
 	    const min::print_format & pf =
 	        printer->print_format;
-	    min::gen marking_begin_type = min::NONE();
+	    min::gen mark_begin_type = min::NONE();
 	    if ( min::is_str ( type ) )
 	    {
 	        if (   min::IS_MARK
@@ -11277,8 +11265,8 @@ min::printer min::print_obj
 			   type,
 			   objf->mark_classifier ) )
 		{
-		    marking_begin_type = type;
-		    marking_end_type = type;
+		    mark_begin_type = type;
+		    mark_end_type = type;
 		}
 	    }
 	    else if ( min::is_lab ( type ) )
@@ -11311,16 +11299,16 @@ min::printer min::print_obj
 			   ( min::IS_TRAILING & class1 )
 			 ) )
 		    {
-			marking_begin_type = lab[0];
-			marking_end_type = lab[1];
+			mark_begin_type = lab[0];
+			mark_end_type = lab[1];
 		    }
 		}
 	    }
 	        
 
-	    if ( marking_begin_type != min::NONE() )
+	    if ( mark_begin_type != min::NONE() )
 		min::print_gen
-		    ( printer, marking_begin_type,
+		    ( printer, mark_begin_type,
 		      min::never_quote_gen_format );
 	    else
 	    {
@@ -11442,10 +11430,10 @@ min::printer min::print_obj
 	    min::print_gen
 	        ( printer, terminator,
 		  objf->terminator_format );
-	else if ( marking_end_type != min::NONE() )
+	else if ( mark_end_type != min::NONE() )
 	{
 	    min::print_gen
-		( printer, marking_end_type,
+		( printer, mark_end_type,
 		  min::never_quote_gen_format );
 	    printer << objf->obj_ket;
 	}

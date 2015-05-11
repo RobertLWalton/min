@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 9, 2015}
+\date{May 10, 2015}
  
 \maketitle
 
@@ -14821,8 +14821,8 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::left_curly_leading_pstring          // obj_bra|\ARGBREAK
-\verb|min::trailing_vbar_pstring               // obj_braend|\ARGBREAK
-\verb|min::vbar_leading_pstring                // obj_ketbegin|\ARGBREAK
+\verb|min::trailing_vbar_leading_pstring       // obj_braend|\ARGBREAK
+\verb|min::trailing_vbar_leading_pstring       // obj_ketbegin|\ARGBREAK
 \verb|min::trailing_right_curly_pstring        // obj_ket|\ARGBREAK
 \end{tabular}
 
@@ -15141,7 +15141,7 @@ and to classify the two strings in a \TT{.type} label value \TT{[< T1 T2 >]}
 to see if a compact object printout of the
 form `\TT{\{[< T1 T2 >]|}\ldots\TT{|\}}' may be replaced by
 `\TT{\{T1}\ldots\TT{T2\}}',
-See \pagref{MARK_CLASSIFIER}.
+See \pagref{IS_MARK_CLASSIFIER}.
 
 \item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]~\\
 If an object being printed in compact format has \TT{.type} attribute
@@ -15316,7 +15316,8 @@ Note that nothing is done before the first element to indent
 the line and \underline{no} end of line is output after the line.
 Lines are elements of other objects whose format is supposed to
 supply pre-line indentation and post line end of lines, or they
-are top level lines which should to be separated by \TT{min::\EOL eol}'s.
+are the ends of top level lines that supply pre-line indentation
+and post line end of lines.
 
 In \mkey{paragraph compact format}{of printed object}, there are
 are no attributes other than \TT{.type} and \TT{.posi\-tion},
@@ -15325,32 +15326,34 @@ and the object is the last element of a non-separated line printed with
 line compact format with at least one line element preceeding
 the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin} is
 printed (e.g. `\TT{:}'), followed \TT{min::eol}, and then the
-object elements which are printed using \TT{top\_\EOL element\_\EOL format}.
+object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The elements of a paragraph are supposed to be lines printed in
 line compact format, and elements which are not thus are printed as if
 they were one element non-separated lines.
-Define a \key{line group} as a sequence of separated lines followed
-by a non-separated line.
+Define a \key{line group} as a maximal sequence of separated lines followed
+by a non-separated line, or a maximal sequence of separated lines at the end
+of a paragraph.
 Because the paragraph is the last thing in a line group, the indent
 at the beginning of the paragraph is already set to 4 plus the indent
 of the paragraph's containing line group, so the indent is already
 correctly set.  A paragraph is itself a sequence of line groups,
-and each of these is preceded by executing \TT{min::\EOL indent} to
+and in paragraph compact format each of these is preceded by
+executing \TT{min::\EOL indent} to
 indent the line group and then \TT{min::\EOL place\_\EOL indent(4)}
 to indent continuations of the line group beyond the beginning
-of the line group.  Each line group is ended with \TT{min::\EOL bol}.
+of the line group.  Lastly, the lines in a line group are separated
+by single spaces, and \TT{min::\EOL bol} is executed at the end of
+the paragraph.
 
-An empty paragraph output nothing but
+An empty paragraph prints nothing but \TT{obj\_\EOL paragraph\_\EOL begin}
+followed \TT{min::eol}.
 
-TBD
+In \mkey{default compact format}{of printed object}, there are
+are no attributes other than \TT{.type}, \TT{.position}, and
+\TT{.separator}, and none of the above compact formats apply.
+Then if
 
-Any \TT{.type} present in bracketed compact format with an \TT{.initiator}
-attribute is not printed, as it must be a label formed from the
-\TT{.initiator} and \TT{.terminator}.
-
-In compact format \underline{without} an \TT{.initiator} attribute but
-with a \TT{.type}, then if
 \begin{center}
 \begin{tabular}{lcl}
 \TT{obj\_bra}		& is	& \TT{"\{"} \\
@@ -15358,19 +15361,18 @@ with a \TT{.type}, then if
 \TT{obj\_ketbegin}	& is	& \TT{"|"} \\
 \TT{obj\_ket}		& is	& \TT{"\}"} \\
 \TT{.type}		& is	& \TT{"T"} \\
+\TT{.separator}		& is	& \TT{,} \\
 \end{tabular}
 \end{center}
-where \TT{T} is a string \underline{not} in the string
-class (\pagref{STRING-CLASSIFIERS})
-defined by the \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER}
-member of the object
-format, then the format is
+where \TT{T} is a string that is \underline{not} a mark as described
+below, then the format is
 \begin{center}
 \TT{\{}\TT{T}\TT{|} {\em <element>}
     \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
     \TT{|}\TT{T}\TT{\}}
 \end{center}
-which is as before except that `\TT{[} $\ell$' has been replaced
+which is as for the bracketed compact format above
+except that `\TT{[} $\ell$' has been replaced
 by `\TT{\{T|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
 `\TT{|}' is what \TT{obj\_\EOL braend} prints, and
 `{\em t} \TT{]}' has been replaced
@@ -15381,23 +15383,31 @@ spaces, leading spaces, or trailing spaces
 are to be printed, these must be encoded in
 the \TT{obj\_}\ldots{} \TT{pstring}'s.
 
-If instead \TT{T} \underline{is} in the string
-class defined by the \TT{mark\_\EOL classifier} member of the object
-format, then the format is
+If in this format the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
+object format operation flag on, then \TT{T} is omitted from `\TT{|T\}}' which
+becomes `\TT{|\}}'.
+
+If instead \TT{T} is a string whose \TT{mark\_\EOL classifier} defined
+string class has the \TT{min::\EOL IS\_\EOL MARK} flag, then the format becomes
 \begin{center}
 \TT{\{}\TT{T} {\em <element>}
     \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
     \TT{T}\TT{\}}
 \end{center}
-which is the same as before but with the \TT{|}'s omitted.
-E.g., if \TT{"+"} is a \TT{.type} value in the \TT{mark\_\EOL classifier} class,
+which is the same as above but with the \TT{|}'s omitted.
+E.g., if \TT{"+"} is a \TT{.type} value whose \TT{mark\_\EOL classifier} string
+class has the \TT{min::\EOL IS\_\EOL MARK} flag,
 the format is `\TT{\{+}\ldots\TT{+\}}'.
+
+TBD
 
 If instead the \TT{.type} is a two element label created by
 \TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
-\TT{T1} and \TT{T2} are strings in the string
-class defined by the \TT{mark\_\EOL classifier} member of the object
-format, then the format is
+\TT{T1} and \TT{T2} are strings whose \TT{mark\_\EOL classifier} either
+\underline{both} have the \TT{min::\EOL IS\_\EOL MARK} flag, or
+\TT{"T1"}'s string class has the \TT{min::\EOL IS\_\EOL LEADING} flag and
+\TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAING} flag,
+then the format is
 \begin{center}
 \TT{\{}\TT{T1} {\em <element>}
     \OPEN{} {\em ta} \TT{,} \TT{\textvisiblespace} {\em <element>} \CLOSE\STAR{}
@@ -15406,9 +15416,11 @@ format, then the format is
 in which \TT{T1} is used with the opening bracket and \TT{T2} is used
 with the closing bracket.
 E.g., if \TT{min::\EOL new\_\EOL lab\_\EOL gen("<",">")} is a \TT{.type}
-value with both \TT{"<"} and \TT{">"} being strings in
-the \TT{mark\_\EOL classifier} class,
-the format is `\TT{\{<}\ldots\TT{>\}}'.
+value with both \TT{"<"} and \TT{">"} being strings whose
+\TT{mark\_\EOL classifier} string classes both have the
+\TT{min::\EOL IS\_\EOL MARK} flag, the format is `\TT{\{<}\ldots\TT{>\}}'.
+
+TBD
 
 If instead the \TT{.type} exists and equals \TT{quote\_\EOL type},
 \underline{and} if there is no \TT{.separator} attribute,
