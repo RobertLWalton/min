@@ -1005,7 +1005,7 @@ min_interface_test.cc:XXXX:
     labp1 == min::NULL_STUB => true
 min_interface_test.cc:XXXX:
     labp2 == min::NULL_STUB => true
-LABEL [: "Hello" 55 "End" :]
+LABEL [< "Hello" 55 "End" >]
 min_interface_test.cc:XXXX:
     -1 == min::is_subsequence ( lab, labv1[0] ) => true
 min_interface_test.cc:XXXX:
@@ -2647,7 +2647,7 @@ min_interface_test.cc:XXXX:
     check_values ( ap, values2, 6 ) => true
 min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 8 ) => true
-TEST ATTRIBUTE VALUES ( [: 1 "label1" :], [: 1 "label2" :])
+TEST ATTRIBUTE VALUES ( [< 1 "label1" >], [< 1 "label2" >])
 min_interface_test.cc:XXXX:
     check_values ( ap, values1, 3 ) => true
 min_interface_test.cc:XXXX:
@@ -2676,7 +2676,7 @@ min_interface_test.cc:XXXX:
     check_values ( ap, values2, 6 ) => true
 min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 9 ) => true
-TEST ATTRIBUTE VALUES ( [: 1 "label2" :], [: 1 "label1" :])
+TEST ATTRIBUTE VALUES ( [< 1 "label2" >], [< 1 "label1" >])
 min_interface_test.cc:XXXX:
     check_values ( ap, values1, 3 ) => true
 min_interface_test.cc:XXXX:
@@ -2705,7 +2705,7 @@ min_interface_test.cc:XXXX:
     check_values ( ap, values2, 6 ) => true
 min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 10 ) => true
-TEST ATTRIBUTE VALUES ( [: "label1" 1 :], [: "label1" 2 :])
+TEST ATTRIBUTE VALUES ( [< "label1" 1 >], [< "label1" 2 >])
 min_interface_test.cc:XXXX:
     check_values ( ap, values1, 3 ) => true
 min_interface_test.cc:XXXX:
@@ -2734,7 +2734,7 @@ min_interface_test.cc:XXXX:
     check_values ( ap, values2, 6 ) => true
 min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 11 ) => true
-TEST ATTRIBUTE VALUES ( [: "label1" 2 :], [: "label1" 1 :])
+TEST ATTRIBUTE VALUES ( [< "label1" 2 >], [< "label1" 1 >])
 min_interface_test.cc:XXXX:
     check_values ( ap, values1, 3 ) => true
 min_interface_test.cc:XXXX:
