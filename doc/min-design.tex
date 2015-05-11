@@ -11234,15 +11234,9 @@ The format for printing special \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// [0 .. 7] == |\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "MISSING",|\ARGBREAK
-\verb|//        (min::ustring) "\x04\x04" "NONE",|\ARGBREAK
-\verb|//        (min::ustring) "\x03\x03" "ANY",|\ARGBREAK
-\verb|//        (min::ustring) "\x0C\x0C" "MULTI_VALUED",|\ARGBREAK
-\verb|//        (min::ustring) "\x09\x09" "UNDEFINED",|\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "SUCCESS",|\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "FAILURE",|\ARGBREAK
-\verb|//        (min::ustring) "\x05\x05" "ERROR"|
+\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 7 are:|\ARGBREAK
+\verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
+\verb|//     SUCCESS  FAILURE  ERROR|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -14784,6 +14778,38 @@ The format for printing object \TT{min::gen} values is:
 \LABEL{MIN::NO_TRAILING_TYPE} \\
 \end{tabular}\end{indpar}
 
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{flag\_format}}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::pstring                         flag_prefix;|%
+\ttmindex{flag\_prefix}{in {\tt min::flag\_format}}\ARGBREAK
+    \verb|  min::pstring                         flag_postfix;|%
+\ttmindex{flag\_postfix}{in {\tt min::flag\_format}}\ARGBREAK
+    \verb|  min::packed_vec_ptr<min::ustring>    flag_names;|%
+\ttmindex{flag\_names}{in {\tt min::flag\_format}}\ARGBREAK
+    \verb|};|
+\LABEL{MIN::FLAG_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::flag\_format
+                   min::\MINKEY{standard\_attr\_flag\_format}:}\ARGBREAK
+\verb|min::left_square_leading_always_pstring    // flag_prefix   "["|\ARGBREAK
+\verb|min::trailing_always_right_square_pstring  // flag_postfix  "]"|\ARGBREAK
+\verb|min::standard_attr_flag_names              // flag_names|\ARGBREAK
+\LABEL{MIN::STANDARD_ATTR_FLAG_FORMAT}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{l}
+\verb|min::packed_vec_ptr<min::ustring> min::|%
+    \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
+\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES} \\
+\verb|    // Names of flags numbered 0, 1, 2, ... 63 are:| \\
+\verb|    //     * + - / @ & # = ~ ^ < > a ... z A ... Z| \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
@@ -14994,14 +15020,6 @@ The format for printing object \TT{min::gen} values is:
 
 \end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{l}
-\verb|min::packed_vec_ptr<min::ustring> min::|%
-    \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL names}
-\LABEL{MIN::STANDARD_ATTR_FLAG_NAMES} \\
-\verb|    // Names of flags numbered 0, 1, 2, ... 63 are:| \\
-\verb|    //     * + - / @ & # = ~ ^ < > a ... z A ... Z| \\
-\end{tabular}\end{indpar}
-
 An object is printed in `\mkey{compact format}{for printing object}'
 if all of the following are true:
 \begin{enumerate}
@@ -15133,6 +15151,7 @@ other members must be not be \TT{NULL} if compact
 format is enabled.
 
 \item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
+\label{MARK_CLASSIFIER}
 This is a \TT{min::str\_classifier} used to classifiy
 a \TT{.type} string value \TT{T} to see if
 a compact object printout of the
@@ -15215,6 +15234,17 @@ Attributes with value \TT{FALSE} are printed as just
 \TT{obj\_\EOL attrneg} followed by
 the attribute label with no following \TT{obj\_\EOL attreq} or value.
 
+\item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\
+This format is used to print attribute flag names.  Its value may
+\underline{not} be \TT{NULL}.  See \pagref{ATTRIBUTE-FLAG-NAMES}.
+
+WARNING: The \TT{flag\_format->flag\_names} is
+\underline{not} locatable by the ACC, and its value must therefore be
+stored elsewhere in a locatable variable.  It is expected that values of
+\TT{flag\_\EOL format->\EOL flag\_\EOL names} will never be garbage
+collected and will be pointed at by
+\TT{static min::\EOL locatable\_\EOL var} variables.
+
 \item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
@@ -15226,20 +15256,6 @@ value.
 This is a \TT{min::pstring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::pstring}.
-
-\item[\ttmkey{attr\_flag\_names}{in {\tt min::obj\_format}}]~\\
-This member is only enabled if it
-is not \TT{min::\EOL NULL\_\EOL STUB}.  In this case
-\TT{attr\_\EOL flag\_\EOL names[i]} is printed as the representation of
-control flag \TT{1 <{}< i} of an attribute.
-
-WARNING: The \TT{attr\_\EOL flag\_\EOL names}
-member of a \TT{min::gen\_format} is
-\underline{not} locatable by the ACC, and its value must therefore be
-stored elsewhere in a locatable variable.  It is expected that values of
-\TT{attr\_\EOL flag\_\EOL names} will never be garbage collected and
-will be pointed at by \TT{static min::\EOL locatable\_\EOL var} or
-\TT{min::\EOL locatable\_\EOL gen} variables.
 
 \end{itemlist}
 
@@ -15434,7 +15450,7 @@ Note that if the `\TT{|}'s (i.e., \TT{obj\_\EOL braend} and
 object format operation flag has \underline{no} effect.
 
 \ikey{Normal format}{normal format!of printed object}, in which there
-are attributes other than \TT{.type}, \TT{.separator}, and \TT{.position}
+are attributes other than \TT{.type}, \TT{.separator}, and \TT{.posi\-tion}
 that are to be printed as attributes,
 is like default compact format except that if:
 \begin{center}
@@ -15543,10 +15559,20 @@ there are no attributes, the indented paragraph and its introducing
 If there are no attributes and no elements, nothing is output but the
 \TT{min::\EOL eol}.
 
-TBD
-
 Attribute flags are printed immediately after the attribute's label
-if the attribute has any flags:
+if the attribute has any flags, according to the \TT{flag\_\EOL format}.
+If:
+\begin{center}
+\begin{tabular}{lcl}
+\TT{flag\_format->flag\_prefix}	& is	& \TT{"["} \\
+\TT{flag\_format->flag\_prefix}	& is	& \TT{"]"} \\
+\TT{flag\_format->flag\_prefix}	& is
+                                & \TT{min::standard\_attr\_flag\_names} \\
+\end{tabular}
+\end{center}
+
+then the attribute label and flags are printed in the format:
+
 \newcommand{\TTBS}[1]{\TT{\textbackslash#1}}
 \begin{center}
 \begin{tabular}{rcl}
@@ -15564,7 +15590,8 @@ if the attribute has any flags:
 \end{center}
 
 Here {\em attribute-flag-names} are listed in the order of their flag number,
-where the default correspondence is
+where the correspondence given
+by \TT{min::\EOL standard\_\EOL attr\_\EOL flag\_\EOL names} is
 \begin{center}
 \begin{tabular}{r@{~correspond to flag numbers~}l}
 \TT{*} \ldots{} \TT{>} & \TT{0} \ldots{} \TT{11} \\
@@ -15572,9 +15599,11 @@ where the default correspondence is
 \TT{A} \ldots{} \TT{Z} & \TT{38} \ldots{} \TT{63} \\
 \end{tabular}
 \end{center}
-The {\tt attr\_flag\_names} member of the effective {\tt gen\_format}
-is used to produce attribute flag names, and the correspondence just
-given is that of {\tt min::\EOL standard\_\EOL attr\_\EOL flag\_\EOL names}.
+
+Note these names are choosen so that any sequence of them forms
+a string whose \TT{min::stan\-dard\_\EOL str\_\EOL classifier} string
+class has the \TT{min::\EOL IS\_\EOL GRAPHIC} flag and does
+\underline{not} have the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
 
 The following function can be used to print object general values:
 
@@ -19978,15 +20007,9 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// [0 .. 7] == |\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "MISSING",|\ARGBREAK
-\verb|//        (min::ustring) "\x04\x04" "NONE",|\ARGBREAK
-\verb|//        (min::ustring) "\x03\x03" "ANY",|\ARGBREAK
-\verb|//        (min::ustring) "\x0C\x0C" "MULTI_VALUED",|\ARGBREAK
-\verb|//        (min::ustring) "\x09\x09" "UNDEFINED",|\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "SUCCESS",|\ARGBREAK
-\verb|//        (min::ustring) "\x07\x07" "FAILURE",|\ARGBREAK
-\verb|//        (min::ustring) "\x05\x05" "ERROR"|
+\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 7 are:|\ARGBREAK
+\verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
+\verb|//     SUCCESS  FAILURE  ERROR|
 \end{TABULAR}
 
 \bigskip
