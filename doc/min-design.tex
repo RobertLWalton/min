@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 10, 2015}
+\date{May 11, 2015}
  
 \maketitle
 
@@ -15301,6 +15301,15 @@ the object elements are just printed using
 separated by a single space.  A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
 
+Typically \TT{quote\_\EOL type} is set
+to \TT{min::\EOL doublequote} which is just the string consisting
+of a single \TT{"}, and \TT{quote\_\EOL element\_\EOL format} is set to
+\TT{min::\EOL always\_\EOL quote\_\EOL gen\_\EOL format}, so
+if the object \TT{.type} is \TT{"} and the object
+elements are strings, just the elements are printed as quoted
+strings.  Thus instead of printing a one element object
+as \TT{\{"~...~"\}}, the object prints as \TT{"..."}.
+
 In \mkey{line compact format}{of printed object}, where there are
 are no attributes other than \TT{.type} and \TT{.posi\-tion},
 with \TT{.type} being equal to \TT{line\_\EOL type}
@@ -15399,11 +15408,10 @@ E.g., if \TT{"+"} is a \TT{.type} value whose \TT{mark\_\EOL classifier} string
 class has the \TT{min::\EOL IS\_\EOL MARK} flag,
 the format is `\TT{\{+}\ldots\TT{+\}}'.
 
-TBD
-
 If instead the \TT{.type} is a two element label created by
 \TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
-\TT{T1} and \TT{T2} are strings whose \TT{mark\_\EOL classifier} either
+\TT{T1} and \TT{T2} are strings whose \TT{mark\_\EOL classifier} computed
+string classes either
 \underline{both} have the \TT{min::\EOL IS\_\EOL MARK} flag, or
 \TT{"T1"}'s string class has the \TT{min::\EOL IS\_\EOL LEADING} flag and
 \TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAING} flag,
@@ -15420,30 +15428,15 @@ value with both \TT{"<"} and \TT{">"} being strings whose
 \TT{mark\_\EOL classifier} string classes both have the
 \TT{min::\EOL IS\_\EOL MARK} flag, the format is `\TT{\{<}\ldots\TT{>\}}'.
 
-TBD
+Note that if the `\TT{|}'s (i.e., \TT{obj\_\EOL braend} and
+\TT{obj\_\EOL ketbegin}) are omitted by the action of
+\TT{mark\_\EOL classifier}, then the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
+object format operation flag has \underline{no} effect.
 
-If instead the \TT{.type} exists and equals \TT{quote\_\EOL type},
-\underline{and} if there is no \TT{.separator} attribute,
-then the elements of the object are printed using
-\TT{quote\_\EOL format}.  Typically \TT{quote\_\EOL type} is set
-to \TT{min::\EOL doublequote} which is just the string consisting
-of a single \TT{"}, and \TT{quote\_\EOL format} is set to
-\TT{min::\EOL always\_\EOL quote\_\EOL gen\_\EOL format}, so
-if the object \TT{.type} is \TT{"} and the object
-elements are strings, just the elements are printed as quoted
-strings.  Thus instead of printing a one element object
-as \TT{\{"~...~"\}}, the object prints as \TT{"..."}.
-
-In compact format \underline{without}
-any \TT{.initiator} \underline{or} \TT{.type}, the format
-is as before with the type omitted.  In compact format with a \TT{.type} but
-no \TT{.initiator} and
-with the \TT{NO\_\EOL TRAILING\_\EOL TYPE} object format operation flag on, 
-then \TT{T} is omitted when it appears between a \TT{|} and a \TT{\}}:
-that is, `\TT{|T\}}' is replaced by `\TT{|\}}'.
-
-\ikey{Normal format}{normal format!of printed object}
-is like compact format with no \TT{.initiator} except that if:
+\ikey{Normal format}{normal format!of printed object}, in which there
+are attributes other than \TT{.type}, \TT{.separator}, and \TT{.position}
+that are to be printed as attributes,
+is like default compact format except that if:
 \begin{center}
 \begin{tabular}{lcl}
 \TT{obj\_attrbegin}	& is	& \TT{": "} \\
@@ -15504,7 +15497,7 @@ then the object in embedded line format has the form:
 \end{tabular}
 \end{center}
 
-The object begins as if it were in normal format, but
+The object begins as if it were in default compact format, but
 any \TT{.separator} attribute is \underline{not} used
 to separate elements (\TT{obj\_\EOL sep} is used), and the
 list of elements is terminated by \TT{obj\_\EOL attreol} (\TT{:} here)
@@ -15517,7 +15510,7 @@ in particular no \TT{.separator} attribute,
 embedded line format is identical to normal format except for
 the \TT{min::\EOL indent} and \TT{min::\EOL eol} operations.
 
-The \mkey{isolated line format}{of printed object} prints that object
+The \mkey{isolated line format}{of printed object} prints the object
 on separate lines, and is indended for use when the object is
 isoloated and \underline{not} part of a larger list,
 as when the object is output when flushing an identifier map
@@ -15549,6 +15542,8 @@ there are no attributes, the indented paragraph and its introducing
 `\TT{:}' are omitted, but the output ends with \TT{min::\EOL eol}.
 If there are no attributes and no elements, nothing is output but the
 \TT{min::\EOL eol}.
+
+TBD
 
 Attribute flags are printed immediately after the attribute's label
 if the attribute has any flags:
