@@ -14730,7 +14730,8 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
-                       min::\MINKEY{flag\_format}}\ARGBREAK
+                       min::\MINKEY{flag\_format}}
+\LABEL{MIN::FLAG_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::pstring                         flag_prefix;|%
 \ttmindex{flag\_prefix}{in {\tt min::flag\_format}}\ARGBREAK
@@ -14739,16 +14740,15 @@ The format for printing object \TT{min::gen} values is:
     \verb|  min::packed_vec_ptr<min::ustring>    flag_names;|%
 \ttmindex{flag\_names}{in {\tt min::flag\_format}}\ARGBREAK
     \verb|};|
-\LABEL{MIN::FLAG_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::flag\_format
-                   min::\MINKEY{standard\_attr\_flag\_format}:}\ARGBREAK
+                   min::\MINKEY{standard\_attr\_flag\_format}:}%
+\LABEL{MIN::STANDARD_ATTR_FLAG_FORMAT}\ARGBREAK
 \verb|min::left_square_leading_always_pstring    // flag_prefix   "["|\ARGBREAK
 \verb|min::trailing_always_right_square_pstring  // flag_postfix  "]"|\ARGBREAK
 \verb|min::standard_attr_flag_names              // flag_names|\ARGBREAK
-\LABEL{MIN::STANDARD_ATTR_FLAG_FORMAT}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{l}
@@ -14845,7 +14845,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
 
@@ -14870,7 +14870,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{line\_element\_obj\_format}:}%
-\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
 
@@ -14894,7 +14894,7 @@ The format for printing object \TT{min::gen} values is:
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{embedded\_line\_obj\_format}:}%
-\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
+\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
 
@@ -14951,7 +14951,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|NULL                                     // obj_attrsep|
 \end{tabular}
 
 
@@ -14963,7 +14963,7 @@ The format for printing object \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{id\_obj\_format}:}%
 \LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
-\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK[0in]
+\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
 \verb|// All other members are NULL or NONE().|
 \end{tabular}
 
@@ -19558,9 +19558,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
 
 \INDEXHEADER{Printing Numeric General Values}
+
+\begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
@@ -19640,9 +19644,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PRINT_NUM} \\
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
 
 \INDEXHEADER{Printing String General Values}
+
+\begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
@@ -19744,9 +19752,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PRINT_UNICODE} \\
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
 
 \INDEXHEADER{Printing Label General Values}
+
+\begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.6in}
 \multicolumn{2}{l}{\tt struct
@@ -19808,9 +19820,13 @@ These are in \verb|min_parameters.h|.
 \verb|min::space_angle_right_square_pstring    // lab_postfix   " >]"|\ARGBREAK
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
 
 \INDEXHEADER{Printing Special General Values}
+
+\begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.1in}
 \multicolumn{2}{l}{\tt struct
@@ -19859,9 +19875,42 @@ These are in \verb|min_parameters.h|.
 \verb|//     SUCCESS  FAILURE  ERROR|
 \end{TABULAR}
 
+\end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Printing Using An Identifier Map}
+
+\begin{indpar}[0.2in]
+
+\bigskip
+
+\begin{TABULAR}{1.5in}
+\verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::PRINT_ID} \\
+\verb|min::id_map min::|
+    & \MINKEY{set\_\EOL id\_\EOL map\RESIZE}\ARGBREAK
+    \verb|( <min::printer printer,|\ARGBREAK
+    \verb|  min::id_map map = min::NULL_STUB )|
+\LABEL{MIN::SET_ID_MAP_OF_PRINTER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.1in}
+\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
+\LABEL{MIN::FLUSH_ONE_ID} \\
+\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
+\LABEL{MIN::FLUSH_ID_MAP} \\
+\end{TABULAR}
+
 \bigskip
 
 \end{indpar}
+
+\bigskip
 
 \INDEXHEADER{Object Creation}
 
@@ -19878,6 +19927,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
+
+\bigskip
 
 \INDEXHEADER{Object Maintenance}
 
@@ -19935,6 +19986,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
+
+\bigskip
 
 \INDEXHEADER{Protected Object Vector Level}
 
@@ -20205,6 +20258,8 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\bigskip
+
 \INDEXHEADER{Vector Level Object Maintenance}
 
 \begin{indpar}[0.2in]
@@ -20271,6 +20326,8 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\bigskip
+
 \INDEXHEADER{Unprotected Object Vector Level}
 
 \begin{indpar}[0.2in]
@@ -20315,6 +20372,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
+
+\bigskip
 
 \INDEXHEADER{Object List Level}
 
@@ -21116,9 +21175,95 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
+\newpage
+
 \INDEXHEADER{Printing Object General Values}
 
 \begin{indpar}[0.2in]
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{obj\_format}}%
+\LABEL{MIN::OBJ_FORMAT}\ARGBREAK[0in]
+    \verb|{|\ARGBREAK[0in]
+    \verb|  min::uns32                           obj_op_flags;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              element_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              top_element_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              quote_element_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              label_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              value_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              initiator_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              separator_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              terminator_format;|\ARGBREAK[0in]
+    \verb|  min::str_classifier                  mark_classifier;|\ARGBREAK[0in]
+    \verb|  min::gen                             quote_type;|\ARGBREAK[0in]
+    \verb|  min::gen                             line_type;|\ARGBREAK[0in]
+    \verb|  min::gen                             line_sep_type;|\ARGBREAK[0in]
+    \verb|  min::gen                             paragraph_type;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_empty;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_bra;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_braend;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_ketbegin;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_ket;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_sep;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_attrbegin;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_attrsep;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_attreol;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_attreq;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_attrneg;|\ARGBREAK[0in]
+    \verb|  const min::flag_format               flag_format;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_valbegin;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_valsep;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_valend;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_valreq;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_line_sep;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_paragraph_begin;|
+\end{TABULAR}
+
+\bigskip
+
+\TT{obj\_format.obj\_op\_flags}:
+
+\bigskip
+
+\begin{TABULAR}{2.0in}
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
+\LABEL{MIN::ENABLE_COMPACT_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
+\LABEL{MIN::PRINT_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{ISOLATED\_LINE}
+\LABEL{MIN::ISOLATED_LINE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
+\LABEL{MIN::EMBEDDED_LINE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{NO\_TRAILING\_TYPE}
+\LABEL{MIN::NO_TRAILING_TYPE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{flag\_format}}
+\LABEL{MIN::FLAG_FORMAT}\ARGBREAK[0in]
+    \verb|{|\ARGBREAK[0in]
+    \verb|  min::pstring                         flag_prefix;|\ARGBREAK[0in]
+    \verb|  min::pstring                         flag_postfix;|\ARGBREAK[0in]
+    \verb|  min::packed_vec_ptr<min::ustring>    flag_names;|\ARGBREAK[0in]
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::flag\_format
+                   min::\MINKEY{standard\_attr\_flag\_format}:}%
+\LABEL{MIN::STANDARD_ATTR_FLAG_FORMAT}\ARGBREAK[0in]
+\verb|min::left_square_leading_always_pstring    // flag_prefix   "["|\ARGBREAK[0in]
+\verb|min::trailing_always_right_square_pstring  // flag_postfix  "]"|\ARGBREAK[0in]
+\verb|min::standard_attr_flag_names              // flag_names|
+\end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>}\\
@@ -21130,23 +21275,165 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.6in}
-\verb|min::op min::| & \MINKEY{flush\_\EOL one\_\EOL id}
-\LABEL{MIN::FLUSH_ONE_ID} \\
-\verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
-\LABEL{MIN::FLUSH_ID_MAP} \\
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{compact\_obj\_format}:}%
+\LABEL{MIN::COMPACT_OBJ_FORMAT}
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL context\_\EOL gen\_\EOL flags}\ARGBREAK
-      \verb|( min::context_gen_flags *|\ARGBREAK
-      \verb|      context_gen_flags )|
-\LABEL{MIN::SET_CONTEXT_GEN_FLAGS} \\
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL gen\_\EOL format}\ARGBREAK
-      \verb|( min::gen_format * gen_format )|
-\LABEL{MIN::SET_GEN_FORMAT} \\
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::element_gen_format                  // element_format|\ARGBREAK[0in]
+\verb|NULL                                     // top_element_format|\ARGBREAK[0in]
+\verb|min::always_quote_gen_format             // quote_element_format|\ARGBREAK[0in]
+\verb|min::value_gen_format                    // value_format|\ARGBREAK[0in]
+\verb|min::name_gen_format                     // label_format|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK[0in]
+\verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK[0in]
+\verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK[0in]
+\verb|min::doublequote                         // quote_type|\ARGBREAK[0in]
+\verb|min::NONE()                              // line_type|\ARGBREAK[0in]
+\verb|min::NONE()                              // line_sep_type|\ARGBREAK[0in]
+\verb|min::NONE()                              // paragraph_type|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::left_curly_right_curly_pstring      // obj_empty|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::left_curly_leading_pstring          // obj_bra|\ARGBREAK[0in]
+\verb|min::trailing_vbar_leading_pstring       // obj_braend|\ARGBREAK[0in]
+\verb|min::trailing_vbar_leading_pstring       // obj_ketbegin|\ARGBREAK[0in]
+\verb|min::trailing_right_curly_pstring        // obj_ket|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::space_if_none_pstring               // obj_sep|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::trailing_always_colon_space_pstring // obj_attrbegin|\ARGBREAK[0in]
+\verb|min::trailing_always_comma_space_pstring // obj_attrsep|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::trailing_always_colon_pstring       // obj_attreol|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::space_equal_space_pstring           // obj_attreq|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::no_space_pstring                    // obj_attrneg|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::standard_attr_flag_format           // flag_format|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::left_curly_star_space_pstring       // obj_valbegin|\ARGBREAK[0in]
+\verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK[0in]
+\verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK[0in]
+\verb|min::space_less_than_equal_space_pstring // obj_valreq|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|NULL                                     // obj_line_sep|\ARGBREAK[0in]
+\verb|NULL                                     // obj_paragraph_begin|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
+\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK[0in]
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
+\verb|min::line_feed                           // line_type|\ARGBREAK[0in]
+\verb|min::semicolon                           // line_sep_type|\ARGBREAK[0in]
+\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{line\_element\_obj\_format}:}%
+\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|min::paragraph_element_gen_format        // top_element_format|\ARGBREAK[0in]
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
+\verb|min::colon                               // paragraph_type|\ARGBREAK[0in]
+\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{embedded\_line\_obj\_format}:}%
+\LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK[0in]
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
+\verb|min::left_curly_vbar_vbar_right_curly_pstring // obj_empty|\ARGBREAK[0in]
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
+\verb|NULL                                     // obj_attrsep|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{isolated\_line\_obj\_format}:}%
+\LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK[0in]
+\verb|min::id_gen_format                       // element_format|\ARGBREAK[0in]
+\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
+\verb|NULL                                     // obj_empty|\ARGBREAK[0in]
+\verb|NULL                                     // obj_bra|\ARGBREAK[0in]
+\verb|NULL                                     // obj_braend|\ARGBREAK[0in]
+\verb|NULL                                     // obj_ketbegin|\ARGBREAK[0in]
+\verb|NULL                                     // obj_ket|\ARGBREAK[0in]
+\verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
+\verb|NULL                                     // obj_attrsep|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{id\_obj\_format}:}%
+\LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK[0in]
+\verb|// All other members are NULL or NONE().|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.5in}
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::obj_format * obj_format,|\ARGBREAK
+    \verb|  min::uns32 obj_op_flags )|
+\LABEL{MIN::PRINT_OBJ} \\
 \end{TABULAR}
 
 \end{indpar}
