@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 10 21:49:24 EDT 2015
+// Date:	Wed May 13 00:49:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11152,8 +11152,11 @@ namespace min {
 	    // If min::leading/trailing (not _always)
 	    // then FORCE_SPACE_OK is also set.
         FORCE_SPACE_OK		= ( 1 << 10 ),
-	AFTER_SAVE_INDENT	= ( 1 << 11 )
+	AFTER_SAVE_INDENT	= ( 1 << 11 ),
 	    // A min::save_indent was in a sequence
+	    // of min::leading/trailing{,_always}.
+	AFTER_SET_BREAK		= ( 1 << 12 )
+	    // A min::set_break was in a sequence
 	    // of min::leading/trailing{,_always}.
 
     };
@@ -11610,6 +11613,7 @@ namespace min {
 	       | AFTER_TRAILING
                | FORCE_SPACE_OK
 	       | AFTER_SAVE_INDENT
+	       | AFTER_SET_BREAK
 	       | PARAGRAPH_POSSIBLE
 	       | AFTER_LINE_SEPARATOR ) )
 	    internal::print_item_preface
@@ -11845,7 +11849,7 @@ namespace min {
     extern min::pstring
     	trailing_always_comma_space_pstring;
     extern min::pstring
-    	trailing_always_semicolon_space_pstring;
+    	trailing_always_semicolon_pstring;
     extern min::pstring
     	trailing_always_colon_pstring;
     extern min::pstring
@@ -11858,8 +11862,6 @@ namespace min {
     	space_star_right_curly_pstring;
     extern min::pstring
     	space_less_than_equal_space_pstring;
-    extern min::pstring
-    	left_curly_vbar_vbar_right_curly_pstring;
     extern min::pstring
     	left_square_leading_always_pstring;
     extern min::pstring
@@ -12124,9 +12126,9 @@ namespace min {
     extern const min::obj_format *
         id_obj_format;
     extern const min::obj_format *
-        paragraph_element_obj_format;
+        line_obj_format;
     extern const min::obj_format *
-        line_element_obj_format;
+        paragraph_obj_format;
 
     struct gen_format
     {
@@ -12165,9 +12167,9 @@ namespace min {
     extern const gen_format *
         never_quote_gen_format;
     extern const gen_format *
-        line_element_gen_format;
+        paragraph_gen_format;
     extern const gen_format *
-        paragraph_element_gen_format;
+        line_gen_format;
 
     extern packed_vec_ptr<min::ustring>
            standard_special_names;

@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 11, 2015}
+\date{May 13, 2015}
  
 \maketitle
 
@@ -8694,7 +8694,7 @@ width in columns is
 
 
 \item[\ttmkey{DISPLAY\_EOL}%
-               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
+               {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 \label{DISPLAY_EOL}
 If this flag is on, the end of line prints as the
 {\tiny $\stackrel{\textstyle N~}{~L}$}
@@ -8703,7 +8703,7 @@ picture character if
 otherwise.
 
 \item[\ttmkey{DISPLAY\_PICTURE}%
-               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
+               {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, characters not displayed as themselves
 are displayed as picture characters
 using \TT{min::\EOL unicode::\EOL picture[cindex]} if this is not
@@ -8712,7 +8712,7 @@ Otherwise they are displayed using their name if that exists, or
 using their hex code if no name exists.
 
 \item[\ttmkey{DISPLAY\_NON\_GRAPHIC}%
-               {in {\tt print\_\EOL format.op\_EOL flags}}]~\\
+               {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 If this flag is on, non-graphic characters (including single spaces and
 horizontal tabs) are \underline{not} displayed
 as themselves or suppressed,
@@ -9388,6 +9388,16 @@ printer->line_break.offset = printer->buffer->length;
 printer->line_break.column = printer->column;
 \end{verbatim}\end{indpar}
 
+If a \TT{min::set\_break} operation is executed as a non-initial
+member of a sequence of
+\TT{min::\EOL leading\ldots},
+\TT{min::\EOL trailing\ldots},
+\TT{min::\EOL save\_\EOL indent},
+and \TT{min::\EOL set\_\EOL break} operations, then the
+\TT{min::\EOL set\_\EOL break} operation is delayed until
+after the other operations in the sequence have executed.  See
+\pagref{LEADING-TRAILING-SET-BREAK} for details.
+
 Recall from the description of \TT{line\_\EOL break.line\_\EOL length} on
 \pagref{LINE-LENGTH}
 that when a character representative other than single space, horizontal
@@ -9714,6 +9724,7 @@ If a \TT{min::save\_indent} operation is executed as a non-initial
 member of a sequence of
 \TT{min::\EOL leading\ldots},
 \TT{min::\EOL trailing\ldots},
+\TT{min::\EOL set\_\EOL break},
 and \TT{min::\EOL save\_\EOL indent} operations, then the
 \TT{min::\EOL save\_\EOL indent} operation is delayed until
 after the other operations in the sequence have executed.  See
@@ -9899,7 +9910,7 @@ First, if the above had not been printed with the \TT{FORCE\_\EOL PGEN}
 flag on, then \TT{min::\EOL null\_\EOL str\_\EOL classifier} would have
 been used instead of \TT{min::\EOL standard\_\EOL str\_\EOL classifier},
 and the string classes would have been the same but \underline{without}
-the \TT{IS\_\EOL LEADING} or \TT{IS\_EOL TRAILING} flags, so that the
+the \TT{IS\_\EOL LEADING} or \TT{IS\_\EOL TRAILING} flags, so that the
 \TT{min::\EOL leading} and \TT{min::\EOL trailing} operations would have all
 produced spaces.
 
@@ -9966,6 +9977,7 @@ min::leading\_always \\
 min::trailing \\
 min::trailing\_always \\
 min::save\_indent \\
+min::set\_break \\
 \end{tabular}
 \end{center}
 Such a sequence of print operations outputs either a single space or
@@ -9986,8 +9998,11 @@ flag, no space is output.
 \end{enumerate}
 
 If the operation sequence contains a
-\TT{min::save\_indent} operation\label{LEADING-TRAILING-SAVE-INDENT}
-that is \underline{not} the first member of the sequence, this operation
+\TT{min::save\_indent}\label{LEADING-TRAILING-SAVE-INDENT}
+or \TT{min::set\_break} operation\label{LEADING-TRAILING-SET-BREAK}
+that is preceeded by a \TT{min::leading\ldots} or \TT{min::trailing\ldots}
+operation in the sequence, this
+\TT{min::save\_indent} or \TT{min::set\_break} operation
 is delayed until the space is output or a decision not to output
 the space has been made.
 The sequence must not contain more than one \TT{min::save\_indent}
@@ -10102,7 +10117,7 @@ previous item is not \TT{0}, and does nothing if it is \TT{0}.
 The \TT{min::print\_leading/trailing\ldots} functions do the same thing as the
 corresponding \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
 
-Sometimes it is useful to perform parts of \TT{min::\EOL print\_EOL item}
+Sometimes it is useful to perform parts of \TT{min::\EOL print\_\EOL item}
 using the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -10732,18 +10747,18 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINLKEY{paragraph\_element}{\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_ELEMENT_GEN_FORMAT}\ARGBREAK
+                   min::\MINLKEY{line}{\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::paragraph_element_obj_format       // obj_format|
+\verb|min::line_obj_format                    // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{line\_element\_gen\_format}:}
-\LABEL{MIN::LINE_ELEMENT_GEN_FORMAT}\ARGBREAK
+                   min::\MINKEY{paragraph\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::line_element_obj_format            // obj_format|
+\verb|min::paragraph_obj_format               // obj_format|
 \end{tabular}\end{indpar}
 
 A general value format can be any structure whose first member
@@ -14684,7 +14699,7 @@ The format for printing object \TT{min::gen} values is:
 \bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  const min::flag_format               flag_format;|%
+    \verb|  const min::flag_format *             flag_format;|%
 \ttmindex{flag\_format}{in {\tt min::obj\_format}}
 \end{tabular}
 
@@ -14844,23 +14859,22 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK
+                   min::\MINLKEY{line}{\_obj\_format}:}%
+\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK
+\verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \verb|min::line_feed                           // line_type|\ARGBREAK
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|\ARGBREAK
+\verb|min::trailing_always_semicolon_pstring   // obj_line_sep|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -14869,17 +14883,16 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{line\_element\_obj\_format}:}%
-\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK
+                   min::\MINKEY{paragraph\_obj\_format}:}%
+\LABEL{MIN::PARAGRAPH_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::paragraph_element_gen_format        // top_element_format|\ARGBREAK
+\verb|min::line_gen_format                     // top_element_format|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
 \verb|min::colon                               // paragraph_type|\ARGBREAK
 \end{tabular}
 
@@ -14907,7 +14920,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::left_curly_vbar_vbar_right_curly_pstring // obj_empty|\ARGBREAK
+\verb|NULL                                     // obj_empty|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15075,6 +15088,7 @@ except empty compact, quote compact, line compact, and paragraph compact.
 \TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
 and not as attribute values.
+
 \underline{None} of these members may be \TT{NULL} unless the
 \TT{PRINT\_\EOL ID} flag is on.
 
@@ -15087,7 +15101,7 @@ The is the \TT{min::gen\_format} used to print object elements
 in line and paragraph compact formats.
 No attributes are printed in these formats, which are used for
 objects that represent lines and paragraphs and are not inside
-any other kinds of objects or inside lines not representing objects.
+any other kinds of objects.
 
 \item[\ttmkey{initiator\_format}{in {\tt min::obj\_format}}]
 \item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -15109,7 +15123,7 @@ and to classify the two strings in a \TT{.type} label value \TT{[< T1 T2 >]}
 to see if a compact object printout of the
 form `\TT{\{[< T1 T2 >]|}\ldots\TT{|\}}' may be replaced by
 `\TT{\{T1}\ldots\TT{T2\}}',
-See \pagref{IS_MARK_CLASSIFIER}.
+See \pagref{MARK_CLASSIFIER_USAGE}.
 
 \item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]~\\
 If an object being printed in compact format has \TT{.type} attribute
@@ -15117,7 +15131,7 @@ equal to \TT{quote\_\EOL type} and does not have
 \TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
 the object is printed in quote compact format
 as a list of its elements with each element
-being printed using the \TT{quote\_\EOL element\EOL format}.
+being printed using the \TT{quote\_\EOL element\_\EOL format}.
 This is typically used to replace \TT{\{"~...~"\}} by
 \TT{"..."}.
 
@@ -15130,11 +15144,12 @@ and does not have
 \TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
 the object is printed in line compact format
 as a list of its elements with each element
-being printed using the \TT{top\_EOL element \_\EOL format}
-and the elements being separated by \TT{obj\_\EOL sep}.
+being printed using the \TT{top\_\EOL element \_\EOL format}
+and the elements being separated by single spaces.
 
 If the \TT{.type} is equal to \TT{line\_\EOL sep\_\EOL type},
-\TT{obj\_\EOL line\_\EOL sep} is printed after the last element.
+\TT{obj\_\EOL line\_\EOL sep} (e.g., `\TT{;}')
+is printed after the last element.
 
 A \key{compact line} is defined as a longest sequence of line compact format
 printed objects where all but the last have \TT{.type} equal to
@@ -15147,7 +15162,7 @@ of the initial column position, and at the end of the compact line, a
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
 to represent an empty object that has no elements and no attributes
-other than \TT{.position} and \TT{.separator}.
+other than \TT{.position} and \TT{.separator}.  E.g., `\TT{\{\}}'.
 
 \item[\ttmkey{obj\_bra}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_braend}{in {\tt min::obj\_format}}]\vspace{-2ex}
@@ -15155,24 +15170,28 @@ other than \TT{.position} and \TT{.separator}.
 \item[\ttmkey{obj\_ket}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::pstring}'s printed to bracket
 object elements and attributes in compact, normal, and embedded line format.
+E.g., `\TT{\{}', `\TT{|}', `\TT{|}', and `\TT{\}}'.
 
 \item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]~\\
 This member serves as the object element separator in compact
 or normal format when the object does
-not have a \TT{.separator} attribute.
+not have a \TT{.separator} attribute.  E.g., a single space.
 
 \item[\ttmkey{obj\_attrbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::pstring}'s printed in normal format to introduce
-an object attribute list and separate attributes in that list.
+an object attribute list (e.g., `\TT{:}')
+and separate attributes in that list. (e.g., `\TT{,}').
 
 \item[\ttmkey{obj\_attreol}{in {\tt min::obj\_format}}]~\\
-This is the \TT{min::pstring} printed in line formats at the end of a line
+This is the \TT{min::pstring} printed in embedded line and isolated line
+formats just after the object elements
 to introduce the indented paragraph containing the object attributes.
+E.g., `\TT{:}'.
 
 \item[\ttmkey{obj\_attreq}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed to
-separate an attribute label from its value.
+separate an attribute label from its value.  E.g., `\TT{=}'.
 
 \item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed to indicate
@@ -15182,12 +15201,13 @@ the attribute label with no following \TT{obj\_\EOL attreq} or value.
 Attributes with value \TT{FALSE} are printed as just
 \TT{obj\_\EOL attrneg} followed by
 the attribute label with no following \TT{obj\_\EOL attreq} or value.
+E.g., `\TT{no\textvisiblespace}'.
 
-\item[\ttmkey{flag\_names}{in {\tt min::obj\_format}}]~\\
+\item[\ttmkey{flag\_format}{in {\tt min::obj\_format}}]~\\
 This format is used to print attribute flag names.  Its value may
 \underline{not} be \TT{NULL}.  See \pagref{ATTRIBUTE-FLAG-NAMES}.
 
-WARNING: The \TT{flag\_format->flag\_names} is
+WARNING: \TT{flag\_format->flag\_names} is
 \underline{not} locatable by the ACC, and its value must therefore be
 stored elsewhere in a locatable variable.  It is expected that values of
 \TT{flag\_\EOL format->\EOL flag\_\EOL names} will never be garbage
@@ -15199,12 +15219,13 @@ collected and will be pointed at by
 \item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::pstring}'s printed to surround and
 separate values of an attribute that has more than one
-value.
+value.  E.g., `\TT{\{*}', `\TT{,}', and `\TT{*\}}'.
 
 \item[\ttmkey{obj\_valreq}{in {\tt min::obj\_format}}]~\\
 This is a \TT{min::pstring} printed to separate a reverse
 attribute value or list of reverse attribute values from
 their reverse attribute label, which follows this \TT{min::pstring}.
+E.g., `\TT{<=}'.
 
 \end{itemlist}
 
@@ -15244,7 +15265,8 @@ $\ell$			& is	& \TT{min::leading} \\
 \end{center}
 
 The indent is saved and set by \TT{min::save\_\EOL indent} just before
-printing the first elements, and a break is set by
+printing the first element (and restored by \TT{min::\EOL restore\_\EOL indent}
+after printing the object), and a break is set by
 \TT{min::set\_break} just before printing every other element.
 If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
@@ -15361,7 +15383,8 @@ If in this format the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
 object format operation flag on, then \TT{T} is omitted from `\TT{|T\}}' which
 becomes `\TT{|\}}'.
 
-If instead \TT{T} is a string whose \TT{mark\_\EOL classifier} defined
+If instead \TT{T} is a string
+whose \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER_USAGE} defined
 string class has the \TT{min::\EOL IS\_\EOL MARK} flag, then the format becomes
 \begin{center}
 \TT{\{}\TT{T} {\em <element>}
@@ -16967,7 +16990,7 @@ These are in \verb|min_parameters.h|.
 
 \INDEXHEADER{UNICODE Strings}
 
-\begin{TABULAR}{2.4in}
+\begin{TABULAR}{3.0in}
 \verb|typedef const min::uns8 * min::| & \MINKEY{ustring}
 \LABEL{MIN::USTRING} \\
 \end{TABULAR}
@@ -19096,7 +19119,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{2.4in}
+\begin{TABULAR}{3.0in}
 \verb|typedef min::printer (* min::| & \MINKEY{pstring}\verb|)|\ARGBREAK
 	    \verb|( min::printer printer )|
 \LABEL{MIN::PSTRING} \\
@@ -19532,20 +19555,20 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_element\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_ELEMENT_GEN_FORMAT}\ARGBREAK[0in]
+                   min::\MINKEY{line\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::paragraph_element_obj_format       // obj_format|
+\verb|min::line_obj_format                    // obj_format|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{line\_element\_gen\_format}:}
-\LABEL{MIN::LINE_ELEMENT_GEN_FORMAT}\ARGBREAK[0in]
+                   min::\MINKEY{paragraph\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::line_element_obj_format            // obj_format|
+\verb|min::paragraph_obj_format               // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -19885,7 +19908,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.5in}
+\begin{TABULAR}{1.8in}
 \verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v )|
@@ -21211,7 +21234,7 @@ These are in \verb|min_parameters.h|.
     \verb|  min::pstring                         obj_attreol;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attreq;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attrneg;|\ARGBREAK[0in]
-    \verb|  const min::flag_format               flag_format;|\ARGBREAK[0in]
+    \verb|  const min::flag_format *             flag_format;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valbegin;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valsep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valend;|\ARGBREAK[0in]
@@ -21359,24 +21382,24 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.3in}
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINLKEY{paragraph\_element}{\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+                   min::\MINLKEY{line}{\_obj\_format}:}%
+\LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|min::line_element_gen_format             // top_element_format|\ARGBREAK[0in]
+\verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|min::line_feed                           // line_type|\ARGBREAK[0in]
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK[0in]
-\verb|min::trailing_always_semicolon_space_pstring  // obj_line_sep|
+\verb|min::trailing_always_semicolon_pstring   // obj_line_sep|
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{0.3in}
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{line\_element\_obj\_format}:}%
-\LABEL{MIN::LINE_ELEMENT_OBJ_FORMAT}\ARGBREAK[0in]
+                   min::\MINKEY{paragraph\_obj\_format}:}%
+\LABEL{MIN::PARAGRAPH_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|min::paragraph_element_gen_format        // top_element_format|\ARGBREAK[0in]
+\verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|min::colon                               // paragraph_type|\ARGBREAK[0in]
 \verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|
@@ -21391,7 +21414,7 @@ These are in \verb|min_parameters.h|.
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
 \verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
-\verb|min::left_curly_vbar_vbar_right_curly_pstring // obj_empty|\ARGBREAK[0in]
+\verb|NULL                                     // obj_empty|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrsep|
 \end{TABULAR}
@@ -21427,7 +21450,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.5in}
+\begin{TABULAR}{1.8in}
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK
