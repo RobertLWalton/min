@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Jan  8 12:12:49 EST 2015
+# Date:		Wed May 13 01:29:50 EDT 2015
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -88,6 +88,14 @@ acc_test:	${ACC_PROGRAMS:=.test}
 optimization_test:	\
                 ${OPTIMIZATION_NON_PROGRAMS:=.test}
 
+diffs:
+	for t in ${TEST_CASES}; do \
+	    rm -f $$t.diff; \
+	    make min_interface_test_$$t.diff \
+	         &> $$t.diff; \
+	    mv -f $$t.diff \
+	           min_interface_test_$$t.diff; \
+	    done
 
 %.test:	%.out Makefile
 	rm -f $*.test
