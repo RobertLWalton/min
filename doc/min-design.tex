@@ -14993,7 +14993,8 @@ has multiple values, flags, or reverse attributes (double arrows).
 \item The value of any attribute besides \TT{.position}
 is a string or label.
 \item If the object has an \TT{.initiator} or \TT{.terminator}
-attribute, it has \underline{both}.
+attribute, it has \underline{both}, or the object has just a
+\TT{.terminator} and also has a \TT{.type} equal to \TT{line\_\EOL type}.
 \item If the object has an \TT{.initiator}, \TT{.terminator}, and \TT{.type},
 the \TT{.type} is a 2-element label whose elements are the \TT{.initiator}
 and \TT{.terminator} in that order.
@@ -15272,7 +15273,8 @@ If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
 character for all the above object formats for which compact
-printing is enabled.
+printing is enabled.  If there is no \TT{.type} attribute,
+\TT{T} is omitted, as in `\TT{\{|\ldots|\}}'.
 
 In \mkey{empty compact format}{of printed object}, where there are
 are no elements and no attributes other than
@@ -15295,25 +15297,38 @@ of a single \TT{"}, and \TT{quote\_\EOL element\_\EOL format} is set to
 if the object \TT{.type} is \TT{"} and the object
 elements are strings, just the elements are printed as quoted
 strings.  Thus instead of printing a one element object
-as \TT{\{"~...~"\}}, the object prints as \TT{"..."}.
+as \TT{\{"<Q>"|\ldots|"<Q>"\}}, the object prints as \TT{"\ldots"}.
 
 In \mkey{line compact format}{of printed object}, where there are
-are no attributes other than \TT{.type} and \TT{.posi\-tion},
+are no attributes other than \TT{.type}, \TT{.terminator}, and \TT{.posi\-tion},
 with \TT{.type} being equal to \TT{line\_\EOL type}
 or \TT{line\_\EOL sep\_\EOL type},
 the object elements are just printed using
 \TT{top\_\EOL element\_\EOL format} with elements being
-separated by a single space.  A break is set by
+separated by a single space but with an exception described below for
+the space before the last element.
+A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
+
+If the \TT{.type} equals \TT{line\_type} then either there is
+a \TT{.terminator} that is printed just after the line, or
+if not, and if there is more than one element,
+the last element separating space is replaced by execution
+of \TT{min::\EOL trailing\_\EOL always} and the last element of the
+line is printed in paragraph compact format if it has the type
+\TT{top\_\EOL element\_\EOL format->\EOL paragraph\_\EOL type}.
+
 If the \TT{.type} equals \TT{line\_\EOL sep\_\EOL type},
 then the line is called a \key{separated line} and
+there can no \TT{.terminator}.  Then
 \TT{obj\_\EOL line\_\EOL sep} is printed (e.g. `\TT{;}') just after the line.
+
 Note that nothing is done before the first element to indent
 the line and \underline{no} end of line is output after the line.
 Lines are elements of other objects whose format is supposed to
-supply pre-line indentation and post line end of lines, or they
+supply pre-line indentation and post-line end of lines, or they
 are the ends of top level lines that supply pre-line indentation
-and post line end of lines.
+and post-line end of lines.
 
 In \mkey{paragraph compact format}{of printed object}, there are
 are no attributes other than \TT{.type} and \TT{.posi\-tion},
@@ -15321,7 +15336,7 @@ the \TT{.type} is equal to \TT{paragraph\_\EOL type},
 and the object is the last element of a non-separated line printed with
 line compact format with at least one line element preceeding
 the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin} is
-printed (e.g. `\TT{:}'), followed \TT{min::eol}, and then the
+printed (e.g. `\TT{:}'), followed by \TT{min::eol}, and then the
 object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The elements of a paragraph are supposed to be lines printed in
@@ -15330,20 +15345,21 @@ they were one element non-separated lines.
 Define a \key{line group} as a maximal sequence of separated lines followed
 by a non-separated line, or a maximal sequence of separated lines at the end
 of a paragraph.
-Because the paragraph is the last thing in a line group, the indent
+Because the paragraph is the last thing in a containing line group, the indent
 at the beginning of the paragraph is already set to 4 plus the indent
 of the paragraph's containing line group, so the indent is already
 correctly set.  A paragraph is itself a sequence of line groups,
 and in paragraph compact format each of these is preceded by
-executing \TT{min::\EOL indent} to
-indent the line group and then \TT{min::\EOL place\_\EOL indent(4)}
-to indent continuations of the line group beyond the beginning
+executing \TT{min::\EOL indent}, \TT{min::\EOL save\_\EOL indent},
+and \TT{min::\EOL place\_\EOL indent(4)} in order and followed by
+executing \TT{min::\EOL restore\_\EOL indent}.  This indents the beginning of
+the line group and indents continuations of the line group beyond the beginning
 of the line group.  Lastly, the lines in a line group are separated
 by single spaces, and \TT{min::\EOL bol} is executed at the end of
 the paragraph.
 
 An empty paragraph prints nothing but \TT{obj\_\EOL paragraph\_\EOL begin}
-followed \TT{min::eol}.
+followed by \TT{min::eol}.
 
 In \mkey{default compact format}{of printed object}, there are
 are no attributes other than \TT{.type}, \TT{.position}, and

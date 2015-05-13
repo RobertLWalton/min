@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 13 00:54:36 EDT 2015
+// Date:	Wed May 13 12:40:09 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11109,13 +11109,19 @@ min::printer min::print_obj
 	    else if ( type != min::NONE() )
 	    {
 	        min::lab_ptr labp ( type );
-		if (    min::lablen ( labp ) != 2
-		     || labp[0] != initiator
-		     || labp[1] != terminator )
+		if ( labp == min::NULL_STUB )
+		    compact_format = false;
+		else if (    min::lablen ( labp ) != 2
+		          || labp[0] != initiator
+		          || labp[1] != terminator )
 		    compact_format = false;
 	    }
 	}
-	else if ( terminator != min::NONE() )
+	else if ( terminator != min::NONE()
+	          &&
+	          ( type == min::NONE()
+		    ||
+		    type != objf->line_type ) )
 	    compact_format = false;
     }
 
@@ -11142,8 +11148,8 @@ min::printer min::print_obj
         if ( initiator != min::NONE() )
 	{
 	    min::print_gen
-	        ( printer, initiator,
-	          objf->initiator_format );
+		( printer, initiator,
+		  objf->initiator_format );
 	    min::print_leading ( printer );
 	}
 	else if ( min::size_of ( vp ) == 0
@@ -11186,12 +11192,19 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
-		    min::print_space ( printer );
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
-			 type == objf->line_type )
+			 type == objf->line_type
+			 &&
+			 terminator == min::NONE() )
+		    {
+			min::print_trailing_always
+			    ( printer );
 		        printer->state |=
 			    min::PARAGRAPH_POSSIBLE;
+		    }
+		    else
+			min::print_space ( printer );
 		}
 		min::print_gen
 		    ( printer,
@@ -11204,6 +11217,13 @@ min::printer min::print_obj
 		    min::AFTER_LINE_SEPARATOR;
 		    // See min.h for discussion of when
 		    // this flag will be turned off.
+	    }
+	    else if ( terminator != min::NONE() )
+	    {
+		min::print_trailing ( printer );
+		min::print_gen
+		    ( printer, terminator,
+		      objf->terminator_format );
 	    }
 	    return printer << min::restore_print_format;
 	}

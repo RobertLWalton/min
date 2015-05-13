@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  6 02:48:35 EDT 2015
+// Date:	Wed May 13 16:46:05 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4863,56 +4863,92 @@ void test_object_printing ( void )
     }
     printer << min::pgen ( obj4 ) << min::eol;
 
-# ifdef NONE_SUCH
-
-    printer << min::pgen ( obj2, min::BRACKET_STR_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj2, min::OBJ_EXP_FLAG )
-            << min::eol;
-    printer << min::pgen ( obj2, min::OBJ_ID_FLAG )
-            << min::eol;
-
-    min::context_gen_flags flags;
-    memcpy ( flags, min::no_exp_context_gen_flags,
-                   sizeof ( flags ) );
-    flags[min::PGEN_INDENT] |= min::OBJ_EXP_FLAG;
-        
-    printer << min::save_print_format
-            << min::set_context_gen_flags
-	          ( & min::no_exp_context_gen_flags )
-	    << min::flush_one_id
-            << min::set_context_gen_flags ( & flags )
-	    << min::flush_id_map
-	    << min::restore_print_format;
-
-    min::gen obj3 = min::new_obj_gen ( 10, 10 );
-    min::gen obj4 = min::new_obj_gen ( 10, 10 );
-    min::gen obj5 = min::new_obj_gen ( 10, 10 );
-    min::obj_vec_insptr vp3 ( obj3 );
-    min::attr_push ( vp3 ) = min::new_num_gen ( 10 );
-    min::attr_push ( vp3 ) = obj4;
-    min::attr_push ( vp3 ) = min::new_num_gen ( 11 );
-    min::attr_insptr ap3 ( vp3 );
-    min::gen lab3 = min::new_str_gen ( "label3" );
-    min::gen lab4 = min::new_str_gen ( "label4" );
-    min::gen lab5 = min::new_str_gen ( "label5" );
-    min::locate ( ap3, lab3 );
-    min::set_flag ( ap3, 0 );
-    min::set_flag ( ap3, 12+25 );
-    min::locate_reverse ( ap3, lab4 );
-    min::set ( ap3, obj4 );
-    min::add_to_set ( ap3, obj5 );
-    min::locate_reverse ( ap3, lab5 );
-    min::set ( ap3, obj5 );
-
-    min::find_or_add
-        ( printer->id_map, min::stub_of ( obj3 ) );
-
-    printer << min::flush_id_map;
-
-
-
-# endif // NONE_SUCH
+    min::gen line1 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( line1 );
+	min::attr_push ( vp, 6 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "first" );
+	vp[4] = min::new_str_gen ( "line" );
+	vp[5] = min::new_str_gen ( "." );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+    }
+    min::gen line2 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( line2 );
+	min::attr_push ( vp, 5 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "second" );
+	vp[4] = min::new_str_gen ( "line" );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( ";" ) );
+    }
+    min::gen line3 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( line3 );
+	min::attr_push ( vp, 5 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "third" );
+	vp[4] = min::new_str_gen ( "line" );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::new_str_gen ( "!" ) );
+    }
+    min::gen line4 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( line4 );
+	min::attr_push ( vp, 6 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "fourth" );
+	vp[4] = min::new_str_gen ( "line" );
+	vp[5] = min::new_str_gen ( "." );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+    }
+    min::gen paragraph = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( paragraph );
+	min::attr_push ( vp, 4 );
+	vp[0] = line1;
+	vp[1] = line2;
+	vp[2] = line3;
+	vp[3] = line4;
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( ":" ) );
+    }
+    min::gen top_line = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( top_line );
+	min::attr_push ( vp, 6 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "top" );
+	vp[4] = min::new_str_gen ( "line" );
+	vp[5] = paragraph;
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+    }
+    printer << min::bom << min::place_indent ( 4 )
+            << min::pgen ( top_line,
+	                   min::line_gen_format )
+	    << min::eom;
 
     min::assert_print = true;
     cout << endl;
