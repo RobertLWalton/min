@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 17 13:22:36 EDT 2015
+// Date:	Sun May 17 16:52:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11268,7 +11268,10 @@ min::printer min::print_obj
 	    const min::print_format & pf =
 	        printer->print_format;
 	    min::gen mark_begin_type = min::NONE();
-	    if ( min::is_str ( type ) )
+
+	    if ( objf->mark_classifier == NULL )
+	        /* Do nothing. */;
+	    else if ( min::is_str ( type ) )
 	    {
 	        if (   min::IS_MARK
 		     & min::str_class

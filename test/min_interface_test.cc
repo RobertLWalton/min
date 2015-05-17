@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 13 16:46:05 EDT 2015
+// Date:	Sun May 17 17:12:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4645,6 +4645,8 @@ void test_object_printing ( void )
     cout << "Start Object Printing Test!"
 	 << endl << endl;
     min::assert_print = false;
+    // min::assert_throw = false;
+    // min::assert_abort = true;
 
     min::gen obj = min::new_obj_gen ( 5, 5 );
 
@@ -4722,6 +4724,8 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( ";" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
+    min::print_obj ( printer, obj3,
+		     min::embedded_line_obj_format );
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -4951,6 +4955,8 @@ void test_object_printing ( void )
 	    << min::eom;
 
     min::assert_print = true;
+    // min::assert_throw = true;
+    // min::assert_abort = false;
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
 }

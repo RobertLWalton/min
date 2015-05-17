@@ -2920,6 +2920,9 @@ Start Object Printing Test!
     {T|A B C|T}
     {T|A B C|}
 {T|A; B; C|T}
+    {T|A B C:
+       .separator = ";"
+    |T}
 {T: number = 123, .separator = ";"|A B C|T}
     {T|A B C:
        number = 123

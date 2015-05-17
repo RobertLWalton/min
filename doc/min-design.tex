@@ -15375,7 +15375,7 @@ Then if
 \TT{obj\_ketbegin}	& is	& \TT{"|"} \\
 \TT{obj\_ket}		& is	& \TT{"\}"} \\
 \TT{.type}		& is	& \TT{"T"} \\
-\TT{.separator}		& is	& \TT{,} \\
+\TT{.separator}		& is	& \TT{","} \\
 \end{tabular}
 \end{center}
 where \TT{T} is a string that is \underline{not} a mark as described
@@ -15397,12 +15397,15 @@ spaces, leading spaces, or trailing spaces
 are to be printed, these must be encoded in
 the \TT{obj\_}\ldots{} \TT{pstring}'s.
 
-If in this format the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
+If in this format if there is no \TT{.type} attribute, it is omitted, as in
+`\TT{\{|\ldots|\}}'.  If there is a \TT{.type} attribute \TT{"T"} and
+the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
 object format operation flag on, then \TT{T} is omitted from `\TT{|T\}}' which
 becomes `\TT{|\}}'.
 
-If instead \TT{T} is a string
-whose \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER_USAGE} defined
+If instead \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER_USAGE} is not
+\TT{NULL} and \TT{T} is a string
+whose \TT{mark\_\EOL classifier} defined
 string class has the \TT{min::\EOL IS\_\EOL MARK} flag, then the format becomes
 \begin{center}
 \TT{\{}\TT{T} {\em <element>}
@@ -15414,13 +15417,14 @@ E.g., if \TT{"+"} is a \TT{.type} value whose \TT{mark\_\EOL classifier} string
 class has the \TT{min::\EOL IS\_\EOL MARK} flag,
 the format is `\TT{\{+}\ldots\TT{+\}}'.
 
-If instead the \TT{.type} is a two element label created by
-\TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and \underline{both}
+If instead \TT{mark\_\EOL classifier} is not
+\TT{NULL} and the \TT{.type} attribute is a two element label created by
+\TT{min::new\_\EOL lab\_\EOL gen("T1","T2")} and
 \TT{T1} and \TT{T2} are strings whose \TT{mark\_\EOL classifier} computed
 string classes either
 \underline{both} have the \TT{min::\EOL IS\_\EOL MARK} flag, or
 \TT{"T1"}'s string class has the \TT{min::\EOL IS\_\EOL LEADING} flag and
-\TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAING} flag,
+\TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAILNG} flag,
 then the format is
 \begin{center}
 \TT{\{}\TT{T1} {\em <element>}
@@ -15453,31 +15457,33 @@ is like default compact format except that if:
 \end{center}
 then `\TT{\{T|}' is replace by
 \begin{center}
-\TT{\{}\TT{T}\TT{:} {\em <attribute>}
-    \OPEN{} \TT{,} {\em attribute} \CLOSE\STAR{} \TT{|}
+\TT{\{}\TT{T}\TT{:\textvisiblespace} {\em <attribute>}
+    \OPEN{} \TT{,\textvisiblespace} {\em attribute} \CLOSE\STAR{} \TT{|}
 \end{center}
 where
 \begin{center}
 \begin{tabular}{rcl}
 {\em attribute} & ::= & {\em attribute-label-and-flags}
-                        \TT{=} {\em attribute-value} \\
+                        \TT{\textvisiblespace=\textvisiblespace}
+			{\em attribute-value} \\
 		& $|$ & {\em attribute-label-and-flags} \\
-		& $|$ & \TT{no} {\em attribute-label-and-flags} \\
+		& $|$ & \TT{no\textvisiblespace}
+		        {\em attribute-label-and-flags} \\
 \end{tabular}
 \end{center}
 
-Here what would be `{\em attribute-label-and-flags} \TT{= TRUE}' is replaced by
+Here the attribute label in {\em attribute-label-and-flags} is printed with
+\TT{label\_\EOL format} and the flags are printed with \TT{flags\_\EOL format}.
+See \pagref{ATTRIBUTE-FLAG-NAMES} for  more detail on printing the flags.
+The {\em attribute-value} is printed with with \TT{value\_\EOL format}.
+What would be `{\em attribute-label-and-flags} \TT{= TRUE}' is replaced by
 just `{\em attribute-label-and-flags}\,', and what
 would be `{\em attribute-label-and-flags} \TT{= FALSE}' is replaced by
 just `\TT{no }{\em attribute-label-and-flags}\,'.
 
-If an attribute has no flags, its
-`{\em attribute-label-and-flags}' consists of just the attribute label.
-For the case where the attribute has flags, see below.
-
-The \mkey{embedded line format}{of printed object} prints that object
+The \mkey{embedded line format}{of printed object} prints the object
 on separate lines, but is indended for use where the object is an
-element of some list.  If
+element of some containing object.  If
 \begin{center}
 \begin{tabular}{lcl}
 \TT{obj\_bra}		& is	& \TT{"\{"} \\
@@ -15509,17 +15515,18 @@ to separate elements (\TT{obj\_\EOL sep} is used), and the
 list of elements is terminated by \TT{obj\_\EOL attreol} (\TT{:} here)
 which introduces an indented paragraph with one attribute per line,
 so that \TT{obj\_\EOL attrsep} is \underline{not} used.
-The printout begins with a \TT{min::\EOL indent} operation and
+The object printout begins with a \TT{min::\EOL indent} operation and
 ends with a \TT{min::\EOL eol} operation.
 If there are no attributes other than \TT{.type},
 in particular no \TT{.separator} attribute,
+\TT{obj\_\EOL attreol} (\TT{:} here) is \underline{not} printed and
 embedded line format is identical to normal format except for
 the \TT{min::\EOL indent} and \TT{min::\EOL eol} operations.
 
 The \mkey{isolated line format}{of printed object} prints the object
 on separate lines, and is indended for use when the object is
-isoloated and \underline{not} part of a larger list,
-as when the object is output when flushing an identifier map
+isolated and \underline{not} inside a containing object,
+as when the object is printed when flushing an identifier map
 (\itemref{PRINTING-USING-AN-IDENTIFIER-MAP}).  If
 \begin{center}
 \begin{tabular}{lcl}
@@ -15640,7 +15647,7 @@ If \TT{obj\_format} is omitted,
 \TT{printer->print\_format.gen\_format->obj\_format}
 \end{center}
 is used in its place.  If \TT{obj\_op\_flags} is omitted,
-`\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} is used
+\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} is used
 in its place.
 
 The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
