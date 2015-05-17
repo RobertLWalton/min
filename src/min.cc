@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 13 12:40:09 EDT 2015
+// Date:	Sun May 17 13:22:36 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9498,8 +9498,8 @@ static min::uns32 standard_str_classifier_function
     min::uns32 first_cflags =
 	    min::char_flags ( char_flags, sc, first );
     min::uns32 last_cflags = first_cflags;
-    min::uns32 and_of_flags = first_cflags;
-    min::uns32 or_of_flags = first_cflags;
+    min::uns32 and_of_cflags = first_cflags;
+    min::uns32 or_of_cflags = first_cflags;
     bool repeating = true;
 
     for ( min::unsptr i = 1; i < n; ++ i )
@@ -9507,54 +9507,32 @@ static min::uns32 standard_str_classifier_function
 	min::Uchar c = * p ++;
 	last_cflags =
 	    min::char_flags ( char_flags, sc, c );
-	and_of_flags &= last_cflags;
-	or_of_flags |= last_cflags;
+	and_of_cflags &= last_cflags;
+	or_of_cflags |= last_cflags;
 	if ( c != first ) repeating = false;
     }
 
-    if ( or_of_flags & min::NEEDS_QUOTES )
-        return and_of_flags | min::NEEDS_QUOTES;
-    else if ( and_of_flags & min::IS_VHSPACE )
+    if ( or_of_cflags & min::NEEDS_QUOTES )
+        return and_of_cflags | min::NEEDS_QUOTES;
+    else if ( and_of_cflags & min::IS_VHSPACE )
         return 0;
-    else if ( ! ( and_of_flags & min::IS_GRAPHIC ) )
-        return and_of_flags | min::NEEDS_QUOTES;
-    else if ( or_of_flags & min::IS_SEPARATOR )
+    else if ( ! ( and_of_cflags & min::IS_GRAPHIC ) )
+        return and_of_cflags | min::NEEDS_QUOTES;
+    else if ( ( or_of_cflags & min::IS_SEPARATOR )
+	      ||
+              ( first_cflags & min::IS_LEADING )
+	      ||
+              ( last_cflags & min::IS_TRAILING ) )
     {
-        if ( ! repeating )
-	    return and_of_flags | min::NEEDS_QUOTES;
-	else if ( ! ( first_cflags & min::IS_REPEATER )
-	          &&
-		  n > 1 )
-	    return and_of_flags | min::NEEDS_QUOTES;
-    }
-    else if ( first_cflags & min::IS_LEADING )
-    {
-        if ( ! ( and_of_flags && min::IS_LEADING )
+        if ( ! repeating
 	     ||
-	     ! repeating
-	     ||
-	     ( ! ( first_cflags & min::IS_REPEATER )
+	     ( ! ( and_of_cflags & min::IS_REPEATER )
 	       &&
 	       n > 1 ) )
-	    return and_of_flags | min::NEEDS_QUOTES;
-
-	else return and_of_flags;
-    }
-    else if ( last_cflags & min::IS_TRAILING )
-    {
-        if ( ! ( and_of_flags && min::IS_TRAILING )
-	     ||
-	     ! repeating
-	     ||
-	     ( ! ( last_cflags & min::IS_REPEATER )
-	       &&
-	       n > 1 ) )
-	    return and_of_flags | min::NEEDS_QUOTES;
-
-	else return and_of_flags;
+	    return and_of_cflags | min::NEEDS_QUOTES;
     }
 
-    return and_of_flags;
+    return and_of_cflags;
 }
 const min::str_classifier min::standard_str_classifier =
     & ::standard_str_classifier_function;

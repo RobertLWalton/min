@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 13, 2015}
+\date{May 17, 2015}
  
 \maketitle
 
@@ -4481,30 +4481,31 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned if the string contains
-			  any character with the \TT{NEEDS\_\EOL QUOTES} flag,
-			  or the string contains a character that does not
+			  this is returned if the string:
+			  \begin{enumerate}
+			  \item
+			  contains any character with the
+			  \TT{NEEDS\_\EOL QUOTES} flag
+			  \item
+			  contains a character that does not
 			  have the \TT{IS\_\EOL GRAPHIC} flag and a (possibly
 			  different) character that does not have the
-			  \TT{IS\_\EOL VHSPACE} flag,
-			  or if any of the following cases apply:
-
+			  \TT{IS\_\EOL VHSPACE} flag
+			  \item
+			  \underline{all} of the following are true:
 			  \begin{enumerate}
 			  \item The first string character has the
-			  \TT{IS\_\EOL LEADING} flag but not all characters
-			  in the string are identical, or there is more than
-			  one character and it does not have the
+			  \TT{IS\_\EOL LEADING} flag,
+			  or the last string character has the
+			  \TT{IS\_\EOL TRAILING} flag,
+			  or any string character has the
+			  \TT{IS\_\EOL SEPARATOR} flag
+			  \item there is more than one character in the
+			  string
+			  \item not all characters in the string are identical
+			  or the string character does not have the
 			  \TT{IS\_\EOL REPEATER} flag.
-			  \item The last string character has the
-			  \TT{IS\_\EOL TRAILING} flag but not all characters
-			  in the string are identical, or there is more than
-			  one character and it does not have the
-			  \TT{IS\_\EOL REPEATER} flag.
-			  \item A string character has the
-			  \TT{IS\_\EOL SEPARATOR} flag but not all characters
-			  in the string are identical, or there is more than
-			  one character and it does not have the
-			  \TT{IS\_\EOL REPEATER} flag.
+			  \end{enumerate}
 			  \end{enumerate}
 \label{NEEDS_QUOTES_CLASSIFIER} \\
 \end{tabular}\end{indpar}
@@ -4512,15 +4513,16 @@ no flags (0 returned)	& The string is used just for formatting and
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
 \TT{min::IS\_GRAPHIC}	& Unless the \TT{NEEDS\_QUOTES} flag is present,
                           the string should be printed unquoted and may be
-                          preceeded by leading separators or followed
+                          immediately preceeded by leading separators or
+			  immediately followed
 			  by trailing separators.  Separators also have
 			  this flag.
 
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for all strings that contain only
-			  graphic characters.
+			  this is returned for strings all of whose characters
+			  have the \TT{IS\_\EOL GRAPHICS} flag.
 \label{IS_GRAPHIC_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
@@ -4563,7 +4565,7 @@ The \minkey{quote\_all\_str\_classifier} always returns just the
 \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
 
 The \minkey{null\_str\_classifier} is used when printing with a
-\TT{NULL} \TT{min::str\_\EOL format} and returns 0 if all characters
+\TT{min::str\_\EOL format} that is \TT{NULL} and returns 0 if all characters
 in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \TT{min::\EOL IS\_\EOL GRAPHIC} otherwise.
 
