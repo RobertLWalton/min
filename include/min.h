@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 13 00:49:42 EDT 2015
+// Date:	Mon May 18 06:34:46 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11124,22 +11124,10 @@ namespace min {
 	    // ::end_line, and min::print_item_preface.
 
 	AFTER_LINE_SEPARATOR	= ( 1 << 2 ),
-	    // A line separator (obj_line_sep) has
-	    // just been printed.  This can be used
-	    // to suppress the return to indent that
-	    // normally preceeds printing a following
-	    // object of line_type or line_sep_type.
-	    // It also signals that a restore_indent
-	    // and bol need to be executed if there
-	    // is no object of following line_type or
-	    // line_sep_type.
-	    //
-	    // This flag is turned off by ::end_line,
-	    // min::print_item_preface, min::print_
-	    // quoted_unicode.  When turned off by
-	    // these functions, restore_indent and bol
-	    // are executed.  This flag is also turned
-	    // off by printer init and min::print_obj.
+	    // This flag is turned off by the paragraph
+	    // compact format printer and turned on by
+	    // the line compact format printer when a
+	    // line separator (obj_line_sep) is printed.
 
 	// WARNING: AFTER_LEADING/TRAILING are the same
 	// bits as IS_LEADING/TRAILING in character
@@ -12041,9 +12029,9 @@ namespace min {
 
     struct special_format
     {
-	min::pstring		         special_prefix;
-	min::pstring		         special_postfix;
-	packed_vec_ptr<min::ustring>     special_names;
+	min::pstring		       special_prefix;
+	min::pstring		       special_postfix;
+	packed_vec_ptr<min::ustring>   special_names;
     };
 
     extern const min::special_format *
@@ -12064,52 +12052,52 @@ namespace min {
     struct gen_format;
     struct obj_format
     {
-        min::uns32		    obj_op_flags;
+        min::uns32		  obj_op_flags;
 
-	const min::gen_format *     element_format;
-	const min::gen_format *     top_element_format;
-	const min::gen_format *     quote_element_format;
-        const min::gen_format *	    label_format;
-	const min::gen_format *     value_format;
+	const min::gen_format *   element_format;
+	const min::gen_format *   top_element_format;
+	const min::gen_format *   quote_element_format;
+        const min::gen_format *	  label_format;
+	const min::gen_format *   value_format;
 
-	const min::gen_format *     initiator_format;
-        const min::gen_format *	    separator_format;
-	const min::gen_format *     terminator_format;
+	const min::gen_format *   initiator_format;
+        const min::gen_format *	  separator_format;
+	const min::gen_format *   terminator_format;
 
-	min::str_classifier	    mark_classifier;
-	min::gen		    quote_type;
-	min::gen		    line_type;
-	min::gen		    line_sep_type;
-	min::gen		    paragraph_type;
+	min::str_classifier	  mark_classifier;
+	min::gen		  quote_type;
+	min::gen		  line_type;
+	min::gen		  line_sep_type;
+	min::gen		  paragraph_type;
 
-	min::pstring		    obj_empty;
+	min::pstring		  obj_empty;
 
-	min::pstring		    obj_bra;
-	min::pstring		    obj_braend;
-	min::pstring		    obj_ketbegin;
-	min::pstring		    obj_ket;
+	min::pstring		  obj_bra;
+	min::pstring		  obj_braend;
+	min::pstring		  obj_ketbegin;
+	min::pstring		  obj_ket;
 
-	min::pstring		    obj_sep;
+	min::pstring		  obj_sep;
 
-	min::pstring		    obj_attrbegin;
-	min::pstring		    obj_attrsep;
+	min::pstring		  obj_attrbegin;
+	min::pstring		  obj_attrsep;
 
-	min::pstring		    obj_attreol;
+	min::pstring		  obj_attreol;
 
-	min::pstring		    obj_attreq;
+	min::pstring		  obj_attreq;
 
-	min::pstring		    obj_attrneg;
+	min::pstring		  obj_attrneg;
 
-	const min::flag_format *    flag_format;
+	const min::flag_format *  flag_format;
 
-	min::pstring		    obj_valbegin;
-	min::pstring		    obj_valsep;
-	min::pstring		    obj_valend;
+	min::pstring		  obj_valbegin;
+	min::pstring		  obj_valsep;
+	min::pstring		  obj_valend;
 
-	min::pstring		    obj_valreq;
+	min::pstring		  obj_valreq;
 
-	min::pstring		    obj_line_sep;
-	min::pstring		    obj_paragraph_begin;
+	min::pstring		  obj_line_sep;
+	min::pstring		  obj_paragraph_begin;
     };
     const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
     const min::uns32 PRINT_ID		= ( 1 << 1 );

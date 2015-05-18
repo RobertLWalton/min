@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 17 16:52:03 EDT 2015
+// Date:	Mon May 18 05:30:19 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8310,12 +8310,6 @@ inline void push
 
 static void end_line ( min::printer printer )
 {
-    if ( printer->state & min::AFTER_LINE_SEPARATOR )
-    {
-	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
-	printer << min::restore_indent;
-    }
-
     // Remove line ending horizontal spaces.
     //
     min::packed_vec_insptr<char> buffer =
@@ -8602,6 +8596,8 @@ min::printer operator <<
 	return printer;
     case min::op::RESTORE_LINE_BREAK:
     case min::op::RESTORE_INDENT:
+        MIN_REQUIRE ( ! (   printer->state
+	                  & min::AFTER_SAVE_INDENT ) );
 	printer->line_break =
 	    min::pop ( printer->line_break_stack );
 	return printer;
@@ -9056,13 +9052,6 @@ void MINT::print_item_preface
 	( min::printer printer,
 	  min::uns32 str_class )
 {
-    if ( printer->state & min::AFTER_LINE_SEPARATOR )
-    {
-	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
-	printer << min::restore_indent
-		<< min::bol;
-    }
-
     min::uns32 flags = printer->state
                      & (   min::AFTER_LEADING
 		         + min::AFTER_TRAILING
@@ -9365,13 +9354,6 @@ static min::printer print_quoted_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
-    if ( printer->state & min::AFTER_LINE_SEPARATOR )
-    {
-	printer->state &= ~ min::AFTER_LINE_SEPARATOR;
-	printer << min::restore_indent
-		<< min::bol;
-    }
-
     min::print_item_preface
         ( printer, min::IS_GRAPHIC );
 
@@ -11193,8 +11175,6 @@ min::printer min::print_obj
 		printer << objf->obj_line_sep;
 		printer->state |=
 		    min::AFTER_LINE_SEPARATOR;
-		    // See min.h for discussion of when
-		    // this flag will be turned off.
 	    }
 	    else if ( terminator != min::NONE() )
 	    {
@@ -11251,9 +11231,6 @@ min::printer min::print_obj
 		      vp[i], objf->top_element_format );
 
 	    }
-
-	    printer->state &=
-		~ min::AFTER_LINE_SEPARATOR;
 
 	    if ( indent_saved )
 		printer << min::restore_indent;

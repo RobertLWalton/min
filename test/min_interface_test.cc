@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 17 17:12:46 EDT 2015
+// Date:	Mon May 18 05:39:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4726,6 +4726,8 @@ void test_object_printing ( void )
     printer << min::pgen ( obj3 ) << min::eol;
     min::print_obj ( printer, obj3,
 		     min::embedded_line_obj_format );
+    min::print_obj ( printer, obj3,
+		     min::isolated_line_obj_format );
 
     {
 	min::obj_vec_insptr vp ( obj3 );

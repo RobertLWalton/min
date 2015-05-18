@@ -2911,6 +2911,9 @@ Start Object Printing Test!
     {T|A B C:
        .separator = ";"
     |T}
+A B C:
+        .separator = ";"
+        .type = "T"
 {T: number = 123, .separator = ";"|A B C|T}
     {T|A B C:
        number = 123
