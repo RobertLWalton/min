@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 17, 2015}
+\date{May 21, 2015}
  
 \maketitle
 
@@ -9562,6 +9562,24 @@ string class, i.e., it executes the
 \TT{min::\EOL print\_\EOL space\_\EOL if\_\EOL none} function,
 \pagref{MIN::PRINT_SPACE_IF_NONE}).
 
+Two operations can be used to erase single spaces at the end of the
+current printer line:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{erase\_\EOL space}
+\LABEL{MIN::ERASE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{erase\_\EOL all\_\EOL space}
+\LABEL{MIN::ERASE_ALL_SPACE} \\
+\end{tabular}\end{indpar}
+
+The first, \TT{min::erase\_space},
+erases a single space from the end of the current line,
+if there is such a space, and does nothing otherwise.  If it erases
+a space, \TT{printer->column} is decremented.  
+The second, \TT{min::\EOL erase\_\EOL all\_\EOL space}, erases as
+many single spaces as possible from the current line, and
+decrements \TT{printer->column} by the number of spaces erased.
+
 The line break parameters of a printer
 may be saved in the
 \ttmkey{line\_\EOL break\_\EOL stack}{in {\tt min::printer}}%
@@ -10053,6 +10071,10 @@ string functions:
 \verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_SPACE_IF_NONE} \\
+\verb|min::printer min::| & \MINKEY{print\_erase\_space}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::uns32 n = 1 )|
+\LABEL{MIN::PRINT_ERASE_SPACE} \\
 \verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_LEADING} \\
@@ -10115,6 +10137,11 @@ automatically \underline{after} single spaces.
 The \TT{min::print\_space\_if\_none} function outputs a single space
 as per \TT{print\_space} if and only if the string class of the
 previous item is not \TT{0}, and does nothing if it is \TT{0}.
+
+The \TT{min::print\_erase\_space} function erases single spaces from
+the end of the current line, decrementing \TT{printer->column} by the
+number of spaces erased.  It erases at most \TT{n} spaces, and stops
+when the current line does not end in a single space.
 
 The \TT{min::print\_leading/trailing\ldots} functions do the same thing as the
 corresponding \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
@@ -15041,7 +15068,8 @@ and the object has no \TT{.separator}.
 the object has a \TT{.type} equal to the object format
 \TT{paragraph\_\EOL type}, the object has no \TT{.separator},
 and the object is being printed as the last element of a containing
-object printed with line compact format.
+object with 2 or more elements and no \TT{.terminator}
+printed with line compact format.
 
 \item Otherwise the `\key{default compact format}' is used.
 
@@ -15318,7 +15346,8 @@ if not, and if there is more than one element,
 the last element separating space is replaced by execution
 of \TT{min::\EOL trailing\_\EOL always} and the last element of the
 line is printed in paragraph compact format if it has the type
-\TT{top\_\EOL element\_\EOL format->\EOL paragraph\_\EOL type}.
+\TT{top\_\EOL element\_\EOL format->\EOL obj\_\EOL format->\EOL
+\EOL paragraph\_\EOL type}.
 
 If the \TT{.type} equals \TT{line\_\EOL sep\_\EOL type},
 then the line is called a \key{separated line} and
@@ -15336,9 +15365,11 @@ In \mkey{paragraph compact format}{of printed object}, there are
 are no attributes other than \TT{.type} and \TT{.posi\-tion},
 the \TT{.type} is equal to \TT{paragraph\_\EOL type},
 and the object is the last element of a non-separated line printed with
-line compact format with at least one line element preceeding
-the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin} is
-printed (e.g. `\TT{:}'), followed by \TT{min::eol}, and then the
+line compact format with no \TT{.terminator} and
+at least one line element preceeding
+the paragraph.  First \TT{min::\EOL erase\_\EOL space} and then
+\TT{obj\_\EOL paragraph\_\EOL begin} (e.g. `\TT{:}') are
+printed, followed by \TT{min::eol}, and then the
 object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The elements of a paragraph are supposed to be lines printed in
@@ -19075,6 +19106,15 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{erase\_\EOL space}
+\LABEL{MIN::ERASE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{erase\_\EOL all\_\EOL space}
+\LABEL{MIN::ERASE_ALL_SPACE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
 \verb|const min::op min::|
     & \MINKEY{save\_line\_break}
 \LABEL{MIN::SAVE_LINE_BREAK} \\
@@ -19177,6 +19217,10 @@ These are in \verb|min_parameters.h|.
 \verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_LEADING} \\
+\verb|min::printer min::| & \MINKEY{print\_erase\_space}\ARGBREAK
+	\verb|( min::printer printer,|\ARGBREAK
+	\verb|  min::uns32 n = 1 )|
+\LABEL{MIN::PRINT_ERASE_SPACE} \\
 \verb|min::printer min::| & \MINKEY{print\_trailing}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING} \\

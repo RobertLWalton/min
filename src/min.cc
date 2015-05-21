@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 18 05:30:19 EDT 2015
+// Date:	Thu May 21 14:06:30 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8762,6 +8762,11 @@ min::printer operator <<
 	return printer;
     case min::op::SPACE_IF_NONE:
 	return min::print_space_if_none ( printer );
+    case min::op::ERASE_SPACE:
+	return min::print_erase_space ( printer );
+    case min::op::ERASE_ALL_SPACE:
+	return min::print_erase_space
+	           ( printer, printer->column );
     case min::op::LEADING:
 	return print_leading ( printer );
     case min::op::TRAILING:
@@ -8807,6 +8812,10 @@ const min::op min::space_if_after_indent
     ( min::op::SPACE_IF_AFTER_INDENT );
 const min::op min::space_if_none
     ( min::op::SPACE_IF_NONE );
+const min::op min::erase_space
+    ( min::op::ERASE_SPACE );
+const min::op min::erase_all_space
+    ( min::op::ERASE_ALL_SPACE );
 
 const min::op min::expand_ht
     ( min::op::SET_PRINT_OP_FLAGS,
@@ -11152,19 +11161,15 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
+		    min::print_space ( printer );
+
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
 			 type == objf->line_type
 			 &&
 			 terminator == min::NONE() )
-		    {
-			min::print_trailing_always
-			    ( printer );
 		        printer->state |=
 			    min::PARAGRAPH_POSSIBLE;
-		    }
-		    else
-			min::print_space ( printer );
 		}
 		min::print_gen
 		    ( printer,
@@ -11195,9 +11200,12 @@ min::printer min::print_obj
 		    & min::PARAGRAPH_POSSIBLE ) )
 	{
 	    printer->state &=
-	        ~ min::AFTER_LINE_SEPARATOR;
+	        ~ ( min::AFTER_LINE_SEPARATOR
+		    +
+		    min::PARAGRAPH_POSSIBLE );
 
-	    printer << objf->obj_paragraph_begin
+	    printer << min::erase_space
+	            << objf->obj_paragraph_begin
 	            << min::eol;
 		    // As we are printing this from
 		    // inside a line, indent is already

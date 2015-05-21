@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 18 06:34:46 EDT 2015
+// Date:	Thu May 21 14:05:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11234,6 +11234,8 @@ namespace min {
 	    SPACES_IF_BEFORE_INDENT,
 	    SPACE_IF_AFTER_INDENT,
 	    SPACE_IF_NONE,
+	    ERASE_SPACE,
+	    ERASE_ALL_SPACE,
 
 	    SET_SUPPORT_CONTROL,
 	    SET_DISPLAY_CONTROL,
@@ -11521,6 +11523,8 @@ namespace min {
     extern const op spaces_if_before_indent;
     extern const op space_if_after_indent;
     extern const op space_if_none;
+    extern const op erase_space;
+    extern const op erase_all_space;
 
     extern const op flush_one_id;
     extern const op flush_id_map;
@@ -11690,6 +11694,24 @@ namespace min {
 		printer->state |= min::BREAK_AFTER;
 	    else
 		printer->state &= ~ min::BREAK_AFTER;
+	}
+	return printer;
+    }
+
+    inline min::printer print_erase_space
+	    ( min::printer printer,
+	      min::uns32 length = 1 )
+    {
+        min::packed_vec_insptr<char> buffer =
+	    printer->file->buffer;
+	while ( length --
+	        &&
+		printer->column > 0
+		&&
+		buffer[buffer->length-1] == ' ' )
+	{
+	    min::pop ( buffer );
+	    -- printer->column;
 	}
 	return printer;
     }
