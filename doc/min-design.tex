@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 21, 2015}
+\date{May 22, 2015}
  
 \maketitle
 
@@ -14729,7 +14729,9 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  const min::flag_format *             flag_format;|%
-\ttmindex{flag\_format}{in {\tt min::obj\_format}}
+\ttmindex{flag\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::uns64                     hide_flags;|%
+\ttmindex{hide\_flags}{in {\tt min::obj\_format}}
 \end{tabular}
 
 \bigskip
@@ -14803,6 +14805,19 @@ The format for printing object \TT{min::gen} values is:
 \verb|    //     * + - / @ & # = ~ ^ < > a ... z A ... Z| \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL a\_\EOL flag} \verb|= 12|
+\LABEL{MIN::STANDARD_ATTR_a_FLAG} \\
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL A\_\EOL flag} \verb|= 38|
+\LABEL{MIN::STANDARD_ATTR_A_FLAG} \\
+\verb|const min::64 min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flags} \verb|=|\ARGBREAK
+    \verb|    1ull << ( 38 + 'H' - 'A' )|
+\LABEL{MIN::STANDARD_ATTR_HIDE_FLAGS} \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
@@ -14868,6 +14883,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_attr_flag_format           // flag_format|\ARGBREAK
+\verb|min::standard_attr_hide_flags            // hide_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -14993,7 +15009,11 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|NULL                                     // obj_attrsep|
+\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|0                                        // hide_flags|\ARGBREAK
 \end{tabular}
 
 
@@ -15006,7 +15026,7 @@ The format for printing object \TT{min::gen} values is:
                    min::\MINKEY{id\_obj\_format}:}%
 \LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
 \verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
-\verb|// All other members are NULL or NONE().|
+\verb|// All other members are NULL or 0 or NONE().|
 \end{tabular}
 
 \end{indpar}
@@ -15014,19 +15034,28 @@ The format for printing object \TT{min::gen} values is:
 An object is printed in `\mkey{compact format}{for printing object}'
 if all of the following are true:
 \begin{enumerate}
+
 \item The \ttkey{ENABLE\_\EOL COMPACT} object format operation flag is on.
-\item The object has no attributes other than \TT{.position}, \TT{.type},
-\TT{.initiator}, \TT{.ter\-min\-ator}, and \TT{.separator}.
-\item No attribute other than \TT{.position}
+
+\item The object has no attributes other than \TT{.type},
+\TT{.initiator}, \TT{.terminator}, \TT{.sep\-a\-ra\-tor},
+and attributes with a \TT{hide\_\EOL flag}.
+
+\item No attribute other than those with a \TT{hide\_\EOL flag}
 has multiple values, flags, or reverse attributes (double arrows).
-\item The value of any attribute besides \TT{.position}
+
+\item The value of any attribute
+that does not have a \TT{hide\_\EOL flag}
 is a string or label.
+
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}, or the object has just a
 \TT{.terminator} and also has a \TT{.type} equal to \TT{line\_\EOL type}.
+
 \item If the object has an \TT{.initiator}, \TT{.terminator}, and \TT{.type},
 the \TT{.type} is a 2-element label whose elements are the \TT{.initiator}
 and \TT{.terminator} in that order.
+
 \end{enumerate}
 
 An object is printed as the ID `\TT{@}{\em <object-id>}' by
@@ -15245,6 +15274,12 @@ stored elsewhere in a locatable variable.  It is expected that values of
 collected and will be pointed at by
 \TT{static min::\EOL locatable\_\EOL var} variables.
 
+\item[\ttmkey{hide\_flags}{in {\tt min::obj\_format}}]~\\
+If an object attribute has any of these flags, the attribute is ignored
+and not printed when the object is printed.  This member is a bit
+mask for flags \TT{0} through \TT{63}.  It is standardly set so the
+`\TT{H}' flag hides attributes (such as \TT{.position}).
+
 \item[\ttmkey{obj\_valbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_valsep}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{obj\_valend}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
@@ -15307,13 +15342,14 @@ printing is enabled.  If there is no \TT{.type} attribute,
 \TT{T} is omitted, as in `\TT{\{|\ldots|\}}'.
 
 In \mkey{empty compact format}{of printed object}, where there are
-are no elements and no attributes other than
-\TT{.position} and \TT{.separator},
+are no elements and no attributes other than \TT{.separator} and
+attributes with a \TT{hide\_\EOL flag},
 just \TT{obj\_empty} is printed, which for the above compact
 enabled object formats is just `\TT{\{\}}'.
 
 In \mkey{quote compact format}{of printed object}, where there are
-are no attributes other than \TT{.type} and \TT{.position},
+are no attributes other than \TT{.type}
+and attributes with a \TT{hide\_\EOL flag},
 with \TT{.type} being equal to \TT{quote\_\EOL type},
 the object elements are just printed using
 \TT{quote\_\EOL element\_\EOL format} with elements being
@@ -15330,7 +15366,8 @@ strings.  Thus instead of printing a one element object
 as \TT{\{"<Q>"|\ldots|"<Q>"\}}, the object prints as \TT{"\ldots"}.
 
 In \mkey{line compact format}{of printed object}, where there are
-are no attributes other than \TT{.type}, \TT{.terminator}, and \TT{.posi\-tion},
+are no attributes other than \TT{.type}, \TT{.terminator},
+and attributes with a \TT{hide\_\EOL flag},
 with \TT{.type} being equal to \TT{line\_\EOL type}
 or \TT{line\_\EOL sep\_\EOL type},
 the object elements are just printed using
@@ -15361,8 +15398,9 @@ supply pre-line indentation and post-line end of lines, or they
 are the ends of top level lines that supply pre-line indentation
 and post-line end of lines.
 
-In \mkey{paragraph compact format}{of printed object}, there are
-are no attributes other than \TT{.type} and \TT{.posi\-tion},
+In \mkey{paragraph compact format}{of printed object}, where there are
+are no attributes other than \TT{.type}
+and attributes with a \TT{hide\_\EOL flag},
 the \TT{.type} is equal to \TT{paragraph\_\EOL type},
 and the object is the last element of a non-separated line printed with
 line compact format with no \TT{.terminator} and
@@ -15394,9 +15432,10 @@ the paragraph.
 An empty paragraph prints nothing but \TT{obj\_\EOL paragraph\_\EOL begin}
 followed by \TT{min::eol}.
 
-In \mkey{default compact format}{of printed object}, there are
-are no attributes other than \TT{.type}, \TT{.position}, and
-\TT{.separator}, and none of the above compact formats apply.
+In \mkey{default compact format}{of printed object}, where there are
+are no attributes other than \TT{.type}, \TT{.sep\-a\-ra\-tor},
+and attributes with a \TT{hide\_\EOL flag},
+and none of the above compact formats apply.
 Then if
 
 \begin{center}
@@ -21304,6 +21343,7 @@ These are in \verb|min_parameters.h|.
     \verb|  min::pstring                         obj_attreq;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attrneg;|\ARGBREAK[0in]
     \verb|  const min::flag_format *             flag_format;|\ARGBREAK[0in]
+    \verb|  const min::uns64                     hide_flags;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valbegin;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valsep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valend;|\ARGBREAK[0in]
@@ -21363,6 +21403,21 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_ATTR_FLAG_NAMES}\ARGBREAK
 \verb|// Names of flags numbered 0, 1, 2, ... 63 are:|\ARGBREAK
 \verb|//     * + - / @ & # = ~ ^ < > a ... z A ... Z|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL a\_\EOL flag} \verb|= 12|
+\LABEL{MIN::STANDARD_ATTR_a_FLAG} \\
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL A\_\EOL flag} \verb|= 38|
+\LABEL{MIN::STANDARD_ATTR_A_FLAG} \\
+\verb|const min::64 min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flags} \verb|=|\ARGBREAK
+    \verb|    1ull << ( 38 + 'H' - 'A' )|
+\LABEL{MIN::STANDARD_ATTR_HIDE_FLAGS} \\
 \end{TABULAR}
 
 \bigskip
@@ -21433,6 +21488,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::standard_attr_flag_format           // flag_format|\ARGBREAK[0in]
+\verb|min::standard_attr_hide_flags            // hide_flags|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -21504,7 +21560,8 @@ These are in \verb|min_parameters.h|.
 \verb|NULL                                     // obj_ketbegin|\ARGBREAK[0in]
 \verb|NULL                                     // obj_ket|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
-\verb|NULL                                     // obj_attrsep|
+\verb|NULL                                     // obj_attrsep|\ARGBREAK[0in]
+\verb|0                                        // hide_flags|
 \end{TABULAR}
 
 \bigskip
@@ -21514,7 +21571,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{id\_obj\_format}:}%
 \LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK[0in]
-\verb|// All other members are NULL or NONE().|
+\verb|// All other members are NULL or 0 or NONE().|
 \end{TABULAR}
 
 \bigskip
