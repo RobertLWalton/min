@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 04:16:09 EDT 2015
+// Date:	Fri May 22 16:38:43 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3120,20 +3120,30 @@ void test_printer ( void )
 	  min::IS_TRAILING + min::IS_GRAPHIC );
     printer << min::noforce_space << min::eol;
 
-    printer << min::force_pgen
+    printer << min::save_print_format
+            << min::force_pgen
+            << min::set_gen_format
+	           ( min::leading_always_gen_format )
             << "(" << min::leading
-	    << "100" << min::trailing_always << ","
+            << min::set_gen_format
+	           ( min::trailing_always_gen_format )
+	    << "100"
+	    << min::trailing_always << ","
 	    << min::space
 	    << "200" << min::trailing << ")"
 	    << min::eol
 	    << min::force_space
+            << min::set_gen_format
+	           ( min::leading_always_gen_format )
             << "(" << min::leading
-	    << "100" << min::trailing_always << ","
+	    << "100"
+            << min::set_gen_format
+	           ( min::trailing_always_gen_format )
+	    << min::trailing_always << ","
 	    << min::space
 	    << "200" << min::trailing << ")"
 	    << min::eol
-	    << min::noforce_space
-	    << min::noforce_pgen;
+	    << min::restore_print_format;
 
     min::print_item
         ( printer, "(", 1, 1,
@@ -3172,20 +3182,30 @@ void test_printer ( void )
 	  min::IS_TRAILING + min::IS_GRAPHIC );
     printer << min::noforce_space << min::eol;
 
-    printer << min::force_pgen
+    printer << min::save_print_format
+            << min::force_pgen
+            << min::set_gen_format
+	           ( min::leading_always_gen_format )
             << "(" << min::leading
-	    << "100" << min::trailing_always << ","
+	    << "100"
+            << min::set_gen_format
+	           ( min::trailing_always_gen_format )
+	    << min::trailing_always << ","
 	    << min::space
 	    << min::trailing << ")"
 	    << min::eol
 	    << min::force_space
+            << min::set_gen_format
+	           ( min::leading_always_gen_format )
             << "(" << min::leading
-	    << "100" << min::trailing_always << ","
+	    << "100"
+            << min::set_gen_format
+	           ( min::trailing_always_gen_format )
+	    << min::trailing_always << ","
 	    << min::space
 	    << min::trailing << ")"
 	    << min::eol
-	    << min::noforce_space
-	    << min::noforce_pgen;
+	    << min::restore_print_format;
 
     // Tests of files and printers.
 

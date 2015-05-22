@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 03:46:17 EDT 2015
+// Date:	Fri May 22 15:52:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9534,6 +9534,53 @@ static min::uns32 standard_str_classifier_function
 const min::str_classifier min::standard_str_classifier =
     & ::standard_str_classifier_function;
 
+static min::uns32
+    quote_separator_str_classifier_function
+	( const min::uns32 * char_flags,
+	  min::support_control sc,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    min::uns32 str_class =
+        ::standard_str_classifier_function
+	    ( char_flags, sc, n, p );
+    if ( str_class & ( min::IS_LEADING
+                       |
+		       min::IS_TRAILING
+		       |
+		       min::IS_SEPARATOR ) )
+	str_class |= min::NEEDS_QUOTES;
+    return str_class;
+}
+const min::str_classifier
+    min::quote_separator_str_classifier =
+    & ::quote_separator_str_classifier_function;
+
+static min::uns32
+    quote_separator_and_mark_str_classifier_function
+	( const min::uns32 * char_flags,
+	  min::support_control sc,
+	  min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    min::uns32 str_class =
+        ::standard_str_classifier_function
+	    ( char_flags, sc, n, p );
+    if ( str_class & ( min::IS_LEADING
+                       |
+		       min::IS_TRAILING
+		       |
+		       min::IS_SEPARATOR
+		       |
+		       min::IS_MARK ) )
+	str_class |= min::NEEDS_QUOTES;
+    return str_class;
+}
+const min::str_classifier
+    min::quote_separator_and_mark_str_classifier =
+    &
+    ::quote_separator_and_mark_str_classifier_function;
+
 static min::uns32 quote_all_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
@@ -9987,6 +10034,29 @@ const min::quote_format min::standard_quote_format =
     (min::ustring) "\x03\x03" "<Q>",
     (min::ustring) "\x01\x01" "#"
 };
+
+static min::str_format quote_separator_str_format =
+{
+    min::quote_separator_str_classifier,
+    min::standard_quote_format,
+    min::graphic_only_display_control,
+    0xFFFFFFFF
+};
+const min::str_format *
+    min::quote_separator_str_format =
+	& ::quote_separator_str_format;
+
+static min::str_format
+    quote_separator_and_mark_str_format =
+{
+    min::quote_separator_and_mark_str_classifier,
+    min::standard_quote_format,
+    min::graphic_only_display_control,
+    0xFFFFFFFF
+};
+const min::str_format *
+    min::quote_separator_and_mark_str_format =
+	& ::quote_separator_and_mark_str_format;
 
 static min::str_format quote_all_str_format =
 {
@@ -10475,7 +10545,7 @@ static min::gen_format element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10488,7 +10558,7 @@ static min::gen_format top_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10514,7 +10584,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_and_mark_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
@@ -10527,7 +10597,7 @@ static min::gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_and_mark_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -10568,7 +10638,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -10607,7 +10677,7 @@ static min::gen_format paragraph_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::paragraph_obj_format,
@@ -10621,7 +10691,7 @@ static min::gen_format line_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::standard_str_format,
+    & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::line_obj_format,
@@ -11187,6 +11257,7 @@ min::printer min::print_obj
 		        printer->state |=
 			    min::PARAGRAPH_POSSIBLE;
 		}
+		printer << min::set_break;
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );

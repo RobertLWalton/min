@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 03:48:03 EDT 2015
+// Date:	Fri May 22 15:52:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3399,6 +3399,10 @@ namespace min {
 
     extern const min::str_classifier
         standard_str_classifier;
+    extern const min::str_classifier
+        quote_separator_str_classifier;
+    extern const min::str_classifier
+        quote_separator_and_mark_str_classifier;
     extern const min::str_classifier
         quote_all_str_classifier;
     extern const min::str_classifier
@@ -12028,6 +12032,10 @@ namespace min {
     };
 
     extern const min::str_format *
+        quote_separator_str_format;
+    extern const min::str_format *
+        quote_separator_and_mark_str_format;
+    extern const min::str_format *
         quote_all_str_format;
     extern const min::str_format *
         standard_str_format;
@@ -12189,9 +12197,10 @@ namespace min {
            standard_attr_flag_names;
     const unsigned standard_attr_a_flag = 12;
     const unsigned standard_attr_A_flag = 38;
+    const unsigned standard_attr_hide_flag =
+        standard_attr_A_flag + 'H' - 'A';
     const min::uns64 standard_attr_hide_flags =
-        1ull << (   standard_attr_A_flag
-	          + ( 'H' - 'A' ) );
+        1ull << standard_attr_hide_flag;
 
     min::printer standard_pgen
 	    ( min::printer printer,

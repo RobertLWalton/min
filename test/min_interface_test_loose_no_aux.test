@@ -1462,7 +1462,7 @@ name
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")
 [< 5.6 [< 1.234 "str<SP>1" >] "str<SP>2" >]
-A , B / [< A , B >]
+A "," B / [< A "," B >]
 MISSING
 NONE
 ANY
@@ -2627,9 +2627,9 @@ A B C:
 {{ X Y Z 0 0 0 }}
 "X" "Y" "Z" 0 0 0
 This is the top line:
-    This is the first line .
+    This is the first line "."
     This is the second line;  This is the third line!
-    This is the fourth line .
+    This is the fourth line "."
 
 Finish Object Printing Test!
 min_interface_test.cc:XXXX:

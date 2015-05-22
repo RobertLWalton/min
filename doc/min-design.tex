@@ -14812,9 +14812,13 @@ The format for printing object \TT{min::gen} values is:
 \verb|const unsigned min::| &
     \MINKEY{standard\_\EOL attr\_\EOL A\_\EOL flag} \verb|= 38|
 \LABEL{MIN::STANDARD_ATTR_A_FLAG} \\
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flag} \verb|=|
+    \verb|38 + 'H' - 'A'|
+\LABEL{MIN::STANDARD_ATTR_HIDE_FLAG} \\
 \verb|const min::64 min::| &
     \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flags} \verb|=|\ARGBREAK
-    \verb|    1ull << ( 38 + 'H' - 'A' )|
+    \verb|1ull << min::standard_attr_hide_flag|
 \LABEL{MIN::STANDARD_ATTR_HIDE_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -21414,9 +21418,13 @@ These are in \verb|min_parameters.h|.
 \verb|const unsigned min::| &
     \MINKEY{standard\_\EOL attr\_\EOL A\_\EOL flag} \verb|= 38|
 \LABEL{MIN::STANDARD_ATTR_A_FLAG} \\
+\verb|const unsigned min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flag} \verb|=|
+    \verb|38 + 'H' - 'A'|
+\LABEL{MIN::STANDARD_ATTR_HIDE_FLAG} \\
 \verb|const min::64 min::| &
     \MINKEY{standard\_\EOL attr\_\EOL hide\_\EOL flags} \verb|=|\ARGBREAK
-    \verb|    1ull << ( 38 + 'H' - 'A' )|
+    \verb|1ull << min::standard_attr_hide_flag|
 \LABEL{MIN::STANDARD_ATTR_HIDE_FLAGS} \\
 \end{TABULAR}
 
