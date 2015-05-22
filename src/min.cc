@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 21 14:06:30 EDT 2015
+// Date:	Thu May 21 21:11:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8141,16 +8141,17 @@ min::pstring
     min::trailing_always_semicolon_pstring =
     & ::trailing_always_semicolon_pstring;
 
-static min::printer trailing_always_colon_pstring
+static min::printer erase_all_space_colon_pstring
 	( min::printer printer )
 {
-    min::print_trailing_always ( printer );
+    min::print_erase_space
+        ( printer, printer->column );
     return min::print_item
         ( printer, ":", 1, 1,
 	  min::IS_TRAILING + min::IS_GRAPHIC );
 }
-min::pstring min::trailing_always_colon_pstring =
-    & ::trailing_always_colon_pstring;
+min::pstring min::erase_all_space_colon_pstring =
+    & ::erase_all_space_colon_pstring;
 
 static min::printer no_space_pstring
 	( min::printer printer )
@@ -8966,7 +8967,8 @@ bool MINT::insert_line_break ( min::printer printer )
 	return true;
     if ( line_break.offset < printer->file->end_offset )
 	return true;
-      
+    if ( line_break.column > printer->column )
+	return true;
 
     // buffer[begoff..endoff-1] are horizontal spaces
     // to be deleted.
@@ -10109,7 +10111,7 @@ static min::obj_format compact_obj_format =
     min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
@@ -10177,7 +10179,7 @@ static min::obj_format line_obj_format =
     min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
@@ -10247,7 +10249,7 @@ static min::obj_format paragraph_obj_format =
     min::trailing_always_comma_space_pstring,
 			    // obj_attrsep
 
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
@@ -10270,7 +10272,7 @@ static min::obj_format paragraph_obj_format =
 			    // obj_valreq
 
     NULL,		    // obj_line_sep
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_paragraph_begin
 };
 const min::obj_format * min::paragraph_obj_format =
@@ -10314,7 +10316,7 @@ static min::obj_format embedded_line_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
@@ -10376,7 +10378,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::trailing_always_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
@@ -11204,8 +11206,7 @@ min::printer min::print_obj
 		    +
 		    min::PARAGRAPH_POSSIBLE );
 
-	    printer << min::erase_space
-	            << objf->obj_paragraph_begin
+	    printer << objf->obj_paragraph_begin
 	            << min::eol;
 		    // As we are printing this from
 		    // inside a line, indent is already
