@@ -2599,6 +2599,28 @@ A B C:
       .separator = ","
       .terminator = [< "*" "}" >]
     |}
+1 2 3 4 5:
+        myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
+            [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+        .initiator = [< "{" "*" >]
+        myreverse = @2 <= myforward
+        .separator = ","
+        .terminator = [< "*" "}" >]
+{"": .initiator = [< "{" "*" >], myreverse = @2 <= myforward,
+     .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
+    {|1 2 3 4 5:
+      .initiator = [< "{" "*" >]
+      myreverse = @2 <= myforward
+      .separator = ","
+      .terminator = [< "*" "}" >]
+    |}
+1 2 3 4 5:
+        myattr[#HZ,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
+            [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+        .initiator = [< "{" "*" >]
+        myreverse = @2 <= myforward
+        .separator = ","
+        .terminator = [< "*" "}" >]
 {T|X Y Z|T}
 {+ X Y Z +}
 {< X Y Z >}

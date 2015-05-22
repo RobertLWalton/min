@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 21 21:11:18 EDT 2015
+// Date:	Fri May 22 03:46:17 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8967,6 +8967,10 @@ bool MINT::insert_line_break ( min::printer printer )
 	return true;
     if ( line_break.offset < printer->file->end_offset )
 	return true;
+
+    // The following deals with line breaks created by
+    // erase_space.
+    //
     if ( line_break.column > printer->column )
 	return true;
 
@@ -10121,6 +10125,8 @@ static min::obj_format compact_obj_format =
 
     min::standard_attr_flag_format,
     			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
@@ -10189,6 +10195,8 @@ static min::obj_format line_obj_format =
 
     min::standard_attr_flag_format,
     			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
@@ -10260,6 +10268,8 @@ static min::obj_format paragraph_obj_format =
 
     min::standard_attr_flag_format,
     			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
@@ -10327,6 +10337,8 @@ static min::obj_format embedded_line_obj_format =
 
     min::standard_attr_flag_format,
     			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
@@ -10389,6 +10401,7 @@ static min::obj_format isolated_line_obj_format =
 
     min::standard_attr_flag_format,
     			    // flag_format
+    0,			    // hide_flags
 
     min::left_curly_star_space_pstring,
 			    // obj_valbegin
@@ -10444,6 +10457,7 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_attrneg
 
     NULL,		    // flag_format
+    0,			    // hide_flags
 
     NULL,		    // obj_valbegin
     NULL,		    // obj_valsep
@@ -10786,7 +10800,7 @@ static bool print_attributes
     adjust = ( adjust > 20 ? 4 : 2 );
     for ( min::unsptr i = 0; i < m; ++ i )
     {
-	if ( info[i].name == min::dot_position )
+	if ( info[i].flags & objf->hide_flags )
 	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
@@ -11043,7 +11057,7 @@ min::printer min::print_obj
 	  && i < m;
 	  ++ i )
     {
-        if ( info[i].name == min::dot_position )
+        if ( info[i].flags & objf->hide_flags )
 	    continue;
 
 	if (    info[i].value_count != 1

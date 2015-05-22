@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 21 21:10:49 EDT 2015
+// Date:	Fri May 22 03:48:03 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12111,6 +12111,7 @@ namespace min {
 	min::pstring		  obj_attrneg;
 
 	const min::flag_format *  flag_format;
+	min::uns64		  hide_flags;
 
 	min::pstring		  obj_valbegin;
 	min::pstring		  obj_valsep;
@@ -12186,6 +12187,11 @@ namespace min {
 
     extern packed_vec_ptr<min::ustring>
            standard_attr_flag_names;
+    const unsigned standard_attr_a_flag = 12;
+    const unsigned standard_attr_A_flag = 38;
+    const min::uns64 standard_attr_hide_flags =
+        1ull << (   standard_attr_A_flag
+	          + ( 'H' - 'A' ) );
 
     min::printer standard_pgen
 	    ( min::printer printer,
