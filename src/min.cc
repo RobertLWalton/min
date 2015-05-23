@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 15:52:35 EDT 2015
+// Date:	Sat May 23 04:18:53 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8128,7 +8128,7 @@ min::pstring min::trailing_always_comma_space_pstring =
     & ::trailing_always_comma_space_pstring;
 
 static min::printer
-    trailing_always_semicolon_pstring
+    trailing_always_semicolon_space_pstring
 	( min::printer printer )
 {
     min::print_trailing_always ( printer );
@@ -8138,8 +8138,8 @@ static min::printer
     return min::print_space ( printer );
 }
 min::pstring
-    min::trailing_always_semicolon_pstring =
-    & ::trailing_always_semicolon_pstring;
+    min::trailing_always_semicolon_space_pstring =
+    & ::trailing_always_semicolon_space_pstring;
 
 static min::printer erase_all_space_colon_pstring
 	( min::printer printer )
@@ -10278,7 +10278,7 @@ static min::obj_format line_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    min::trailing_always_semicolon_pstring,
+    min::trailing_always_semicolon_space_pstring,
 			    // obj_line_sep
     NULL,                   // obj_paragraph_begin
 };
@@ -11303,11 +11303,8 @@ min::printer min::print_obj
 	    {
 		if (   printer->state
 	             & min::AFTER_LINE_SEPARATOR )
-		{
 		    printer->state &=
 			~ min::AFTER_LINE_SEPARATOR;
-		    min::print_space ( printer );
-		}
 		else
 		{
 		    if ( indent_saved )

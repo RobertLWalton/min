@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 22, 2015}
+\date{May 23, 2015}
  
 \maketitle
 
@@ -4436,7 +4436,7 @@ outputs a set of flags that can be used to determine whether the
 string must be quoted, if it is a separator and whether it is
 leading or trailing, and if the string is a mark that can be used as a type.
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|typedef min::uns32 ( * min::| & \MINKEY{str\_classifier}
                                       \verb| )|\ARGBREAK
       \verb|( const min::uns32 * char_flags,|\ARGBREAK
@@ -4446,9 +4446,15 @@ leading or trailing, and if the string is a mark that can be used as a type.
 \LABEL{MIN::STR_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::str_classifier min::| & \MINKEY{standard\_str\_classifier}
 \LABEL{MIN::STANDARD_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::|
+    & \MINLKEY{quote\_separator}{\_str\_classifier}
+\LABEL{MIN::QUOTE_SEPARATOR_STR_CLASSIFIER} \\
+\verb|const min::str_classifier min::|
+    & \MINLKEY{quote\_separator\_and\_mark}{\_str\_classifier}
+\LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_CLASSIFIER} \\
 \verb|const min::str_classifier min::| & \MINKEY{quote\_all\_str\_classifier}
 \LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
 \verb|const min::str_classifier min::| & \MINKEY{null\_str\_classifier}
@@ -4560,6 +4566,19 @@ no flags (0 returned)	& The string is used just for formatting and
 			  have the \TT{IS\_MARK} flag.
 \label{IS_MARK_CLASSIFIER} \\
 \end{tabular}\end{indpar}
+
+The \minlkey{quote\_separator}{\_str\_classifier} is just like the
+\TT{min::\EOL standard\_\EOL str\_\EOL class\-ifier} except that
+it adds the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag if the
+result has any of the
+\TT{min::\EOL IS\_\EOL SEPARATOR},
+\TT{min::\EOL IS\_\EOL LEADING}, or
+\TT{min::\EOL IS\_\EOL TRAILING} flags.
+
+The \minlkey{quote\_separator\_and\_mark}{\_str\_classifier} is just like the
+\TT{min::\EOL quote\_\EOL sep\-arator\_\EOL str\_\EOL classifier} except that
+it adds the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag if the
+result has the \TT{min::\EOL IS\_\EOL MARK} flag.
 
 The \minkey{quote\_all\_str\_classifier} always returns just the
 \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
@@ -10691,7 +10710,7 @@ for general value formats is as follows:
 \LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK
 \verb|min::long_num_format                    // num_format|\ARGBREAK
-\verb|min::standard_str_format                // str_format|\ARGBREAK
+\verb|min::quote_separator_str_format         // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
@@ -10719,6 +10738,7 @@ for general value formats is as follows:
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
+\verb|min::quote_separator_and_mark_str_format // str_format|\ARGBREAK
 \verb|min::isolated_line_obj_format           // obj_format|
 \end{tabular}\end{indpar}
 
@@ -10727,6 +10747,7 @@ for general value formats is as follows:
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
+\verb|min::quote_separator_and_mark_str_format // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|
 \end{tabular}\end{indpar}
 
@@ -10735,6 +10756,7 @@ for general value formats is as follows:
                    min::\MINKEY{leading\_always\_gen\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
+\verb|min::standard_str_format                // str_format|\ARGBREAK
 \verb|min::leading_always_lab_format          // lab_format|
 \end{tabular}\end{indpar}
 
@@ -10743,6 +10765,7 @@ for general value formats is as follows:
                    min::\MINKEY{trailing\_always\_gen\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
+\verb|min::standard_str_format                // str_format|\ARGBREAK
 \verb|min::trailing_always_lab_format         // lab_format|
 \end{tabular}\end{indpar}
 
@@ -10970,9 +10993,9 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINKEY{quote\_all\_str\_format}:}
-\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
-\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
+    min::\MINKEY{standard\_str\_format}:}
+\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
+\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
@@ -10980,12 +11003,26 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{standard\_str\_format}:}
-\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
-\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
-\verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
-\verb|0xFFFFFFFF                             // id_map_if_longer|
+                   min::\MINLKEY{quote\_separator}{\_str\_format}:}
+\LABEL{MIN::QUOTE_SEPARATOR_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_separator_str_classifier    // str_classifier|\ARGBREAK
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINLKEY{quote\_separator\_and\_mark}{\_str\_format}:}
+\LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_separator_and_mark_str_classifier // str_classifier|\ARGBREAK
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINKEY{quote\_all\_str\_format}:}
+\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -14923,7 +14960,8 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_semicolon_pstring   // obj_line_sep|\ARGBREAK
+\verb|min::trailing_always_semicolon_space_pstring|\ARGBREAK
+\verb|                                         // obj_line_sep|
 \end{tabular}
 
 \end{indpar}
@@ -15813,6 +15851,7 @@ This is a logical time to pay this cost.
 \renewcommand{\TTMOKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\TTARMKEY}[2]{{\tt ~~->#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\MINLKEY}[2]{{\tt ~~#1#2~~}}
 \renewcommand{\MINIKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\MINMKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
@@ -17063,12 +17102,23 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STR_CLASSIFIER} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.8in}
-\verb|const min::str_classifier min::| & \MINKEY{standard\_str\_classifier}
+\begin{TABULAR}{1.5in}
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\verb|    min::| & \MINKEY{standard\_str\_classifier}
 \LABEL{MIN::STANDARD_STR_CLASSIFIER} \\
-\verb|const min::str_classifier min::| & \MINKEY{quote\_all\_str\_classifier}
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\verb|    min::|
+    & \MINKEY{quote\_separator\_str\_classifier}
+\LABEL{MIN::QUOTE_SEPARATOR_STR_CLASSIFIER} \\
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\verb|    min::|
+    & \MINKEY{quote\_separator\_and\_mark\_str\_classifier}
+\LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_CLASSIFIER} \\
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\verb|    min::| & \MINKEY{quote\_all\_str\_classifier}
 \LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
-\verb|const min::str_classifier min::| & \MINKEY{null\_str\_classifier}
+\multicolumn{2}{l}{\tt const min::str\_classifier} \\
+\verb|    min::| & \MINKEY{null\_str\_classifier}
 \LABEL{MIN::NULL_STR_CLASSIFIER} \\
 \end{TABULAR}
 
@@ -19562,7 +19612,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ELEMENT_GEN_FORMAT}\ARGBREAK[0in]
 \verb|& min::standard_pgen                    // pgen |\ARGBREAK[0in]
 \verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
-\verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
+\verb|min::quote_separator_str_format         // str_format|\ARGBREAK[0in]
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
@@ -19596,6 +19646,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_separator_and_mark_str_format // str_format|\ARGBREAK[0in]
 \verb|min::isolated_line_obj_format           // obj_format|
 \end{TABULAR}
 
@@ -19606,6 +19657,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_separator_and_mark_str_format // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|
 \end{TABULAR}
 
@@ -19616,6 +19668,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{leading\_always\_gen\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
+\verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
 \verb|min::leading_always_lab_format          // lab_format|
 \end{TABULAR}
 
@@ -19626,6 +19679,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{trailing\_always\_gen\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
+\verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
 \verb|min::trailing_always_lab_format         // lab_format|
 \end{TABULAR}
 
@@ -19807,9 +19861,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINKEY{quote\_all\_str\_format}:}
-\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
-\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
+    min::\MINKEY{standard\_str\_format}:}
+\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
+\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|0xFFFFFFFF                             // id_map_if_longer|
@@ -19819,12 +19873,30 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-    min::\MINKEY{standard\_str\_format}:}
-\LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
-\verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
-\verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
-\verb|0xFFFFFFFF                             // id_map_if_longer|
+                   min::\MINLKEY{quote\_separator}{\_str\_format}:}
+\LABEL{MIN::QUOTE_SEPARATOR_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_separator_str_classifier    // str_classifier|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINLKEY{quote\_separator\_and\_mark}{\_str\_format}:}
+\LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_separator_and_mark_str_classifier // str_classifier|\ARGBREAK
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\multicolumn{2}{l}{const min::str\_format *
+                   min::\MINKEY{quote\_all\_str\_format}:}
+\LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
+\verb|// Same as min::standard_str_format except for:|\ARGBREAK
+\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
@@ -21522,7 +21594,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|min::line_feed                           // line_type|\ARGBREAK[0in]
 \verb|min::semicolon                           // line_sep_type|\ARGBREAK[0in]
-\verb|min::trailing_always_semicolon_pstring   // obj_line_sep|
+\verb|min::trailing_always_semicolon_space_pstring|\ARGBREAK[0in]
+\verb|                                         // obj_line_sep|
 \end{TABULAR}
 
 \bigskip

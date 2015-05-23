@@ -3003,7 +3003,7 @@ A B C:
 "X" "Y" "Z" 0 0 0
 This is the top line:
     This is the first line "."
-    This is the second line;  This is the third line!
+    This is the second line; This is the third line!
     This is the fourth line "."
 
 Finish Object Printing Test!
