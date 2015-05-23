@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 04:18:53 EDT 2015
+// Date:	Sat May 23 11:05:44 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8127,20 +8127,6 @@ static min::printer trailing_always_comma_space_pstring
 min::pstring min::trailing_always_comma_space_pstring =
     & ::trailing_always_comma_space_pstring;
 
-static min::printer
-    trailing_always_semicolon_space_pstring
-	( min::printer printer )
-{
-    min::print_trailing_always ( printer );
-    min::print_item
-        ( printer, ";", 1, 1,
-	  min::IS_TRAILING + min::IS_GRAPHIC );
-    return min::print_space ( printer );
-}
-min::pstring
-    min::trailing_always_semicolon_space_pstring =
-    & ::trailing_always_semicolon_space_pstring;
-
 static min::printer erase_all_space_colon_pstring
 	( min::printer printer )
 {
@@ -10162,7 +10148,6 @@ static min::obj_format compact_obj_format =
     			    // mark_classifier
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
     min::left_curly_right_curly_pstring,
@@ -10208,7 +10193,6 @@ static min::obj_format compact_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::compact_obj_format =
@@ -10232,7 +10216,6 @@ static min::obj_format line_obj_format =
     			    // mark_classifier
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type*
-    min::NONE(),	    // line_sep_type*
     min::NONE(),	    // paragraph_type
 
     min::left_curly_right_curly_pstring,
@@ -10278,8 +10261,6 @@ static min::obj_format line_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    min::trailing_always_semicolon_space_pstring,
-			    // obj_line_sep
     NULL,                   // obj_paragraph_begin
 };
 const min::obj_format *
@@ -10304,7 +10285,6 @@ static min::obj_format paragraph_obj_format =
     			    // mark_classifier
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type*
 
     min::left_curly_right_curly_pstring,
@@ -10351,7 +10331,6 @@ static min::obj_format paragraph_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    NULL,		    // obj_line_sep
     min::erase_all_space_colon_pstring,
 			    // obj_paragraph_begin
 };
@@ -10376,7 +10355,6 @@ static min::obj_format embedded_line_obj_format =
     			    // mark_classifier
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
     NULL,                   // obj_empty
@@ -10420,7 +10398,6 @@ static min::obj_format embedded_line_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::embedded_line_obj_format =
@@ -10444,7 +10421,6 @@ static min::obj_format isolated_line_obj_format =
     			    // mark_classifier
     min::NONE(),	    // quote_type*
     min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
     NULL,		    // obj_empty
@@ -10483,7 +10459,6 @@ static min::obj_format isolated_line_obj_format =
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
 
-    NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::isolated_line_obj_format =
@@ -10506,7 +10481,6 @@ static min::obj_format id_obj_format =
     NULL,                   // mark_classifier
     min::NONE(),	    // quote_type
     min::NONE(),	    // line_type
-    min::NONE(),	    // line_sep_type
     min::NONE(),	    // paragraph_type
 
     NULL,		    // obj_empty
@@ -10535,7 +10509,6 @@ static min::obj_format id_obj_format =
 
     NULL,		    // obj_valreq
 
-    NULL,		    // obj_line_sep
     NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::id_obj_format =
@@ -10797,8 +10770,6 @@ static void init_pgen_formats ( void )
         min::doublequote;
     ::line_obj_format.line_type =
         min::line_feed;
-    ::line_obj_format.line_sep_type =
-        min::semicolon;
 
     ::paragraph_obj_format.element_format =
         min::element_gen_format;
@@ -11234,9 +11205,7 @@ min::printer min::print_obj
 	    }
 	    return printer << min::restore_print_format;
 	}
-	else if ( ( type == objf->line_type
-	            ||
-		    type == objf->line_sep_type )
+	else if ( ( type == objf->line_type )
 	          &&
 		  type != min::NONE()
 		  &&
@@ -11251,8 +11220,6 @@ min::printer min::print_obj
 
 		    if ( i == min::size_of ( vp ) - 1
 		         &&
-			 type == objf->line_type
-			 &&
 			 terminator == min::NONE() )
 		        printer->state |=
 			    min::PARAGRAPH_POSSIBLE;
@@ -11262,18 +11229,15 @@ min::printer min::print_obj
 		    ( printer,
 		      vp[i], objf->top_element_format );
 	    }
-	    if ( type == objf->line_sep_type )
-	    {
-		printer << objf->obj_line_sep;
-		printer->state |=
-		    min::AFTER_LINE_SEPARATOR;
-	    }
-	    else if ( terminator != min::NONE() )
+
+	    if ( terminator != min::NONE() )
 	    {
 		min::print_trailing ( printer );
 		min::print_gen
 		    ( printer, terminator,
 		      objf->terminator_format );
+		printer->state |=
+		    min::AFTER_LINE_TERMINATOR;
 	    }
 	    return printer << min::restore_print_format;
 	}
@@ -11287,7 +11251,7 @@ min::printer min::print_obj
 		    & min::PARAGRAPH_POSSIBLE ) )
 	{
 	    printer->state &=
-	        ~ ( min::AFTER_LINE_SEPARATOR
+	        ~ ( min::AFTER_LINE_TERMINATOR
 		    +
 		    min::PARAGRAPH_POSSIBLE );
 
@@ -11302,9 +11266,12 @@ min::printer min::print_obj
 	          i < min::size_of ( vp ); ++ i )
 	    {
 		if (   printer->state
-	             & min::AFTER_LINE_SEPARATOR )
+	             & min::AFTER_LINE_TERMINATOR )
+		{
 		    printer->state &=
-			~ min::AFTER_LINE_SEPARATOR;
+			~ min::AFTER_LINE_TERMINATOR;
+		    min::print_space ( printer );
+		}
 		else
 		{
 		    if ( indent_saved )

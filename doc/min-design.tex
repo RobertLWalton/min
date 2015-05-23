@@ -14696,8 +14696,6 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{quote\_type}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen                             line_type;|%
 \ttmindex{line\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen                             line_sep_type;|%
-\ttmindex{line\_sep\_type}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen                             paragraph_type;|%
 \ttmindex{paragraph\_type}{in {\tt min::obj\_format}}
 \end{tabular}
@@ -14787,8 +14785,6 @@ The format for printing object \TT{min::gen} values is:
 \bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-    \verb|  min::pstring                         obj_line_sep;|%
-\ttmindex{obj\_line\_sep}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::pstring                         obj_paragraph_begin;|%
 \ttmindex{obj\_paragraph\_begin}{in {\tt min::obj\_format}}
 \end{tabular}
@@ -14886,7 +14882,6 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK
 \verb|min::doublequote                         // quote_type|\ARGBREAK
 \verb|min::NONE()                              // line_type|\ARGBREAK
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK
 \verb|min::NONE()                              // paragraph_type|\ARGBREAK
 \end{tabular}
 
@@ -14935,7 +14930,6 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_line_sep|\ARGBREAK
 \verb|NULL                                     // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
@@ -14956,12 +14950,6 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::line_feed                           // line_type|\ARGBREAK
-\verb|min::semicolon                           // line_sep_type|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_semicolon_space_pstring|\ARGBREAK
-\verb|                                         // obj_line_sep|
 \end{tabular}
 
 \end{indpar}
@@ -14984,7 +14972,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|\ARGBREAK
+\verb|min::erase_all_space_colon_pstring       // obj_paragraph_begin|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -15131,9 +15119,8 @@ the object has a \TT{.type} equal to the object format
 \TT{quote\_\EOL type} and the object has no \TT{.separator}.
 
 \item Otherwise the `\key{line compact format}' is used if
-the object has a \TT{.type} equal to either the object format
-\TT{line\_\EOL type} or \TT{line\_\EOL sep\_\EOL type}
-and the object has no \TT{.separator}.
+the object has a \TT{.type} equal to the object format
+\TT{line\_\EOL type} and the object has no \TT{.separator}.
 
 \item Otherwise the `\key{paragraph compact format}' is used if
 the object has a \TT{.type} equal to the object format
@@ -15238,28 +15225,26 @@ This is typically used to replace \TT{\{"~...~"\}} by
 \TT{"..."}.
 
 \item[\ttmkey{line\_type}{in {\tt min::obj\_format}}]
-\item[\ttmkey{line\_sep\_type}{in {\tt min::obj\_format}}]\vspace{-2ex}
-\item[\ttmkey{obj\_line\_sep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 If an object being printed in compact format has \TT{.type} attribute
-equal to \TT{line\_\EOL type} or \TT{line\_\EOL sep\_\EOL type}
-and does not have
-\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
+equal to \TT{line\_\EOL type} and does not have
+\TT{.initiator} or \TT{.separator} attributes,
 the object is printed in line compact format
 as a list of its elements with each element
 being printed using the \TT{top\_\EOL element \_\EOL format}
 and the elements being separated by single spaces.
 
-If the \TT{.type} is equal to \TT{line\_\EOL sep\_\EOL type},
-\TT{obj\_\EOL line\_\EOL sep} (e.g., `\TT{;}')
-is printed after the last element.
+If the object has a \TT{.terminator},
+it is printed after the last element and the line is called a
+\key{terminated line}.
 
-A \key{compact line} is defined as a longest sequence of line compact format
-printed objects where all but the last have \TT{.type} equal to
-to \TT{line\_\EOL sep\_\EOL type}.
-Just before printing a compact line, the indent
-is set to 4 spaces to the right
-of the initial column position, and at the end of the compact line, a
-\TT{min::bol} is executed.
+\item[\ttmkey{paragraph\_type}{in {\tt min::obj\_format}}]
+If an object being printed in compact format has \TT{.type} attribute
+equal to \TT{paragraph\_\EOL type}, does not have
+\TT{.initiator} or \TT{.separator} attributes,
+and is the last element of a non-terminated line with 2 or more
+elements,
+the object is printed in paragraph compact format.
+See \pagref{PARAGRAPH-COMPACT-FORMAT} for details.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
@@ -15410,28 +15395,15 @@ as \TT{\{"<Q>"|\ldots|"<Q>"\}}, the object prints as \TT{"\ldots"}.
 In \mkey{line compact format}{of printed object}, where there are
 are no attributes other than \TT{.type}, \TT{.terminator},
 and attributes with a \TT{hide\_\EOL flag},
-with \TT{.type} being equal to \TT{line\_\EOL type}
-or \TT{line\_\EOL sep\_\EOL type},
+with \TT{.type} being equal to \TT{line\_\EOL type},
 the object elements are just printed using
 \TT{top\_\EOL element\_\EOL format} with elements being
-separated by a single space but with an exception described below for
-the space before the last element.
+separated by a single space.
 A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
 
-If the \TT{.type} equals \TT{line\_type} then either there is
-a \TT{.terminator} that is printed just after the line, or
-if not, and if there is more than one element,
-the last element separating space is replaced by execution
-of \TT{min::\EOL trailing\_\EOL always} and the last element of the
-line is printed in paragraph compact format if it has the type
-\TT{top\_\EOL element\_\EOL format->\EOL obj\_\EOL format->\EOL
-\EOL paragraph\_\EOL type}.
-
-If the \TT{.type} equals \TT{line\_\EOL sep\_\EOL type},
-then the line is called a \key{separated line} and
-there can no \TT{.terminator}.  Then
-\TT{obj\_\EOL line\_\EOL sep} is printed (e.g. `\TT{;}') just after the line.
+If there is a \TT{.terminator}, it is printed just after the line.
+In this case the line is called a \key{terminated line}.
 
 Note that nothing is done before the first element to indent
 the line and \underline{no} end of line is output after the line.
@@ -15440,12 +15412,14 @@ supply pre-line indentation and post-line end of lines, or they
 are the ends of top level lines that supply pre-line indentation
 and post-line end of lines.
 
-In \mkey{paragraph compact format}{of printed object}, where there are
+In \mkey{paragraph compact format}{of printed object},%
+\label{PARAGRAPH-COMPACT-FORMAT}
+where there are
 are no attributes other than \TT{.type}
 and attributes with a \TT{hide\_\EOL flag},
 the \TT{.type} is equal to \TT{paragraph\_\EOL type},
-and the object is the last element of a non-separated line printed with
-line compact format with no \TT{.terminator} and
+and the object is the last element of a non-terminated line printed with
+line compact format and
 at least one line element preceeding
 the paragraph.  First \TT{obj\_\EOL paragraph\_\EOL begin}
 (e.g. \TT{min::\EOL erase\_\EOL all\_\EOL space} followed by `\TT{:}') is
@@ -15454,9 +15428,9 @@ object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The elements of a paragraph are supposed to be lines printed in
 line compact format, and elements which are not thus are printed as if
-they were one element non-separated lines.
-Define a \key{line group} as a maximal sequence of separated lines followed
-by a non-separated line, or a maximal sequence of separated lines at the end
+they were one element non-terminated lines.
+Define a \key{line group} as a maximal sequence of terminated lines followed
+by a non-terminated line, or a maximal sequence of terminated lines at the end
 of a paragraph.
 Because the paragraph is the last thing in a containing line group, the indent
 at the beginning of the paragraph is already set to 4 plus the indent
@@ -21405,7 +21379,6 @@ These are in \verb|min_parameters.h|.
     \verb|  min::str_classifier                  mark_classifier;|\ARGBREAK[0in]
     \verb|  min::gen                             quote_type;|\ARGBREAK[0in]
     \verb|  min::gen                             line_type;|\ARGBREAK[0in]
-    \verb|  min::gen                             line_sep_type;|\ARGBREAK[0in]
     \verb|  min::gen                             paragraph_type;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_empty;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_bra;|\ARGBREAK[0in]
@@ -21424,7 +21397,6 @@ These are in \verb|min_parameters.h|.
     \verb|  min::pstring                         obj_valsep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valend;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_valreq;|\ARGBREAK[0in]
-    \verb|  min::pstring                         obj_line_sep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_paragraph_begin;|
 \end{TABULAR}
 
@@ -21530,7 +21502,6 @@ These are in \verb|min_parameters.h|.
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK[0in]
 \verb|min::doublequote                         // quote_type|\ARGBREAK[0in]
 \verb|min::NONE()                              // line_type|\ARGBREAK[0in]
-\verb|min::NONE()                              // line_sep_type|\ARGBREAK[0in]
 \verb|min::NONE()                              // paragraph_type|\ARGBREAK[0in]
 \end{TABULAR}
 
@@ -21579,7 +21550,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
-\verb|NULL                                     // obj_line_sep|\ARGBREAK[0in]
 \verb|NULL                                     // obj_paragraph_begin|
 \end{TABULAR}
 
@@ -21593,9 +21563,6 @@ These are in \verb|min_parameters.h|.
 \verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|min::line_feed                           // line_type|\ARGBREAK[0in]
-\verb|min::semicolon                           // line_sep_type|\ARGBREAK[0in]
-\verb|min::trailing_always_semicolon_space_pstring|\ARGBREAK[0in]
-\verb|                                         // obj_line_sep|
 \end{TABULAR}
 
 \bigskip
@@ -21608,7 +21575,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|min::colon                               // paragraph_type|\ARGBREAK[0in]
-\verb|min::trailing_always_colon_pstring       // obj_paragraph_begin|
+\verb|min::erase_all_space_colon_pstring       // obj_paragraph_begin|
 \end{TABULAR}
 
 \bigskip

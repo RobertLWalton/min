@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 22 16:38:43 EDT 2015
+// Date:	Sat May 23 11:10:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4933,6 +4933,8 @@ void test_object_printing ( void )
 	vp[4] = min::new_str_gen ( "line" );
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::new_str_gen ( ";" ) );
     }
     min::gen line3 = min::new_obj_gen ( 10, 10 );
@@ -4964,14 +4966,29 @@ void test_object_printing ( void )
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::new_str_gen ( "\n" ) );
     }
+    min::gen line5 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( line5 );
+	min::attr_push ( vp, 6 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "is" );
+	vp[2] = min::new_str_gen ( "the" );
+	vp[3] = min::new_str_gen ( "fifth" );
+	vp[4] = min::new_str_gen ( "line" );
+	vp[5] = min::new_str_gen ( "." );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "\n" ) );
+    }
     min::gen paragraph = min::new_obj_gen ( 10, 10 );
     {
 	min::obj_vec_insptr vp ( paragraph );
-	min::attr_push ( vp, 4 );
+	min::attr_push ( vp, 5 );
 	vp[0] = line1;
 	vp[1] = line2;
 	vp[2] = line3;
 	vp[3] = line4;
+	vp[4] = line5;
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::new_str_gen ( ":" ) );

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 04:18:43 EDT 2015
+// Date:	Sat May 23 11:03:50 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11127,11 +11127,11 @@ namespace min {
 	    // This flag is turned off by printer init,
 	    // ::end_line, and min::print_item_preface.
 
-	AFTER_LINE_SEPARATOR	= ( 1 << 2 ),
+	AFTER_LINE_TERMINATOR	= ( 1 << 2 ),
 	    // This flag is turned off by the paragraph
 	    // compact format printer and turned on by
-	    // the line compact format printer when a
-	    // line separator (obj_line_sep) is printed.
+	    // the line compact format printer if it 
+	    // prints a .terminator.
 
 	// WARNING: AFTER_LEADING/TRAILING are the same
 	// bits as IS_LEADING/TRAILING in character
@@ -11610,8 +11610,7 @@ namespace min {
                | FORCE_SPACE_OK
 	       | AFTER_SAVE_INDENT
 	       | AFTER_SET_BREAK
-	       | PARAGRAPH_POSSIBLE
-	       | AFTER_LINE_SEPARATOR ) )
+	       | PARAGRAPH_POSSIBLE ) )
 	    internal::print_item_preface
 	        ( printer, str_class );
 	printer->last_str_class = str_class;
@@ -11863,8 +11862,6 @@ namespace min {
     extern min::pstring
     	trailing_always_comma_space_pstring;
     extern min::pstring
-    	trailing_always_semicolon_space_pstring;
-    extern min::pstring
     	erase_all_space_colon_pstring;
     extern min::pstring
     	no_space_pstring;
@@ -12097,7 +12094,6 @@ namespace min {
 	min::str_classifier	  mark_classifier;
 	min::gen		  quote_type;
 	min::gen		  line_type;
-	min::gen		  line_sep_type;
 	min::gen		  paragraph_type;
 
 	min::pstring		  obj_empty;
@@ -12127,7 +12123,6 @@ namespace min {
 
 	min::pstring		  obj_valreq;
 
-	min::pstring		  obj_line_sep;
 	min::pstring		  obj_paragraph_begin;
     };
     const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
