@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 11:42:52 EST 2015
+// Date:	Thu May 28 16:48:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,6 +19,7 @@
 # include <min_parameters.h>
 # include <cstdlib>
 # include <cstdio>
+# include <cstdarg>
 
 
 // Assert
@@ -49,6 +50,14 @@ void min::standard_assert
 	    printf ( "    %s => %s\n",
 	             expression,
 	             ( value ? "true" : "false" ) );
+	if ( message_format != NULL )
+	{
+	    va_list ap;
+	    va_start ( ap, message_format );
+	    printf ( "    " );
+	    vprintf ( message_format, ap );
+	    printf ( "\n" );
+	}
     }
 
     if ( ! value || expression == NULL )

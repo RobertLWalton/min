@@ -78,6 +78,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_direct_int_gen(int):
     GEN_MIN_INT <= v && v <= GEN_MAX_INT => false
+    argument is not direct integer
 min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( 1 << 27 );
 min_interface_test.cc:XXXX desire failure:
@@ -85,6 +86,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_direct_int_gen(int):
     GEN_MIN_INT <= v && v <= GEN_MAX_INT => false
+    argument is not direct integer
 min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( -1 << 28 );
 min_interface_test.cc:XXXX:
@@ -107,6 +109,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_direct_str_gen(const char*):
     strlen ( p ) <= 3 => false
+    string argument too long
 strngen: "AB"
 min_interface_test.cc:XXXX:
     min::is_direct_str ( strngen ) => true
@@ -125,6 +128,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_direct_str_gen(const char*, min::unsptr):
     internal::strnlen ( p, n ) <= 3 => false
+    string argument too long
 
 Test list aux general values:
 listauxgen: LIST_AUX(734523)
@@ -143,6 +147,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_list_aux_gen(min::unsgen):
     p < (unsgen) 1 << VSIZE => false
+    argument too large
 re-listauxgen: LIST_AUX(963921)
 min_interface_test.cc:XXXX:
     min::is_list_aux ( listauxgen ) => true
@@ -168,6 +173,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_sublist_aux_gen(min::unsgen):
     p < (unsgen) 1 << VSIZE => false
+    argument too large
 
 Test indirect aux general values:
 indirectauxgen: INDIRECT_AUX(734523)
@@ -186,6 +192,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_indirect_aux_gen(min::unsgen):
     p < (unsgen) 1 << VSIZE => false
+    argument too large
 
 Test index general values:
 indexgen: INDEX(734523)
@@ -204,6 +211,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_index_gen(min::unsgen):
     i < (unsgen) 1 << VSIZE => false
+    argument too large
 
 Test control code general values:
 codegen: CONTROL_CODE(0x7e005f)
@@ -222,6 +230,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_control_code_gen(min::unsgen):
     c < (unsgen) 1 << VSIZE => false
+    argument too large
 
 Test special general values:
 min_interface_test.cc:XXXX:
@@ -264,6 +273,7 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::new_special_gen(min::unsgen):
     i < (unsgen) 1 << VSIZE => false
+    argument too large
 
 Finish General Value Constructor//Test/Read Function Test!
 
@@ -1373,6 +1383,7 @@ min_interface_test.cc:XXXX desire failure:
 ../src/min.cc:XXXX:
     in void min::add(min::unicode_name_table, min::unicode::ustring, min::Uchar):
     c2 == NO_UCHAR => false
+    name already assigned to a different character
 min_interface_test.cc:XXXX:
     c == 0x1234 => true
 min_interface_test.cc:XXXX:
@@ -1713,11 +1724,13 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::attr_pop(min::obj_vec_insptr&):
     vp.attr_offset < vp.unused_offset => false
+    no attribute left to pop
 min_interface_test.cc:XXXX desire failure:
     min::attr_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX:
     in void min::attr_pop(min::obj_vec_insptr&, min::unsptr, min::gen*):
     vp.attr_offset + n <= vp.unused_offset => false
+    less than n attributes left to pop
 min_interface_test.cc:XXXX:
     outv[0] == num1 => true
 min_interface_test.cc:XXXX:
@@ -1737,11 +1750,13 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::aux_pop(min::obj_vec_insptr&):
     vp.aux_offset < vp.total_size => false
+    no aux element left to pop
 min_interface_test.cc:XXXX desire failure:
     min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX:
     in void min::aux_pop(min::obj_vec_insptr&, min::unsptr, min::gen*):
     vp.aux_offset + n <= vp.total_size => false
+    less than n aux elements left to pop
 min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) == 0 => true
 min_interface_test.cc:XXXX:
@@ -1905,11 +1920,13 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::attr_pop(min::obj_vec_insptr&):
     vp.attr_offset < vp.unused_offset => false
+    no attribute left to pop
 min_interface_test.cc:XXXX desire failure:
     min::attr_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX:
     in void min::attr_pop(min::obj_vec_insptr&, min::unsptr, min::gen*):
     vp.attr_offset + n <= vp.unused_offset => false
+    less than n attributes left to pop
 min_interface_test.cc:XXXX:
     outv[0] == num1 => true
 min_interface_test.cc:XXXX:
@@ -1929,11 +1946,13 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX:
     in min::gen min::aux_pop(min::obj_vec_insptr&):
     vp.aux_offset < vp.total_size => false
+    no aux element left to pop
 min_interface_test.cc:XXXX desire failure:
     min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX:
     in void min::aux_pop(min::obj_vec_insptr&, min::unsptr, min::gen*):
     vp.aux_offset + n <= vp.total_size => false
+    less than n aux elements left to pop
 min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) == 0 => true
 min_interface_test.cc:XXXX:
