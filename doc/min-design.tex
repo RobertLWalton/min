@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 23, 2015}
+\date{May 28, 2015}
  
 \maketitle
 
@@ -598,29 +598,34 @@ used by this default are:
 \LABEL{MIN::STANDARD_ASSERT} \\
 \verb|bool min::| & \MINKEY{assert\_print} \verb|= false|
 \LABEL{MIN::ASSERT_PRINT} \\
-\verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
-\LABEL{MIN::ASSERT_ABORT} \\
 \verb|bool min::| & \MINKEY{assert\_throw} \verb|= false|
 \LABEL{MIN::ASSERT_THROW} \\
+\verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
+\LABEL{MIN::ASSERT_ABORT} \\
 \verb|struct min::| & \MINKEY{assert\_exception} \verb|{ }|
 \LABEL{MIN::ASSERT_EXCEPTION} \\
 \end{tabular}\end{indpar}
 
-If the \TT{value} argument equals \TT{true},
-and if the \TT{expression} argument is not \TT{NULL}
-(and hence this is not a call from \TT{MIN\_\EOL ABORT}),
-this function just returns without doing anything.
+If \TT{min::assert\_print} is \TT{true}, or if
+\TT{value} is \TT{false} and \TT{min::\EOL assert\_\EOL throw}
+is false, this function prints a message containing
+\TT{file\_\EOL name} and \TT{line\_\EOL number},
+\TT{function\_\EOL name} if that is not \TT{NULL},
+\TT{expression} and \TT{value} if \TT{expression} is not \TT{NULL}
+or the word `\TT{abort}' if \TT{expression} is \TT{NULL},
+and \TT{message\_\EOL format} and subsequent arguments
+as per \TT{printf} if \TT{message\_\EOL format} is not \TT{NULL}.
 
-Otherwise this function
-just throws a \TT{min::\EOL assert\_\EOL exception} without
-printing a message if \TT{min::\EOL assert\_\EOL throw} is \TT{true}
-(even if \TT{expression} is \TT{NULL}),
-else prints a message and calls \TT{abort()} if
-\TT{min::\EOL assert\_\EOL abort} is \TT{true} or
-\TT{expression} is \TT{NULL}, else just returns.
+Then if \TT{value} is \TT{false} this function throws a
+\TT{min::\EOL assert\_\EOL exception} if 
+\TT{min::\EOL assert\_\EOL throw} is \TT{true}, else
+calls \TT{abort()} if \TT{min::\EOL assert\_\EOL abort} is \TT{true},
+else just returns.
 
-If \TT{min::assert\_print} is \TT{true}, the above behavior is
-modified in that a message as \underline{always} printed.
+On a call from \TT{MIN\_ABORT}, \TT{value} is \TT{false} and
+\TT{expression} is \TT{NULL}.  On a call from any non-\TT{ABORT}
+function, \TT{expression} is \underline{not} \TT{NULL}.
+
 
 \section{Initialization}
 
@@ -15932,10 +15937,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_ASSERT} \\
 \verb|bool min::| & \MINKEY{assert\_print} \verb|= false|
 \LABEL{MIN::ASSERT_PRINT} \\
-\verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
-\LABEL{MIN::ASSERT_ABORT} \\
 \verb|bool min::| & \MINKEY{assert\_throw} \verb|= false|
 \LABEL{MIN::ASSERT_THROW} \\
+\verb|bool min::| & \MINKEY{assert\_abort} \verb|= true|
+\LABEL{MIN::ASSERT_ABORT} \\
 \verb|struct min::| & \MINKEY{assert\_exception} \verb|{ }|
 \LABEL{MIN::ASSERT_EXCEPTION} \\
 \end{TABULAR}

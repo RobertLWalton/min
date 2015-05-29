@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 11:10:02 EDT 2015
+// Date:	Thu May 28 20:44:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4664,9 +4664,10 @@ void test_object_printing ( void )
     cout << endl;
     cout << "Start Object Printing Test!"
 	 << endl << endl;
+    bool saved_min_assert_print = min::assert_print;
+    bool saved_min_assert_throw = min::assert_throw;
     min::assert_print = false;
-    // min::assert_throw = false;
-    // min::assert_abort = true;
+    min::assert_throw = false;
 
     min::gen obj = min::new_obj_gen ( 5, 5 );
 
@@ -5013,8 +5014,8 @@ void test_object_printing ( void )
 	    << min::eom;
 
     min::assert_print = true;
-    // min::assert_throw = true;
-    // min::assert_abort = false;
+    min::assert_print = saved_min_assert_print;
+    min::assert_throw = saved_min_assert_throw;
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
 }
