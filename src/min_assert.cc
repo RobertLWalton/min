@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 16:48:59 EDT 2015
+// Date:	Thu May 28 21:49:21 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,9 +25,9 @@
 // Assert
 // ------
 
-bool min::assert_print = true;
+bool min::assert_print = false;
 bool min::assert_throw = false;
-bool min::assert_abort = false;
+bool min::assert_abort = true;
 
 void min::standard_assert
     ( bool value,
@@ -37,9 +37,7 @@ void min::standard_assert
       const char * message_format, ... )
 {
     if (    min::assert_print
-         || ( ! min::assert_throw
-	      &&
-	      ( ! value || expression == NULL ) ) )
+         || ( ! min::assert_throw && ! value ) )
     {
 	printf ( "%s:%d:\n", file_name, line_number );
 	if ( function_name != NULL )
@@ -60,7 +58,7 @@ void min::standard_assert
 	}
     }
 
-    if ( ! value || expression == NULL )
+    if ( ! value )
     {
          if ( min::assert_throw )
 	     throw ( new min::assert_exception );
