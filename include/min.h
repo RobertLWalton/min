@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 11:03:50 EDT 2015
+// Date:	Fri May 29 17:08:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3449,10 +3449,13 @@ namespace min {
     const min::uns32 IS_SEPARATOR	= ( 1 << 12 );
     const min::uns32 IS_REPEATER	= ( 1 << 13 );
 
-    const min::uns32 IS_MARK		= ( 1 << 14 );
-
     const min::uns32 IS_ASCII		= ( 1 << 16 );
     const min::uns32 IS_LATIN1		= ( 1 << 17 );
+
+    const min::uns32 IS_LETTER		= ( 1 << 24 );
+    const min::uns32 IS_DIGIT		= ( 1 << 25 );
+    const min::uns32 IS_MARK		= ( 1 << 26 );
+    const min::uns32 IS_NATURAL		= ( 1 << 27 );
 
     const min::uns32 IS_NON_GRAPHIC = IS_CONTROL
                                     + IS_UNSUPPORTED;

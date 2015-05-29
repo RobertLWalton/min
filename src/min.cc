@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 23 11:05:44 EDT 2015
+// Date:	Fri May 29 17:07:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1146,7 +1146,8 @@ static void init_standard_char_flags ( void )
 	if ( cat == NULL )
 	    flags = min::IS_UNSUPPORTED;
 	else if ( cat[0] == 'L' )
-	    flags = min::IS_GRAPHIC;
+	    flags = min::IS_GRAPHIC
+	          + min::IS_LETTER;
 	else if ( cat[0] == 'P' )
 	{
 	    switch ( cat[1] )
@@ -1182,11 +1183,21 @@ static void init_standard_char_flags ( void )
 		  + min::IS_MARK;
 	else if ( strcmp ( cat, "Mn" ) == 0 )
 	    flags = min::IS_GRAPHIC
-	          + min::IS_NON_SPACING;
+	          + min::IS_NON_SPACING
+		  + min::IS_MARK;
+	else if ( strcmp ( cat, "Me" ) == 0 )
+	    flags = min::IS_GRAPHIC
+	          + min::IS_NON_SPACING
+		  + min::IS_MARK;
 	else if ( cat[0] == 'M' )
-	    flags = min::IS_GRAPHIC;
+	    flags = min::IS_GRAPHIC
+	          + min::IS_MARK;
+	else if ( strcmp ( cat, "Nd" ) == 0 )
+	    flags = min::IS_GRAPHIC
+	          + min::IS_DIGIT;
 	else if ( cat[0] == 'N' )
-	    flags = min::IS_GRAPHIC;
+	    flags = min::IS_GRAPHIC
+	          + min::IS_MARK;
 	else if ( strcmp ( cat, "Zs" ) == 0 )
 	    flags = min::IS_HSPACE
 	          + min::IS_BHSPACE
@@ -1299,6 +1310,22 @@ static void init_standard_char_flags ( void )
 		    flags = min::IS_GRAPHIC
 			  + min::CONDITIONAL_BREAK
 			  + min::IS_MARK;
+		    break;
+
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+		    flags = min::IS_GRAPHIC
+			  + min::IS_DIGIT
+			  + min::IS_NATURAL;
+		    break;
 	}
 
 	::standard_char_flags[i] =
@@ -9469,6 +9496,7 @@ void min::debug_str_class
 	      << std::endl;
 }
 
+
 static min::uns32 standard_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
@@ -9477,12 +9505,16 @@ static min::uns32 standard_str_classifier_function
 {
     if ( n == 0 ) return 0;
 
+    const min::uns32 SELECTOR = min::IS_LETTER
+                              | min::IS_DIGIT;
+
     min::Uchar first = * p ++;
     min::uns32 first_cflags =
 	    min::char_flags ( char_flags, sc, first );
     min::uns32 last_cflags = first_cflags;
     min::uns32 and_of_cflags = first_cflags;
     min::uns32 or_of_cflags = first_cflags;
+    min::uns32 result = ( first_cflags & SELECTOR );
     bool repeating = true;
 
     for ( min::unsptr i = 1; i < n; ++ i )
@@ -9493,14 +9525,27 @@ static min::uns32 standard_str_classifier_function
 	and_of_cflags &= last_cflags;
 	or_of_cflags |= last_cflags;
 	if ( c != first ) repeating = false;
+	if ( result == 0
+	     &&
+	     ( last_cflags & SELECTOR ) )
+	    result = ( last_cflags & SELECTOR );
     }
 
-    if ( or_of_cflags & min::NEEDS_QUOTES )
-        return and_of_cflags | min::NEEDS_QUOTES;
+    result |= and_of_cflags;
+
+    if ( result & min::IS_NATURAL )
+    {
+        if ( first != '0' || n == 1 )
+	    return result;
+	else
+	    return result & ~ min::IS_NATURAL;
+    }
+    else if ( or_of_cflags & min::NEEDS_QUOTES )
+        return result | min::NEEDS_QUOTES;
     else if ( and_of_cflags & min::IS_VHSPACE )
         return 0;
     else if ( ! ( and_of_cflags & min::IS_GRAPHIC ) )
-        return and_of_cflags | min::NEEDS_QUOTES;
+        return result | min::NEEDS_QUOTES;
     else if ( ( or_of_cflags & min::IS_SEPARATOR )
 	      ||
               ( first_cflags & min::IS_LEADING )
@@ -9512,10 +9557,10 @@ static min::uns32 standard_str_classifier_function
 	     ( ! ( and_of_cflags & min::IS_REPEATER )
 	       &&
 	       n > 1 ) )
-	    return and_of_cflags | min::NEEDS_QUOTES;
+	    return result | min::NEEDS_QUOTES;
     }
 
-    return and_of_cflags;
+    return result;
 }
 const min::str_classifier min::standard_str_classifier =
     & ::standard_str_classifier_function;
@@ -11558,9 +11603,11 @@ min::printer min::standard_pgen
     {
 	const min::special_format * sf =
 	    f->special_format;
-	if ( sf == NULL ) sf = min::bracket_special_format;
+	if ( sf == NULL )
+	    sf = min::bracket_special_format;
         min::unsgen index = MUP::special_index_of ( v );
-	min::packed_vec_ptr<min::ustring> special_names =
+	min::packed_vec_ptr<min::ustring>
+		special_names =
 	    sf ? sf->special_names
 	       : (min::packed_vec_ptr<min::ustring>)
 	         min::NULL_STUB;
