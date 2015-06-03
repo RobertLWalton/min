@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 29 17:08:26 EDT 2015
+// Date:	Wed Jun  3 16:12:24 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3797,7 +3797,7 @@ namespace min {
 	    if ( type == LONG_STR ) return;
 	    else if ( type != SHORT_STR )
 	    {
-		s = NULL;
+		this->s = NULL;
 		return;
 	    }
 
@@ -3811,7 +3811,6 @@ namespace min {
 
 	str_ptr ( min::gen g )
 	{
-
 	    if ( is_stub ( g ) )
 		new ( this )
 		    str_ptr
