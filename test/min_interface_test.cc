@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 20:44:51 EDT 2015
+// Date:	Sun Jun  7 04:28:39 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2491,38 +2491,37 @@ void test_unicode_name_table ( void )
     c = min::find ( ::unicode_table, "YYYYY" );
     MIN_CHECK ( c == min::NO_UCHAR );
 
-    min::add ( ::unicode_table,
-               (min::ustring) "\x06\x06XXXXXX",
-	       0x1234 );
+    min::add ( ::unicode_table, "XXXXXX", 0x1234 );
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
     MIN_CHECK ( c == min::NO_UCHAR );
 
-    min::add ( ::unicode_table,
-               (min::ustring) "\x05\x05YYYYY",
-	       0x5678 );
+    min::add ( ::unicode_table, "YYYYY", 0x5678 );
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
     MIN_CHECK ( c == 0x5678 );
 
     desire_success (
-	min::add ( ::unicode_table,
-		   (min::ustring)
-		       "\x05\x05YYYYY",
-		   0x5678 );
+	min::add ( ::unicode_table, "YYYYY", 0x5678 );
     );
     desire_failure (
-	min::add ( ::unicode_table,
-		   (min::ustring)
-		       "\x05\x05YYYYY",
-		   0x1234 );
+	min::add ( ::unicode_table, "YYYYY", 0x1234 );
     );
     c = min::find ( ::unicode_table, "XXXXXX" );
     MIN_CHECK ( c == 0x1234 );
     c = min::find ( ::unicode_table, "YYYYY" );
     MIN_CHECK ( c == 0x5678 );
+
+    desire_success (
+	min::add ( ::unicode_table, "YYYYY", 0x4321,
+	           true );
+    );
+    c = min::find ( ::unicode_table, "XXXXXX" );
+    MIN_CHECK ( c == 0x1234 );
+    c = min::find ( ::unicode_table, "YYYYY" );
+    MIN_CHECK ( c == 0x4321 );
 
     cout << endl;
     cout << "Finish UNICODE Name Table Test!" << endl;

@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 28, 2015}
+\date{June 7, 2015}
  
 \maketitle
 
@@ -4667,8 +4667,9 @@ read using the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
-    \verb|  min::ustring name,|\ARGBREAK
-    \verb|  min::Uchar c )|
+    \verb|  const char * name,|\ARGBREAK
+    \verb|  min::Uchar c,|\ARGBREAK
+    \verb|  bool replace_allowed = false )|
 \LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
@@ -4685,7 +4686,7 @@ If the table is created, the \TT{min::\EOL unicode::\EOL name}
 name of a character is added to the table if its flags,
 as given by the \TT{char\_\EOL flags} argument,
 have a flag in common with the \TT{flags} argument.
-Additinally extra space is reserved for later adding character
+Additionally extra space is reserved for later adding character
 names to the table, as long as the number of names added later
 does not exceed the value of the \TT{extras} argument.
 The default arguments to \TT{min::\EOL init} add all names
@@ -4694,10 +4695,14 @@ space for adding 10 additional names.
 
 The \TT{min::add} function adds \TT{name} to the table, mapping
 it to the character \TT{c}.  It is a programming error if
-\TT{name} is already mapped to a different character, or if
+\TT{name} is already mapped to a \underline{different} character and
+the \TT{replace\_\EOL allowed} argument is \TT{false}, or if
 more names are added than allowed by the \TT{extras} argument
 to \TT{min::\EOL init} (this latter error may not be detected
 and may result in inefficient lookup).
+If \TT{replace\_\EOL allowed} is \TT{true} and \TT{name} is
+already mapped to a different character, the table is changed
+so \TT{name} maps to \TT{c}.
 
 The \TT{min::find} function looks up \TT{name} in the table
 and returns the character it maps to.  \TT{min::\EOL NO\_\EOL UCHAR}
@@ -17159,8 +17164,9 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.0in}
 \verb|void min::| & \MINKEY{add}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
-    \verb|  min::ustring name,|\ARGBREAK
-    \verb|  min::Uchar c )|
+    \verb|  const char * name,|\ARGBREAK
+    \verb|  min::Uchar c,|\ARGBREAK
+    \verb|  bool replace_allowed = false )|
 \LABEL{MIN::ADD_OF_UNICODE_NAME_TABLE} \\
 \verb|min::Uchar min::| & \MINKEY{find}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK

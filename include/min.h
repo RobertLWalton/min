@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  3 16:12:24 EDT 2015
+// Date:	Sun Jun  7 04:15:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6385,7 +6385,7 @@ namespace min {
 	struct unicode_name_entry
 	{
 	    min::Uchar c;
-	    min::ustring name;
+	    const char * name;
 	};
     }
     
@@ -6403,8 +6403,9 @@ namespace min {
 	      min::uns32 extras = 10 );
     void add
             ( min::unicode_name_table table,
-	      min::ustring name,
-	      min::Uchar c );
+	      const char * name,
+	      min::Uchar c,
+	      bool replace_allowed = false );
     Uchar find
             ( min::unicode_name_table table,
 	      const char * name );

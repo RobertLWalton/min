@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 29 17:07:55 EDT 2015
+// Date:	Sun Jun  7 04:15:07 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3335,7 +3335,9 @@ min::unicode_name_table min::init
 			 " at index %d: name used by"
 			 " more than one character",
 			 i );
-	    min::add ( table, name, c );
+	    min::add ( table,
+	               min::ustring_chars ( name ),
+		       c );
 	}
     }
     return table;
@@ -3343,36 +3345,39 @@ min::unicode_name_table min::init
 
 void min::add
 	( min::unicode_name_table table,
-	  min::ustring name,
-	  min::Uchar c )
+	  const char * name,
+	  min::Uchar c, bool replace_allowed )
 {
-    Uchar c2 = min::find
-                 ( table, min::ustring_chars ( name ) );
-    if ( c2 == c ) return;
-    MIN_ASSERT ( c2 == NO_UCHAR,
-                 "name already assigned to a different"
-		 " character" );
-
-    uns32 length = table->length;
-    uns32 i = min::strhash
-                  ( min::ustring_chars ( name ) )
-	    % length;
-    uns32 j;
-    for ( j = 0; j < length; ++ j, ++ i, i %= length )
-    {
-        internal::unicode_name_entry e = table[i];
-	if ( e.name == NULL ) break;
-    }
-    MIN_ASSERT ( j != length,
-                 "unicode name table too small" );
-    internal::unicode_name_entry e;
-    e.c = c;
-    e.name = name;
-    packed_vec_insptr<internal::unicode_name_entry> p =
-        (packed_vec_insptr
+    packed_vec_updptr<internal::unicode_name_entry> t =
+        (packed_vec_updptr
 	     <internal::unicode_name_entry>)
         table;
-    p[i] = e;
+    uns32 length = t->length;
+    uns32 i = min::strhash ( name ) % length;
+    for ( uns32 j = 0; j < length;
+          ++ j, ++ i, i %= length )
+    {
+        internal::unicode_name_entry e = t[i];
+	if ( e.name == NULL )
+	{
+	    e.c = c;
+	    e.name = name;
+	}
+	else if ( ::strcmp ( e.name, name ) == 0 )
+	{
+	    if ( e.c == c ) return;
+
+	    MIN_ASSERT ( replace_allowed,
+			 "name already assigned to a"
+			 " different character" );
+	    e.c = c;
+	}
+	else continue;
+
+	t[i] = e;
+	return;
+    }
+    MIN_ABORT ( "unicode name table too small" );
 }
 
 min::Uchar min::find
@@ -3386,9 +3391,7 @@ min::Uchar min::find
     {
         internal::unicode_name_entry e = table[i];
 	if ( e.name == NULL ) return NO_UCHAR;
-	if (    ::strcmp
-		    ( ustring_chars ( e.name ), name )
-	     == 0 )
+	if ( ::strcmp ( e.name, name ) == 0 )
 	    return e.c;
     }
     MIN_ABORT ( "unicode name table too small" );

@@ -1377,17 +1377,23 @@ min_interface_test.cc:XXXX:
 min_interface_test.cc:XXXX:
     c == 0x5678 => true
 min_interface_test.cc:XXXX desire success:
-    min::add ( ::unicode_table, (min::ustring) "\x05\x05YYYYY", 0x5678 );
+    min::add ( ::unicode_table, "YYYYY", 0x5678 );
 min_interface_test.cc:XXXX desire failure:
-    min::add ( ::unicode_table, (min::ustring) "\x05\x05YYYYY", 0x1234 );
+    min::add ( ::unicode_table, "YYYYY", 0x1234 );
 ../src/min.cc:XXXX:
-    in void min::add(min::unicode_name_table, min::unicode::ustring, min::Uchar):
-    c2 == NO_UCHAR => false
+    in void min::add(min::unicode_name_table, const char*, min::Uchar, bool):
+    replace_allowed => false
     name already assigned to a different character
 min_interface_test.cc:XXXX:
     c == 0x1234 => true
 min_interface_test.cc:XXXX:
     c == 0x5678 => true
+min_interface_test.cc:XXXX desire success:
+    min::add ( ::unicode_table, "YYYYY", 0x4321, true );
+min_interface_test.cc:XXXX:
+    c == 0x1234 => true
+min_interface_test.cc:XXXX:
+    c == 0x4321 => true
 
 Finish UNICODE Name Table Test!
 
