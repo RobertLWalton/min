@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 7, 2015}
+\date{June 10, 2015}
  
 \maketitle
 
@@ -3729,6 +3729,7 @@ and digits).
 \begin{tabular}{ll}
 \TT{M}		& combining marks \\
 ~~~\TT{Mn}	& non-spacing combining marks \\
+~~~\TT{Me}	& enclosing combining marks \\
 \end{tabular}
 
 \begin{tabular}{ll}
@@ -3894,7 +3895,8 @@ The assignment of this flag in \TT{min::standard\_char\_flags} is:
 \begin{tabular}{l@{~~~~~}l}
 \ttkey{min::IS\_NON\_SPACING}: & characters with the \TT{IS\_CONTROL} flag,\\
 			& but without the \TT{IS\_HSPACE} flag, \\
-			       & plus characters in subcategory \TT{Mn} \\
+			       & plus characters in subcategories \TT{Mn}
+			         and \TT{Me} \\
 \end{tabular}
 \end{indpar}
 
@@ -4015,16 +4017,14 @@ is as follows:
 \ttkey{min::IS\_LEADING}: & \TT{`}%
                          ~~~\TT{\textexclamdown}%
                          ~~~\TT{\textquestiondown}%
-                         ~~~\TT{|}%
-                         ~~~\TT{\$}\\
+                         ~~~\TT{|}\\
 			   & plus categories \TT{Ps} and \TT{Pi}
 			     which include \TT{\{} \TT{(} \TT{[}
 			      \TT{\guillemotleft} \\
 \ttkey{min::IS\_TRAILING}: & \TT{'}%
 			 ~~~\TT{!}~~~\TT{?}%
                          ~~~\TT{|}%
-			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:}%
-			 ~~~\TT{\%}\\
+			 ~~~\TT{.}~~~\TT{,}~~~\TT{;}~~~\TT{:}\\
 			   & plus categories \TT{Pe} and \TT{Pf}
 			     which include \TT{\}} \TT{)} \TT{]}
 			      \TT{\guillemotright} \\
@@ -4059,14 +4059,11 @@ is as follows:
 			      \TT{\guillemotleft}
 			      \TT{\guillemotright}
 			      \TT{]} \TT{)} \TT{\}} \\
-\ttkey{min::IS\_REPEATER}: & \TT{`} ~~~\TT{'}
-                             ~~~\TT{\textexclamdown}%
+\ttkey{min::IS\_REPEATER}: & \TT{|}%
+                             ~~~~\TT{\textexclamdown}%
                              ~~~\TT{\textquestiondown}%
-                             ~~~\TT{|}%
-                             ~~~\TT{\$}
 			     ~~~\TT{!}~~~\TT{?}%
-			     ~~~\TT{.}~~~\TT{:}%
-			     ~~~\TT{\%}\\
+			     ~~~\TT{.}~~~\TT{:}\\
 \ttkey{min::NEEDS\_QUOTES}: & \TT{"}
 \end{tabular}
 \end{center}
