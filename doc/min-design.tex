@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 10, 2015}
+\date{June 30, 2015}
  
 \maketitle
 
@@ -11407,6 +11407,63 @@ to print the \TT{printer->id\_map[i]} {\em values} in lines of the form:
 \TT{@}{\em <id>} \TT{=} {\em value}
 \end{center}
 
+The functions
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_one\_id}
+\LABEL{MIN::PRINT_ONE_ID}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\verb|min::printer min::| & \MINKEY{print\_id\_map}
+\LABEL{MIN::PRINT_ID_MAP}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\end{tabular}\end{indpar}
+
+are equivalent to \TT{printer <{}< min::flush\_one\_id}
+and \TT{printer <{}< min::\EOL flush\_\EOL id\_\EOL map} respectively,
+except that
+if \TT{id\_\EOL map} is given (not \TT{NULL\_\EOL STUB}),
+that is used in place of \TT{printer->\EOL id\_\EOL map}, and
+if \TT{gen\_\EOL format} is given (not \TT{NULL}),
+that is used in place of
+\TT{printer->\EOL printer\_\EOL format.gen\_\EOL format->\EOL
+                  id\_\EOL map\_\EOL format}.
+
+
+The function
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_mapped}
+\LABEL{MIN::PRINT_MAPPED}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\end{tabular}\end{indpar}
+
+does the equivalent of
+
+\begin{indpar}\begin{verbatim}
+    min::find_and_add ( id_map, min::stub_of ( v ) );
+    return min::print_id_map ( printer, id_map, gen_format );
+\end{verbatim}\end{indpar}
+
+if \TT{v} has a stub and is not already in \TT{id\_\EOL map}.
+If \TT{id\_\EOL map} is \underline{not} given (i.e., equals
+\TT{min::\EOL NULL\_\EOL STUB}), \TT{printer->\EOL id\_\EOL map}
+is used instead, and is initialized before use if it has not previously
+been initialized.
+
+If \TT{v} has a stub and is already in \TT{id\_\EOL map},
+this function prints a line for \TT{v} with the same format
+as \TT{min::\EOL print\_\EOL one\_\EOL id}.
+If instead \TT{v} does not have a stub, this function prints a line that
+is the same except `\TT{@(NONE)}' is printed in place of the \TT{id\_\EOL map}
+derived ID.
+
 \subsection{Objects}
 \label{OBJECTS}
 
@@ -20093,6 +20150,32 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::FLUSH_ONE_ID} \\
 \verb|min::op min::| & \MINKEY{flush\_\EOL id\_\EOL map}
 \LABEL{MIN::FLUSH_ID_MAP} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.7in}
+\verb|min::printer min::| & \MINKEY{print\_one\_id}
+\LABEL{MIN::PRINT_ONE_ID}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\verb|min::printer min::| & \MINKEY{print\_id\_map}
+\LABEL{MIN::PRINT_ID_MAP}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.7in}
+\verb|min::printer min::| & \MINKEY{print\_mapped}
+\LABEL{MIN::PRINT_MAPPED}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
 \end{TABULAR}
 
 \bigskip

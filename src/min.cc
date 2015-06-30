@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 10 03:59:08 EDT 2015
+// Date:	Tue Jun 30 05:19:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8368,9 +8368,6 @@ static void end_line ( min::printer printer )
     printer->last_str_class = 0;
 }
 
-static min::printer flush_one_id
-	( min::printer printer );
-
 min::printer operator <<
 	( min::printer printer,
 	  const min::op & op )
@@ -8385,49 +8382,10 @@ min::printer operator <<
         return min::print_gen
 	    ( printer, MUP::new_gen ( op.v1.g ),
 	      (const min::gen_format *) op.v2.p );
-    case min::op::MAP_PGEN:
-    {
-        min::gen g = MUP::new_gen ( op.v1.g );
-	const min::stub * s = min::stub_of ( g );
-	if ( s != min::NULL_STUB )
-	{
-	    min::uns32 id =
-		printer->id_map != min::NULL_STUB ?
-		    min::find ( printer->id_map, s ) :
-		    0;
-	    if ( id != 0 )
-	    {
-	        char buffer[100];
-		min::uns32 n =
-		    sprintf ( buffer, "@%u", id );
-		return printer << min::indent;
-		min::print_item
-		    ( printer, buffer, n, n );
-		return printer << min::eol;
-	    }
-	    else if ( min::is_obj ( g ) )
-	    {
-		if ( printer->id_map == min::NULL_STUB )
-		    min::init
-		        ( min::id_map_ref ( printer ) );
-	        min::find_or_add ( printer->id_map, s );
-		return printer << min::flush_id_map;
-	    }
-	}
-	return printer << min::indent << min::pgen ( g )
-	               << min::eol;
-    }
-
     case min::op::FLUSH_ONE_ID:
-        return ::flush_one_id ( printer );
+        return min::print_one_id ( printer );
     case min::op::FLUSH_ID_MAP:
-    {
-        min::id_map id_map = printer->id_map;
-	if ( id_map != min::NULL_STUB )
-	while ( id_map->next < id_map->length )
-	    ::flush_one_id ( printer );
-	return printer;
-    }
+        return min::print_id_map ( printer );
 
     case min::op::PUNICODE1:
     {
@@ -8628,12 +8586,7 @@ min::printer operator <<
 
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ID_MAP_ON_EOM )
-	{
-	    min::id_map id_map = printer->id_map;
-	    if ( id_map != min::NULL_STUB )
-	    while ( id_map->next < id_map->length )
-		::flush_one_id ( printer );
-	}
+	    min::print_id_map ( printer );
 
 	goto restore_print_format;
     case min::op::EOL_IF_AFTER_INDENT:
@@ -10853,6 +10806,102 @@ min::printer min::print_id
     return min::print_item ( printer, buffer, n, n );
 }
 
+min::printer min::print_one_id
+	( min::printer printer,
+	  min::id_map id_map,
+	  const min::gen_format * f )
+{
+    if ( id_map == min::NULL_STUB )
+        id_map = printer->id_map;
+
+    if ( id_map == min::NULL_STUB
+         ||
+	 id_map->next >= id_map->length )
+        return printer;
+
+    if ( f == NULL )
+        f = printer->print_format.gen_format
+	           ->id_map_format;
+
+    min::uns32 id = id_map->next;
+    * ( min::uns32 * ) & id_map->next = id + 1;
+    min::gen v = min::new_stub_gen ( id_map[id] );
+
+    printer << min::bol;
+    char buffer[100];
+    min::uns32 n = sprintf ( buffer, "@%u", id );
+    min::print_item ( printer, buffer, n, n );
+    min::print_space ( printer );
+    min::print_item ( printer, "=", 1, 1 );
+    min::print_space ( printer );
+
+    printer << min::save_indent;
+    min::print_gen ( printer, v, f );
+    return printer << min::bol << min::restore_indent;
+}
+
+min::printer min::print_id_map
+	( min::printer printer,
+	  min::id_map id_map,
+	  const min::gen_format * f )
+{
+    if ( id_map == min::NULL_STUB )
+        id_map = printer->id_map;
+
+    if ( id_map == min::NULL_STUB )
+        return printer;
+
+    while ( id_map->next < id_map->length )
+        min::print_one_id ( printer, id_map, f );
+
+    return printer;
+}
+
+min::printer min::print_mapped
+	( min::printer printer,
+	  min::gen v,
+	  min::id_map id_map,
+	  const min::gen_format * f )
+{
+    if ( id_map == min::NULL_STUB )
+    {
+	if ( printer->id_map == min::NULL_STUB )
+	    min::init
+		( min::id_map_ref ( printer ) );
+        id_map = printer->id_map;
+    }
+
+    if ( f == NULL )
+	f = printer->print_format.gen_format
+                   ->id_map_format;
+
+    char buffer[100];
+    min::uns32 n;
+
+    const min::stub * s = min::stub_of ( v );
+    if ( s == min::NULL_STUB )
+        n = sprintf ( buffer, "@(NONE)" );
+    else
+    {
+	min::uns32 id =
+	    min::find_or_add ( id_map, s );
+
+	if ( id >= id_map->next )
+	    return min::print_id_map
+	               ( printer, id_map, f );
+
+	n = sprintf ( buffer, "@%u", id );
+    }
+    printer << min::bol;
+    min::print_item ( printer, buffer, n, n );
+    min::print_space ( printer );
+    min::print_item ( printer, "=", 1, 1 );
+    min::print_space ( printer );
+    printer << min::save_indent;
+    min::print_gen ( printer, v, f );
+    return printer << min::bol << min::restore_indent;
+}
+
 // Return true if attributes printed and false if
 // nothing printed.
 //
@@ -11688,45 +11737,4 @@ min::printer min::standard_pgen
 	if ( sf ) printer << sf->special_postfix;
 	return printer;
     }
-}
-
-static min::printer flush_one_id
-	( min::printer printer,
-	  min::id_map id_map,
-	  const min::gen_format * f )
-{
-    if ( id_map == min::NULL_STUB
-         ||
-	 id_map->next >= id_map->length )
-        return printer;
-
-    const min::gen_format * id_map_f =
-        f->id_map_format;
-
-    min::uns32 id = id_map->next;
-    * ( min::uns32 * ) & id_map->next = id + 1;
-    min::gen v = min::new_stub_gen ( id_map[id] );
-
-    printer << min::bol;
-    char buffer[100];
-    min::uns32 n = sprintf ( buffer, "@%u", id );
-    min::print_item ( printer, buffer, n, n );
-    min::print_space ( printer );
-    min::print_item ( printer, "=", 1, 1 );
-    min::print_space ( printer );
-    printer << min::save_indent;
-
-    min::print_gen ( printer, v, id_map_f );
-    return printer << min::bol << min::restore_indent;
-}
-
-static min::printer flush_one_id
-	( min::printer printer )
-{
-    const min::gen_format * f =
-	printer->print_format.gen_format;
-
-    min::id_map id_map = printer->id_map;
-
-    return ::flush_one_id ( printer, id_map, f );
 }

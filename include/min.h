@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  7 04:15:42 EDT 2015
+// Date:	Tue Jun 30 06:06:00 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11198,7 +11198,6 @@ namespace min {
 	{
             PGEN = 1,
             PGEN_FORMAT,
-	    MAP_PGEN,
 	    PUNICODE1,
 	    PUNICODE2,
 	    PINT32,
@@ -12254,6 +12253,21 @@ namespace min {
     min::printer print_id
     	    ( min::printer printer, min::gen v );
 
+    min::printer print_one_id
+    	    ( min::printer printer,
+	      min::id_map id_map = min::NULL_STUB,
+	      const min::gen_format * f  = NULL );
+
+    min::printer print_id_map
+    	    ( min::printer printer,
+	      min::id_map id_map = min::NULL_STUB,
+	      const min::gen_format * f  = NULL );
+
+    min::printer print_mapped
+    	    ( min::printer printer, min::gen v,
+	      min::id_map id_map = min::NULL_STUB,
+	      const min::gen_format * f  = NULL );
+
     inline min::printer print_gen
             ( min::printer printer, min::gen v,
 	      const min::gen_format * f )
@@ -12298,11 +12312,6 @@ namespace min {
     {
         return op ( op::PGEN_FORMAT, v,
 	            min::never_quote_gen_format );
-    }
-
-    inline op map_pgen ( min::gen v )
-    {
-        return op ( op::MAP_PGEN, v );
     }
 
     inline op set_gen_format
