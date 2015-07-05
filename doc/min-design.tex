@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 30, 2015}
+\date{July 5, 2015}
  
 \maketitle
 
@@ -5891,11 +5891,36 @@ In this case \TT{S} does
 \underline{not} have a `\TT{control}' member, as
 the `\TT{control}' member of \TT{B} serves as
 the `\TT{control}' member of \TT{S}.
-If \TT{packed\_\EOL struct\_\EOL with\_\EOL base<S,B>}
-is used to define the packed structure type, conversion of
+
+\TT{packed\_\EOL struct\_\EOL with\_\EOL base<S,B>}
+enables conversion of
 \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
 to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
-pointers is enabled.
+pointers.  In fact, given
+\begin{center}
+\begin{tabular}{l}
+\TT{packed\_\EOL struct\_\EOL with\_\EOL base<S,B1>} s \\
+\TT{packed\_\EOL struct\_\EOL with\_\EOL base<B1,B2>} b1 \\
+\ldots\ldots\ldots \\
+\TT{packed\_\EOL struct\_\EOL with\_\EOL base<BN,B>} bn \\
+\TT{packed\_\EOL struct<B>} b \\
+\end{tabular}
+\end{center}
+then conversion of
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
+to \TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+pointers is enabled.\footnote{What actually happens is the
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointer
+is implicitly converted to a \TT{const min::\EOL stub *} pointer and the
+latter is converted to a
+\TT{min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>} pointer.
+As part of this last conversion, the \TT{control} is read and
+checked, and the check finds that the object subtype
+is \TT{s.subtype} which is a super-subtype of
+\TT{b1.subtype}, which is a super-subtype of \ldots, which
+is a super-subtype of \TT{bn.subtype}, which is a super-subtype
+of \TT{b.subtype}, and therefore the check passes and the
+conversion is legal.}
 
 \end{itemlist}
 
