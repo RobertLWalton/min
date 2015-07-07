@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 5, 2015}
+\date{July 7, 2015}
  
 \maketitle
 
@@ -5718,9 +5718,12 @@ The following names are defined for general use:
 \verb|min::gen min::| & \MINKEY{FALSE}
 		      & \verb|= min::new_str_gen ( "FALSE" )|
 \LABEL{MIN::FALSE} \\
-\verb|min::gen min::| & \MINKEY{empty\_string}
+\verb|min::gen min::| & \MINKEY{empty\_str}
 		      & \verb|= min::new_str_gen ( "" )|
-\LABEL{MIN::EMPTY_STRING} \\
+\LABEL{MIN::EMPTY_STR} \\
+\verb|min::gen min::| & \MINKEY{empty\_lab}
+		      & \verb|= min::new_lab_gen ( NULL, 0 )|
+\LABEL{MIN::EMPTY_LAB} \\
 \verb|min::gen min::| & \MINKEY{doublequote}
 		      & \verb|= min::new_str_gen ( "\"" )|
 \LABEL{MIN::DOUBLEQUOTE} \\
@@ -17754,8 +17757,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::TRUE} \\
 \verb|min::gen min::| & \MINKEY{FALSE}
 \LABEL{MIN::FALSE} \\
-\verb|min::gen min::| & \MINKEY{empty\_string}
-\LABEL{MIN::EMPTY_STRING} \\
+\verb|min::gen min::| & \MINKEY{empty\_str}
+\LABEL{MIN::EMPTY_STR} \\
+\verb|min::gen min::| & \MINKEY{empty\_lab}
+\LABEL{MIN::EMPTY_LAB} \\
 \verb|min::gen min::| & \MINKEY{doublequote}
 \LABEL{MIN::DOUBLEQUOTE} \\
 \verb|min::gen min::| & \MINKEY{dot\_initiator}

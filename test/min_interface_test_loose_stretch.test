@@ -12,6 +12,8 @@ min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
+min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -428,7 +430,7 @@ min_interface_test.cc:XXXX:
     MINT::acc_stack == ::acc_stack + 2 => true
 
 Test stub allocator functions:
-initial stubs allocated = 17
+initial stubs allocated = 19
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX:
     stub1 == begin_stub_region + sbase => true

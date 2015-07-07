@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 30 05:19:37 EDT 2015
+// Date:	Tue Jul  7 16:02:37 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,7 +70,8 @@ char const ** min::type_name = type_name_vector + 128;
 
 min::locatable_gen min::TRUE;
 min::locatable_gen min::FALSE;
-min::locatable_gen min::empty_string;
+min::locatable_gen min::empty_str;
+min::locatable_gen min::empty_lab;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::line_feed;
 min::locatable_gen min::colon;
@@ -356,8 +357,10 @@ void MINT::initialize ( void )
         min::new_str_gen ( "TRUE" );
     min::FALSE =
         min::new_str_gen ( "FALSE" );
-    min::empty_string =
+    min::empty_str =
         min::new_str_gen ( "" );
+    min::empty_lab =
+        min::new_lab_gen ( (const min::gen *) NULL, 0 );
     min::doublequote =
         min::new_str_gen ( "\"" );
     min::line_feed =
@@ -11468,7 +11471,7 @@ min::printer min::print_obj
 	printer << objf->obj_bra;
 	min::print_gen
 	    ( printer, type != min::NONE() ?
-		       type : min::empty_string,
+		       type : min::empty_str,
 		       objf->label_format );
 	::print_attributes
 	    ( printer, objf, vp, ap, info, m,

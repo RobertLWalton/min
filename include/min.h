@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 30 06:06:00 EDT 2015
+// Date:	Tue Jul  7 16:02:26 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12322,7 +12322,8 @@ namespace min {
 
     extern min::locatable_gen TRUE;
     extern min::locatable_gen FALSE;
-    extern min::locatable_gen empty_string;
+    extern min::locatable_gen empty_str;
+    extern min::locatable_gen empty_lab;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen line_feed;
     extern min::locatable_gen colon;
