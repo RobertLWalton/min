@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 28 21:49:21 EDT 2015
+// Date:	Sat Jul 18 15:07:27 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,9 @@
 # include <cstdlib>
 # include <cstdio>
 # include <cstdarg>
+extern "C" {
+# include <sys/prctl.h>
+}
 
 
 // Assert
@@ -39,31 +42,41 @@ void min::standard_assert
     if (    min::assert_print
          || ( ! min::assert_throw && ! value ) )
     {
-	printf ( "%s:%d:\n", file_name, line_number );
+	fprintf ( stderr, "ASSERT FAILED: %s:%d:\n",
+	         file_name, line_number );
 	if ( function_name != NULL )
-	    printf ( "    in %s:\n", function_name );
+	    fprintf ( stderr, "    in %s:\n",
+	              function_name );
 	if ( expression == NULL )
-	    printf ( "     abort\n" );
+	    fprintf ( stderr, "     abort\n" );
 	else
-	    printf ( "    %s => %s\n",
+	    fprintf ( stderr, "    %s => %s\n",
 	             expression,
 	             ( value ? "true" : "false" ) );
 	if ( message_format != NULL )
 	{
 	    va_list ap;
 	    va_start ( ap, message_format );
-	    printf ( "    " );
-	    vprintf ( message_format, ap );
-	    printf ( "\n" );
+	    fprintf ( stderr, "    " );
+	    vfprintf ( stderr, message_format, ap );
+	    fprintf ( stderr, "\n" );
 	}
     }
 
     if ( ! value )
     {
-         if ( min::assert_throw )
-	     throw ( new min::assert_exception );
-	 if ( min::assert_abort || expression == NULL )
-	     abort();
+        if ( min::assert_throw )
+	    throw ( new min::assert_exception );
+	if ( min::assert_abort || expression == NULL )
+	{
+	    prctl ( PR_SET_DUMPABLE, 0, 0, 0 );
+	        // Added because even though corefile
+		// size set to 0, large core file was
+		// being piped to abrt-hook on Fedora.
+	    fprintf ( stderr, "    ABORTING"
+	              " (core dump disabled)\n" );
+	    abort();
+	}
     }
 }
 
