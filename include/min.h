@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 07:03:18 EDT 2015
+// Date:	Fri Jul 24 11:27:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12201,14 +12201,27 @@ namespace min {
 
     struct flag_parser;
     typedef min::uns32 ( * flag_parser_function )
-    	    ( min::flag_parser * flag_parser,
+	    ( min::uns32 * out_flags,
 	      char * text_buffer,
-	      min::uns32 * out_flags );
+    	      const min::flag_parser * flag_parser );
 
     struct flag_parser
     {
         min::flag_parser_function flag_parser_function;
     };
+    extern const flag_parser *
+        standard_attr_flag_parser;
+
+    const min::uns32 NO_FLAG = 0xFFFFFFFF;
+    inline min::uns32 parse_flags
+	    ( min::uns32 * out_flags,
+	      char * text_buffer,
+    	      const min::flag_parser * flag_parser )
+    {
+        return ( * flag_parser->flag_parser_function )
+		    ( out_flags, text_buffer,
+		      flag_parser );
+    }
 
     min::printer standard_pgen
 	    ( min::printer printer,
