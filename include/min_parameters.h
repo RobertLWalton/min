@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 27 11:36:18 EDT 2015
+// Date:	Fri Jul 24 07:05:23 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +38,8 @@
 
 # ifndef MIN_PARAMETERS_H
 # define MIN_PARAMETERS_H
+
+# include <cstdio>
 
 // Assert
 // ------
@@ -65,6 +67,7 @@ namespace min {
     extern bool assert_print;
     extern bool assert_abort;
     extern bool assert_throw;
+    extern FILE * assert_err;
 
     struct assert_exception { };
 }

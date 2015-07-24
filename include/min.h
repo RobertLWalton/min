@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  7 16:02:26 EDT 2015
+// Date:	Fri Jul 24 07:03:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12198,6 +12198,17 @@ namespace min {
         standard_attr_A_flag + 'H' - 'A';
     const min::uns64 standard_attr_hide_flags =
         1ull << standard_attr_hide_flag;
+
+    struct flag_parser;
+    typedef min::uns32 ( * flag_parser_function )
+    	    ( min::flag_parser * flag_parser,
+	      char * text_buffer,
+	      min::uns32 * out_flags );
+
+    struct flag_parser
+    {
+        min::flag_parser_function flag_parser_function;
+    };
 
     min::printer standard_pgen
 	    ( min::printer printer,

@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 18 15:07:27 EDT 2015
+// Date:	Fri Jul 24 07:05:38 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@ extern "C" {
 bool min::assert_print = false;
 bool min::assert_throw = false;
 bool min::assert_abort = true;
+FILE * min::assert_err = stderr;
 
 void min::standard_assert
     ( bool value,
@@ -42,24 +43,25 @@ void min::standard_assert
     if (    min::assert_print
          || ( ! min::assert_throw && ! value ) )
     {
-	fprintf ( stderr, "ASSERT FAILED: %s:%d:\n",
-	         file_name, line_number );
+	fprintf ( assert_err, "%s: %s:%d:\n",
+                  expression == NULL ? "ABORT" :
+		  value ? "ASSERT SUCCEEDED" :
+		          "ASSERT FAILED",
+	          file_name, line_number );
 	if ( function_name != NULL )
-	    fprintf ( stderr, "    in %s:\n",
+	    fprintf ( assert_err, "    in %s:\n",
 	              function_name );
-	if ( expression == NULL )
-	    fprintf ( stderr, "     abort\n" );
-	else
-	    fprintf ( stderr, "    %s => %s\n",
+	if ( expression != NULL )
+	    fprintf ( assert_err, "    %s => %s\n",
 	             expression,
 	             ( value ? "true" : "false" ) );
 	if ( message_format != NULL )
 	{
 	    va_list ap;
 	    va_start ( ap, message_format );
-	    fprintf ( stderr, "    " );
-	    vfprintf ( stderr, message_format, ap );
-	    fprintf ( stderr, "\n" );
+	    fprintf ( assert_err, "    " );
+	    vfprintf ( assert_err, message_format, ap );
+	    fprintf ( assert_err, "\n" );
 	}
     }
 
@@ -73,7 +75,7 @@ void min::standard_assert
 	        // Added because even though corefile
 		// size set to 0, large core file was
 		// being piped to abrt-hook on Fedora.
-	    fprintf ( stderr, "    ABORTING"
+	    fprintf ( assert_err, "    ABORTING"
 	              " (core dump disabled)\n" );
 	    abort();
 	}

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun  7 04:28:39 EDT 2015
+// Date:	Fri Jul 24 07:06:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5025,6 +5025,7 @@ void test_object_printing ( void )
 
 int main ( int argc, const char * argv[] )
 {
+    min::assert_err = stdout;
     min::assert_print = true;
     min::assert_throw = true;
 
