@@ -38,7 +38,7 @@ TRACE: allocating new subregion for 2048 byte fixed size blocks
 TRACE: allocating new subregion for 4096 byte fixed size blocks
 TRACE: allocating new subregion for 512 byte fixed size blocks
 TRACE: allocating new subregion for 256 byte fixed size blocks
-min_acc_test.cc:XXXX:
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Allocation
                       Numbers of          Used          Free         Total
@@ -54,7 +54,7 @@ After Allocation
                4096 Byte Blocks:           144             0           144
                8192 Byte Blocks:             1             7             8
      Bytes in Fixed Size Blocks:       1785776        442448       2228224
-min_acc_test.cc:XXXX:
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Random Deallocation
                       Numbers of          Used          Free         Total
@@ -84,7 +84,7 @@ END COLLECTOR COLLECTING level 2
 END COLLECTOR PROMOTING level 2 promoted 0
 COLLECTOR DONE level 2 generation counts:
     0/0,0,0,0,0/0,0,0,1012,0
-min_acc_test.cc:XXXX:
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Highest Level GC
                       Numbers of          Used          Free         Total
@@ -100,7 +100,7 @@ After Highest Level GC
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
      Bytes in Fixed Size Blocks:       1846256        906256       2752512
-min_acc_test.cc:XXXX:
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     ::teststr == min::new_str_gen ( "this is a test str" ) => true
 
 Finished Test!

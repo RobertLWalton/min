@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 07:12:29 EST 2015
+// Date:	Fri Jul 24 11:09:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -404,6 +404,7 @@ void check_reaccess ( min::uns64 pages, void * start,
 
 int main ( int argc, const char ** argv )
 {
+    min::assert_err = stdout;
     min::assert_print = true;
     cout << "Start min_os Test" << endl;
 

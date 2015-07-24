@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan  8 07:09:35 EST 2015
+// Date:	Fri Jul 24 11:13:12 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,6 +182,7 @@ static bool check_vec_of_objects ( min::gen obj )
 
 int main ()
 {
+    min::assert_err = stdout;
     min::assert_print = true;
     cout << endl;
     cout << "Initialize!" << endl;
