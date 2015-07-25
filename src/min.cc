@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 03:17:51 EDT 2015
+// Date:	Sat Jul 25 04:04:18 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -259,7 +259,10 @@ const min::uns32 * min::standard_attr_flag_map =
 static min::flag_parser
     standard_attr_flag_parser = { 
         min::standard_flag_parser,
-	min::standard_attr_flag_map,
+	::standard_attr_flag_map,
+	    // Must NOT use min::standard_attr_flag_map
+	    // as that will be 0 when this is
+	    // initialized.
 	min::standard_attr_flag_map_length };
 const min::flag_parser *
     min::standard_attr_flag_parser =
