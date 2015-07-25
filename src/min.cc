@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 04:04:18 EDT 2015
+// Date:	Sat Jul 25 13:15:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -219,26 +219,77 @@ min::uns32 min::standard_flag_parser
         flag_parser->flag_map_length;
 
     min::uns32 * outp = flag_numbers;
-    char * p = text_buffer;
+    const char * p = text_buffer;
     char * q = text_buffer;
     bool last_ok = false;
+    bool digit_ok = true;
     while ( * p )
     {
-        min::uns8 c = (min::uns8) * p ++;
-	if ( c < flag_map_length
-	     &&
-	     flag_map[c] != min::NO_FLAG )
+	const char * pstart = p;
+        min::Uchar c =
+	    min::utf8_to_unicode ( p, p + 8 );
+	if ( '0' <= c && c <= '9' )
+	{
+	    if ( digit_ok )
+	    {
+	        const min::uns32 LIMIT =
+		    (min::uns32) 0xFFFFFFFF / 10;
+	        min::uns32 flag_number = c - '0';
+		while ( true )
+		{
+		    c = (uns8) * p ++;
+		    if ( c < '0' || '9' < c )
+		        break;
+		    if ( flag_number > LIMIT )
+		        flag_number = min::NO_FLAG;
+		    else
+		    {
+			flag_number *= 10;
+			flag_number += c - '0';
+		    }
+		}
+		if ( flag_number == min::NO_FLAG )
+		    -- p;
+		else if ( c == 0 )
+		{
+		    * outp ++ = flag_number;
+		    break;
+		}
+		else if ( c == ',' )
+		{
+		    * outp ++ = flag_number;
+		    last_ok = true;
+		    digit_ok = true;
+		    continue;
+		}
+		else
+		    -- p;
+	    }
+	}
+	else if ( c == ',' )
+	{
+	    last_ok = true;
+	    digit_ok = true;
+	    continue;
+	}
+	else if ( c < flag_map_length
+	          &&
+	          flag_map[c] != min::NO_FLAG )
 	{
 	    * outp ++ = flag_map[c];
 	    last_ok = true;
+	    digit_ok = false;
+	    continue;
 	}
-	else
-	{
-	    if ( last_ok && q != text_buffer )
-	        * q ++ = ',';
-	    last_ok = false;
-	    * q ++ = (char) c;
-	}
+
+	// If we did not continue or break outer loop
+	// above, then pstart .. p-1 is illegal.
+	//
+	if ( last_ok && q != text_buffer )
+	    * q ++ = ',';
+	last_ok = false;
+	digit_ok = false;
+	while ( pstart < p ) * q ++ = * pstart ++;
     }
     * q = 0;
     return ( outp - flag_numbers );

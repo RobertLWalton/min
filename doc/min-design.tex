@@ -14958,12 +14958,12 @@ The format for printing object \TT{min::gen} values is:
     \verb|         const min::flag_parser * flag_parser );|%
 \ttmindex{flag\_parser\_function}{in {\tt min::flag\_parser}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
-    \verb|  // Members beyond this point are for use of|\ARGBREAK
+    \verb|  // Members beyond this point are used by|\ARGBREAK
     \verb|  // min::standard_flag_parser.|\ARGBREAK
     \verb||\ARGBREAK
     \verb|  const min::uns32 *  flag_map;|%
 \ttmindex{flag\_map}{in {\tt min::flag\_parser}}\ARGBREAK
-    \verb|  min::uns32 flag_map_length;|%
+    \verb|  min::uns32          flag_map_length;|%
 \ttmindex{flag\_map\_length}{in {\tt min::flag\_parser}}\ARGBREAK
     \verb|};|
 \end{tabular}\end{indpar}
@@ -14984,6 +14984,15 @@ The format for printing object \TT{min::gen} values is:
 \verb|    // then min::standard_attr_flag_map[C] == F| \\
 \verb|    // else min::standard_attr_flag_map[C] == min::NO_FLAG| \\
 \end{tabular}\end{indpar}
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::flag\_parser
+                   min::\MINKEY{standard\_attr\_flag\_parser}:}%
+\LABEL{MIN::STANDARD_ATTR_FLAG_PARSER}\ARGBREAK
+\verb|min::standard_flag_parser            // flag_parser_function|\ARGBREAK
+\verb|min::standard_attr_flag_map          // flag_map|\ARGBREAK
+\verb|min::standard_attr_flag_map_length   // flag_map_length|\ARGBREAK
+\end{tabular}
 
 \begin{indpar}[1em]
 
@@ -15830,10 +15839,11 @@ can be parsed by applying a \key{flag parser} using the function:
 \LABEL{MIN::PARSE_FLAGS} \\
 \end{tabular}\end{indpar}
 
-This function takes the character string input from its \TT{text\_\EOL buffer}
+This function takes its input character string from the \TT{text\_\EOL buffer}
 argument, outputs the flag numbers whose names are in this character
 string in the \TT{flag\_\EOL numbers} vector, and returns the length
-of this vector.  The \TT{flag\_\EOL numbers} vector \underline{must have}
+of this vector (i.e., number of flag numbers output).
+The \TT{flag\_\EOL numbers} vector \underline{must have}
 a length
 at least as great as the length of (number of characters in) the
 input \TT{text\_\EOL buffer}, as the parser may output
@@ -15845,20 +15855,27 @@ it sets it to a string of the form
 {\em error-character-sequence}
     \{ \TT{,} {\em error-character-sequence} \}\STAR{}
 \end{center}
-which is made by from the input \TT{text\_\EOL buffer} by replacing
+which is made from the input \TT{text\_\EOL buffer} by replacing
 every string of correctly interpreted characters by a single comma,
 and lastly deleting any beginning or ending comma,
 leaving sequences of incomprehensible
 characters separated by commas.  Incomprehensible characters are ignored
 by the parser.
 
-The first element of a \TT{min::flag\_parser} is a function that executes
+Flag parsers accept sequences of digits as flag numbers,
+provided commas are used to separate these from each other and from other
+flag names.  Commas used to separate flag names are ignored.
+Digits and commas cannot be used in a flag names.
+
+The first element of a \TT{min::flag\_parser}
+(\pagref{MIN::FLAG_PARSER})
+is a function that executes
 \TT{min::\EOL parse\_\EOL flags}, so a \TT{min::flag\_\EOL parser}
 is in effect a closure.  The usual first element is the address of
 the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 ( * min::| & \MINKEY{standard\_flag\_parser}\ARGBREAK
+\verb|min::uns32 min::| & \MINKEY{standard\_flag\_parser}\ARGBREAK
     \verb|( min::uns32 * flag_numbers,|\ARGBREAK
     \verb|  char * text_buffer,|\ARGBREAK
     \verb|  const min::flag_parser * flag_parser )|
@@ -15879,17 +15896,14 @@ is no flag number associated with \TT{C}.  Also, if
 \end{center}
 then there is no flag number associated with \TT{C}.
 
-The \TT{min::standard\_attr\_flag\_parser} flag parser parses character strings
+The \TT{min::standard\_attr\_flag\_parser}
+(\pagref{MIN::STANDARD_ATTR_FLAG_PARSER})
+parses character strings
 that contain flag names taken from \TT{min::\EOL standard\_\EOL
 attr\_\EOL flag\_\EOL names}.  Thus if this parser is given
-the \TT{text\_\EOL buffer} input `\TT{*a(b)\_c}' the
-flag numbers output would be 0, 12, 13, 14 and the
-\TT{text\_\EOL buffer} output would be `\TT{(,)\_}'.
-
-Flag parsers in general accept sequences of digits as flag numbers,
-provided commas are used to separate these from each other and from other
-flag names.  Commas used to separate flag names are ignored.
-Digits and commas cannot be used in a flag names.
+the \TT{text\_\EOL buffer} input `\TT{*a(b)\_c34,200,5d}' the
+flag numbers output would be 0, 12, 13, 14, 200, 15 and the
+\TT{text\_\EOL buffer} output would be `\TT{(,)\_,34,5}'.
 
 The following function can be used to print object general values:
 
@@ -21706,6 +21720,60 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt struct
+                       min::\MINKEY{flag\_parser}}
+\LABEL{MIN::FLAG_PARSER}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 ( * flag_parser_function )|\ARGBREAK
+    \verb|       ( min::uns32 * flag_numbers,|\ARGBREAK
+    \verb|         char * text_buffer,|\ARGBREAK
+    \verb|         const min::flag_parser * flag_parser );|%
+\ttmindex{flag\_parser\_function}{in {\tt min::flag\_parser}}\ARGBREAK
+    \verb||\\[-5ex]\ARGBREAK
+    \verb|  // Members beyond this point are used by|\ARGBREAK
+    \verb|  // min::standard_flag_parser.|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  const min::uns32 *  flag_map;|%
+\ttmindex{flag\_map}{in {\tt min::flag\_parser}}\ARGBREAK
+    \verb|  min::uns32          flag_map_length;|%
+\ttmindex{flag\_map\_length}{in {\tt min::flag\_parser}}\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 * min::| &
+    \MINKEY{standard\_\EOL attr\_\EOL flag\_\EOL map}
+\LABEL{MIN::STANDARD_ATTR_FLAG_MAP} \\
+\verb|const min::uns32 min::| &
+    \MINLKEY{standard\_\EOL attr\_\EOL flag}{\_\EOL map\_\EOL length}
+\LABEL{MIN::STANDARD_ATTR_FLAG_MAP_LENGTH} \\
+\verb|const min::uns32 min::| &
+    \MINKEY{NO\_\EOL FLAG} \verb|= 0xFFFFFFFF|
+\LABEL{MIN::NO_FLAG} \\
+\end{tabular} \\
+\begin{tabular}{l}
+\verb|    // If min::standard_attr_flag_names[F] == "\x01\x01" "C"| \\
+\verb|    // then min::standard_attr_flag_map[C] == F| \\
+\verb|    // else min::standard_attr_flag_map[C] == min::NO_FLAG| \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::flag\_parser
+                   min::\MINKEY{standard\_attr\_flag\_parser}:}%
+\LABEL{MIN::STANDARD_ATTR_FLAG_PARSER}\ARGBREAK[0in]
+\verb|min::standard_flag_parser            // flag_parser_function|%
+						\ARGBREAK[0in]
+\verb|min::standard_attr_flag_map          // flag_map|\ARGBREAK[0in]
+\verb|min::standard_attr_flag_map_length   // flag_map_length|\ARGBREAK[0in]
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{compact\_obj\_format}:}%
 \LABEL{MIN::COMPACT_OBJ_FORMAT}
@@ -21855,7 +21923,27 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::| & \MINKEY{parse\_flags}\ARGBREAK
+    \verb|( min::uns32 * flag_numbers,|\ARGBREAK
+    \verb|  char * text_buffer,|\ARGBREAK
+    \verb|  const min::flag_parser * flag_parser )|
+\LABEL{MIN::PARSE_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::| & \MINKEY{standard\_flag\_parser}\ARGBREAK
+    \verb|( min::uns32 * flag_numbers,|\ARGBREAK
+    \verb|  char * text_buffer,|\ARGBREAK
+    \verb|  const min::flag_parser * flag_parser )|
+\LABEL{MIN::STANDARD_FLAG_PARSER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK

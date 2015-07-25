@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 07:06:20 EDT 2015
+// Date:	Sat Jul 25 13:24:42 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4905,6 +4905,24 @@ void test_object_printing ( void )
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::doublequote );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::new_str_gen ( "T" ) );
+	min::locate ( ap, min::new_str_gen ( "A" ) );
+	min::set ( ap, min::new_str_gen ( "value" ) );
+	char buffer[] = "*a(b)_c34,200,5d";
+	min::uns32 flags[10];
+	min::uns32 count = min::parse_flags
+	    ( flags, buffer,
+	      min::standard_attr_flag_parser );
+	for ( min::uns32 i = 0; i < count; ++ i )
+	    min::set_flag ( ap, flags[i] );
+	printer << "Flag Parse Errors: `" << buffer << "'"
+	        << min::eol;
     }
     printer << min::pgen ( obj4 ) << min::eol;
 
