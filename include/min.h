@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 11:27:18 EDT 2015
+// Date:	Sat Jul 25 03:08:02 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12199,27 +12199,37 @@ namespace min {
     const min::uns64 standard_attr_hide_flags =
         1ull << standard_attr_hide_flag;
 
-    struct flag_parser;
-    typedef min::uns32 ( * flag_parser_function )
-	    ( min::uns32 * out_flags,
-	      char * text_buffer,
-    	      const min::flag_parser * flag_parser );
-
     struct flag_parser
     {
-        min::flag_parser_function flag_parser_function;
+	min::uns32 ( * flag_parser_function )
+		( min::uns32 * flag_numbers,
+		  char * text_buffer,
+		  const min::flag_parser *
+		      flag_parser );
+
+	const min::uns32 * flag_map;
+	min::uns32	   flag_map_length;
     };
+    const min::uns32 NO_FLAG = 0xFFFFFFFF;
+    min::uns32 standard_flag_parser
+	    ( min::uns32 * flag_numbers,
+	      char * text_buffer,
+	      const min::flag_parser * flag_parser );
+
+    extern const min::uns32 *
+        standard_attr_flag_map;
+    extern const min::uns32
+        standard_attr_flag_map_length;
     extern const flag_parser *
         standard_attr_flag_parser;
 
-    const min::uns32 NO_FLAG = 0xFFFFFFFF;
     inline min::uns32 parse_flags
-	    ( min::uns32 * out_flags,
+	    ( min::uns32 * flag_numbers,
 	      char * text_buffer,
     	      const min::flag_parser * flag_parser )
     {
         return ( * flag_parser->flag_parser_function )
-		    ( out_flags, text_buffer,
+		    ( flag_numbers, text_buffer,
 		      flag_parser );
     }
 

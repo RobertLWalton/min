@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 21:09:55 EDT 2015
+// Date:	Sat Jul 25 03:17:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -208,43 +208,28 @@ static min::locatable_var
 	< min::packed_vec_ptr<min::ustring> >
     standard_attr_flag_names;
 
-const unsigned standard_attr_flag_map_length = 128;
-static min::uns32 standard_attr_flag_map
-	[::standard_attr_flag_map_length];
-    // F == ::standard_attr_flag_map['X'] if and only
-    // if ::standard_attr_flag_names_value[F] ==
-    // "\x01\x01" "X".  Elements not defined by this
-    // equation have min::NO_FLAG values.  Initialized
-    // below by MINT::initialize.
-struct standard_attr_flag_parser_struct
-{
-    min::flag_parser_function flag_parser_function;
-    min::uns32 * map;
-    min::uns32 map_length;
-};
-static min::uns32 standard_attr_flag_parser_function
-	( min::uns32 * out_flags,
+min::uns32 min::standard_flag_parser
+	( min::uns32 * flag_numbers,
 	  char * text_buffer,
 	  const min::flag_parser * flag_parser )
 {
-    ::standard_attr_flag_parser_struct * fp =
-        (::standard_attr_flag_parser_struct *)
-	flag_parser;
-    min::uns32 * map = fp->map;
-    min::uns32 map_length = fp->map_length;
+    const min::uns32 * flag_map =
+        flag_parser->flag_map;
+    min::uns32 flag_map_length =
+        flag_parser->flag_map_length;
 
-    min::uns32 * outp = out_flags;
+    min::uns32 * outp = flag_numbers;
     char * p = text_buffer;
     char * q = text_buffer;
     bool last_ok = false;
     while ( * p )
     {
         min::uns8 c = (min::uns8) * p ++;
-	if ( c < map_length
+	if ( c < flag_map_length
 	     &&
-	     map[c] != min::NO_FLAG )
+	     flag_map[c] != min::NO_FLAG )
 	{
-	    * outp ++ = map[c];
+	    * outp ++ = flag_map[c];
 	    last_ok = true;
 	}
 	else
@@ -256,16 +241,28 @@ static min::uns32 standard_attr_flag_parser_function
 	}
     }
     * q = 0;
-    return ( outp - out_flags );
+    return ( outp - flag_numbers );
 }
-static ::standard_attr_flag_parser_struct
+
+const min::uns32
+    min::standard_attr_flag_map_length = 128;
+static min::uns32 standard_attr_flag_map
+	[min::standard_attr_flag_map_length];
+    // F == ::standard_attr_flag_map['X'] if and only
+    // if ::standard_attr_flag_names_value[F] ==
+    // "\x01\x01" "X".  Elements not defined by this
+    // equation have min::NO_FLAG values.  Initialized
+    // below by MINT::initialize.
+const min::uns32 * min::standard_attr_flag_map =
+    min::standard_attr_flag_map;
+
+static min::flag_parser
     standard_attr_flag_parser = { 
-        ::standard_attr_flag_parser_function,
-	::standard_attr_flag_map,
-	::standard_attr_flag_map_length };
+        min::standard_flag_parser,
+	min::standard_attr_flag_map,
+	min::standard_attr_flag_map_length };
 const min::flag_parser *
     min::standard_attr_flag_parser =
-	(const min::flag_parser *)
 	& ::standard_attr_flag_parser;
 
 static void lab_scavenger_routine
@@ -481,7 +478,7 @@ void MINT::initialize ( void )
 
     {
         for ( unsigned c = 0;
-	      c < ::standard_attr_flag_map_length;
+	      c < min::standard_attr_flag_map_length;
 	      ++ c )
 	  ::standard_attr_flag_map[c] = min::NO_FLAG;
         for ( unsigned f = 0;
@@ -490,6 +487,8 @@ void MINT::initialize ( void )
 	{
 	  min::uns8 c =
 	      standard_attr_flag_names_value[f][2];
+	  MIN_REQUIRE
+	    ( c < min::standard_attr_flag_map_length );
 	  ::standard_attr_flag_map[c] =
 	      (min::uns32) f;
 	}

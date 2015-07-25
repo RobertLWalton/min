@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 23, 2015}
+\date{July 25, 2015}
  
 \maketitle
 
@@ -15780,6 +15780,73 @@ Note these names are choosen so that any sequence of them forms
 a string whose \TT{min::stan\-dard\_\EOL str\_\EOL classifier} string
 class has the \TT{min::\EOL IS\_\EOL GRAPHIC} flag and does
 \underline{not} have the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
+
+Character strings that are sequences of {\em attribute-flag-names}
+can be parsed by applying a \key{flag parser} using the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{parse\_flags}\ARGBREAK
+    \verb|( min::uns32 * flag_numbers,|\ARGBREAK
+    \verb|  char * text_buffer,|\ARGBREAK
+    \verb|  const min::flag_parser * flag_parser )|
+\LABEL{MIN::PARSE_FLAGS} \\
+\end{tabular}\end{indpar}
+
+This function takes the character string input from its \TT{text\_\EOL buffer}
+argument, outputs the flag numbers whose names are in this character
+string in the \TT{flag\_\EOL numbers} vector, and returns the length
+of this vector.  The \TT{flag\_\EOL numbers} vector \underline{must have}
+a length
+at least as great as the length of (number of characters in) the
+input \TT{text\_\EOL buffer}, as the parser may output
+one flag number per character input, but cannot output more.
+If there are no errors, the function sets
+\TT{text\_\EOL buffer} to the empty string, but if there are errors,
+it sets it to a string of the form
+\begin{center}
+{\em error-character-sequence}
+    \{ \TT{,} {\em error-character-sequence} \}\STAR{}
+\end{center}
+which is made by from the input \TT{text\_\EOL buffer} by replacing
+every string of correctly interpreted characters by a single comma,
+and lastly deleting any beginning or ending comma,
+leaving sequences of incomprehensible
+characters separated by commas.  Incomprehensible characters are ignored
+by the parser.
+
+The \TT{min::standard\_attr\_flag\_parser} flag parser parses character strings
+that contain flag names taken from \TT{min::\EOL standard\_\EOL
+attr\_\EOL flag\_\EOL names}.  Thus if this parser is given
+the \TT{text\_\EOL buffer} input `\TT{*a(b)\_c}' the
+flag numbers output would be 0, 12, 13, 14 and the
+\TT{text\_\EOL buffer} output would be `\TT{(,)\_}'.
+
+Flag parsers in general accept sequences of digits as flag numbers,
+provided commas are used to separate these from each other and from other
+flag names.  Commas used to separate flag names are ignored.
+Digits and commas cannot be used in a flag names.
+
+A new flag parser can be constructed using:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::uns32 ( * min::| & \MINKEY{flag\_parser\_function}\ARGBREAK
+    \verb|( min::uns32 * flag_numbers,|\ARGBREAK
+    \verb|  char * text_buffer,|\ARGBREAK
+    \verb|  const min::flag_parser * flag_parser )|
+\LABEL{MIN::FLAG_PARSER_FUNCTION} \\
+\verb|struct min::| & \MINKEY{flag\_parser}\ARGBREAK
+    \verb|  { min::flag_parser_function flag_parser_function }|
+\LABEL{MIN::FLAG_PARSER} \\
+\end{tabular}\end{indpar}
+
+First write a function whose address conforms to the
+\TT{min::\EOL flag\_\EOL parser\_\EOL function} type, then
+make a structure whose first element is the address of this
+function, and lastly recast a pointer to this structure as having the type
+`\TT{const min::\EOL flag\_\EOL parser *}'.  A call to
+\TT{min::\EOL parse\_\EOL flags} is simply remapped to a call to
+the function whose address is the first element of the
+\TT{min::\EOL flag\_\EOL parser}.
 
 The following function can be used to print object general values:
 
