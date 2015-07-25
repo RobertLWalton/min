@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 11:27:32 EDT 2015
+// Date:	Fri Jul 24 21:09:55 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11039,10 +11039,10 @@ static bool print_attributes
 	    }
 	}
 
-	bool suppress_value =
-	    (    info[i].value_count == 1
-	      && info[i].flag_count == 0
-	      && info[i].reverse_attr_count == 0 );
+	min::unsptr vc = info[i].value_count;
+	min::unsptr rc = info[i].reverse_attr_count;
+	min::unsptr fc = info[i].flag_count;
+	bool suppress_value = ( vc == 1 && rc == 0 );
 	if ( suppress_value )
 	{
 	    if ( info[i].value == min::FALSE )
@@ -11055,20 +11055,10 @@ static bool print_attributes
 	    ( printer, info[i].name,
 		       objf->label_format );
 
-	if ( suppress_value ) continue;
-
+	if ( suppress_value && fc == 0 ) continue;
  
-	min::unsptr vc = info[i].value_count;
-	min::unsptr rc = info[i].reverse_attr_count;
-	min::unsptr fc = info[i].flag_count;
-	min::gen value[vc];
-	min::reverse_attr_info rinfo[rc];
 	if ( vc > 1 || rc > 0 || fc * min::VSIZE > 64 )
 		min::locate ( ap, info[i].name );
-	if ( vc > 1 ) min::get ( value, vc, ap );
-	else if ( vc == 1 ) value[0] = info[i].value;
-	if ( rc > 0 )
-	    min::get_reverse_attrs ( rinfo, rc, ap );
 
 	if ( fc > 0 )
 	{
@@ -11138,8 +11128,17 @@ static bool print_attributes
 	    printer << ff->flag_postfix;
 	}
 
+	if ( suppress_value ) continue;
+
 	printer << objf->obj_attreq
 	        << min::set_break;
+
+	min::gen value[vc];
+	min::reverse_attr_info rinfo[rc];
+	if ( vc > 1 ) min::get ( value, vc, ap );
+	else if ( vc == 1 ) value[0] = info[i].value;
+	if ( rc > 0 )
+	    min::get_reverse_attrs ( rinfo, rc, ap );
 
 	if ( vc + rc != 1 && ! line_format )
 	    printer << objf->obj_valbegin
