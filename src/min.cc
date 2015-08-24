@@ -1,7 +1,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 13:15:51 EDT 2015
+// Date:	Mon Aug 24 14:57:57 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2179,6 +2179,9 @@ const min::stub * MINT::packed_struct_new_stub
 
 // Files
 // -----
+
+const min::position min::MISSING_POSITION =
+    { 0xFFFFFFFF, 0xFFFFFFFF };
 
 static min::uns32 file_gen_disp[2] =
     { min::DISP ( & min::file_struct::file_name ),

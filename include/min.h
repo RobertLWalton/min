@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 03:08:02 EDT 2015
+// Date:	Mon Aug 24 14:56:19 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5989,7 +5989,52 @@ namespace min {
     {
 	uns32	line;
 	uns32	offset;
+
+	bool operator == ( const position & p ) const
+	{
+	    return line == p.line && offset == p.offset;
+	}
+	bool operator != ( const position & p ) const
+	{
+	    return line != p.line || offset != p.offset;
+	}
+	bool operator < ( const position & p ) const
+	{
+	    return line < p.line
+	           ||
+		   (    line == p.line
+		     && offset < p.offset );
+	}
+	bool operator <= ( const position & p ) const
+	{
+	    return line < p.line
+	           ||
+		   (    line == p.line
+		     && offset <= p.offset );
+	}
+	bool operator > ( const position & p ) const
+	{
+	    return line > p.line
+	           ||
+		   (    line == p.line
+		     && offset > p.offset );
+	}
+	bool operator >= ( const position & p ) const
+	{
+	    return line > p.line
+	           ||
+		   (    line == p.line
+		     && offset >= p.offset );
+	}
+
+	operator bool ( void ) const
+	{
+	    return line != 0xFFFFFFFF
+	           ||
+		   offset != 0xFFFFFFFF;
+	}
     };
+    extern const position MISSING_POSITION;
 
     struct phrase_position
     {

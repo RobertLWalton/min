@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 25, 2015}
+\date{August 24, 2015}
  
 \maketitle
 
@@ -10375,6 +10375,61 @@ Here \TT{line} is the number of full lines before the line
 containing the position and \TT{offset} is the
 number of bytes before the position in the line.
 
+A missing value and the following operations are defined
+for \TT{min::\EOL position} structures:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::position min::| & \MINKEY{MISSING\_POSITION}
+    \verb|= { 0xFFFFFFFF, 0xFFFFFFFF }|
+\LABEL{MIN::MISSING_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{==}{==}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR==_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR!=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{<}{<}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR<_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{<=}{<=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR<=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{>}{>}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR>_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{>=}{>=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR>=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{(bool)}{(bool)}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p )|
+\LABEL{OPERATOR(bool)_OF_POSITION} \\
+\end{tabular}\end{indpar}
+
+A \TT{min::position} is less than another if its line is less
+or its line is equal and its offset is less.  A \TT{min::\EOL position}
+converts to \TT{true} if it does not equal \TT{min::\EOL MISSING\_\EOL POSITION}
+and to \TT{false} otherwise.
+
 Two \TT{min::position} structures are needed to encode the boundaries
 of a piece of text in a file.  Such a piece of text is called
 a `\key{phrase}', and its positions are encoded in a
@@ -19592,6 +19647,56 @@ These are in \verb|min_parameters.h|.
     \verb|  min::uns32 offset;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::POSITION_STRUCT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::position min::| & \MINKEY{MISSING\_POSITION}\ARGBREAK
+    \verb|= { 0xFFFFFFFF, 0xFFFFFFFF }|
+\LABEL{MIN::MISSING_POSITION} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|bool |
+    & \TTOMKEY{==}{==}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR==_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR!=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{<}{<}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR<_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{<=}{<=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR<=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{>}{>}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR>_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{>=}{>=}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p1,|\ARGBREAK
+      \verb|  const min::position & p2 )|
+\LABEL{OPERATOR>=_OF_POSITION} \\
+\verb|bool |
+    & \TTOMKEY{(bool)}{(bool)}%
+              {of {\tt min::position}}\ARGBREAK
+      \verb|( const min::position & p )|
+\LABEL{OPERATOR(bool)_OF_POSITION} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
