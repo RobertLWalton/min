@@ -1,7 +1,8 @@
+// MIN System Interface
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 14:57:57 EDT 2015
+// Date:	Thu Sep 10 02:05:16 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8864,6 +8865,10 @@ min::printer operator <<
 	return print_leading_always ( printer );
     case min::op::TRAILING_ALWAYS:
 	return print_trailing_always ( printer );
+    case min::op::PPRINTF:
+        return printer << (const char *) op.v1.p;
+    case min::op::PNOP:
+        return printer;
     case min::op::PRINT_ASSERT:
         // For debugging only.
 	// Put add hoc MIN_REQUIRE statements here.
@@ -8969,6 +8974,8 @@ const min::op min::leading_always
     ( min::op::LEADING_ALWAYS );
 const min::op min::trailing_always
     ( min::op::TRAILING_ALWAYS );
+const min::op min::pnop
+    ( min::op::PNOP );
 
 const min::op min::verbatim
     ( min::op::VERBATIM );

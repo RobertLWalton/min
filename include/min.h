@@ -1,8 +1,8 @@
-// MIN Language Interface
+// MIN System Interface
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 24 14:56:19 EDT 2015
+// Date:	Thu Sep 10 04:07:35 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -69,6 +69,7 @@
 # include <iostream>
 # include <climits>
 # include <cstring>
+# include <cstdarg>
 # include <new>
 
 namespace min { namespace internal {
@@ -11303,6 +11304,9 @@ namespace min {
 	    FLUSH_ONE_ID,
 	    FLUSH_ID_MAP,
 
+	    PPRINTF,
+	    PNOP,
+
 	    PRINT_ASSERT
 	} opcode;
 
@@ -11620,6 +11624,22 @@ namespace min {
     extern const op break_after_space;
     extern const op break_before_all;
     extern const op break_after_hyphens;
+
+    template <unsigned length>
+    struct printf_op : public min::op
+    {
+    	char buffer[length];
+	printf_op ( const char * format, ... )
+	    : op ( PPRINTF )
+	{
+	    v1.p = (void *) buffer;
+	    va_list va;
+	    va_start ( va, format );
+	    vsprintf ( buffer, format, va );
+	}
+    };
+
+    extern const op pnop;
 
     extern const op print_assert; // For debugging only.
 

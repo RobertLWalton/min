@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 24, 2015}
+\date{September 10, 2015}
  
 \maketitle
 
@@ -9184,6 +9184,30 @@ the \TT{n} byte string \TT{s} were printed with the given
 Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
 function does not allocate or resize objects.
 The number of columns added to `\TT{column}' is returned.
+
+A function and a constant that can be useful as arguments to
+message printing functions are:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::|
+    & \MINKEY{printf\_op}\verb|<unsigned length>|\ARGBREAK
+          \verb|( const char * format, ... )|
+\LABEL{MIN::PRINTF_OP} \\
+\verb|const min::op min::| & \MINKEY{pnop}
+\LABEL{MIN::PNOP} \\
+\end{tabular}\end{indpar}
+
+Here \TT{min::printf\_op<length>} is a constructor
+that constructs a \TT{min::op} containing
+a `\TT{length}' character buffer which in turn contains the results of
+executing \TT{sprintf ( buffer, format, ... )}.  This buffer
+is then output as a `\TT{const char *}' string by the printer
+operation.  Overrunning the end of the
+buffer is an undetected error.
+
+The \TT{min::pnop} constant is a no-operation that can
+be used as the default value of a message printing function
+argument.
 
 \subsubsection{Adjusting Printer Parameters}
 \label{ADJUSTING-PRINTER-PARAMETERS}
@@ -19270,6 +19294,17 @@ These are in \verb|min_parameters.h|.
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
          \verb|  const min::print_format & print_format )|
 \LABEL{MIN::PWIDTH_OF_STRING}
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::|
+    & \MINKEY{printf\_op}\verb|<unsigned length>|\ARGBREAK
+          \verb|( const char * format, ... )|
+\LABEL{MIN::PRINTF_OP} \\
+\verb|const min::op min::| & \MINKEY{pnop}
+\LABEL{MIN::PNOP} \\
 \end{TABULAR}
 
 \bigskip
