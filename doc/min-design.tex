@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 12, 2015}
+\date{September 23, 2015}
  
 \maketitle
 
@@ -5568,7 +5568,7 @@ label.  Thus two \TT{min::gen} label values with \TT{==} elements are
 \TT{==}.
 
 For convenience in generating frequently used labels,
-2, 3, and 4 element labels whose elements are strings may be created by
+2, 3, 4, and 5 element labels whose elements are strings may be created by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
@@ -5586,6 +5586,13 @@ For convenience in generating frequently used labels,
      \verb|  const char * s3,|\ARGBREAK
      \verb|  const char * s4 )|
 \LABEL{MIN::NEW_LAB_GEN_OF_4_STRS} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2,|\ARGBREAK
+     \verb|  const char * s3,|\ARGBREAK
+     \verb|  const char * s4,|\ARGBREAK
+     \verb|  const char * s5 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_5_STRS} \\
 \end{tabular}\end{indpar}
 
 The following function returns true if and only if its argument is
@@ -17887,6 +17894,13 @@ These are in \verb|min_parameters.h|.
      \verb|  const char * s3,|\ARGBREAK
      \verb|  const char * s4 )|
 \LABEL{MIN::NEW_LAB_GEN_OF_4_STRS} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+     \verb|( const char * s1,|\ARGBREAK
+     \verb|  const char * s2,|\ARGBREAK
+     \verb|  const char * s3,|\ARGBREAK
+     \verb|  const char * s4,|\ARGBREAK
+     \verb|  const char * s5 )|
+\LABEL{MIN::NEW_LAB_GEN_OF_5_STRS} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}

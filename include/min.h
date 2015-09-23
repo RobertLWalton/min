@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 14:22:23 EDT 2015
+// Date:	Wed Sep 23 05:58:34 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4503,6 +4503,12 @@ namespace min {
 	  const char * s2,
 	  const char * s3,
 	  const char * s4 );
+    min::gen new_lab_gen
+        ( const char * s1,
+	  const char * s2,
+	  const char * s3,
+	  const char * s4,
+	  const char * s5 );
 
     min::int32 is_subsequence
         ( min::gen v1, min::gen v2 );

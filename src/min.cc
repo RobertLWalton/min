@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 12 14:23:57 EDT 2015
+// Date:	Wed Sep 23 05:59:22 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2171,6 +2171,22 @@ min::gen min::new_lab_gen
     min::locatable_gen g4 = min::new_str_gen ( s4 );
     min::gen elements[4] = { g1, g2, g3, g4 };
     return min::new_lab_gen ( elements, 4 );
+}
+
+min::gen min::new_lab_gen
+	( const char * s1,
+	  const char * s2,
+	  const char * s3,
+	  const char * s4,
+	  const char * s5 )
+{
+    min::locatable_gen g1 = min::new_str_gen ( s1 );
+    min::locatable_gen g2 = min::new_str_gen ( s2 );
+    min::locatable_gen g3 = min::new_str_gen ( s3 );
+    min::locatable_gen g4 = min::new_str_gen ( s4 );
+    min::locatable_gen g5 = min::new_str_gen ( s5 );
+    min::gen elements[5] = { g1, g2, g3, g4, g5 };
+    return min::new_lab_gen ( elements, 5 );
 }
 
 // Packed Structures and Vectors
