@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 25 13:24:42 EDT 2015
+// Date:	Thu Oct 22 06:03:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4936,9 +4936,12 @@ void test_object_printing ( void )
 	vp[3] = min::new_str_gen ( "first" );
 	vp[4] = min::new_str_gen ( "line" );
 	vp[5] = min::new_str_gen ( "." );
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::line_feed );
     }
     min::gen line2 = min::new_obj_gen ( 10, 10 );
     {
@@ -4949,11 +4952,12 @@ void test_object_printing ( void )
 	vp[2] = min::new_str_gen ( "the" );
 	vp[3] = min::new_str_gen ( "second" );
 	vp[4] = min::new_str_gen ( "line" );
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
 	min::locate ( ap, min::dot_terminator );
-	min::set ( ap, min::new_str_gen ( ";" ) );
+	min::set ( ap, min::semicolon );
     }
     min::gen line3 = min::new_obj_gen ( 10, 10 );
     {
@@ -4964,9 +4968,10 @@ void test_object_printing ( void )
 	vp[2] = min::new_str_gen ( "the" );
 	vp[3] = min::new_str_gen ( "third" );
 	vp[4] = min::new_str_gen ( "line" );
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::new_str_gen ( "!" ) );
     }
@@ -4980,9 +4985,12 @@ void test_object_printing ( void )
 	vp[3] = min::new_str_gen ( "fourth" );
 	vp[4] = min::new_str_gen ( "line" );
 	vp[5] = min::new_str_gen ( "." );
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::line_feed );
     }
     min::gen line5 = min::new_obj_gen ( 10, 10 );
     {
@@ -4994,9 +5002,12 @@ void test_object_printing ( void )
 	vp[3] = min::new_str_gen ( "fifth" );
 	vp[4] = min::new_str_gen ( "line" );
 	vp[5] = min::new_str_gen ( "." );
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::line_feed );
     }
     min::gen paragraph = min::new_obj_gen ( 10, 10 );
     {
@@ -5007,9 +5018,12 @@ void test_object_printing ( void )
 	vp[2] = line3;
 	vp[3] = line4;
 	vp[4] = line5;
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( ":" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::colon );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::etx );
     }
     min::gen top_line = min::new_obj_gen ( 10, 10 );
     {
@@ -5021,9 +5035,12 @@ void test_object_printing ( void )
 	vp[3] = min::new_str_gen ( "top" );
 	vp[4] = min::new_str_gen ( "line" );
 	vp[5] = paragraph;
+
 	min::attr_insptr ap  ( vp );
-	min::locate ( ap, min::dot_type );
-	min::set ( ap, min::new_str_gen ( "\n" ) );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::stx );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::line_feed );
     }
     printer << min::bom << min::place_indent ( 4 )
             << min::pgen ( top_line,

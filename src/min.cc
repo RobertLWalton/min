@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 23 05:59:22 EDT 2015
+// Date:	Thu Oct 22 05:19:45 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,6 +75,8 @@ min::locatable_gen min::empty_str;
 min::locatable_gen min::empty_lab;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::line_feed;
+min::locatable_gen min::stx;
+min::locatable_gen min::etx;
 min::locatable_gen min::colon;
 min::locatable_gen min::semicolon;
 min::locatable_gen min::dot_initiator;
@@ -477,6 +479,10 @@ void MINT::initialize ( void )
         min::new_str_gen ( "\"" );
     min::line_feed =
         min::new_str_gen ( "\n" );
+    min::stx =
+        min::new_str_gen ( "\02" );
+    min::etx =
+        min::new_str_gen ( "\03" );
     min::colon =
         min::new_str_gen ( ":" );
     min::semicolon =
@@ -10304,8 +10310,8 @@ static min::obj_format compact_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // paragraph_type
+    min::NONE(),	    // line_initiator
+    min::NONE(),	    // paragraph_terminator
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10349,8 +10355,6 @@ static min::obj_format compact_obj_format =
 
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
-
-    NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
@@ -10372,8 +10376,8 @@ static min::obj_format line_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type*
-    min::NONE(),	    // paragraph_type
+    min::NONE(),	    // line_initiator*
+    min::NONE(),	    // paragraph_terminator
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10417,8 +10421,6 @@ static min::obj_format line_obj_format =
 
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
-
-    NULL,                   // obj_paragraph_begin
 };
 const min::obj_format *
 	min::line_obj_format =
@@ -10441,8 +10443,8 @@ static min::obj_format paragraph_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // paragraph_type*
+    min::NONE(),	    // line_initiator
+    min::NONE(),	    // paragraph_terminator*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10487,9 +10489,6 @@ static min::obj_format paragraph_obj_format =
 
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
-
-    min::erase_all_space_colon_pstring,
-			    // obj_paragraph_begin
 };
 const min::obj_format * min::paragraph_obj_format =
     & ::paragraph_obj_format;
@@ -10511,8 +10510,8 @@ static min::obj_format embedded_line_obj_format =
     min::null_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // paragraph_type
+    min::NONE(),	    // line_initiator
+    min::NONE(),	    // paragraph_terminator
 
     NULL,                   // obj_empty
 
@@ -10554,8 +10553,6 @@ static min::obj_format embedded_line_obj_format =
 
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
-
-    NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::embedded_line_obj_format =
     & ::embedded_line_obj_format;
@@ -10577,8 +10574,8 @@ static min::obj_format isolated_line_obj_format =
     min::null_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_type
-    min::NONE(),	    // paragraph_type
+    min::NONE(),	    // line_initiator
+    min::NONE(),	    // paragraph_terminator
 
     NULL,		    // obj_empty
 
@@ -10615,8 +10612,6 @@ static min::obj_format isolated_line_obj_format =
 
     min::space_less_than_equal_space_pstring,
 			    // obj_valreq
-
-    NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::isolated_line_obj_format =
     & ::isolated_line_obj_format;
@@ -10637,8 +10632,8 @@ static min::obj_format id_obj_format =
 
     NULL,                   // mark_classifier
     min::NONE(),	    // quote_type
-    min::NONE(),	    // line_type
-    min::NONE(),	    // paragraph_type
+    min::NONE(),	    // line_initiator
+    min::NONE(),	    // paragraph_terminator
 
     NULL,		    // obj_empty
 
@@ -10665,8 +10660,6 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_valend
 
     NULL,		    // obj_valreq
-
-    NULL,		    // obj_paragraph_begin
 };
 const min::obj_format * min::id_obj_format =
     & ::id_obj_format;
@@ -10925,8 +10918,8 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::line_obj_format.quote_type =
         min::doublequote;
-    ::line_obj_format.line_type =
-        min::line_feed;
+    ::line_obj_format.line_initiator =
+        min::stx;
 
     ::paragraph_obj_format.element_format =
         min::element_gen_format;
@@ -10946,8 +10939,8 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::paragraph_obj_format.quote_type =
         min::doublequote;
-    ::paragraph_obj_format.paragraph_type =
-        min::colon;
+    ::paragraph_obj_format.paragraph_terminator =
+        min::etx;
 
     ::top_gen_format.id_map_format =
         min::id_map_gen_format;
@@ -11309,6 +11302,21 @@ static bool print_attributes
     return ! first_attr;
 }
 
+// Return true if v is a label with all string elements.
+//
+inline bool is_str_lab ( min::gen v )
+{
+    min::lab_ptr labp ( v );
+    if ( labp == min::NULL_STUB ) return false;
+    for ( unsigned i = 0; i < min::lablen ( labp );
+                          ++ i )
+    {
+        if ( ! min::is_str ( labp[i] ) )
+	    return false;
+    }
+    return true;
+}
+
 min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
@@ -11359,7 +11367,7 @@ min::printer min::print_obj
 	    compact_format = false;
 	else if ( ! min::is_str ( info[i].value )
 	          &&
-		  ! min::is_lab ( info[i].value ) )
+		  ! ::is_str_lab ( info[i].value ) )
 	    compact_format = false;
         else if ( info[i].name == min::dot_type )
 	{
@@ -11382,24 +11390,12 @@ min::printer min::print_obj
     {
 	if ( initiator != min::NONE() )
 	{
-	    if ( terminator == min::NONE() )
+	    if ( terminator == min::NONE()
+	         ||
+		 type != min::NONE() )
 	        compact_format = false;
-	    else if ( type != min::NONE() )
-	    {
-	        min::lab_ptr labp ( type );
-		if ( labp == min::NULL_STUB )
-		    compact_format = false;
-		else if (    min::lablen ( labp ) != 2
-		          || labp[0] != initiator
-		          || labp[1] != terminator )
-		    compact_format = false;
-	    }
 	}
-	else if ( terminator != min::NONE()
-	          &&
-	          ( type == min::NONE()
-		    ||
-		    type != objf->line_type ) )
+	else if ( terminator != min::NONE() )
 	    compact_format = false;
     }
 
@@ -11423,7 +11419,102 @@ min::printer min::print_obj
     min::gen mark_end_type = min::NONE();
     if ( compact_format )
     {
-        if ( initiator != min::NONE() )
+	if ( ( initiator == objf->line_initiator )
+	       &&
+	       initiator != min::NONE()
+	       &&
+	       separator == min::NONE() )
+	{
+	    for ( min::unsptr i = 0;
+	          i < min::size_of ( vp ); ++ i )
+	    {
+		if ( i != 0 )
+		{
+		    min::print_space ( printer );
+
+		    if ( i == min::size_of ( vp ) - 1
+		         &&
+			 terminator == min::line_feed )
+		        printer->state |=
+			    min::PARAGRAPH_POSSIBLE;
+		}
+		printer << min::set_break;
+		min::print_gen
+		    ( printer,
+		      vp[i], objf->top_element_format );
+	    }
+
+	    if ( terminator != min::line_feed )
+	    {
+		min::print_trailing ( printer );
+		min::print_gen
+		    ( printer, terminator,
+		      objf->terminator_format );
+		printer->state |=
+		    min::AFTER_LINE_TERMINATOR;
+	    }
+	    return printer << min::restore_print_format;
+	}
+	else if (    terminator
+	          == objf->paragraph_terminator
+	          &&
+		  terminator != min::NONE()
+		  &&
+		  separator == min::NONE()
+		  &&
+		  (   printer->state
+		    & min::PARAGRAPH_POSSIBLE ) )
+	{
+	    printer->state &=
+	        ~ ( min::AFTER_LINE_TERMINATOR
+		    +
+		    min::PARAGRAPH_POSSIBLE );
+
+	    min::print_erase_space
+		( printer, printer->column );
+	    min::print_gen
+		( printer, initiator,
+		  objf->terminator_format );
+	    printer << min::eol;
+		    // As we are printing this from
+		    // inside a line, indent is already
+		    // adjusted to line indent + 4.
+
+	    bool indent_saved = false;
+	    for ( min::unsptr i = 0;
+	          i < min::size_of ( vp ); ++ i )
+	    {
+		if (   printer->state
+	             & min::AFTER_LINE_TERMINATOR )
+		{
+		    printer->state &=
+			~ min::AFTER_LINE_TERMINATOR;
+		    min::print_space ( printer );
+		}
+		else
+		{
+		    if ( indent_saved )
+		        printer << min::restore_indent;
+
+		    printer << min::indent
+		            << min::save_indent
+			    << min::place_indent ( 4 );
+
+		    indent_saved = true;
+		}
+
+		min::print_gen
+		    ( printer,
+		      vp[i], objf->top_element_format );
+	    }
+
+	    if ( indent_saved )
+		printer << min::restore_indent;
+
+	    return printer << min::bol
+	                   << min::restore_print_format;
+	}
+        else if ( initiator != min::NONE() )
 	{
 	    min::print_gen
 		( printer, initiator,
@@ -11456,97 +11547,6 @@ min::printer min::print_obj
 		      objf->quote_element_format );
 	    }
 	    return printer << min::restore_print_format;
-	}
-	else if ( ( type == objf->line_type )
-	          &&
-		  type != min::NONE()
-		  &&
-		  separator == min::NONE() )
-	{
-	    for ( min::unsptr i = 0;
-	          i < min::size_of ( vp ); ++ i )
-	    {
-		if ( i != 0 )
-		{
-		    min::print_space ( printer );
-
-		    if ( i == min::size_of ( vp ) - 1
-		         &&
-			 terminator == min::NONE() )
-		        printer->state |=
-			    min::PARAGRAPH_POSSIBLE;
-		}
-		printer << min::set_break;
-		min::print_gen
-		    ( printer,
-		      vp[i], objf->top_element_format );
-	    }
-
-	    if ( terminator != min::NONE() )
-	    {
-		min::print_trailing ( printer );
-		min::print_gen
-		    ( printer, terminator,
-		      objf->terminator_format );
-		printer->state |=
-		    min::AFTER_LINE_TERMINATOR;
-	    }
-	    return printer << min::restore_print_format;
-	}
-	else if ( type == objf->paragraph_type
-	          &&
-		  type != min::NONE()
-		  &&
-		  separator == min::NONE()
-		  &&
-		  (   printer->state
-		    & min::PARAGRAPH_POSSIBLE ) )
-	{
-	    printer->state &=
-	        ~ ( min::AFTER_LINE_TERMINATOR
-		    +
-		    min::PARAGRAPH_POSSIBLE );
-
-	    printer << objf->obj_paragraph_begin
-	            << min::eol;
-		    // As we are printing this from
-		    // inside a line, indent is already
-		    // adjusted to line indent + 4.
-
-	    bool indent_saved = false;
-	    for ( min::unsptr i = 0;
-	          i < min::size_of ( vp ); ++ i )
-	    {
-		if (   printer->state
-	             & min::AFTER_LINE_TERMINATOR )
-		{
-		    printer->state &=
-			~ min::AFTER_LINE_TERMINATOR;
-		    min::print_space ( printer );
-		}
-		else
-		{
-		    if ( indent_saved )
-		        printer << min::restore_indent;
-
-		    printer << min::indent
-		            << min::save_indent
-			    << min::place_indent ( 4 );
-
-		    indent_saved = true;
-		}
-
-		min::print_gen
-		    ( printer,
-		      vp[i], objf->top_element_format );
-
-	    }
-
-	    if ( indent_saved )
-		printer << min::restore_indent;
-
-	    return printer << min::bol
-	                   << min::restore_print_format;
 	}
 	else
 	{

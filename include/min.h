@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep 23 05:58:34 EDT 2015
+// Date:	Thu Oct 22 05:18:51 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11182,7 +11182,7 @@ namespace min {
 	    // Such an element may be a paragraph, so
 	    // paragraphs are only recognized if this
 	    // is on and the object format has a non-
-	    // NONE paragraph_type.
+	    // NONE paragraph_terminator.
 	    //
 	    // This flag is turned off by printer init,
 	    // ::end_line, and min::print_item_preface.
@@ -12171,8 +12171,8 @@ namespace min {
 
 	min::str_classifier	  mark_classifier;
 	min::gen		  quote_type;
-	min::gen		  line_type;
-	min::gen		  paragraph_type;
+	min::gen		  line_initiator;
+	min::gen		  paragraph_terminator;
 
 	min::pstring		  obj_empty;
 
@@ -12200,8 +12200,6 @@ namespace min {
 	min::pstring		  obj_valend;
 
 	min::pstring		  obj_valreq;
-
-	min::pstring		  obj_paragraph_begin;
     };
     const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
     const min::uns32 PRINT_ID		= ( 1 << 1 );
@@ -12436,6 +12434,8 @@ namespace min {
     extern min::locatable_gen empty_lab;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen line_feed;
+    extern min::locatable_gen stx;
+    extern min::locatable_gen etx;
     extern min::locatable_gen colon;
     extern min::locatable_gen semicolon;
     extern min::locatable_gen dot_initiator;
