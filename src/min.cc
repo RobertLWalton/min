@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 22 05:19:45 EDT 2015
+// Date:	Fri Oct 23 03:36:10 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -75,8 +75,6 @@ min::locatable_gen min::empty_str;
 min::locatable_gen min::empty_lab;
 min::locatable_gen min::doublequote;
 min::locatable_gen min::line_feed;
-min::locatable_gen min::stx;
-min::locatable_gen min::etx;
 min::locatable_gen min::colon;
 min::locatable_gen min::semicolon;
 min::locatable_gen min::dot_initiator;
@@ -114,7 +112,7 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
     ( "min::gen_packed_vec_type",
       gen_element_disp );
 
-static const unsigned standard_special_names_length = 8;
+static const unsigned standard_special_names_length = 10;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
     { (min::ustring) "\x07\x07" "MISSING",
@@ -124,7 +122,9 @@ static min::ustring standard_special_names_value
       (min::ustring) "\x09\x09" "UNDEFINED",
       (min::ustring) "\x07\x07" "SUCCESS",
       (min::ustring) "\x07\x07" "FAILURE",
-      (min::ustring) "\x05\x05" "ERROR" };
+      (min::ustring) "\x05\x05" "ERROR",
+      (min::ustring) "\x0C\x0C" "LOGICAL_LINE",
+      (min::ustring) "\x12\x12" "INDENTED_PARAGRAPH" };
 min::packed_vec_ptr<min::ustring>
     min::standard_special_names;
 static min::locatable_var
@@ -479,10 +479,6 @@ void MINT::initialize ( void )
         min::new_str_gen ( "\"" );
     min::line_feed =
         min::new_str_gen ( "\n" );
-    min::stx =
-        min::new_str_gen ( "\02" );
-    min::etx =
-        min::new_str_gen ( "\03" );
     min::colon =
         min::new_str_gen ( ":" );
     min::semicolon =
@@ -10310,8 +10306,6 @@ static min::obj_format compact_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_initiator
-    min::NONE(),	    // paragraph_terminator
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10376,8 +10370,6 @@ static min::obj_format line_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_initiator*
-    min::NONE(),	    // paragraph_terminator
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10443,8 +10435,6 @@ static min::obj_format paragraph_obj_format =
     min::standard_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_initiator
-    min::NONE(),	    // paragraph_terminator*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -10510,8 +10500,6 @@ static min::obj_format embedded_line_obj_format =
     min::null_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_initiator
-    min::NONE(),	    // paragraph_terminator
 
     NULL,                   // obj_empty
 
@@ -10574,8 +10562,6 @@ static min::obj_format isolated_line_obj_format =
     min::null_str_classifier,
     			    // mark_classifier
     min::NONE(),	    // quote_type*
-    min::NONE(),	    // line_initiator
-    min::NONE(),	    // paragraph_terminator
 
     NULL,		    // obj_empty
 
@@ -10632,8 +10618,6 @@ static min::obj_format id_obj_format =
 
     NULL,                   // mark_classifier
     min::NONE(),	    // quote_type
-    min::NONE(),	    // line_initiator
-    min::NONE(),	    // paragraph_terminator
 
     NULL,		    // obj_empty
 
@@ -10918,8 +10902,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::line_obj_format.quote_type =
         min::doublequote;
-    ::line_obj_format.line_initiator =
-        min::stx;
 
     ::paragraph_obj_format.element_format =
         min::element_gen_format;
@@ -10939,8 +10921,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::paragraph_obj_format.quote_type =
         min::doublequote;
-    ::paragraph_obj_format.paragraph_terminator =
-        min::etx;
 
     ::top_gen_format.id_map_format =
         min::id_map_gen_format;
@@ -11367,7 +11347,18 @@ min::printer min::print_obj
 	    compact_format = false;
 	else if ( ! min::is_str ( info[i].value )
 	          &&
-		  ! ::is_str_lab ( info[i].value ) )
+		  ! ::is_str_lab ( info[i].value )
+		  &&
+		  ! ( info[i].name == min::dot_initiator
+		      &&
+		         info[i].value
+		      == min::LOGICAL_LINE() )
+		  &&
+		  ! (    info[i].name
+		      == min::dot_terminator
+		      &&
+		         info[i].value
+		      == min::INDENTED_PARAGRAPH() ) )
 	    compact_format = false;
         else if ( info[i].name == min::dot_type )
 	{
@@ -11419,11 +11410,9 @@ min::printer min::print_obj
     min::gen mark_end_type = min::NONE();
     if ( compact_format )
     {
-	if ( ( initiator == objf->line_initiator )
-	       &&
-	       initiator != min::NONE()
-	       &&
-	       separator == min::NONE() )
+	if ( initiator == min::LOGICAL_LINE()
+	     &&
+	     separator == min::NONE() )
 	{
 	    for ( min::unsptr i = 0;
 	          i < min::size_of ( vp ); ++ i )
@@ -11456,9 +11445,7 @@ min::printer min::print_obj
 	    return printer << min::restore_print_format;
 	}
 	else if (    terminator
-	          == objf->paragraph_terminator
-	          &&
-		  terminator != min::NONE()
+	          == min::INDENTED_PARAGRAPH()
 		  &&
 		  separator == min::NONE()
 		  &&

@@ -105,6 +105,7 @@
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
 \newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\lmkey}[3]{{\bf \em #1 #2}\index{#1!#2!#3}}
 
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
 \newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
@@ -254,7 +255,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 22, 2015}
+\date{October 23, 2015}
  
 \maketitle
 
@@ -1629,6 +1630,14 @@ A value returned to indicate a function call has suffered an error.
 The function may print an error message in
 this case, or may leave an error message in
 \TT{min::\EOL error\_\EOL message} (\pagref{ERROR_MESSAGE}).
+\item[\TT{const min::gen min::}\MINKEY{LOGICAL\_LINE()}]~%
+	\LABEL{MIN::LOGICAL_LINE}\\
+The value of the \TT{.initiator} attribute of a logical line:
+see \pagref{LOGICAL-LINE-COMPACT-FORMAT}.
+\item[\TT{const min::gen min::}\MINKEY{INDENTED\_PARAGRAPH()}]~%
+	\LABEL{MIN::INDENTED_PARAGRAPH}\\
+The value of the \TT{.terminator} attribute of an indented paragraph:
+see \pagref{INDENTED-PARAGRAPH-COMPACT-FORMAT}.
 \end{list}
 \end{indpar}
 
@@ -5743,12 +5752,6 @@ The following names are defined for general use:
 \verb|min::gen min::| & \MINKEY{line\_feed}
 		      & \verb|= min::new_str_gen ( "\n" )|
 \LABEL{MIN::LINE_FEED} \\
-\verb|min::gen min::| & \MINKEY{stx}
-		      & \verb|= min::new_str_gen ( "\02" )|
-\LABEL{MIN::STX} \\
-\verb|min::gen min::| & \MINKEY{etx}
-		      & \verb|= min::new_str_gen ( "\03" )|
-\LABEL{MIN::ETX} \\
 \verb|min::gen min::| & \MINKEY{colon}
 		      & \verb|= min::new_str_gen ( ":" )|
 \LABEL{MIN::COLON} \\
@@ -11406,9 +11409,9 @@ The format for printing special \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 7 are:|\ARGBREAK
+\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 9 are:|\ARGBREAK
 \verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
-\verb|//     SUCCESS  FAILURE  ERROR|
+\verb|//     SUCCESS  FAILURE  ERROR LOGICAL_LINE INDENTED_PARAGRAPH|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -14892,11 +14895,7 @@ The format for printing object \TT{min::gen} values is:
     \verb|  min::str_classifier                  mark_classifier;|%
 \ttmindex{mark\_classifier}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  min::gen                             quote_type;|%
-\ttmindex{quote\_type}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen                             line_initiator;|%
-\ttmindex{line\_initiator}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen                             paragraph_terminator;|%
-\ttmindex{paragraph\_terminator}{in {\tt min::obj\_format}}
+\ttmindex{quote\_type}{in {\tt min::obj\_format}}
 \end{tabular}
 
 \bigskip
@@ -15120,8 +15119,6 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK
 \verb|min::doublequote                         // quote_type|\ARGBREAK
-\verb|min::NONE()                              // line_initiator|\ARGBREAK
-\verb|min::NONE()                              // paragraph_terminator|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15183,10 +15180,6 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK
 \end{tabular}
 
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::stx                                 // line_initiator|\ARGBREAK
-\end{tabular}
-
 \end{indpar}
 
 \begin{indpar}[1em]
@@ -15200,10 +15193,6 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::etx                                 // paragraph_terminator|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -15307,7 +15296,11 @@ has multiple values, flags, or reverse attributes (double arrows).
 
 \item The value of any attribute
 that does not have a \TT{hide\_\EOL flag}
-is a string or label whose elements are all strings.
+is a string or label whose elements are all strings,
+except that an \TT{.initiator} value may be
+\TT{min::\EOL LOGICAL\_\EOL LINE()} and a
+\TT{.terminator} value may be
+\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}.
 
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}, and has no \TT{.type}.
@@ -15333,16 +15326,16 @@ If none of the above apply, the object is printed in
 
 The compact format has several variants:
 \begin{enumerate}
-\item The `\key{line compact format}' is used if
-the object has an \TT{.initiator} equal to the object format
-\TT{line\_\EOL initiator} and the object has no \TT{.separator}.
+\item The `\key{logical line compact format}' is used if
+the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()}
+and the object has no \TT{.separator}.
 
-\item Otherwise the `\key{paragraph compact format}' is used if
-the object has a \TT{.terminator} equal to the object format
-\TT{paragraph\_\EOL terminator}, the object has no \TT{.separator},
+\item Otherwise the `\lkey{indented paragraph}{compact format}' is used if
+the object has a \TT{.terminator} equal to
+\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}, the object has no \TT{.separator},
 and the object is being printed as the last element of a containing
 object with 2 or more elements and \TT{.terminator} equal to
-\TT{"<LF>"} printed with line compact format.
+\TT{"<LF>"} printed with logical line compact format.
 
 \item Otherise the `\key{bracketed compact format}'
 is used if the object has an \TT{.initiator} and \TT{.terminator}.
@@ -15401,7 +15394,8 @@ as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements,
 attribute labels, and attribute values, respectively, in all formats
-except empty compact, quote compact, line compact, and paragraph compact.
+except empty compact, quote compact, logical line compact,
+and indented paragraph compact.
 
 \TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
@@ -15416,7 +15410,7 @@ in quote compact format.  No attributes are printed in this format.
 
 \item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]~\\
 The is the \TT{min::gen\_format} used to print object elements
-in line and paragraph compact formats.
+in logical line and indented paragraph compact formats.
 No attributes are printed in these formats, which are used for
 objects that represent lines and paragraphs and are not inside
 any other kinds of objects.
@@ -15452,29 +15446,6 @@ as a list of its elements with each element
 being printed using the \TT{quote\_\EOL element\_\EOL format}.
 This is typically used to replace \TT{\{"~...~"\}} by
 \TT{"..."}.
-
-\item[\ttmkey{line\_initiator}{in {\tt min::obj\_format}}]
-If an object being printed in compact format has \TT{.initiator} attribute
-equal to \TT{line\_\EOL initiator} and does not have a
-\TT{.separator} attribute,
-the object is printed in line compact format
-as a list of its elements with each element
-being printed using the \TT{top\_\EOL element\_\EOL format}
-and the elements being separated by single spaces.
-See \pagref{LINE-COMPACT-FORMAT} for details.
-
-If the object has a \TT{.terminator} not equal to \TT{"<LF>"},
-the terminator is printed after the last element and the line is called a
-\key{terminated line}.
-
-\item[\ttmkey{paragraph\_terminator}{in {\tt min::obj\_format}}]
-If an object being printed in compact format has \TT{.terminator} attribute
-equal to \TT{paragraph\_\EOL terminator}, does not have a
-\TT{.separator} attribute,
-and is the last element of a non-terminated line with 2 or more
-elements being printed in line compact format,
-the object is printed in paragraph compact format.
-See \pagref{PARAGRAPH-COMPACT-FORMAT} for details.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
@@ -15622,12 +15593,12 @@ elements are strings, just the elements are printed as quoted
 strings.  Thus instead of printing a one element object
 as \TT{\{"<Q>"|\ldots|"<Q>"\}}, the object prints as \TT{"\ldots"}.
 
-In \mkey{line compact format}{of printed object},%
-\label{LINE-COMPACT-FORMAT}
+In \mkey{logical line compact format}{of printed object},%
+\label{LOGICAL-LINE-COMPACT-FORMAT}
 where there are
 are no attributes other than \TT{.initiator}, \TT{.terminator},
 and attributes with a \TT{hide\_\EOL flag},
-with \TT{.initiator} being equal to \TT{line\_\EOL initiator},
+the \TT{.initiator} is equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
 the object elements are just printed using
 \TT{top\_\EOL element\_\EOL format} with elements being
 separated by a single space.
@@ -15645,14 +15616,14 @@ supply pre-line indentation and post-line end of lines, or they
 are the ends of top level lines that supply pre-line indentation
 and post-line end of lines.
 
-In \mkey{paragraph compact format}{of printed object},%
-\label{PARAGRAPH-COMPACT-FORMAT}
+In \lmkey{indented paragraph}{compact format}{of printed object},%
+\label{INDENTED-PARAGRAPH-COMPACT-FORMAT}
 there are
-are no attributes other than \TT{.initiator}, \TT{.terminator},
+are no attributes other than \TT{.ini\-ti\-ator}, \TT{.terminator},
 and attributes with a \TT{hide\_\EOL flag},
-the \TT{.terminator} is equal to \TT{paragraph\_\EOL terminator},
+the \TT{.terminator} is equal to \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()},
 and the object is the last element of a non-terminated line printed with
-line compact format which has
+logical line compact format which has
 at least one line element preceeding
 the paragraph.  First single spaces are erased from the end of the
 current line by \TT{min::\EOL print\_\EOL erase\_\EOL space}, then 
@@ -15661,7 +15632,7 @@ followed by the \TT{.initiator}, followed by \TT{min::eol}, and lastly the
 object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The elements of a paragraph are supposed to be lines printed in
-line compact format, and elements which are not thus are printed as if
+logical line compact format, and elements which are not thus are printed as if
 they were one element non-terminated lines.
 Define a \key{line group} as a maximal sequence of terminated lines followed
 by a non-terminated line, or a maximal sequence of terminated lines at the end
@@ -15670,7 +15641,7 @@ Because the paragraph is the last thing in a containing line group, the indent
 at the beginning of the paragraph is already set to 4 plus the indent
 of the paragraph's containing line group, so the indent is already
 correctly set.  A paragraph is itself a sequence of line groups,
-and in paragraph compact format each of these is preceded by
+and in indented paragraph compact format each of these is preceded by
 executing \TT{min::\EOL indent}, \TT{min::\EOL save\_\EOL indent},
 and \TT{min::\EOL place\_\EOL indent(4)} in order and followed by
 executing \TT{min::\EOL restore\_\EOL indent}.  This indents the beginning of
@@ -16633,6 +16604,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::FAILURE} \\
 \verb|min::gen min::| & \MINKEY{ERROR()}
 \LABEL{MIN::ERROR} \\
+\verb|min::gen min::| & \MINKEY{LOGICAL\_LINE()}
+\LABEL{MIN::LOGICAL_LINE} \\
+\verb|min::gen min::| & \MINKEY{INDENTED\_PARAGRAPH()}
+\LABEL{MIN::INDENTED_PARAGRAPH} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -17997,10 +17972,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DOUBLEQUOTE} \\
 \verb|min::gen min::| & \MINKEY{line\_feed}
 \LABEL{MIN::LINE_FEED} \\
-\verb|min::gen min::| & \MINKEY{stx}
-\LABEL{MIN::STX} \\
-\verb|min::gen min::| & \MINKEY{etx}
-\LABEL{MIN::ETX} \\
 \verb|min::gen min::| & \MINKEY{colon}
 \LABEL{MIN::COLON} \\
 \verb|min::gen min::| & \MINKEY{semicolon}
@@ -20449,9 +20420,10 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 7 are:|\ARGBREAK
+\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 9 are:|\ARGBREAK
 \verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
-\verb|//     SUCCESS  FAILURE  ERROR|
+\verb|//     SUCCESS  FAILURE  ERROR|\ARGBREAK
+\verb|//     LOGICAL_LINE  INDENTED_PARAGRAPH|
 \end{TABULAR}
 
 \end{indpar}
@@ -21802,8 +21774,6 @@ These are in \verb|min_parameters.h|.
     \verb|  const min::gen_format *              terminator_format;|\ARGBREAK[0in]
     \verb|  min::str_classifier                  mark_classifier;|\ARGBREAK[0in]
     \verb|  min::gen                             quote_type;|\ARGBREAK[0in]
-    \verb|  min::gen                             line_initiator;|\ARGBREAK[0in]
-    \verb|  min::gen                             paragraph_terminator;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_empty;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_bra;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_braend;|\ARGBREAK[0in]
@@ -21978,8 +21948,6 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK[0in]
 \verb|min::doublequote                         // quote_type|\ARGBREAK[0in]
-\verb|min::NONE()                              // line_initiator|\ARGBREAK[0in]
-\verb|min::NONE()                              // paragraph_terminator|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -22035,7 +22003,6 @@ These are in \verb|min_parameters.h|.
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
 \verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
-\verb|min::stx                                 // line_initiator|\ARGBREAK[0in]
 \end{TABULAR}
 
 \bigskip
@@ -22047,7 +22014,6 @@ These are in \verb|min_parameters.h|.
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
-\verb|min::etx                                 // paragraph_terminator|\ARGBREAK[0in]
 \end{TABULAR}
 
 \bigskip

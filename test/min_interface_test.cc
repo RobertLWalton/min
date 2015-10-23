@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 22 06:03:04 EDT 2015
+// Date:	Thu Oct 22 20:46:04 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4939,7 +4939,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::line_feed );
     }
@@ -4955,7 +4955,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::semicolon );
     }
@@ -4971,7 +4971,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::new_str_gen ( "!" ) );
     }
@@ -4988,7 +4988,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::line_feed );
     }
@@ -5005,7 +5005,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::line_feed );
     }
@@ -5023,7 +5023,7 @@ void test_object_printing ( void )
 	min::locate ( ap, min::dot_initiator );
 	min::set ( ap, min::colon );
 	min::locate ( ap, min::dot_terminator );
-	min::set ( ap, min::etx );
+	min::set ( ap, min::INDENTED_PARAGRAPH() );
     }
     min::gen top_line = min::new_obj_gen ( 10, 10 );
     {
@@ -5038,7 +5038,7 @@ void test_object_printing ( void )
 
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_initiator );
-	min::set ( ap, min::stx );
+	min::set ( ap, min::LOGICAL_LINE() );
 	min::locate ( ap, min::dot_terminator );
 	min::set ( ap, min::line_feed );
     }

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 22 05:18:51 EDT 2015
+// Date:	Fri Oct 23 03:36:20 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -334,7 +334,7 @@ namespace min {
     }
 
     // MIN special values must have indices in the
-    // range 2**24 - 256 .. 2**24 - 1.
+    // range 2**24 - 1024 .. 2**24 - 1.
     //
     inline min::gen MISSING ( void )
 	{ return min::unprotected::new_special_gen
@@ -360,6 +360,12 @@ namespace min {
     inline min::gen ERROR ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF8 ); }
+    inline min::gen LOGICAL_LINE ( void )
+	{ return min::unprotected::new_special_gen
+	    ( 0xFFFFF7 ); }
+    inline min::gen INDENTED_PARAGRAPH ( void )
+	{ return min::unprotected::new_special_gen
+	    ( 0xFFFFF6 ); }
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
@@ -11181,8 +11187,7 @@ namespace min {
 	    // an object with more than one element.
 	    // Such an element may be a paragraph, so
 	    // paragraphs are only recognized if this
-	    // is on and the object format has a non-
-	    // NONE paragraph_terminator.
+	    // is on.
 	    //
 	    // This flag is turned off by printer init,
 	    // ::end_line, and min::print_item_preface.
@@ -12171,8 +12176,6 @@ namespace min {
 
 	min::str_classifier	  mark_classifier;
 	min::gen		  quote_type;
-	min::gen		  line_initiator;
-	min::gen		  paragraph_terminator;
 
 	min::pstring		  obj_empty;
 
@@ -12434,8 +12437,6 @@ namespace min {
     extern min::locatable_gen empty_lab;
     extern min::locatable_gen doublequote;
     extern min::locatable_gen line_feed;
-    extern min::locatable_gen stx;
-    extern min::locatable_gen etx;
     extern min::locatable_gen colon;
     extern min::locatable_gen semicolon;
     extern min::locatable_gen dot_initiator;
