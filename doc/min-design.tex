@@ -4639,7 +4639,7 @@ The \TT{min::ustring\_\EOL length} function returns the number
 of \TT{char}'s in the \TT{const char *} string within the \TT{ustring}
 (not including the terminating \TT{NUL}); the maximum is 63.
 The \TT{min::ustring\_\EOL columns} function returns the number
-of print columns these take; the maximum is 15.
+of print columns these take; the maximum is 63.
 
 \subsubsection{UNICODE Name Tables}
 \label{UNICODE-NAME-TABLES}
@@ -14995,6 +14995,10 @@ The format for printing object \TT{min::gen} values is:
 \LABEL{MIN::EMBEDDED_LINE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{NO\_TRAILING\_TYPE}
 \LABEL{MIN::NO_TRAILING_TYPE} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_LOGICAL\_LINE}
+\LABEL{MIN::ENABLE_LOGICAL_LINE} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_INDENTED\_PARAGRAPH}
+\LABEL{MIN::ENABLE_INDENTED_PARAGRAPH} \\
 \end{tabular}\end{indpar}
 
 
@@ -15297,10 +15301,15 @@ has multiple values, flags, or reverse attributes (double arrows).
 \item The value of any attribute
 that does not have a \TT{hide\_\EOL flag}
 is a string or label whose elements are all strings,
-except that an \TT{.initiator} value may be
-\TT{min::\EOL LOGICAL\_\EOL LINE()} and a
-\TT{.terminator} value may be
-\TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}.
+except that:
+\begin{enumerate}
+\item An \TT{.initiator} value may be \TT{min::\EOL LOGICAL\_\EOL LINE()}
+if the \ttkey{ENABLE\_\EOL LOGICAL\_\EOL LINE} object format operation
+flag is on.
+\item A \TT{.terminator} value may be \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}
+if the \ttkey{ENABLE\_\EOL IN\-DENTED\_\EOL PARAGRAPH} object format operation
+flag is on.
+\end{enumerate}
 
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}, and has no \TT{.type}.
@@ -15327,15 +15336,19 @@ If none of the above apply, the object is printed in
 The compact format has several variants:
 \begin{enumerate}
 \item The `\key{logical line compact format}' is used if
-the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()}
-and the object has no \TT{.separator}.
+the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
+the object has no \TT{.separator},
+and the \ttkey{ENABLE\_\EOL LOGICAL\_\EOL LINE} object format operation
+flag is on.
 
 \item Otherwise the `\lkey{indented paragraph}{compact format}' is used if
 the object has a \TT{.terminator} equal to
 \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}, the object has no \TT{.separator},
+the \ttkey{ENABLE\_\EOL INDENTED\_\EOL PARAGRAPH} object format operation
+flag is on,
 and the object is being printed as the last element of a containing
-object with 2 or more elements and \TT{.terminator} equal to
-\TT{"<LF>"} printed with logical line compact format.
+object that is being printed in logical line compact format and has
+2 or more elements and a \TT{.terminator} equal to \TT{"<LF>"},
 
 \item Otherise the `\key{bracketed compact format}'
 is used if the object has an \TT{.initiator} and \TT{.terminator}.
@@ -15373,6 +15386,10 @@ This is the logical OR of any of the following flags:
 \item[\ttmkey{ISOLATED\_LINE}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
 \item[\ttmkey{EMBEDDED\_LINE}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
+\item[\ttmkey{ENABLE\_LOGICAL\_LINE}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
+\item[\ttmkey{ENABLE\_INDENTED\_PARAGRAPH}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}~\\
 These flags determine the format the object is printed in.
 See text above.
@@ -21810,6 +21827,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::EMBEDDED_LINE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{NO\_TRAILING\_TYPE}
 \LABEL{MIN::NO_TRAILING_TYPE} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_LOGICAL\_LINE}
+\LABEL{MIN::ENABLE_LOGICAL_LINE} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_INDENTED\_PARAGRAPH}
+\LABEL{MIN::ENABLE_INDENTED_PARAGRAPH} \\
 \end{TABULAR}
 
 \bigskip

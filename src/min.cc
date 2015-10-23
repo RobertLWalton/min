@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 03:36:10 EDT 2015
+// Date:	Fri Oct 23 06:03:59 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10355,7 +10355,9 @@ const min::obj_format * min::compact_obj_format =
 
 static min::obj_format line_obj_format =
 {
-    min::ENABLE_COMPACT,    // obj_op_flags
+      min::ENABLE_COMPACT
+    + min::ENABLE_LOGICAL_LINE,
+    			    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
@@ -10420,7 +10422,9 @@ const min::obj_format *
 
 static min::obj_format paragraph_obj_format =
 {
-    min::ENABLE_COMPACT,    // obj_op_flags
+      min::ENABLE_COMPACT
+    + min::ENABLE_INDENTED_PARAGRAPH,
+    			    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
@@ -11349,12 +11353,19 @@ min::printer min::print_obj
 	          &&
 		  ! ::is_str_lab ( info[i].value )
 		  &&
-		  ! ( info[i].name == min::dot_initiator
+	          ! ( (   obj_op_flags
+		        & min::ENABLE_LOGICAL_LINE )
+		      &&
+		      info[i].name == min::dot_initiator
 		      &&
 		         info[i].value
 		      == min::LOGICAL_LINE() )
 		  &&
-		  ! (    info[i].name
+	          ! ( (   obj_op_flags
+		        & min::
+			  ENABLE_INDENTED_PARAGRAPH )
+		      &&
+		         info[i].name
 		      == min::dot_terminator
 		      &&
 		         info[i].value
@@ -11410,7 +11421,9 @@ min::printer min::print_obj
     min::gen mark_end_type = min::NONE();
     if ( compact_format )
     {
-	if ( initiator == min::LOGICAL_LINE()
+	if ( obj_op_flags & min::ENABLE_LOGICAL_LINE
+	     &&
+	     initiator == min::LOGICAL_LINE()
 	     &&
 	     separator == min::NONE() )
 	{
@@ -11444,7 +11457,10 @@ min::printer min::print_obj
 	    }
 	    return printer << min::restore_print_format;
 	}
-	else if (    terminator
+	else if ( (   obj_op_flags
+	            & min::ENABLE_INDENTED_PARAGRAPH )
+	          &&
+	             terminator
 	          == min::INDENTED_PARAGRAPH()
 		  &&
 		  separator == min::NONE()

@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:07:11 EDT 2015
+// Date:	Fri Oct 23 06:18:11 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,9 +48,9 @@ typedef const uns8 * ustring;
     // NUL, in its first byte, and the number of print
     // columns taken the Uchars encoded by UTF8 string,
     // in its second byte.  In some applications the
-    // high order bits of these two types may be used
+    // high order 2 bits of these two types may be used
     // for flags, limiting the size of the allowed
-    // length and number of columns.  Ustrings in
+    // length and number of columns to 63.  Ustrings in
     // unicode_data.cc do NOT have any flags.
     //
     // To compute the number of columns, it is assumed
@@ -72,7 +72,7 @@ inline uns32 ustring_length
 inline uns32 ustring_columns
 	( ustring s )
 {
-    return s[1] & 0x0F;
+    return s[1] & 0x3F;
 }
 inline const char * ustring_chars
 	( ustring s )

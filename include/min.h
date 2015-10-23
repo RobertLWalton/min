@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 03:36:20 EDT 2015
+// Date:	Fri Oct 23 05:47:15 EDT 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12204,11 +12204,14 @@ namespace min {
 
 	min::pstring		  obj_valreq;
     };
-    const min::uns32 ENABLE_COMPACT	= ( 1 << 0 );
-    const min::uns32 PRINT_ID		= ( 1 << 1 );
-    const min::uns32 ISOLATED_LINE	= ( 1 << 2 );
-    const min::uns32 EMBEDDED_LINE	= ( 1 << 3 );
-    const min::uns32 NO_TRAILING_TYPE	= ( 1 << 4 );
+    const min::uns32 ENABLE_COMPACT	  = ( 1 << 0 );
+    const min::uns32 PRINT_ID		  = ( 1 << 1 );
+    const min::uns32 ISOLATED_LINE	  = ( 1 << 2 );
+    const min::uns32 EMBEDDED_LINE	  = ( 1 << 3 );
+    const min::uns32 NO_TRAILING_TYPE	  = ( 1 << 4 );
+    const min::uns32 ENABLE_LOGICAL_LINE  = ( 1 << 5 );
+    const min::uns32 ENABLE_INDENTED_PARAGRAPH
+    					  = ( 1 << 6 );
 
     extern const min::obj_format *
         compact_obj_format;
@@ -12384,7 +12387,7 @@ namespace min {
 	      const min::gen_format * f )
     {
         MIN_ASSERT ( f != NULL,
-	             "second argument is NULL" );
+	             "third argument is NULL" );
         return ( * f->pgen ) ( printer, v, f );
     }
 
