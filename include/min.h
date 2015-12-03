@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 05:47:15 EDT 2015
+// Date:	Thu Dec  3 05:51:58 EST 2015
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6047,9 +6047,7 @@ namespace min {
 
 	operator bool ( void ) const
 	{
-	    return line != 0xFFFFFFFF
-	           ||
-		   offset != 0xFFFFFFFF;
+	    return line != 0xFFFFFFFF;
 	}
     };
     extern const position MISSING_POSITION;

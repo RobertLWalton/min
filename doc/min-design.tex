@@ -255,7 +255,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 23, 2015}
+\date{December 3, 2015}
  
 \maketitle
 
@@ -10482,8 +10482,10 @@ for \TT{min::\EOL position} structures:
 
 A \TT{min::position} is less than another if its line is less
 or its line is equal and its offset is less.  A \TT{min::\EOL position}
-converts to \TT{true} if it does not equal \TT{min::\EOL MISSING\_\EOL POSITION}
-and to \TT{false} otherwise.
+\TT{p} converts to \TT{true} if \TT{p.line != 0xFFFFFFFF}
+and to \TT{false} otherwise.  This permits special values other than
+\TT{min::\EOL MISSING\_\EOL POSITION} to be defined with \TT{line}
+equal to \TT{0xFFFFFFFF}.
 
 Two \TT{min::position} structures are needed to encode the boundaries
 of a piece of text in a file.  Such a piece of text is called
