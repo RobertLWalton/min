@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 06:03:59 EDT 2015
+// Date:	Fri Jan  8 02:47:42 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -145,8 +145,8 @@ static min::ustring
       (min::ustring) "\x01\x01" "&",
       (min::ustring) "\x01\x01" "#",
       (min::ustring) "\x01\x01" "=",
-      (min::ustring) "\x01\x01" "~",
-      (min::ustring) "\x01\x01" "^",
+      (min::ustring) "\x01\x01" "$",
+      (min::ustring) "\x01\x01" "%",
       (min::ustring) "\x01\x01" "<",
       (min::ustring) "\x01\x01" ">",
 
