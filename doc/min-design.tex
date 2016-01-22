@@ -255,7 +255,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 8, 2016}
+\date{January 22, 2016}
  
 \maketitle
 
@@ -12015,6 +12015,48 @@ The {\tt min::hash\_count\_of} function just returns the number of
 {\em attribute/node-name-descrip\-tor-pairs} in the object's hash table,
 and the {\tt min::\EOL set\_\EOL publish\_\EOL flag} function just sets
 the object's {\tt min::\EOL OBJ\_\EOL PUBLIC} flag.
+
+\subsubsection{Object Copy Functions}
+\label{OBJECT-COPY-FUNCTIONS}
+
+The following functions are like the \TT{min::\EOL resize} functions on
+\pagref{MIN::RESIZE} except that instead of resizing the object specified
+by their argument, they make a new resized object which they return:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen object,|\ARGBREAK
+    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::COPY} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen object,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::COPY_UNUSED} \\
+\end{tabular}\end{indpar}
+
+The new object is \underline{not} public even if the original
+object is.  The second 2-argument form of \TT{min::\EOL copy}
+always expands the unused area to fit the space actually allocated
+to the new object.
+
+Alternative forms of these functions take object
+vector pointers (see \itemref{PROTECTED-OBJECT-VECTOR-POINTERS}):
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::COPY_VEC_PTR} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::COPY_UNUSED_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}

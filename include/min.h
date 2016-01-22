@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  3 05:51:58 EST 2015
+// Date:	Fri Jan 22 12:03:47 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6734,6 +6734,11 @@ namespace min {
 	  min::unsptr unused_size,
 	  min::unsptr var_size,
 	  bool expand = true );
+    min::gen copy
+	( min::obj_vec_ptr & vp,
+	  min::unsptr unused_size,
+	  min::unsptr var_size,
+	  bool expand = true );
     void reorganize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr hash_size,
@@ -6926,6 +6931,11 @@ namespace min {
 
 	friend void resize
 	    ( min::obj_vec_insptr & vp,
+	      min::unsptr unused_size,
+	      min::unsptr var_size,
+	      bool expand );
+	friend min::gen copy
+	    ( min::obj_vec_ptr & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size,
 	      bool expand );
@@ -7644,6 +7654,33 @@ namespace min {
 	resize ( vp, unused_size,
 	         var_size_of ( vp ), true );
     }
+
+    inline min::gen copy
+	( min::obj_vec_ptr & vp,
+	  min::unsptr unused_size )
+    {
+	return copy ( vp, unused_size,
+		      var_size_of ( vp ), true );
+    }
+    inline min::gen copy
+	( min::gen obj,
+	  min::unsptr unused_size,
+	  min::unsptr var_size,
+	  bool expand = true )
+    {
+        min::obj_vec_ptr vp ( obj );
+	return copy
+	    ( vp, unused_size, var_size, expand );
+    }
+    inline min::gen copy
+	( min::gen obj,
+	  min::unsptr unused_size )
+    {
+        min::obj_vec_ptr vp ( obj );
+	return copy ( vp, unused_size,
+	              var_size_of ( vp ), true );
+    }
+
     inline void reorganize
 	( min::gen obj,
 	  min::unsptr hash_size,
@@ -8177,7 +8214,7 @@ namespace min { namespace unprotected {
 	    // total_size from obj_vec pointer.  0 if
 	    // list pointer has not yet been started.
 	    //
-	    // Hash_offset and total_size are unsed by
+	    // Hash_offset and total_size are used by
 	    // refresh to adjust indices if resize has
 	    // been called for another list pointer to
 	    // the same object.
