@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 08:03:52 EST 2016
+// Date:	Sat Jan 23 10:05:34 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,7 +112,8 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
     ( "min::gen_packed_vec_type",
       gen_element_disp );
 
-static const unsigned standard_special_names_length = 10;
+static const unsigned
+    standard_special_names_length = 10;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
     { (min::ustring) "\x07\x07" "MISSING",
@@ -1104,7 +1105,7 @@ static void packed_vec_scavenger_routine
 	    ++ sc.gen_count;
 
 	    min::uns64 c = MUP::control_of ( aux_s );
-	    if ( c & MUP::STUB_PTR )
+	    if ( c & MUP::STUB_ADDRESS )
 	        aux_s = MUP::stub_of_control ( c );
 	    else
 	        break;
@@ -3904,7 +3905,7 @@ void min::resize
 		  ::copy_aux_stub
 		      ( MUP::gen_of ( s ) ) );
 	    min::uns64 c = MUP::control_of ( s );
-	    if ( c & MUP::STUB_PTR )
+	    if ( c & MUP::STUB_ADDRESS )
 	    {
 		s = MUP::stub_of_control ( c );
 		min::stub * next_s =
@@ -3984,7 +3985,7 @@ min::gen min::copy
     unsptr to_end = to + var_size;
 
     while ( from < from_end && to < to_end )
-        newb[to++] = oldb[from++];
+        newb[to++] = ::copy_aux_stub ( oldb[from++] );
     while ( to < to_end )
         newb[to++] = min::UNDEFINED();
     from = from_end;
@@ -3994,7 +3995,7 @@ min::gen min::copy
     from_end = from + min::hash_size_of ( vp )
                     + min::attr_size_of ( vp );
     while ( from < from_end )
-        newb[to++] = oldb[from++];
+        newb[to++] = ::copy_aux_stub ( oldb[from++] );
 
     // Initialize unused area.
     //
@@ -4007,7 +4008,7 @@ min::gen min::copy
     //
     from_end = from + min::aux_size_of ( vp );
     while ( from < from_end )
-        newb[to++] = oldb[from++];
+        newb[to++] = ::copy_aux_stub ( oldb[from++] );
 
     MIN_ASSERT ( from == vp.total_size,
                  "system programming error" );
@@ -4055,7 +4056,7 @@ void MINT::allocate_stub_list
 	MUP::set_control_of
 	     ( previous,
 	       MUP::new_control_with_type
-	           ( type, last, MUP::STUB_PTR ) );
+	           ( type, last, MUP::STUB_ADDRESS ) );
 	type = min::LIST_AUX;
 	previous = last;
     }
@@ -4091,7 +4092,7 @@ void MINT::remove_list
 		      MUP::gen_of ( s ) );
 		uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
-		if ( c & MUP::STUB_PTR )
+		if ( c & MUP::STUB_ADDRESS )
 		    s = MUP::stub_of_control ( c );
 		else
 		{
@@ -4257,7 +4258,7 @@ void min::insert_before
 			    ( lp.previous_stub,
 			      MUP::new_control_with_type
 				  ( type, first,
-				    MUP::STUB_PTR )
+				    MUP::STUB_ADDRESS )
 			    );
 		    }
 		}
@@ -4281,7 +4282,7 @@ void min::insert_before
 			      MUP::new_control_with_type
 			        ( min::LIST_AUX,
 				  first,
-				  MUP::STUB_PTR ) );
+				  MUP::STUB_ADDRESS ) );
 			lp.base[lp.previous_index] =
 			    min::new_stub_gen ( s );
 			lp.previous_index = 0;
@@ -4420,7 +4421,7 @@ void min::insert_before
 		    ( lp.current_stub, min::LIST_AUX );
 		end = MUP::new_control_with_type
 		   ( 0, lp.current_stub,
-		     MUP::STUB_PTR );
+		     MUP::STUB_ADDRESS );
 		MIN_ASSERT ( previous,
 		             "system programming"
 			     " error" );
@@ -4431,7 +4432,7 @@ void min::insert_before
 		MINT::set_aux_flag_of ( lp.vecp );
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control_with_type
-		    ( 0, s, MUP::STUB_PTR );
+		    ( 0, s, MUP::STUB_ADDRESS );
 		unsptr next = lp.current_index;
 		if ( next == lp.head_index )
 		    next = 0;
@@ -4489,7 +4490,7 @@ void min::insert_before
 			( lp.previous_stub,
 			  MUP::new_control_with_type
 			      ( type, first,
-				MUP::STUB_PTR ) );
+				MUP::STUB_ADDRESS ) );
 		}
 	    }
 	    else
@@ -4678,7 +4679,7 @@ void min::insert_after
 			 ( min::type_of
 			       ( lp.current_stub ),
 			   first,
-			   MUP::STUB_PTR ) );
+			   MUP::STUB_ADDRESS ) );
 		return;
 	    }
 
@@ -4714,7 +4715,7 @@ void min::insert_after
 		if ( n > 1 )
 		    end = MUP::new_control_with_type
 		              ( type, first,
-			        MUP::STUB_PTR );
+			        MUP::STUB_ADDRESS );
 		MUP::set_control_of ( s, end );
 		lp.base[lp.current_index] = p[n-1];
 		lp.current_index = 0;
@@ -4735,7 +4736,7 @@ void min::insert_after
 			  ( lp.previous_stub,
 			    MUP::new_control_with_type
 			      ( type, s,
-			        MUP::STUB_PTR ) );
+			        MUP::STUB_ADDRESS ) );
 		    }
 		}
 		else
@@ -4756,7 +4757,7 @@ void min::insert_after
 		    ( s,
 		      MUP::new_control_with_type
 		          ( min::LIST_AUX, first,
-			    MUP::STUB_PTR ) );
+			    MUP::STUB_ADDRESS ) );
 		lp.base[lp.current_index] =
 		    min::new_stub_gen ( s );
 		lp.previous_index = lp.current_index;
@@ -4789,7 +4790,7 @@ void min::insert_after
 	    lp.base[-- aux_offset] = * p ++;
 	uns64 c =
 	    MUP::control_of ( lp.current_stub );
-	if ( c & MUP::STUB_PTR )
+	if ( c & MUP::STUB_ADDRESS )
 	    lp.base[-- aux_offset] =
 		min::new_stub_gen
 		    ( MUP::stub_of_control ( c ) );
@@ -5001,7 +5002,7 @@ min::unsptr min::remove
 		        ( previous_stub,
 			  MUP::new_control_with_type
 			      ( type, lp.current_stub,
-			        MUP::STUB_PTR ) );
+			        MUP::STUB_ADDRESS ) );
 		}
 	    }
 	    else if ( lp.current == min::LIST_END() )
@@ -5249,7 +5250,7 @@ bool MINT::insert_reserve
 		if ( free ) \
 		    MUP::free_aux_stub \
 		        ( (min::stub *) s ); \
-		if ( c & MUP::STUB_PTR ) \
+		if ( c & MUP::STUB_ADDRESS ) \
 		    s = MUP::stub_of_control ( c ); \
 		else \
 		{ \

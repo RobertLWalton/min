@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan 22 12:03:47 EST 2016
+// Date:	Sat Jan 23 10:03:58 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -430,7 +430,7 @@ namespace min {
     namespace unprotected {
 	// Flags for non-acc control values.
 	//
-	const min::uns64 STUB_PTR = uns64(1) << 55;
+	const min::uns64 STUB_ADDRESS = uns64(1) << 55;
 	    // Indicates value part of control value is
 	    // a packed stub address.
 
@@ -7886,8 +7886,8 @@ namespace min {
 // auxiliary stubs is either a list auxilary pointer
 // with index in the value field of the stub control,
 // or is a stub pointer to another LIST_AUX stub with
-// the MUP::STUB_PTR flag and the stub pointer in the
-// control.
+// the MUP::STUB_ADDRESS flag and the stub pointer in
+// the control.
 
 // Aux area elements that are not used are given the
 // value NONE(), and can be garbage collected when the
@@ -8982,7 +8982,7 @@ namespace min {
 	    {
 	        uns64 c = unprotected::control_of
 				( lp.current_stub );
-		if ( c & unprotected::STUB_PTR )
+		if ( c & unprotected::STUB_ADDRESS )
 		{
 		    lp.current_stub =
 		        unprotected::stub_of_control
@@ -9051,7 +9051,7 @@ namespace min {
 
 	        uns64 c = unprotected::control_of
 				( lp.current_stub );
-		if ( c & unprotected::STUB_PTR )
+		if ( c & unprotected::STUB_ADDRESS )
 		{
 		    lp.current_stub =
 		        unprotected::stub_of_control
@@ -9117,7 +9117,7 @@ namespace min {
 	    {
 	        uns64 c =unprotected::control_of
 		    	( lp.current_stub );
-		if ( c & unprotected::STUB_PTR )
+		if ( c & unprotected::STUB_ADDRESS )
 		{
 		    min::stub * s =
 		        unprotected::stub_of_control
