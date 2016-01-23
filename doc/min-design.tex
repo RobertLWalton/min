@@ -255,7 +255,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 22, 2016}
+\date{January 23, 2016}
  
 \maketitle
 
@@ -12046,13 +12046,13 @@ vector pointers (see \itemref{PROTECTED-OBJECT-VECTOR-POINTERS}):
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
-    \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|  min::unsptr variable_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COPY_VEC_PTR} \\
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
-    \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|  min::unsptr unused_size )|
 \LABEL{MIN::COPY_UNUSED_VEC_PTR} \\
 \end{tabular}\end{indpar}
@@ -12169,7 +12169,7 @@ may be created by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( min::obj_vec_ptr const & vp )|
+          \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -12310,7 +12310,7 @@ Also in this vein, the operations
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<const min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
@@ -20647,7 +20647,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb|( min::obj_vec_ptr const & vp )|
+          \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -20708,7 +20708,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.9in}
 \verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
@@ -20719,7 +20719,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.6in}
 \verb|min::ptr<const min::gen> |
 	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
-	  \verb|( min::obj_vec_ptr const & vp,|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|

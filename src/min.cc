@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jan  8 02:47:42 EST 2016
+// Date:	Sat Jan 23 08:03:52 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3567,7 +3567,9 @@ inline min::unsptr EXP2 ( unsigned bits )
 // object that is new or being reallocated, compute
 // the object type and header size and update the total
 // size by adding the header size.  All sizes are in
-// min::gen units.
+// min::gen units.  The input total_size does NOT
+// include the header, but the output total_size does
+// include the header.
 //
 // If expand is true, the total size is expanded as much
 // as possible using MUP::optimal_body_size.
@@ -3871,6 +3873,149 @@ void min::resize
     vp.aux_offset = vp.unused_offset
 		  + unused_size;
     vp.total_size = total_size;
+}
+
+# if MIN_USE_OBJ_AUX_STUBS
+
+    static min::gen copy_aux_stub
+	    ( const min::stub * s );
+    inline min::gen copy_aux_stub ( min::gen v )
+    {
+	if ( ! min::is_stub ( v ) )
+	    return v;
+	const min::stub * s = MUP::stub_of ( v );
+	int type = MUP::type_of ( s );
+	if ( type == min::LIST_AUX
+	     ||
+	     type == min::SUBLIST_AUX )
+	    return ::copy_aux_stub ( s );
+	else
+	    return v;
+    }
+    static min::gen copy_aux_stub
+	    ( const min::stub * s )
+    {
+	min::stub * new_s = MUP::new_aux_stub();
+	min::gen result = min::new_stub_gen ( new_s );
+	while ( true )
+	{
+	    MUP::set_gen_of
+		( new_s,
+		  ::copy_aux_stub
+		      ( MUP::gen_of ( s ) ) );
+	    min::uns64 c = MUP::control_of ( s );
+	    if ( c & MUP::STUB_PTR )
+	    {
+		s = MUP::stub_of_control ( c );
+		min::stub * next_s =
+		    MUP::new_aux_stub();
+		c = MUP::renew_acc_control_stub
+		    ( c, next_s );
+		MUP::set_control_of ( new_s, c );
+		new_s = next_s;
+	    }
+	    else
+	    {
+	        MUP::set_control_of ( new_s, c );
+		break;
+	    }
+	}
+	return result;
+    }
+
+# else // ! MIN_USE_OBJ_AUX_STUBS
+
+    inline min::gen copy_aux_stub ( min::gen v )
+    {
+        return v;
+    }
+
+# endif // MIN_USE_OBJ_AUX_STUBS
+
+min::gen min::copy
+    ( min::obj_vec_ptr & vp,
+      min::unsptr unused_size,
+      min::unsptr var_size,
+      bool expand )
+{
+    unsptr hash_size = min::hash_size_of ( vp );
+    unsptr attr_size = min::attr_size_of ( vp );
+    unsptr aux_size = min::aux_size_of ( vp );
+    unsptr total_size =
+          var_size + hash_size + attr_size
+	+ unused_size + aux_size;
+
+    int new_type;
+    unsptr header_size;
+    unsptr saved_total_size = total_size;
+    ::compute_object_type
+	( new_type, total_size, header_size,
+	  var_size, hash_size, expand );
+    unused_size += total_size - header_size
+                 - saved_total_size;
+
+    min::stub * s = MUP::new_acc_stub();
+    MUP::new_body ( s, sizeof (min::gen) * total_size );
+
+    const min::gen * & oldb = MUP::base ( vp );
+    min::gen * & newb =
+        * (min::gen **) & MUP::ptr_ref_of ( s );
+
+    min::unsptr new_var_offset = header_size;
+    min::unsptr aux_offset =
+        total_size - aux_size;
+    min::unsptr unused_offset =
+        aux_offset - unused_size;
+
+    compute_object_header
+	( MUP::ptr_ref_of ( s ),
+	  new_type,
+	  var_size,
+	  hash_size,
+	  total_size,
+	  unused_offset,
+	  aux_offset );
+
+    // Copy variables vector.
+    //
+    unsptr from = vp.var_offset;
+    unsptr to = new_var_offset;
+    unsptr from_end = from + min::var_size_of ( vp );
+    unsptr to_end = to + var_size;
+
+    while ( from < from_end && to < to_end )
+        newb[to++] = oldb[from++];
+    while ( to < to_end )
+        newb[to++] = min::UNDEFINED();
+    from = from_end;
+
+    // Copy hash table and attribute vector.
+    //
+    from_end = from + min::hash_size_of ( vp )
+                    + min::attr_size_of ( vp );
+    while ( from < from_end )
+        newb[to++] = oldb[from++];
+
+    // Initialize unused area.
+    //
+    from += min::unused_size_of ( vp );
+    memset ( & newb[to], 0,
+             unused_size * sizeof ( min::gen ) );
+    to += unused_size;
+
+    // Copy auxiliary area.
+    //
+    from_end = from + min::aux_size_of ( vp );
+    while ( from < from_end )
+        newb[to++] = oldb[from++];
+
+    MIN_ASSERT ( from == vp.total_size,
+                 "system programming error" );
+    MIN_ASSERT ( to == total_size,
+                 "system programming error" );
+
+    MUP::set_type_of ( s, new_type );
+    return min::new_stub_gen ( s );
 }
 
 // Object List Level
