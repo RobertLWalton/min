@@ -13791,6 +13791,93 @@ unprotected functions to read and write stubs of all kinds in
 though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
+\subsubsubsection{List Debugging Functions}
+\label{LIST-DEBUGGING-FUNCTIONS}
+
+The following list level functions are only intended for debugging:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{list\_equal}\ARGBREAK
+    \verb|( min::gen v1, min::gen v2,|\ARGBREAK
+    \verb|  bool include_var = true,|\ARGBREAK
+    \verb|  bool include_attr = true,|\ARGBREAK
+    \verb|  bool include_hash = true )|
+\LABEL{MIN::LIST_EQUAL} \\
+\verb|bool min::| & \MINKEY{list\_equal}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp1,|\ARGBREAK
+    \verb|  min::obj_vec_ptr & vp2,|\ARGBREAK
+    \verb|  bool include_var = true,|\ARGBREAK
+    \verb|  bool include_attr = true,|\ARGBREAK
+    \verb|  bool include_hash = true )|
+\LABEL{MIN::LIST_EQUAL_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+These functions return true if and only if:
+
+\begin{itemize}
+\item \TT{v1} and \TT{v2} are both points to objects, \\
+      or equivalently, \\
+      neither \TT{vp1} nor \TT{vp2} equal \TT{min::\EOL NULL\_\EOL STUB}.
+\item The two object hash table sizes are equal.
+\item All the lists headed by the two object hashs are equal.
+\item The two object attribute vector sizes are equal.
+\item All the lists headed by the two object attribute vectors are equal.
+\item The two object number of variables are equal.
+\item The values of the two object variable vector elements are equal.
+\end{itemize}
+
+If the \TT{include\_hash} argument is \TT{false}, the tests involving
+the hash tables are omitted.
+If the \TT{include\_attr} argument is \TT{false}, the tests involving
+the attribute vector are omitted.
+If the \TT{include\_var} argument is \TT{false}, the tests involving
+the object variables are omitted.
+
+A printout of the list level object suitable for debugging can be had
+by the functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{list\_print}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v,|\ARGBREAK
+    \verb|  bool include_var = true,|\ARGBREAK
+    \verb|  bool include_attr = true,|\ARGBREAK
+    \verb|  bool include_hash = true )|
+\LABEL{MIN::LIST_PRINT} \\
+\verb|min::printer min::| & \MINKEY{list\_print}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::obj_vec_ptr & vp,|\ARGBREAK
+    \verb|  bool include_var = true,|\ARGBREAK
+    \verb|  bool include_attr = true,|\ARGBREAK
+    \verb|  bool include_hash = true )|
+\LABEL{MIN::LIST_PRINT_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+The output is indented by the column position at the time
+the function is called, and the parts of the object indicated
+by the arguments are included.
+
+The following can be used to compare two lists or print
+a single list:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{list\_equal}\ARGBREAK
+    \verb|( min::list_ptr & lp1,|\ARGBREAK
+    \verb|  min::list_ptr & lp2 )|
+\LABEL{MIN::LIST_PTR_EQUAL} \\
+\verb|min::printer min::| & \MINKEY{list\_print}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::list_ptr & lp )|
+\LABEL{MIN::LIST_PRT_PRINT} \\
+\end{tabular}\end{indpar}
+
+The list pointer positions are changed, either to the end of the
+list, or to the locations of the first disagreeing members of the
+two lists for the equality testing function.
+The print output is indented by the column position at the time
+the print function is called.
+
+
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
 
@@ -20587,6 +20674,32 @@ These are in \verb|min_parameters.h|.
     \verb|( min::gen object,|\ARGBREAK
     \verb|  min::unsptr unused_size )|
 \LABEL{MIN::EXPAND}
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen object,|\ARGBREAK
+    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::COPY} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen object,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::COPY_UNUSED} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::COPY_VEC_PTR} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::COPY_UNUSED_VEC_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
