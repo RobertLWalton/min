@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 10:03:58 EST 2016
+// Date:	Sat Jan 23 18:37:44 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8045,7 +8045,7 @@ namespace min {
 	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index );
     template < class vecptr >
-    min::gen start_vector
+    min::gen start_attr
             ( min::unprotected
 	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index );
@@ -8177,7 +8177,7 @@ namespace min { namespace unprotected {
 
 	min::unsptr head_index;
 	    // The value of current_index when the list
-	    // is started by start_hash or start_vector.
+	    // is started by start_hash or start_attr.
 	    // This is an index relative to the object
 	    // body vector base of the element in the
 	    // hash table or attribute vector where the
@@ -8395,7 +8395,7 @@ namespace min { namespace unprotected {
 	friend min::gen min::start_hash<>
 		( min::list_insptr & lp,
 		  min::unsptr index );
-	friend min::gen min::start_vector<>
+	friend min::gen min::start_attr<>
 		( min::list_insptr & lp,
 		  min::unsptr index );
 
@@ -8580,7 +8580,7 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::list_ptr_type<vecptr> & lp,
 		  min::unsptr index );
-	friend min::gen min::start_vector<>
+	friend min::gen min::start_attr<>
 		( min::unprotected
 		     ::list_ptr_type<vecptr> & lp,
 		  min::unsptr index );
@@ -8744,7 +8744,7 @@ namespace min {
     }
 
     template < class vecptr >
-    inline min::gen start_vector
+    inline min::gen start_attr
             ( min::unprotected
 	         ::list_ptr_type<vecptr> & lp,
 	      min::unsptr index )
@@ -9442,6 +9442,53 @@ namespace min {
 
     min::unsptr list_element_count
 	    ( min::obj_vec_ptr & vp );
+
+    bool list_equal
+    	    ( min::obj_vec_ptr & vp1,
+    	      min::obj_vec_ptr & vp2,
+	      bool include_var = true,
+	      bool include_attr = true,
+	      bool include_hash = true );
+    inline bool list_equal
+    	    ( min::gen v1, min::gen v2,
+	      bool include_var = true,
+	      bool include_attr = true,
+	      bool include_hash = true )
+    {
+        min::obj_vec_ptr vp1 ( v1 );
+        min::obj_vec_ptr vp2 ( v2 );
+	return list_equal ( vp1, vp2,
+	                    include_var,
+	                    include_attr,
+	                    include_hash );
+    }
+
+    min::printer list_print
+	    ( min::printer printer,
+    	      min::obj_vec_ptr & vp,
+	      bool include_var = true,
+	      bool include_attr = true,
+	      bool include_hash = true );
+    inline min::printer list_print
+	    ( min::printer printer,
+    	      min::gen v,
+	      bool include_var = true,
+	      bool include_attr = true,
+	      bool include_hash = true )
+    {
+        min::obj_vec_ptr vp ( v );
+	return list_print ( printer, vp,
+	                    include_var,
+	                    include_attr,
+	                    include_hash );
+    }
+
+    bool list_equal
+    	    ( min::list_ptr & lp1,
+    	      min::list_ptr & lp2 );
+    min::printer list_print
+	    ( min::printer printer,
+    	      min::list_ptr & lp );
 }
 
 
@@ -9908,7 +9955,7 @@ namespace min { namespace unprotected {
 
 	min::unsptr index;
 	    // Attribute vector index passed to the
-	    // start_vector function, or the hash value
+	    // start_attr function, or the hash value
 	    // passed to the start_hash function, by the
 	    // last call to locate.  See the IN_VECTOR
 	    // flag above.  Set even if locate failed.
@@ -10187,7 +10234,7 @@ namespace min {
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.reverse_attr_name = NONE();
 
-	    start_vector ( ap.locate_dlp, name );
+	    start_attr ( ap.locate_dlp, name );
 	    start_copy ( ap.dlp, ap.locate_dlp );
 	    ap.state = ap_type::LOCATE_NONE;
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -10219,7 +10266,7 @@ namespace min {
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.reverse_attr_name = NONE();
 
-	    start_vector ( ap.locate_dlp, name );
+	    start_attr ( ap.locate_dlp, name );
 	    start_copy ( ap.dlp, ap.locate_dlp );
 	    ap.state = ap_type::LOCATE_NONE;
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -10261,7 +10308,7 @@ namespace min {
 		ap.flags = ap_type::IN_VECTOR;
 		ap.reverse_attr_name = NONE();
 
-		start_vector ( ap.locate_dlp, i );
+		start_attr ( ap.locate_dlp, i );
 		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.state = ap_type::LOCATE_NONE;
 #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -10307,7 +10354,7 @@ namespace min {
 		    ap.flags = ap_type::IN_VECTOR;
 		    ap.reverse_attr_name = NONE();
 
-		    start_vector ( ap.locate_dlp, i );
+		    start_attr ( ap.locate_dlp, i );
 		    start_copy
 			( ap.dlp, ap.locate_dlp );
 		    ap.state = ap_type::LOCATE_NONE;

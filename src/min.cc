@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 10:05:34 EST 2016
+// Date:	Sat Jan 23 18:37:25 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5849,6 +5849,103 @@ void min::compact
 	( vp, hash_size, var_size, unused_size,
 	      expand );
 }
+
+bool min::list_equal
+	( min::obj_vec_ptr & vp1,
+	  min::obj_vec_ptr & vp2,
+	  bool include_var,
+	  bool include_attr,
+	  bool include_hash )
+{
+    if ( include_var )
+    {
+        min::unsptr s = var_size_of ( vp1 );
+	if ( s != var_size_of ( vp2 ) )
+	    return false;
+	for ( min::unsptr i = 0; i < s; ++ i )
+	{
+	    if ( var(vp1,i) != var(vp2,i) )
+	        return false;
+	}
+    }
+    if ( include_attr )
+    {
+        min::unsptr s = attr_size_of ( vp1 );
+	if ( s != attr_size_of ( vp2 ) )
+	    return false;
+	for ( min::unsptr i = 0; i < s; ++ i )
+	{
+	    if ( attr(vp1,i) != attr(vp2,i) )
+	    {
+		min::list_ptr lp1 ( vp1 );
+		min::list_ptr lp2 ( vp2 );
+		start_attr ( lp1, i );
+		start_attr ( lp2, i );
+		if ( ! list_equal ( lp1, lp2 ) )
+		    return false;
+	    }
+	}
+    }
+    if ( include_hash )
+    {
+        min::unsptr s = hash_size_of ( vp1 );
+	if ( s != hash_size_of ( vp2 ) )
+	    return false;
+	for ( min::unsptr i = 0; i < s; ++ i )
+	{
+	    if ( hash(vp1,i) != hash(vp2,i) )
+	    {
+		min::list_ptr lp1 ( vp1 );
+		min::list_ptr lp2 ( vp2 );
+		if ( ! list_equal ( lp1, lp2 ) )
+		    return false;
+	    }
+	}
+    }
+    return true;
+}
+
+min::printer min::list_print
+	( min::printer printer,
+	  min::obj_vec_ptr & vp,
+	  bool include_var,
+	  bool include_attr,
+	  bool include_hash );
+
+bool min::list_equal
+	( min::list_ptr & lp1,
+	  min::list_ptr & lp2 )
+{
+    min::gen v1 = min::current ( lp1 );
+    min::gen v2 = min::current ( lp2 );
+    while ( true )
+    {
+        if ( v1 != v2 )
+	{
+	    if ( ! is_sublist ( v1 )
+	         ||
+		 ! is_sublist ( v2 ) )
+	        return false;
+	    min::list_ptr slp1
+	        ( min::obj_vec_ptr_of ( lp1 ) );
+	    start_sublist ( slp1, lp1 );
+	    min::list_ptr slp2
+	        ( min::obj_vec_ptr_of ( lp2 ) );
+	    start_sublist ( slp2, lp2 );
+	    if ( ! list_equal ( slp1, slp2 ) )
+	        return false;
+	}
+	else if ( is_list_end ( v1 ) )
+	    break;
+	v1 = min::next ( lp1 );
+	v2 = min::next ( lp2 );
+    }
+    return true;
+}
+
+min::printer min::list_print
+	( min::printer printer,
+	  min::list_ptr & lp );
 
 // Object Attribute Level
 // ------ --------- -----
@@ -5920,7 +6017,7 @@ void min::compact
 	     (unsigned) i < attr_size_of
 	             ( obj_vec_ptr_of ( ap.dlp ) ) )
 	{
-	    start_vector ( ap.dlp, i );
+	    start_attr ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.index = i;
 	    c = current ( ap.dlp );
@@ -6180,7 +6277,7 @@ void min::compact
 	{
 	    if ( ap.flags & ap_type::IN_VECTOR )
 	    {
-		start_vector
+		start_attr
 		    ( ap.locate_dlp, ap.index );
 		min::gen c = current ( ap.locate_dlp );
 		if ( is_list_end ( c ) )
@@ -6310,7 +6407,7 @@ void min::compact
 		 (unsigned) i < attr_size_of
 		        ( obj_vec_ptr_of ( ap.dlp ) ) )
 	    {
-		start_vector ( ap.locate_dlp, i );
+		start_attr ( ap.locate_dlp, i );
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
 
@@ -6412,7 +6509,7 @@ void min::compact
 
 	if ( ap.flags & ap_type::IN_VECTOR )
 	{
-	    start_vector ( ap.locate_dlp, ap.index );
+	    start_attr ( ap.locate_dlp, ap.index );
 	    min::gen c = current ( ap.locate_dlp );
 	    MIN_ASSERT ( is_list_end ( c ),
 			 "system programming error" );
@@ -6684,7 +6781,7 @@ void min::relocate
 
     if ( ap.flags & ap_type::IN_VECTOR )
     {
-        start_vector ( ap.locate_dlp, ap.index );
+        start_attr ( ap.locate_dlp, ap.index );
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    if ( ap.length != 1 ) MINT::relocate ( ap );
 #	endif
@@ -7153,7 +7250,7 @@ min::unsptr min::get_attrs
           i < attr_size_of ( vp );
 	  ++ i )
     {
-	start_vector ( lp, i );
+	start_attr ( lp, i );
 	if ( is_list_end ( current ( lp ) ) )
 	    continue;
 

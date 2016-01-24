@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 22 20:46:04 EDT 2015
+// Date:	Sat Jan 23 19:31:36 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3779,7 +3779,7 @@ void test_object_list_level
 	 << endl;
 
     min::list_ptr lp ( vp );
-    min::start_vector ( lp, 0 );
+    min::start_attr ( lp, 0 );
     MIN_CHECK
 	( min::current ( lp ) == base[vorg+0] );
     MIN_CHECK
@@ -3793,12 +3793,12 @@ void test_object_list_level
     MIN_CHECK
 	( min::next ( lp ) == min::LIST_END() );
     base[vorg+0] = numtest;
-    min::start_vector ( lp, 0 );
+    min::start_attr ( lp, 0 );
     MIN_CHECK
 	( min::current ( lp ) == base[vorg+0] );
 
     min::list_insptr wlp ( vp );
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     insert ( wlp, false, p+2, 1 );
     insert ( wlp, false, p+1, 1 );
     insert ( wlp, false, p+0, 1 );
@@ -3819,7 +3819,7 @@ void test_object_list_level
     // Vector[0] list now is
     //	{ numtest, num100, {}, num102 }
 
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK ( min::current ( wlp ) == numtest );
     MIN_CHECK ( min::next ( wlp ) == num100 );
     MIN_CHECK
@@ -3872,7 +3872,7 @@ void test_object_list_level
     MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
     MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK ( min::current ( wlp ) == numtest );
     MIN_CHECK ( min::peek ( wlp ) == num100 );
     MIN_CHECK ( min::next ( wlp ) == num100 );
@@ -3945,7 +3945,7 @@ void test_object_list_level
     MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
     MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK ( min::current ( wlp ) == numtest );
     MIN_CHECK ( 3 == min::remove ( wlp, 3 ) );
     //
@@ -3955,19 +3955,19 @@ void test_object_list_level
     MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
     MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK ( min::current ( wlp ) == num102 );
     MIN_CHECK ( min::peek ( wlp ) == min::LIST_END() );
     MIN_CHECK ( min::next ( wlp ) == min::LIST_END() );
 
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK ( 1 == min::remove ( wlp, 3 ) );
     //
     // Vector[0] list now is { }
     //
     MIN_CHECK
 	( min::current ( wlp ) == min::LIST_END() );
-    min::start_vector ( wlp, 0 );
+    min::start_attr ( wlp, 0 );
     MIN_CHECK
 	( min::current ( wlp ) == min::LIST_END() );
 }
@@ -4921,8 +4921,8 @@ void test_object_printing ( void )
 	      min::standard_attr_flag_parser );
 	for ( min::uns32 i = 0; i < count; ++ i )
 	    min::set_flag ( ap, flags[i] );
-	printer << "Flag Parse Errors: `" << buffer << "'"
-	        << min::eol;
+	printer << "Flag Parse Errors: `" << buffer
+	        << "'" << min::eol;
     }
     printer << min::pgen ( obj4 ) << min::eol;
 
