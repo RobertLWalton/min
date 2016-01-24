@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 02:30:31 EST 2016
+// Date:	Sun Jan 24 03:24:25 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5084,6 +5084,24 @@ void test_object_debugging ( void )
 	min::attr_push ( vp, 2 );
 	vp[3] = min::new_num_gen ( 4 );
 	vp[4] = min::new_num_gen ( 5 );
+    }
+    printer << min::pgen ( obj ) << min::eol;
+    min::list_print ( printer, obj );
+
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	for ( int i = 0; i < 26; ++ i )
+	{
+	    min::locatable_gen lab
+	        ( min::new_str_gen
+		    ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + i,
+		      1 ) );
+	    min::locatable_num_gen val
+	        ( min::new_num_gen ( 1000 + i ) );
+	    min::locate ( ap, lab );
+	    min::set ( ap, val );
+	}
     }
     printer << min::pgen ( obj ) << min::eol;
     min::list_print ( printer, obj );
