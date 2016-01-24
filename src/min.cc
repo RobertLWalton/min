@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 18:37:25 EST 2016
+// Date:	Sun Jan 24 01:18:43 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5910,7 +5910,67 @@ min::printer min::list_print
 	  min::obj_vec_ptr & vp,
 	  bool include_var,
 	  bool include_attr,
-	  bool include_hash );
+	  bool include_hash )
+{
+    printer << min::bom << min::no_auto_break;
+
+    if ( include_var )
+    {
+        min::unsptr s = var_size_of ( vp );
+	printer << min::indent << s << " variables:";
+	for ( min::unsptr i = 0; i < s; ++ i )
+	    printer << min::indent
+	            << min::puns ( i, "%7d: " )
+		    << min::save_indent
+	            << min::pgen ( var(vp,i) )
+		    << min::restore_indent;
+    }
+    if ( include_attr )
+    {
+        min::unsptr s = attr_size_of ( vp );
+	printer << min::indent << s
+	        << " vector elements:";
+	for ( min::unsptr i = 0; i < s; ++ i )
+	{
+	    printer << min::indent
+	            << min::puns ( i, "%7d: " )
+		    << min::save_indent;
+	    min::list_ptr lp ( vp );
+	    min::start_attr ( lp, i );
+	    min::gen v = min::current ( lp );
+	    if ( ! min::is_list_end ( v )
+	         &&
+		 min::is_list_end ( min::peek ( lp ) ) )
+	        printer << min::pgen ( v );
+	    else
+	        min::list_print ( printer, lp );
+	    printer << min::restore_indent;
+	}
+    }
+    if ( include_hash )
+    {
+        min::unsptr s = hash_size_of ( vp );
+	printer << min::indent << s
+	        << " hash table:";
+	for ( min::unsptr i = 0; i < s; ++ i )
+	{
+	    printer << min::indent
+	            << min::puns ( i, "%7d: " )
+		    << min::save_indent;
+	    min::list_ptr lp ( vp );
+	    min::start_hash ( lp, i );
+	    min::gen v = min::current ( lp );
+	    if ( ! min::is_list_end ( v )
+	         &&
+		 min::is_list_end ( min::peek ( lp ) ) )
+	        printer << min::pgen ( v );
+	    else
+	        min::list_print ( printer, lp );
+	    printer << min::restore_indent;
+	}
+    }
+    return printer << min::eom;
+}
 
 bool min::list_equal
 	( min::list_ptr & lp1,
@@ -5943,9 +6003,42 @@ bool min::list_equal
     return true;
 }
 
+static void list_print
+	( min::printer printer,
+	  min::list_ptr & lp )
+{
+    printer << min::set_break
+	    << "("
+	    << min::save_indent;
+    min::gen v = min::current ( lp );
+    while ( true )
+    {
+        if ( min::is_list_end ( v ) ) break;
+
+	if ( ! min::is_sublist ( v ) )
+	    printer << " " << min::set_break
+	            << min::pgen ( v );
+	else
+	{
+	    min::list_ptr slp
+	        ( min::obj_vec_ptr_of ( lp ) );
+	    printer << " ";
+	    ::list_print ( printer, slp );
+	}
+	v = min::next ( lp );
+    }
+    printer << " )" << min::restore_indent;
+}
+
 min::printer min::list_print
 	( min::printer printer,
-	  min::list_ptr & lp );
+	  min::list_ptr & lp )
+{
+    printer << min::save_print_format
+	    << min::no_auto_break;
+    ::list_print ( printer, lp );
+    return printer << min::restore_print_format;
+}
 
 // Object Attribute Level
 // ------ --------- -----
