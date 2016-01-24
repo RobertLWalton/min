@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 19:31:36 EST 2016
+// Date:	Sun Jan 24 02:30:31 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -37,6 +37,7 @@
 //	Object List Level
 //	Object Attribute Level
 //	Object Printing
+//	Object Debugging
 //	Main Program
 
 // Notes
@@ -5047,11 +5048,50 @@ void test_object_printing ( void )
 	                   min::line_gen_format )
 	    << min::eom;
 
-    min::assert_print = true;
     min::assert_print = saved_min_assert_print;
     min::assert_throw = saved_min_assert_throw;
     cout << endl;
     cout << "Finish Object Printing Test!" << endl;
+}
+
+// Object Debugging
+// ------ ---------
+
+void test_object_debugging ( void )
+{
+    cout << endl;
+    cout << "Start Object Debugging Test!"
+	 << endl << endl;
+    bool saved_min_assert_print = min::assert_print;
+    bool saved_min_assert_throw = min::assert_throw;
+    min::assert_print = false;
+    min::assert_throw = false;
+
+    min::gen obj = min::new_obj_gen ( 5, 5 );
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_push ( vp, 3 );
+	vp[0] = min::new_num_gen ( 1 );
+	vp[1] = min::new_num_gen ( 2 );
+	vp[2] = min::new_num_gen ( 3 );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::new_lab_gen ( "{", "*" ) );
+	min::locate ( ap, min::dot_separator );
+	min::set ( ap, min::new_str_gen ( "," ) );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::new_lab_gen ( "*", "}" ) );
+	min::attr_push ( vp, 2 );
+	vp[3] = min::new_num_gen ( 4 );
+	vp[4] = min::new_num_gen ( 5 );
+    }
+    printer << min::pgen ( obj ) << min::eol;
+    min::list_print ( printer, obj );
+
+    min::assert_print = saved_min_assert_print;
+    min::assert_throw = saved_min_assert_throw;
+    cout << endl;
+    cout << "Finish Object Debugging Test!" << endl;
 }
 
 
@@ -5101,6 +5141,7 @@ int main ( int argc, const char * argv[] )
 	test_object_list_level();
 	test_object_attribute_level();
 	test_object_printing();
+	test_object_debugging();
 
 	// Check that deallocated_body_region is still
 	// zero.

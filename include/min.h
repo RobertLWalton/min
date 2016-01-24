@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 23 18:37:44 EST 2016
+// Date:	Sun Jan 24 02:56:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9179,6 +9179,8 @@ namespace min {
 			return
 			    unprotected::gen_of ( s );
 		    }
+		    else
+		        return c;
 		}
 #           endif
 
