@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 01:18:43 EST 2016
+// Date:	Sun Jan 24 06:48:53 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5263,7 +5263,7 @@ bool MINT::insert_reserve
 	    } \
 	    else if ( i != 0 ) \
 	    { \
-		v = vp[i]; \
+		v = MUP::base(vp)[i]; \
 		if ( min::is_list_aux ( v ) ) \
 		{ \
 		    if ( v == min::LIST_END() ) break; \
@@ -5295,7 +5295,7 @@ bool MINT::insert_reserve
 	min::gen v; \
 	while ( true ) \
 	{ \
-	    v = vp[i]; \
+	    v = MUP::base(vp)[i]; \
 	    if ( min::is_list_aux ( v ) ) \
 	    { \
 		if ( v == min::LIST_END() ) break; \
@@ -5355,7 +5355,7 @@ min::unsptr min::list_element_count
     unsptr total_size = total_size_of ( vp );
     while ( index < end_index )
     {
-        min::gen v = vp[index++];
+        min::gen v = MUP::base(vp)[index++];
 
 	if ( is_list_aux ( v )
 	     ||
@@ -5392,7 +5392,7 @@ min::unsptr min::hash_count_of
     unsptr end_index = MUP::attr_offset_of ( vp );
     for ( ; index < end_index; ++ index )
     {
-        min::gen v = vp[index];
+        min::gen v = MUP::base(vp)[index];
 	if ( v == LIST_END() ) continue;
 
 	// We could simplify this BUT we want to add
@@ -5478,8 +5478,8 @@ min::unsptr min::hash_count_of
 // in work_begin to work_low, and new auxiliary area is
 // in work_high to work_end.
 
-// Copy elements vp[index .. end_index-1] to work as per
-// pass1.
+// Copy elements MUP::base(vp)[index .. end_index-1] to
+// work as per pass1.
 //
 inline void copy_to_work
 	( min::obj_vec_ptr & vp,
@@ -5491,7 +5491,7 @@ inline void copy_to_work
 {
     while ( index < end_index )
     {
-	min::gen v = vp[index++];
+	min::gen v = MUP::base(vp)[index++];
 	* work_low ++ = v;
 #           if MIN_USE_OBJ_AUX_STUBS
 	    const min::stub * s = NULL;
@@ -5808,7 +5808,7 @@ void min::reorganize
 	  vp.aux_offset_flags );
 
     memcpy ( (min::gen *) newb + header_size,
-             ! & var ( vp, 0 ),
+             MUP::base(vp) + vp.var_offset,
 	       ( unused_offset - header_size )
 	     * sizeof ( min::gen ) );
     memset ( (min::gen *) newb + unused_offset,

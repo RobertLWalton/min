@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 03:24:25 EST 2016
+// Date:	Sun Jan 24 05:48:14 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5067,7 +5067,8 @@ void test_object_debugging ( void )
     min::assert_print = false;
     min::assert_throw = false;
 
-    min::gen obj = min::new_obj_gen ( 5, 5 );
+    min::unsptr hash_size = 5;
+    min::gen obj = min::new_obj_gen ( 5, hash_size );
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_push ( vp, 3 );
@@ -5088,6 +5089,15 @@ void test_object_debugging ( void )
     printer << min::pgen ( obj ) << min::eol;
     min::list_print ( printer, obj );
 
+    min::locatable_gen copy_obj
+        ( min::copy ( obj, 100 ) );
+    PRINTING_MIN_CHECK
+        ( min::list_equal ( copy_obj, obj ) );
+    min::reorganize
+        ( copy_obj, hash_size, 0, 0, false );
+    PRINTING_MIN_CHECK
+        ( min::list_equal ( copy_obj, obj ) );
+
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
@@ -5105,6 +5115,14 @@ void test_object_debugging ( void )
     }
     printer << min::pgen ( obj ) << min::eol;
     min::list_print ( printer, obj );
+
+    copy_obj = min::copy ( obj, 100 );
+    PRINTING_MIN_CHECK
+        ( min::list_equal ( copy_obj, obj ) );
+    // min::reorganize
+        // ( copy_obj, hash_size, 0, 0, false );
+    // PRINTING_MIN_CHECK
+        // ( min::list_equal ( copy_obj, obj ) );
 
     min::assert_print = saved_min_assert_print;
     min::assert_throw = saved_min_assert_throw;
