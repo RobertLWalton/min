@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 06:48:53 EST 2016
+// Date:	Mon Jan 25 02:03:06 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5489,20 +5489,23 @@ inline void copy_to_work
 	  min::gen * & work_high,
 	  min::gen *   work_end )
 {
+    min::unsptr total_size = min::total_size_of ( vp );
     while ( index < end_index )
     {
 	min::gen v = MUP::base(vp)[index++];
+	MIN_REQUIRE ( work_low < work_high );
 	* work_low ++ = v;
 #           if MIN_USE_OBJ_AUX_STUBS
 	    const min::stub * s = NULL;
 #           endif
-	min::unsptr index2;
+	min::unsptr index2 = 0;
 	if ( min::is_sublist_aux ( v )
 	     ||
 	     min::is_list_aux ( v ) )
 	{
 	    index2 = MUP::aux_of ( v );
 	    if ( index2 == 0 ) continue;
+	    index2 = total_size - index2;
 	    work_low[-1] =
 		MUP::renew_gen
 		    ( v, work_end - work_high + 1 );
@@ -5529,6 +5532,7 @@ inline void copy_to_work
 
 	FORLIST(vp,index2,s,v2,true)
 	    * -- work_high = v2;
+	    MIN_REQUIRE ( work_low < work_high );
 	ENDFORLIST
 	* -- work_high = min::LIST_END();
     }
@@ -5693,6 +5697,7 @@ inline void scan_work_area
 	    ( work_end - work_high + 1 );
 	FORLIST(vp,index,s,v2,true)
 	    * -- work_high = v2;
+	    MIN_REQUIRE ( work_low < work_high );
 	ENDFORLIST
 	* -- work_high = min::LIST_END();
     }
@@ -5715,11 +5720,14 @@ void min::reorganize
                      + hash_size
                      + attr_size_of ( vp );
 #   if MIN_USE_OBJ_AUX_STUBS
-	if ( MINT::aux_flag_of ( vp ) )
+	// if ( MINT::aux_flag_of ( vp ) )
 	    work_size += min::list_element_count ( vp );
-	else
-#   endif
+	// else
+	    // work_size += aux_size_of ( vp );
+#   else
 	work_size += aux_size_of ( vp );
+#   endif
+
     min::gen work_begin[work_size];
     min::gen * work_low = work_begin;
     min::gen * work_high = work_begin + work_size;
@@ -5803,16 +5811,17 @@ void min::reorganize
 	  total_size,
 	  unused_offset,
 	  aux_offset,
-	  vp.total_size_flags,
+	  vp.total_size_flags & ~ min::OBJ_AUX,
 	  vp.unused_offset_flags,
 	  vp.aux_offset_flags );
 
     memcpy ( (min::gen *) newb + header_size,
-             MUP::base(vp) + vp.var_offset,
-	       ( unused_offset - header_size )
+             work_begin,
+	       ( work_low - work_begin )
 	     * sizeof ( min::gen ) );
-    memset ( (min::gen *) newb + unused_offset,
-             0, unused_size * sizeof ( min::gen ) );
+    memset ( (min::gen *) newb + unused_offset, 0,
+               ( aux_offset - unused_offset )
+	     * sizeof ( min::gen ) );
     memcpy ( (min::gen *) newb + aux_offset,
              work_high,
 	       ( work_end - work_high )
@@ -9943,7 +9952,7 @@ void min::debug_str_class
     * bp = 0;
     std::cout << header << " `" << buffer << "' "
               << std::hex << str_class << std::dec
-	      << std::endl;
+              << std::endl;
 }
 
 

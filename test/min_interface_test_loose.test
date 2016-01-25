@@ -3064,6 +3064,36 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
       2: ( W 1022 R 1017 M 1012 H 1007 C 1002 .separator "," )
       3: ( X 1023 S 1018 N 1013 I 1008 D 1003 .terminator [< * "}" >] )
       4: ( Y 1024 T 1019 O 1014 J 1009 E 1004 )
+0 variables:
+5 vector elements:
+      0: 1
+      1: 2
+      2: 3
+      3: 4
+      4: 5
+5 hash table:
+      0: ( Z 1025 U 1020 P 1015 K 1010 F 1005 A 1000 .initiator
+          [< "{" * >] )
+      1: ( V 1021 Q 1016 L 1011 G 1006 B 1001 )
+      2: ( W 1022 R 1017 M 1012 H 1007 C 1002 .separator "," )
+      3: ( X 1023 S 1018 N 1013 I 1008 D 1003 .terminator [< * "}" >] )
+      4: ( Y 1024 T 1019 O 1014 J 1009 E 1004 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::list_equal ( copy_obj, obj ) => true
+0 variables:
+5 vector elements:
+      0: 1
+      1: 2
+      2: 3
+      3: 4
+      4: 5
+5 hash table:
+      0: ( Z 1025 U 1020 P 1015 K 1010 F 1005 A 1000 .initiator
+          [< "{" * >] )
+      1: ( V 1021 Q 1016 L 1011 G 1006 B 1001 )
+      2: ( W 1022 R 1017 M 1012 H 1007 C 1002 .separator "," )
+      3: ( X 1023 S 1018 N 1013 I 1008 D 1003 .terminator [< * "}" >] )
+      4: ( Y 1024 T 1019 O 1014 J 1009 E 1004 )
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::list_equal ( copy_obj, obj ) => true
 

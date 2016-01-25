@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 05:48:14 EST 2016
+// Date:	Mon Jan 25 02:02:39 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5117,12 +5117,14 @@ void test_object_debugging ( void )
     min::list_print ( printer, obj );
 
     copy_obj = min::copy ( obj, 100 );
+    min::list_print ( printer, copy_obj );
     PRINTING_MIN_CHECK
         ( min::list_equal ( copy_obj, obj ) );
-    // min::reorganize
-        // ( copy_obj, hash_size, 0, 0, false );
-    // PRINTING_MIN_CHECK
-        // ( min::list_equal ( copy_obj, obj ) );
+    min::reorganize
+        ( copy_obj, hash_size, 0, 0, false );
+    min::list_print ( printer, copy_obj );
+    PRINTING_MIN_CHECK
+        ( min::list_equal ( copy_obj, obj ) );
 
     min::assert_print = saved_min_assert_print;
     min::assert_throw = saved_min_assert_throw;
