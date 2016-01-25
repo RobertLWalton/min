@@ -3110,6 +3110,61 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
       4: ( Y 1024 T 1019 O 1014 J 1009 E 1004 )
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::list_equal ( copy_obj, obj ) => true
+1 hash table:
+      0: ( E 1004 J 1009 O 1014 T 1019 Y 1024 .terminator [< * "}" >] D
+          1003 I 1008 N 1013 S 1018 X 1023 .separator "," C 1002 H 1007
+          M 1012 R 1017 W 1022 B 1001 G 1006 L 1011 Q 1016 V 1021
+          .initiator [< "{" * >] A 1000 F 1005 K 1010 P 1015 U 1020 Z
+          1025 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    memcmp ( info, copy_info, info_length * sizeof ( info[0] ) ) == 0 => true
+4 hash table:
+      0: ( T 1019 D 1003 X 1023 H 1007 L 1011 P 1015 )
+      1: ( E 1004 Y 1024 .terminator [< * "}" >] I 1008 M 1012 Q 1016
+          .initiator [< "{" * >] A 1000 U 1020 )
+      2: ( J 1009 N 1013 R 1017 B 1001 V 1021 F 1005 Z 1025 )
+      3: ( O 1014 S 1018 .separator "," C 1002 W 1022 G 1006 K 1010 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    memcmp ( info, copy_info, info_length * sizeof ( info[0] ) ) == 0 => true
+7 hash table:
+      0: ( T 1019 M 1012 F 1005 )
+      1: ( N 1013 G 1006 U 1020 )
+      2: ( O 1014 H 1007 V 1021 A 1000 )
+      3: ( I 1008 .separator "," W 1022 B 1001 P 1015 )
+      4: ( J 1009 X 1023 C 1002 Q 1016 .initiator [< "{" * >] )
+      5: ( Y 1024 .terminator [< * "}" >] D 1003 R 1017 K 1010 )
+      6: ( E 1004 S 1018 L 1011 Z 1025 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    memcmp ( info, copy_info, info_length * sizeof ( info[0] ) ) == 0 => true
+10 hash table:
+      0: ( F 1005 P 1015 Z 1025 )
+      1: ( G 1006 Q 1016 )
+      2: ( H 1007 R 1017 )
+      3: ( .terminator [< * "}" >] I 1008 S 1018 )
+      4: ( J 1009 T 1019 )
+      5: ( .initiator [< "{" * >] A 1000 K 1010 U 1020 )
+      6: ( B 1001 L 1011 V 1021 )
+      7: ( .separator "," C 1002 M 1012 W 1022 )
+      8: ( D 1003 N 1013 X 1023 )
+      9: ( E 1004 O 1014 Y 1024 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    memcmp ( info, copy_info, info_length * sizeof ( info[0] ) ) == 0 => true
+13 hash table:
+      0: ( N 1013 A 1000 )
+      1: ( O 1014 B 1001 )
+      2: ( C 1002 P 1015 )
+      3: ( .terminator [< * "}" >] D 1003 .separator "," Q 1016 )
+      4: ( E 1004 R 1017 )
+      5: ( S 1018 F 1005 )
+      6: ( T 1019 G 1006 )
+      7: ( H 1007 .initiator [< "{" * >] U 1020 )
+      8: ( I 1008 V 1021 )
+      9: ( J 1009 W 1022 )
+     10: ( X 1023 K 1010 )
+     11: ( Y 1024 L 1011 )
+     12: ( M 1012 Z 1025 )
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    memcmp ( info, copy_info, info_length * sizeof ( info[0] ) ) == 0 => true
 
 Finish Object Debugging Test!
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

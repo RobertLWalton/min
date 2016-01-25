@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 25 02:02:39 EST 2016
+// Date:	Mon Jan 25 06:45:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -241,11 +241,11 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
 // Place to allocate bodies.  Bodes must be allocated on
 // 8 byte boundaries.
 //
-char body_region[4000000];
+char body_region[16000000];
 
 // Place to point deallocated bodies.  All zeros.
 //
-char deallocated_body_region[4000000];
+char deallocated_body_region[16000000];
 
 // Address of the first body control block in the
 // region, and the address of the first location beyond
@@ -5089,14 +5089,16 @@ void test_object_debugging ( void )
     printer << min::pgen ( obj ) << min::eol;
     min::list_print ( printer, obj );
 
-    min::locatable_gen copy_obj
-        ( min::copy ( obj, 100 ) );
-    PRINTING_MIN_CHECK
-        ( min::list_equal ( copy_obj, obj ) );
-    min::reorganize
-        ( copy_obj, hash_size, 0, 0, false );
-    PRINTING_MIN_CHECK
-        ( min::list_equal ( copy_obj, obj ) );
+    {
+	min::locatable_gen copy_obj
+	    ( min::copy ( obj, 100 ) );
+	PRINTING_MIN_CHECK
+	    ( min::list_equal ( copy_obj, obj ) );
+	min::reorganize
+	    ( copy_obj, hash_size, 0, 0, false );
+	PRINTING_MIN_CHECK
+	    ( min::list_equal ( copy_obj, obj ) );
+    }
 
     {
 	min::obj_vec_insptr vp ( obj );
@@ -5115,16 +5117,55 @@ void test_object_debugging ( void )
     }
     printer << min::pgen ( obj ) << min::eol;
     min::list_print ( printer, obj );
+    {
+	min::locatable_gen copy_obj
+    	    ( min::copy ( obj, 100 ) );
+	min::list_print ( printer, copy_obj );
+	PRINTING_MIN_CHECK
+	    ( min::list_equal ( copy_obj, obj ) );
+	min::reorganize
+	    ( copy_obj, hash_size, 0, 0, false );
+	min::list_print ( printer, copy_obj );
+	PRINTING_MIN_CHECK
+	    ( min::list_equal ( copy_obj, obj ) );
+    }
 
-    copy_obj = min::copy ( obj, 100 );
-    min::list_print ( printer, copy_obj );
-    PRINTING_MIN_CHECK
-        ( min::list_equal ( copy_obj, obj ) );
-    min::reorganize
-        ( copy_obj, hash_size, 0, 0, false );
-    min::list_print ( printer, copy_obj );
-    PRINTING_MIN_CHECK
-        ( min::list_equal ( copy_obj, obj ) );
+    min::attr_info info[100];
+    min::unsptr info_length;
+    {
+	min::obj_vec_insptr vp ( obj );
+	min::attr_insptr ap  ( vp );
+	info_length = min::get_attrs
+	    ( info, 100, ap, true );
+	MIN_REQUIRE ( info_length < 100 );
+	min::sort_attr_info ( info, info_length );
+    }
+
+    for ( min::unsptr hs = 1; hs <= 3 * hash_size;
+                              hs += 3 )
+    {
+	min::locatable_gen copy_obj
+    	    ( min::copy ( obj, 100 ) );
+	min::reorganize
+	    ( copy_obj, hs, 0, 0, false );
+	min::list_print ( printer, copy_obj,
+	                  false, false, true );
+	min::attr_info copy_info[100];
+	min::unsptr copy_info_length;
+
+	min::obj_vec_insptr vp ( copy_obj );
+	min::attr_insptr ap  ( vp );
+	copy_info_length = min::get_attrs
+	    ( copy_info, 100, ap, true );
+	MIN_REQUIRE ( copy_info_length == info_length );
+	min::sort_attr_info ( copy_info, info_length );
+
+	PRINTING_MIN_CHECK
+	    (    memcmp ( info, copy_info,
+	                    info_length
+		          * sizeof ( info[0] ) )
+	      == 0 );
+    }
 
     min::assert_print = saved_min_assert_print;
     min::assert_throw = saved_min_assert_throw;

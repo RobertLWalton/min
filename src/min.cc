@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 25 02:03:06 EST 2016
+// Date:	Mon Jan 25 06:46:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5717,7 +5717,10 @@ void min::reorganize
     // is NOT included.  Work area may be oversized.
     //
     unsptr work_size = var_size
-                     + hash_size
+                     + 2 * hash_size
+		       // If hash_size > old_hash_size
+		       // we need to add an a LIST_END
+		       // for each new hash table entry.
                      + attr_size_of ( vp );
 #   if MIN_USE_OBJ_AUX_STUBS
 	// if ( MINT::aux_flag_of ( vp ) )
