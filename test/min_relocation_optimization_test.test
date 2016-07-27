@@ -61,7 +61,7 @@ _Z5test3Ri:
 	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
 	movq	_ZN3min8internal9acc_stackE(%rip), %rax
 	cmpq	%rdx, %rax
-	jae	.L10
+	jnb	.L10
 .L5:
 	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rdx
 	addl	$1, (%rdi)
@@ -116,5 +116,5 @@ _GLOBAL__sub_I__Z5test1PKN3min4stubEi:
 	.local	_ZStL8__ioinit
 	.comm	_ZStL8__ioinit,1,1
 	.hidden	__dso_handle
-	.ident	"GCC: (GNU) 4.8.3 20140911 (Red Hat 4.8.3-7)"
+	.ident	"GCC: (GNU) 4.8.5 20150623 (Red Hat 4.8.5-4)"
 	.section	.note.GNU-stack,"",@progbits
