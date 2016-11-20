@@ -9,8 +9,12 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{makeidx}
-\usepackage{pictex}
-\usepackage{upquote}
+% \usepackage{pictex} (obsolete? not available under CentOS 7)
+\usepackage{upquote} % (imported to local directory
+                     % ; not available under CentOS 7)
+    % Modifies \verb and \verbatim to print ' with
+    % the Computer Modern Typewrite font.
+    % Also includes the textcomp package.
     % Modifies \verb and \verbatim to print ' with
     % the Computer Modern Typewrite font.
     % Also includes the textcomp package.
@@ -255,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 24, 2016}
+\date{November 20, 2016}
  
 \maketitle
 
@@ -1606,6 +1610,12 @@ or output and used as an attribute value.
 Denotes a non-existent function value or result, but may \underline{not} be
 input or output or used in an attribute value or label.  May be used
 as a function argument or return value.
+\item[\TT{const min::gen min::}\MINKEY{DISABLED()}]~%
+	\LABEL{MIN::DISABLED}\\
+Specifies that a feature is disabled.
+\item[\TT{const min::gen min::}\MINKEY{ENABLED()}]~%
+	\LABEL{MIN::ENABLED}\\
+Specifies that a feature is enabled.
 \item[\TT{const min::gen min::}\MINKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
 An argument value used to specify that any value from a set of values may be
@@ -11412,8 +11422,9 @@ The format for printing special \TT{min::gen} values is:
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 9 are:|\ARGBREAK
-\verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
-\verb|//     SUCCESS  FAILURE  ERROR LOGICAL_LINE INDENTED_PARAGRAPH|
+\verb|//     MISSING  NONE  DISABLED  ENABLED  ANY  MULTI_VALUED|\ARGBREAK
+\verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
+\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -16740,6 +16751,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::MISSING} \\
 \verb|min::gen min::| & \MINKEY{NONE()}
 \LABEL{MIN::NONE} \\
+\verb|min::gen min::| & \MINKEY{DISABLED()}
+\LABEL{MIN::DISABLED} \\
+\verb|min::gen min::| & \MINKEY{ENABLED()}
+\LABEL{MIN::ENABLED} \\
 \verb|min::gen min::| & \MINKEY{ANY()}
 \LABEL{MIN::ANY} \\
 \verb|min::gen min::| & \MINKEY{MULTI\_VALUED()}
@@ -20569,9 +20584,9 @@ These are in \verb|min_parameters.h|.
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 9 are:|\ARGBREAK
-\verb|//     MISSING  NONE  ANY  MULTI_VALUED  UNDEFINED|\ARGBREAK
-\verb|//     SUCCESS  FAILURE  ERROR|\ARGBREAK
-\verb|//     LOGICAL_LINE  INDENTED_PARAGRAPH|
+\verb|//     MISSING  NONE  DISABLED  ENABLED  ANY  MULTI_VALUED|\ARGBREAK
+\verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
+\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
 \end{TABULAR}
 
 \end{indpar}

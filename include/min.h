@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 24 02:56:41 EST 2016
+// Date:	Sun Nov 20 07:18:55 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -342,30 +342,36 @@ namespace min {
     inline min::gen NONE ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFFE ); }
-    inline min::gen ANY ( void )
+    inline min::gen DISABLED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFFD ); }
-    inline min::gen MULTI_VALUED ( void )
+    inline min::gen ENABLED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFFC ); }
-    inline min::gen UNDEFINED ( void )
+    inline min::gen ANY ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFFB ); }
-    inline min::gen SUCCESS ( void )
+    inline min::gen MULTI_VALUED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFFA ); }
-    inline min::gen FAILURE ( void )
+    inline min::gen UNDEFINED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF9 ); }
-    inline min::gen ERROR ( void )
+    inline min::gen SUCCESS ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF8 ); }
-    inline min::gen LOGICAL_LINE ( void )
+    inline min::gen FAILURE ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF7 ); }
-    inline min::gen INDENTED_PARAGRAPH ( void )
+    inline min::gen ERROR ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF6 ); }
+    inline min::gen LOGICAL_LINE ( void )
+	{ return min::unprotected::new_special_gen
+	    ( 0xFFFFF5 ); }
+    inline min::gen INDENTED_PARAGRAPH ( void )
+	{ return min::unprotected::new_special_gen
+	    ( 0xFFFFF4 ); }
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
