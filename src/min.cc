@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 04:22:28 EST 2016
+// Date:	Tue Nov 29 05:27:57 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11769,6 +11769,7 @@ min::printer min::print_obj
             << min::set_break;
 
     min::gen mark_end_type = min::NONE();
+    bool attributes_printed = false;
     if ( compact_format )
     {
 	if ( obj_op_flags & min::ENABLE_LOGICAL_LINE
@@ -11994,7 +11995,7 @@ min::printer min::print_obj
 	    ( printer, type != min::NONE() ?
 		       type : min::empty_str,
 		       objf->label_format );
-	::print_attributes
+	attributes_printed = ::print_attributes
 	    ( printer, objf, vp, ap, info, m,
 	      false, type );
     }
@@ -12006,12 +12007,14 @@ min::printer min::print_obj
         if ( first ) 
 	{
 	    first = false;
-	    printer << min::save_indent;
 	    if ( isolated_line_format )
-		printer << min::adjust_indent ( 8 );
-	    else if ( ! embedded_line_format
-	              &&
-	              ! compact_format )
+		printer << min::save_indent
+			<< min::adjust_indent ( 8 );
+	    else if ( embedded_line_format )
+		printer << min::save_indent;
+	    else if ( compact_format )
+		printer << min::save_indent;
+	    else
 		printer << min::set_break;
 	}
 	else
@@ -12040,7 +12043,7 @@ min::printer min::print_obj
 	    printer << min::save_line_break
 	            << min::adjust_indent ( 4 );
 
-	bool attributes_printed = ::print_attributes
+	attributes_printed = ::print_attributes
 		( printer, objf, vp, ap, info, m,
 		  true, type );
 	if ( attributes_printed )
@@ -12101,7 +12104,9 @@ min::printer min::print_obj
 	    printer << objf->obj_ket;
 	}
 
-	if ( ! first ) printer << min::restore_indent;
+	if (    ( ! first && compact_format )
+	     || attributes_printed )
+	    printer << min::restore_indent;
     }
 
     return printer << min::restore_print_format;
