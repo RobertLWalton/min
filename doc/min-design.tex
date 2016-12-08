@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 20, 2016}
+\date{December 8, 2016}
  
 \maketitle
 
@@ -5698,7 +5698,7 @@ only component is a number or string is \underline{not}
 used to represent a name, in order to ensure that each name has a unique
 representation.
 
-The following functions concern names:
+The following functions concern names in general:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_name} \verb|( min::gen v )|
@@ -5710,6 +5710,12 @@ The following functions concern names:
 \verb|min::int32 min::| & \MINKEY{is\_subsequence}
     \verb|( min::gen v1, min::gen v2 )|
 \LABEL{MIN::IS_SUBSEQUENCE} \\
+\verb|min::gen min::| & \MINKEY{new\_name\_gen}
+    \verb|( const char * s )|
+\LABEL{MIN::NEW_NAME_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_name\_gen}
+    \verb|( min::ptr<const char> s )|
+\LABEL{MIN::NEW_NAME_GEN_OF_PTR} \\
 \end{tabular}\end{indpar}
 
 The \TT{min::is\_name} function returns true if and only if its argument is
@@ -5740,6 +5746,15 @@ argument \TT{v2}, or returns \TT{-1} if there is no such
 occurence.  For this function,
 a non-label must be an atom, and is equivalent to a length \TT{1} label
 whose sole element is the atom.
+
+The \TT{min::new\_name\_gen} functions convert a UTF-8 character string
+to a name.  The character string is parsed into components that contain no
+(horizonal or vertical) space characters and these are made into
+a name that is returned.  If there is more than one component, a label is
+returned with each component being a MIN string element.
+If there is exactly one component, a MIN string equal to
+that component is returned.
+If there are no components,  a label with zero elements is returned.
 
 The following names are defined for general use:
 
@@ -18047,9 +18062,6 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{is\_lab} \verb|( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
-\verb|min::int32 min::| & \MINKEY{is\_subsequence}\ARGBREAK
-    \verb|( min::gen v1, min::gen v2 )|
-\LABEL{MIN::IS_SUBSEQUENCE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -18120,6 +18132,15 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::HASH} \\
 \verb|int min::| & \MINKEY{compare} \verb|( min::gen v1, min::gen v2 )|
 \LABEL{MIN::COMPARE} \\
+\verb|min::int32 min::| & \MINKEY{is\_subsequence}\ARGBREAK
+    \verb|( min::gen v1, min::gen v2 )|
+\LABEL{MIN::IS_SUBSEQUENCE} \\
+\verb|min::gen min::| & \MINKEY{new\_name\_gen}
+    \verb|( const char * s )|
+\LABEL{MIN::NEW_NAME_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_name\_gen}
+    \verb|( min::ptr<const char> s )|
+\LABEL{MIN::NEW_NAME_GEN_OF_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}

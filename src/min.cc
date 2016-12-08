@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 29 05:27:57 EST 2016
+// Date:	Thu Dec  8 12:11:11 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -667,6 +667,70 @@ min::int32 min::is_subsequence
 	}
     }
     return -1;
+}
+
+min::gen min::new_name_gen ( const char * s )
+{
+    //Count the number of components.
+    //
+    uns32 count = 0;
+    const char * p = s;
+    const char * ends = s + ::strlen ( s );
+    bool last_is_space = true;
+    while ( * p )
+    {
+	min::Uchar c = min::utf8_to_unicode ( p, ends );
+	uns16 index = min::Uindex ( c );
+	uns32 flags =
+	    index < min::unicode::index_limit ?
+	    min::standard_char_flags[index] :
+	    min::IS_VHSPACE;
+	if ( flags & min::IS_VHSPACE )
+	    last_is_space = true;
+	else
+	{
+	    if ( last_is_space ) ++ count;
+	    last_is_space = false;
+	}
+    }
+
+    // Compute the components.
+    //
+    min::locatable_gen component[count];
+    uns32 i = 0;
+    const char * q;
+    p = s;
+    last_is_space = true;
+    while ( * p )
+    {
+	const char * psave = p;
+	min::Uchar c = min::utf8_to_unicode ( p, ends );
+	uns16 index = min::Uindex ( c );
+	uns32 flags =
+	    index < min::unicode::index_limit ?
+	    min::standard_char_flags[index] :
+	    min::IS_VHSPACE;
+	if ( flags & min::IS_VHSPACE )
+	{
+	    if ( ! last_is_space )
+	        component[i++] =
+		    min::new_str_gen ( q, psave - q );
+	    last_is_space = true;
+	}
+	else
+	{
+	    if ( last_is_space ) q = psave;
+	    last_is_space = false;
+	}
+    }
+
+    if ( count == 1 ) return component[0];
+
+    min::gen component_vec[count];
+    for ( i = 0; i < count; ++ i )
+        component_vec[i] = component[i];
+
+    return min::new_lab_gen ( component_vec, count );
 }
 
 // Process Management

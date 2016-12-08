@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 07:18:55 EST 2016
+// Date:	Thu Dec  8 12:45:20 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4521,9 +4521,6 @@ namespace min {
 	  const char * s3,
 	  const char * s4,
 	  const char * s5 );
-
-    min::int32 is_subsequence
-        ( min::gen v1, min::gen v2 );
 }
 
 // Names
@@ -4561,6 +4558,19 @@ namespace min {
     min::uns32 hash ( min::gen g );
 
     int compare ( min::gen g1, min::gen g2 );
+
+    min::int32 is_subsequence
+        ( min::gen v1, min::gen v2 );
+
+    min::gen new_name_gen ( const char * s );
+
+    inline min::gen new_name_gen
+	    ( min::ptr<const char> s )
+    {
+	min::uns32 len = ::strlen ( ! s );
+	MIN_STACK_COPY ( char, buffer, len, s );
+        return new_name_gen ( buffer );
+    }
 }
 
 // Packed Structures
