@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 12:45:20 EST 2016
+// Date:	Fri Dec  9 03:34:24 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8753,7 +8753,10 @@ namespace min {
 	    unprotected::aux_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
-	index %= hash_size_of ( lp );
+	unsptr hsize = hash_size_of ( lp );
+	MIN_ASSERT ( hsize > 0,
+	             "object hash size is 0" );
+	index %= hsize;
 
 	lp.head_index = lp.hash_offset + index;
 	return lp.forward ( lp.head_index );
