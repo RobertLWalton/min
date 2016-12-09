@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 03:34:24 EST 2016
+// Date:	Fri Dec  9 03:45:31 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4568,7 +4568,7 @@ namespace min {
 	    ( min::ptr<const char> s )
     {
 	min::uns32 len = ::strlen ( ! s );
-	MIN_STACK_COPY ( char, buffer, len, s );
+	MIN_STACK_COPY ( char, buffer, len + 1, s );
         return new_name_gen ( buffer );
     }
 }
