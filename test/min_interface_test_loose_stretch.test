@@ -1000,36 +1000,12 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     labp2 == min::NULL_STUB => true
 LABEL [< "Hello" 55 "End" >]
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    -1 == min::is_subsequence ( lab, labv1[0] ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    0 == min::is_subsequence ( labv1[0], labv1[0] ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    -1 == min::is_subsequence ( labv1[0], labv1[1] ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    0 == min::is_subsequence ( labv1[0], lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    1 == min::is_subsequence ( labv1[1], lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    2 == min::is_subsequence ( labv1[2], lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    0 == min::is_subsequence ( lab, lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    -1 == min::is_subsequence ( min::new_str_gen ( "66" ), lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    0 == min::is_subsequence ( min::new_lab_gen ( labv1, 2 ), lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    1 == min::is_subsequence ( min::new_lab_gen ( labv1 + 1, 2 ), lab ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    -1 == min::is_subsequence ( min::new_lab_gen ( labv2, 2 ), lab ) => true
 
 Finish Labels Test!
 
 Start Names Test!
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1057,13 +1033,19 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::compare ( str2, str1 ) > 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::compare ( lab1, lab1 ) == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::compare ( lab1, lab2 ) < 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::compare ( lab2, lab1 ) > 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::compare ( lab11, lab11 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab11, lab12 ) < 0 => true
+    min::compare ( lab1, lab11 ) < 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab12, lab11 ) > 0 => true
+    min::compare ( lab11, lab1 ) > 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab21, lab21 ) == 0 => true
+    min::compare ( lab11, lab11 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::compare ( lab11, lab21 ) < 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1071,15 +1053,56 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::compare ( lab21, lab21 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab21, lab23 ) < 0 => true
+    min::compare ( lab21, lab22 ) < 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab23, lab21 ) > 0 => true
+    min::compare ( lab22, lab21 ) > 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab23, lab23 ) == 0 => true
+    -1 == min::is_subsequence ( num2, lab11 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab23, lab24 ) < 0 => true
+    0 == min::is_subsequence ( num1, lab11 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::compare ( lab24, lab23 ) > 0 => true
+    1 == min::is_subsequence ( str1, lab11 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::is_subsequence ( num2, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    3 == min::is_subsequence ( str2, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    -1 == min::is_subsequence ( str2, lab21 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    -1 == min::is_subsequence ( lab1122, lab11 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::is_subsequence ( lab11, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    -1 == min::is_subsequence ( lab12, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::is_subsequence ( lab22, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::is_subsequence ( lab1, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::is_subsequence ( lab2, lab1122 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::is_subsequence ( lab11, lab2211 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    -1 == min::is_subsequence ( lab12, lab2211 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::is_subsequence ( lab22, lab2211 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::is_subsequence ( lab1, lab2211 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::is_subsequence ( lab2, lab2211 ) => true
+LABEL EMPTY: [< >]
+LABEL A: "A"
+LABEL B: "B"
+LABEL C: "C"
+LABEL D: "D"
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+LABEL AA BB: [< "AA" "BB" >]
+LABEL BB CC: [< "BB" "CC" >]
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+LABEL AA BB CC: [< "AA" "BB" "CC" >]
+LABEL AA BB CC DDDD: [< "AA" "BB" "CC" "DDDD" >]
 
 Finish Names Test!
 
@@ -1096,6 +1119,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv1->i == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv1->i == 88 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 upv2->control = 2
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv2->i == 0 => true
@@ -1109,8 +1134,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->i == 55 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->j == 99 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv2 == min::stub_of ( v2 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1298,6 +1321,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->occupied == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

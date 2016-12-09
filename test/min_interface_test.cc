@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 25 06:45:19 EST 2016
+// Date:	Fri Dec  9 01:47:54 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1932,38 +1932,6 @@ void test_labels ( void )
     MIN_CHECK ( labp2 == min::NULL_STUB );
 
     cout << "LABEL " << lab << endl;
-
-    MIN_CHECK
-        ( -1 == min::is_subsequence ( lab, labv1[0] ) );
-    MIN_CHECK
-        ( 0 == min::is_subsequence
-	           ( labv1[0], labv1[0] ));
-    MIN_CHECK
-        ( -1 == min::is_subsequence
-	           ( labv1[0], labv1[1] ));
-    MIN_CHECK
-        ( 0 == min::is_subsequence ( labv1[0], lab ) );
-    MIN_CHECK
-        ( 1 == min::is_subsequence ( labv1[1], lab ) );
-    MIN_CHECK
-        ( 2 == min::is_subsequence ( labv1[2], lab ) );
-    MIN_CHECK
-        ( 0 == min::is_subsequence ( lab, lab ) );
-    MIN_CHECK
-        ( -1 == min::is_subsequence
-	    ( min::new_str_gen ( "66" ), lab ) );
-    MIN_CHECK
-        ( 0 == min::is_subsequence
-	    ( min::new_lab_gen ( labv1, 2 ), lab ) );
-    MIN_CHECK
-        ( 1 == min::is_subsequence
-	    ( min::new_lab_gen ( labv1 + 1, 2 ),
-	      lab ) );
-    labv2[0] = labv1[2];
-    labv2[1] = labv1[1];
-    MIN_CHECK
-        ( -1 == min::is_subsequence
-	    ( min::new_lab_gen ( labv2, 2 ), lab ) );
     
     cout << endl;
     cout << "Finish Labels Test!" << endl;
@@ -1983,19 +1951,23 @@ void test_names ( void )
     min::gen str1 = min::new_str_gen ( "str 1" );
     min::gen str2 = min::new_str_gen ( "str 2" );
 
-    min::gen l11[1] = { num1 };
-    min::gen l12[1] = { num2 };
-    min::gen l21[2] = { num1, str1 };
-    min::gen l22[2] = { num1, str2 };
-    min::gen l23[2] = { num2, str1 };
-    min::gen l24[2] = { num2, str2 };
+    min::gen l1[1] = { num1 };
+    min::gen l2[1] = { num2 };
+    min::gen l11[2] = { num1, str1 };
+    min::gen l12[2] = { num1, str2 };
+    min::gen l21[2] = { num2, str1 };
+    min::gen l22[2] = { num2, str2 };
+    min::gen l1122[4] = { num1, str1, num2, str2 };
+    min::gen l2211[4] = { num2, str2, num1, str1 };
 
-    min::gen lab11 = min::new_lab_gen ( l11, 1 );
-    min::gen lab12 = min::new_lab_gen ( l12, 1 );
+    min::gen lab1 = min::new_lab_gen ( l1, 1 );
+    min::gen lab2 = min::new_lab_gen ( l2, 1 );
+    min::gen lab11 = min::new_lab_gen ( l11, 2 );
+    min::gen lab12 = min::new_lab_gen ( l12, 2 );
     min::gen lab21 = min::new_lab_gen ( l21, 2 );
     min::gen lab22 = min::new_lab_gen ( l22, 2 );
-    min::gen lab23 = min::new_lab_gen ( l23, 2 );
-    min::gen lab24 = min::new_lab_gen ( l24, 2 );
+    min::gen lab1122 = min::new_lab_gen ( l1122, 4 );
+    min::gen lab2211 = min::new_lab_gen ( l2211, 4 );
 
     cout << "HASH of new_num_gen ( 1 ) = "
          << min::hash ( num1 ) << endl;
@@ -2006,15 +1978,15 @@ void test_names ( void )
     cout << "HASH of new_str_gen ( \"str 2\" ) = "
          << min::hash ( str2 ) << endl;
     cout << "HASH of new_lab_gen ( { 1.0 }, 1 ) = "
-         << min::hash ( lab11 ) << endl;
+         << min::hash ( lab1 ) << endl;
     cout << "HASH of new_lab_gen ( { 2.0 }, 1 ) = "
-         << min::hash ( lab12 ) << endl;
+         << min::hash ( lab2 ) << endl;
     cout << "HASH of new_lab_gen"
               " ( { 1.0, \"str 1\" }, 2 ) = "
-         << min::hash ( lab21 ) << endl;
+         << min::hash ( lab11 ) << endl;
     cout << "HASH of new_lab_gen"
               " ( { 1.0, \"str 2\" }, 2 ) = "
-         << min::hash ( lab22 ) << endl;
+         << min::hash ( lab12 ) << endl;
 
     MIN_CHECK ( min::compare ( num1, num1 ) == 0 );
     MIN_CHECK ( min::compare ( num1, num2 ) < 0 );
@@ -2024,21 +1996,77 @@ void test_names ( void )
     MIN_CHECK ( min::compare ( str1, str2 ) < 0 );
     MIN_CHECK ( min::compare ( str2, str1 ) > 0 );
 
-    MIN_CHECK ( min::compare ( lab11, lab11 ) == 0 );
-    MIN_CHECK ( min::compare ( lab11, lab12 ) < 0 );
-    MIN_CHECK ( min::compare ( lab12, lab11 ) > 0 );
+    MIN_CHECK ( min::compare ( lab1, lab1 ) == 0 );
+    MIN_CHECK ( min::compare ( lab1, lab2 ) < 0 );
+    MIN_CHECK ( min::compare ( lab2, lab1 ) > 0 );
 
-    MIN_CHECK ( min::compare ( lab21, lab21 ) == 0 );
+    MIN_CHECK ( min::compare ( lab11, lab11 ) == 0 );
+    MIN_CHECK ( min::compare ( lab1, lab11 ) < 0 );
+    MIN_CHECK ( min::compare ( lab11, lab1 ) > 0 );
+
+    MIN_CHECK ( min::compare ( lab11, lab11 ) == 0 );
     MIN_CHECK ( min::compare ( lab11, lab21 ) < 0 );
     MIN_CHECK ( min::compare ( lab21, lab11 ) > 0 );
 
     MIN_CHECK ( min::compare ( lab21, lab21 ) == 0 );
-    MIN_CHECK ( min::compare ( lab21, lab23 ) < 0 );
-    MIN_CHECK ( min::compare ( lab23, lab21 ) > 0 );
+    MIN_CHECK ( min::compare ( lab21, lab22 ) < 0 );
+    MIN_CHECK ( min::compare ( lab22, lab21 ) > 0 );
 
-    MIN_CHECK ( min::compare ( lab23, lab23 ) == 0 );
-    MIN_CHECK ( min::compare ( lab23, lab24 ) < 0 );
-    MIN_CHECK ( min::compare ( lab24, lab23 ) > 0 );
+    MIN_CHECK
+        ( -1 == min::is_subsequence ( num2, lab11 ) );
+    MIN_CHECK
+        ( 0 == min::is_subsequence ( num1, lab11 ));
+    MIN_CHECK
+        ( 1 == min::is_subsequence ( str1, lab11 ));
+    MIN_CHECK
+        ( 2 == min::is_subsequence ( num2, lab1122 ));
+    MIN_CHECK
+        ( 3 == min::is_subsequence ( str2, lab1122 ));
+    MIN_CHECK
+        ( -1 == min::is_subsequence ( str2, lab21 ));
+    MIN_CHECK
+        ( -1 == min::is_subsequence ( lab1122, lab11 ));
+    MIN_CHECK
+        ( 0 == min::is_subsequence ( lab11, lab1122 ));
+    MIN_CHECK
+        ( -1 == min::is_subsequence ( lab12, lab1122 ));
+    MIN_CHECK
+        ( 2 == min::is_subsequence ( lab22, lab1122 ));
+    MIN_CHECK
+        ( 0 == min::is_subsequence ( lab1, lab1122 ));
+    MIN_CHECK
+        ( 2 == min::is_subsequence ( lab2, lab1122 ));
+    MIN_CHECK
+        ( 2 == min::is_subsequence ( lab11, lab2211 ));
+    MIN_CHECK
+        ( -1 == min::is_subsequence ( lab12, lab2211 ));
+    MIN_CHECK
+        ( 0 == min::is_subsequence ( lab22, lab2211 ));
+    MIN_CHECK
+        ( 2 == min::is_subsequence ( lab1, lab2211 ));
+    MIN_CHECK
+        ( 0 == min::is_subsequence ( lab2, lab2211 ));
+
+    cout << "LABEL EMPTY: "
+         << min::new_name_gen ( " \t\f " ) << endl;
+    cout << "LABEL A: "
+         << min::new_name_gen ( "A" ) << endl;
+    cout << "LABEL B: "
+         << min::new_name_gen ( " B" ) << endl;
+    cout << "LABEL C: "
+         << min::new_name_gen ( "C " ) << endl;
+    cout << "LABEL D: "
+         << min::new_name_gen ( "  D  " ) << endl;
+    cout << "LABEL AA BB: "
+         << min::new_name_gen ( "AA BB" ) << endl;
+    cout << "LABEL BB CC: "
+         << min::new_name_gen ( "  BB\t  CC " ) << endl;
+    cout << "LABEL AA BB CC: "
+         << min::new_name_gen
+	        ( "AA  BB\t  CC " ) << endl;
+    cout << "LABEL AA BB CC DDDD: "
+         << min::new_name_gen
+	        ( "AA  BB\t  CC \fDDDD\t\f" ) << endl;
     
     cout << endl;
     cout << "Finish Names Test!" << endl;

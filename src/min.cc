@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec  8 12:11:11 EST 2016
+// Date:	Fri Dec  9 02:16:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -701,15 +701,23 @@ min::gen min::new_name_gen ( const char * s )
     const char * q;
     p = s;
     last_is_space = true;
-    while ( * p )
+    bool done = false;
+    while ( ! done )
     {
 	const char * psave = p;
-	min::Uchar c = min::utf8_to_unicode ( p, ends );
-	uns16 index = min::Uindex ( c );
-	uns32 flags =
-	    index < min::unicode::index_limit ?
-	    min::standard_char_flags[index] :
-	    min::IS_VHSPACE;
+	uns32 flags = min::IS_VHSPACE;
+	if  ( * p )
+	{
+	    min::Uchar c =
+	        min::utf8_to_unicode ( p, ends );
+	    uns16 index = min::Uindex ( c );
+	    flags =
+		index < min::unicode::index_limit ?
+		min::standard_char_flags[index] :
+		min::IS_VHSPACE;
+	}
+	else done = true;
+
 	if ( flags & min::IS_VHSPACE )
 	{
 	    if ( ! last_is_space )
