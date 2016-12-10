@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 07:36:56 EST 2016
+// Date:	Sat Dec 10 12:07:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11190,58 +11190,58 @@ namespace min {
     //
     min::gen get
         ( min::gen obj, min::gen attr );
-    min::gen get
+    min::unsptr get
         ( min::gen * out, min::unsptr n,
           min::gen obj, min::gen attr );
-    min::gen test_flag
+    bool test_flag
         ( min::gen obj, min::gen attr, unsigned n );
-    min::gen get_flags
+    unsigned get_flags
         ( min::gen * out, min::unsptr n,
           min::gen obj, min::gen attr );
     min::gen update
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen set
+    void set
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen set
+    void set
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen add_to_set
+    void add_to_set
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen add_to_set
+    void add_to_set
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen add_to_multiset
+    void add_to_multiset
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen add_to_multiset
+    void add_to_multiset
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen remove_one
+    min::unsptr remove_one
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen remove_one
+    min::unsptr remove_one
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen remove_all
+    min::unsptr remove_all
         ( min::gen obj, min::gen attr, min::gen v );
-    min::gen remove_all
+    min::unsptr remove_all
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen set_flags
+    void set_flags
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen set_some_flags
+    void set_some_flags
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen clear_some_flags
+    void clear_some_flags
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen flip_some_flags
+    void flip_some_flags
         ( min::gen obj, min::gen attr,
           const min::gen * in, min::unsptr n );
-    min::gen set_flag
+    bool set_flag
         ( min::gen obj, min::gen attr, unsigned n );
-    min::gen clear_flag
+    bool clear_flag
         ( min::gen obj, min::gen attr, unsigned n );
-    min::gen flip_flag
+    bool flip_flag
         ( min::gen obj, min::gen attr, unsigned n );
 }
 

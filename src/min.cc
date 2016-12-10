@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 02:16:27 EST 2016
+// Date:	Sat Dec 10 12:02:56 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8503,6 +8503,196 @@ bool MINT::flip_flag
 	    ( "abnormal call to min::flip_flag" );
     }
     return false;
+}
+
+// Short-cut functions:
+//
+min::gen min::get
+    ( min::gen obj, min::gen attr )
+{
+    min::obj_vec_ptr vp ( obj );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::get ( ap );
+}
+min::unsptr min::get
+    ( min::gen * out, min::unsptr n,
+      min::gen obj, min::gen attr )
+{
+    min::obj_vec_ptr vp ( obj );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::get ( out, n, ap );
+}
+bool min::test_flag
+    ( min::gen obj, min::gen attr, unsigned n )
+{
+    min::obj_vec_ptr vp ( obj );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::test_flag ( ap, n );
+}
+unsigned min::get_flags
+    ( min::gen * out, min::unsptr n,
+      min::gen obj, min::gen attr )
+{
+    min::obj_vec_ptr vp ( obj );
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::get_flags ( out, n, ap );
+}
+min::gen min::update
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_updptr vp ( obj );
+    min::attr_updptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::update ( ap, v );
+}
+void min::set
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::set ( ap, v );
+}
+void min::set
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::set ( ap, in, n );
+}
+void min::add_to_set
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::add_to_set ( ap, v );
+}
+void min::add_to_set
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::add_to_set ( ap, in, n );
+}
+void min::add_to_multiset
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::add_to_multiset ( ap, v );
+}
+void min::add_to_multiset
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::add_to_multiset ( ap, in, n );
+}
+min::unsptr min::remove_one
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::remove_one ( ap, v );
+}
+min::unsptr min::remove_one
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::remove_one ( ap, in, n );
+}
+min::unsptr min::remove_all
+    ( min::gen obj, min::gen attr, min::gen v )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::remove_all ( ap, v );
+}
+min::unsptr min::remove_all
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::remove_all ( ap, in, n );
+}
+void min::set_flags
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::set_flags ( ap, in, n );
+}
+void min::set_some_flags
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::set_some_flags ( ap, in, n );
+}
+void min::clear_some_flags
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::clear_some_flags ( ap, in, n );
+}
+void min::flip_some_flags
+    ( min::gen obj, min::gen attr,
+      const min::gen * in, min::unsptr n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    min::flip_some_flags ( ap, in, n );
+}
+bool min::set_flag
+    ( min::gen obj, min::gen attr, unsigned n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::set_flag ( ap, n );
+}
+bool min::clear_flag
+    ( min::gen obj, min::gen attr, unsigned n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::clear_flag ( ap, n );
+}
+bool min::flip_flag
+    ( min::gen obj, min::gen attr, unsigned n )
+{
+    min::obj_vec_insptr vp ( obj );
+    min::attr_insptr ap ( vp );
+    min::locate ( ap, attr );
+    return min::flip_flag ( ap, n );
 }
 
 // Printers
