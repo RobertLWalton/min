@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 8, 2016}
+\date{December 10, 2016}
  
 \maketitle
 
@@ -12462,6 +12462,8 @@ but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
 of the object body auxiliary area and resizing the unused area and
 variable vector portions of the object body.
+A \minkey{obj\_vec\_insptr} point may not point at a public
+object (\pagref{MIN::PUBLISH}).
 The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -14689,7 +14691,7 @@ set and clear flags,
 as well as perform the operations of updatable attribute pointers.
 The functions for using a
 {\tt min::\EOL attr\_\EOL insptr}
-are:
+are:\label{INSERTABLE-ATTRIBUTE-FUNCTIONS}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -14963,6 +14965,139 @@ functions can be used to alter a single flag whose number is
 given as the argument {\tt n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
+
+\subsubsection{Object Attribute Short-Cuts}
+\label{OBJECT ATTRIBUTE SHORT-CUTS}
+
+The following functions use vector and attribute pointers
+internally to access a single attribute.  They are inefficient
+if more than one attribute of an object needs to be accessed,
+or if the attribute that needs to be accessed needs to be
+accessed more than once.
+
+These functions execute the same operations and
+return the same values as the corresponding functions on a
+\TT{min::attr\_insptr} insertable attribute pointer
+pointing at the \TT{obj} argument
+and located using the \TT{attr} argument as attribute label
+(\pagref{INSERTABLE-ATTRIBUTE-FUNCTIONS}).
+The only difference is that when possible a \TT{min::attr\_ptr}
+or \TT{min::attr\_updptr} is used instead of a
+\TT{min::attr\_insptr} which improves efficiency slightly,
+and more importantly permits the function to be used on
+a public object (\pagref{MIN::PUBLISH}).
+
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr )|
+\LABEL{MIN::GET1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb|( min::gen * out, min::unsptr n,|\ARGBREAK 
+    \verb|  min::gen obj, min::gen attr )|
+\LABEL{MIN::GET_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::TEST_FLAG_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb|( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|  min::gen obj, min::gen attr )|
+\LABEL{MIN::GET_FLAGS_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{update}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::UPDATE_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::SET1_OF_GEN} \\
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::SET_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::ADD1_TO_SET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_SET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::ADD1_TO_MULTISET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_MULTISET_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::REMOVE_ONE1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ONE_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::REMOVE_ALL1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ALL_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{set\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{set\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_SOME_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{clear\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::CLEAR_SOME_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{flip\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::FLIP_SOME_FLAGS_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{set\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::SET_FLAG_OF_GEN} \\
+\verb|bool min::| & \MINKEY{clear\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::CLEAR_FLAG_OF_GEN} \\
+\verb|bool min::| & \MINKEY{flip\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::FLIP_FLAG_OF_GEN} \\
+\end{tabular}\end{indpar}
 
 \subsubsection{Typed Objects}
 \label{TYPED-OBJECTS}
@@ -21958,6 +22093,125 @@ These are in \verb|min_parameters.h|.
     \verb|( min::attr_insptr ap,|\ARGBREAK
     \verb|  unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\newpage
+
+\INDEXHEADER{Object Attribute Short-Cuts}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr )|
+\LABEL{MIN::GET1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb|( min::gen * out, min::unsptr n,|\ARGBREAK 
+    \verb|  min::gen obj, min::gen attr )|
+\LABEL{MIN::GET_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::TEST_FLAG_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb|( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|  min::gen obj, min::gen attr )|
+\LABEL{MIN::GET_FLAGS_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::gen min::| & \MINKEY{update}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::UPDATE_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::SET1_OF_GEN} \\
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::SET_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::ADD1_TO_SET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_SET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::ADD1_TO_MULTISET_OF_GEN} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_MULTISET_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::REMOVE_ONE1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ONE_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::REMOVE_ALL1_OF_GEN} \\
+\verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ALL_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::| & \MINKEY{set\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{set\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_SOME_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{clear\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::CLEAR_SOME_FLAGS_OF_GEN} \\
+\verb|void min::| & \MINKEY{flip\_some\_flags\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  const min::gen * in, unsigned n )|
+\LABEL{MIN::FLIP_SOME_FLAGS_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool min::| & \MINKEY{set\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::SET_FLAG_OF_GEN} \\
+\verb|bool min::| & \MINKEY{clear\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::CLEAR_FLAG_OF_GEN} \\
+\verb|bool min::| & \MINKEY{flip\_flag\RESIZE}\ARGBREAK
+    \verb|( min::gen obj, min::gen attr,|\ARGBREAK
+    \verb|  unsigned n )|
+\LABEL{MIN::FLIP_FLAG_OF_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
