@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec  9 01:47:54 EST 2016
+// Date:	Sat Dec 10 18:23:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Object Attribute Short Cuts
 //	Object Printing
 //	Object Debugging
 //	Main Program
@@ -4679,8 +4680,151 @@ void test_object_attribute_level ( void )
     ai[4].reverse_attr_count = 1;
     MIN_CHECK ( check_attr_info ( ap, ai, 12 ) );
 
+    // Object Attribute Short-Cuts are tested
+    // separately.
+
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
+	 << endl;
+}
+
+// Object Attribute Short-Cuts
+
+void test_object_attribute_short_cuts ( void )
+{
+    cout << endl;
+    cout << "Start Object Attribute Short-Cut Test!"
+	 << endl;
+
+    min::gen myattr =
+        min::new_str_gen ( "my-attribute" );
+    min::gen yourattr =
+        min::new_str_gen ( "your-attribute" );
+    min::gen hisattr =
+        min::new_str_gen ( "his-attribute" );
+    min::gen myvalue =
+        min::new_str_gen ( "my-value" );
+    min::gen yourvalue =
+        min::new_str_gen ( "your-value" );
+    min::gen values[5] = { min::new_num_gen ( 111 ),
+                           min::new_num_gen ( 222 ),
+			   min::new_num_gen ( 333 ),
+			   min::new_num_gen ( 444 ),
+			   min::new_num_gen ( 555 ) };
+    min::gen results[10];
+
+    min::gen obj = min::new_obj_gen ( 500, 100 );
+    min::set ( obj, myattr, myvalue );
+    min::set ( obj, yourattr, yourvalue );
+    MIN_CHECK
+        ( myvalue == min::get ( obj, myattr ) );
+    MIN_CHECK
+        ( yourvalue == min::get ( obj, yourattr ) );
+
+    min::set ( obj, myattr, values, 3 );
+    MIN_CHECK
+        ( 3 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 3, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[1] == results[1] );
+    MIN_CHECK ( values[2] == results[2] );
+    MIN_CHECK
+        (    min::MULTI_VALUED()
+	  == min::get ( obj, myattr ) );
+    MIN_CHECK
+        ( min::NONE() == min::get ( obj, hisattr ) );
+    MIN_CHECK
+        (    yourvalue
+	  == min::update ( obj, yourattr, myvalue ) );
+    MIN_CHECK
+        (    myvalue
+	  == min::update ( obj, yourattr, yourvalue ) );
+
+    min::add_to_set ( obj, myattr, values[4] );
+    MIN_CHECK
+        ( 4 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 4, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[1] == results[1] );
+    MIN_CHECK ( values[2] == results[2] );
+    MIN_CHECK ( values[4] == results[3] );
+
+    MIN_CHECK
+        ( 1 == min::remove_one
+	               ( obj, myattr, values[1] ) );
+    MIN_CHECK
+        ( 3 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 3, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[2] == results[1] );
+    MIN_CHECK ( values[4] == results[2] );
+
+    min::add_to_set ( obj, myattr, values[4] );
+    min::add_to_set ( obj, myattr, values[0] );
+    MIN_CHECK
+        ( 0 == min::remove_one
+	               ( obj, myattr, values[1] ) );
+    MIN_CHECK
+        ( 0 == min::remove_one
+	               ( obj, myattr, values[3] ) );
+    MIN_CHECK
+        ( 3 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 3, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[2] == results[1] );
+    MIN_CHECK ( values[4] == results[2] );
+
+    min::add_to_multiset ( obj, myattr, values[4] );
+    min::add_to_multiset ( obj, myattr, values[0] );
+    MIN_CHECK
+        ( 5 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 5, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[0] == results[1] );
+    MIN_CHECK ( values[2] == results[2] );
+    MIN_CHECK ( values[4] == results[3] );
+    MIN_CHECK ( values[4] == results[4] );
+
+    MIN_CHECK
+        ( 2 == min::remove_all
+	               ( obj, myattr, values[0] ) );
+    MIN_CHECK
+        ( 1 == min::remove_one
+	               ( obj, myattr, values[4] ) );
+    MIN_CHECK
+        ( 2 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 2, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[2] == results[0] );
+    MIN_CHECK ( values[4] == results[1] );
+
+    min::set ( obj, myattr, values, 3 );
+    min::add_to_set ( obj, myattr, values+1, 4 );
+    min::add_to_set ( obj, myattr, values, 2 );
+    min::add_to_multiset ( obj, myattr, values+2, 2 );
+    min::add_to_multiset ( obj, myattr, values+1, 4 );
+    MIN_CHECK
+        ( 5 == min::remove_all
+	               ( obj, myattr, values+3, 2 ) );
+    MIN_CHECK
+        ( 2 == min::remove_one
+	               ( obj, myattr, values+1, 4 ) );
+    MIN_CHECK
+        ( 4 == min::get ( results, 10, obj, myattr ) );
+    qsort ( results, 4, sizeof ( min::gen ),
+	    compare_gen );
+    MIN_CHECK ( values[0] == results[0] );
+    MIN_CHECK ( values[1] == results[1] );
+    MIN_CHECK ( values[2] == results[2] );
+    MIN_CHECK ( values[2] == results[3] );
+
+    cout << endl;
+    cout << "Finish Object Attribute Short-Cut Test!"
 	 << endl;
 }
 
@@ -5247,6 +5391,7 @@ int main ( int argc, const char * argv[] )
 	test_object_vector_level();
 	test_object_list_level();
 	test_object_attribute_level();
+	test_object_attribute_short_cuts();
 	test_object_printing();
 	test_object_debugging();
 

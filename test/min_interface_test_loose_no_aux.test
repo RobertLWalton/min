@@ -2583,6 +2583,104 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 
 Finish Object Attribute Level Test!
 
+Start Object Attribute Short-Cut Test!
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    myvalue == min::get ( obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    yourvalue == min::get ( obj, yourattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    3 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[1] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::MULTI_VALUED() == min::get ( obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::NONE() == min::get ( obj, hisattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    yourvalue == min::update ( obj, yourattr, myvalue ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    myvalue == min::update ( obj, yourattr, yourvalue ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    4 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[1] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[3] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    1 == min::remove_one ( obj, myattr, values[1] ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    3 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::remove_one ( obj, myattr, values[1] ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::remove_one ( obj, myattr, values[3] ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    3 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    5 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[3] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[4] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::remove_all ( obj, myattr, values[0] ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    1 == min::remove_one ( obj, myattr, values[4] ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[4] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    5 == min::remove_all ( obj, myattr, values+3, 2 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    2 == min::remove_one ( obj, myattr, values+1, 4 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    4 == min::get ( results, 10, obj, myattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[0] == results[0] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[1] == results[1] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[2] => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    values[2] == results[3] => true
+
+Finish Object Attribute Short-Cut Test!
+
 Start Object Printing Test!
 
 {}
