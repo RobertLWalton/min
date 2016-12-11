@@ -12154,7 +12154,7 @@ Note that object bodies can be relocated whenever a
 relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
 However object bodies may be reorganized by a relocating
 function only if neither the
-\verb|min::OBJ_PRIVATE| or \verb|min::OBJ_PUBLIC| flags are set.
+\verb|min::OBJ_PRIVATE| nor the \verb|min::OBJ_PUBLIC| flags are set.
 Object bodies may also be reorganization when insertions are made
 using the {\tt min::\EOL insert\_\EOL reserve\RESIZE} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
@@ -12177,7 +12177,7 @@ at it, but may not change the sizes of its various parts
 information cached in the object vector pointers never changes.
 
 A \minkey{obj\_\EOL vec\_\EOL ptr} read-only object vector pointer
-may be created by the following functions:
+may be created and set by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}\verb| vp ( min::gen v )|
