@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 10, 2016}
+\date{December 11, 2016}
  
 \maketitle
 
@@ -11844,10 +11844,10 @@ applied to an object returns one of the following:
 
 \begin{center}
 \begin{tabular}{l}
-\ttkey{TINY\_OBJ}\LABEL{MIN::TINY_OBJ} \\
-\ttkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} \\
-\ttkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} \\
-\ttkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
+\minkey{TINY\_OBJ}\LABEL{MIN::TINY_OBJ} \\
+\minkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} \\
+\minkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} \\
+\minkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
 \end{tabular}
 \end{center}
 
@@ -12019,14 +12019,12 @@ vector pointers and using versions of the functions in which the
 The functions that actually change the object use a
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} insertable object
 vector pointer and therefore will not work if the object's
-{\tt min::\EOL OBJ\_\EOL PUBLIC} flag as already been set.  The
-The {\tt min::hash\_count\_of} function will work, as it just uses a
-{\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only object vector pointer,
-as long as there is no other vector pointer pointing at the object.
+{\tt min::\EOL OBJ\_\EOL PUBLIC} flag as already been set.
 
 If you want to build your own compactification function implementing
 a different algorithm for choosing hash table size, you may use
-the vector pointer version of {\tt min::reorganize} and the following:
+the vector pointer version of {\tt min::reorganize}
+(\pagref{MIN::REORGANIZE_OBJ_VEC_INSPTR}) and the following:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{hash\_count\_of}
