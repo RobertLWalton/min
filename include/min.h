@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 12 12:04:27 EST 2016
+// Date:	Mon Dec 12 12:43:16 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10728,6 +10728,8 @@ namespace min {
 	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
+	if ( v == min::NONE() ) return;
+
 	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
@@ -10767,6 +10769,7 @@ namespace min {
 	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
+	if ( v == min::NONE() ) return;
 	add_to_multiset ( ap, & v, 1 );
     }
 

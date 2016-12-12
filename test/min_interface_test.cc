@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 12 10:48:51 EST 2016
+// Date:	Mon Dec 12 12:42:09 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4756,6 +4756,10 @@ void test_object_attribute_short_cuts ( void )
     MIN_CHECK ( values[2] == results[2] );
     MIN_CHECK ( values[4] == results[3] );
 
+    min::add_to_set ( obj, myattr, min::NONE() );
+    MIN_CHECK
+        ( 4 == min::get ( results, 10, obj, myattr ) );
+
     MIN_CHECK
         ( 1 == min::remove_one
 	               ( obj, myattr, values[1] ) );
@@ -4794,6 +4798,10 @@ void test_object_attribute_short_cuts ( void )
     MIN_CHECK ( values[2] == results[2] );
     MIN_CHECK ( values[4] == results[3] );
     MIN_CHECK ( values[4] == results[4] );
+
+    min::add_to_multiset ( obj, myattr, min::NONE() );
+    MIN_CHECK
+        ( 5 == min::get ( results, 10, obj, myattr ) );
 
     MIN_CHECK
         ( 2 == min::remove_all
