@@ -12099,7 +12099,7 @@ header, which does not contain \TT{min::gen} values.
 0 can be used as a form of null pointer.
 
 An auxiliary pointer index \TT{i} corresponds to the
-body vector index total size {\tt - i}, so \TT{i=1} corresponds
+body vector index total size \TT{- i}, so \TT{i=1} corresponds
 to the last element of the auxiliary area.
 The 0 auxiliary pointer index corresponds to the location just
 beyond the body vector and is not
@@ -12109,15 +12109,15 @@ area elements in this way, the unused area size can be changed without
 changing any auxiliary pointers.
 
 There are three kinds of vector level protected object pointers.
-A read-only {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} pointer
+A read-only \TT{min::\EOL obj\_\EOL vec\_\EOL ptr} pointer
 permits read-only access to body
 vector elements.
 A read-write or updatable
-{\tt min::\EOL obj\_\EOL vec\_\EOL updptr} pointer
+\TT{min::\EOL obj\_\EOL vec\_\EOL updptr} pointer
 permits read-write access to body vector elements,
 but does not permit pushing or popping elements from the
 object's attribute vector or auxiliary area.
-An insertable {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} pointer
+An insertable \TT{min::\EOL obj\_\EOL vec\_\EOL insptr} pointer
 does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
 
@@ -12131,7 +12131,7 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \TT{min::OBJ\_PUBLIC} flag may be set
-by calling the {\tt min::\EOL publish\REORG} function
+by calling the \TT{min::\EOL publish\REORG} function
 (\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
@@ -12147,7 +12147,7 @@ sharing of the object and read-write sharing of attribute values of the
 object, but does not permit attribute values to be added to or deleted
 from the object.
 
-An object with its {\tt min::OBJ\_PUBLIC} flag set is said to be a
+An object with its \TT{min::OBJ\_PUBLIC} flag set is said to be a
 \ikey{public}{object} object.
 
 Note that object bodies can be relocated whenever a
@@ -12156,11 +12156,11 @@ However object bodies may be reorganized by a relocating
 function only if neither the
 \TT{min::OBJ\_PRIVATE} nor the \TT{min::OBJ\_PUBLIC} flags are set.
 Object bodies may also be reorganization when insertions are made
-using the {\tt min::\EOL insert\_\EOL reserve\RESIZE} function
+using the \TT{min::\EOL insert\_\EOL reserve\RESIZE} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
 and object bodies are usually reorganized
-when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
-by the {\tt min::\EOL publish\REORG} function
+when the \TT{min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
+by the \TT{min::\EOL publish\REORG} function
 (\pagref{MIN::PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
@@ -12208,32 +12208,32 @@ may be created and set by the following functions:
 \end{tabular}\end{indpar}
 
 Here if \TT{v} or \TT{s} do not point at the stub of an object
-the new object vector pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
+the new object vector pointer is set to \TT{min::\EOL NULL\_\EOL STUB},
 which gives undefined results, but usually a memory fault, if
 used to access the parts of a object.
-The case where \TT{s} equals {\tt min::\EOL NULL\_\EOL STUB}
-also sets the object vector pointer to {\tt min::\EOL NULL\_\EOL STUB},
+The case where \TT{s} equals \TT{min::\EOL NULL\_\EOL STUB}
+also sets the object vector pointer to \TT{min::\EOL NULL\_\EOL STUB},
 as does the no-argument object vector pointer constructor.
-An {\tt =} operator
+An \TT{=} operator
 sets an object vector pointer just as if the pointer
 had just been constructed by a constructor whose argument
-was the right-side argument of the {\tt =} operator.
+was the right-side argument of the \TT{=} operator.
 
 Because an object vector pointer can be converted to a
-{\tt const min::\EOL stub~*} value, it is possible to check whether
-an object vector pointer equals {\tt min::\EOL NULL\_\EOL STUB}
-by using the {\tt == function}.  It is also possible to set one
+\TT{const min::\EOL stub~*} value, it is possible to check whether
+an object vector pointer equals \TT{min::\EOL NULL\_\EOL STUB}
+by using the \TT{==} function.  It is also possible to set one
 vector pointer from another, as the latter will be converted to a
-{\tt const min::\EOL stub~*} value, but note that the object
+\TT{const min::\EOL stub~*} value, but note that the object
 must be public in order for more than one object vector pointer to
 point at it.
 
 Unlike label, packed structure, or packed vector pointers,
 object vector pointers cache information about the object, and must always
-be writable, and never {\tt const}.
+be writable, and never \TT{const}.
 
 The following protected functions may be used to discover information
-about the object pointed at by a read-only {\tt min::obj\_vec\_ptr}:
+about the object pointed at by a read-only \TT{min::obj\_vec\_ptr}:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
@@ -12287,17 +12287,17 @@ access to object elements:
 
 Given a vector pointer \TT{vp}, \TT{min::var(vp,i)} can be used
 to read the \TT{i+1}'st variable in the object pointed at
-by \TT{vp}, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
+by \TT{vp}, for $0\leq i<\mbox{\TT{min::var\_size\_of(vp)}}$.
 Similarly, \TT{min::hash(vp,i)} can be used
 to read the \TT{i+1}'st hash table entry
-for $0\leq i<\mbox{\tt min::hash\_size\_of(vp)}$,
+for $0\leq i<\mbox{\TT{min::hash\_size\_of(vp)}}$,
 \TT{min::attr(vp,i)} can be used
 to read the \TT{i+1}'st attribute vector entry
-for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
+for $0\leq i<\mbox{\TT{min::attr\_size\_of(vp)}}$.
 \TT{min::aux(vp,p)} differs slightly in that it reads
 the \TT{i}'th auxiliary area element ordering the
 elements from the end of the auxiliary area to its beginning,
-for $1\leq i\leq\mbox{\tt min::attr\_size\_of(vp)}$.
+for $1\leq i\leq\mbox{\TT{min::attr\_size\_of(vp)}}$.
 Auxiliary area indices are defined in this manner
 so that an object body may be resized by simply
 expanding or contracting its unused area, without modifying
@@ -12305,15 +12305,15 @@ the contents of the other parts of the object body.
 
 The operations
 
-\begin{indpar}[0.2in]\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l@{\hspace*{1.2in}}l}
 \verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
-	& [same as {\tt min::attr}]\\&
+	& [same as \TT{min::attr}]\\&
 	  \multicolumn{2}{l}{~(~min::obj\_vec\_ptr const \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
-	& [same as {\tt min::attr\_size\_of}]\\&
+	& [same as \TT{min::attr\_size\_of}]\\&
           \multicolumn{2}{l}{~( min::obj\_vec\_ptr \& vp )}
 \LABEL{MIN::SIZE_OF_OBJ_VEC_PTR}
 \end{tabular}\end{indpar}
@@ -12321,13 +12321,13 @@ The operations
 are can be used as alternatives that make the attribute
 vector part of an object look like a simple vector.
 
-Note that addresses such as {\tt \&min::\EOL var(vp,i)} and
-{\tt \&vp[i]} are relocatable addresses, and as such should only
-be passed to a non-relocating function like {\tt memcpy},
+Note that addresses such as \TT{\&min::\EOL var(vp,i)} and
+\TT{\&vp[i]} are relocatable addresses, and as such should only
+be passed to a non-relocating function like \TT{memcpy},
 and never saved in a local variable.
-Both {\tt vp[i]} and {\tt min::\EOL attr(vp,i)} include a 
-{\tt MIN\_\EOL ASSERT} check that
-$0\leq i<\mbox{\tt min::\EOL attr\_\EOL size\_\EOL of(vp)}$.
+Both \TT{vp[i]} and \TT{min::\EOL attr(vp,i)} include a 
+\TT{MIN\_\EOL ASSERT} check that
+$0\leq i<\mbox{\TT{min::\EOL attr\_\EOL size\_\EOL of(vp)}}$.
 
 Also in this vein, the operations
 
@@ -12338,28 +12338,28 @@ Also in this vein, the operations
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-    & \MINMKEY{begin\_ptr\_of}{{\tt obj\_vec\_ptr}}
+    & \MINMKEY{begin\_ptr\_of}{of {\tt obj\_vec\_ptr}}
       \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::ptr<const min::gen> min::|
-    & \MINMKEY{end\_ptr\_of}{{\tt obj\_vec\_ptr}}
+    & \MINMKEY{end\_ptr\_of}{of {\tt obj\_vec\_ptr}}
       \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
-can be used to return {\tt min::ptr<const min::gen>} pointers
-to elements of the attribute vector.  {\tt vp + i} returns a
-pointer to the {\tt i}+1'st element, and includes a
-{\tt MIN\_\EOL ASSERT} check that {\tt i} is less than the
-size of the attribute vector.  The {\tt min::\EOL begin\_\EOL ptr\_\EOL of}
-and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
-{\tt vp + 0} and {\tt vp + min::\EOL size\_\EOL of(vp)} but do
-not include this {\tt MIN\_\EOL ASSERT} check, so that, for
-example, {\tt min::\EOL begin\_\EOL ptr\_\EOL of} can be used when
+can be used to return \TT{min::ptr<const min::gen>} pointers
+to elements of the attribute vector.  \TT{vp + i} returns a
+pointer to the \TT{i}+1'st element, and includes a
+\TT{MIN\_\EOL ASSERT} check that \TT{i} is less than the
+size of the attribute vector.  The \TT{min::\EOL begin\_\EOL ptr\_\EOL of}
+and \TT{min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
+\TT{vp + 0} and \TT{vp + min::\EOL size\_\EOL of(vp)} but do
+not include this \TT{MIN\_\EOL ASSERT} check, so that, for
+example, \TT{min::\EOL begin\_\EOL ptr\_\EOL of} can be used when
 the attribute vector has zero length.
 
 A \minkey{obj\_vec\_updptr} read-write (update) object vector
-pointer is like a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+pointer is like a \TT{min::\EOL obj\_\EOL vec\_\EOL ptr}
 read-only object vector pointer,
 but has element access functions that have been modified
 to permit writing elements.  Its functions are:
@@ -12429,33 +12429,33 @@ to permit writing elements.  Its functions are:
 	  \verb|  min::unsptr index )|
 \LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
-    & \MINMKEY{begin\_ptr\_of}{{\tt obj\_vec\_updptr}}
+    & \MINMKEY{begin\_ptr\_of}{of {\tt obj\_vec\_updptr}}
       \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
 \verb|min::ptr<min::gen> min::|
-    & \MINMKEY{end\_ptr\_of}{{\tt obj\_vec\_updptr}}
+    & \MINMKEY{end\_ptr\_of}{of {\tt obj\_vec\_updptr}}
        \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 Updatable pointer read-write element access
-functions return {\tt min::\EOL ref<min::gen>}%
+functions return either \TT{min::\EOL ref<min::gen>}%
 \label{OBJ_VEC_UPDPTR_REF}
-or {\tt min::\EOL ptr<min::gen>} values while read-only pointer
+or \TT{min::\EOL ptr<min::gen>} values while read-only pointer
 element access functions return
-`{\tt const min::\EOL gen~\&}' or
-{\tt min::\EOL ptr<const min::gen>} values.
+`\TT{const min::\EOL gen~\&}' or
+\TT{min::\EOL ptr<const min::gen>} values.
 
-A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} read-write pointer
+A \TT{min::\EOL obj\_\EOL vec\_\EOL updptr} read-write pointer
 may be automatically
-downcast to a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only pointer.
+downcast to a \TT{min::\EOL obj\_\EOL vec\_\EOL ptr} read-only pointer.
 This means that
 the non-constructor functions not redefined above that are applicable to
-{\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
-{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s.
+\TT{min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
+\TT{min::\EOL obj\_\EOL vec\_\EOL updptr}'s.
 
 A \minkey{obj\_vec\_insptr} insertable object vector pointer is like a
-{\tt min::obj\_\EOL vec\_\EOL updptr} read-write object vector pointer
+\TT{min::obj\_\EOL vec\_\EOL updptr} read-write object vector pointer
 but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
 of the object body auxiliary area and resizing the unused area and
@@ -12539,11 +12539,11 @@ from the end of the attribute vector and the beginning of the unused
 area.
 
 There are two versions of each push or pop: one that
-returns either a {\tt min::\EOL ref<min::gen>} reference to
-a single {\tt min::gen} value,%
+returns either a \TT{min::\EOL ref<min::gen>} reference to
+a single \TT{min::gen} value,%
 \label{OBJ_VEC_INSPTR_PUSH_REF}
 and one that handles
-{\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
+\TT{n} values stored in a C/C++ vector pointed at by \TT{p}.
 These latter push and pop functions preserve the order of the values in memory,
 so \TT{p[0]} is pushed into or popped from a body vector location immediately
 before the location into which \TT{p[1]} is pushed into or popped from, etc.
@@ -12551,41 +12551,41 @@ Thus the attribute vector push function pushes
 in the order \TT{p[0]}, \TT{p[1]}, \TT{p[2]}, \ldots; while the
 auxiliary vector push function pushes
 in the order \TT{p[n-1]}, \TT{p[n-2]}, \TT{p[n-3]}, \ldots.
-The order of the elements of {\tt p} in memory is the same
+The order of the elements of \TT{p} in memory is the same
 as the order of the elements in the object body.
 
-If the push functions are called with argument {\tt p = NULL},
+If the push functions are called with argument \TT{p = NULL},
 they set the elements pushed to zero.
-If the pop functions are called with argument {\tt p = NULL},
+If the pop functions are called with argument \TT{p = NULL},
 they discard the values of the popped elements.
 
 If the push functions are called when the unused
 area size is smaller by $k$ elements
-than the number of {\tt min::gen} values being pushed, these
-functions call the {\tt min::\EOL expand} function (see below)
+than the number of \TT{min::gen} values being pushed, these
+functions call the \TT{min::\EOL expand} function (see below)
 to add $k$ elements to the unused area before the push is executed.
 
-A {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} may be automatically
-downcast to either a {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
-or a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
+A \TT{min::\EOL obj\_\EOL vec\_\EOL insptr} may be automatically
+downcast to either a \TT{min::\EOL obj\_\EOL vec\_\EOL updptr}
+or a \TT{min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
 all the non-constructor functions applicable to
-{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s or
-{\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr}'s.
+\TT{min::\EOL obj\_\EOL vec\_\EOL updptr}'s or
+\TT{min::\EOL obj\_\EOL vec\_\EOL ptr}'s are also applicable to
+\TT{min::\EOL obj\_\EOL vec\_\EOL insptr}'s.
 
 \subsubsubsection{Vector Level Object Maintenance}
 \label{VECTOR-LEVEL-OBJECT-MAINTENANCE}
 
 The object maintenance functions of
 Section~\itemref{OBJECT-MAINTENANCE-FUNCTIONS}
-which operate on {\tt min::\EOL gen} values have counterparts
+which operate on \TT{min::\EOL gen} values have counterparts
 that operate on object vector pointers.  These last are merely listed
 here, and are as described in the section
 just mentioned, with the exception that
-the two functions that set the {\tt min::\EOL PUBLIC} flag,
-{\tt min::\EOL set\_\EOL public\_\EOL flag\_\EOL of} and
-{\tt min::\EOL publish}, end by setting the insertable object vector pointer
-they use to {\tt min::\EOL NULL\_\EOL STUB}, as an insertable object vector
+the two functions that set the \TT{min::\EOL PUBLIC} flag,
+\TT{min::\EOL set\_\EOL public\_\EOL flag\_\EOL of} and
+\TT{min::\EOL publish}, end by setting the insertable object vector pointer
+they use to \TT{min::\EOL NULL\_\EOL STUB}, as an insertable object vector
 pointer is not allowed to point at a public object.
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -12654,7 +12654,7 @@ pointer is not allowed to point at a public object.
 \label{OBJECT-UNPROTECTED-VECTOR-LEVEL}
 
 Using unprotected functions, an object body can be treated
-as a simple C/C++ vector of {\tt min::gen} values.  The
+as a simple C/C++ vector of \TT{min::gen} values.  The
 required functions are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -12704,9 +12704,9 @@ required functions are:
 \end{tabular}\end{indpar}
 
 The offset values returned by the above are those of the
-variable vector({\tt var}), hash table({\tt hash}),
-attribute vector({\tt attr}), unused area ({\tt unused}), 
-and auxiliary area({\tt aux}).  These offsets are in \TT{min::gen}
+variable vector(\TT{var}), hash table(\TT{hash}),
+attribute vector(\TT{attr}), unused area (\TT{unused}), 
+and auxiliary area(\TT{aux}).  These offsets are in \TT{min::gen}
 units, and these offsets and the sizes returned by the functions
 on page \pagref{OBJECT_SIZE_FUNCTIONS} are related by
 
@@ -12724,27 +12724,27 @@ total size              & = & auxiliary area offset + auxiliary area size \\
 Note that when an object is reorganized all these values may
 change, including the header size.
 
-Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
-{\tt min::\EOL aux\_\EOL offset\_\EOL of} functions for a
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} return an
+Note that the \TT{min::\EOL unused\_\EOL offset\_\EOL of} and
+\TT{min::\EOL aux\_\EOL offset\_\EOL of} functions for a
+\TT{min::\EOL obj\_\EOL vec\_\EOL insptr} return an
 lvalue.  For insertable pointers these offsets change when
 values are pushed into or popped from the attribute vector or
 auxiliary area.  Using these unprotected functions it is possible
 to write your own push and pop functions.  The offset lvalues
 actually reference cache locations in the
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} which are copied
+\TT{min::\EOL obj\_\EOL vec\_\EOL insptr} which are copied
 back into the object when the 
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} is destructed.
+\TT{min::\EOL obj\_\EOL vec\_\EOL insptr} is destructed.
 
 The following are equivalences except for
-the omission of {\tt MIN\_\EOL ASSERT} checks that the index \TT{i}
+the omission of \TT{MIN\_\EOL ASSERT} checks that the index \TT{i}
 is not too large or too small (auxiliary area indices may not be 0),
-calls to {\tt min::\EOL expand} when the unused area is too small
-for a push, {\tt MIN\_\EOL ASSERT} checks that elements to be popped
+calls to \TT{min::\EOL expand} when the unused area is too small
+for a push, \TT{MIN\_\EOL ASSERT} checks that elements to be popped
 actually exist,
 conversions to \TT{min::ref<min::gen>}
 values for appropriate element access functions, and
-calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+calls to \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
 for push operations
 (\pagref{MUP::ACC_WRITE_GEN_UPDATE}):
 
@@ -12776,7 +12776,7 @@ for push operations
 The header is the only part of an object body that is
 \underline{not} \TT{min::gen} values.  Even so it is
 sized in \TT{min::gen} units; e.g., a short object header size
-is {\tt 2} for a compact implementation and {\tt 1}
+is \TT{2} for a compact implementation and \TT{1}
 for a loose implementation (\pagref{COMPACT-OR-LOOSE}).
 
 The header may contain implementation dependent information used
@@ -12848,7 +12848,7 @@ so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
 As a consequence of all this,
 zero and one element lists with heads in the hash table
-or attribute vector are represented by either {\tt min::\EOL LIST\_\EOL END()}
+or attribute vector are represented by either \TT{min::\EOL LIST\_\EOL END()}
 or by the single list element, stored in the hash table or attribute
 vector entry, without any part of the list being stored in the
 auxiliary area.
@@ -12866,8 +12866,8 @@ There are several rules that the list level obeys that lead to
 some efficiencies:
 
 \begin{indpar}
-{\bf No Superfluous {\tt \bf min::LIST\_END()}'s}.%
-\index{superfluous LIST_END()@superfluous {\tt LIST\_END()}}%
+{\bf No Superfluous \TT{\bf min::LIST\_END()}'s}.%
+\index{superfluous LIST_END()@superfluous \TT{LIST\_END()}}%
 \label{NO-SUPERFLUOUS-LIST}
 A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a \TT{min::LIST\_END()} value.
@@ -12914,23 +12914,23 @@ the list level.
 There are three kinds of list pointers.
 A \TT{min::list\_ptr} read-only list pointer permits read-only access to list
 elements.
-A {\tt min::\EOL list\_\EOL updptr} read-write or updatable list pointer
+A \TT{min::\EOL list\_\EOL updptr} read-write or updatable list pointer
 permits read-write access to list elements, but does not permit
 adding or removing list elements.
-A {\tt min::\EOL list\_\EOL insptr} insertable list pointer
+A \TT{min::\EOL list\_\EOL insptr} insertable list pointer
 permits adding and removing elements, in addition to permitting
 read-write access to elements.
 
 Note that unlike vector pointers, you \underline{cannot} downcast more capable
 list pointers to less capable list pointers.  E.g., a
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} object vector pointer may be
+\TT{min::\EOL obj\_\EOL vec\_\EOL insptr} object vector pointer may be
 explicitly or implicitly downcast to a
-{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
-or {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} object vector pointer, but 
-a {\tt min::\EOL list\_\EOL insptr} list pointer may \underline{not} be
+\TT{min::\EOL obj\_\EOL vec\_\EOL updptr}
+or \TT{min::\EOL obj\_\EOL vec\_\EOL ptr} object vector pointer, but 
+a \TT{min::\EOL list\_\EOL insptr} list pointer may \underline{not} be
 explicitly or implicitly downcast to an
-{\tt min::\EOL list\_\EOL updptr}
-or {\tt min::\EOL list\_\EOL ptr} list pointer.
+\TT{min::\EOL list\_\EOL updptr}
+or \TT{min::\EOL list\_\EOL ptr} list pointer.
 
 The functions for using a \minkey{list\_\EOL ptr} read-only list pointer
 are:
@@ -12940,7 +12940,7 @@ are:
 	& \MINKEY{list\_ptr} \verb|lp ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::obj_vec_ptr & min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_ptr}}
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_ptr}}
 	  \verb|( min::list_ptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{tabular}\end{indpar}
@@ -13035,156 +13035,156 @@ are:
 A list pointer is created to move around in a particular object.
 Once created it can be started on a new list by one of the
 \skey{start list function}s:
-{\tt min::\EOL start\_\EOL hash}, {\tt min::\EOL start\_\EOL attr},
-{\tt min::\EOL start\_\EOL copy}, or
-the 2-argument {\tt min::\EOL start\_\EOL sublist}.
-The {\tt min::\EOL next} function moves forward one element
+\TT{min::\EOL start\_\EOL hash}, \TT{min::\EOL start\_\EOL attr},
+\TT{min::\EOL start\_\EOL copy}, or
+the 2-argument \TT{min::\EOL start\_\EOL sublist}.
+The \TT{min::\EOL next} function moves forward one element
 in the current list,
-while the {\tt min::\EOL peek} function returns the next element without
+while the \TT{min::\EOL peek} function returns the next element without
 moving to it.
 The list pointer is always pointing at a current element, or at
 the end of the list.
-The {\tt min::\EOL current} function returns the current element
-or {\tt min::\EOL LIST\_\EOL END()}.
+The \TT{min::\EOL current} function returns the current element
+or \TT{min::\EOL LIST\_\EOL END()}.
 
 Determining whether a list pointer current element value
 represents a sublist requires
-the {\tt min::\EOL is\_\EOL sublist} function, which must check whether the
+the \TT{min::\EOL is\_\EOL sublist} function, which checks whether the
 value is a sublist auxiliary pointer,
-is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST()},
+is the value \TT{min::\EOL EMPTY\_\EOL SUBLIST()},
 or is a pointer to a sublist auxiliary stub as described in
 \itemref{OBJECT-AUXILIARY-STUBS}.
-The {\tt min::\EOL is\_\EOL empty\_\EOL sublist}
+The \TT{min::\EOL is\_\EOL empty\_\EOL sublist}
 function, on the other hand, merely checks whether the value is
-{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
+\TT{min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 Determining whether a list pointer current element value
 represents the end of a list can be done by
-simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END()},
+simply checking whether the value equals \TT{min::\EOL LIST\_\EOL END()},
 or can be done equivalently
-with the {\tt min::\EOL is\_\EOL list\_\EOL end} function.
+with the \TT{min::\EOL is\_\EOL list\_\EOL end} function.
 
 If the current element
-is updated using {\tt min::\EOL update}
+is updated using \TT{min::\EOL update}
 on another updatable or insertable list pointer,
-the {\tt min::\EOL update\_\EOL refresh} function
+the \TT{min::\EOL update\_\EOL refresh} function
 must be used to reestablish the
 current element's value,
 which is \ikey{cached}{cache!list pointer}\label{LIST-POINTER-CACHE}
 in the list pointer.
-Similarly one of the {\tt min::\EOL\ldots\_refresh} functions may
+Similarly one of the \TT{min::\EOL\ldots\_refresh} functions may
 need to be used when another pointer is used to insert elements into
 or remove elements
 from the object, though in some situations this is
 not adequate and the list pointer must be restarted
-with a {\tt min::\EOL start\_\dots} function
+with a \TT{min::\EOL start\_\dots} function
 (see \pagref{RESTARTING_LIST_PTR}).
 
 A list pointer that has been created but not started by one of the
 list start functions appears to be
 at the end of an immutable empty list.
 
-The {\tt min::\EOL start\_\EOL hash} function positions
+The \TT{min::\EOL start\_\EOL hash} function positions
 a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
 hash table as a vector.  This function mods the index by the hash table
 size, so the index can be, and usually should be, a hash value returned
-by {\tt min::\EOL hash} (\pagref{MIN::HASH}).
+by \TT{min::\EOL hash} (\pagref{MIN::HASH}).
 Index 0 refers to the first element of the hash table,
 and the size of the hash table minus 1 refers to the last element.
 The size of the hash table may be obtained from the
-{\tt min::\EOL hash\_\EOL size\_\EOL of} function.
+\TT{min::\EOL hash\_\EOL size\_\EOL of} function.
 The index is \underline{not} a body vector index.
 This function returns the value of the first
-element of the list, or returns {\tt min::\EOL LIST\_\EOL END()}
+element of the list, or returns \TT{min::\EOL LIST\_\EOL END()}
 if the list is empty.
 
-The {\tt min::\EOL start\_\EOL attr} function is analogous except it is given
+The \TT{min::\EOL start\_\EOL attr} function is analogous except it is given
 an index within the object attribute vector and positions the list pointer
 at the beginning of the list whose head is the attribute vector element
 at that index.  Index 0 refers to the first element of the attribute vector,
 and the maximum index is the size of the attribute vector minus 1.
 The size of the attribute vector may be obtained from the
-{\tt min::\EOL attr\_\EOL size\_\EOL of} function.
+\TT{min::\EOL attr\_\EOL size\_\EOL of} function.
 The index is \underline{not} a body vector index.
 
-The {\tt min::\EOL start\_\EOL copy} function
-positions a list pointer ({\tt lp})
-to the same place as another list pointer ({\tt lp2}).
+The \TT{min::\EOL start\_\EOL copy} function
+positions a list pointer (\TT{lp})
+to the same place as another list pointer (\TT{lp2}).
 The two list pointers must have been constructed from the \underline{same}
 object vector pointer.
-Also note that the list pointer {\tt lp2}
+Also note that the list pointer \TT{lp2}
 must be valid; that is, if it has been invalidated by
 an update, remove, or insert, it must be made valid by a refresh or restart
-before {\tt min::\EOL start\_\EOL copy} is executed.
+before \TT{min::\EOL start\_\EOL copy} is executed.
 
 The value of a list element can represent a sublist
-(see the {\tt min::\EOL is\_\EOL sublist} function described below).
-The 2-argument {\tt min::\EOL start\_\EOL sublist} function
-positions a list pointer ({\tt lp})
+(see the \TT{min::\EOL is\_\EOL sublist} function described below).
+The 2-argument \TT{min::\EOL start\_\EOL sublist} function
+positions a list pointer (\TT{lp})
 to the first element of the sublist represented by the current
-element of another list pointer ({\tt lp2}).
+element of another list pointer (\TT{lp2}).
 The current element of the second pointer must represent a sublist.
 This function returns the value of the first element of
-the sublist, or returns {\tt min::\EOL LIST\_\EOL END()}
+the sublist, or returns \TT{min::\EOL LIST\_\EOL END()}
 if the sublist is empty.
 The two list pointers must have been constructed from the \underline{same}
 object vector pointer.
-Also note that the list pointer {\tt lp2}
+Also note that the list pointer \TT{lp2}
 must be valid; that is, if it has been invalidated by
 an update, remove, or insert, it must be made valid by a refresh or restart
-before {\tt min::\EOL start\_\EOL sublist} is executed.
+before \TT{min::\EOL start\_\EOL sublist} is executed.
 
-The 1-argument {\tt min::\EOL start\_\EOL sublist} function
+The 1-argument \TT{min::\EOL start\_\EOL sublist} function
 positions a list pointer
 to the first element of the sublist represented by the current
 element of the pointer (it is equivalent to 2-argument
-{\tt min::\EOL start\_\EOL sublist} with \TT{lp2}$\equiv$\TT{lp}).
+\TT{min::\EOL start\_\EOL sublist} with \TT{lp2}$\equiv$\TT{lp}).
 Again the list pointer must be valid before this function is executed.
 
-The {\tt min::\EOL next} function moves the list pointer
+The \TT{min::\EOL next} function moves the list pointer
 to the next list element of the
 list the pointer points at, and returns the value of that
-list element.  It returns {\tt min::\EOL LIST\_\EOL END()} if there is
+list element.  It returns \TT{min::\EOL LIST\_\EOL END()} if there is
 no next list element because the end of the list has been reached.
 After the end of a list has been reached, additional
-calls to {\tt min::next}
-will do nothing but return {\tt min::\EOL LIST\_\EOL END()}.
+calls to \TT{min::next}
+will do nothing but return \TT{min::\EOL LIST\_\EOL END()}.
 
-The {\tt min::\EOL peek} function returns the next element of the
+The \TT{min::\EOL peek} function returns the next element of the
 list, i.e., the
-same value as the {\tt min::\EOL next} function would return, but does not
+same value as the \TT{min::\EOL next} function would return, but does not
 change the element the list pointer is pointing at, i.e., does not
 modify the list pointer.
 
-The {\tt min::current} function just returns the value of the list
+The \TT{min::current} function just returns the value of the list
 element the list pointer currently points at, or returns
-{\tt min::\EOL LIST\_\EOL END()}
+\TT{min::\EOL LIST\_\EOL END()}
 if there is no such element because the pointer is at the end of a list.
 This function does not modify the list pointer.
 
-The {\tt min::update\_\EOL refresh}
+The \TT{min::update\_\EOL refresh}
 function must be called for
-a pointer that points at an element if the {\tt min::\EOL update} function
+a pointer that points at an element if the \TT{min::\EOL update} function
 is used with \underline{another} pointer to the same object to update
 the element, or if the element is a sublist head and a function is used
 to remove the first element of the sublist or insert elements at the
 beginning of the sublist or after the first element of the sublist.
 
-The {\tt min::\EOL insert\_\EOL refresh} function must be called if the
-{\tt min::\EOL insert\_\EOL reserve} function is used with \underline{another}
+The \TT{min::\EOL insert\_\EOL refresh} function must be called if the
+\TT{min::\EOL insert\_\EOL reserve} function is used with \underline{another}
 pointer to the same object and that function returned \TT{true} indicating
 that it resized the object, or if a resizing function is called
 for the object (\pagref{RESIZING-FUNCTIONS}).  The 
-{\tt min::\EOL insert\_\EOL refresh} function also does what the
-{\tt min::\EOL update\_\EOL refresh} function does, and therefore it is
+\TT{min::\EOL insert\_\EOL refresh} function also does what the
+\TT{min::\EOL update\_\EOL refresh} function does, and therefore it is
 never necessary to call both functions.
 There are also situations detailed on \pagref{RESTARTING_LIST_PTR}
-in which use of {\tt min::\EOL insert\_\EOL before},
-{\tt min::\EOL insert\_\EOL after}, or
-{\tt min::\EOL remove} with \underline{another} pointer to the same object
+in which use of \TT{min::\EOL insert\_\EOL before},
+\TT{min::\EOL insert\_\EOL after}, or
+\TT{min::\EOL remove} with \underline{another} pointer to the same object
 absolutely requires that the current pointer be
-restarted by a {\tt min::\EOL start\_\ldots} function.
+restarted by a \TT{min::\EOL start\_\ldots} function.
 
 A \minkey{list\_\EOL updptr} updatable list pointer allows read-write access to
 list elements without permitting insertion or removal of elements
@@ -13286,22 +13286,22 @@ applicable to updatable (read-write) list pointers with the
 same results.  However, updatable list pointers
 can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
-Also note that {\tt min::start\_\EOL sublist} works when
-\TT{lp2} is a read-only list pointer, but {\tt min::start\_\EOL copy}
+Also note that \TT{min::start\_\EOL sublist} works when
+\TT{lp2} is a read-only list pointer, but \TT{min::start\_\EOL copy}
 does not.
 
-The {\tt min::update} function can be used to replace the
+The \TT{min::update} function can be used to replace the
 value of the current element of a list.
 Neither the previous value of the element nor the
-new value of the element may be {\tt min::\EOL LIST\_\EOL END()},
+new value of the element may be \TT{min::\EOL LIST\_\EOL END()},
 and neither may represent a sublist (even an empty sublist).
 
-If a list pointer {\tt lp2} points at a element that is
-{\tt min::update}'ed using a different updatable list pointer {\tt lp1},
-then {\tt lp2} will be invalid until
-{\tt min::\EOL update\_\EOL refresh(lp2)},
-{\tt min::\EOL insert\_\EOL refresh(lp2)}, or
-{\tt min::\EOL start\_\ldots(lp2,\ldots)}
+If a list pointer \TT{lp2} points at a element that is
+\TT{min::update}'ed using a different updatable list pointer \TT{lp1},
+then \TT{lp2} will be invalid until
+\TT{min::\EOL update\_\EOL refresh(lp2)},
+\TT{min::\EOL insert\_\EOL refresh(lp2)}, or
+\TT{min::\EOL start\_\ldots(lp2,\ldots)}
 has been executed.
 
 Inserting and removing elements from a list requires yet another
@@ -13427,25 +13427,25 @@ applicable to insertable list pointers with the
 same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
-Note that {\tt min::start\_\EOL sublist} works when
+Note that \TT{min::start\_\EOL sublist} works when
 \TT{lp2} is a read-only or updatable
-list pointer, but {\tt min::start\_\EOL copy}
+list pointer, but \TT{min::start\_\EOL copy}
 does not.
 
-Also, there is one function, {\tt min::update}, that can do more for
+Also, there is one function, \TT{min::update}, that can do more for
 an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
-the current value replaced by {\tt min::update}
+the current value replaced by \TT{min::update}
 may be a sublist, and/or the replacing value may be
-{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.  Thus {\tt min::update} can be used
+\TT{min::\EOL EMPTY\_\EOL SUBLIST()}.  Thus \TT{min::update} can be used
 to remove a sublist or to create an empty sublist.
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
 all succeed.
-The {\tt min::insert\_reserve} function reserves space for the given number
+The \TT{min::insert\_reserve} function reserves space for the given number
 of insertion function calls and the given total number of list elements
-to be inserted.  If the later is {\tt 0}, the default, it is taken to
+to be inserted.  If the later is \TT{0}, the default, it is taken to
 be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
@@ -13462,118 +13462,118 @@ for it.  Functions like \TT{min::\EOL start\_\EOL copy} do
 
 Only one pointer at a time
 for a given object may have an effective reservation.
-Each call to {\tt min::\EOL insert\_reserve} for a list pointer
+Each call to \TT{min::\EOL insert\_reserve} for a list pointer
 to an object invalidates all previous calls to
-{\tt min::\EOL insert\_reserve} for any other list pointer
+\TT{min::\EOL insert\_reserve} for any other list pointer
 to the same object.  Errors in this regard involving two different
 list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
-The {\tt min::insert\_reserve\RESIZE} function may expand the body of
+The \TT{min::insert\_reserve\RESIZE} function may expand the body of
 the object in which space is being reserved
-(using {\tt min::\EOL expand\RESIZE},
+(using \TT{min::\EOL expand\RESIZE},
 \pagref{MIN::EXPAND_OBJ_VEC_INSPTR}).
 It returns \TT{true} if it expands the
 object's body, and \TT{false} if it does not.
 
-Importantly {\tt min::\EOL insert\_reserve\RESIZE} is the only list pointer
+Importantly \TT{min::\EOL insert\_reserve\RESIZE} is the only list pointer
 function that may cause a resizing of
 the object pointed at, and if a resizing occurs (i.e., if \TT{true}
 is returned),
 all other list pointers to the same object
 become invalid and must be refreshed by
-a call to {\tt min::\EOL insert\_\EOL refresh}.
+a call to \TT{min::\EOL insert\_\EOL refresh}.
 
-The {\tt min::\EOL insert\_reserve\RESIZE} function can expand the object
+The \TT{min::\EOL insert\_reserve\RESIZE} function can expand the object
 if it's size is insufficient, or instead it can depend upon using
 object auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}) if the object
-runs out of space, in which case {\tt min::\EOL insert\_reserve\RESIZE}
+runs out of space, in which case \TT{min::\EOL insert\_reserve\RESIZE}
 must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
-last argument to {\tt min::\EOL insert\_reserve\RESIZE}
+last argument to \TT{min::\EOL insert\_reserve\RESIZE}
 determines which strategy is
 used.  It defaults to the value of \minkey{use\_obj\_aux\_stubs}
 (see \pagref{MIN::USE_OBJ_AUX_STUBS}).%
 \footnote{But if the auxiliary stub code is not compiled in, the last
-argument is treated as if it was always {\tt false}:
-see {\tt MIN\_\EOL USE\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
+argument is treated as if it was always \TT{false}:
+see \TT{MIN\_\EOL USE\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
 \pagref{MIN_USE_OBJ_AUX_STUBS}.}
 
-The {\tt min::\EOL insert\_before} function inserts list elements
+The \TT{min::\EOL insert\_before} function inserts list elements
 just before the current position of a list pointer and positions the
 list pointer to the first element inserted.
-The {\tt min::\EOL insert\_after} function inserts list elements just after the
+The \TT{min::\EOL insert\_after} function inserts list elements just after the
 current position and leaves the pointer position unchanged (pointing at
 the element before the first inserted element).
 If the list pointer is at the end of list,
-{\tt min::\EOL insert\_before} inserts the elements at the end of the list, and
-{\tt min::\EOL insert\_after} is in error.
-The elements are specified by a length {\tt n}
-vector {\tt p} of {\tt min::gen} values.
+\TT{min::\EOL insert\_before} inserts the elements at the end of the list, and
+\TT{min::\EOL insert\_after} is in error.
+The elements are specified by a length \TT{n}
+vector \TT{p} of \TT{min::gen} values.
 \TT{p[0]} is inserted into the list before \TT{p[1]}, etc.
 If \TT{n=0} elements are to be inserted, both insert
 functions are no-operations.
 
-To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST()}, then
+To insert a sublist, first insert \TT{min::\EOL EMPTY\_SUBLIST()}, then
 position the pointer to the sublist and use
-{\tt min::\EOL start\_sublist} to enter the sublist, and then use
-{\tt min::\EOL insert\_before} to insert the elements of the sublist.
-Also, as noted above, you can use {\tt min::\EOL update} with an
+\TT{min::\EOL start\_sublist} to enter the sublist, and then use
+\TT{min::\EOL insert\_before} to insert the elements of the sublist.
+Also, as noted above, you can use \TT{min::\EOL update} with an
 insertable pointer to change
-the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
+the current element to \TT{min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 A sequence of instructions that begins with a
-call to {\tt min::\EOL insert\_reserve\RESIZE} and ends with the last
+call to \TT{min::\EOL insert\_reserve\RESIZE} and ends with the last
 list insertion function for which the beginning call made a reservation
 is called a `\key{list insertion sequence}'.  A list insertion sequence
 must not contain any call to a resizing function
 (\RESIZE, \pagref{RESIZING-FUNCTIONS}) or reorganizing function
 (\REORG, \pagref{REORGANIZING-FUNCTIONS}), aside from
-the beginning call to {\tt min::\EOL insert\_reserve\RESIZE}.
+the beginning call to \TT{min::\EOL insert\_reserve\RESIZE}.
 In particular, there can be no
-second call to {\tt min::\EOL insert\_reserve\RESIZE}.  There can be calls to
+second call to \TT{min::\EOL insert\_reserve\RESIZE}.  There can be calls to
 create and position list pointers, and to read, update, and remove
 list elements.
 
-If {\tt min::\EOL insert\_\EOL before}
-or {\tt min::\EOL insert\_\EOL after}
+If \TT{min::\EOL insert\_\EOL before}
+or \TT{min::\EOL insert\_\EOL after}
 are used to insert elements at the beginning of a sublist or elements
 just after the first element of a sublist,
 all list pointers pointing at the sublist viewed as an element
 inside its containing list
 become invalid and must be refreshed by
-a call to {\tt min::\EOL update\_\EOL refresh} or
-{\tt min::\EOL insert\_\EOL refresh} or restarted with a call to a
-{\tt min::\EOL start\_\ldots} function.
+a call to \TT{min::\EOL update\_\EOL refresh} or
+\TT{min::\EOL insert\_\EOL refresh} or restarted with a call to a
+\TT{min::\EOL start\_\ldots} function.
 
-The {\tt min::\EOL remove} function can be used to remove
-{\tt n} consecutive elements
+The \TT{min::\EOL remove} function can be used to remove
+\TT{n} consecutive elements
 of a list, the first of which is the element currently pointed at by
 the list pointer.
 After removal, the list pointer points at the first element after the
 elements removed, or at the end of the list if there is no such element.
-If there are fewer than {\tt n} elements in the list at and after
+If there are fewer than \TT{n} elements in the list at and after
 the list pointer current element, then there is no error, but all the
 elements at and after the current element are removed, and the list
 pointer is pointed at the end of the list.  The returned value is the
-number of elements actually removed (and is less than {\tt n} if the
+number of elements actually removed (and is less than \TT{n} if the
 list was too short).  Element removal requires no reservation.
 
-If {\tt min::\EOL remove} is used to remove the first element of
+If \TT{min::\EOL remove} is used to remove the first element of
 a sublist,
 all list pointers pointing at the sublist viewed as an element
 inside its containing list
 become invalid and must be refreshed by
-a call to {\tt min::\EOL update\_\EOL refresh} or
-{\tt min::\EOL insert\_\EOL refresh} or restarted with a call to a
-{\tt min::\EOL start\_\ldots} function.
+a call to \TT{min::\EOL update\_\EOL refresh} or
+\TT{min::\EOL insert\_\EOL refresh} or restarted with a call to a
+\TT{min::\EOL start\_\ldots} function.
 
-If an insertable list pointer {\tt lp2} is used to add or remove
-elements or remove sublists, and there is another list pointer {\tt lp1}
-pointing at the same object, then {\tt lp1} is invalidated and must
+If an insertable list pointer \TT{lp2} is used to add or remove
+elements or remove sublists, and there is another list pointer \TT{lp1}
+pointing at the same object, then \TT{lp1} is invalidated and must
 be restarted with a
-{\tt min::\EOL start\_}\,\ldots function\label{RESTARTING_LIST_PTR}
-if {\tt lp1} is pointing at:
+\TT{min::\EOL start\_}\,\ldots function\label{RESTARTING_LIST_PTR}
+if \TT{lp1} is pointing at:
 
 \begin{enumerate}
 \item an element that is removed
@@ -13592,25 +13592,25 @@ if {\tt lp1} is pointing at:
 \end{enumerate}
 
 The effects can be subtle
-and not obvious: for example, using {\tt lp2} to insert before or after
-a list element that is an empty sublist can invalidate {\tt lp1}
-if {\tt lp1} points at the end of that empty sublist.
+and not obvious: for example, using \TT{lp2} to insert before or after
+a list element that is an empty sublist can invalidate \TT{lp1}
+if \TT{lp1} points at the end of that empty sublist.
 
 If the insertable vector pointer of an insertable list pointer
-{\tt lp1} is used as an argument to
+\TT{lp1} is used as an argument to
 a resizing function (\pagref{RESIZING-FUNCTIONS}) or
 a reorganizing function (\pagref{REORGANIZING-FUNCTIONS}) to resize
-or reorganize the object {\tt lp1} points to, then
-{\tt lp1} must be restarted with a
-{\tt min::\EOL start\_}\,\ldots function.
+or reorganize the object \TT{lp1} points to, then
+\TT{lp1} must be restarted with a
+\TT{min::\EOL start\_}\,\ldots function.
 
-The invalidation of {\tt lp1} in the above situations
+The invalidation of \TT{lp1} in the above situations
 is \underline{not} a detectable error.
 
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
 In order to enforce the `No Superfluous' rules on 
-\pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::list\_insptr}'s keep
+\pagref{NO-SUPERFLUOUS-LIST}, \TT{MUP::list\_insptr}'s keep
 track of the location of any auxiliary pointer
 (or equivalent as per \itemref{OBJECT-AUXILIARY-STUBS})
 pointing a the current
@@ -13662,7 +13662,7 @@ The various list pointer types are instances of
 	  \verb|min::|\MINKEY{list\_insptr}\verb|;| \\
 \end{tabular}\end{indpar}
 
-It is important not to instantiate {\tt MUP::list\_ptr\_type}
+It is important not to instantiate \TT{MUP::list\_ptr\_type}
 with any parameter that is not a vector pointer type (which is why
 it is unprotected).
 
@@ -13750,7 +13750,7 @@ Thus the following rules are obeyed:
 
 {\bf \minkey{LIST\_AUX} stubs}.
 A \TT{min::gen} value that points at a stub $S$
-of type {\tt min::\EOL LIST\_\EOL AUX} is the equivalent of a list auxiliary
+of type \TT{min::\EOL LIST\_\EOL AUX} is the equivalent of a list auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
 Similarly,
@@ -13761,7 +13761,7 @@ the list element that is stub $S$'s value.
 
 {\bf \minkey{SUBLIST\_AUX} stubs}.
 A \TT{min::gen} value that points at
-a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
+a stub $S$ of type \TT{min::\EOL SUBLIST\_\EOL AUX}
 is the equivalent of a sublist auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
@@ -14203,8 +14203,8 @@ control codes.
 
 The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
 the bit in the $I+1$'st control code
-selected by the mask $2^K$ where $I=\mbox{floor}(N/\mbox{\tt VSIZE})$,
-$K=N~\mbox{mod}~\mbox{\tt VSIZE}$, where {\tt VSIZE},
+selected by the mask $2^K$ where $I=\mbox{floor}(N/\mbox{\TT{VSIZE}})$,
+$K=N~\mbox{mod}~\mbox{\TT{VSIZE}}$, where \TT{VSIZE},
 the number of bits in a control code integer,
 is the value of the \TT{min::VSIZE} constant (\pagref{MIN::VSIZE}),
 which is 24 if \TT{min::gen}
@@ -14222,32 +14222,32 @@ flags and values
 in an object.
 An attribute pointer stores an attribute name
 and a reverse attribute name.  The latter can take the special
-values {\tt min::NONE()} and {\tt min::ANY()}.  The attribute name designates
+values \TT{min::NONE()} and \TT{min::ANY()}.  The attribute name designates
 the object attribute pointed at by the attribute pointer.
 The flag set pointed at is always
 the flag set of this attribute, regardless of the setting of the
 reverse attribute name.  The attribute name and
 reverse attribute name together designate the
 value multiset pointed at.  If the reverse attribute name
-is {\tt min::NONE()}, the value multiset pointed at is the set of all values
+is \TT{min::NONE()}, the value multiset pointed at is the set of all values
 \underline{not} associated with any reverse attribute name.  If the
-reverse attribute name is {\tt min::ANY()},
+reverse attribute name is \TT{min::ANY()},
 the value multiset is the set of all
 values that are associated with any reverse attribute name.
 Otherwise the value multiset pointed at is the set of values
 associated with the reverse attribute name stored in the pointer.
 
 There are three kinds of attribute pointers.
-A read-only {\tt min::\EOL attr\_\EOL ptr}
+A read-only \TT{min::\EOL attr\_\EOL ptr}
 permits read-only access to attribute values and flags.
-An updatable {\tt min::\EOL attr\_\EOL updptr}
+An updatable \TT{min::\EOL attr\_\EOL updptr}
 permits read-write access to attribute values, and read-only access
 to flags, but does not permit values to be added or removed from attributes.
-An insertable {\tt min::\EOL attr\_\EOL insptr}
+An insertable \TT{min::\EOL attr\_\EOL insptr}
 permits read-write access to attribute values and flags
 and also permits values to be added or removed from attributes.
 
-The functions for using a read-only {\tt min::\EOL attr\_\EOL ptr}
+The functions for using a read-only \TT{min::\EOL attr\_\EOL ptr}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -14369,64 +14369,64 @@ are:
 
 Attribute pointers are tied to an object, which is specified by
 giving a vector pointer to the object to the constructor of the
-attribute pointer.  The {\tt min::\EOL obj\_\EOL vec\_\EOL ptr\_\EOL of}
+attribute pointer.  The \TT{min::\EOL obj\_\EOL vec\_\EOL ptr\_\EOL of}
 function can be used to retrieve the vector pointer used by
 an attribute pointer.
 
 \ikey{Locator functions}{locator function}
 find attributes within an object and set the current
 attribute name and reverse attribute name of an attribute pointer.
-The {\tt min::\EOL locate} function sets the attribute name of the pointer.
-If the `{\tt length}' argument is \underline{not} given, {\tt min::\EOL locate}
+The \TT{min::\EOL locate} function sets the attribute name of the pointer.
+If the `\TT{length}' argument is \underline{not} given, \TT{min::\EOL locate}
 uses the complete attribute name.
-The {\tt min::\EOL locatei} function does the
-same thing as {\tt min::\EOL locate}
+The \TT{min::\EOL locatei} function does the
+same thing as \TT{min::\EOL locate}
 but is optimized for the case where the attribute
 name has a single component that is an integer.\footnote{
-In some implementations {\tt min::gen} is defined to be {\tt min::uns64},
-and in these implementations {\tt int} and {\tt min::unsptr} are
+In some implementations \TT{min::gen} is defined to be \TT{min::uns64},
+and in these implementations \TT{int} and \TT{min::unsptr} are
 incorrectly convertible to the
-{\tt min::gen} type by a C++ implicit conversion.  As a consequence of this
-the {\tt min::\EOL locatei} function must have a different name from the
-{\tt min::\EOL locate} function.}
+\TT{min::gen} type by a C++ implicit conversion.  As a consequence of this
+the \TT{min::\EOL locatei} function must have a different name from the
+\TT{min::\EOL locate} function.}
 
-The form of the {\tt min::\EOL locate} function that takes a `{\tt length}'
+The form of the \TT{min::\EOL locate} function that takes a `\TT{length}'
 argument exists only if the
-{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
-(\pagref{MIN_ALLOW_PARTIAL_ATTR_LABELS}) macro is set to {\tt 1}.
-This form of {\tt min::\EOL locate} uses the longest initial segment of the
+\TT{MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
+(\pagref{MIN_ALLOW_PARTIAL_ATTR_LABELS}) macro is set to \TT{1}.
+This form of \TT{min::\EOL locate} uses the longest initial segment of the
 attribute name that locates an attribute that has a non-empty
 multiset of values.  The
 length of this initial segment is returned in the `\TT{length}'
 argument.  If \TT{0} is returned in `\TT{length}',
 no initial segment having a non-empty multiset of values was found.
 
-The {\tt min::\EOL locate\_reverse} function sets the reverse attribute name of
-a pointer.  This can take the special value {\tt min::NONE()} or
-{\tt min::ANY()}, as noted above.  A call to {\tt min::\EOL locate} or
-{\tt min::\EOL locatei} sets the
-reverse attribute name to {\tt min::NONE()}.
+The \TT{min::\EOL locate\_reverse} function sets the reverse attribute name of
+a pointer.  This can take the special value \TT{min::NONE()} or
+\TT{min::ANY()}, as noted above.  A call to \TT{min::\EOL locate} or
+\TT{min::\EOL locatei} sets the
+reverse attribute name to \TT{min::NONE()}.
 
-Both the {\tt min::\EOL locate} and {\tt min::\EOL locate\_reverse}
+Both the \TT{min::\EOL locate} and \TT{min::\EOL locate\_reverse}
 functions take name
 arguments that are labels (\itemref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
-If an insertable attribute pointer {\tt ap1} is used
+If an insertable attribute pointer \TT{ap1} is used
 to add or remove attribute values or set or clear attribute flags,
-every other attribute pointer {\tt ap2}
-to the object will become invalid until a {\tt min::\EOL locate} or
-{\tt min::\EOL relocate} function is called for {\tt ap2}.  The later
-function is equivalent to repeating the calls to {\tt min::\EOL locate},
-and if necessary {\tt min::\EOL reverse\_\EOL locate}, that positioned
-{\tt ap2} to where it was before {\tt ap1} was used to modify the object.
-Note that simply calling {\tt min::\EOL locate}
-and {\tt min::\EOL reverse\_\EOL locate} on {\tt ap1} will
+every other attribute pointer \TT{ap2}
+to the object will become invalid until a \TT{min::\EOL locate} or
+\TT{min::\EOL relocate} function is called for \TT{ap2}.  The later
+function is equivalent to repeating the calls to \TT{min::\EOL locate},
+and if necessary \TT{min::\EOL reverse\_\EOL locate}, that positioned
+\TT{ap2} to where it was before \TT{ap1} was used to modify the object.
+Note that simply calling \TT{min::\EOL locate}
+and \TT{min::\EOL reverse\_\EOL locate} on \TT{ap1} will
 \underline{not} add or remove attribute values or set or clear attribute flags.
 
 Note that \underline{no} special functions need to be called when an attribute
-value is updated using {\tt min::\EOL update} on
+value is updated using \TT{min::\EOL update} on
 an updatable attribute pointer.
 
 \ikey{Accessor functions}{accessor function}
@@ -14436,7 +14436,7 @@ an attribute pointer is considered to point at the attribute
 named by the pointer's attribute name, and the reverse attribute
 pointed at by the pointer's attribute and reverse attribute names,
 unless the latter are \TT{min::NONE()} or \TT{min::ANY()}.
-If the {\tt min::\EOL locate} function has never been called to set
+If the \TT{min::\EOL locate} function has never been called to set
 these names it is an error to call an accessor
 function for the pointer.
 
@@ -14448,14 +14448,14 @@ If the reverse attribute name is \TT{min::ANY()} the value multiset is
 the set of all values associated with any reverse attribute name, but
 this \TT{min::ANY()}
 value set can only be read by the 3-argument \TT{min::get}
-function, and made empty by the {\tt min::\EOL set\RESIZE}
+function, and made empty by the \TT{min::\EOL set\RESIZE}
 function with 0 new values (see \pagref{MIN::SET_DELETE_ANY}).
 It is an error to attempt any other access to this \TT{min::ANY()} value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
 at regardless of the setting of the reverse attribute name.
-If there are $N$ control codes in a flag set, $N${\tt *VSIZE} flags are
-represented by the set, and any flag with number $\geq N${\tt *VSIZE} is
+If there are $N$ control codes in a flag set, $N$\TT{*VSIZE} flags are
+represented by the set, and any flag with number $\geq N$\TT{*VSIZE} is
 read as zero.  `High order' control codes may contain all zero flags,
 and such zero high order control code may be removed when an object
 is reorganized.
@@ -14466,18 +14466,18 @@ Similarly reverse attributes
 whose value multisets have never been set are treated as having empty value
 multisets.
 
-The 3-argument {\tt min::\EOL get} function gets the values in the value
-multiset pointed at and stores them in the `{\tt out}' vector.
+The 3-argument \TT{min::\EOL get} function gets the values in the value
+multiset pointed at and stores them in the `\TT{out}' vector.
 The total number of values in the value
-multiset is returned (regardless of the value of {\tt n}).
-The argument {\tt n}, the length of `{\tt out}',
-is the maximum number of values that may be returned in `{\tt out}'.
-If there are more then {\tt n} values, only the first {\tt n}
-are returned in `{\tt out}'.
-If {\tt n==0} the function just returns
+multiset is returned (regardless of the value of \TT{n}).
+The argument \TT{n}, the length of `\TT{out}',
+is the maximum number of values that may be returned in `\TT{out}'.
+If there are more then \TT{n} values, only the first \TT{n}
+are returned in `\TT{out}'.
+If \TT{n==0} the function just returns
 the number of values in the value multiset.
 
-The 1-argument {\tt min::\EOL get} function assumes that there is exactly
+The 1-argument \TT{min::\EOL get} function assumes that there is exactly
 one value in the value multiset
 and returns that value, or returns the special value
 \TT{min::NONE()} (\pagref{MIN::NONE}) if the value multiset is empty,
@@ -14485,51 +14485,51 @@ or returns the special value
 \TT{min::MULTI\_VALUED} (\pagref{MIN::MULTI_VALUED}) if the value multiset
 has more than one value.
 
-The {\tt min::\EOL get\_\EOL flags}
+The \TT{min::\EOL get\_\EOL flags}
 function returns the control codes in the flag set pointed at and stores
-these in the \TT{min::gen} vector `{\tt out}'.
+these in the \TT{min::gen} vector `\TT{out}'.
 The total number of control codes in the flag set is returned
-(regardless of the value of {\tt n}).
-The argument {\tt n}, the length of `{\tt out}',
-is the maximum number of control codes that may be returned in `{\tt out}'.
-If there are more then {\tt n} control codes, only the first {\tt n}
-are returned in `{\tt out}'.
-If {\tt n==0} the function just returns
+(regardless of the value of \TT{n}).
+The argument \TT{n}, the length of `\TT{out}',
+is the maximum number of control codes that may be returned in `\TT{out}'.
+If there are more then \TT{n} control codes, only the first \TT{n}
+are returned in `\TT{out}'.
+If \TT{n==0} the function just returns
 the number of control codes in the flag set.
 
 In all of this, high order zero control codes are treated as if
 they did not exist (control codes are stored lowest order first
-in `{\tt out}').  If there are no non-zero flags, no control codes
-are stored in `{\tt out}', and {\tt 0} is returned as the number of
+in `\TT{out}').  If there are no non-zero flags, no control codes
+are stored in `\TT{out}', and \TT{0} is returned as the number of
 control codes.
 
-In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
-in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
-and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
+In the `\TT{out}' vector, flag $N$ is the bit selected by mask $2^K$
+in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\TT{VSIZE}}$
+and $I=\mbox{floor}(N/\mbox{\TT{VSIZE}})$.
 If there are $J$ control codes
-in the flag set, and $N\geq J*\mbox{\tt VSIZE}$, then
+in the flag set, and $N\geq J*\mbox{\TT{VSIZE}}$, then
 flag $N$ is zero.
 
-The {\tt min::\EOL test\_\EOL flag} function returns the value
-of flag {\tt n}.
+The \TT{min::\EOL test\_\EOL flag} function returns the value
+of flag \TT{n}.
 
 The attribute names for an object form a list ordered in an implementation
 dependent fashion.  
-The {\tt min::\EOL get\_\EOL attrs} function gets information about each
+The \TT{min::\EOL get\_\EOL attrs} function gets information about each
 attribute in this list.  The information about an attribute is stored in a
-{\tt min::\EOL attr\_\EOL info} structure and includes the attribute
-name in the {\tt name} member,
-the number of values in the attribute value multiset in the {\tt value\_count}
+\TT{min::\EOL attr\_\EOL info} structure and includes the attribute
+name in the \TT{name} member,
+the number of values in the attribute value multiset in the \TT{value\_count}
 member, the number of control codes in the attribute flag set in
-the {\tt flag\_count} member, and the number of associated
+the \TT{flag\_count} member, and the number of associated
 reverse attribute names which have non-empty value multisets in the
-{\tt reverse\_attr\_count} member.
+\TT{reverse\_attr\_count} member.
 
-In addition, the {\tt value} member is set to the attribute value if there
-is exactly one value, or to {\tt min::\EOL NONE()} if there is no value,
-or to {\tt min::\EOL MULTI\_\EOL VALUED()} if there is more than one value,
-and the {\tt flags} member is set to the low order 64 bits of the flags
-(or to {\tt 0} if there are no flags).
+In addition, the \TT{value} member is set to the attribute value if there
+is exactly one value, or to \TT{min::\EOL NONE()} if there is no value,
+or to \TT{min::\EOL MULTI\_\EOL VALUED()} if there is more than one value,
+and the \TT{flags} member is set to the low order 64 bits of the flags
+(or to \TT{0} if there are no flags).
 
 If a name has only one component that is an {\em atom}, the name is returned
 as that {\em atom}; all other names are returned as {\em labels}.
@@ -14537,54 +14537,54 @@ as that {\em atom}; all other names are returned as {\em labels}.
 At least one of the three counts must be
 non-zero for an attribute, or else the attribute is treated as if it
 were not in the list of all attribute names.  In computing
-{\tt flag\_count}, high order zero control codes are treated as if they
-did not exist, and the value of {\tt flag\_count} is the
-same as the value that would be returned by {\tt min::\EOL get\_\EOL flags}.
+\TT{flag\_count}, high order zero control codes are treated as if they
+did not exist, and the value of \TT{flag\_count} is the
+same as the value that would be returned by \TT{min::\EOL get\_\EOL flags}.
 
 Attributes accessed through the attribute vector are not returned unless
-the {\tt include\_\EOL attr\_\EOL vec} argument is {\tt true}.  These are
+the \TT{include\_\EOL attr\_\EOL vec} argument is \TT{true}.  These are
 just the attributes whose name is a small integer
-{\tt i} with {\tt 0 <= i < m}, where {\tt m} is the size of the object
+\TT{i} with \TT{0 <= i < m}, where \TT{m} is the size of the object
 attribute vector.
-If the {\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
-macro is set to {\tt 1}, any attribute whose name is a label beginning
+If the \TT{MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
+macro is set to \TT{1}, any attribute whose name is a label beginning
 with such an integer is also not returned.
 
-The {\tt min::\EOL attr\_\EOL info} structs are stored in an {\tt n}
-element vector `{\tt out}'
+The \TT{min::\EOL attr\_\EOL info} structs are stored in an \TT{n}
+element vector `\TT{out}'
 that should be allocated to the stack.  If there are more than
-{\tt n} structs, only the first {\tt n}
+\TT{n} structs, only the first \TT{n}
 are returned, but the total number available is returned as the value of
-the {\tt min::\EOL get\_\EOL attrs} function, and this should be used
-to retry with a larger `{\tt out}' vector.
+the \TT{min::\EOL get\_\EOL attrs} function, and this should be used
+to retry with a larger `\TT{out}' vector.
 
 The implementation dependent order of the \TT{attr\_info}
-values returned by {\tt min::\EOL get\_\EOL attrs} may change if attribute
+values returned by \TT{min::\EOL get\_\EOL attrs} may change if attribute
 values are added to or removed from the object or
 attribute flags are set or cleared, or if the object is reorganized.
-The {\tt min::\EOL sort\_\EOL attr\_\EOL info} function can be used
+The \TT{min::\EOL sort\_\EOL attr\_\EOL info} function can be used
 to sort by attribute name the
-vector returned by {\tt min::\EOL get\_\EOL attrs}.
+vector returned by \TT{min::\EOL get\_\EOL attrs}.
 
-The {\tt min::\EOL get\_\EOL reverse\_\EOL attrs}
+The \TT{min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
 reverse attribute names associated
 with a particular object and attribute name stored in the attribute
 pointer.
-{\tt min::locate\ldots} must be used to set the attribute name to be used.
-There is a {\tt min::\EOL reverse\_\EOL
+\TT{min::locate\ldots} must be used to set the attribute name to be used.
+There is a \TT{min::\EOL reverse\_\EOL
 attr\_\EOL info} struct for each reverse attribute name, and there is only
-one count member in this, the {\tt value\_count} member that is the number
+one count member in this, the \TT{value\_count} member that is the number
 of values in the value multiset of the reverse attribute pointed at.
 A reverse attribute name with an empty value multiset is treated as if it
 were not in the list of reverse attribute names.
-The {\tt value} member is the reverse attribute value if there is only one
-value, or is {\tt min::\EOL MULTI\_\EOL VALUED()} otherwise.
+The \TT{value} member is the reverse attribute value if there is only one
+value, or is \TT{min::\EOL MULTI\_\EOL VALUED()} otherwise.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
 The functions for using a
-{\tt min::\EOL attr\_\EOL updptr}
+\TT{min::\EOL attr\_\EOL updptr}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -14680,7 +14680,7 @@ same results.  However, updatable list pointers
 can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
 
-The {\tt min::\EOL update} function requires that the current
+The \TT{min::\EOL update} function requires that the current
 value multiset have a single value and that it be the value multiset
 of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
@@ -14692,7 +14692,7 @@ Insertable attribute pointers can remove and insert values and
 set and clear flags,
 as well as perform the operations of updatable attribute pointers.
 The functions for using a
-{\tt min::\EOL attr\_\EOL insptr}
+\TT{min::\EOL attr\_\EOL insptr}
 are:\label{INSERTABLE-ATTRIBUTE-FUNCTIONS}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -14871,53 +14871,53 @@ same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
 
-The {\tt min::\EOL set\RESIZE}
+The \TT{min::\EOL set\RESIZE}
 function sets all the values in the value multiset the
 attribute pointer is pointing at, deleting any previous values.
-For 3-argument {\tt min::\EOL set\RESIZE}
-the new values are given in the `{\tt in}' vector, and
-the number of values is given in {\tt n}.  If {\tt n} is zero, all
+For 3-argument \TT{min::\EOL set\RESIZE}
+the new values are given in the `\TT{in}' vector, and
+the number of values is given in \TT{n}.  If \TT{n} is zero, all
 values are deleted.
-For 2-argument {\tt min::\EOL set\RESIZE} there is one new value given as an
-argument, unless {\tt v} is \TT{min::NONE()},
+For 2-argument \TT{min::\EOL set\RESIZE} there is one new value given as an
+argument, unless \TT{v} is \TT{min::NONE()},
 in which case there are no new values and all previous values are simply
 deleted.
 
-For the {\tt min::\EOL set\RESIZE} function
+For the \TT{min::\EOL set\RESIZE} function
 \label{MIN::SET_DELETE_ANY}
 the pointer's reverse attribute name can be \TT{min::NONE()}
 but cannot be \TT{min::ANY()}, with the exception of the case
 where all values are being deleted.  If the reverse attribute name
-is \TT{min:ANY()} and the {\tt min::\EOL set\RESIZE} function is called to
+is \TT{min:ANY()} and the \TT{min::\EOL set\RESIZE} function is called to
 delete all previous values,
 all double arrows with the current attribute name and any
 reverse attribute name are deleted.
 
-The {\tt min::\EOL add\_\EOL to\_\EOL set\RESIZE} function
+The \TT{min::\EOL add\_\EOL to\_\EOL set\RESIZE} function
 adds values to the multiset set of values,
 but adds each value if and only if the value is not already in the multiset,
-using {\tt ==} to compare values for equality.
-The {\tt min::\EOL add\_\EOL to\_\EOL multiset\RESIZE} function
+using \TT{==} to compare values for equality.
+The \TT{min::\EOL add\_\EOL to\_\EOL multiset\RESIZE} function
 adds values even if they are already in the multiset.
 Both functions have a 3-argument version with a vector of new values,
 and a 2-argument version with a single new value.  In the latter case
-if {\tt v} is \TT{min::NONE()} there is no new value and the function
+if \TT{v} is \TT{min::NONE()} there is no new value and the function
 is a no-operation.
 For these functions the pointer's reverse attribute name
 can be \TT{min::NONE()}
 but cannot be \TT{min::ANY()}.
 
-The {\tt min::\EOL remove\_\EOL one} function
+The \TT{min::\EOL remove\_\EOL one} function
 removes values from the multiset set of values, removing only one copy of
 each value,
-using {\tt ==} to compare values for equality.
-The {\tt min::\EOL remove\_\EOL all} function
+using \TT{==} to compare values for equality.
+The \TT{min::\EOL remove\_\EOL all} function
 removes all copies of each value  
 from the multiset of values (it may be less efficient if
 the multiset is actually a set).
 Both functions have a 3-argument version with a vector of values to remove,
 and a 2-argument version with a single value to remove.  In the latter case
-if {\tt v} is \TT{min::NONE()} there is no value to remove and the function
+if \TT{v} is \TT{min::NONE()} there is no value to remove and the function
 is a no-operation.  These functions return the number of values actually
 removed from the multiset of values.
 For these functions the pointer's reverse attribute name
@@ -14941,30 +14941,30 @@ In the unusual special case where $O_1=O_2$ and also $N=R$, only one value
 is set or removed, so the value will not be duplicated when set and is
 assumed to be unduplicated when removed.
 
-The {\tt min::\EOL set\_\EOL flags\RESIZE} function sets the control codes
+The \TT{min::\EOL set\_\EOL flags\RESIZE} function sets the control codes
 of the flag set the attribute pointer points at.
-The new control codes are given in the `{\tt in}' vector which
-has length {\tt n}: see the discussion of
-{\tt min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTR}
+The new control codes are given in the `\TT{in}' vector which
+has length \TT{n}: see the discussion of
+\TT{min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTR}
 for the format of this vector.
 If the previous flag set had more control codes that the new flag
 set, the extra control codes will be retained but will be zeroed.
-If {\tt n} is zero, all existing control codes are zeroed.
+If \TT{n} is zero, all existing control codes are zeroed.
 When the object is reorganized, high order zero control codes will
 be deleted.
 
-The {\tt min::\EOL set\_\EOL some\_\EOL flags\RESIZE},
-{\tt min::\EOL clear\_\EOL some\_\EOL flags},
-and {\tt min::\EOL flip\_\EOL some\_\EOL flags}
-functions can be used to alter flags.  If the bit corresponding
-to the flag is on in the `{\tt in}' vector, it is set, cleared,
+The function \TT{min::\EOL set\_\EOL some\_\EOL flags\RESIZE},
+\TT{min::\EOL clear\_\EOL some\_\EOL flags},
+and \TT{min::\EOL flip\_\EOL some\_\EOL flags}
+can be used to alter flags.  If the bit corresponding
+to the flag is on in the `\TT{in}' vector, it is set, cleared,
 or flipped, respectively.
 
-The {\tt min::\EOL set\_\EOL flag\RESIZE},
-{\tt min::\EOL clear\_\EOL flag},
-and {\tt min::\EOL flip\_\EOL flag}
+The \TT{min::\EOL set\_\EOL flag\RESIZE},
+\TT{min::\EOL clear\_\EOL flag},
+and \TT{min::\EOL flip\_\EOL flag}
 functions can be used to alter a single flag whose number is
-given as the argument {\tt n}.  The flag is set, cleared,
+given as the argument \TT{n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
 
@@ -15108,8 +15108,8 @@ a public object (\pagref{MIN::PUBLISH}).
 this section.  Implementation is likely to consist merely of special
 functions to get and set attribute values respecting indirection of
 these values while augmenting attribute pointers to hold the
-equivalent of {\tt min::\EOL TYPED\_\EOL OBJECT}s
-as pointers in place of the equivalent of {\tt min::\EOL gen}
+equivalent of \TT{min::\EOL TYPED\_\EOL OBJECT}s
+as pointers in place of the equivalent of \TT{min::\EOL gen}
 object pointers.  In addition an acyclic unification algorithm
 will be provided (cyclic algorithms do not work if only variable
 nodes can be forwarded).]
@@ -15122,9 +15122,9 @@ variables in the context.  By abuse of language the context may be
 called the `typed object'.
 
 Typed objects may be introduced in two different ways.  In the first
-method the context is given the {\tt min::\EOL OBJ\_\EOL TYPED} flag
+method the context is given the \TT{min::\EOL OBJ\_\EOL TYPED} flag
 and its first variable points at the type.  In the second method
-the typed object is represented by a stub of {\tt min::\EOL TYPED\_\EOL OBJECT}
+the typed object is represented by a stub of \TT{min::\EOL TYPED\_\EOL OBJECT}
 type which in turn points at an auxiliary stub that holds two pointers
 to stubs: one pointing at the type and the second pointing at the context.
 The type is pointed at by the control of the auxiliary stub, the context
@@ -16340,15 +16340,15 @@ if \TT{v} is an object.
 
 Old stuff to be deleted as it is incorporated elsewhere.
 
-The {\tt min::gen\_format} members are:
+The \TT{min::gen\_format} members are:
 
 \begin{itemlist}[0.4in]
 
 \item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
-This member is only enabled if {\tt STR\_\EOL ID\_\EOL FLAG} is on.
-In this case {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} have an identifier i allocated
-in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+This member is only enabled if \TT{STR\_\EOL ID\_\EOL FLAG} is on.
+In this case \TT{min::gen} string values that have length greater
+than \TT{str\_\EOL max\_\EOL length} have an identifier i allocated
+in \TT{printer->\EOL id\_\EOL map} and are printed as `\TT{@}i'.
 
 \end{itemlist}
 
@@ -16369,11 +16369,11 @@ but other \TT{min::gen} values print in a reasonable way.
 \begin{indpar}[0.1in]\begin{itemlist}[0.4in]
 
 
-\item[\ttmkey{STR\_ID\_FLAG}{{\tt min::gen\_format} flag}]~\\
-If set, {\tt min::gen} string values that have length greater
-than {\tt str\_\EOL max\_\EOL length} (see below)
+\item[\ttmkey{STR\_ID\_FLAG}{of {\tt min::gen\_format} flag}]~\\
+If set, \TT{min::gen} string values that have length greater
+than \TT{str\_\EOL max\_\EOL length} (see below)
 have an identifier i allocated
-in {\tt printer->\EOL id\_\EOL map} and are printed as `{\tt @}i'.
+in \TT{printer->\EOL id\_\EOL map} and are printed as `\TT{@}i'.
 Otherwise string values are printed normally.
 
 \end{itemlist}\end{indpar}
