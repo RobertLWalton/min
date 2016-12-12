@@ -2992,6 +2992,8 @@ ASSERT FAILED: ../include/min.h:XXXX:
     v != NONE() => false
     trying to UPDATE attribute value to NONE
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    0 == min::get ( results, 10, obj, yourattr ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     4 == min::get ( results, 10, obj, myattr ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     values[0] == results[0] => true

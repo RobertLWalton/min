@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 12 07:31:19 EST 2016
+// Date:	Mon Dec 12 12:04:27 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10686,7 +10686,13 @@ namespace min {
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_SUCCEED:
-	    internal::set ( ap, &v, 1 );
+	    internal::set ( ap, &v, v != min::NONE() );
+	    return;
+	}
+
+	if ( v == min::NONE() )
+	{
+	    internal::set ( ap, &v, 0 );
 	    return;
 	}
 

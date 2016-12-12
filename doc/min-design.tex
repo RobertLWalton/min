@@ -14701,7 +14701,8 @@ value multiset have a single value and that it be the value multiset
 of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
 It is an error if the value multiset is empty or has more than one
-value, or if the attribute pointer
+value, or if the value argument is \TT{min::NONE()},
+or if the attribute pointer
 reverse attribute name is not \TT{min::NONE()}.
 
 Insertable attribute pointers can remove and insert values and
@@ -14882,9 +14883,9 @@ are:\label{INSERTABLE-ATTRIBUTE-FUNCTIONS}
 \end{tabular}\end{indpar}
 
 Functions defined for updatable attribute pointers are also
-applicable to insertable list pointers with the
-same results.  However, insertable list pointers
-can\underline{not} be converted to be updatable or read-only list pointers
+applicable to insertable attribute pointers with the
+same results.  However, insertable attribute pointers
+can\underline{not} be converted to be updatable or read-only attribute pointers
 (unlike the situation with vector pointers).
 
 The \TT{min::\EOL set\RESIZE}
