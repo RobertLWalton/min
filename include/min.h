@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 12:07:41 EST 2016
+// Date:	Mon Dec 12 07:31:19 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10578,6 +10578,10 @@ namespace min {
 	         ::attr_ptr_type<vecptr> & ap,
 	      min::gen v )
     {
+        MIN_ASSERT ( v != NONE(),
+	             "trying to UPDATE attribute value"
+		     " to NONE" );
+
 	typedef min::unprotected
 	           ::attr_ptr_type<vecptr> ap_type;
 

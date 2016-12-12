@@ -14237,7 +14237,8 @@ is \TT{min::NONE()}, the value multiset pointed at is the set of all values
 \underline{not} associated with any reverse attribute name.  If the
 reverse attribute name is \TT{min::ANY()},
 the value multiset is the set of all
-values that are associated with any reverse attribute name.
+values that are associated with any reverse attribute name
+(see \pagref{REVERSE-ATTRIBUTE-NAME-ANY} for details).
 Otherwise the value multiset pointed at is the set of values
 associated with the reverse attribute name stored in the pointer.
 
@@ -14245,11 +14246,12 @@ There are three kinds of attribute pointers.
 A read-only \TT{min::\EOL attr\_\EOL ptr}
 permits read-only access to attribute values and flags.
 An updatable \TT{min::\EOL attr\_\EOL updptr}
-permits read-write access to attribute values, and read-only access
-to flags, but does not permit values to be added or removed from attributes.
+permits read-only access to attribute values and flags,
+and write access to attribute non-multiset-values that already exist,
+but does not permit values to be added to or removed from attributes.
 An insertable \TT{min::\EOL attr\_\EOL insptr}
 permits read-write access to attribute values and flags
-and also permits values to be added or removed from attributes.
+and also permits values to be added to or removed from attributes.
 
 The functions for using a read-only \TT{min::\EOL attr\_\EOL ptr}
 are:
@@ -14420,7 +14422,9 @@ a label whose only element is the atom.
 If an insertable attribute pointer \TT{ap1} is used
 to add or remove attribute values or set or clear attribute flags,
 every other attribute pointer \TT{ap2}
-to the object will become invalid until a \TT{min::\EOL locate} or
+to the object will become \mkey{invalid}{attribute pointer}
+(\pagref{INSERTABLE-ATTRIBUTE-FUNCTIONS})
+until a \TT{min::\EOL locate} or
 \TT{min::\EOL relocate} function is called for \TT{ap2}.  The later
 function is equivalent to repeating the calls to \TT{min::\EOL locate},
 and if necessary \TT{min::\EOL reverse\_\EOL locate}, that positioned
@@ -14429,9 +14433,15 @@ Note that simply calling \TT{min::\EOL locate}
 and \TT{min::\EOL reverse\_\EOL locate} on \TT{ap1} will
 \underline{not} add or remove attribute values or set or clear attribute flags.
 
+It is an \underline{\bf undetected error}
+to use an invalid attribute pointer.  Note, however, that for \TT{ap2}
+to become invalid as above, it must share the object vector pointer
+with \TT{ap1}, as otherwise an error will be detected when either
+\TT{ap1}'s vector pointer or \TT{ap2}'s vector pointer is created.
+
 Note that \underline{no} special functions need to be called when an attribute
 value is updated using \TT{min::\EOL update} on
-an updatable attribute pointer.
+an updatable attribute pointer (\pagref{UPDATABLE-ATTRIBUTE-FUNCTIONS}).
 
 \ikey{Accessor functions}{accessor function}
 can be used for reading attribute values and flags.
@@ -14448,7 +14458,8 @@ The value multiset pointed at by a pointer is that of the attribute pointed
 at if the reverse attribute name is \TT{min::NONE()}, or is that of
 the reverse attribute pointed at if the reverse attribute name is not
 \TT{min::NONE()} or \TT{min::ANY()}.
-If the reverse attribute name is \TT{min::ANY()} the value multiset is
+If the reverse attribute name is \TT{min::ANY()}
+\label{REVERSE-ATTRIBUTE-NAME-ANY} the value multiset is
 the set of all values associated with any reverse attribute name, but
 this \TT{min::ANY()}
 value set can only be read by the 3-argument \TT{min::get}
@@ -14569,6 +14580,8 @@ attribute flags are set or cleared, or if the object is reorganized.
 The \TT{min::\EOL sort\_\EOL attr\_\EOL info} function can be used
 to sort by attribute name the
 vector returned by \TT{min::\EOL get\_\EOL attrs}.
+The \TT{min::\EOL compare} function, \pagref{MIN::COMPARE},
+is used to determine the ordering of names.
 
 The \TT{min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
@@ -14587,9 +14600,8 @@ value, or is \TT{min::\EOL MULTI\_\EOL VALUED()} otherwise.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
-The functions for using a
-\TT{min::\EOL attr\_\EOL updptr}
-are:
+The functions for using a \TT{min::\EOL attr\_\EOL updptr}
+are:\label{UPDATABLE-ATTRIBUTE-FUNCTIONS}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -14679,9 +14691,9 @@ are:
 \end{tabular}\end{indpar}
 
 Functions defined for read-only attribute pointers are also
-applicable to updatable list pointers with the
-same results.  However, updatable list pointers
-can\underline{not} be converted to be read-only list pointers
+applicable to updatable attribute pointers with the
+same results.  However, updatable attribute pointers
+can\underline{not} be converted to be read-only attribute pointers
 (unlike the situation with vector pointers).
 
 The \TT{min::\EOL update} function requires that the current

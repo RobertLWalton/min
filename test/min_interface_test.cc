@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 18:23:41 EST 2016
+// Date:	Mon Dec 12 07:32:40 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4740,6 +4740,8 @@ void test_object_attribute_short_cuts ( void )
     MIN_CHECK
         (    myvalue
 	  == min::update ( obj, yourattr, yourvalue ) );
+    desire_failure
+	  ( min::update ( obj, yourattr, min::NONE() ) );
 
     min::add_to_set ( obj, myattr, values[4] );
     MIN_CHECK

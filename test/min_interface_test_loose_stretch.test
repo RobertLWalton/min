@@ -2973,6 +2973,12 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     yourvalue == min::update ( obj, yourattr, myvalue ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     myvalue == min::update ( obj, yourattr, yourvalue ) => true
+min_interface_test.cc:XXXX desire failure:
+    min::update ( obj, yourattr, min::NONE() )
+ASSERT FAILED: ../include/min.h:XXXX:
+    in min::gen min::update(min::unprotected::attr_ptr_type<vecptr>&, min::gen) [with vecptr = min::obj_vec_updptr]:
+    v != NONE() => false
+    trying to UPDATE attribute value to NONE
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     4 == min::get ( results, 10, obj, myattr ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
