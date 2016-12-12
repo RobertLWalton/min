@@ -251,8 +251,6 @@
 \newcommand{\RESIZE}{$\,^S$}
 \newcommand{\REORG}{$\,^O$}
 
-\newcommand{\TTX}{\TT}
-
 \begin{document}
         
 \title{Internal Design\\[2ex]of the\\[2ex]
@@ -1263,11 +1261,11 @@ else:				& $2^{40-4e}$ \\
 \begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \multicolumn{2}{l}{\TTKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}} \\
 	& The maximum absolute address of any stub.  Defaults: \\
-	& ~~~~ if \TTX{MIN\_STUB\_BASE} defined: \\
-	& ~~~~~~~~ \TTX{  MIN\_STUB\_BASE} \\
-	& ~~~~~~~~ \TTX{+ MIN\_MAX\_RELATIVE\_STUB\_ADDRESS} \\
+	& ~~~~ if \TT{MIN\_STUB\_BASE} defined: \\
+	& ~~~~~~~~ \TT{  MIN\_STUB\_BASE} \\
+	& ~~~~~~~~ \TT{+ MIN\_MAX\_RELATIVE\_STUB\_ADDRESS} \\
 	& ~~~~ else if \begin{tabular}[t]{@{}l@{}}
-	               \TTX{MIN\_IS\_COMPACT} = 1 and \\
+	               \TT{MIN\_IS\_COMPACT} = 1 and \\
 		       pointers are 32 bits:
 		       \end{tabular} \\
 	& ~~~~~~~~ $2^{32}-2^{29}-1$ \\
@@ -11721,7 +11719,7 @@ for attributes whose names begin with small unsigned integers.
 The \mkey{auxiliary area}{of object}
 stores elements of lists headed by hash table and attribute vector
 elements, and any other data that would overflow a single
-\TTX{min::gen} value.
+\TT{min::gen} value.
 The \mkey{unused area}{of object}
 provides for growth of the attribute vector and auxiliary area.
 
@@ -11821,11 +11819,11 @@ area.  For an object that has been around a long enough time, the
 compactor may eliminate the unused area completely, and may reorganize
 the object to downsize its hash table and compact its auxiliary area.
 
-The hash table of the returned object is filled with \TTX{min::LIST\_END()}
+The hash table of the returned object is filled with \TT{min::LIST\_END()}
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
-The variable vector is filled with \TTX{min::UNDEFINED()} values.
+The variable vector is filled with \TT{min::UNDEFINED()} values.
 Unused area elements are initialized to some implementation defined
-value like \TTX{0}.
+value like \TT{0}.
 The attribute vector and auxiliary areas of the returned object are
 zero length, and all space not used by the header, hash table, and
 variable vector is allocated to the unused area.
@@ -11833,7 +11831,7 @@ The attribute vector and auxiliary area can be
 filled by `push' instructions described below
 (\pagref{OBJECT_PUSH_FUNCTIONS}).
 
-A \TTX{min::gen} value may be tested to see if it points at an
+A \TT{min::gen} value may be tested to see if it points at an
 object by the function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -11929,7 +11927,7 @@ as per Section~\itemref{OBJECT-ATTRIBUTE-LEVEL}, Object Attribute Level.
 More specifically, it is assumed just that hash table entries are lists
 whose elements are grouped into pairs and the first element of each
 pair is a hashable \TT{min::gen} value such that if the hash of this
-element is $H$, then the pair is put into the list of the $H$\TTX{\%}$S+1$'st
+element is $H$, then the pair is put into the list of the $H$\TT{\%}$S+1$'st
 hash table element, where $S$ is the size of the hash table.
 
 With all this in mind, the following function can be used to
@@ -12097,11 +12095,11 @@ and ranges from 0
 to one less than the total size of the object,
 which is the size of the body vector in \TT{min::\EOL gen} units.
 The index 0 cannot be used, as it corresponds to the
-header, which does not contain \TTX{min::gen} values.
+header, which does not contain \TT{min::gen} values.
 0 can be used as a form of null pointer.
 
-An auxiliary pointer index \TTX{i} corresponds to the
-body vector index total size {\tt - i}, so \TTX{i=1} corresponds
+An auxiliary pointer index \TT{i} corresponds to the
+body vector index total size {\tt - i}, so \TT{i=1} corresponds
 to the last element of the auxiliary area.
 The 0 auxiliary pointer index corresponds to the location just
 beyond the body vector and is not
@@ -12126,21 +12124,21 @@ read-write access to body vector elements.
 An object has two flags that regulate the creation of vector level
 pointers: \minkey{OBJ\_PRIVATE} and \minkey{OBJ\_PUBLIC}.
 If an object has neither of these flags, an object vector pointer
-to the object may be created, and this will set the \TTX{min::OBJ\_PRIVATE}
+to the object may be created, and this will set the \TT{min::OBJ\_PRIVATE}
 flag.  When the object vector pointer is destructed, this flag will be cleared.
 While this flag is set, no other vector pointer to the object may be
 created.  The object is therefore private to the code possessing the
 vector pointer.
 
-If an object has neither flag, its \TTX{min::OBJ\_PUBLIC} flag may be set
+If an object has neither flag, its \TT{min::OBJ\_PUBLIC} flag may be set
 by calling the {\tt min::\EOL publish\REORG} function
 (\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
 to the object may be created.  Constructing and destructing
 pointers in this case does not set or clear object flags.
-The \TTX{min::OBJ\_PUBLIC} flag may not be cleared by
-protected functions.  The idea here is that setting the \TTX{min::OBJ\_PUBLIC}
+The \TT{min::OBJ\_PUBLIC} flag may not be cleared by
+protected functions.  The idea here is that setting the \TT{min::OBJ\_PUBLIC}
 flag fixes the attribute label structure of the object, the flags attached
 to attribute labels, and the size of
 the value multiset of each attribute, but permits the existing values of an
@@ -12156,7 +12154,7 @@ Note that object bodies can be relocated whenever a
 relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
 However object bodies may be reorganized by a relocating
 function only if neither the
-\TTX{min::OBJ\_PRIVATE} nor the \TTX{min::OBJ\_PUBLIC} flags are set.
+\TT{min::OBJ\_PRIVATE} nor the \TT{min::OBJ\_PUBLIC} flags are set.
 Object bodies may also be reorganization when insertions are made
 using the {\tt min::\EOL insert\_\EOL reserve\RESIZE} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
@@ -12209,11 +12207,11 @@ may be created and set by the following functions:
 \LABEL{MIN::=_OBJ_VEC_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-Here if \TTX{v} or \TTX{s} do not point at the stub of an object
+Here if \TT{v} or \TT{s} do not point at the stub of an object
 the new object vector pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
 which gives undefined results, but usually a memory fault, if
 used to access the parts of a object.
-The case where \TTX{s} equals {\tt min::\EOL NULL\_\EOL STUB}
+The case where \TT{s} equals {\tt min::\EOL NULL\_\EOL STUB}
 also sets the object vector pointer to {\tt min::\EOL NULL\_\EOL STUB},
 as does the no-argument object vector pointer constructor.
 An {\tt =} operator
@@ -12260,7 +12258,7 @@ about the object pointed at by a read-only {\tt min::obj\_vec\_ptr}:
 
 \end{tabular}\end{indpar}\label{OBJECT_SIZE_FUNCTIONS}
 
-Here the sizes are in \TTX{min::gen} units.  When an object
+Here the sizes are in \TT{min::gen} units.  When an object
 body is reorganized, some of these sizes may change, but simply
 relocating the object body does not change these sizes.  The
 automatic resizing of the object that may occur when new elements
@@ -12287,17 +12285,17 @@ access to object elements:
 
 \end{tabular}\end{indpar}
 
-Given a vector pointer \TTX{vp}, \TTX{min::var(vp,i)} can be used
-to read the \TTX{i+1}'st variable in the object pointed at
-by \TTX{vp}, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
-Similarly, \TTX{min::hash(vp,i)} can be used
-to read the \TTX{i+1}'st hash table entry
+Given a vector pointer \TT{vp}, \TT{min::var(vp,i)} can be used
+to read the \TT{i+1}'st variable in the object pointed at
+by \TT{vp}, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
+Similarly, \TT{min::hash(vp,i)} can be used
+to read the \TT{i+1}'st hash table entry
 for $0\leq i<\mbox{\tt min::hash\_size\_of(vp)}$,
-\TTX{min::attr(vp,i)} can be used
-to read the \TTX{i+1}'st attribute vector entry
+\TT{min::attr(vp,i)} can be used
+to read the \TT{i+1}'st attribute vector entry
 for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
-\TTX{min::aux(vp,p)} differs slightly in that it reads
-the \TTX{i}'th auxiliary area element ordering the
+\TT{min::aux(vp,p)} differs slightly in that it reads
+the \TT{i}'th auxiliary area element ordering the
 elements from the end of the auxiliary area to its beginning,
 for $1\leq i\leq\mbox{\tt min::attr\_size\_of(vp)}$.
 Auxiliary area indices are defined in this manner
@@ -12547,12 +12545,12 @@ a single {\tt min::gen} value,%
 and one that handles
 {\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
 These latter push and pop functions preserve the order of the values in memory,
-so \TTX{p[0]} is pushed into or popped from a body vector location immediately
-before the location into which \TTX{p[1]} is pushed into or popped from, etc.
+so \TT{p[0]} is pushed into or popped from a body vector location immediately
+before the location into which \TT{p[1]} is pushed into or popped from, etc.
 Thus the attribute vector push function pushes
-in the order \TTX{p[0]}, \TTX{p[1]}, \TTX{p[2]}, \ldots; while the
+in the order \TT{p[0]}, \TT{p[1]}, \TT{p[2]}, \ldots; while the
 auxiliary vector push function pushes
-in the order \TTX{p[n-1]}, \TTX{p[n-2]}, \TTX{p[n-3]}, \ldots.
+in the order \TT{p[n-1]}, \TT{p[n-2]}, \TT{p[n-3]}, \ldots.
 The order of the elements of {\tt p} in memory is the same
 as the order of the elements in the object body.
 
@@ -12708,7 +12706,7 @@ required functions are:
 The offset values returned by the above are those of the
 variable vector({\tt var}), hash table({\tt hash}),
 attribute vector({\tt attr}), unused area ({\tt unused}), 
-and auxiliary area({\tt aux}).  These offsets are in \TTX{min::gen}
+and auxiliary area({\tt aux}).  These offsets are in \TT{min::gen}
 units, and these offsets and the sizes returned by the functions
 on page \pagref{OBJECT_SIZE_FUNCTIONS} are related by
 
@@ -12739,12 +12737,12 @@ back into the object when the
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} is destructed.
 
 The following are equivalences except for
-the omission of {\tt MIN\_\EOL ASSERT} checks that the index \TTX{i}
+the omission of {\tt MIN\_\EOL ASSERT} checks that the index \TT{i}
 is not too large or too small (auxiliary area indices may not be 0),
 calls to {\tt min::\EOL expand} when the unused area is too small
 for a push, {\tt MIN\_\EOL ASSERT} checks that elements to be popped
 actually exist,
-conversions to \TTX{min::ref<min::gen>}
+conversions to \TT{min::ref<min::gen>}
 values for appropriate element access functions, and
 calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
 for push operations
@@ -12776,8 +12774,8 @@ for push operations
 
 
 The header is the only part of an object body that is
-\underline{not} \TTX{min::gen} values.  Even so it is
-sized in \TTX{min::gen} units; e.g., a short object header size
+\underline{not} \TT{min::gen} values.  Even so it is
+sized in \TT{min::gen} units; e.g., a short object header size
 is {\tt 2} for a compact implementation and {\tt 1}
 for a loose implementation (\pagref{COMPACT-OR-LOOSE}).
 
@@ -12796,7 +12794,7 @@ the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
 attribute vector (the variable vector is ignored).
 The elements of the lists are
-\TTX{min::gen} values other than the list or sublist auxiliary
+\TT{min::gen} values other than the list or sublist auxiliary
 pointers, and sublists.  The lists are constructed with
 the help of the list and sublist auxiliary pointers:
 
@@ -12830,15 +12828,15 @@ body vector that has a particular interpretation, described below.
 However, not all list continuations are list heads.
 
 A list continuation represents a final segment of a list.
-If it has the value \TTX{min::LIST\_END()}, the final segment is empty.
+If it has the value \TT{min::LIST\_END()}, the final segment is empty.
 If the list continuation has a list auxiliary pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
 and is called a \key{list element}.
 
 A list element is an element of the list, and cannot be a list auxiliary
-pointer or the special value \TTX{min::LIST\_END()}.  But it can be
-a sublist auxiliary pointer, or the special value \TTX{min::EMPTY\_SUBLIST()},
+pointer or the special value \TT{min::LIST\_END()}.  But it can be
+a sublist auxiliary pointer, or the special value \TT{min::EMPTY\_SUBLIST()},
 both of which denote a list element that is a sublist.
 
 Given a list element, the rest of the list after the element begins with
@@ -12856,13 +12854,13 @@ vector entry, without any part of the list being stored in the
 auxiliary area.
 
 A list element
-that is a sublist auxiliary pointer or the value \TTX{min::EMPTY\_SUBLIST()}
+that is a sublist auxiliary pointer or the value \TT{min::EMPTY\_SUBLIST()}
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
 but cannot be a list element of the sublist.
 If it is a sublist auxiliary pointer,
 it points at a list continuation of the sublist.  If it is the
-value \TTX{min::EMPTY\_SUBLIST()}, it represents an empty sublist.
+value \TT{min::EMPTY\_SUBLIST()}, it represents an empty sublist.
 
 There are several rules that the list level obeys that lead to
 some efficiencies:
@@ -12872,7 +12870,7 @@ some efficiencies:
 \index{superfluous LIST_END()@superfluous {\tt LIST\_END()}}%
 \label{NO-SUPERFLUOUS-LIST}
 A list or sublist auxiliary pointer may not point at an auxiliary
-area element containing a \TTX{min::LIST\_END()} value.
+area element containing a \TT{min::LIST\_END()} value.
 
 {\bf No Superfluous List Auxiliary Pointers}.%
 \index{superfluous list!auxiliary pointers}
@@ -12914,7 +12912,7 @@ section must be modified as explained in \itemref{OBJECT-AUXILIARY-STUBS}.
 A \key{list pointer} can be used to move around in a object at
 the list level.
 There are three kinds of list pointers.
-A \TTX{min::list\_ptr} read-only list pointer permits read-only access to list
+A \TT{min::list\_ptr} read-only list pointer permits read-only access to list
 elements.
 A {\tt min::\EOL list\_\EOL updptr} read-write or updatable list pointer
 permits read-write access to list elements, but does not permit
@@ -13141,7 +13139,7 @@ The 1-argument {\tt min::\EOL start\_\EOL sublist} function
 positions a list pointer
 to the first element of the sublist represented by the current
 element of the pointer (it is equivalent to 2-argument
-{\tt min::\EOL start\_\EOL sublist} with \TTX{lp2}$\equiv$\TTX{lp}).
+{\tt min::\EOL start\_\EOL sublist} with \TT{lp2}$\equiv$\TT{lp}).
 Again the list pointer must be valid before this function is executed.
 
 The {\tt min::\EOL next} function moves the list pointer
@@ -13175,7 +13173,7 @@ beginning of the sublist or after the first element of the sublist.
 
 The {\tt min::\EOL insert\_\EOL refresh} function must be called if the
 {\tt min::\EOL insert\_\EOL reserve} function is used with \underline{another}
-pointer to the same object and that function returned \TTX{true} indicating
+pointer to the same object and that function returned \TT{true} indicating
 that it resized the object, or if a resizing function is called
 for the object (\pagref{RESIZING-FUNCTIONS}).  The 
 {\tt min::\EOL insert\_\EOL refresh} function also does what the
@@ -13289,7 +13287,7 @@ same results.  However, updatable list pointers
 can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
 Also note that {\tt min::start\_\EOL sublist} works when
-\TTX{lp2} is a read-only list pointer, but {\tt min::start\_\EOL copy}
+\TT{lp2} is a read-only list pointer, but {\tt min::start\_\EOL copy}
 does not.
 
 The {\tt min::update} function can be used to replace the
@@ -13430,7 +13428,7 @@ same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
 Note that {\tt min::start\_\EOL sublist} works when
-\TTX{lp2} is a read-only or updatable
+\TT{lp2} is a read-only or updatable
 list pointer, but {\tt min::start\_\EOL copy}
 does not.
 
@@ -13475,12 +13473,12 @@ The {\tt min::insert\_reserve\RESIZE} function may expand the body of
 the object in which space is being reserved
 (using {\tt min::\EOL expand\RESIZE},
 \pagref{MIN::EXPAND_OBJ_VEC_INSPTR}).
-It returns \TTX{true} if it expands the
-object's body, and \TTX{false} if it does not.
+It returns \TT{true} if it expands the
+object's body, and \TT{false} if it does not.
 
 Importantly {\tt min::\EOL insert\_reserve\RESIZE} is the only list pointer
 function that may cause a resizing of
-the object pointed at, and if a resizing occurs (i.e., if \TTX{true}
+the object pointed at, and if a resizing occurs (i.e., if \TT{true}
 is returned),
 all other list pointers to the same object
 become invalid and must be refreshed by
@@ -13512,8 +13510,8 @@ If the list pointer is at the end of list,
 {\tt min::\EOL insert\_after} is in error.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
-\TTX{p[0]} is inserted into the list before \TTX{p[1]}, etc.
-If \TTX{n=0} elements are to be inserted, both insert
+\TT{p[0]} is inserted into the list before \TT{p[1]}, etc.
+If \TT{n=0} elements are to be inserted, both insert
 functions are no-operations.
 
 To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST()}, then
@@ -13709,13 +13707,13 @@ following variable:
 The value of an object
 auxiliary stub is treated like an auxiliary area element value that is
 always a list element, and is never a list auxiliary pointer
-or a \TTX{min::LIST\_END()} value.  However, as a list element,
+or a \TT{min::LIST\_END()} value.  However, as a list element,
 the value may be a sublist auxiliary pointer (or equivalent, see below)
-or a \TTX{min::EMPTY\_SUBLIST()} value.
+or a \TT{min::EMPTY\_SUBLIST()} value.
 
 The control of an object auxiliary stub is treated like an auxiliary
 area element value that is always a list auxiliary pointer
-or a \TTX{min::LIST\_END()} value, and is never a list element.
+or a \TT{min::LIST\_END()} value, and is never a list element.
 
 The value and control of an object auxiliary stub are treated like
 consecutive elements of the object auxiliary area, with the control
@@ -13729,21 +13727,21 @@ codes:
 \begin{list}{}{}
 \item[{\tt const int min::}\MINKEY{LIST\_AUX}]~%
 	\LABEL{MIN::LIST_AUX}\\
-A \TTX{min::gen} value or stub control
+A \TT{min::gen} value or stub control
 pointing at this stub behaves like a list pointer.
 \item[{\tt const int min::}\MINKEY{SUBLIST\_AUX}]~%
 	\LABEL{MIN::SUBLIST_AUX}\\
-A \TTX{min::gen} value pointing at this stub behaves like a sublist pointer.
+A \TT{min::gen} value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
 Any stub pointer to an object auxiliary stub of type \minkey{LIST\_AUX}
 is treated as a list auxiliary pointer.  Such stub pointers may be stored in
-auxiliary area \TTX{min::gen} values or in auxiliary stub controls.
+auxiliary area \TT{min::gen} values or in auxiliary stub controls.
 
 Any stub pointer to an object auxiliary stub of type \minkey{SUBLIST\_AUX}
 is treated as a sublist auxiliary pointer.  Such stub pointers may be stored in
-auxiliary area \TTX{min::gen} values or in auxiliary stub \TTX{min::gen}
+auxiliary area \TT{min::gen} values or in auxiliary stub \TT{min::gen}
 values.
 
 Thus the following rules are obeyed:
@@ -13751,18 +13749,18 @@ Thus the following rules are obeyed:
 \begin{indpar}
 
 {\bf \minkey{LIST\_AUX} stubs}.
-A \TTX{min::gen} value that points at a stub $S$
+A \TT{min::gen} value that points at a stub $S$
 of type {\tt min::\EOL LIST\_\EOL AUX} is the equivalent of a list auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
 Similarly,
 if the control of an object auxiliary stub holds a stub pointer, that pointer
-must point at an object auxiliary stub $S$ of type \TTX{min::LIST\_AUX} and the
+must point at an object auxiliary stub $S$ of type \TT{min::LIST\_AUX} and the
 control is the equivalent of a list auxiliary pointer pointing at
 the list element that is stub $S$'s value.
 
 {\bf \minkey{SUBLIST\_AUX} stubs}.
-A \TTX{min::gen} value that points at
+A \TT{min::gen} value that points at
 a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
 is the equivalent of a sublist auxiliary
 pointer pointing at the list element that is stub $S$'s value.
@@ -13770,37 +13768,37 @@ pointer pointing at the list element that is stub $S$'s value.
 {\bf Values of Object Auxiliary Stubs}.%
 \index{value!of object auxiliary stub}
 An object auxiliary stub value is always a list element, and can never
-be a list auxiliary pointer value, a \TTX{min::gen} value pointing at
-a stub of type \TTX{min::LIST\_AUX}, or a \TTX{min::LIST\_END()} value.
+be a list auxiliary pointer value, a \TT{min::gen} value pointing at
+a stub of type \TT{min::LIST\_AUX}, or a \TT{min::LIST\_END()} value.
 
-However, it can be a sublist auxiliary pointer value, a \TTX{min::gen}
-value pointing at a stub of type \TTX{min::SUBLIST\_AUX}, or a
-\TTX{min::EMPTY\_SUBLIST()} value.
+However, it can be a sublist auxiliary pointer value, a \TT{min::gen}
+value pointing at a stub of type \TT{min::SUBLIST\_AUX}, or a
+\TT{min::EMPTY\_SUBLIST()} value.
 
 {\bf Controls of Object Auxiliary Stubs}.%
 \index{control!of object auxiliary stub}
 An object auxiliary stub control is never a list element, and must
 be a list auxiliary pointer value, a stub pointer value pointing at
-a stub of type \TTX{min::LIST\_AUX}, or a \TTX{min::LIST\_END()} value.
+a stub of type \TT{min::LIST\_AUX}, or a \TT{min::LIST\_END()} value.
 
 {\bf Pointers to Object Auxiliary Stubs}.%
 \index{pointer!to object auxiliary stub}
-Every object auxiliary stub is pointed at by a \TTX{min::gen}
+Every object auxiliary stub is pointed at by a \TT{min::gen}
 value or by the control of another object auxiliary stub.  There is
 only one such pointer pointing at each object auxiliary stub.
-A \TTX{min::gen} value pointing at an object auxiliary stub $S$
+A \TT{min::gen} value pointing at an object auxiliary stub $S$
 must be one of the following:
 \begin{center}
 \begin{tabular}{l@{~~~}l}
-Location of \TTX{min::gen} & Type of auxiliary stub
+Location of \TT{min::gen} & Type of auxiliary stub
 \\[2ex]
-value of auxiliary area element & \TTX{LIST\_AUX} or \TTX{SUBLIST\_AUX}
+value of auxiliary area element & \TT{LIST\_AUX} or \TT{SUBLIST\_AUX}
 \\[1ex]
-value of auxiliary stub & \TTX{SUBLIST\_AUX}
+value of auxiliary stub & \TT{SUBLIST\_AUX}
 \\[1ex]
-value of hash table element & \TTX{LIST\_AUX}
+value of hash table element & \TT{LIST\_AUX}
 \\[1ex]
-value of attribute vector element & \TTX{LIST\_AUX}
+value of attribute vector element & \TT{LIST\_AUX}
 \end{tabular}
 \end{center}
 
@@ -13809,8 +13807,8 @@ value of attribute vector element & \TTX{LIST\_AUX}
 Object auxiliary stubs
 must obey the object list level rules on \pagref{NO-SUPERFLUOUS-LIST}.
 This means, for example, that a list auxiliary pointer cannot point
-at an auxiliary area element that holds a \TTX{min::gen} value
-pointing at an object auxiliary stub of type \TTX{min::LIST\_AUX},
+at an auxiliary area element that holds a \TT{min::gen} value
+pointing at an object auxiliary stub of type \TT{min::LIST\_AUX},
 as this would be equivalent to a list auxiliary pointer pointing at an
 element holding another list auxiliary pointer.
 
@@ -13977,9 +13975,9 @@ the object lists have the syntax:
 \emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
 
-Here the syntactic categories represent \TTX{min::gen} values
+Here the syntactic categories represent \TT{min::gen} values
 or lists or sublists
-of \TTX{min::gen} values in the sense of the object list level.
+of \TT{min::gen} values in the sense of the object list level.
 
 An {\em X-list} is a list, in the sense of the object list level.  Thus
 a {\em hash-list} and {\em vector-list} are lists.
@@ -13996,12 +13994,12 @@ a sequence of elements in some list or sublist.
 {\em X-pairs} are sequences of two elements.
 {\em Flag-sets} are sequences of {\em control-codes}.
 
-An {\em atom} is a \TTX{min::gen} number or string.
-An {\em label} is a \TTX{min::gen} label.
-An {\em object} is a \TTX{min::gen} value pointing at an object stub.
-A {\em control-code} is a \TTX{min::gen} control code value.
-An {\em index} is a \TTX{min::gen} index value.
-An {\em indirect-auxiliary} is a \TTX{min::gen} indirect auxiliary value.
+An {\em atom} is a \TT{min::gen} number or string.
+An {\em label} is a \TT{min::gen} label.
+An {\em object} is a \TT{min::gen} value pointing at an object stub.
+A {\em control-code} is a \TT{min::gen} control code value.
+An {\em index} is a \TT{min::gen} index value.
+An {\em indirect-auxiliary} is a \TT{min::gen} indirect auxiliary value.
 
 The above form of object map maps an {\em attribute-name} to a list of
 {\em values}, a list of flag {\em control codes}, and a optional
@@ -14200,7 +14198,7 @@ Note that zero length labels may not be used as attribute names.
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or
 {\em node-sublist}.
-The {\em flag-set} is a sequence of \TTX{min::gen}
+The {\em flag-set} is a sequence of \TT{min::gen}
 control codes.
 
 The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
@@ -14208,9 +14206,9 @@ the bit in the $I+1$'st control code
 selected by the mask $2^K$ where $I=\mbox{floor}(N/\mbox{\tt VSIZE})$,
 $K=N~\mbox{mod}~\mbox{\tt VSIZE}$, where {\tt VSIZE},
 the number of bits in a control code integer,
-is the value of the \TTX{min::VSIZE} constant (\pagref{MIN::VSIZE}),
-which is 24 if \TTX{min::gen}
-values are 32-bits, and 40 if \TTX{min::gen} values are 64-bits.
+is the value of the \TT{min::VSIZE} constant (\pagref{MIN::VSIZE}),
+which is 24 if \TT{min::gen}
+values are 32-bits, and 40 if \TT{min::gen} values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
 If a flag's bit is not present in the {\em flag-set}, the flag is
@@ -14399,8 +14397,8 @@ argument exists only if the
 This form of {\tt min::\EOL locate} uses the longest initial segment of the
 attribute name that locates an attribute that has a non-empty
 multiset of values.  The
-length of this initial segment is returned in the `\TTX{length}'
-argument.  If \TTX{0} is returned in `\TTX{length}',
+length of this initial segment is returned in the `\TT{length}'
+argument.  If \TT{0} is returned in `\TT{length}',
 no initial segment having a non-empty multiset of values was found.
 
 The {\tt min::\EOL locate\_reverse} function sets the reverse attribute name of
@@ -14437,22 +14435,22 @@ For the purposes of describing these functions,
 an attribute pointer is considered to point at the attribute
 named by the pointer's attribute name, and the reverse attribute
 pointed at by the pointer's attribute and reverse attribute names,
-unless the latter are \TTX{min::NONE()} or \TTX{min::ANY()}.
+unless the latter are \TT{min::NONE()} or \TT{min::ANY()}.
 If the {\tt min::\EOL locate} function has never been called to set
 these names it is an error to call an accessor
 function for the pointer.
 
 The value multiset pointed at by a pointer is that of the attribute pointed
-at if the reverse attribute name is \TTX{min::NONE()}, or is that of
+at if the reverse attribute name is \TT{min::NONE()}, or is that of
 the reverse attribute pointed at if the reverse attribute name is not
-\TTX{min::NONE()} or \TTX{min::ANY()}.
-If the reverse attribute name is \TTX{min::ANY()} the value multiset is
+\TT{min::NONE()} or \TT{min::ANY()}.
+If the reverse attribute name is \TT{min::ANY()} the value multiset is
 the set of all values associated with any reverse attribute name, but
-this \TTX{min::ANY()}
-value set can only be read by the 3-argument \TTX{min::get}
+this \TT{min::ANY()}
+value set can only be read by the 3-argument \TT{min::get}
 function, and made empty by the {\tt min::\EOL set\RESIZE}
 function with 0 new values (see \pagref{MIN::SET_DELETE_ANY}).
-It is an error to attempt any other access to this \TTX{min::ANY()} value set.
+It is an error to attempt any other access to this \TT{min::ANY()} value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
 at regardless of the setting of the reverse attribute name.
@@ -14482,14 +14480,14 @@ the number of values in the value multiset.
 The 1-argument {\tt min::\EOL get} function assumes that there is exactly
 one value in the value multiset
 and returns that value, or returns the special value
-\TTX{min::NONE()} (\pagref{MIN::NONE}) if the value multiset is empty,
+\TT{min::NONE()} (\pagref{MIN::NONE}) if the value multiset is empty,
 or returns the special value
-\TTX{min::MULTI\_VALUED} (\pagref{MIN::MULTI_VALUED}) if the value multiset
+\TT{min::MULTI\_VALUED} (\pagref{MIN::MULTI_VALUED}) if the value multiset
 has more than one value.
 
 The {\tt min::\EOL get\_\EOL flags}
 function returns the control codes in the flag set pointed at and stores
-these in the \TTX{min::gen} vector `{\tt out}'.
+these in the \TT{min::gen} vector `{\tt out}'.
 The total number of control codes in the flag set is returned
 (regardless of the value of {\tt n}).
 The argument {\tt n}, the length of `{\tt out}',
@@ -14560,7 +14558,7 @@ are returned, but the total number available is returned as the value of
 the {\tt min::\EOL get\_\EOL attrs} function, and this should be used
 to retry with a larger `{\tt out}' vector.
 
-The implementation dependent order of the \TTX{attr\_info}
+The implementation dependent order of the \TT{attr\_info}
 values returned by {\tt min::\EOL get\_\EOL attrs} may change if attribute
 values are added to or removed from the object or
 attribute flags are set or cleared, or if the object is reorganized.
@@ -14688,7 +14686,7 @@ of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
 It is an error if the value multiset is empty or has more than one
 value, or if the attribute pointer
-reverse attribute name is not \TTX{min::NONE()}.
+reverse attribute name is not \TT{min::NONE()}.
 
 Insertable attribute pointers can remove and insert values and
 set and clear flags,
@@ -14881,16 +14879,16 @@ the new values are given in the `{\tt in}' vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 For 2-argument {\tt min::\EOL set\RESIZE} there is one new value given as an
-argument, unless {\tt v} is \TTX{min::NONE()},
+argument, unless {\tt v} is \TT{min::NONE()},
 in which case there are no new values and all previous values are simply
 deleted.
 
 For the {\tt min::\EOL set\RESIZE} function
 \label{MIN::SET_DELETE_ANY}
-the pointer's reverse attribute name can be \TTX{min::NONE()}
-but cannot be \TTX{min::ANY()}, with the exception of the case
+the pointer's reverse attribute name can be \TT{min::NONE()}
+but cannot be \TT{min::ANY()}, with the exception of the case
 where all values are being deleted.  If the reverse attribute name
-is \TTX{min:ANY()} and the {\tt min::\EOL set\RESIZE} function is called to
+is \TT{min:ANY()} and the {\tt min::\EOL set\RESIZE} function is called to
 delete all previous values,
 all double arrows with the current attribute name and any
 reverse attribute name are deleted.
@@ -14903,11 +14901,11 @@ The {\tt min::\EOL add\_\EOL to\_\EOL multiset\RESIZE} function
 adds values even if they are already in the multiset.
 Both functions have a 3-argument version with a vector of new values,
 and a 2-argument version with a single new value.  In the latter case
-if {\tt v} is \TTX{min::NONE()} there is no new value and the function
+if {\tt v} is \TT{min::NONE()} there is no new value and the function
 is a no-operation.
 For these functions the pointer's reverse attribute name
-can be \TTX{min::NONE()}
-but cannot be \TTX{min::ANY()}.
+can be \TT{min::NONE()}
+but cannot be \TT{min::ANY()}.
 
 The {\tt min::\EOL remove\_\EOL one} function
 removes values from the multiset set of values, removing only one copy of
@@ -14919,11 +14917,11 @@ from the multiset of values (it may be less efficient if
 the multiset is actually a set).
 Both functions have a 3-argument version with a vector of values to remove,
 and a 2-argument version with a single value to remove.  In the latter case
-if {\tt v} is \TTX{min::NONE()} there is no value to remove and the function
+if {\tt v} is \TT{min::NONE()} there is no value to remove and the function
 is a no-operation.  These functions return the number of values actually
 removed from the multiset of values.
 For these functions the pointer's reverse attribute name
-can be \TTX{min::NONE()} but cannot be \TTX{min::ANY()}.
+can be \TT{min::NONE()} but cannot be \TT{min::ANY()}.
 
 Note that attribute values cannot be control codes, and reverse attribute
 values must be pointers to objects.
@@ -15133,11 +15131,11 @@ The type is pointed at by the control of the auxiliary stub, the context
 is pointed at by the value of the auxiliary stub.
 
 Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \TTX{min::gen} value that holds the index of a
+just a single index \TT{min::gen} value that holds the index of a
 variable vector element.  This always refers to a variable in the context.
-The second is an indirect \TTX{min::gen} value that points at a pair
-of values in an auxiliary area: the first being an index \TTX{min::gen}
-value and the second a pointer-to-object-stub \TTX{min::gen} value.
+The second is an indirect \TT{min::gen} value that points at a pair
+of values in an auxiliary area: the first being an index \TT{min::gen}
+value and the second a pointer-to-object-stub \TT{min::gen} value.
 This refers to the variable vector element of the object pointed to
 that is indexed by the given index.  If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
