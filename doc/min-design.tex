@@ -12880,7 +12880,8 @@ area element containing a list auxiliary pointer.
 {\bf No List Sharing}.%
 \index{list sharing}
 Parts of lists may not be shared with other lists.  In other words,
-there is only one way to reach any element of the auxiliary area.
+there is only one way to reach any element of the auxiliary area
+using object list level functions.
 
 Or more specifically, list and sublist
 auxiliary pointers must point at elements of the auxiliary area,
@@ -13078,7 +13079,7 @@ or remove elements
 from the object, though in some situations this is
 not adequate and the list pointer must be restarted
 with a \TT{min::\EOL start\_\dots} function
-(see \pagref{RESTARTING_LIST_PTR}).
+(see \pagref{RESTARTING_LIST_PTR} for details).
 
 A list pointer that has been created but not started by one of the
 list start functions appears to be
@@ -13087,7 +13088,7 @@ at the end of an immutable empty list.
 The \TT{min::\EOL start\_\EOL hash} function positions
 a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
-hash table as a vector.  This function mods the index by the hash table
+hash table as a vector.  This function mod's the index by the hash table
 size, so the index can be, and usually should be, a hash value returned
 by \TT{min::\EOL hash} (\pagref{MIN::HASH}).
 Index 0 refers to the first element of the hash table,
@@ -13106,7 +13107,8 @@ at that index.  Index 0 refers to the first element of the attribute vector,
 and the maximum index is the size of the attribute vector minus 1.
 The size of the attribute vector may be obtained from the
 \TT{min::\EOL attr\_\EOL size\_\EOL of} function.
-The index is \underline{not} a body vector index.
+The index is \underline{not} a body vector index and is \underline{not} mod'ed
+by the attribute vector size.
 
 The \TT{min::\EOL start\_\EOL copy} function
 positions a list pointer (\TT{lp})
@@ -13453,7 +13455,7 @@ in error.
 Reservations are made against a list pointer and its object, and are
 \underline{not} affected by calls to functions such as
 \TT{min::\EOL start\_\EOL hash}, \TT{min::\EOL start\_\EOL copy},
-and \TT{min::\EOL start\_\EOL sublist}
+\TT{min::\EOL start\_\EOL sublist}, and \TT{min::\EOL next},
 which reposition the list pointer.
 A reservation on a list pointer may be made as soon as the list pointer
 has been created and before any start list function has been called
@@ -14028,9 +14030,11 @@ The short form of an {\em attribute-descriptor} is just a single
 that contains nothing but that {\em value}.
 This is a common case, and is optimized to conserve memory.
 
-An empty {\em attribute-sublist} is equivalent to a missing
+An {\em attribute-name-descriptor-pair} with an
+empty {\em attribute-sublist} is equivalent to a missing
 {\em attribute-name-descriptor-pair}.
-{\em Attri\-bute-name-descriptor-pairs} are not
+Such {\em attri\-bute-name-descriptor-pairs}
+are not
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
@@ -14057,9 +14061,9 @@ and {\em value-multisets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
 flag control codes or {\em double-arrow-sublists}.
 
-An empty {\em value-multiset} is equivalent to a missing
-{\em double-arrow-name-descriptor-pair}.
-{\em Dou\-ble-arrow-name-descriptor-pairs} are not
+A {\em double-arrow-name-descriptor-pair} with an empty {\em value-multiset}
+is equivalent to a missing {\em double-arrow-name-descriptor-pair}.
+Such {\em dou\-ble-arrow-name-descriptor-pairs} are not
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
@@ -14181,9 +14185,9 @@ the {\em node-descriptor} structure is the same was as that of the
 not allowed.  The {\em double-arrow-sublist} structure is exactly
 the same.
 
-An empty {\em node-sublist} is equivalent to a missing
-{\em node-name-descriptor-pair}.
-{\em Node-name-descriptor-pairs} are not
+A {\em node-name-descriptor-pair} with an empty {\em node-sublist}
+is equivalent to a missing {\em node-name-descriptor-pair}.
+Such {\em node-name-descriptor-pairs} are not
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
