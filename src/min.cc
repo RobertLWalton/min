@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 10 12:02:56 EST 2016
+// Date:	Tue Dec 13 06:10:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -113,15 +113,28 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
       gen_element_disp );
 
 static const unsigned
-    standard_special_names_length = 12;
+    standard_special_names_length = 25;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
-    { (min::ustring) "\x07\x07" "MISSING",
+    { (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFF)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFE)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFD)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFC)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFB)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFA)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF9)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF8)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF7)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF6)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF5)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF4)",
+      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF3)",
+      (min::ustring) "\x0C\x0C" "MULTI_VALUED",
+      (min::ustring) "\x03\x03" "ANY",
       (min::ustring) "\x04\x04" "NONE",
+      (min::ustring) "\x07\x07" "MISSING",
       (min::ustring) "\x08\x08" "DISABLED",
       (min::ustring) "\x07\x07" "ENABLED",
-      (min::ustring) "\x03\x03" "ANY",
-      (min::ustring) "\x0C\x0C" "MULTI_VALUED",
       (min::ustring) "\x09\x09" "UNDEFINED",
       (min::ustring) "\x07\x07" "SUCCESS",
       (min::ustring) "\x07\x07" "FAILURE",

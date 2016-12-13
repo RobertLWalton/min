@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 12 12:42:09 EST 2016
+// Date:	Tue Dec 13 06:35:49 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5079,8 +5079,12 @@ void test_object_printing ( void )
     }
     printer << min::pgen ( obj4 ) << min::eol;
     {
+	min::gen zeroes[3] =
+	    { min::new_num_gen ( 0 ),
+	      min::new_num_gen ( 0 ),
+	      min::new_num_gen ( 0 ) };
 	min::obj_vec_insptr vp ( obj4 );
-	min::attr_push ( vp, 3 );
+	min::attr_push ( vp, 3, zeroes );
 	min::attr_insptr ap  ( vp );
 	min::locate ( ap, min::dot_type );
 	min::set ( ap, min::new_lab_gen ( "{", "}" ) );

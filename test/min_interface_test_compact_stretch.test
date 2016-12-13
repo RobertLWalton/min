@@ -79,7 +79,7 @@ min_interface_test.cc:XXXX desire failure:
     igen = min::new_direct_int_gen ( 1 << 28 );
 ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::new_direct_int_gen(int):
-    GEN_MIN_INT <= v && v <= GEN_MAX_INT => false
+    DIRECT_MIN_INT <= v && v <= DIRECT_MAX_INT => false
     argument is not direct integer
 min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( 1 << 27 );
@@ -87,7 +87,7 @@ min_interface_test.cc:XXXX desire failure:
     igen = min::new_direct_int_gen ( -1 << 29 );
 ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::new_direct_int_gen(int):
-    GEN_MIN_INT <= v && v <= GEN_MAX_INT => false
+    DIRECT_MIN_INT <= v && v <= DIRECT_MAX_INT => false
     argument is not direct integer
 min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( -1 << 28 );
@@ -507,9 +507,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     p3 != p4 => true
 resize_body ( stub XXX, 128, 128 ) called
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 128 ) called
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 MINT::deallocate ( stub XXX, 128 ) called
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     memcmp ( p3, p5, 128 ) == 0 => true
@@ -1182,6 +1179,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     sizeof ( pve ) == 32 => true
 pvtype.name = pvtype
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::packed_subtype_of ( v ) == pvtype.subtype => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::packed_subtype_of ( pvip ) == pvtype.subtype => true
@@ -1272,6 +1271,8 @@ Start File Test!
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 1", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
@@ -1281,8 +1282,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file1 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ! & file1->buffer [min::line(file1,1)] ) == 0 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1318,6 +1317,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     data == ostream.str() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     file4->buffer->length == file5->buffer->length => true
@@ -1331,8 +1332,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 Finish File Test!
 
 Start Identifier Map Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->length == 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1538,7 +1537,7 @@ TYPE(0)
 [$ INDIRECT_AUX(0x00001E) $]
 [$ INDEX(0x000028) $]
 [$ CONTROL_CODE(0xFEDCBA) $]
-[$ UNDEFINED_GEN(0x10000000) $]
+[$ UNDEFINED_GEN(0xF7000000) $]
 [$ MISSING $] MISSING [$ MISSING $]
 A flush is next:
 The line being flushed
@@ -2921,6 +2920,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_flags ( ap, codes1, 0 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 12 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 TEST REVERSE ATTRIBUTE VALUES ( "label1", "label2", 1)
