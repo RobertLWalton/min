@@ -1548,8 +1548,6 @@ subtype codes:
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
 \verb|const unsigned min::|\MINKEY{GEN\_INDIRECT\_AUX}
 \LABEL{MIN::GEN_INDIRECT_AUX} \\
-\verb|const unsigned min::|\MINKEY{GEN\_PACKED\_AUX}
-\LABEL{MIN::GEN_PACKED_AUX} \\
 \verb|const unsigned min::|\MINKEY{GEN\_INDEX}
 \LABEL{MIN::GEN_INDEX} \\
 \verb|const unsigned min::|\MINKEY{GEN\_CONTROL\_CODE}
@@ -12920,6 +12918,20 @@ As an optimization, \skey{auxiliary stub}s can be used in place of object
 auxiliary area elements.  When this is done, the description of this
 section must be modified as explained in \itemref{OBJECT-AUXILIARY-STUBS}.
 
+Auxilarly values that are used to build lists cannot be stored as
+values of list elements.  The following function returns \TT{true}
+if and only if its argument can be stored in a list element:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::|
+	& \MINKEY{list\_legal} \verb|( min::gen v )|
+\LABEL{MIN::LIST_LEGAL} \\
+\end{tabular}\end{indpar}
+
+Only auxilarly general values (with subtypes \TT{GEN\_...\_AUX})
+and illegal general values (with subtype \TT{GEN\_ILLEGAL}) cannot be stored
+in a list element.
+
 \subsubsubsection{List Pointers}
 \label{LIST-POINTERS}
 
@@ -16910,8 +16922,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_INDIRECT\_AUX}
 \LABEL{MIN::GEN_INDIRECT_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_PACKED\_AUX}
-\LABEL{MIN::GEN_PACKED_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_INDEX}
 \LABEL{MIN::GEN_INDEX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
@@ -21349,6 +21359,12 @@ These are in \verb|min_parameters.h|.
 \verb|const min::gen min::|
     & \MINKEY{EMPTY\_SUBLIST()}
 \LABEL{MIN::EMPTY_SUBLIST} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|bool min::|
+	& \MINKEY{list\_legal} \verb|( min::gen v )|
+\LABEL{MIN::LIST_LEGAL} \\
 \end{TABULAR}
 
 \end{indpar}
