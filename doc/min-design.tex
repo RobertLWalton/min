@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 13, 2016}
+\date{December 14, 2016}
  
 \maketitle
 
@@ -1596,26 +1596,19 @@ values, and must only be used as specified by documentation.
 They are used as return or argument values by some functions.
 
 For reasons given below, special values are defined by \TT{inline}
-functions of no-arguments.
-The special values defined by MIN are:
+functions of no-arguments.  Special values are divided into two
+groups, those that can only be used as function arguments and return
+values, and those whose use is unrestricted (and, in particular, can be used
+as object attribute values):
+
+The special values that can only be used as function arguments and
+return values (and \underline{cannot} be used as object attribute values) are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[\TT{const min::gen min::}\MINKEY{MISSING()}]~%
-	\LABEL{MIN::MISSING}\\
-Denotes a missing value or an empty set of values, and may be input
-or output and used as an attribute value.
 \item[\TT{const min::gen min::}\MINKEY{NONE()}]~%
 	\LABEL{MIN::NONE}\\
-Denotes a non-existent function value or result, but may \underline{not} be
-input or output or used in an attribute value or label.  May be used
-as a function argument or return value.
-\item[\TT{const min::gen min::}\MINKEY{DISABLED()}]~%
-	\LABEL{MIN::DISABLED}\\
-Specifies that a feature is disabled.
-\item[\TT{const min::gen min::}\MINKEY{ENABLED()}]~%
-	\LABEL{MIN::ENABLED}\\
-Specifies that a feature is enabled.
+Denotes a non-existent function argument or result.
 \item[\TT{const min::gen min::}\MINKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
 An argument value used to specify that any value from a set of values may be
@@ -1624,6 +1617,24 @@ used or returned.
 	\LABEL{MIN::MULTI_VALUED}\\
 A value returned to indicate that
 a set of values has more than one element.
+\end{list}
+\end{indpar}
+
+The special values whose use is unrestricted
+(and can be used as object attribute values) are:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[\TT{const min::gen min::}\MINKEY{MISSING()}]~%
+	\LABEL{MIN::MISSING}\\
+Denotes a missing value or an empty set of values, and may be input
+or output and used as an attribute value.
+\item[\TT{const min::gen min::}\MINKEY{DISABLED()}]~%
+	\LABEL{MIN::DISABLED}\\
+Specifies that a feature is disabled.
+\item[\TT{const min::gen min::}\MINKEY{ENABLED()}]~%
+	\LABEL{MIN::ENABLED}\\
+Specifies that a feature is enabled.
 \item[\TT{const min::gen min::}\MINKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
@@ -11437,7 +11448,7 @@ The format for printing special \TT{min::gen} values is:
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
 \verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 24 are:|\ARGBREAK
-\verb|//     first 13 unused: name SPECIAL(0xFFFFF?)|\ARGBREAK
+\verb|//     first 13 unused: name SPECIAL(0xFFFFF...)|\ARGBREAK
 \verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
 \verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
 \verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
