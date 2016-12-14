@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 13 06:35:49 EST 2016
+// Date:	Wed Dec 14 03:56:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -943,6 +943,16 @@ void test_general_value_functions ( void )
 	    min::new_special_gen
 		( (min::unsgen) 1 << min::VSIZE );
     );
+    MIN_CHECK ( min::attr_legal ( min::MISSING() ) );
+    MIN_CHECK ( min::attr_legal
+                   ( min::new_num_gen ( -1 ) ) );
+    MIN_CHECK ( ! min::attr_legal ( min::NONE() ) );
+    MIN_CHECK ( ! min::attr_legal ( min::LIST_END() ) );
+    MIN_CHECK ( min::list_legal ( min::MISSING() ) );
+    MIN_CHECK ( min::list_legal
+                   ( min::new_num_gen ( -1 ) ) );
+    MIN_CHECK ( min::list_legal ( min::NONE() ) );
+    MIN_CHECK ( ! min::list_legal ( min::LIST_END() ) );
 
     cout << endl;
     cout << "Finish General Value Constructor/"

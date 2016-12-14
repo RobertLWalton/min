@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 13 05:03:59 EST 2016
+// Date:	Wed Dec 14 03:25:18 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -165,10 +165,7 @@ namespace min {
 	const unsigned GEN_DIRECT_STR		= 0xF0;
 	const unsigned GEN_INDEX		= 0xF1;
 	const unsigned GEN_SPECIAL		= 0xF2;
-	const unsigned GEN_ATTR_LEGAL_BOUND	= 0xF3;
-	      // Last attribute legal subtype code + 1.
-	      // Not all GEN_SPECIALs are attribute
-	      // legal.
+	      // See ATTR_LEGAL_BOUND below.
 
 	const unsigned GEN_CONTROL_CODE		= 0xF3;
 	const unsigned GEN_LIST_LEGAL_BOUND	= 0xF4;
@@ -246,11 +243,7 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
 	const unsigned GEN_SPECIAL
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
-	const unsigned GEN_ATTR_LEGAL_BOUND
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
-	      // Last attribute legal subtype code + 1.
-	      // Not all GEN_SPECIALs are attribute
-	      // legal.
+	      // See ATTR_LEGAL_BOUND below.
 
 	const unsigned GEN_CONTROL_CODE
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
@@ -297,7 +290,7 @@ namespace min {
     // Special codes (24 bits):
     //
     //	0x000000-0xEFFFFF	User defined
-    //	0xF00000-0xFFFE00	System defined
+    //	0xFFFC00-0xFFFFEF	System defined
     //				  attribute legal
     //	0xFFFFF0-0xFFFFFF	System defined
     //				  attribute illegal
@@ -913,6 +906,19 @@ namespace min {
 	    else
 	        return GEN_ILLEGAL;
 	}
+	inline bool attr_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < ATTR_LEGAL_BOUND;
+	}
+	inline bool list_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return   v
+	           < (    (unsgen) GEN_LIST_LEGAL_BOUND
+		       << VSIZE );
+	}
+
 #   elif MIN_IS_LOOSE
 	inline bool is_direct_float ( min::gen g )
 	{
@@ -942,6 +948,24 @@ namespace min {
 	        return GEN_ILLEGAL;
 	    else
 	        return GEN_DIRECT_FLOAT;
+	}
+	inline bool attr_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < ATTR_LEGAL_BOUND
+	           ||
+		      v
+	           >= ( (unsgen) GEN_UPPER << VSIZE );
+	}
+	inline bool list_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return   v
+	           < (    (unsgen) GEN_LIST_LEGAL_BOUND
+		       << VSIZE )
+	           ||
+		      v
+	           >= ( (unsgen) GEN_UPPER << VSIZE );
 	}
 #   endif
 

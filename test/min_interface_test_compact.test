@@ -276,6 +276,22 @@ ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::new_special_gen(min::unsgen):
     i < (unsgen) 1 << VSIZE => false
     argument too large
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::attr_legal ( min::MISSING() ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::attr_legal ( min::new_num_gen ( -1 ) ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::attr_legal ( min::NONE() ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::attr_legal ( min::LIST_END() ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::list_legal ( min::MISSING() ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::list_legal ( min::new_num_gen ( -1 ) ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::list_legal ( min::NONE() ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::list_legal ( min::LIST_END() ) => true
 
 Finish General Value Constructor//Test/Read Function Test!
 
