@@ -12928,9 +12928,10 @@ if and only if its argument can be stored in a list element:
 \LABEL{MIN::LIST_LEGAL} \\
 \end{tabular}\end{indpar}
 
-Only auxilarly general values (with subtypes \TT{GEN\_...\_AUX})
+Only auxiliary general values (with subtypes \TT{GEN\_...\_AUX})
 and illegal general values (with subtype \TT{GEN\_ILLEGAL}) cannot be stored
-in a list element.
+in a list element, with the exception of \TT{min::\EOL EMPTY\_\EOL SUBLIST()},
+which can be stored like a normal value in a list element.
 
 \subsubsubsection{List Pointers}
 \label{LIST-POINTERS}
@@ -13319,9 +13320,10 @@ does not.
 
 The \TT{min::update} function can be used to replace the
 value of the current element of a list.
-Neither the previous value of the element nor the
-new value of the element may be \TT{min::\EOL LIST\_\EOL END()},
-and neither may represent a sublist (even an empty sublist).
+The value being replaced must be a list element (and not a
+non-empty sublist or list end), and the
+new value of the element must be legal for storage
+in a list element (\pagref{MIN::LIST_LEGAL}).
 
 If a list pointer \TT{lp2} points at a element that is
 \TT{min::update}'ed using a different updatable list pointer \TT{lp1},
@@ -13463,9 +13465,8 @@ Also, there is one function, \TT{min::update}, that can do more for
 an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
 the current value replaced by \TT{min::update}
-may be a sublist, and/or the replacing value may be
-\TT{min::\EOL EMPTY\_\EOL SUBLIST()}.  Thus \TT{min::update} can be used
-to remove a sublist or to create an empty sublist.
+may be a non-empty sublist.  Thus \TT{min::update} can be used
+to truncate a sublist by replacing it with \TT{min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will

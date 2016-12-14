@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 13 06:10:41 EST 2016
+// Date:	Wed Dec 14 14:21:41 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4251,6 +4251,9 @@ void min::insert_before
 	// stored in the list head and only 1 element to
 	// insert.
 	//
+	MIN_ASSERT ( min::list_legal ( * p ),
+	             "value cannot legally be stored in"
+		     " a list element" );
 	MUP::acc_write_update
 		( MUP::stub_of ( lp.vecp ), * p );
 	lp.current = lp.base[lp.current_index] = * p;
@@ -4266,8 +4269,15 @@ void min::insert_before
 		 "list pointer not up to date"
 		 " (refreshed)" );
 
-    MUP::acc_write_update
-            ( MUP::stub_of ( lp.vecp ), p, n );
+    const min::gen * pend = p + n;
+    for ( const min::gen * q = p; q < pend; )
+    {
+	MIN_ASSERT ( min::list_legal ( * q ),
+	             "value cannot legally be stored in"
+		     " a list element" );
+	MUP::acc_write_update
+		( MUP::stub_of ( lp.vecp ), * q ++ );
+    }
 
     if ( lp.current == min::LIST_END() )
     {
@@ -4732,8 +4742,15 @@ void min::insert_after
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::acc_write_update
-	    ( MUP::stub_of ( lp.vecp ), p, n );
+    const min::gen * pend = p + n;
+    for ( const min::gen * q = p; q < pend; )
+    {
+	MIN_ASSERT ( min::list_legal ( * q ),
+	             "value cannot legally be stored in"
+		     " a list element" );
+	MUP::acc_write_update
+		( MUP::stub_of ( lp.vecp ), * q ++ );
+    }
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USE_OBJ_AUX_STUBS

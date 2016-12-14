@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 14 03:25:18 EST 2016
+// Date:	Wed Dec 14 10:30:45 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -268,7 +268,7 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
 	      // First illegal subtype code.
 
-	const unsigned GEN_UPPER
+	const unsigned GEN_UPPER_BOUND
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x20;
 	      // Last subtype code + 1.
 
@@ -283,6 +283,9 @@ namespace min {
 #	define MIN_AMAX 0xFFFFFFFFFFFull
 	    // Maximum packed stub address value in
 	    // general value.
+
+	const unsgen UPPER_BOUND =
+	      ( (unsgen) GEN_UPPER_BOUND << VSIZE );
 
 #   endif
 
@@ -300,6 +303,9 @@ namespace min {
     const unsgen ATTR_LEGAL_BOUND =
           ( (unsgen) GEN_SPECIAL << VSIZE )
 	+ ATTR_ILLEGAL_SPECIAL;
+
+    const unsgen LIST_LEGAL_BOUND =
+          ( (unsgen) GEN_LIST_LEGAL_BOUND << VSIZE );
 
     namespace internal {
 	const unsgen VMASK =
@@ -911,13 +917,6 @@ namespace min {
 	    unsgen v = unprotected::value_of ( g );
 	    return v < ATTR_LEGAL_BOUND;
 	}
-	inline bool list_legal ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return   v
-	           < (    (unsgen) GEN_LIST_LEGAL_BOUND
-		       << VSIZE );
-	}
 
 #   elif MIN_IS_LOOSE
 	inline bool is_direct_float ( min::gen g )
@@ -944,7 +943,7 @@ namespace min {
 	        return GEN_STUB;
 	    else if ( v < GEN_ILLEGAL )
 	        return v;
-	    else if ( v < GEN_UPPER)
+	    else if ( v < GEN_UPPER_BOUND)
 	        return GEN_ILLEGAL;
 	    else
 	        return GEN_DIRECT_FLOAT;
@@ -954,18 +953,7 @@ namespace min {
 	    unsgen v = unprotected::value_of ( g );
 	    return v < ATTR_LEGAL_BOUND
 	           ||
-		      v
-	           >= ( (unsgen) GEN_UPPER << VSIZE );
-	}
-	inline bool list_legal ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return   v
-	           < (    (unsgen) GEN_LIST_LEGAL_BOUND
-		       << VSIZE )
-	           ||
-		      v
-	           >= ( (unsgen) GEN_UPPER << VSIZE );
+		   v >= UPPER_BOUND;
 	}
 #   endif
 
@@ -8025,6 +8013,28 @@ namespace min {
     // Global data.
 
     extern bool use_obj_aux_stubs;
+
+#   if MIN_IS_COMPACT
+
+	inline bool list_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < LIST_LEGAL_BOUND
+		   ||
+		   g == min::EMPTY_SUBLIST();
+	}
+#   elif MIN_IS_LOOSE
+
+	inline bool list_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < LIST_LEGAL_BOUND
+	           ||
+		   v >= UPPER_BOUND
+		   ||
+		   g == min::EMPTY_SUBLIST();
+	}
+#    endif
 }
 
 namespace min { namespace internal {
@@ -9434,15 +9444,12 @@ namespace min {
     	    ( min::list_updptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != LIST_END(),
-	             "value is LIST_END" );
-        MIN_ASSERT ( lp.current != LIST_END(),
-	             "list is currently at its end" );
-        MIN_ASSERT ( ! is_sublist ( lp.current ),
-	             "current list element is a"
-		     " sublist" );
-        MIN_ASSERT ( ! is_sublist ( value ),
-	             "value is a sublist aux" );
+        MIN_ASSERT ( list_legal ( value ),
+	             "value cannot legally be store in"
+		     " a list element " );
+        MIN_ASSERT ( list_legal ( lp.current ),
+	             "update when list pointer does not"
+		     " point at a list element" );
 	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
@@ -9466,14 +9473,15 @@ namespace min {
     	    ( min::list_insptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != LIST_END(),
-	             "value is LIST_END" );
-        MIN_ASSERT ( lp.current != LIST_END(),
-	             "list is currently at its end" );
-        MIN_ASSERT ( value == EMPTY_SUBLIST()
+        MIN_ASSERT ( list_legal ( value ),
+	             "value cannot legally be store in"
+		     " a list element " );
+        MIN_ASSERT ( list_legal ( lp.current )
 	             ||
-		     ! is_sublist ( value ),
-		     "value is a non-empty sublist" );
+		     is_sublist ( lp.current ),
+	             "update when list pointer does not"
+		     " point at a list element or"
+		     " sublist" );
 	internal::remove_sublist
 	       ( lp.base, lp.total_size, lp.current );
 	unprotected::acc_write_update
