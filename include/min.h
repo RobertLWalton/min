@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 14 21:20:22 EST 2016
+// Date:	Wed Dec 14 21:47:44 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -914,11 +914,6 @@ namespace min {
 	    else
 	        return GEN_ILLEGAL;
 	}
-	inline bool attr_legal ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return v < internal::ATTR_LEGAL_BOUND;
-	}
 
 #   elif MIN_IS_LOOSE
 	inline bool is_direct_float ( min::gen g )
@@ -949,13 +944,6 @@ namespace min {
 	        return GEN_ILLEGAL;
 	    else
 	        return GEN_DIRECT_FLOAT;
-	}
-	inline bool attr_legal ( min::gen g )
-	{
-	    unsgen v = unprotected::value_of ( g );
-	    return v < internal::ATTR_LEGAL_BOUND
-	           ||
-		   v >= internal::UPPER_BOUND;
 	}
 #   endif
 
@@ -6579,6 +6567,25 @@ namespace min {
     //
     const unsigned OBJ_TYPED   = ( 1 << 0 );
 
+#   if MIN_IS_COMPACT
+
+	inline bool attr_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < internal::ATTR_LEGAL_BOUND;
+	}
+
+#   elif MIN_IS_LOOSE
+
+	inline bool attr_legal ( min::gen g )
+	{
+	    unsgen v = unprotected::value_of ( g );
+	    return v < internal::ATTR_LEGAL_BOUND
+	           ||
+		   v >= internal::UPPER_BOUND;
+	}
+#   endif
+
 }
 
 namespace min { namespace internal {
@@ -10662,9 +10669,9 @@ namespace min {
 	         ::attr_ptr_type<vecptr> & ap,
 	      min::gen v )
     {
-        MIN_ASSERT ( v != NONE(),
-	             "trying to UPDATE attribute value"
-		     " to NONE" );
+        MIN_ASSERT ( attr_legal ( v ),
+	             "value cannot legally be an"
+		     " attribute value " );
 
 	typedef min::unprotected
 	           ::attr_ptr_type<vecptr> ap_type;
@@ -10729,6 +10736,10 @@ namespace min {
 	    return;
 	}
 
+        MIN_ASSERT ( attr_legal ( * in ),
+	             "value cannot legally be an"
+		     " attribute value " );
+
 	min::gen c = update_refresh ( ap.dlp );
 	if ( ! is_sublist ( c ) )
 	{
@@ -10780,6 +10791,10 @@ namespace min {
 	    return;
 	}
 
+        MIN_ASSERT ( attr_legal ( v ),
+	             "value cannot legally be an"
+		     " attribute value " );
+
 	min::gen c = update_refresh ( ap.dlp );
 	if ( ! is_sublist ( c ) )
 	{
@@ -10824,7 +10839,7 @@ namespace min {
 
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:
-	    add_to_multiset ( ap, & v, 1 );
+	    add_to_set ( ap, & v, 1 );
 	    return;
 	}
 
@@ -10846,7 +10861,7 @@ namespace min {
 		if ( c == v ) return;
 	    }
 	}
-	add_to_multiset ( ap, & v, 1 );
+	add_to_set ( ap, & v, 1 );
     }
 
     inline void add_to_multiset
@@ -10862,6 +10877,10 @@ namespace min {
 	      min::gen v )
     {
 	if ( v == NONE() ) return 0;
+
+        MIN_ASSERT ( attr_legal ( v ),
+	             "value cannot legally be an"
+		     " attribute value " );
 
 	typedef min::attr_insptr ap_type;
 
@@ -10907,6 +10926,10 @@ namespace min {
 	      min::gen v )
     {
 	if ( v == NONE() ) return 0;
+
+        MIN_ASSERT ( attr_legal ( v ),
+	             "value cannot legally be an"
+		     " attribute value " );
 
 	typedef min::attr_insptr ap_type;
 

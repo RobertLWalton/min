@@ -2990,8 +2990,8 @@ min_interface_test.cc:XXXX desire failure:
     min::update ( obj, yourattr, min::NONE() )
 ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::update(min::unprotected::attr_ptr_type<vecptr>&, min::gen) [with vecptr = min::obj_vec_updptr]:
-    v != NONE() => false
-    trying to UPDATE attribute value to NONE
+    attr_legal ( v ) => false
+    value cannot legally be an attribute value 
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     0 == min::get ( results, 10, obj, yourattr ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
