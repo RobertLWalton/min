@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 14 14:21:41 EST 2016
+// Date:	Thu Dec 15 02:34:59 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7829,6 +7829,9 @@ void MINT::set
 	          &&
 		  ap.reverse_attr_name == min::NONE() )
 	{
+	    MIN_ASSERT ( attr_legal ( * in ),
+			 "value cannot legally be an"
+			 " attribute value " );
 	    MINT::attr_create ( ap, * in );
 	    return;
 	}
@@ -7844,6 +7847,9 @@ void MINT::set
 	    return;
         else if ( n == 1 )
 	{
+	    MIN_ASSERT ( is_stub ( * in ),
+			 "reverse attribute value must"
+			 " be an object stub" );
 	    MINT::reverse_attr_create ( ap, * in );
 	    MINT::add_reverse_attr_value ( ap, * in );
 	    return;
@@ -7853,6 +7859,18 @@ void MINT::set
 	        ( ap, min::EMPTY_SUBLIST() );
 	break;
     }
+
+    const min::gen * endin = in + n;
+    if ( ap.reverse_attr_name == min::NONE() )
+        for ( const min::gen * p = in; p < endin; )
+	    MIN_ASSERT ( attr_legal ( *p ++ ),
+			 "value cannot legally be an"
+			 " attribute value " );
+    else
+        for ( const min::gen * p = in; p < endin; )
+	    MIN_ASSERT ( is_stub ( * p ++ ),
+			 "reverse attribute value must"
+			 " be an object stub" );
 
     min::gen c = update_refresh ( ap.dlp );
 
@@ -8062,6 +8080,9 @@ void min::add_to_multiset
 	          &&
 		  ap.reverse_attr_name == min::NONE() )
 	{
+	    MIN_ASSERT ( attr_legal ( * in ),
+			 "value cannot legally be an"
+			 " attribute value " );
 	    MINT::attr_create ( ap, * in );
 	    return;
 	}
@@ -8075,6 +8096,9 @@ void min::add_to_multiset
     case ap_type::REVERSE_LOCATE_FAIL:
         if ( n == 1 )
 	{
+	    MIN_ASSERT ( is_stub ( * in ),
+			 "reverse attribute value must"
+			 " be an object stub" );
 	    MINT::reverse_attr_create ( ap, * in );
 	    MINT::add_reverse_attr_value ( ap, * in );
 	    return;
@@ -8084,6 +8108,18 @@ void min::add_to_multiset
 	        ( ap, min::EMPTY_SUBLIST() );
 	break;
     }
+
+    const min::gen * endin = in + n;
+    if ( ap.reverse_attr_name == min::NONE() )
+        for ( const min::gen * p = in; p < endin; )
+	    MIN_ASSERT ( attr_legal ( *p ++ ),
+			 "value cannot legally be an"
+			 " attribute value " );
+    else
+        for ( const min::gen * p = in; p < endin; )
+	    MIN_ASSERT ( is_stub ( * p ++ ),
+			 "reverse attribute value must"
+			 " be an object stub" );
 
     min::gen c = update_refresh ( ap.dlp );
 

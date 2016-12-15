@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 14 21:47:44 EST 2016
+// Date:	Thu Dec 15 02:35:18 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10839,7 +10839,7 @@ namespace min {
 
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:
-	    add_to_set ( ap, & v, 1 );
+	    add_to_multiset ( ap, & v, 1 );
 	    return;
 	}
 
@@ -10861,7 +10861,7 @@ namespace min {
 		if ( c == v ) return;
 	    }
 	}
-	add_to_set ( ap, & v, 1 );
+	add_to_multiset ( ap, & v, 1 );
     }
 
     inline void add_to_multiset

@@ -1600,7 +1600,8 @@ values, and those whose use is unrestricted (and, in particular, can be used
 as object attribute values):
 
 The special values that can only be used as function arguments and
-return values (and \underline{cannot} be used as object attribute values) are:
+return values (and \underline{cannot} be used as object attribute values)
+are:\label{ATTR-ILLEGAL-SPECIAL-VALUES}
 
 \begin{indpar}
 \begin{list}{}{}
@@ -12918,7 +12919,7 @@ As an optimization, \skey{auxiliary stub}s can be used in place of object
 auxiliary area elements.  When this is done, the description of this
 section must be modified as explained in \itemref{OBJECT-AUXILIARY-STUBS}.
 
-Auxilarly values that are used to build lists cannot be stored as
+Auxiliary pointers that are used to build lists cannot be stored as
 values of list elements.  The following function returns \TT{true}
 if and only if its argument can be stored in a list element:
 
@@ -14244,6 +14245,26 @@ bit is present and set and in the attribute's {\em flag-set}.
 If a flag's bit is not present in the {\em flag-set}, the flag is
 treated as if its bit were present and cleared.
 
+Control codes, auxiliary pointers, and some specials values
+(\TT{min::\EOL NONE()}, \TT{min::\EOL ANY()}, etc.: see
+\pagref{ATTR-ILLEGAL-SPECIAL-VALUES}),
+cannot be labels or values of attributes.
+The following function returns \TT{true}
+if and only if its argument can be a label or value of an attribute:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::|
+	& \MINKEY{attr\_legal} \verb|( min::gen v )|
+\LABEL{MIN::ATTR_LEGAL} \\
+\end{tabular}\end{indpar}
+
+Only special values (with subtype \TT{GEN\_SPECIAL}) having
+indices greater than or equal to the index of \TT{min::\EOL NONE()},
+control code values (with subtypes \TT{GEN\_CONTROL\_CODE}),
+auxiliary general values (with subtypes \TT{GEN\_...\_AUX}),
+and illegal general values (with subtype \TT{GEN\_ILLEGAL})
+cannot be attribute labels or values.
+
 \subsubsubsection{Attribute Pointers}
 \label{ATTRIBUTE-POINTERS}
 
@@ -14727,9 +14748,11 @@ value multiset have a single value and that it be the value multiset
 of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
 It is an error if the value multiset is empty or has more than one
-value, or if the value argument is \TT{min::NONE()},
+value,
 or if the attribute pointer
 reverse attribute name is not \TT{min::NONE()}.
+It is an error if the new value is not a legal attribute value
+(see \pagref{MIN::ATTR_LEGAL}).
 
 Insertable attribute pointers can remove and insert values and
 set and clear flags,
@@ -14950,6 +14973,12 @@ For these functions the pointer's reverse attribute name
 can be \TT{min::NONE()}
 but cannot be \TT{min::ANY()}.
 
+It is an error if an attribute value to be stored by a \TT{min::set},
+\TT{min::\EOL add\_\EOL to\_\EOL set}
+or \TT{min::\EOL add\_\EOL to\_\EOL multiset}
+is not a legal attribute value
+(see \pagref{MIN::ATTR_LEGAL}).
+
 The \TT{min::\EOL remove\_\EOL one} function
 removes values from the multiset set of values, removing only one copy of
 each value,
@@ -15011,7 +15040,7 @@ given as the argument \TT{n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
 
-\subsubsection{Object Attribute Short-Cuts}
+\subsubsubsection{Object Attribute Short-Cuts}
 \label{OBJECT ATTRIBUTE SHORT-CUTS}
 
 The following functions use vector and attribute pointers
@@ -16379,7 +16408,7 @@ The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 if \TT{v} is an object.
 
 
-\subsubsection{TBD}
+\subsection{TBD Obsolete}
 
 Old stuff to be deleted as it is incorporated elsewhere.
 
@@ -21352,6 +21381,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 \end{indpar}
 
+\bigskip
+
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{2.2in}
@@ -21362,6 +21393,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::EMPTY_SUBLIST} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{2.2in}
 \verb|bool min::|
 	& \MINKEY{list\_legal} \verb|( min::gen v )|
@@ -21369,6 +21402,8 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
+
+\bigskip
 
 \begin{indpar}[0.2in]
 
@@ -21747,6 +21782,14 @@ These are in \verb|min_parameters.h|.
 \TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\verb|bool min::|
+	& \MINKEY{attr\_legal} \verb|( min::gen v )|
+\LABEL{MIN::ATTR_LEGAL} \\
+\end{TABULAR}
 
 \bigskip
 
