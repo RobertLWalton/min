@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 14 10:30:45 EST 2016
+// Date:	Wed Dec 14 21:20:22 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -284,30 +284,32 @@ namespace min {
 	    // Maximum packed stub address value in
 	    // general value.
 
-	const unsgen UPPER_BOUND =
-	      ( (unsgen) GEN_UPPER_BOUND << VSIZE );
-
 #   endif
 
-
-    // Special codes (24 bits):
-    //
-    //	0x000000-0xEFFFFF	User defined
-    //	0xFFFC00-0xFFFFEF	System defined
-    //				  attribute legal
-    //	0xFFFFF0-0xFFFFFF	System defined
-    //				  attribute illegal
-    //
-    const unsgen ATTR_ILLEGAL_SPECIAL = 0xFFFFF0;
-
-    const unsgen ATTR_LEGAL_BOUND =
-          ( (unsgen) GEN_SPECIAL << VSIZE )
-	+ ATTR_ILLEGAL_SPECIAL;
-
-    const unsgen LIST_LEGAL_BOUND =
-          ( (unsgen) GEN_LIST_LEGAL_BOUND << VSIZE );
-
     namespace internal {
+
+	// Special codes (24 bits):
+	//
+	//	0x000000-0xEFFFFF    User defined
+	//	0xFFFC00-0xFFFFEF    System defined
+	//			      attribute legal
+	//	0xFFFFF0-0xFFFFFF    System defined
+	//			      attribute illegal
+	//
+	const unsgen ATTR_ILLEGAL_SPECIAL = 0xFFFFF0;
+
+	const unsgen ATTR_LEGAL_BOUND =
+	      ( (unsgen) GEN_SPECIAL << VSIZE )
+	    + ATTR_ILLEGAL_SPECIAL;
+
+	const unsgen LIST_LEGAL_BOUND =
+	      (unsgen) GEN_LIST_LEGAL_BOUND << VSIZE;
+
+#	if MIN_IS_LOOSE
+	    const unsgen UPPER_BOUND =
+		  (unsgen) GEN_UPPER_BOUND << VSIZE;
+#	endif
+
 	const unsgen VMASK =
 	    ( (unsgen) 1 << VSIZE ) - 1;
 	    // Value mask.
@@ -386,41 +388,41 @@ namespace min {
     //
     inline min::gen NONE ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL + 0 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL + 0 ); }
     inline min::gen ANY ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL + 1 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL + 1 ); }
     inline min::gen MULTI_VALUED ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL + 2 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL + 2 ); }
 
     inline min::gen MISSING ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 1 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 1 ); }
     inline min::gen DISABLED ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 2 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 2 ); }
     inline min::gen ENABLED ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 3 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 3 ); }
     inline min::gen UNDEFINED ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 4 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 4 ); }
     inline min::gen SUCCESS ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 5 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 5 ); }
     inline min::gen FAILURE ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 6 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 6 ); }
     inline min::gen ERROR ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 7 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 7 ); }
     inline min::gen LOGICAL_LINE ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 8 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 8 ); }
     inline min::gen INDENTED_PARAGRAPH ( void )
 	{ return min::unprotected::new_special_gen
-	    ( ATTR_ILLEGAL_SPECIAL - 9 ); }
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 9 ); }
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
@@ -915,7 +917,7 @@ namespace min {
 	inline bool attr_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
-	    return v < ATTR_LEGAL_BOUND;
+	    return v < internal::ATTR_LEGAL_BOUND;
 	}
 
 #   elif MIN_IS_LOOSE
@@ -951,9 +953,9 @@ namespace min {
 	inline bool attr_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
-	    return v < ATTR_LEGAL_BOUND
+	    return v < internal::ATTR_LEGAL_BOUND
 	           ||
-		   v >= UPPER_BOUND;
+		   v >= internal::UPPER_BOUND;
 	}
 #   endif
 
@@ -8019,7 +8021,7 @@ namespace min {
 	inline bool list_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
-	    return v < LIST_LEGAL_BOUND
+	    return v < internal::LIST_LEGAL_BOUND
 		   ||
 		   g == min::EMPTY_SUBLIST();
 	}
@@ -8028,9 +8030,9 @@ namespace min {
 	inline bool list_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
-	    return v < LIST_LEGAL_BOUND
+	    return v < internal::LIST_LEGAL_BOUND
 	           ||
-		   v >= UPPER_BOUND
+		   v >= internal::UPPER_BOUND
 		   ||
 		   g == min::EMPTY_SUBLIST();
 	}
