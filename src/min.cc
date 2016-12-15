@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 15 02:34:59 EST 2016
+// Date:	Thu Dec 15 05:45:25 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6192,6 +6192,7 @@ min::printer min::list_print
 		  "name argument is not a name" );
 	    len = 1;
 	}
+
 	min::gen element[len];
 	if ( is_label )
 	{
@@ -6231,7 +6232,7 @@ min::printer min::list_print
 	    ap.index = i;
 	    c = current ( ap.dlp );
 	}
-	else
+	else if ( is_str ( element[0] ) )
 	{
 	    ap.index = min::hash ( element[0] );
 	    ap.flags = 0;
@@ -6253,6 +6254,9 @@ min::printer min::list_print
 		}
 	    }
 	}
+	else
+	    MIN_ABORT ( "name component is not a string"
+	                " or number" );
 
 	if ( is_list_end ( c ) )
 	{
@@ -6306,6 +6310,10 @@ min::printer min::list_print
 	    {
 		if ( c == element[ap.length] )
 		{
+	    	    MIN_ASSERT
+		        ( is_str ( c ) || is_num ( c ),
+	                  "name component is not a"
+			  " string or number" );
 		    c = next ( ap.lp );
 		    MIN_ASSERT ( ! is_list_end ( c ),
 		                 "system programming"
@@ -6868,6 +6876,9 @@ void min::locate_reverse
 
     update_refresh ( ap.locate_dlp );
 
+    MIN_ASSERT
+        ( is_name ( reverse_name ),
+          "reverse name argument is not a name" );
     ap.reverse_attr_name = reverse_name;
 
     switch ( ap.state )

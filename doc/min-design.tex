@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 14, 2016}
+\date{December 15, 2016}
  
 \maketitle
 
@@ -14248,9 +14248,9 @@ treated as if its bit were present and cleared.
 Control codes, auxiliary pointers, and some specials values
 (\TT{min::\EOL NONE()}, \TT{min::\EOL ANY()}, etc.: see
 \pagref{ATTR-ILLEGAL-SPECIAL-VALUES}),
-cannot be labels or values of attributes.
+cannot be values of attributes.
 The following function returns \TT{true}
-if and only if its argument can be a label or value of an attribute:
+if and only if its argument can be a value of an attribute:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
@@ -14263,7 +14263,14 @@ indices greater than or equal to the index of \TT{min::\EOL NONE()},
 control code values (with subtypes \TT{GEN\_CONTROL\_CODE}),
 auxiliary general values (with subtypes \TT{GEN\_...\_AUX}),
 and illegal general values (with subtype \TT{GEN\_ILLEGAL})
-cannot be attribute labels or values.
+cannot be attribute values.
+
+Attribute names must be strings, numbers, or labels
+(\TT{min::gen} labels as per \itemref{LABELS}).  If
+partial labels are allowed, a label that is an attribute
+name may only have string or number components.  Reverse
+attribute names, and attribute names when partial labels are
+not allowed, may be labels with components that are also labels.
 
 \subsubsubsection{Attribute Pointers}
 \label{ATTRIBUTE-POINTERS}
