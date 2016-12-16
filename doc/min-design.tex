@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 15, 2016}
+\date{December 16, 2016}
  
 \maketitle
 
@@ -14087,6 +14087,8 @@ simply a sublist of alternating {\em reverse-attribute-names}
 and {\em value-multisets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
 flag control codes or {\em double-arrow-sublists}.
+The values in the {\em value-multisets} of {\em double-arrow-sublists}
+are restricted to be {\em objects}, i.e., pointers to objects.
 
 A {\em double-arrow-name-descriptor-pair} with an empty {\em value-multiset}
 is equivalent to a missing {\em double-arrow-name-descriptor-pair}.
@@ -14264,6 +14266,10 @@ control code values (with subtypes \TT{GEN\_CONTROL\_CODE}),
 auxiliary general values (with subtypes \TT{GEN\_...\_AUX}),
 and illegal general values (with subtype \TT{GEN\_ILLEGAL})
 cannot be attribute values.
+
+Only pointers to objects
+(satisfying \TT{min::\EOL is\_\EOL obj}, see \pagref{MIN::IS_OBJ})
+can be double-arrow attribute values.
 
 Attribute names must be strings, numbers, or labels
 (\TT{min::gen} labels as per \itemref{LABELS}).  If
@@ -14984,7 +14990,8 @@ It is an error if an attribute value to be stored by a \TT{min::set},
 \TT{min::\EOL add\_\EOL to\_\EOL set}
 or \TT{min::\EOL add\_\EOL to\_\EOL multiset}
 is not a legal attribute value
-(see \pagref{MIN::ATTR_LEGAL}).
+(see \pagref{MIN::ATTR_LEGAL}) or if the pointer's reverse attribute
+name is not \TT{min::NONE()} and the value is not a pointer to an object.
 
 The \TT{min::\EOL remove\_\EOL one} function
 removes values from the multiset set of values, removing only one copy of
@@ -15001,9 +15008,6 @@ is a no-operation.  These functions return the number of values actually
 removed from the multiset of values.
 For these functions the pointer's reverse attribute name
 can be \TT{min::NONE()} but cannot be \TT{min::ANY()}.
-
-Note that attribute values cannot be control codes, and reverse attribute
-values must be pointers to objects.
 
 If the attribute pointer is pointing at a multiset of values
 associated with a reverse attribute name,

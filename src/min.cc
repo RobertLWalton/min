@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 15 05:45:25 EST 2016
+// Date:	Thu Dec 15 23:54:38 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7858,7 +7858,7 @@ void MINT::set
 	    return;
         else if ( n == 1 )
 	{
-	    MIN_ASSERT ( is_stub ( * in ),
+	    MIN_ASSERT ( is_obj ( * in ),
 			 "reverse attribute value must"
 			 " be an object stub" );
 	    MINT::reverse_attr_create ( ap, * in );
@@ -7879,7 +7879,7 @@ void MINT::set
 			 " attribute value " );
     else
         for ( const min::gen * p = in; p < endin; )
-	    MIN_ASSERT ( is_stub ( * p ++ ),
+	    MIN_ASSERT ( is_obj ( * p ++ ),
 			 "reverse attribute value must"
 			 " be an object stub" );
 
@@ -8107,7 +8107,7 @@ void min::add_to_multiset
     case ap_type::REVERSE_LOCATE_FAIL:
         if ( n == 1 )
 	{
-	    MIN_ASSERT ( is_stub ( * in ),
+	    MIN_ASSERT ( is_obj ( * in ),
 			 "reverse attribute value must"
 			 " be an object stub" );
 	    MINT::reverse_attr_create ( ap, * in );
@@ -8128,7 +8128,7 @@ void min::add_to_multiset
 			 " attribute value " );
     else
         for ( const min::gen * p = in; p < endin; )
-	    MIN_ASSERT ( is_stub ( * p ++ ),
+	    MIN_ASSERT ( is_obj ( * p ++ ),
 			 "reverse attribute value must"
 			 " be an object stub" );
 
