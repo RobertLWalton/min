@@ -15065,13 +15065,26 @@ return the same values as the corresponding functions on a
 \TT{min::attr\_insptr} insertable attribute pointer
 pointing at the \TT{obj} argument
 and located using the \TT{attr} argument as attribute label
-(\pagref{INSERTABLE-ATTRIBUTE-FUNCTIONS}).
-The only difference is that when possible a \TT{min::attr\_ptr}
+(\pagref{INSERTABLE-ATTRIBUTE-FUNCTIONS}), with two differences:
+\begin{enumerate}
+\item
+When possible a \TT{min::attr\_ptr}
 or \TT{min::attr\_updptr} is used instead of a
-\TT{min::attr\_insptr} which improves efficiency slightly,
-and more importantly permits the function to be used on
-a public object (\pagref{MIN::PUBLISH}).
+\TT{min::\EOL attr\_\EOL insptr}.  This
+permits functions that do not modify
+the object to be used on
+a public object (\pagref{MIN::PUBLISH}), and also
+improves efficiency slightly.
+\item
+When the \TT{obj} argument is \underline{not} a pointer
+to an object (\TT{min::\EOL is\_\EOL obj} is false),
+the short-cut 2-argument \TT{min::\EOL get} function
+returns \TT{min::\EOL NONE()} and
+the short-cut 4-argument \TT{min::\EOL get} function
+returns \TT{0}.
+\end{enumerate}
 
+With this in mind, the short-cut functions are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{get}\ARGBREAK

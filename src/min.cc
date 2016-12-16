@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 15 23:54:38 EST 2016
+// Date:	Fri Dec 16 06:16:00 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8587,6 +8587,7 @@ bool MINT::flip_flag
 min::gen min::get
     ( min::gen obj, min::gen attr )
 {
+    if ( ! min::is_obj ( obj ) ) return min::NONE();
     min::obj_vec_ptr vp ( obj );
     min::attr_ptr ap ( vp );
     min::locate ( ap, attr );
@@ -8596,6 +8597,7 @@ min::unsptr min::get
     ( min::gen * out, min::unsptr n,
       min::gen obj, min::gen attr )
 {
+    if ( ! min::is_obj ( obj ) ) return 0;
     min::obj_vec_ptr vp ( obj );
     min::attr_ptr ap ( vp );
     min::locate ( ap, attr );
