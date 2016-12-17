@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 06:16:00 EST 2016
+// Date:	Fri Dec 16 19:16:45 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4251,7 +4251,7 @@ void min::insert_before
 	// stored in the list head and only 1 element to
 	// insert.
 	//
-	MIN_ASSERT ( min::list_legal ( * p ),
+	MIN_ASSERT ( min::is_list_legal ( * p ),
 	             "value cannot legally be stored in"
 		     " a list element" );
 	MUP::acc_write_update
@@ -4272,7 +4272,7 @@ void min::insert_before
     const min::gen * pend = p + n;
     for ( const min::gen * q = p; q < pend; )
     {
-	MIN_ASSERT ( min::list_legal ( * q ),
+	MIN_ASSERT ( min::is_list_legal ( * q ),
 	             "value cannot legally be stored in"
 		     " a list element" );
 	MUP::acc_write_update
@@ -4745,7 +4745,7 @@ void min::insert_after
     const min::gen * pend = p + n;
     for ( const min::gen * q = p; q < pend; )
     {
-	MIN_ASSERT ( min::list_legal ( * q ),
+	MIN_ASSERT ( min::is_list_legal ( * q ),
 	             "value cannot legally be stored in"
 		     " a list element" );
 	MUP::acc_write_update
@@ -6188,7 +6188,7 @@ min::printer min::list_print
 	else
 	{
 	    MIN_ASSERT
-		( is_str ( name ) || is_num ( name ),
+		( is_name ( name ),
 		  "name argument is not a name" );
 	    len = 1;
 	}
@@ -6232,8 +6232,12 @@ min::printer min::list_print
 	    ap.index = i;
 	    c = current ( ap.dlp );
 	}
-	else if ( is_str ( element[0] ) )
+	else
 	{
+	    MIN_ASSERT ( is_name ( element[0] ),
+			 "name argument is not"
+			 " a name" );
+
 	    ap.index = min::hash ( element[0] );
 	    ap.flags = 0;
 
@@ -6254,9 +6258,6 @@ min::printer min::list_print
 		}
 	    }
 	}
-	else
-	    MIN_ABORT ( "name component is not a string"
-	                " or number" );
 
 	if ( is_list_end ( c ) )
 	{
@@ -6310,10 +6311,6 @@ min::printer min::list_print
 	    {
 		if ( c == element[ap.length] )
 		{
-	    	    MIN_ASSERT
-		        ( is_str ( c ) || is_num ( c ),
-	                  "name component is not a"
-			  " string or number" );
 		    c = next ( ap.lp );
 		    MIN_ASSERT ( ! is_list_end ( c ),
 		                 "system programming"
@@ -6604,7 +6601,7 @@ min::printer min::list_print
 	}
 	else
 	    MIN_ASSERT
-		( is_str ( name ) || is_num ( name ),
+		( is_name ( name ),
 		  "name argument is not a name" );
 
 	ap.attr_name = name;
@@ -7840,7 +7837,7 @@ void MINT::set
 	          &&
 		  ap.reverse_attr_name == min::NONE() )
 	{
-	    MIN_ASSERT ( attr_legal ( * in ),
+	    MIN_ASSERT ( is_attr_legal ( * in ),
 			 "value cannot legally be an"
 			 " attribute value " );
 	    MINT::attr_create ( ap, * in );
@@ -7874,7 +7871,7 @@ void MINT::set
     const min::gen * endin = in + n;
     if ( ap.reverse_attr_name == min::NONE() )
         for ( const min::gen * p = in; p < endin; )
-	    MIN_ASSERT ( attr_legal ( *p ++ ),
+	    MIN_ASSERT ( is_attr_legal ( *p ++ ),
 			 "value cannot legally be an"
 			 " attribute value " );
     else
@@ -8091,7 +8088,7 @@ void min::add_to_multiset
 	          &&
 		  ap.reverse_attr_name == min::NONE() )
 	{
-	    MIN_ASSERT ( attr_legal ( * in ),
+	    MIN_ASSERT ( is_attr_legal ( * in ),
 			 "value cannot legally be an"
 			 " attribute value " );
 	    MINT::attr_create ( ap, * in );
@@ -8123,7 +8120,7 @@ void min::add_to_multiset
     const min::gen * endin = in + n;
     if ( ap.reverse_attr_name == min::NONE() )
         for ( const min::gen * p = in; p < endin; )
-	    MIN_ASSERT ( attr_legal ( *p ++ ),
+	    MIN_ASSERT ( is_attr_legal ( *p ++ ),
 			 "value cannot legally be an"
 			 " attribute value " );
     else

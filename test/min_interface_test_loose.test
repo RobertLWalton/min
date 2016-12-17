@@ -259,21 +259,21 @@ ASSERT FAILED: ../include/min.h:XXXX:
     i < (unsgen) 1 << VSIZE => false
     argument too large
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::attr_legal ( min::MISSING() ) => true
+    min::is_attr_legal ( min::MISSING() ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::attr_legal ( min::new_num_gen ( -1 ) ) => true
+    min::is_attr_legal ( min::new_num_gen ( -1 ) ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::attr_legal ( min::NONE() ) => true
+    ! min::is_attr_legal ( min::NONE() ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::attr_legal ( min::LIST_END() ) => true
+    ! min::is_attr_legal ( min::LIST_END() ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::list_legal ( min::MISSING() ) => true
+    min::is_list_legal ( min::MISSING() ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::list_legal ( min::new_num_gen ( -1 ) ) => true
+    min::is_list_legal ( min::new_num_gen ( -1 ) ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::list_legal ( min::NONE() ) => true
+    min::is_list_legal ( min::NONE() ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::list_legal ( min::LIST_END() ) => true
+    ! min::is_list_legal ( min::LIST_END() ) => true
 
 Finish General Value Constructor//Test/Read Function Test!
 
@@ -2990,7 +2990,7 @@ min_interface_test.cc:XXXX desire failure:
     min::update ( obj, yourattr, min::NONE() )
 ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::update(min::unprotected::attr_ptr_type<vecptr>&, min::gen) [with vecptr = min::obj_vec_updptr]:
-    attr_legal ( v ) => false
+    is_attr_legal ( v ) => false
     value cannot legally be an attribute value 
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     0 == min::get ( results, 10, obj, yourattr ) => true

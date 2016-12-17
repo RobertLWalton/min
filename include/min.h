@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 15 02:35:18 EST 2016
+// Date:	Fri Dec 16 19:16:07 EST 2016
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6569,7 +6569,7 @@ namespace min {
 
 #   if MIN_IS_COMPACT
 
-	inline bool attr_legal ( min::gen g )
+	inline bool is_attr_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
 	    return v < internal::ATTR_LEGAL_BOUND;
@@ -6577,7 +6577,7 @@ namespace min {
 
 #   elif MIN_IS_LOOSE
 
-	inline bool attr_legal ( min::gen g )
+	inline bool is_attr_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
 	    return v < internal::ATTR_LEGAL_BOUND
@@ -8025,7 +8025,7 @@ namespace min {
 
 #   if MIN_IS_COMPACT
 
-	inline bool list_legal ( min::gen g )
+	inline bool is_list_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
 	    return v < internal::LIST_LEGAL_BOUND
@@ -8034,7 +8034,7 @@ namespace min {
 	}
 #   elif MIN_IS_LOOSE
 
-	inline bool list_legal ( min::gen g )
+	inline bool is_list_legal ( min::gen g )
 	{
 	    unsgen v = unprotected::value_of ( g );
 	    return v < internal::LIST_LEGAL_BOUND
@@ -9453,10 +9453,10 @@ namespace min {
     	    ( min::list_updptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( list_legal ( value ),
+        MIN_ASSERT ( is_list_legal ( value ),
 	             "value cannot legally be store in"
 		     " a list element " );
-        MIN_ASSERT ( list_legal ( lp.current ),
+        MIN_ASSERT ( is_list_legal ( lp.current ),
 	             "update when list pointer does not"
 		     " point at a list element" );
 	unprotected::acc_write_update
@@ -9482,10 +9482,10 @@ namespace min {
     	    ( min::list_insptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( list_legal ( value ),
+        MIN_ASSERT ( is_list_legal ( value ),
 	             "value cannot legally be store in"
 		     " a list element " );
-        MIN_ASSERT ( list_legal ( lp.current )
+        MIN_ASSERT ( is_list_legal ( lp.current )
 	             ||
 		     is_sublist ( lp.current ),
 	             "update when list pointer does not"
@@ -10669,7 +10669,7 @@ namespace min {
 	         ::attr_ptr_type<vecptr> & ap,
 	      min::gen v )
     {
-        MIN_ASSERT ( attr_legal ( v ),
+        MIN_ASSERT ( is_attr_legal ( v ),
 	             "value cannot legally be an"
 		     " attribute value " );
 
@@ -10736,7 +10736,7 @@ namespace min {
 	    return;
 	}
 
-        MIN_ASSERT ( attr_legal ( * in ),
+        MIN_ASSERT ( is_attr_legal ( * in ),
 	             "value cannot legally be an"
 		     " attribute value " );
 
@@ -10791,7 +10791,7 @@ namespace min {
 	    return;
 	}
 
-        MIN_ASSERT ( attr_legal ( v ),
+        MIN_ASSERT ( is_attr_legal ( v ),
 	             "value cannot legally be an"
 		     " attribute value " );
 
@@ -10878,7 +10878,7 @@ namespace min {
     {
 	if ( v == NONE() ) return 0;
 
-        MIN_ASSERT ( attr_legal ( v ),
+        MIN_ASSERT ( is_attr_legal ( v ),
 	             "value cannot legally be an"
 		     " attribute value " );
 
@@ -10927,7 +10927,7 @@ namespace min {
     {
 	if ( v == NONE() ) return 0;
 
-        MIN_ASSERT ( attr_legal ( v ),
+        MIN_ASSERT ( is_attr_legal ( v ),
 	             "value cannot legally be an"
 		     " attribute value " );
 

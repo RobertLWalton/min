@@ -12925,8 +12925,8 @@ if and only if its argument can be stored in a list element:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
-	& \MINKEY{list\_legal} \verb|( min::gen v )|
-\LABEL{MIN::LIST_LEGAL} \\
+	& \MINKEY{is\_list\_legal} \verb|( min::gen v )|
+\LABEL{MIN::IS_LIST_LEGAL} \\
 \end{tabular}\end{indpar}
 
 Only auxiliary general values (with subtypes \TT{GEN\_...\_AUX})
@@ -13324,7 +13324,7 @@ value of the current element of a list.
 The value being replaced must be a list element (and not a
 non-empty sublist or list end), and the
 new value of the element must be legal for storage
-in a list element (\pagref{MIN::LIST_LEGAL}).
+in a list element (\pagref{MIN::IS_LIST_LEGAL}).
 
 If a list pointer \TT{lp2} points at a element that is
 \TT{min::update}'ed using a different updatable list pointer \TT{lp1},
@@ -14256,8 +14256,8 @@ if and only if its argument can be a value of an attribute:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
-	& \MINKEY{attr\_legal} \verb|( min::gen v )|
-\LABEL{MIN::ATTR_LEGAL} \\
+	& \MINKEY{is\_attr\_legal} \verb|( min::gen v )|
+\LABEL{MIN::IS_ATTR_LEGAL} \\
 \end{tabular}\end{indpar}
 
 Only special values (with subtype \TT{GEN\_SPECIAL}) having
@@ -14272,11 +14272,7 @@ Only pointers to objects
 can be double-arrow attribute values.
 
 Attribute names must be strings, numbers, or labels
-(\TT{min::gen} labels as per \itemref{LABELS}).  If
-partial labels are allowed, a label that is an attribute
-name may only have string or number components.  Reverse
-attribute names, and attribute names when partial labels are
-not allowed, may be labels with components that are also labels.
+(\TT{min::gen} labels as per \itemref{LABELS}).
 
 \subsubsubsection{Attribute Pointers}
 \label{ATTRIBUTE-POINTERS}
@@ -14765,7 +14761,7 @@ value,
 or if the attribute pointer
 reverse attribute name is not \TT{min::NONE()}.
 It is an error if the new value is not a legal attribute value
-(see \pagref{MIN::ATTR_LEGAL}).
+(see \pagref{MIN::IS_ATTR_LEGAL}).
 
 Insertable attribute pointers can remove and insert values and
 set and clear flags,
@@ -14990,7 +14986,7 @@ It is an error if an attribute value to be stored by a \TT{min::set},
 \TT{min::\EOL add\_\EOL to\_\EOL set}
 or \TT{min::\EOL add\_\EOL to\_\EOL multiset}
 is not a legal attribute value
-(see \pagref{MIN::ATTR_LEGAL}) or if the pointer's reverse attribute
+(see \pagref{MIN::IS_ATTR_LEGAL}) or if the pointer's reverse attribute
 name is not \TT{min::NONE()} and the value is not a pointer to an object.
 
 The \TT{min::\EOL remove\_\EOL one} function
@@ -21421,8 +21417,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 \verb|bool min::|
-	& \MINKEY{list\_legal} \verb|( min::gen v )|
-\LABEL{MIN::LIST_LEGAL} \\
+	& \MINKEY{is\_list\_legal} \verb|( min::gen v )|
+\LABEL{MIN::IS_LIST_LEGAL} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -21811,8 +21807,8 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \verb|bool min::|
-	& \MINKEY{attr\_legal} \verb|( min::gen v )|
-\LABEL{MIN::ATTR_LEGAL} \\
+	& \MINKEY{is\_attr\_legal} \verb|( min::gen v )|
+\LABEL{MIN::IS_ATTR_LEGAL} \\
 \end{TABULAR}
 
 \bigskip
