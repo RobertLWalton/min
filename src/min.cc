@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 19:16:45 EST 2016
+// Date:	Sat Feb 25 13:13:54 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2891,7 +2891,7 @@ min::uns32 min::print_line_column
     return column;
 }
 
-void min::print_phrase_lines
+min::uns32 min::print_phrase_lines
 	( min::printer printer,
 	  min::uns32 line_display,
 	  min::file file,
@@ -2940,12 +2940,13 @@ void min::print_phrase_lines
 	    printer << min::eol;
 	}
 
-	if ( line == end.line ) return;
+	if ( line == end.line )
+	    break;
 
 	++ line;
 
 	if ( line == end.line && end_column == 0 )
-	    return;
+	    break;
 
 	first_column = 0;
 	width = min::print_line
@@ -2953,6 +2954,8 @@ void min::print_phrase_lines
 	      blank_line, end_of_file,
 	      unavailable_line );
     }
+
+    return begin_column;
 }
 
 min::printer operator <<

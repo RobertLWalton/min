@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 19:16:07 EST 2016
+// Date:	Sat Feb 25 13:13:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6366,7 +6366,7 @@ namespace min {
 	      min::uns32 line_display,
 	      const min::print_format & print_format );
 
-    void print_phrase_lines
+    min::uns32 print_phrase_lines
 	    ( min::printer printer,
 	      min::uns32 line_display,
 	      min::file file,
@@ -6379,7 +6379,7 @@ namespace min {
 	      const char * unavailable_line =
 	          "<UNAVALABLE-LINE>" );
 
-    inline void print_phrase_lines
+    inline min::uns32 print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
 	      const min::phrase_position & position,

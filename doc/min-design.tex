@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 16, 2016}
+\date{February 25, 2017}
  
 \maketitle
 
@@ -10568,7 +10568,7 @@ then \TT{position.end.line - 1} is used in place of
 To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
@@ -10595,6 +10595,11 @@ being at the empty phrase position.
 If the \TT{mark} argument is given as \TT{0}, the marking lines
 will be omitted.  This permits just printing the lines containing
 a phrase, without marking the phrase.
+
+The column number of position.begin is returned (this is \TT{0}
+for the first column).  If position bounds the non-whitespace
+portion of some lines, this is the indent of that portion in
+the first of these lines.
 
 An example using a \TT{phrase\_position} is
 
@@ -10677,7 +10682,7 @@ an extra \TT{line\_\EOL display} argument and use that in place of
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 line_display,|\ARGBREAK
@@ -20175,7 +20180,7 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.6in}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
@@ -20217,7 +20222,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|void min::|
+\verb|min::uns32 min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 line_display,|\ARGBREAK
