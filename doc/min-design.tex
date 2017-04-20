@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 25, 2017}
+\date{April 20, 2017}
  
 \maketitle
 
@@ -12970,10 +12970,16 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{list\_ptr} \verb|lp ( min::obj_vec_ptr & vp )|
+	& \MINKEY{list\_ptr} \verb|lp|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::list_ptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_ptr}}\ARGBREAK
+	  \verb|( min::list_ptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vec_ptr & vp )|
+\LABEL{MIN::=LIST_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::obj_vec_ptr & min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_ptr}}
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_ptr}}\ARGBREAK
 	  \verb|( min::list_ptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{tabular}\end{indpar}
@@ -13080,6 +13086,13 @@ the end of the list.
 The \TT{min::\EOL current} function returns the current element
 or \TT{min::\EOL LIST\_\EOL END()}.
 
+Assigning a vector pointer to a list pointer (via the `\TT{=}' assignment
+operator) reconstructs the
+list pointer to point at the object pointed at by the vector
+pointer.  This must be done whenever the vector pointer itself
+is reassigned to point at a different object.  Once reassigned,
+the list pointer must be restarted.
+
 Determining whether a list pointer current element value
 represents a sublist requires
 the \TT{min::\EOL is\_\EOL sublist} function, which checks whether the
@@ -13173,7 +13186,8 @@ The 1-argument \TT{min::\EOL start\_\EOL sublist} function
 positions a list pointer
 to the first element of the sublist represented by the current
 element of the pointer (it is equivalent to 2-argument
-\TT{min::\EOL start\_\EOL sublist} with \TT{lp2}$\equiv$\TT{lp}).
+\TT{min::\EOL start\_\EOL sublist} with \TT{lp2} and \TT{lp} being
+the same).
 Again the list pointer must be valid before this function is executed.
 
 The \TT{min::\EOL next} function moves the list pointer
@@ -13229,9 +13243,13 @@ from lists.  The functions for using this are:
 	& \MINKEY{list\_updptr} \verb|lp|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
-\verb|min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_updptr}}
+\verb|min::list_updptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_updptr}}\ARGBREAK
+	  \verb|( min::list_updptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vect_updptr & vp )|
+\LABEL{MIN::=LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_updptr}}\ARGBREAK
 	  \verb|( min::list_updptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -13348,10 +13366,14 @@ The functions defined for this are:
 (constructor)~\verb|min::|
 	& \MINKEY{list\_insptr} \verb|lp|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::LIST_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
-\verb|min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt list\_insptr}}
+\LABEL{MIN::LIST_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::list_insptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_insptr}}\ARGBREAK
+	  \verb|( min::list_insptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vect_insptr & vp )|
+\LABEL{MIN::=LIST_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::obj_vec_insptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_insptr}}\ARGBREAK
 	  \verb|( min::list_insptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
@@ -14319,11 +14341,16 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{attr\_ptr} \verb|ap ( min::obj_vec_ptr & vp )|
+	& \MINKEY{attr\_ptr} \verb|ap|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_ptr \&} \\
-\verb|min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_ptr}}
+\verb|min::attr_ptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_ptr}}\ARGBREAK
+	  \verb|( min::attr_ptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_ptr & vp )|
+\LABEL{MIN::=ATTR_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::obj_vec_ptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
 	  \verb|( min::attr_ptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_PTR} \\
 \end{tabular}\end{indpar}
@@ -14439,6 +14466,13 @@ giving a vector pointer to the object to the constructor of the
 attribute pointer.  The \TT{min::\EOL obj\_\EOL vec\_\EOL ptr\_\EOL of}
 function can be used to retrieve the vector pointer used by
 an attribute pointer.
+
+Assigning a vector pointer to an attribute pointer
+(via the `\TT{=}' assignment operator) reconstructs the
+attribute pointer to point at the object pointed at by the vector
+pointer.  This must be done whenever the vector pointer itself
+is reassigned to point at a different object.  Once reassigned,
+the effect of previous locate functions is lost.
 
 \ikey{Locator functions}{locator function}
 find attributes within an object and set the current
@@ -14669,9 +14703,13 @@ are:\label{UPDATABLE-ATTRIBUTE-FUNCTIONS}
 	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
-\verb|min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_updptr}}
+\verb|min::attr_updptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_updptr & vp )|
+\LABEL{MIN::=ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
 	  \verb|( min::attr_updptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
@@ -14779,10 +14817,14 @@ are:\label{INSERTABLE-ATTRIBUTE-FUNCTIONS}
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_insptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
-\verb|min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{{\tt attr\_insptr}}
+\LABEL{MIN::ATTR_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::attr_insptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_insptr}}\ARGBREAK
+	  \verb|( min::attr_insptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_insptr & vp )|
+\LABEL{MIN::=ATTR_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::obj_vec_insptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_insptr}}\ARGBREAK
 	  \verb|( min::attr_insptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
@@ -21437,8 +21479,13 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{list\_ptr} \verb|lp|\ARGBREAK
 	  \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::list_ptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_ptr}}\ARGBREAK
+	  \verb|( min::list_ptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vec_ptr & vp )|
+\LABEL{MIN::=LIST_PTR_OF_OBJ_VEC_PTR} \\
 \verb|min::obj_vec_ptr & min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_ptr}}\ARGBREAK
 	  \verb|( min::list_ptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{TABULAR}
@@ -21543,14 +21590,18 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{2.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_updptr} \verb|lp|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
-\verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+\verb|min::list_updptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_updptr}}\ARGBREAK
+	  \verb|( min::list_updptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vect_updptr & vp )|
+\LABEL{MIN::=LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_updptr}}\ARGBREAK
 	  \verb|( min::list_updptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_UPDPTR} \\
 \end{TABULAR}
@@ -21654,14 +21705,18 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{2.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_insptr} \verb|lp|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::LIST_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
-\verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+\LABEL{MIN::LIST_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::list_insptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::list\_insptr}}\ARGBREAK
+	  \verb|( min::list_insptr & lp,|\ARGBREAK
+	  \verb|  min::obj_vect_insptr & vp )|
+\LABEL{MIN::=LIST_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::obj_vec_insptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt list\_insptr}}\ARGBREAK
 	  \verb|( min::list_insptr & lp )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_LIST_INSPTR} \\
 \end{TABULAR}
@@ -21818,13 +21873,18 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{2.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{attr\_ptr} \verb|ap ( min::obj_vec_ptr & vp )|
+	& \MINKEY{attr\_ptr} \verb|ap|\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_ptr \&} \\
-\verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+\verb|min::attr_ptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_ptr}}\ARGBREAK
+	  \verb|( min::attr_ptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_ptr & vp )|
+\LABEL{MIN::=ATTR_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::obj_vec_ptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
 	  \verb|( min::attr_ptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_PTR} \\
 \end{TABULAR}
@@ -21939,14 +21999,18 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{2.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_updptr & vp )|
 \LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
-\verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+\verb|min::attr_updptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_updptr & vp )|
+\LABEL{MIN::=ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
 	  \verb|( min::attr_updptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
@@ -22030,14 +22094,18 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{2.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_insptr} \verb|ap|\ARGBREAK
 	  \verb|( min::obj_vec_insptr & vp )|
-\LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
-\verb|min::|
-	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
+\LABEL{MIN::ATTR_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::attr_insptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_insptr}}\ARGBREAK
+	  \verb|( min::attr_insptr & ap,|\ARGBREAK
+	  \verb|  min::obj_vec_insptr & vp )|
+\LABEL{MIN::=ATTR_INSPTR_OF_OBJ_VEC_INSPTR} \\
+\verb|min::obj_vec_insptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_insptr}}\ARGBREAK
 	  \verb|( min::attr_insptr & ap )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_ATTR_INSPTR} \\
 \end{TABULAR}

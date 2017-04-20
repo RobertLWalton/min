@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 05:05:12 EDT 2017
+// Date:	Thu Apr 20 12:31:25 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8228,6 +8228,15 @@ namespace min { namespace unprotected {
 
     public:
 
+	list_ptr_type<min::obj_vec_insptr> & operator =
+		( min::obj_vec_insptr & vecp )
+	{
+	    new ( this )
+	        list_ptr_type<min::obj_vec_insptr>
+	        ( vecp );
+	    return * this;
+	}
+
         list_ptr_type
 		( min::obj_vec_insptr & vecp )
 	    : vecp ( vecp ),
@@ -8637,6 +8646,13 @@ namespace min { namespace unprotected {
 	class list_ptr_type {
 
     public:
+
+	list_ptr_type<vecptr> & operator =
+		( vecptr & vecp )
+	{
+	    new ( this ) list_ptr_type<vecptr> ( vecp );
+	    return * this;
+	}
 
         list_ptr_type ( vecptr & vecp )
 	    : vecp ( vecp ),
