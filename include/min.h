@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 13:13:28 EST 2017
+// Date:	Thu Apr 20 05:05:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9968,6 +9968,12 @@ namespace min { namespace unprotected {
 	      dlp ( vecp ),
 	      locate_dlp ( vecp ),
 	      lp ( vecp ) {}
+
+	attr_ptr_type & operator = ( vecptr & vecp )
+	{
+	    new ( this ) attr_ptr_type ( vecp );
+	    return * this;
+	}
 
     private:
 
