@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr 20 12:31:25 EDT 2017
+// Date:	Thu Jun 15 03:10:08 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -451,10 +451,7 @@ namespace min {
     const int ACC_FREE			= 1;
     const int ACC_MARK			= 2;
     const int DEALLOCATED		= 3;
-    const int NUMBER			= 4;
-    const int SHORT_STR			= 5;
-    const int LONG_STR			= 6;
-    const int LABEL			= 7;
+    const int PREALLOCATED		= 4;
 
     const int OBJ			= 8;
     const int OBJ_MASK			= -8;
@@ -469,6 +466,11 @@ namespace min {
 
 	const int PACKED_STRUCT		= PACKED + 0;
 	const int PACKED_VEC		= PACKED + 1;
+
+    const int NUMBER			= 14;
+    const int SHORT_STR			= 15;
+    const int LONG_STR			= 16;
+    const int LABEL			= 17;
 
     // Uncollectible.
     //

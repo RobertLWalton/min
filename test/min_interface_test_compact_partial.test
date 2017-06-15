@@ -401,7 +401,7 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::control_of ( stub ) == c => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::type_of ( stub ) == 0 => true
-c: 481000000000000
+c: e81000000000000
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::control_of ( stub ) == c => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

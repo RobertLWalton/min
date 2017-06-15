@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 25 13:13:54 EST 2017
+// Date:	Thu Jun 15 03:13:51 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -366,6 +366,7 @@ void MINT::initialize ( void )
 
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";
+    type_name[PREALLOCATED] = "PREALLOCATED";
     type_name[NUMBER] = "NUMBER";
     type_name[SHORT_STR] = "SHORT_STR";
     type_name[LONG_STR] = "LONG_STR";
