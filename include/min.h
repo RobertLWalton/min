@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 03:10:08 EDT 2017
+// Date:	Thu Jun 15 14:33:47 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -454,7 +454,7 @@ namespace min {
     const int PREALLOCATED		= 4;
 
     const int OBJ			= 8;
-    const int OBJ_MASK			= -8;
+    const int OBJ_MASK			= -4;
 
 	const int TINY_OBJ		= OBJ + 0;
 	const int SHORT_OBJ		= OBJ + 1;
@@ -462,7 +462,7 @@ namespace min {
 	const int HUGE_OBJ		= OBJ + 3;
 
     const int PACKED			= 12;
-    const int PACKED_MASK		= -4;
+    const int PACKED_MASK		= -2;
 
 	const int PACKED_STRUCT		= PACKED + 0;
 	const int PACKED_VEC		= PACKED + 1;
