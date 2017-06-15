@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 20, 2017}
+\date{June 15, 2017}
  
 \maketitle
 
@@ -1771,6 +1771,11 @@ Stub value is a pointer at a body of type \TT{min::long\_\EOL string}
 that contains a \TT{const char} vector and its size. 
 \item[\TT{const int min::DEALLOCATED}]~\\
 Stub has a deallocated body.
+\item[\TT{const int min::PREALLOCATED}]~\\
+Stub is preallocated, and does not yet have a body.
+This can happen when an identifier referencing a stub via
+an \TT{min::\EOL id\_\EOL map} preceeds the definition of the
+identified object.  See \itemref{IDENTIFIER-MAPS}.
 \end{list}
 \end{indpar}
 
@@ -8278,7 +8283,10 @@ associated with \TT{id}, unless there is no such stub.
 If there is no stub associated with \TT{id}, a stub \TT{s}
 can be created and inserted into the map with the \TT{min::\EOL insert}
 function, which will increase the length of the map if necessary to
-accomodate \TT{id}.
+accomodate \TT{id}.  If the stub body has not yet been input,
+a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED} type can be created,
+which has no body, and whose stub type is changed when the stub later
+acquires a body.
 
 The \TT{min::find} function is not needed for either input or output.
 It merely returns the identifier associated with a stub \TT{s} if one exists,
@@ -16753,6 +16761,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.4in}
 \verb|const int min::| & \MINKEY{DEALLOCATED}
 \LABEL{MIN::DEALLOCATED} \\
+\verb|const int min::| & \MINKEY{PREALLOCATED}
+\LABEL{MIN::PREALLOCATED} \\
 \verb|const int min::| & \MINKEY{NUMBER}
 \LABEL{MIN::NUMBER} \\
 \verb|const int min::| & \MINKEY{SHORT\_STR}
