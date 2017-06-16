@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 03:13:51 EDT 2017
+// Date:	Thu Jun 15 22:35:29 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1955,8 +1955,8 @@ min::gen min::new_str_gen
 }
 
 bool min::strto ( min::int32 & value,
-		  const min::str_ptr sp, int & i,
-		  int base )
+		  const min::str_ptr sp,
+		  min::unsptr & i, int base )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -1972,8 +1972,8 @@ bool min::strto ( min::int32 & value,
 }
 
 bool min::strto ( min::int64 & value,
-		  const min::str_ptr sp, int & i,
-		  int base )
+		  const min::str_ptr sp,
+		  min::unsptr & i, int base )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -1988,8 +1988,8 @@ bool min::strto ( min::int64 & value,
 }
 
 bool min::strto ( min::uns32 & value,
-		  const min::str_ptr sp, int & i,
-		  int base )
+		  const min::str_ptr sp,
+		  min::unsptr & i, int base )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -2005,8 +2005,8 @@ bool min::strto ( min::uns32 & value,
 }
 
 bool min::strto ( min::uns64 & value,
-		  const min::str_ptr sp, int & i,
-		  int base )
+		  const min::str_ptr sp,
+		  min::unsptr & i, int base )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -2021,7 +2021,8 @@ bool min::strto ( min::uns64 & value,
 }
 
 bool min::strto ( min::float32 & value,
-		  const min::str_ptr sp, int & i )
+		  const min::str_ptr sp,
+		  min::unsptr & i )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -2036,7 +2037,8 @@ bool min::strto ( min::float32 & value,
 }
 
 bool min::strto ( min::float64 & value,
-		  const min::str_ptr sp, int & i )
+		  const min::str_ptr sp,
+		  min::unsptr & i )
 {
     const char * beginp =
         ! ( min::begin_ptr_of ( sp ) + i );
@@ -2055,7 +2057,7 @@ bool min::strto
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::int32 v;
     if ( ! strto ( v, sp, i, base ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;
@@ -2069,7 +2071,7 @@ bool min::strto
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::int64 v;
     if ( ! strto ( v, sp, i, base ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;
@@ -2083,7 +2085,7 @@ bool min::strto
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::uns32 v;
     if ( ! strto ( v, sp, i, base ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;
@@ -2097,7 +2099,7 @@ bool min::strto
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::uns64 v;
     if ( ! strto ( v, sp, i, base ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;
@@ -2110,7 +2112,7 @@ bool min::strto ( min::float32 & value, min::gen g )
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::float32 v;
     if ( ! strto ( v, sp, i ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;
@@ -2123,7 +2125,7 @@ bool min::strto ( min::float64 & value, min::gen g )
 {
     min::str_ptr sp ( g );
     if ( ! sp ) return false;
-    int i = 0;
+    min::unsptr i = 0;
     min::float64 v;
     if ( ! strto ( v, sp, i ) ) return false;
     while ( isspace ( sp[i] ) ) ++ i;

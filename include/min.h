@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 14:33:47 EDT 2017
+// Date:	Thu Jun 15 22:32:28 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3907,7 +3907,7 @@ namespace min {
 	// Operator[] MUST be a member and cannot
 	// be a friend.
 	//
-	char operator [] ( int index ) const
+	char operator [] ( min::unsptr index ) const
 	{
 	    return ( (const char *)
 	             unprotected::long_str_of ( s ) )
@@ -4231,21 +4231,21 @@ namespace min {
     // Functions to convert strings to numbers.
     //
     bool strto ( min::int32 & value,
-                 const min::str_ptr sp, int & i,
+                 const min::str_ptr sp, min::unsptr & i,
 		 int base = 0 );
     bool strto ( min::uns32 & value,
-                 const min::str_ptr sp, int & i,
+                 const min::str_ptr sp, min::unsptr & i,
 		 int base = 0 );
     bool strto ( min::int64 & value,
-                 const min::str_ptr sp, int & i,
+                 const min::str_ptr sp, min::unsptr & i,
 		 int base = 0 );
     bool strto ( min::uns64 & value,
-                 const min::str_ptr sp, int & i,
+                 const min::str_ptr sp, min::unsptr & i,
 		 int base = 0 );
     bool strto ( min::float32 & value,
-                 const min::str_ptr sp, int & i );
+                 const min::str_ptr sp, min::unsptr & i );
     bool strto ( min::float64 & value,
-                 const min::str_ptr sp, int & i );
+                 const min::str_ptr sp, min::unsptr & i );
     bool strto ( min::int32 & value, min::gen g,
                  int base = 0 );
     bool strto ( min::uns32 & value, min::gen g,

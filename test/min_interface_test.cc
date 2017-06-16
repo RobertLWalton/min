@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 16 19:47:21 EST 2016
+// Date:	Thu Jun 15 22:57:13 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1801,7 +1801,7 @@ void test_strings ( void )
     min::gen snums =
         min::new_str_gen ( "1 -2e 3e10 -4e-10X5" );
     min::str_ptr snumsp ( snums );
-    int j = 0;
+    min::unsptr j = 0;
     MIN_CHECK ( min::strto ( si, snumsp, j ) );
     MIN_CHECK ( si == 1 );
     MIN_CHECK ( min::strto ( si, snumsp, j ) );

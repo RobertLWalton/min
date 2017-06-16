@@ -5151,8 +5151,11 @@ a \key{string pointer}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|char sp|
-    & \TTBMKEY{i}{of {\tt min::str\_ptr}}
+    & \TTBMKEY{i}{of {\tt min::str\_ptr}} --- for \TT{min::unsptr i}
 \LABEL{MIN::[]_OF_STR_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<const char> min::|
     & \MINMKEY{begin\_ptr\_of}{{\tt str\_ptr}}
       \verb|( min::str_ptr const & sp )|
@@ -5235,12 +5238,12 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -5248,12 +5251,12 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  min::str_ptr & const sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr & const sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -5261,11 +5264,11 @@ pointer by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float32 & value,|\ARGBREAK
-	\verb|  min::str_ptr & const sp, int & i )|
+	\verb|  min::str_ptr & const sp, min::unsptr & i )|
 \LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float64 & value,|\ARGBREAK
-	\verb|  min::str_ptr & const sp, int & i )|
+	\verb|  min::str_ptr & const sp, min::unsptr & i )|
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -5424,8 +5427,11 @@ The label value may be read by using \TT{min::\EOL lab\_\EOL ptr}'s:
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb|( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen labp|
-    & \TTBMKEY{i}{of {\tt min::lab\_ptr}}
+    & \TTBMKEY{i}{of {\tt min::lab\_ptr}} --- for \TT{min::uns32 i}
 \LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -18099,10 +18105,17 @@ These are in \verb|min_parameters.h|.
 \LABEL{BOOL_OF_STR_PTR} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
+\medskip
+
+\begin{TABULAR}{0.75in}
 \verb|char sp|
-    & \TTBMKEY{i}{of {\tt min::str\_ptr}}
+    & \TTBMKEY{i}{of {\tt min::str\_ptr}} --- for \TT{min::unsptr i}
 \LABEL{MIN::[]_OF_STR_PTR} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.4in}
 \verb|min::ptr<const char> min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb|( min::str_ptr const & sp )|
@@ -18139,12 +18152,12 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int32 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::int64 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_INT64_OF_STR_PTR} \\
 \end{TABULAR}
@@ -18152,12 +18165,12 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns32 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::uns64 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i,|\ARGBREAK
+	\verb|  min::str_ptr const & sp, min::unsptr & i,|\ARGBREAK
 	\verb|  int base = 0 )|
 \LABEL{MIN::STRTO_UNS64_OF_STR_PTR} \\
 \end{TABULAR}
@@ -18165,11 +18178,13 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float32 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i )|
+	\verb|  min::str_ptr const & sp,|\ARGBREAK
+	\verb|  min::unsptr & i )|
 \LABEL{MIN::STRTO_FLOAT32_OF_STR_PTR} \\
 \verb|bool min::| & \MINKEY{strto}\ARGBREAK
 	\verb|( min::float64 & value,|\ARGBREAK
-	\verb|  min::str_ptr const & sp, int & i )|
+	\verb|  min::str_ptr const & sp,|\ARGBREAK
+	\verb|  min::unsptr & i )|
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -18236,10 +18251,13 @@ These are in \verb|min_parameters.h|.
 	  \verb|( min::lab_ptr & labp,|\ARGBREAK
 	  \verb|  const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
-	  \verb|( min::lab_ptr const & labp,|\ARGBREAK
-	  \verb|  min::uns32 i )|
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.6in}
+\verb|min::gen labp|
+    & \TTBMKEY{i}{of {\tt min::lab\_ptr}} --- for \TT{min::uns32 i}
 \LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{TABULAR}
 
