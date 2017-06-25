@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 22:32:28 EDT 2017
+// Date:	Sun Jun 25 08:04:43 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1735,6 +1735,9 @@ namespace min {
         S * p = (S *) NULL;
 	return (uns8 *) & (p->*d) - (uns8 *) p;
     }
+
+    void stub_swap
+        ( const min::stub * s1, const min::stub * s2 );
 
 }
 
@@ -4243,9 +4246,11 @@ namespace min {
                  const min::str_ptr sp, min::unsptr & i,
 		 int base = 0 );
     bool strto ( min::float32 & value,
-                 const min::str_ptr sp, min::unsptr & i );
+                 const min::str_ptr sp,
+		 min::unsptr & i );
     bool strto ( min::float64 & value,
-                 const min::str_ptr sp, min::unsptr & i );
+                 const min::str_ptr sp,
+		 min::unsptr & i );
     bool strto ( min::int32 & value, min::gen g,
                  int base = 0 );
     bool strto ( min::uns32 & value, min::gen g,

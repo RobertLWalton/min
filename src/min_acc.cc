@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 20 04:22:09 EST 2015
+// Date:	Sun Jun 25 08:05:40 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1191,6 +1191,18 @@ void MUP::deallocate_body
 
     MUP::set_ptr_of ( s, MACC::deallocated_body );
     MUP::set_type_of ( s, min::DEALLOCATED );
+}
+
+void min::stub_swap
+        ( const min::stub * s1, const min::stub * s2 )
+{
+
+    void * ptr1 = NULL;
+    if ( MUP::body_size_of ( s1 ) != 0 )
+    {
+        ptr1 = MUP::ptr_of ( s1 );
+    }
+    // TBD
 }
 
 // Packed Type Allocator

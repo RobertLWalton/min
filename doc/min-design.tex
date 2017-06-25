@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 15, 2017}
+\date{June 25, 2017}
  
 \maketitle
 
@@ -2822,6 +2822,20 @@ The inaccessible memory to which a \TT{min::DEALLOCATED} stub is
 pointed is called the `\key{deallocated body}' of the stub.
 This is large enough that any attempt to access the body of a
 deallocated stub will cause a memory fault.
+
+\subsubsection{Swapping Stubs}
+\label{SWAPPING-STUBS}
+
+The type and values of two stubs can be swapped by:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
+    \verb|( const min::stub * s1, const min::stub * s2 )|
+\LABEL{MIN::STUB_SWAP}
+\end{tabular}\end{indpar}
+
+This is most often done when one of the stubs has the
+\TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
@@ -16815,6 +16829,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
+\verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
+    \verb|( const min::stub * s1, const min::stub * s2 )|
+\LABEL{MIN::STUB_SWAP}
 \end{TABULAR}
 
 \end{indpar}
