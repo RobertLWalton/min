@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 11:13:12 EDT 2015
+// Date:	Mon Jun 26 04:15:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,6 +12,8 @@
 // Table of Contents:
 //
 //	Setup
+//	ACC Interface Test
+//	ACC Garbage Collector Test
 
 // Setup
 // -----
@@ -32,6 +34,100 @@ using std::ostream;
 # define MUP min::unprotected
 # define MINT min::internal
 # define MACC min::acc
+
+// ACC Interface Test
+//
+void test_acc_interface ( void )
+{
+    cout << endl;
+    cout << "Start Allocator/Collector/Compactor"
+	    " Interface Test!" << endl;
+
+    cout << endl;
+    cout << "Test stub allocator functions:"
+	 << endl;
+    min::unsptr sbase = MUP::acc_stubs_allocated;
+    cout << "initial stubs allocated = "
+	 << sbase << endl;
+    min::stub * stub1 = MUP::new_acc_stub();
+    MIN_CHECK ( stub1 == MINT::last_allocated_stub );
+    MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 1 );
+    MIN_CHECK
+	( min::type_of ( stub1 ) == min::ACC_FREE );
+    min::stub * stub2 = MUP::new_acc_stub();
+    MIN_CHECK ( stub2 == MINT::last_allocated_stub );
+    MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 2 );
+    MIN_CHECK
+	( min::type_of ( stub2 ) == min::ACC_FREE );
+
+#ifdef NONE_SUCH
+    min::unsptr free_stubs = MINT::number_of_free_stubs;
+    MINT::acc_expand_stub_free_list ( free_stubs + 2 );
+    MIN_CHECK (    MINT::number_of_free_stubs
+                >= free_stubs + 2 );
+#endif
+
+    MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 2 );
+    MIN_CHECK ( stub2 == MINT::last_allocated_stub );
+    min::stub * stub3 = MUP::new_acc_stub();
+    MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 3 );
+    MIN_CHECK ( stub3 == MINT::last_allocated_stub );
+    min::stub * stub4 = MUP::new_acc_stub();
+    MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 4 );
+    MIN_CHECK
+	( stub4 == MINT::last_allocated_stub );
+
+
+    cout << endl;
+    cout << "Test body allocator functions:"
+	 << endl;
+    cout << "MINT::min_fixed_block_size = "
+         << MINT::min_fixed_block_size
+         << " MINT::max_fixed_block_size = "
+         << MINT::max_fixed_block_size
+	 << endl;
+    MUP::new_body ( stub1, 128 );
+    char * p1 = (char *) MUP::ptr_of ( stub1 );
+    memset ( p1, 0xBB, 128 );
+    MUP::new_body ( stub2, 128 );
+    char * p2 = (char *) MUP::ptr_of ( stub2 );
+    memset ( p2, 0xBB, 128 );
+    MIN_CHECK ( memcmp ( p1, p2, 128 ) == 0 );
+    MIN_CHECK ( p1 != p2 );
+    MUP::new_body ( stub3, 128 );
+    char * p3 = (char *) MUP::ptr_of ( stub3 );
+    memset ( p3, 0xCC, 128 );
+    MUP::new_body ( stub4, 128 );
+    char * p4 = (char *) MUP::ptr_of ( stub4 );
+    memset ( p4, 0xCC, 128 );
+    MIN_CHECK ( memcmp ( p3, p4, 128 ) == 0 );
+    MIN_CHECK ( p3 != p4 );
+    {
+	MUP::resize_body rb ( stub4, 128, 128 );
+	memcpy ( MUP::new_body_ptr_ref ( rb ),
+	         MUP::ptr_of ( stub4 ), 128 );
+    }
+    char * p5 = (char *) MUP::ptr_of ( stub4 );
+    MIN_CHECK ( memcmp ( p3, p5, 128 ) == 0 );
+    MIN_CHECK ( p4 != p5 );
+    MUP::deallocate_body ( stub4, 128 );
+    MIN_CHECK ( min::type_of ( stub4 )
+		 == min::DEALLOCATED );
+    char * p6 = (char *) MUP::ptr_of ( stub4 );
+    MIN_CHECK ( p5 != p6 );
+
+    min::deallocate ( stub1 );
+    min::deallocate ( stub2 );
+    min::deallocate ( stub3 );
+    min::deallocate ( stub4 );
+
+    cout << endl;
+    cout << "Finish Allocator/Collector/Compactor"
+	    " Interface Test!" << endl;
+}
+
+// ACC Garbage Collector Test
+// --- ------- --------- ----
 
 static min::locatable_gen teststr;
     // Set to "this is a test str" before GC and
@@ -176,19 +272,11 @@ static bool check_vec_of_objects ( min::gen obj )
     min::assert_print = print_save;
     return checks;
 }
-
-// Main Program
-// ---- -------
 
-int main ()
+void test_acc_garbage_collector ( void )
 {
-    min::assert_err = stdout;
-    min::assert_print = true;
     cout << endl;
-    cout << "Initialize!" << endl;
-    min::interrupt();
-    cout << endl;
-    cout << "Start Test!" << endl;
+    cout << "Start ACC Garbage Collector Test!" << endl;
 
     try {
 
@@ -227,5 +315,21 @@ int main ()
     }
 
     cout << endl;
-    cout << "Finished Test!" << endl;
+    cout << "Finish ACC Garbage Collector Test!"
+         << endl;
+}
+
+// Main Program
+// ---- -------
+
+int main ()
+{
+    min::assert_err = stdout;
+    min::assert_print = true;
+    cout << endl;
+    cout << "Initialize!" << endl;
+    min::interrupt();
+
+    test_acc_interface();
+    test_acc_garbage_collector();
 }
