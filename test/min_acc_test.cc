@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 26 04:15:23 EDT 2017
+// Date:	Mon Jun 26 14:42:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,12 +60,10 @@ void test_acc_interface ( void )
     MIN_CHECK
 	( min::type_of ( stub2 ) == min::ACC_FREE );
 
-#ifdef NONE_SUCH
     min::unsptr free_stubs = MINT::number_of_free_stubs;
     MINT::acc_expand_stub_free_list ( free_stubs + 2 );
     MIN_CHECK (    MINT::number_of_free_stubs
                 >= free_stubs + 2 );
-#endif
 
     MIN_CHECK ( MUP::acc_stubs_allocated == sbase + 2 );
     MIN_CHECK ( stub2 == MINT::last_allocated_stub );

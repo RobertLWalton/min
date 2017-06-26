@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 22:35:29 EDT 2017
+// Date:	Mon Jun 26 14:38:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -802,6 +802,7 @@ min::stub ** volatile MINT::acc_stack_limit;
 min::uns64  MINT::new_acc_stub_flags;
 min::stub * MINT::head_stub;
 min::stub * MINT::last_allocated_stub;
+min::stub * MINT::last_free_stub;
 
 MINT::fixed_block_list MINT::fixed_block_lists
 	[MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
@@ -5302,7 +5303,7 @@ bool MINT::insert_reserve
 
 #   if MIN_USE_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
-	    MINT::acc_expand_stub_free_list
+	    MINT::acc_reserve_stub_free_list
 		( insertions + elements );
 	else
 #   endif

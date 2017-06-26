@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 25 15:07:09 EDT 2017
+// Date:	Mon Jun 26 14:26:24 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -387,6 +387,7 @@ static void stub_allocator_initializer ( void )
     MINT::head_stub = MACC::stub_next;
     MINT::last_allocated_stub = MACC::stub_next;
     MINT::number_of_free_stubs = 0;
+    MINT::last_free_stub = NULL;
     MUP::set_ptr_of ( MACC::stub_next, NULL );
 
     ++ MACC::stub_next;
@@ -446,7 +447,8 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
         abort();
     }
 
-    if ( n == 0 ) return;
+    if ( n <= MINT::number_of_free_stubs ) return;
+    n -= MINT::number_of_free_stubs;
 
     min::unsptr max_n =
         MACC::stub_end - MACC::stub_next;
@@ -465,12 +467,18 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
     }
     n += MACC::stub_increment;
     if ( n > max_n ) n = max_n;
+
+    min::stub * previous =
+        ( MINT::number_of_free_stubs == 0 ?
+	  MINT::last_allocated_stub :
+	  MINT::last_free_stub );
+
     MUP::set_control_of
-        ( MINT::last_allocated_stub,
+        ( previous,
 	  MUP::renew_acc_control_stub
-	      ( MUP::control_of
-	            ( MINT::last_allocated_stub ),
+	      ( MUP::control_of ( previous ),
 		MACC::stub_next ) );
+
     while ( n > 0 )
     {
 	MUP::set_value_of ( MACC::stub_next, 0ull );
@@ -483,8 +491,10 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
 	-- n;
 	++ MINT::number_of_free_stubs;
     }
+
+    MINT::last_free_stub = MACC::stub_next - 1;
     MUP::set_control_of
-	( MACC::stub_next - 1 ,
+	( MINT::last_free_stub,
 	  MUP::new_acc_control
 	      ( min::ACC_FREE, MINT::null_stub ) );
 }

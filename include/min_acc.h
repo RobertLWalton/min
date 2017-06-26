@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 10 06:12:04 EST 2015
+// Date:	Mon Jun 26 13:56:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -93,6 +93,10 @@ namespace min { namespace acc {
     //    // ted stub on the acc stub list, or may equal
     //    // MINT::head_stub if there are no allocated
     //	  // stubs on the acc stub list.
+    //	min::stub * MINT::last_free_stub
+    //    // Last stub on the acc free list.  If MINT::
+    //    // number_of_free_stubs == 0 this is
+    //    // meaningless.
     //  min::uns64 MINT::new_acc_stub_flags
     //    // Acc flags for newly allocated acc stubs.
     //

@@ -40,6 +40,8 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     min::type_of ( stub2 ) == min::ACC_FREE => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
+    MINT::number_of_free_stubs >= free_stubs + 2 => true
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     MUP::acc_stubs_allocated == sbase + 2 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     stub2 == MINT::last_allocated_stub => true
@@ -76,7 +78,7 @@ Finish Allocator/Collector/Compactor Interface Test!
 Start ACC Garbage Collector Test!
 Before Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:            23          1003          1026
+                          Stubs:            23          2029          2052
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:             6          2042          2048
                 256 Byte Blocks:             4           252           256
@@ -92,7 +94,7 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:          1026             0          1026
+                          Stubs:          1026          1026          2052
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:             9          2039          2048
                  64 Byte Blocks:            22          1002          1024
@@ -108,7 +110,7 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Random Deallocation
                       Numbers of          Used          Free         Total
-                          Stubs:        101026           450        101476
+                          Stubs:        101026           451        101477
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:            11          2037          2048
                  64 Byte Blocks:            10          1014          1024
@@ -138,7 +140,7 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Highest Level GC
                       Numbers of          Used          Free         Total
-                          Stubs:          1025        100451        101476
+                          Stubs:          1025        100452        101477
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:            11          2037          2048
                  64 Byte Blocks:            10          1014          1024

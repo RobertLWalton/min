@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 25 08:04:43 EDT 2017
+// Date:	Mon Jun 26 14:21:11 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1754,10 +1754,20 @@ namespace min { namespace internal {
     //
     extern min::unsptr number_of_free_stubs;
 
-    // Out of line function to increase the number of
-    // free stubs to be at least n.
+    // Out of line function to ensure that the number of
+    // free stubs is at least n.
     //
     void acc_expand_stub_free_list ( min::unsptr n );
+
+    // Inline line function to ensure that the number of
+    // free stubs is at least n.
+    //
+    inline void acc_reserve_stub_free_list
+	    ( min::unsptr n )
+    {
+        if ( number_of_free_stubs < n )
+	    acc_expand_stub_free_list ( n );
+    }
 
     // Hash tables for atoms.  There are two hash tables
     // for every kind of atom: the acc hash table for
@@ -2087,10 +2097,12 @@ namespace min { namespace internal {
     //
     // Free stubs can be removed completely from the
     // acc list for use as aux stubs.  These are not
-    // garbage collectible.  When freed, aux stubs are
-    // put back on the acc list as free stubs.
+    // garbage collectible.
+    //
+    // When an acc or aux stub is freed, it is put back
+    // at the beginning of the acc list as a free stub.
 
-    // Pointers to the first and last allocated stubs:
+    // Pointers to the first and last stubs:
     //
     // The first acc list stub is the stub pointed at by
     // the control word of the head_stub (which is not
@@ -2099,9 +2111,12 @@ namespace min { namespace internal {
     // the last_allocated_stub.  If there are allocated
     // stubs on the acc list, the last_allocated_stub is
     // the last of these; otherwise it equals head_stub.
+    // The last free stub is pointed at by last_free_
+    // stub, unless there are no free stubs, in which
+    // case last_free_stub is meaningless.
     //
-    // First_allocated_stub may equal MINT::null_stub
-    // for some system configurations.
+    // Head_stub may equal MINT::null_stub for some
+    // system configurations.
     //
     // The acc list is MINT::null_stub terminated.  So
     // if there are no free stubs, the control word of
@@ -2109,6 +2124,7 @@ namespace min { namespace internal {
     //
     extern min::stub * head_stub;
     extern min::stub * last_allocated_stub;
+    extern min::stub * last_free_stub;
 
     // ACC flags of stub returned by new_acc_stub.
     //
@@ -2206,7 +2222,8 @@ namespace min { namespace unprotected {
 	       ::renew_acc_control_stub ( c, s );
 	unprotected::set_control_of
 		( internal::last_allocated_stub, c );
-	++ internal::number_of_free_stubs;
+	if ( ++ internal::number_of_free_stubs == 1 )
+	    internal::last_free_stub = s;
 	++ unprotected::aux_stubs_freed;
     }
 
@@ -2232,7 +2249,8 @@ namespace min { namespace internal {
 	       ::renew_acc_control_stub ( c, s );
 	unprotected::set_control_of
 		( internal::last_allocated_stub, c );
-	++ internal::number_of_free_stubs;
+	if ( ++ internal::number_of_free_stubs == 1 )
+	    internal::last_free_stub = s;
     }
 
     // fixed_block_lists[j] heads a free list of size
