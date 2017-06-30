@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 26 14:21:11 EDT 2017
+// Date:	Fri Jun 30 16:26:46 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1739,6 +1739,7 @@ namespace min {
     void stub_swap
         ( const min::stub * s1, const min::stub * s2 );
 
+    min::gen new_preallocated_gen ( void );
 }
 
 namespace min { namespace internal {

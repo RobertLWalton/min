@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 15 22:57:13 EDT 2017
+// Date:	Fri Jun 30 16:51:15 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1388,6 +1388,9 @@ void test_acc_interface ( void )
     cout << endl;
     cout << "Finish Allocator/Collector/Compactor"
 	    " Interface Test!" << endl;
+
+    // min::stub_swap and min::new_preallocated_gen are
+    // tested in min_acc_test.cc.
 }
 
 // Numbers

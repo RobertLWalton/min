@@ -3,7 +3,8 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 26 14:42:02 EDT 2017
+// Date:	Fri Jun 30 10:49:43 EDT 2017
+//
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -100,24 +101,134 @@ void test_acc_interface ( void )
     memset ( p4, 0xCC, 128 );
     MIN_CHECK ( memcmp ( p3, p4, 128 ) == 0 );
     MIN_CHECK ( p3 != p4 );
-    {
-	MUP::resize_body rb ( stub4, 128, 128 );
-	memcpy ( MUP::new_body_ptr_ref ( rb ),
-	         MUP::ptr_of ( stub4 ), 128 );
-    }
-    char * p5 = (char *) MUP::ptr_of ( stub4 );
+
+    min::stub * stub5 = MUP::new_acc_stub();
+    MUP::new_body ( stub5, 128 );
+    char * p5 = (char *) MUP::ptr_of ( stub5 );
+    memset ( p5, 0xCC, 128 );
     MIN_CHECK ( memcmp ( p3, p5, 128 ) == 0 );
-    MIN_CHECK ( p4 != p5 );
-    MUP::deallocate_body ( stub4, 128 );
-    MIN_CHECK ( min::type_of ( stub4 )
-		 == min::DEALLOCATED );
-    char * p6 = (char *) MUP::ptr_of ( stub4 );
+    {
+	MUP::resize_body rb ( stub5, 128, 128 );
+	memcpy ( MUP::new_body_ptr_ref ( rb ),
+	         MUP::ptr_of ( stub5 ), 128 );
+    }
+    char * p6 = (char *) MUP::ptr_of ( stub5 );
+    MIN_CHECK ( memcmp ( p3, p6, 128 ) == 0 );
     MIN_CHECK ( p5 != p6 );
+    MUP::deallocate_body ( stub5, 128 );
+    MIN_CHECK ( min::type_of ( stub5 )
+		 == min::DEALLOCATED );
+    char * p7 = (char *) MUP::ptr_of ( stub5 );
+    MIN_CHECK ( p6 != p7 );
 
     min::deallocate ( stub1 );
     min::deallocate ( stub2 );
     min::deallocate ( stub3 );
     min::deallocate ( stub4 );
+
+    cout << endl;
+    cout << "Test stub swap function:"
+	 << endl;
+
+    bool print_save = min::assert_print;
+    min::assert_print = false;
+
+    min::locatable_gen num1 ( min::new_num_gen ( 1 ) );
+    min::locatable_gen num2 ( min::new_num_gen ( 2 ) );
+    min::locatable_gen obj1
+        ( min::new_obj_gen ( 10 ) );
+    {
+	min::obj_vec_insptr vp1 ( obj1 );
+	min::attr_push(vp1) = num1;
+    }
+    min::locatable_gen obj2
+        ( min::new_obj_gen ( 10 ) );
+    {
+	min::obj_vec_insptr vp2 ( obj2 );
+	min::attr_push(vp2) = num2;
+    }
+    min::locatable_gen pre
+        ( min::new_preallocated_gen() );
+
+    min::assert_print = print_save;
+
+    const min::stub * stub_obj1 = MUP::stub_of ( obj1 );
+    const min::stub * stub_obj2 = MUP::stub_of ( obj2 );
+
+    {
+	min::obj_vec_insptr vp1 ( obj1 );
+	min::obj_vec_insptr vp2 ( obj2 );
+
+	MIN_CHECK ( vp1[0] == num1 );
+	MIN_CHECK ( vp2[0] == num2 );
+    }
+
+    {
+        min::uns64 * bp1 =
+	  (min::uns64 *) MUP::ptr_of ( stub_obj1 ) - 1;
+	MIN_CHECK
+	    ( stub_obj1 == MACC::stub_of_body ( bp1 ) );
+        min::uns64 * bp2 =
+	  (min::uns64 *) MUP::ptr_of ( stub_obj2 ) - 1;
+	MIN_CHECK
+	    ( stub_obj2 == MACC::stub_of_body ( bp2 ) );
+    }
+
+    void * p_obj1 = MUP::ptr_of ( stub_obj1 );
+    void * p_obj2 = MUP::ptr_of ( stub_obj2 );
+    MIN_CHECK ( p_obj1 != p_obj2 );
+
+    min::stub_swap ( stub_obj1, stub_obj2 );
+
+    MIN_CHECK ( p_obj1 == MUP::ptr_of ( stub_obj2 ) );
+    MIN_CHECK ( p_obj2 == MUP::ptr_of ( stub_obj1 ) );
+
+    {
+        min::uns64 * bp1 =
+	  (min::uns64 *) MUP::ptr_of ( stub_obj1 ) - 1;
+	MIN_CHECK
+	    ( stub_obj1 == MACC::stub_of_body ( bp1 ) );
+        min::uns64 * bp2 =
+	  (min::uns64 *) MUP::ptr_of ( stub_obj2 ) - 1;
+	MIN_CHECK
+	    ( stub_obj2 == MACC::stub_of_body ( bp2 ) );
+    }
+
+    {
+	min::obj_vec_insptr vp1 ( obj1 );
+	min::obj_vec_insptr vp2 ( obj2 );
+
+	MIN_CHECK ( vp1[0] == num2 );
+	MIN_CHECK ( vp2[0] == num1 );
+    }
+
+    MIN_CHECK ( min::is_stub ( pre ) );
+    MIN_CHECK
+        ( min::type_of ( pre ) == min::PREALLOCATED );
+    const min::stub * stub_pre = MUP::stub_of ( pre );
+    MIN_CHECK
+        ( MUP::body_size_of ( stub_pre ) == 0 );
+
+    min::stub_swap ( stub_pre, stub_obj1 );
+
+    MIN_CHECK
+        (    min::type_of ( stub_obj1 )
+	  == min::PREALLOCATED );
+    MIN_CHECK
+        ( MUP::body_size_of ( stub_obj1 ) == 0 );
+
+    {
+	min::obj_vec_insptr vp1 ( pre );
+
+	MIN_CHECK ( vp1[0] == num2 );
+    }
+
+    {
+        min::uns64 * bp =
+	  (min::uns64 *) MUP::ptr_of ( stub_pre ) - 1;
+	MIN_CHECK
+	    ( stub_pre == MACC::stub_of_body ( bp ) );
+    }
 
     cout << endl;
     cout << "Finish Allocator/Collector/Compactor"

@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 25, 2017}
+\date{June 30, 2017}
  
 \maketitle
 
@@ -2834,8 +2834,20 @@ The type and values of two stubs can be swapped by:
 \LABEL{MIN::STUB_SWAP}
 \end{tabular}\end{indpar}
 
+Neither stub may be the stub of a name (number, string, or label).
+
 This is most often done when one of the stubs has the
 \TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
+A new preallocated value can be created by:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+    \verb|( void )|
+\LABEL{MIN::NEW_PREALLOCATED_GEN} \\
+\end{tabular}\end{indpar}
+
+Each such value is unique, but has no parts other than its
+type.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
@@ -3301,7 +3313,7 @@ When a body is deallocated, the stub type is set to
 point at a block of inaccessible memory.
 As a special case, if the body size \TT{n} is zero,
 \TT{MUP::\EOL deallocate\_\EOL body} does nothing
-(see \TT{MIN::\EOL body\_\EOL size\_\EOL of} below).
+(see \TT{MUP::\EOL body\_\EOL size\_\EOL of} below).
 
 
 The function
@@ -16831,7 +16843,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_DEALLOCATED} \\
 \verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
     \verb|( const min::stub * s1, const min::stub * s2 )|
-\LABEL{MIN::STUB_SWAP}
+\LABEL{MIN::STUB_SWAP} \\
+\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+    \verb|( void )|
+\LABEL{MIN::NEW_PREALLOCATED_GEN}
 \end{TABULAR}
 
 \end{indpar}

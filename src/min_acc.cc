@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 26 14:26:24 EDT 2017
+// Date:	Fri Jun 30 16:15:55 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1206,6 +1206,11 @@ void MUP::deallocate_body
 void min::stub_swap
         ( const min::stub * s1, const min::stub * s2 )
 {
+    MIN_REQUIRE
+        ( ! min::is_name ( min::new_stub_gen ( s1 ) ) );
+    MIN_REQUIRE
+        ( ! min::is_name ( min::new_stub_gen ( s2 ) ) );
+
     min::uns64 v1 = MUP::value_of ( s1 );
     min::uns64 v2 = MUP::value_of ( s2 );
     min::uns64 c1 = MUP::control_of ( s1 );

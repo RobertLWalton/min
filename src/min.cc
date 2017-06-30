@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 26 14:38:23 EDT 2017
+// Date:	Fri Jun 30 16:30:27 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -763,6 +763,16 @@ void MINT::thread_interrupt ( void ) {}  // TBD
 
 // Allocator/Collector/Compactor 
 // -----------------------------
+
+min::gen min::new_preallocated_gen ( void )
+{
+    min::stub * s =
+	min::unprotected::new_acc_stub();
+    min::unprotected::set_type_of
+	( s, min::PREALLOCATED );
+    min::unprotected::set_value_of ( s, 0 );
+    return min::new_stub_gen ( s );
+}
 
 static min::stub ZERO_STUB;
 const min::stub * min::unprotected::ZERO_STUB =
