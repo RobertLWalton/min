@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 30, 2017}
+\date{July 1, 2017}
  
 \maketitle
 
@@ -1775,7 +1775,9 @@ Stub has a deallocated body.
 Stub is preallocated, and does not yet have a body.
 This can happen when an identifier referencing a stub via
 an \TT{min::\EOL id\_\EOL map} preceeds the definition of the
-identified object.  See \itemref{IDENTIFIER-MAPS}.
+identified object.  See \itemref{IDENTIFIER-MAPS} and
+\itemref{SWAPPING-STUBS}.
+
 \end{list}
 \end{indpar}
 
@@ -2838,15 +2840,15 @@ Neither stub may be the stub of a name (number, string, or label).
 
 This is most often done when one of the stubs has the
 \TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
-A new preallocated value can be created by:
+A new preallocated stub can be created by:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+\verb|const min::stub * min::| & \MINKEY{new\_preallocated\_stub}
     \verb|( void )|
-\LABEL{MIN::NEW_PREALLOCATED_GEN} \\
+\LABEL{MIN::NEW_PREALLOCATED_STUB} \\
 \end{tabular}\end{indpar}
 
-Each such value is unique, but has no parts other than its
+Each such stub is unique, but has no parts other than its
 type.
 
 \subsection{Implementing New Stub Types}
@@ -8319,6 +8321,7 @@ accomodate \TT{id}.  If the stub body has not yet been input,
 a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED} type can be created,
 which has no body, and whose stub type is changed when the stub later
 acquires a body.
+See \itemref{SWAPPING-STUBS}.
 
 The \TT{min::find} function is not needed for either input or output.
 It merely returns the identifier associated with a stub \TT{s} if one exists,
@@ -16826,7 +16829,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{2.0in}
 \verb|int min::| & \MINKEY{type\_of} \verb|( const min::stub * s )|
 \LABEL{MIN::TYPE_OF} \\
 \verb|int MUP::| & \MUPKEY{type\_of} \verb|( const min::stub * s )|
@@ -16842,11 +16845,12 @@ These are in \verb|min_parameters.h|.
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
 \verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
-    \verb|( const min::stub * s1, const min::stub * s2 )|
+    \verb|( const min::stub * s1,|\ARGBREAK
+    \verb|  const min::stub * s2 )|
 \LABEL{MIN::STUB_SWAP} \\
-\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+\verb|const min::stub * min::| & \MINKEY{new\_preallocated\_stub}
     \verb|( void )|
-\LABEL{MIN::NEW_PREALLOCATED_GEN}
+\LABEL{MIN::NEW_PREALLOCATED_STUB} \\
 \end{TABULAR}
 
 \end{indpar}

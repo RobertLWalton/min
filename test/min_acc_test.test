@@ -116,9 +116,7 @@ ASSERT SUCCEEDED: ../include/min.h:XXXX:
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp2[0] == num1 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::is_stub ( pre ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::type_of ( pre ) == min::PREALLOCATED => true
+    min::type_of ( stub_pre ) == min::PREALLOCATED => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     MUP::body_size_of ( stub_pre ) == 0 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
