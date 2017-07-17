@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 21:07:37 EDT 2017
+// Date:	Mon Jul 17 13:05:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2474,38 +2474,35 @@ void test_identifier_map ( void )
         min::new_lab_gen ( "a", "label" );
     min::locatable_gen g3 =
         min::new_obj_gen ( 10 );
-    const min::stub * s1 = min::stub_of ( g1 );
-    const min::stub * s2 = min::stub_of ( g2 );
-    const min::stub * s3 = min::stub_of ( g3 );
 
     MIN_CHECK
-        ( min::find ( ::id_map, s1 ) == 0 );
+        ( min::find ( ::id_map, g1 ) == 0 );
     MIN_CHECK
-        ( min::find_or_add ( ::id_map, s1 ) == 1 );
+        ( min::find_or_add ( ::id_map, g1 ) == 1 );
     MIN_CHECK
-        ( min::find ( ::id_map, s2 ) == 0 );
-    min::insert ( ::id_map, s2, 3 );
+        ( min::find ( ::id_map, g2 ) == 0 );
+    min::insert ( ::id_map, g2, 3 );
     MIN_CHECK
-        ( min::find ( ::id_map, s3 ) == 0 );
+        ( min::find ( ::id_map, g3 ) == 0 );
     MIN_CHECK
-        ( min::find_or_add ( ::id_map, s3 ) == 4 );
+        ( min::find_or_add ( ::id_map, g3 ) == 4 );
 
     MIN_CHECK ( ::id_map->length == 5 );
-    MIN_CHECK ( ::id_map[0] == min::NULL_STUB );
-    MIN_CHECK ( ::id_map[1] == s1 );
-    MIN_CHECK ( ::id_map[2] == min::NULL_STUB );
-    MIN_CHECK ( ::id_map[3] == s2 );
-    MIN_CHECK ( ::id_map[4] == s3 );
+    MIN_CHECK ( ::id_map[0] == min::NONE() );
+    MIN_CHECK ( ::id_map[1] == g1 );
+    MIN_CHECK ( ::id_map[2] == min::NONE() );
+    MIN_CHECK ( ::id_map[3] == g2 );
+    MIN_CHECK ( ::id_map[4] == g3 );
 
     MIN_CHECK ( ::id_map->occupied == 3 );
     MIN_CHECK ( ::id_map->next == 1 );
 
     MIN_CHECK
-        ( min::find ( ::id_map, s1 ) == 1 );
+        ( min::find ( ::id_map, g1 ) == 1 );
     MIN_CHECK
-        ( min::find ( ::id_map, s2 ) == 3 );
+        ( min::find ( ::id_map, g2 ) == 3 );
     MIN_CHECK
-        ( min::find_or_add ( ::id_map, s3 ) == 4 );
+        ( min::find_or_add ( ::id_map, g3 ) == 4 );
 
 
     cout << endl;

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 21:06:32 EDT 2017
+// Date:	Mon Jul 17 12:16:42 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6476,16 +6476,15 @@ namespace min {
 	L next;
 	L occupied;
 
-	min::uns32 hash_mask;
 	min::uns32 hash_multiplier;
 	L hash_max_offset;
 	const min::packed_vec_insptr<L> hash_table;
-	    // Given a stub,ID pair (s,id) then
-	    //    stub_table[id] == s
+	    // Given a value,ID pair (g,id) then
+	    //    map[id] == g
 	    //    hash_table[h] == id
-	    // where h is obtained by entering (s,id)
+	    // where h is obtained by entering (g,id)
 	    // in the hash table using the algorithm:
-	    //	  h = ::hash ( this_map, s );
+	    //	  h = ::hash ( this_map, g );
 	    //		// see min.cc for details
 	    //    offset = 0;
 	    //    while ( hash_table[h] != 0; )
@@ -6495,7 +6494,7 @@ namespace min {
 	    //		++ offset;
 	    //	  }
 	    //    id = this->length;
-	    //    push ( * this_map ) = s;
+	    //    push ( map ) = g;
 	    //    hash_table[h] = id;
 	    //    if ( max_offset < offset )
 	    //	      max_offset = offset;
@@ -6508,10 +6507,15 @@ namespace min {
 	    // the hash_table is reset to NULL_STUB so
 	    // it will be recreated with a longer length
 	    // by the next `find'.
+	    //
+	    // max_offset is such that any value g found
+	    // in the hash table must be in the first
+	    // max_offset values checked, and this is
+	    // used to limit the search made by `find'.
     };
     
     typedef min::packed_vec_ptr
-		< const min::stub *,
+		< min::gen,
 		  min::id_map_header<min::uns32>,
 		  min::uns32 >
 	    id_map;
@@ -6522,14 +6526,11 @@ namespace min {
     min::id_map init
             ( min::ref<min::id_map> map );
     uns32 find
-            ( min::id_map map,
-	      const min::stub * s );
+            ( min::id_map map, min::gen g );
     uns32 find_or_add
-            ( min::id_map map,
-	      const min::stub * s );
+            ( min::id_map map, min::gen g );
     void insert
-            ( min::id_map map,
-	      const min::stub * s,
+            ( min::id_map map, min::gen g,
 	      min::uns32 id );
 }
 
