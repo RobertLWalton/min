@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 13:50:06 EDT 2017
+// Date:	Mon Jul 17 14:46:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11733,7 +11733,7 @@ min::printer min::print_mapped
     min::uns32 n;
 
     if ( v == min::NONE() )
-        n = sprintf ( buffer, "@(NONE)" );
+        n = sprintf ( buffer, "@0" );
     else
     {
 	min::uns32 id =
