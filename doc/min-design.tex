@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 16, 2017}
+\date{July 17, 2017}
  
 \maketitle
 
@@ -539,7 +539,7 @@ Three alternatives to \TT{MIN\_ASSERT} are:
 \TTKEY{MIN\_REQUIRE}\TT{(}$e$\TT{)}
 	& Defined to always be the equivalent of
 	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ON\_\EOL FAIL(}$e$\TT{,NULL)}.
-	  Used for system integrety checks.
+	  Used for system integrity checks.
 \LABEL{MIN_REQUIRE} \\
 \TTKEY{MIN\_CHECK}\TT{(}$e$\TT{)}
 	& Defined to always be the equivalent of
@@ -1774,7 +1774,7 @@ Stub has a deallocated body.
 \item[\TT{const int min::PREALLOCATED}]~\\
 Stub is preallocated, and does not yet have a body.
 This can happen when an identifier referencing a stub via
-an \TT{min::\EOL id\_\EOL map} preceeds the definition of the
+an \TT{min::\EOL id\_\EOL map} precedes the definition of the
 identified object.  See \itemref{IDENTIFIER-MAPS} and
 \itemref{SWAPPING-STUBS}.
 
@@ -2262,7 +2262,7 @@ In this case it is
 necessary to use the alternative but usually equivalent expression
 \TT{(\&p[i])->m}, which is undeniably awkward.
 
-This is an unfortunate tradeoff between making the
+This is an unfortunate trade off between making the
 the value of \TT{p[i]} protected from relocation
 but harder to use when \TT{T} is a structure type of a vector element,
 and the alternative of making the value of \TT{p[i]}
@@ -3590,7 +3590,7 @@ The second repeatedly executes
 \tt min::unicode\_to\_utf8 ( s, * u ++ );
 \end{center}
 while \TT{s < ends} and \TT{u < endu} provided the
-next repetion will \underline{not} end with \TT{s > ends}
+next repetition will \underline{not} end with \TT{s > ends}
 (so the \TT{s} string end will not be overrun).
 Both these functions increment both \TT{s} and \TT{u} and return
 the number of string elements, \TT{min::Uchar}'s or \TT{char}'s respectively,
@@ -3633,7 +3633,7 @@ find out the name and picture of \TT{c} by using:
 \LABEL{MIN::UNICODE::PICTURE} \\
 \end{tabular}\end{indpar}
 
-You can also find out the character flags of \TT{c} as decribed
+You can also find out the character flags of \TT{c} as described
 below in \itemref{UNICODE-CHARACTER-FLAGS}.
 So that ASCII and LATIN1 characters can each have their own
 flags, each has its own index\label{ASCII-LATIN1-UNIQUE-INDEX}.  That is:
@@ -3689,7 +3689,7 @@ As a special case, single space has the picture \TT{\textvisiblespace} and
 the non-breaking single space (\TT{NBSP}) has the picture
 \TT{\textblank}.
 
-Also as special cases the \minmkey{UNKOWN\_UCHAR}{name} character 
+Also as special cases the \minmkey{UNKNOWN\_UCHAR}{name} character 
 has name \TT{UUC} and picture $/\!\!/\!\!/$, and the
 \minmkey{SOFTWARE\_NL}{name and picture} character has name
 \TT{NL} and picture {\tiny $\stackrel{\textstyle N~}{\textstyle ~L}$}.
@@ -4040,7 +4040,7 @@ The \minkey{CONDITIONAL\_BREAK} flag is used in
 \TT{printer->print\_format.break\_control.conditional\_break}
 \end{center}
 
-to mark graphic characters which when preceeded by a few graphic
+to mark graphic characters which when preceded by a few graphic
 characters and followed by a line break
 indicate that their containing lexeme is continued on the next line.
 See \pagref{CONDITIONAL-BREAK}.
@@ -4242,7 +4242,7 @@ using this data.
 \TT{\textlnot}
   & \TT{AC} & \TT{-,} & Not Sign \\
 \TT{~}
-  & \TT{AD} & \TT{--<space>} & Soft Hypen (\TT{SHY}) \\
+  & \TT{AD} & \TT{--<space>} & Soft Hyphen (\TT{SHY}) \\
 \TT{\textregistered}
   & \TT{AE} & \TT{or} & Registered Sign \\
 \TT{\={~}}
@@ -4585,7 +4585,7 @@ no flags (0 returned)	& The string is used just for formatting and
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
 \TT{min::IS\_GRAPHIC}	& Unless the \TT{NEEDS\_QUOTES} flag is present,
                           the string should be printed unquoted and may be
-                          immediately preceeded by leading separators or
+                          immediately preceded by leading separators or
 			  immediately followed
 			  by trailing separators.  Separators also have
 			  this flag.
@@ -5791,16 +5791,16 @@ This means that \TT{min::gen} values that point at stubs are ordered
 according to their stub addresses.
 
 The \TT{min::subsequence} function
-returns the index of the first occurence
+returns the index of the first occurrence
 of its first argument \TT{v1} as a subsequence of its second
 argument \TT{v2}, or returns \TT{-1} if there is no such
-occurence.  For this function,
+occurrence.  For this function,
 a non-label must be an atom, and is equivalent to a length \TT{1} label
 whose sole element is the atom.
 
 The \TT{min::new\_name\_gen} functions convert a UTF-8 character string
 to a name.  The character string is parsed into components that contain no
-(horizonal or vertical) space characters and these are made into
+(horizontal or vertical) space characters and these are made into
 a name that is returned.  If there is more than one component, a label is
 returned with each component being a MIN string element.
 If there is exactly one component, a MIN string equal to
@@ -7420,7 +7420,7 @@ next\_line\_number
 
 If the file has not been rewound since it was initialized by
 a \TT{min::\EOL init\_\EOL input\ldots} function with
-\TT{spool\_lines~!=~0}, it is guarenteed that
+\TT{spool\_lines~!=~0}, it is guaranteed that
 \begin{center}
 \tt
 line\_index->length \\
@@ -7562,7 +7562,7 @@ Set to \TT{min::\EOL MISSING()} when the file is created.
 
 \end{itemlist}
 
-Creation, initialization, and parametrization of files is
+Creation, initialization, and parameterization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7908,7 +7908,7 @@ and the file is completed when \TT{ifile} becomes complete.
 The file has the completeness property only if \TT{ifile} has
 this property.
 
-The paritial line (\pagref{PARTIAL-LINE}) that may end the file when
+The partial line (\pagref{PARTIAL-LINE}) that may end the file when
 \TT{min::\EOL next\_\EOL line} returns \TT{min::\EOL NO\_\EOL LINE}
 can be returned by the functions:
 
@@ -8206,26 +8206,46 @@ call \TT{min::\EOL complete\_\EOL file}.
 \subsection{Identifier Maps}
 \label{IDENTIFIER-MAPS}
 
-\ikey{Identifier Maps}{identifier map} are used on input/output
-to translate \TT{const min::\EOL stub~*} pointers to small unsigned
-integer \smkey{identifier}s{in identifier map} that can be used
-as surrogates for the pointers in external files.
-A \TT{min::\EOL id\_\EOL map} is a packed vector with
-\TT{const min::\EOL stub~*} elements such that index of an element
-in the vector is the identifier of the element value.
-This identifier may appear in files as \TT{@}{\em index}.
+\ikey{Identifier Maps}{identifier map} are used on output
+to translate \TT{min::gen} values to
+\smkey{identifier}s{in identifier map} whose external form is
+\TT{@}{\em index}, where {\em index} is a small integer
+that indexes an element in the identifier map.
+Usually the \TT{min::gen} values are pointers to objects,
+and their identifiers are used in external files as surrogates
+for the pointers.  Usually other \TT{min::gen} values are
+output as themselves and not as identifiers, although long
+string values may be output as identifiers.
 
-The stub pointers that can appear in an identifier map can point at
-objects, packed structures, packed vectors, labels, and longer strings.
-They may not point at strings with 8 or fewer bytes or at numbers,
-because implementations are possible in which these do not have stubs.
+A \TT{min::\EOL id\_\EOL map} is a packed vector with
+\TT{min::gen} elements such that the index of an identifier
+is the vector index of the vector element containing the
+\TT{min::gen} value associated with the identifier.
+If \TT{min::gen} values need to be converted to identifiers, the
+\TT{min::\EOL id\_\EOL map} also has an associated hash table
+that maps \TT{min::gen} values to identifier indices.
+When the hash table is used, the map between identifier indices
+and \TT{min::gen} values can be made 1-to-1.  This should be done for
+object values, so identifiers act as pointers in the external file.
+It need not be done for non-object values.
+
+On input from a file, an identifier is translated
+to a \TT{min::gen} value by looking up the identifier index
+in the identifier map's packed vector.  For objects, it is possible to do
+this even if the contents of the object will not be be defined
+until later in the file, by using an object stub of type
+\TT{min::PREALLOCATED} as a place to put the object contents when
+they are defined later.  This cannot be done for non-objects, which
+must be defined when their identifier is first encountered.
+On input the hash table mapping from
+\TT{min::gen} values to identifier indices is not used.
 
 Creation and use of id maps is accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|typedef min::|
 	& \verb|packed_vec_ptr|\ARGBREAK
-	  \verb|    < const min::stub *,|\ARGBREAK
+	  \verb|    < min::gen,|\ARGBREAK
 	  \verb|      min::id_map_header<min::uns32> >|\ARGBREAK
 	  \verb|min::|\MINKEY{id\_\EOL map}
 \LABEL{MIN::ID_MAP} \\
@@ -8238,7 +8258,7 @@ Creation and use of id maps is accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::stub * map| & \TTBMKEY{id}{of {\tt min::id\_map}}
+\verb|min::ref<const min::gen> map| & \TTBMKEY{id}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
@@ -8251,85 +8271,80 @@ Creation and use of id maps is accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{find\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
-    \verb|  const min::stub * s )|
+    \verb|  min::gen g )|
 \LABEL{MIN::FIND_OF_ID_MAP} \\
 \verb|min::uns32 min::| & \MINKEY{find\_\EOL or\_\EOL add\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
-    \verb|  const min::stub * s )|
+    \verb|  min::gen g )|
 \LABEL{MIN::FIND_OR_ADD_OF_ID_MAP} \\
 \verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
-    \verb|  const min::stub * s,|\ARGBREAK
+    \verb|  min::gen g,|\ARGBREAK
     \verb|  min::uns32 id )|
 \LABEL{MIN::INSERT_OF_ID_MAP} \\
 \end{tabular}\end{indpar}
 
-An identifier map maintains a 1-1 correspondence between
-\TT{const min::\EOL stub~*}
-pointers and small strictly positive \TT{min::\EOL uns32} identifiers.
 If \TT{map} is a \TT{min::\EOL id\_\EOL map},
-and \TT{(s,id)} is a correspondence stored in \TT{map} between
-a pointer \TT{s} and an identifier \TT{id}, then
-\begin{center}
-\tt
-s == map[id] \\
-id == min::find ( map, s )
-\end{center}
+the \TT{min::gen} value \TT{g} associated with identifier index \TT{id} is
+\TT{map[id]}.  If `\TT{find}' is being used to maintain the hash
+table of \TT{map}, then \TT{id == find(map,g)}.
 
 If \TT{id >= map->length} or if \TT{map[id]} is
-\TT{NULL\_\EOL STUB}, then \TT{id} is not in any correspondence
-stored in the map.
+\TT{min::NONE()}, then \TT{id} does not correspond
+to any \TT{min::gen} value stored in \TT{map}.
 
-The identifier value \TT{0} denotes a missing identifier,
-and cannot be part of the
-correspondence stored in an identifier map.
-If \TT{min::\EOL find} returns \TT{0}, then \TT{s} is not
-in any correspondence stored in the map.
-
+The identifier value \TT{0} and \TT{min::NONE()} always correspond.
+\TT{min::\EOL find(map,g)} returns \TT{0} if \TT{g} is either
+\TT{min::NONE()} or is not in any correspondence stored in the map.
 
 The \TT{min::init} function may be used to create or reset a \TT{map}
 so that \TT{map->length == 1}.  \TT{map[0]} is set to equal
-\TT{min::\EOL NULL\_\EOL STUB}, and this \TT{map} element cannot
+\TT{min::NONE()}, and this \TT{map} element cannot
 be changed.
 
 If identifiers are being output, the \TT{min::find\_\EOL or\_\EOL add}
-function can be used to find the identifier of a stub.  If \TT{s} is already
-in the \TT{map}, its associated identifier is returned.  Otherwise \TT{s}
+function can be used to find the identifier of a \TT{min::gen} value
+\TT{g}.  If \TT{g} is already
+in the \TT{map}, its associated identifier is returned.  Otherwise \TT{g}
 is pushed to the end of the \TT{map} vector and assigned an identifier which
 is returned.  However, as a special case,
 \TT{min::\EOL find\_\EOL or\_\EOL add} returns
-\TT{0} if \TT{s} is \TT{min::\EOL NULL\_\EOL STUB}.
+\TT{0} if \TT{g} is \TT{min::NONE()}.
 
-When a stub is to be output, \TT{min::\EOL find\_\EOL and\_\EOL add}
-may assign it an identifier so it can be
-output as `\TT{@}{\em identifier}', without the stub contents having been
-output.  Then later the stub contents must be output, usually in a line of the
+When an object is to be output, \TT{min::\EOL find\_\EOL and\_\EOL add}
+will assign it an identifier so it can be
+output as `\TT{@}{\em identifier}', even if the object contents have not
+been output.  Later the object contents should be output,
+usually in a line of the
 form
 \begin{center}
-\TT{@}{\em identifier} \TT{=} {\em stub-contents}
+\TT{@}{\em identifier} \TT{=} {\em object}
 \end{center}
-In this context stub contents are usually output by such lines in order of
+
+In this context objects are usually output by such lines in order of
 their identifiers, smallest identifier first, with the identifier
 map member \TT{next} recording the smallest identifier which has
 not yet been output.  This member is writable and can be updated
-when a stub's contents are printed.
+when an object is outputted.  Thus identifiers from
+\TT{map->next} through \TT{map->length-1} are for \TT{min::gen}
+values that have been assigned an identifier index but
+whose contents have not yet been output.
 
-If identifiers are being input, \TT{map[id]} can be used to find the stub
-associated with \TT{id}, unless there is no such stub.
-If there is no stub associated with \TT{id}, a stub \TT{s}
-can be created and inserted into the map with the \TT{min::\EOL insert}
+If identifiers are being input, \TT{map[id]} can be used
+to find the \TT{min::gen} value
+associated with \TT{id}, unless there is no such value.
+If there is no value associated with \TT{id}, a stub \TT{min::gen}
+value pointing at a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED}
+type can be created and inserted into the map with the \TT{min::\EOL insert}
 function, which will increase the length of the map if necessary to
-accomodate \TT{id}.  If the stub body has not yet been input,
-a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED} type can be created,
-which has no body, and whose stub type is changed when the stub later
-acquires a body.
-See \itemref{SWAPPING-STUBS}.
+accommodate \TT{id}.  Later the contents of the stub can be set by using
+\TT{MUP::stub\_swap}: see \itemref{SWAPPING-STUBS}.
 
 The \TT{min::find} function is not needed for either input or output.
-It merely returns the identifier associated with a stub \TT{s} if one exists,
+It merely returns the identifier associated with a value \TT{g} if one exists,
 or returns \TT{0} if no such identifier exists.
 \TT{min::\EOL find} also returns
-\TT{0} if \TT{s} is \TT{min::\EOL NULL\_\EOL STUB}.
+\TT{0} if \TT{s} is \TT{min::NONE()}.
 
 Part of an identifier map is a hash table that permits
 \TT{min::\EOL find\ldots} functions to work quickly.  This
@@ -8341,7 +8356,7 @@ unless the hash table has become too small to be efficient, in which case
 these functions discard it so a larger hash table will be created
 by the next call to a \TT{min::\EOL find\ldots} function.
 The \TT{map->\EOL occupied} member of the map records the number of
-\TT{map} vector elements that are not \TT{min::\EOL NULL\_\EOL STUB},
+\TT{map} vector elements that are not \TT{min::NONE()},
 that is, the number of associations recorded in the map, and this is used
 to determine the proper size of the hash table.
 
@@ -8610,7 +8625,7 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \verb|     min::uns32 |
 	& \TTMKEY{conditional\_break}{in {\tt min::break\_control}} \\
 \verb|     min::uns32 |
-	& \TTMKEY{conditional\_columms}{in {\tt min::break\_control}} \\
+	& \TTMKEY{conditional\_columns}{in {\tt min::break\_control}} \\
 \verb|}               | \\
 \end{tabular}\end{indpar}
 
@@ -10125,7 +10140,7 @@ produced spaces.
 
 Second, if the \TT{min::FORCE\_SPACE} flag is on, \TT{min::leading}
 and \TT{min::trailing} always output a space \underline{unless}
-either the preceeding or following string does \underline{not} have
+either the preceding or following string does \underline{not} have
 the \TT{IS\_\EOL GRAPHIC} flag.  But there are variant printer
 operations:
 
@@ -10160,7 +10175,7 @@ The default rule is that \TT{min::gen} string values are print
 items classified by
 
 \begin{center}
-\TT{printer->print\_format.gen\_format->str\_format.str\_classifer}
+\TT{printer->print\_format.gen\_format->str\_format.str\_classifier}
 \end{center}
 
 if it exists, whereas in all other cases print items are classified by
@@ -10192,13 +10207,13 @@ min::set\_break \\
 Such a sequence of print operations outputs either a single space or
 nothing according to the following rules:
 \begin{enumerate}
-\item If either the preceeding or following print items do not have the
+\item If either the preceding or following print items do not have the
 \TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
 \item Otherwise if either \TT{min::leading} or \TT{min::trailing}
 is in the sequence and the \TT{FORCE\_\EOL SPACE} printer\label{FORCE_SPACE}
 operation flag is on, a space is output.
 \item Otherwise if either \TT{min::leading} or \TT{min::leading\_\EOL always}
-is in the sequence and the preceeding print item has the \TT{IS\_\EOL LEADING}
+is in the sequence and the preceding print item has the \TT{IS\_\EOL LEADING}
 flag, no space is output.
 \item Otherwise if either \TT{min::trailing} or \TT{min::trailing\_\EOL always}
 is in the sequence and the following print item has the \TT{IS\_\EOL TRAILING}
@@ -10209,7 +10224,7 @@ flag, no space is output.
 If the operation sequence contains a
 \TT{min::save\_indent}\label{LEADING-TRAILING-SAVE-INDENT}
 or \TT{min::set\_break} operation\label{LEADING-TRAILING-SET-BREAK}
-that is preceeded by a \TT{min::leading\ldots} or \TT{min::trailing\ldots}
+that is preceded by a \TT{min::leading\ldots} or \TT{min::trailing\ldots}
 operation in the sequence, this
 \TT{min::save\_indent} or \TT{min::set\_break} operation
 is delayed until the space is output or a decision not to output
@@ -10288,7 +10303,7 @@ Instead only the following is done in order:
 
 \begin{enumerate}
 \item If \TT{n == 0} this function does nothing.
-\item The string class is used to determine whether preceeding
+\item The string class is used to determine whether preceding
 \TT{min::\EOL leading/\EOL trailing\ldots} operations should
 produce a space.
 \item The string class is saved for use in processing subsequent
@@ -10296,7 +10311,7 @@ produce a space.
 \item The UTF-8 string is copied directly to the printer buffer.
 \item The printer column is updated.
 \item If the printer column exceeds the printer line length,
-and the printer line break information warrents, a line break
+and the printer line break information warrants, a line break
 is inserted.
 \end{enumerate}
 
@@ -11217,7 +11232,7 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::uns32            id_map_of_longer;|%
+    \verb|  min::uns32            id_map_if_longer;|%
 \ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
@@ -11334,7 +11349,7 @@ any functions that might allocate or relocate objects, so \TT{str}
 
 
 If the string is to be quoted, \TT{str\_format->quote\_format}
-determines how the string is quoted.  The quoted string is preceeded
+determines how the string is quoted.  The quoted string is preceded
 by the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and followed by the
 \TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the quoted string itself
 contains a copy of the \TT{str\_\EOL postfix} member (e.g., \TT{"}),
@@ -11347,7 +11362,7 @@ the \TT{str\_\EOL concatenator} member is not \TT{NULL}, then
 the quoted string is broken into multiple quoted strings, each
 fitting within the columns, separated by copies of
 \TT{str\_\EOL concatenator} (e.g., \TT{\#})
-surroundsed by single spaces.
+surrounded by single spaces.
 
 Lastly, the characters of the string being quoted (but \underline{not}
 those of \TT{str\_\EOL format->\EOL quote\_\EOL format.str\_\ldots})
@@ -11968,7 +11983,7 @@ because they change the size of the object.  They also change
 the offset of some elements within the object, and usually
 relocate the object.
 The names of such functions are marked with the subscript
-\subsmkey{S}{of function}.  A resizing funciton is also
+\subsmkey{S}{of function}.  A resizing function is also
 a relocating function (\pagref{RELOCATING-FUNCTIONS}).
 
 The remaining maintenance functions assume objects are organized
@@ -13950,7 +13965,7 @@ These functions return true if and only if:
       or equivalently, \\
       neither \TT{vp1} nor \TT{vp2} equal \TT{min::\EOL NULL\_\EOL STUB}.
 \item The two object hash table sizes are equal.
-\item All the lists headed by the two object hashs are equal.
+\item All the lists headed by the two object hashes are equal.
 \item The two object attribute vector sizes are equal.
 \item All the lists headed by the two object attribute vectors are equal.
 \item The two object number of variables are equal.
@@ -15828,7 +15843,7 @@ and the object is being printed as the last element of a containing
 object that is being printed in logical line compact format and has
 2 or more elements and a \TT{.terminator} equal to \TT{"<LF>"},
 
-\item Otherise the `\key{bracketed compact format}'
+\item Otherwise the `\key{bracketed compact format}'
 is used if the object has an \TT{.initiator} and \TT{.terminator}.
 
 \item Otherwise the `\key{empty compact format}' is used if the object has
@@ -15922,7 +15937,7 @@ format is enabled.
 
 \item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
 \label{MARK_CLASSIFIER}
-This is a \TT{min::str\_classifier} used to classifiy
+This is a \TT{min::str\_classifier} used to classify
 a \TT{.type} string value \TT{T} to see if
 a compact object printout of the
 form `\TT{\{T|}\ldots\TT{|\}}' may be replaced by `\TT{\{T}\ldots\TT{T\}}',
@@ -16119,7 +16134,7 @@ and attributes with a \TT{hide\_\EOL flag},
 the \TT{.terminator} is equal to \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()},
 and the object is the last element of a non-terminated line printed with
 logical line compact format which has
-at least one line element preceeding
+at least one line element preceding
 the paragraph.  First single spaces are erased from the end of the
 current line by \TT{min::\EOL print\_\EOL erase\_\EOL space}, then 
 \TT{min::\EOL trailing\_\EOL always} is printed,
@@ -16210,7 +16225,7 @@ If instead \TT{mark\_\EOL classifier} is not
 string classes either
 \underline{both} have the \TT{min::\EOL IS\_\EOL MARK} flag, or
 \TT{"T1"}'s string class has the \TT{min::\EOL IS\_\EOL LEADING} flag and
-\TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAILNG} flag,
+\TT{"T2"}'s string class has the \TT{min::\EOL IS\_\EOL TRAILING} flag,
 then the format is
 \begin{center}
 \TT{\{}\TT{T1} {\em <element>}
@@ -16268,7 +16283,7 @@ would be `{\em attribute-label-and-flags} \TT{= FALSE}' is replaced by
 just `\TT{no }{\em attribute-label-and-flags}\,'.
 
 The \mkey{embedded line format}{of printed object} prints the object
-on separate lines, but is indended for use where the object is an
+on separate lines, but is indented for use where the object is an
 element of some containing object.  If
 \begin{center}
 \begin{tabular}{lcl}
@@ -16310,7 +16325,7 @@ embedded line format is identical to normal format except for
 the \TT{min::\EOL indent} and \TT{min::\EOL eol} operations.
 
 The \mkey{isolated line format}{of printed object} prints the object
-on separate lines, and is indended for use when the object is
+on separate lines, and is indented for use when the object is
 isolated and \underline{not} inside a containing object,
 as when the object is printed when flushing an identifier map
 (\itemref{PRINTING-USING-AN-IDENTIFIER-MAP}).  If
@@ -16334,7 +16349,7 @@ then the object in isolated line format has the form:
 \end{center}
 
 Here \underline{every} attribute, including \TT{.type} and \TT{.separator},
-is output on its own indended subparagraph line.
+is output on its own indented subparagraph line.
 The output ends with a \TT{min::\EOL eol} operation,
 but does \underline{not} begin with any special printer operation.  If
 there are no attributes, the indented paragraph and its introducing
@@ -16384,7 +16399,7 @@ by \TT{min::\EOL standard\_\EOL attr\_\EOL flag\_\EOL names} is
 \end{tabular}
 \end{center}
 
-Note these names are choosen so that any sequence of them forms
+Note these names are chosen so that any sequence of them forms
 a string whose \TT{min::stan\-dard\_\EOL str\_\EOL classifier} string
 class has the \TT{min::\EOL IS\_\EOL GRAPHIC} flag and does
 \underline{not} have the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
@@ -19357,7 +19372,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.2in}
 \verb|typedef min::|
 	& \verb|packed_vec_ptr|\ARGBREAK
-	  \verb|    < const min::stub *,|\ARGBREAK
+	  \verb|    < min::gen,|\ARGBREAK
 	  \verb|      min::id_map_header<min::uns32> >|\ARGBREAK
 	  \verb|min::|\MINKEY{id\_\EOL map}
 \LABEL{MIN::ID_MAP} \\
@@ -19369,8 +19384,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::INIT_OF_ID_MAP} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.2in}
-\verb|const min::stub * map| & \TTBMKEY{id}{of {\tt min::id\_map}}
+\begin{TABULAR}{3.2in}
+\verb|min::ref<const min::gen> map| & \TTBMKEY{id}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
@@ -19382,16 +19397,16 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 \verb|min::uns32 min::| & \MINKEY{find\REL}\ARGBREAK
-    \verb|( min::ref<min::id_map> map,|\ARGBREAK
-    \verb|  const min::stub * s )|
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::gen g )|
 \LABEL{MIN::FIND_OF_ID_MAP} \\
 \verb|min::uns32 min::| & \MINKEY{find\_\EOL or\_\EOL add\REL}\ARGBREAK
-    \verb|( min::ref<min::id_map> map,|\ARGBREAK
-    \verb|  const min::stub * s )|
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::gen g )|
 \LABEL{MIN::FIND_OR_ADD_OF_ID_MAP} \\
 \verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
-    \verb|( min::ref<min::id_map> map,|\ARGBREAK
-    \verb|  const min::stub * s,|\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::gen g,|\ARGBREAK
     \verb|  min::uns32 id )|
 \LABEL{MIN::INSERT_OF_ID_MAP} \\
 \end{TABULAR}
@@ -19843,7 +19858,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\INDEXHEADER{Ajusting Printer Parameters}
+\INDEXHEADER{Adjusting Printer Parameters}
 
 \bigskip
 
@@ -20719,7 +20734,7 @@ These are in \verb|min_parameters.h|.
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::uns32            id_map_of_longer;|%
+    \verb|  min::uns32            id_map_if_longer;|%
 \ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
