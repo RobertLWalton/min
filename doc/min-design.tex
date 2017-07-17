@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 1, 2017}
+\date{July 16, 2017}
  
 \maketitle
 
@@ -2831,14 +2831,16 @@ deallocated stub will cause a memory fault.
 The type and values of two stubs can be swapped by:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
+\verb|void MUP::| & \MUPKEY{stub\_swap}\ARGBREAK
     \verb|( const min::stub * s1, const min::stub * s2 )|
-\LABEL{MIN::STUB_SWAP}
+\LABEL{MUP::STUB_SWAP}
 \end{tabular}\end{indpar}
 
 Neither stub may be the stub of a name (number, string, or label).
+Neither stub may be the target of an existing
+\TT{min::obj\_vec\_\ldots{}ptr}.
 
-This is most often done when one of the stubs has the
+Stubs are most often swapped when one of the stubs has the
 \TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
 A new preallocated stub can be created by:
 
@@ -16844,10 +16846,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
-\verb|void min::| & \MINKEY{stub\_swap}\ARGBREAK
+\verb|void MUP::| & \MUPKEY{stub\_swap}\ARGBREAK
     \verb|( const min::stub * s1,|\ARGBREAK
     \verb|  const min::stub * s2 )|
-\LABEL{MIN::STUB_SWAP} \\
+\LABEL{MUP::STUB_SWAP} \\
 \verb|const min::stub * min::| & \MINKEY{new\_preallocated\_stub}
     \verb|( void )|
 \LABEL{MIN::NEW_PREALLOCATED_STUB} \\

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  1 10:40:19 EDT 2017
+// Date:	Sun Jul 16 21:06:32 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1736,9 +1736,6 @@ namespace min {
 	return (uns8 *) & (p->*d) - (uns8 *) p;
     }
 
-    void stub_swap
-        ( const min::stub * s1, const min::stub * s2 );
-
     const min::stub * new_preallocated_stub ( void );
 }
 
@@ -2424,6 +2421,11 @@ namespace min { namespace unprotected {
     void deallocate_body
 	( min::stub * s, min::unsptr n );
 
+    // Swap stub contents.  There most be no ...ptr's
+    // to the stubs.
+    //
+    void stub_swap
+        ( const min::stub * s1, const min::stub * s2 );
 } }
 
 

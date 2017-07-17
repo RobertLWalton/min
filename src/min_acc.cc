@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 30 16:15:55 EDT 2017
+// Date:	Sun Jul 16 21:07:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1203,7 +1203,7 @@ void MUP::deallocate_body
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
-void min::stub_swap
+void MUP::stub_swap
         ( const min::stub * s1, const min::stub * s2 )
 {
     MIN_REQUIRE

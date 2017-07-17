@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  1 10:42:08 EDT 2017
+// Date:	Sun Jul 16 21:07:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -177,7 +177,7 @@ void test_acc_interface ( void )
     void * p_obj2 = MUP::ptr_of ( stub_obj2 );
     MIN_CHECK ( p_obj1 != p_obj2 );
 
-    min::stub_swap ( stub_obj1, stub_obj2 );
+    MUP::stub_swap ( stub_obj1, stub_obj2 );
 
     MIN_CHECK ( p_obj1 == MUP::ptr_of ( stub_obj2 ) );
     MIN_CHECK ( p_obj2 == MUP::ptr_of ( stub_obj1 ) );
@@ -207,7 +207,7 @@ void test_acc_interface ( void )
     MIN_CHECK
         ( MUP::body_size_of ( stub_pre ) == 0 );
 
-    min::stub_swap ( stub_pre, stub_obj1 );
+    MUP::stub_swap ( stub_pre, stub_obj1 );
 
     MIN_CHECK
         (    min::type_of ( stub_obj1 )
