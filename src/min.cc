@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 12:51:37 EDT 2017
+// Date:	Mon Jul 17 13:50:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -764,14 +764,14 @@ void MINT::thread_interrupt ( void ) {}  // TBD
 // Allocator/Collector/Compactor 
 // -----------------------------
 
-const min::stub * min::new_preallocated_stub ( void )
+min::gen min::new_preallocated_gen ( min::uns64 id )
 {
     min::stub * s =
 	min::unprotected::new_acc_stub();
     min::unprotected::set_type_of
 	( s, min::PREALLOCATED );
-    min::unprotected::set_value_of ( s, 0 );
-    return s;
+    min::unprotected::set_value_of ( s, id );
+    return min::new_stub_gen ( s );
 }
 
 static min::stub ZERO_STUB;
@@ -10730,6 +10730,11 @@ std::ostream & operator <<
 	    out << " " << lp[i];
 	return out << " >]";
     }
+    else if ( min::is_preallocated ( g ) )
+    {
+        min::uns64 id = min::id_of_preallocated ( g );
+	return out << "PREALLOCATED(" << id << ")";
+    }
     else if ( min::is_stub ( g ) )
     {
 	min::stub * s = MUP::stub_of ( g );
@@ -12558,6 +12563,17 @@ min::printer min::standard_pgen
     else if ( min::is_obj ( v ) )
         return min::print_obj
 	    ( printer, v, f->obj_format );
+
+    else if ( min::is_preallocated ( v ) )
+    {
+        min::uns64 id = min::id_of_preallocated ( v );
+	char buffer[100];
+	min::uns32 n =
+	    sprintf ( buffer,
+	              "PREALLOCATED(%llu)", id );
+	return min::print_item
+	    ( printer, buffer, n, n );
+    }
 
     else if ( min::is_stub ( v ) )
     {

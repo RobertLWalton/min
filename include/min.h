@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 12:16:42 EDT 2017
+// Date:	Mon Jul 17 13:47:07 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1736,7 +1736,26 @@ namespace min {
 	return (uns8 *) & (p->*d) - (uns8 *) p;
     }
 
-    const min::stub * new_preallocated_stub ( void );
+    min::gen new_preallocated_gen ( min::uns64 id );
+
+    inline bool is_preallocated ( min::gen g )
+    {
+	const min::stub * s = min::stub_of ( g );
+	if ( s == NULL )
+	    return false;
+	else
+	    return min::type_of ( s ) == PREALLOCATED;
+    }
+
+    inline min::uns64 id_of_preallocated ( min::gen g )
+    {
+	const min::stub * s = min::stub_of ( g );
+	if ( s == NULL ) return 0;
+	else if ( min::type_of ( s ) != PREALLOCATED )
+	    return 0;
+	else
+	    return unprotected::value_of ( s );
+    }
 }
 
 namespace min { namespace internal {

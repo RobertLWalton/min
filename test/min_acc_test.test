@@ -77,6 +77,10 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
 
 Test stub swap function:
 TRACE: allocating new subregion for 128 byte fixed size blocks
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
+    min::is_preallocated ( gen_pre ) => true
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
+    min::id_of_preallocated ( gen_pre ) == 55 => true
 ASSERT SUCCEEDED: ../include/min.h:XXXX:
     in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
     index < unused_offset => true

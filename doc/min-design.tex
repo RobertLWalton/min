@@ -2842,16 +2842,35 @@ Neither stub may be the target of an existing
 
 Stubs are most often swapped when one of the stubs has the
 \TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
-A new preallocated stub can be created by:
+Functions for this type are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * min::| & \MINKEY{new\_preallocated\_stub}
-    \verb|( void )|
-\LABEL{MIN::NEW_PREALLOCATED_STUB} \\
+\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+    \verb|( min::uns64 id )|
+\LABEL{MIN::NEW_PREALLOCATED_GEN} \\
+\verb|bool min::| & \MINKEY{is\_preallocated}
+    \verb|( min::gen g )|
+\LABEL{MIN::IS_PREALLOCATED} \\
+\verb|min::uns64 min::| & \MINKEY{id\_of\_preallocated}
+    \verb|( min::gen g )|
+\LABEL{MIN::ID_OF_PREALLOCATED} \\
 \end{tabular}\end{indpar}
 
-Each such stub is unique, but has no parts other than its
-type.
+The \TT{min::new\_preallocate\_gen} function returns a
+\TT{min::gen} value pointing at a new stub
+of \TT{min::PREALLOCATED} type that stores the given \TT{id}.
+The \TT{id} is used only for debugging; when a preallocated
+stub is created from an identifier input from a file, the
+ID of the identifier is recorded in the preallocated stub
+in case the identifier is later defined as a non-object
+value, in which case the preallocate stub will become
+a dangling reference, and knowing the ID that created it
+can help find the bad identifer in the file.
+
+The other functions test a \TT{min::gen} value to see if
+it points at a preallocate stub, and return its identifier
+if it does.  If \TT{g} does not point at a preallocated
+stub, \TT{0} is returned as its identifier.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
@@ -16865,9 +16884,15 @@ These are in \verb|min_parameters.h|.
     \verb|( const min::stub * s1,|\ARGBREAK
     \verb|  const min::stub * s2 )|
 \LABEL{MUP::STUB_SWAP} \\
-\verb|const min::stub * min::| & \MINKEY{new\_preallocated\_stub}
-    \verb|( void )|
-\LABEL{MIN::NEW_PREALLOCATED_STUB} \\
+\verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
+    \verb|( min::uns64 id )|
+\LABEL{MIN::NEW_PREALLOCATED_GEN} \\
+\verb|bool min::| & \MINKEY{is\_preallocated}
+    \verb|( min::gen g )|
+\LABEL{MIN::IS_PREALLOCATED} \\
+\verb|min::uns64 min::| & \MINKEY{id\_of\_preallocated}
+    \verb|( min::gen g )|
+\LABEL{MIN::ID_OF_PREALLOCATED} \\
 \end{TABULAR}
 
 \end{indpar}
