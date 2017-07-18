@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 13:05:33 EDT 2017
+// Date:	Tue Jul 18 16:30:09 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5128,6 +5128,78 @@ void test_object_printing ( void )
 	        << "'" << min::eol;
     }
     printer << min::pgen ( obj4 ) << min::eol;
+
+    min::gen obj5 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( obj5 );
+	min::attr_push ( vp, 7 );
+	vp[0] = min::new_str_gen ( "This" );
+	vp[1] = min::new_str_gen ( "contains" );
+	vp[2] = min::new_str_gen ( "a" );
+	vp[3] = min::new_str_gen ( "long" );
+	vp[4] = min::new_str_gen ( "string:" );
+	vp[5] = min::new_str_gen
+	    ( "abcdefghijklmnopqrstuvwxyz" );
+	vp[6] = min::new_str_gen ( "." );
+
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_initiator );
+	min::set ( ap, min::new_str_gen ( "`" ) );
+	min::locate ( ap, min::dot_terminator );
+	min::set ( ap, min::new_str_gen ( "'" ) );
+    }
+
+    min::gen obj6 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( obj6 );
+
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::new_str_gen ( "A" ) );
+	min::set ( ap, min::new_str_gen
+		    ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+	min::locate ( ap, min::new_str_gen ( "B" ) );
+	min::set ( ap, min::new_str_gen
+		    ( "0123456789" ) );
+	min::locate ( ap, min::new_str_gen ( "C" ) );
+	min::set ( ap, obj5 );
+    }
+    min::gen obj7 = min::new_obj_gen ( 10, 10 );
+    min::gen obj8 = min::new_obj_gen ( 10, 10 );
+    {
+	min::obj_vec_insptr vp ( obj7 );
+	min::attr_push ( vp, 4 );
+	vp[0] = min::new_str_gen ( "a" );
+	vp[1] = obj8;
+	vp[2] = min::new_str_gen ( "c" );
+	vp[3] = min::new_str_gen ( "d" );
+
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::new_str_gen ( "D" ) );
+	min::set ( ap, obj5 );
+	min::locate ( ap, min::new_str_gen ( "E" ) );
+	min::locate_reverse
+	    ( ap, min::new_str_gen ( "F" ) );
+	min::set ( ap, obj6 );
+    }
+    {
+	min::obj_vec_insptr vp ( obj8 );
+	min::attr_push ( vp, 4 );
+	vp[0] = min::new_str_gen ( "e" );
+	vp[1] = min::new_str_gen ( "f" );
+	vp[2] = min::new_str_gen ( "g" );
+	vp[3] = min::new_str_gen ( "h" );
+
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::new_str_gen ( "G" ) );
+	min::set ( ap, min::new_str_gen
+		    ( "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ) );
+	min::locate ( ap, min::new_str_gen ( "H" ) );
+	min::locate_reverse
+	    ( ap, min::new_str_gen ( "F" ) );
+	min::set ( ap, obj7 );
+    }
+    min::map ( printer->id_map, obj8, 20 );
+    printer << min::eol << min::flush_id_map;
 
     min::gen line1 = min::new_obj_gen ( 10, 10 );
     {

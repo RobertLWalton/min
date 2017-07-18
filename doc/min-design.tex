@@ -2859,13 +2859,14 @@ Functions for this type are:
 The \TT{min::new\_preallocate\_gen} function returns a
 \TT{min::gen} value pointing at a new stub
 of \TT{min::PREALLOCATED} type that stores the given \TT{id}.
-The \TT{id} is used only for debugging; when a preallocated
-stub is created from an identifier input from a file, the
-ID of the identifier is recorded in the preallocated stub
-in case the identifier is later defined as a non-object
-value, in which case the preallocate stub will become
-a dangling reference, and knowing the ID that created it
-can help find the bad identifer in the file.
+When a preallocated stub is created from an identifier input
+from a file, the ID of the identifier can be recorded in the
+preallocated stub.  Then the preallocated stub can be used
+to represent the identifier.  Also if the identifier is later
+assigned a non-object value, but a data reference to the
+preallocated stub was made before this assignment, the reference will become
+dangling, and the ID recorded in the stub can be used
+in debugging to find the source of the dangling reference.
 
 The other functions test a \TT{min::gen} value to see if
 it points at a preallocate stub, and return its identifier

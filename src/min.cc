@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 12:56:56 EDT 2017
+// Date:	Tue Jul 18 16:37:19 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3660,7 +3660,7 @@ inline void map
 		break;
 	    }
 	    MIN_REQUIRE
-	        ( offset < map->hash_max_offset );
+	        ( offset <= map->hash_max_offset );
 	    h = ( h + 1 ) % hash_table->length;
 	    ++ offset;
 	}
