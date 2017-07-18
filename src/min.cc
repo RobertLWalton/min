@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 06:54:33 EDT 2017
+// Date:	Tue Jul 18 12:56:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3271,7 +3271,7 @@ min::phrase_position_vec min::position_of
 // Identifier Maps
 // ---------- ----
 
-static min::uns32 id_map_stub_disp[2] =
+static min::uns32 uns32_id_map_stub_disp[2] =
     { min::DISP ( & min::id_map_header<min::uns32>
                        ::hash_table ),
       min::DISP_END };
@@ -3282,20 +3282,57 @@ static min::uns32 id_map_element_gen_disp[2] =
 static min::packed_vec
 	< min::gen,
 	  min::id_map_header<min::uns32> >
-    id_map_type
-    ( "id_map_type",
-      id_map_element_gen_disp, NULL,
-      NULL, id_map_stub_disp );
+    uns32_id_map_type
+    ( "uns32_id_map_type",
+      ::id_map_element_gen_disp, NULL,
+      NULL, ::uns32_id_map_stub_disp );
+
+template < typename L >
+inline min::packed_vec_insptr
+		< min::gen,
+		  min::id_map_header<L>,
+		  L >
+    new_id_map ( L length );
+template<> 
+inline min::packed_vec_insptr
+	    < min::gen,
+	      min::id_map_header<min::uns32>,
+	      min::uns32 >
+    new_id_map<min::uns32> ( min::uns32 length )
+{
+    return ::uns32_id_map_type.new_stub ( length );
+}
+
+template < typename L >
+inline min::packed_vec_insptr
+		< L,
+		  min::packed_vec_header<L>,
+		  L >
+    new_id_map_hash_table ( L length );
+template<> 
+inline min::packed_vec_insptr
+		< min::uns32,
+		  min::packed_vec_header<min::uns32>,
+		  min::uns32 >
+    new_id_map_hash_table<min::uns32>
+	( min::uns32 length )
+{
+    return min::uns32_packed_vec_type.new_stub
+    		( length );
+}
 
 template < typename L >
 inline L hash
 	( min::packed_vec_ptr
 	      < min::gen,
-		min::id_map_header<L> > map,
+		min::id_map_header<L>,
+		L > map,
 	  min::gen g )
 {
-    min::packed_vec_insptr<L> hash_table =
-        map->hash_table;
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
+    hash_table_insptr hash_table = map->hash_table;
     MIN_REQUIRE ( hash_table != min::NULL_STUB );
     min::uns64 h0 = MUP::value_of ( g );
     h0 *= map->hash_multiplier;
@@ -3307,11 +3344,16 @@ template < typename L >
 static void new_hash_table
 	( min::packed_vec_ptr
 	      < min::gen,
-		min::id_map_header<L> > map )
+		min::id_map_header<L>,
+		L > map )
 {
     typedef min::packed_vec_insptr
     		< min::gen,
-		  min::id_map_header<L> > id_map_insptr;
+		  min::id_map_header<L>,
+		  L > id_map_insptr;
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
@@ -3323,9 +3365,8 @@ static void new_hash_table
     if ( length < 128 ) length = 128;
 
     hash_table_ref ( map ) =
-	min::uns32_packed_vec_type.new_stub ( length );
-    min::packed_vec_insptr<L> hash_table =
-        map->hash_table;
+	::new_id_map_hash_table<L> ( length );
+    hash_table_insptr hash_table = map->hash_table;
     min::push ( hash_table, length );
 
     map_insptr->hash_multiplier = 1103515245;
@@ -3367,7 +3408,7 @@ inline min::packed_vec_ptr
         (id_map_insptr) (min::id_map) map;
     if ( map_insptr == min::NULL_STUB )
     {
-	map_insptr = ::id_map_type.new_stub ( 16 );
+	map_insptr = ::new_id_map<L> ( 16 );
 	map = map_insptr;
     }
     else
@@ -3391,12 +3432,15 @@ inline L find
 		min::id_map_header<L>, L > map,
 	  min::gen g )
 {
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
+
     if ( g == min::NONE() ) return 0;
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
-    min::packed_vec_insptr<L> hash_table =
-        map->hash_table;
+    hash_table_insptr hash_table = map->hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
     while ( true )
@@ -3421,13 +3465,15 @@ inline L find_or_add
     		< min::gen,
 		  min::id_map_header<L>, L >
 	id_map_insptr;
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
-    min::packed_vec_insptr<L> hash_table =
-        map->hash_table;
+    hash_table_insptr hash_table = map->hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
     while ( true )
@@ -3580,19 +3626,26 @@ inline void map
 	  min::gen g,
 	  min::unsptr strlen )
 {
+    typedef min::packed_vec_insptr
+    		< min::gen,
+		  min::id_map_header<L>, L >
+	id_map_insptr;
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
+
     L saved_length = map->length;
     ::map_one ( map, g, strlen );
     L n = map->length - saved_length;
     if ( n <= 1 ) return;
 
-    min::packed_vec_insptr<L> hash_table =
-        map->hash_table;
+    hash_table_insptr hash_table = map->hash_table;
     MIN_REQUIRE ( hash_table != min::NULL_STUB );
 
     // Compute indices of hash table entries that
     // need to be modified.
     //
-    min::uns32 hash_index[n];
+    L hash_index[n];
     for ( L i = 0; i < n; ++ i )
     {
 	L h = ::hash ( map, map[i+saved_length] );
@@ -3625,10 +3678,6 @@ inline void map
 
     // Reverse map values.
     //
-    typedef min::packed_vec_insptr
-    		< min::gen,
-		  min::id_map_header<L>, L >
-	id_map_insptr;
     id_map_insptr map_insptr =
         (id_map_insptr) (min::id_map) map;
     for ( L i = 0; i < n/2; ++ i )
@@ -3652,6 +3701,9 @@ inline void insert
     		< min::gen,
 		  min::id_map_header<L>, L >
         id_map_insptr;
+    typedef min::packed_vec_insptr
+    		< L, min::packed_vec_header<L>, L >
+	hash_table_insptr;
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
@@ -3664,8 +3716,7 @@ inline void insert
     map_insptr[id] = g;
     ++ * (L *) & map_insptr->occupied;
 
-    min::packed_vec_insptr<min::uns32> hash_table =
-        map->hash_table;
+    hash_table_insptr hash_table = map->hash_table;
 
     if ( hash_table == min::NULL_STUB ) return;
     else if ( hash_table->length < 2 * map->occupied )
