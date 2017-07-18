@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 17, 2017}
+\date{July 18, 2017}
  
 \maketitle
 
@@ -8238,7 +8238,7 @@ string values may be output as identifiers.
 
 A \TT{min::\EOL id\_\EOL map} is a packed vector with
 \TT{min::gen} elements such that the index of an identifier
-is the vector index of the vector element containing the
+is the vector index of the \TT{id\_map} element containing the
 \TT{min::gen} value associated with the identifier.
 If \TT{min::gen} values need to be converted to identifiers, the
 \TT{min::\EOL id\_\EOL map} also has an associated hash table
@@ -8246,7 +8246,6 @@ that maps \TT{min::gen} values to identifier indices.
 When the hash table is used, the map between identifier indices
 and \TT{min::gen} values can be made 1-to-1.  This should be done for
 object values, so identifiers act as pointers in the external file.
-It need not be done for non-object values.
 
 On input from a file, an identifier is translated
 to a \TT{min::gen} value by looking up the identifier index
@@ -8281,7 +8280,7 @@ Creation and use of id maps is accomplished by the following:
 \LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
-\verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
+\verb|const min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_OCCUPIED} \\
 \verb|min::uns32 map->| & \TTMKEY{next}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_NEXT} \\
@@ -8292,10 +8291,24 @@ Creation and use of id maps is accomplished by the following:
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g )|
 \LABEL{MIN::FIND_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{find\_\EOL or\_\EOL add\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g )|
 \LABEL{MIN::FIND_OR_ADD_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{map\REL}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::gen g,|\ARGBREAK
+    \verb|  min::unsptr strlen )|
+\LABEL{MIN::MAP_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g,|\ARGBREAK
@@ -8330,54 +8343,70 @@ is returned.  However, as a special case,
 \TT{min::\EOL find\_\EOL or\_\EOL add} returns
 \TT{0} if \TT{g} is \TT{min::NONE()}.
 
-When an object is to be output, \TT{min::\EOL find\_\EOL and\_\EOL add}
-will assign it an identifier so it can be
-output as `\TT{@}{\em identifier}', even if the object contents have not
-been output.  Later the object contents should be output,
-usually in a line of the
-form
+The \TT{min::map} function is more sophisticated than
+\TT{min::find\_\EOL or\_\EOL add} and is preferred.  If its
+argument \TT{g} does
+not already have an identifier, it performs
+\TT{min::find\_\EOL or\_\EOL add} on \TT{g} \underline{after}
+performing \TT{min::map} on all the objects that are elements or
+attribute values of \TT{g} that do not already have identifiers and are
+also not arguments to the recursive calls to \TT{min::map}.
+It also treats strings of length greater than \TT{strlen} as
+objects and gives them identifiers.  The effect is to assign
+identifiers so that if an object references another object or a string,
+the referenced object or string has a smaller identifier
+than the referencing object, unless there are
+recursive references.
+
+When \TT{min::\EOL find\_\EOL and\_\EOL add} or \TT{min::map}
+assign new identifiers, \TT{map->length} is incremented but
+\TT{map->next} is not.  The identifiers \TT{map->next}, \ldots{},
+\TT{map->length-1} are for objects that have not yet been
+output.  The \TT{printer << min::flush\_\EOL id\_\EOL map} operation
+(see \pagref{MIN::FLUSH_ID_MAP})
+outputs the objects and strings referenced by these identifiers
+in the the form
+
 \begin{center}
-\TT{@}{\em identifier} \TT{=} {\em object}
+\TT{@}{\em identifier} \TT{=} {\em object-or-string}
 \end{center}
 
-In this context objects are usually output by such lines in order of
-their identifiers, smallest identifier first, with the identifier
-map member \TT{next} recording the smallest identifier which has
-not yet been output.  This member is writable and can be updated
-when an object is outputted.  Thus identifiers from
-\TT{map->next} through \TT{map->length-1} are for \TT{min::gen}
-values that have been assigned an identifier index but
-whose contents have not yet been output.
+This operation outputs smallest identifiers first and increments
+\TT{map->next} until it equals \TT{map->length}.
 
 If identifiers are being input, \TT{map[id]} can be used
 to find the \TT{min::gen} value
 associated with \TT{id}, unless there is no such value.
-If there is no value associated with \TT{id}, a stub \TT{min::gen}
+If there is no value associated with \TT{id}, a \TT{min::gen}
 value pointing at a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED}
 type can be created and inserted into the map with the \TT{min::\EOL insert}
 function, which will increase the length of the map if necessary to
 accommodate \TT{id}.  Later the contents of the stub can be set by using
 \TT{MUP::stub\_swap}: see \itemref{SWAPPING-STUBS}.
 
-The \TT{min::find} function is not needed for either input or output.
-It merely returns the identifier associated with a value \TT{g} if one exists,
+The \TT{min::find} function is used internally by \TT{min::map} to find
+out which objects or long strings already have an identifier.
+It returns the identifier associated with a value \TT{g} if one exists,
 or returns \TT{0} if no such identifier exists.
 \TT{min::\EOL find} also returns
-\TT{0} if \TT{s} is \TT{min::NONE()}.
+\TT{0} if \TT{g} is \TT{min::NONE()}.
 
 Part of an identifier map is a hash table that permits
 \TT{min::\EOL find\ldots} functions to work quickly.  This
 hash table is created by the first call to a
 \TT{min::\EOL find\ldots} function.
-The hash table, if it exists, is maintained by \TT{min::\EOL insert}
-and \TT{min::\EOL find\_\EOL and\_\EOL add},
+The hash table is maintained by \TT{min::\EOL find\_\EOL and\_\EOL add},
 unless the hash table has become too small to be efficient, in which case
-these functions discard it so a larger hash table will be created
+this function discards it so a larger hash table will be created
 by the next call to a \TT{min::\EOL find\ldots} function.
 The \TT{map->\EOL occupied} member of the map records the number of
 \TT{map} vector elements that are not \TT{min::NONE()},
 that is, the number of associations recorded in the map, and this is used
 to determine the proper size of the hash table.
+
+If the hash table does not exist, \TT{min::\EOL insert} does not created it.
+Otherwise \TT{min::\EOL insert} maintains the hash table in the same was
+as \TT{min::\EOL find\_\EOL and\_\EOL add}.
 
 \subsection{Printers}
 \label{PRINTERS}
@@ -19429,6 +19458,11 @@ These are in \verb|min_parameters.h|.
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g )|
 \LABEL{MIN::FIND_OR_ADD_OF_ID_MAP} \\
+\verb|void min::| & \MINKEY{map\REL}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::gen g,|\ARGBREAK
+    \verb|  min::unsptr strlen )|
+\LABEL{MIN::MAP_OF_ID_MAP} \\
 \verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g,|\ARGBREAK

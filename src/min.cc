@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 14:46:14 EDT 2017
+// Date:	Tue Jul 18 06:54:33 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3294,7 +3294,7 @@ inline L hash
 		min::id_map_header<L> > map,
 	  min::gen g )
 {
-    min::packed_vec_insptr<min::uns32> hash_table =
+    min::packed_vec_insptr<L> hash_table =
         map->hash_table;
     MIN_REQUIRE ( hash_table != min::NULL_STUB );
     min::uns64 h0 = MUP::value_of ( g );
@@ -3324,7 +3324,7 @@ static void new_hash_table
 
     hash_table_ref ( map ) =
 	min::uns32_packed_vec_type.new_stub ( length );
-    min::packed_vec_insptr<min::uns32> hash_table =
+    min::packed_vec_insptr<L> hash_table =
         map->hash_table;
     min::push ( hash_table, length );
 
@@ -3379,13 +3379,13 @@ inline min::packed_vec_ptr
 	min::resize ( map_insptr, 16 );
     }
     min::push ( map_insptr ) = min::NONE();
-    map_insptr->occupied = 0;
+    * (L *) & map_insptr->occupied = 0;
     map_insptr->next = 1;
     return map;
 }
 
 template < typename L >
-inline min::uns32 find
+inline L find
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L>, L > map,
@@ -3395,7 +3395,7 @@ inline min::uns32 find
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
-    min::packed_vec_insptr<min::uns32> hash_table =
+    min::packed_vec_insptr<L> hash_table =
         map->hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
@@ -3411,7 +3411,7 @@ inline min::uns32 find
 }
 
 template < typename L >
-inline min::uns32 find_or_add
+inline L find_or_add
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L>, L > map,
@@ -3426,7 +3426,7 @@ inline min::uns32 find_or_add
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
-    min::packed_vec_insptr<min::uns32> hash_table =
+    min::packed_vec_insptr<L> hash_table =
         map->hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
@@ -3447,11 +3447,197 @@ inline min::uns32 find_or_add
     if ( map->hash_max_offset < offset )
         map_insptr->hash_max_offset = offset;
 
-    ++ map_insptr->occupied;
+    ++ * (L *) & map_insptr->occupied;
     if ( hash_table->length < 2 * map->occupied )
         hash_table_ref ( map ) = min::NULL_STUB;
 
     return id;
+}
+
+// The map function first executes map_one recursively
+// to enter all the objects into the map, but in REVERSE
+// ORDER, as identifers are entered by map_one before
+// recursive calls are made rather than after, in order
+// to mark objects and strings that are being mapped.
+// Then the identifier order is reversed by map.
+//
+template < typename L >
+static void map_one_recurse
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L>, L > map,
+	  min::gen g,
+	  min::unsptr strlen );
+//
+template < typename L >
+inline void map_one
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L>, L > map,
+	  min::gen g,
+	  min::unsptr strlen )
+{
+    if ( min::is_str ( g ) )
+    {
+        if ( min::strlen ( g ) > strlen )
+	    ::find_or_add ( map, g );
+	return;
+    }
+    else if ( ! min::is_obj ( g ) ) return;
+    else if ( ::find ( map, g ) != 0 ) return;
+
+    ::find_or_add ( map, g );
+    ::map_one_recurse ( map, g, strlen );
+}
+//
+template < typename L >
+inline void map_one_attributes
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L>, L > map,
+	  min::attr_ptr ap,
+	  min::attr_info * info,
+	  min::unsptr number_of_attributes,
+	  min::unsptr strlen )
+{
+    for ( min::unsptr i = 0; i < number_of_attributes;
+                             ++ i )
+    {
+	min::unsptr n = info[i].value_count;
+	if ( n == 1 )
+	    ::map_one ( map, info[i].value, strlen );
+	else if ( n > 1 )
+	{
+	    min::locate ( ap, info[i].name );
+	    min::gen value[n];
+	    MIN_REQUIRE
+	        ( n == min::get ( value, n, ap ) );
+	    for ( min::unsptr j = 0; j < n; ++ j )
+		::map_one ( map, value[j], strlen );
+	}
+	min::unsptr m = info[i].reverse_attr_count;
+	if ( m == 0 ) continue;
+
+	min::locate ( ap, info[i].name );
+	min::reverse_attr_info rinfo[m];
+	MIN_REQUIRE ( m == min::get_reverse_attrs
+	                     ( rinfo, m, ap ) );
+	for ( min::unsptr j = 0; j < m; ++ j )
+	{
+	    min::unsptr r = rinfo[j].value_count;
+	    if ( r == 1 )
+		::map_one
+		    ( map, rinfo[j].value, strlen );
+	    else if ( r > 1 )
+	    {
+		min::locate_reverse
+		    ( ap, info[j].name );
+		min::gen value[r];
+		MIN_REQUIRE
+		    ( r == min::get ( value, r, ap ) );
+		for ( min::unsptr k = 0; k < r; ++ k )
+		    ::map_one
+			( map, value[k], strlen );
+	    }
+	}
+    }
+}
+//
+template < typename L >
+static void map_one_recurse
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L>, L > map,
+	  min::gen g,
+	  min::unsptr strlen )
+{
+    min::obj_vec_ptr vp ( g );
+    for ( min::unsptr i = 0; i < min::size_of ( vp );
+                             ++ i )
+        ::map_one ( map, vp[i], strlen );
+
+    min::attr_ptr ap ( vp );
+    min::attr_info info[32];
+    min::unsptr n = min::get_attrs ( info, 32, ap );
+    if ( n <= 32 )
+        ::map_one_attributes
+	    ( map, ap, info, n, strlen );
+    else
+    {
+	min::attr_info info[n];
+        MIN_REQUIRE
+	    ( n == min::get_attrs ( info, n, ap ) );
+        ::map_one_attributes
+	    ( map, ap, info, n, strlen );
+    }
+}
+//
+template < typename L >
+inline void map
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L>, L > map,
+	  min::gen g,
+	  min::unsptr strlen )
+{
+    L saved_length = map->length;
+    ::map_one ( map, g, strlen );
+    L n = map->length - saved_length;
+    if ( n <= 1 ) return;
+
+    min::packed_vec_insptr<L> hash_table =
+        map->hash_table;
+    MIN_REQUIRE ( hash_table != min::NULL_STUB );
+
+    // Compute indices of hash table entries that
+    // need to be modified.
+    //
+    min::uns32 hash_index[n];
+    for ( L i = 0; i < n; ++ i )
+    {
+	L h = ::hash ( map, map[i+saved_length] );
+	L offset = 0;
+	while ( true )
+	{
+	    L id = hash_table[h];
+	    MIN_REQUIRE ( id != 0 );
+	    if ( map[id] == g )
+	    {
+	        hash_index[i] = id;
+		break;
+	    }
+	    MIN_REQUIRE
+	        ( offset < map->hash_max_offset );
+	    h = ( h + 1 ) % hash_table->length;
+	    ++ offset;
+	}
+    }
+
+    // Modifiy hash indices.
+    //
+    for ( L i = 0; i < n; ++ i )
+    {
+        L h = hash_index[i];
+        hash_table[h] =
+	       map->length
+	    - ( hash_table[h] - saved_length );
+    }
+
+    // Reverse map values.
+    //
+    typedef min::packed_vec_insptr
+    		< min::gen,
+		  min::id_map_header<L>, L >
+	id_map_insptr;
+    id_map_insptr map_insptr =
+        (id_map_insptr) (min::id_map) map;
+    for ( L i = 0; i < n/2; ++ i )
+    {
+        min::gen tmp = map[saved_length+i];
+        map_insptr[saved_length+i] =
+	    map[map->length-1-i];
+	map_insptr[map->length-i-1] = tmp;
+    }
 }
 
 template < typename L >
@@ -3476,7 +3662,7 @@ inline void insert
     while ( id >= map->length )
         min::push(map_insptr) = min::NONE();
     map_insptr[id] = g;
-    ++ map_insptr->occupied;
+    ++ * (L *) & map_insptr->occupied;
 
     min::packed_vec_insptr<min::uns32> hash_table =
         map->hash_table;
@@ -3519,6 +3705,13 @@ min::uns32 min::find_or_add
 	( min::id_map map, min::gen g )
 {
     return ::find_or_add ( map, g );
+}
+
+void min::map
+	( min::id_map map,
+	  min::gen g, min::unsptr strlen )
+{
+    return ::map ( map, g, strlen );
 }
 
 void min::insert

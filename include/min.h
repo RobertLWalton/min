@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 13:47:07 EDT 2017
+// Date:	Tue Jul 18 06:54:06 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6493,7 +6493,7 @@ namespace min {
 	const L max_length;
 
 	L next;
-	L occupied;
+	const L occupied;
 
 	min::uns32 hash_multiplier;
 	L hash_max_offset;
@@ -6548,6 +6548,9 @@ namespace min {
             ( min::id_map map, min::gen g );
     uns32 find_or_add
             ( min::id_map map, min::gen g );
+    void map
+            ( min::id_map map,
+	      min::gen g, min::unsptr strlen );
     void insert
             ( min::id_map map, min::gen g,
 	      min::uns32 id );
