@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 16:37:19 EDT 2017
+// Date:	Tue Jul 18 21:20:12 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3281,7 +3281,8 @@ static min::uns32 id_map_element_gen_disp[2] =
 
 static min::packed_vec
 	< min::gen,
-	  min::id_map_header<min::uns32> >
+	  min::id_map_header<min::uns32>,
+	  min::uns32 >
     uns32_id_map_type
     ( "uns32_id_map_type",
       ::id_map_element_gen_disp, NULL,
@@ -3377,6 +3378,8 @@ static void new_hash_table
     for ( L id = 0; id < map->length; ++ id )
     {
 	min::gen g = map[id];
+	if ( g == min::NONE() ) continue;
+
 	L h = ::hash ( map, g );
 	L offset = 0;
 	while ( hash_table[h] != 0 )
@@ -3393,7 +3396,8 @@ static void new_hash_table
 template < typename L >
 inline min::packed_vec_ptr
 	< min::gen,
-	  min::id_map_header<L>, L > init
+	  min::id_map_header<L>, L >
+    init
 	( min::ref<min::packed_vec_ptr
 		       < min::gen,
 			 min::id_map_header<L>, L > >
@@ -3577,7 +3581,7 @@ inline void map_one_attributes
 	    else if ( r > 1 )
 	    {
 		min::locate_reverse
-		    ( ap, info[j].name );
+		    ( ap, rinfo[j].name );
 		min::gen value[r];
 		MIN_REQUIRE
 		    ( r == min::get ( value, r, ap ) );
@@ -3639,8 +3643,9 @@ inline void map
     L n = map->length - saved_length;
     if ( n <= 1 ) return;
 
+    if ( map->hash_table == min::NULL_STUB )
+	::new_hash_table ( map );
     hash_table_insptr hash_table = map->hash_table;
-    MIN_REQUIRE ( hash_table != min::NULL_STUB );
 
     // Compute indices of hash table entries that
     // need to be modified.
@@ -3654,25 +3659,25 @@ inline void map
 	{
 	    L id = hash_table[h];
 	    MIN_REQUIRE ( id != 0 );
-	    if ( map[id] == g )
+	    if ( map[id] == map[i+saved_length] )
 	    {
 	        hash_index[i] = id;
 		break;
 	    }
 	    MIN_REQUIRE
-	        ( offset <= map->hash_max_offset );
+	        ( offset < map->hash_max_offset );
 	    h = ( h + 1 ) % hash_table->length;
 	    ++ offset;
 	}
     }
 
-    // Modifiy hash indices.
+    // Modify hash indices.
     //
     for ( L i = 0; i < n; ++ i )
     {
         L h = hash_index[i];
         hash_table[h] =
-	       map->length
+	       map->length - 1
 	    - ( hash_table[h] - saved_length );
     }
 
