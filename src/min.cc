@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 21:20:12 EDT 2017
+// Date:	Sun Jul 23 06:27:49 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11302,7 +11302,7 @@ static min::obj_format compact_obj_format =
     min::space_star_right_curly_pstring,
 			    // obj_valend
 
-    min::space_less_than_equal_space_pstring,
+    min::space_equal_space_pstring,
 			    // obj_valreq
 };
 const min::obj_format * min::compact_obj_format =
@@ -11368,7 +11368,7 @@ static min::obj_format line_obj_format =
     min::space_star_right_curly_pstring,
 			    // obj_valend
 
-    min::space_less_than_equal_space_pstring,
+    min::space_equal_space_pstring,
 			    // obj_valreq
 };
 const min::obj_format *
@@ -11436,7 +11436,7 @@ static min::obj_format paragraph_obj_format =
     min::space_star_right_curly_pstring,
 			    // obj_valend
 
-    min::space_less_than_equal_space_pstring,
+    min::space_equal_space_pstring,
 			    // obj_valreq
 };
 const min::obj_format * min::paragraph_obj_format =
@@ -11498,7 +11498,7 @@ static min::obj_format embedded_line_obj_format =
     min::space_star_right_curly_pstring,
 			    // obj_valend
 
-    min::space_less_than_equal_space_pstring,
+    min::space_equal_space_pstring,
 			    // obj_valreq
 };
 const min::obj_format * min::embedded_line_obj_format =
@@ -11555,7 +11555,7 @@ static min::obj_format isolated_line_obj_format =
     min::space_star_right_curly_pstring,
 			    // obj_valend
 
-    min::space_less_than_equal_space_pstring,
+    min::space_equal_space_pstring,
 			    // obj_valreq
 };
 const min::obj_format * min::isolated_line_obj_format =
