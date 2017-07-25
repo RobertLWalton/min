@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 12:31:53 EDT 2017
+// Date:	Tue Jul 25 10:12:36 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11520,6 +11520,7 @@ namespace min {
 
 	const min::char_name_format * char_name_format;
 	const min::gen_format *	      gen_format;
+	const min::gen_format *	      id_map_gen_format;
     };
 
     extern const print_format default_print_format;
@@ -12463,7 +12464,6 @@ namespace min {
         const min::str_classifier   str_classifier;
 	min::quote_format 	    quote_format;
 	min::display_control	    display_control;
-	min::uns32		    id_map_if_longer;
     };
 
     extern const min::str_format *
@@ -12559,14 +12559,15 @@ namespace min {
 
 	min::pstring		  obj_valreq;
     };
-    const min::uns32 ENABLE_COMPACT	  = ( 1 << 0 );
-    const min::uns32 PRINT_ID		  = ( 1 << 1 );
-    const min::uns32 ISOLATED_LINE	  = ( 1 << 2 );
-    const min::uns32 EMBEDDED_LINE	  = ( 1 << 3 );
-    const min::uns32 NO_TRAILING_TYPE	  = ( 1 << 4 );
-    const min::uns32 ENABLE_LOGICAL_LINE  = ( 1 << 5 );
+    const min::uns32 ENABLE_MAPPED_ID	  = ( 1 << 0 );
+    const min::uns32 ENABLE_COMPACT	  = ( 1 << 1 );
+    const min::uns32 PRINT_ID		  = ( 1 << 2 );
+    const min::uns32 ISOLATED_LINE	  = ( 1 << 3 );
+    const min::uns32 EMBEDDED_LINE	  = ( 1 << 4 );
+    const min::uns32 NO_TRAILING_TYPE	  = ( 1 << 5 );
+    const min::uns32 ENABLE_LOGICAL_LINE  = ( 1 << 6 );
     const min::uns32 ENABLE_INDENTED_PARAGRAPH
-    					  = ( 1 << 6 );
+    					  = ( 1 << 7 );
 
     extern const min::obj_format *
         compact_obj_format;
@@ -12593,8 +12594,6 @@ namespace min {
         const min::lab_format *	    lab_format;
         const min::special_format * special_format;
         const min::obj_format *	    obj_format;
-
-        const min::gen_format *	    id_map_format;
     };
 
     extern const min::gen_format *

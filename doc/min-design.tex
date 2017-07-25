@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 23, 2017}
+\date{July 25, 2017}
  
 \maketitle
 
@@ -8571,6 +8571,9 @@ following printer parameters:
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
         & \verb|// min::top_gen_format| \\
+\verb|        min::gen_format *|
+	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}}
+        & \verb|// min::id_map_gen_format| \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
@@ -10993,9 +10996,6 @@ for general value formats is as follows:
 \ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::obj_format *  obj_format;|%
 \ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::gen_format *  id_map_format;|%
-\ttmindex{id\_map\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
 \end{tabular}
 \end{indpar}
@@ -11010,15 +11010,13 @@ for general value formats is as follows:
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
-\verb|NULL                                    // id_map_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{top\_gen\_format}:}
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|// Same as min::element_gen_format.|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11078,8 +11076,7 @@ for general value formats is as follows:
                    min::\MINKEY{always\_quote\_gen\_format}:}
 \LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::quote_all_str_format               // str_format|\ARGBREAK
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|min::quote_all_str_format               // str_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11089,8 +11086,7 @@ for general value formats is as follows:
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
 \verb|NULL                                    // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
-\verb|min::name_special_format                // special_format|\ARGBREAK
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|min::name_special_format                // special_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11281,8 +11277,6 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::uns32            id_map_if_longer;|%
-\ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
 \end{tabular}\end{indpar}
@@ -11293,8 +11287,7 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
-\verb|0xFFFFFFFF                             // id_map_if_longer|
+\verb|min::graphic_only_display_control      // display_control|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11611,7 +11604,8 @@ Printing \TT{min::gen} values that are objects
 uses the \TT{obj\_\EOL format} element of a
 a \TT{min::\EOL gen\_\EOL format}.
 The \TT{min::\EOL flush\_\EOL id\_\EOL map} printer operation uses
-the \TT{id\_\EOL map\_\EOL format} element of a \TT{min::\EOL gen\_\EOL format}
+the \TT{id\_\EOL map\_\EOL gen\_\EOL format} element of
+the printer's \TT{min::\EOL print\_\EOL format}
 to print a general value, which is most often an object.
 Printing objects is complex and
 its discussion is deferred until \itemref{PRINTING-OBJECT-GENERAL-VALUES},
@@ -11691,8 +11685,7 @@ if the print format
 
 These \TT{id\_map} flushing operations use the \TT{min::gen\_\EOL format}:
 \begin{center}
-\TT{printer->\EOL print\_\EOL format.gen\_\EOL format->\EOL
-id\_\EOL map\_\EOL format}
+\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}
 \end{center}
 to print the \TT{printer->id\_map[i]} {\em values} in lines of the form:
 \begin{center}
@@ -11721,8 +11714,7 @@ if \TT{id\_\EOL map} is given (not \TT{NULL\_\EOL STUB}),
 that is used in place of \TT{printer->\EOL id\_\EOL map}, and
 if \TT{gen\_\EOL format} is given (not \TT{NULL}),
 that is used in place of
-\TT{printer->\EOL printer\_\EOL format.gen\_\EOL format->\EOL
-                  id\_\EOL map\_\EOL format}.
+\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}.
 
 
 The function
@@ -19592,6 +19584,8 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}} \\
 \verb|          min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
+\verb|          min::gen_format *|
+	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
 \verb|}                           | \\
 \end{TABULAR}
 
@@ -20564,9 +20558,6 @@ These are in \verb|min_parameters.h|.
 \ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::obj_format *  obj_format;|%
 \ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  const min::gen_format *  id_map_format;|%
-\ttmindex{id\_map\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -20581,8 +20572,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::quote_separator_str_format         // str_format|\ARGBREAK[0in]
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
-\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
-\verb|NULL                                    // id_map_format|
+\verb|min::compact_obj_format                 // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -20591,8 +20581,7 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{top\_gen\_format}:}
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|// Same as min::element_gen_format.|
 \end{TABULAR}
 
 \bigskip
@@ -20666,8 +20655,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{always\_quote\_gen\_format}:}
 \LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_all_str_format               // str_format|\ARGBREAK[0in]
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|min::quote_all_str_format               // str_format|
 \end{TABULAR}
 
 \bigskip
@@ -20679,8 +20667,7 @@ These are in \verb|min_parameters.h|.
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
 \verb|NULL                                    // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
-\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
-\verb|min::id_map_gen_format                  // id_map_format|
+\verb|min::name_special_format                // special_format|
 \end{TABULAR}
 
 \bigskip
@@ -20818,8 +20805,6 @@ These are in \verb|min_parameters.h|.
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::uns32            id_map_if_longer;|%
-\ttmindex{id\_map\_if\_longer}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -20831,8 +20816,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
-\verb|0xFFFFFFFF                             // id_map_if_longer|
+\verb|min::graphic_only_display_control      // display_control|
 \end{TABULAR}
 
 \bigskip

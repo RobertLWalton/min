@@ -2743,32 +2743,32 @@ A B C:
         [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
-     <= myreverse, fraction|A B C|T}
+     = myreverse, fraction|A B C|T}
 {"": myattr =
      {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
         [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
-     myreverse = @2 <= myforward, .separator = ",", .terminator =
+     myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
 
 @2 = A B C:
          no scientific
          number = 123
          .separator = ";"
-         myforward = @1 <= myreverse
+         myforward = @1 = myreverse
          fraction
          .type = "T"
 {T: no scientific, number = 123, .separator = ";", myforward[#aZ] = @1
-     <= myreverse, fraction|A B C|T}
+     = myreverse, fraction|A B C|T}
 {"": myattr[#Z,64,512] =
      {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
         [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
-     myreverse = @2 <= myforward, .separator = ",", .terminator =
+     myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
     {|1 2 3 4 5:
       myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
           [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
       .initiator = [< "{" "*" >]
-      myreverse = @2 <= myforward
+      myreverse = @2 = myforward
       .separator = ","
       .terminator = [< "*" "}" >]
     |}
@@ -2776,14 +2776,14 @@ A B C:
         myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
             [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
         .initiator = [< "{" "*" >]
-        myreverse = @2 <= myforward
+        myreverse = @2 = myforward
         .separator = ","
         .terminator = [< "*" "}" >]
-{"": .initiator = [< "{" "*" >], myreverse = @2 <= myforward,
+{"": .initiator = [< "{" "*" >], myreverse = @2 = myforward,
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
     {|1 2 3 4 5:
       .initiator = [< "{" "*" >]
-      myreverse = @2 <= myforward
+      myreverse = @2 = myforward
       .separator = ","
       .terminator = [< "*" "}" >]
     |}
@@ -2791,7 +2791,7 @@ A B C:
         myattr[#HZ,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
             [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
         .initiator = [< "{" "*" >]
-        myreverse = @2 <= myforward
+        myreverse = @2 = myforward
         .separator = ","
         .terminator = [< "*" "}" >]
 {T|X Y Z|T}
@@ -2801,6 +2801,40 @@ A B C:
 "X" "Y" "Z" 0 0 0
 Flag Parse Errors: `(,)_,34,5'
 {T: A[*abcd,200] = "value"|X Y Z 0 0 0|T}
+
+@3 =:
+         F = @9 = E
+         A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+         B = "0123456789"
+         C = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
+              "."'
+@4 = abcdefghijklmnopqrstuvwxyz
+@5 = This contains a long "string:" abcdefghijklmnopqrstuvwxyz ".":
+         .terminator = "'"
+         .initiator = "`"
+@6 = a @10 c d:
+         F = @10 = H
+         D = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
+              "."'
+         E = @11 = F
+@7 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+@8 = e f g h:
+         G = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+         H = @9 = F
+@9 = a @10 c d:
+         F = @10 = H
+         D = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
+              "."'
+         E = @11 = F
+@10 = e f g h:
+          G = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+          H = @9 = F
+@11 =:
+          F = @9 = E
+          A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+          B = "0123456789"
+          C = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
+               "."'
 This is the top line:
     This is the first line "."
     This is the second line; This is the third line! This is the fourth

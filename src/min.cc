@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 23 06:27:49 EDT 2017
+// Date:	Tue Jul 25 10:12:58 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11139,8 +11139,7 @@ static min::str_format quote_separator_str_format =
 {
     min::quote_separator_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
+    min::graphic_only_display_control
 };
 const min::str_format *
     min::quote_separator_str_format =
@@ -11151,8 +11150,7 @@ static min::str_format
 {
     min::quote_separator_and_mark_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
+    min::graphic_only_display_control
 };
 const min::str_format *
     min::quote_separator_and_mark_str_format =
@@ -11162,8 +11160,7 @@ static min::str_format quote_all_str_format =
 {
     min::quote_all_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
+    min::graphic_only_display_control
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -11172,8 +11169,7 @@ static min::str_format standard_str_format =
 {
     min::standard_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
-    0xFFFFFFFF
+    min::graphic_only_display_control
 };
 const min::str_format * min::standard_str_format =
     & ::standard_str_format;
@@ -11246,7 +11242,8 @@ const min::flag_format *
 
 static min::obj_format compact_obj_format =
 {
-    min::ENABLE_COMPACT,    // obj_op_flags
+      min::ENABLE_MAPPED_ID // obj_op_flags
+    + min::ENABLE_COMPACT,
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11310,9 +11307,9 @@ const min::obj_format * min::compact_obj_format =
 
 static min::obj_format line_obj_format =
 {
-      min::ENABLE_COMPACT
+      min::ENABLE_MAPPED_ID // obj_op_flags
+    + min::ENABLE_COMPACT
     + min::ENABLE_LOGICAL_LINE,
-    			    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
@@ -11377,9 +11374,9 @@ const min::obj_format *
 
 static min::obj_format paragraph_obj_format =
 {
-      min::ENABLE_COMPACT
+      min::ENABLE_MAPPED_ID // obj_op_flags
+    + min::ENABLE_COMPACT
     + min::ENABLE_INDENTED_PARAGRAPH,
-    			    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
@@ -11444,7 +11441,8 @@ const min::obj_format * min::paragraph_obj_format =
 
 static min::obj_format embedded_line_obj_format =
 {
-    min::EMBEDDED_LINE,	    // obj_op_flags
+      min::ENABLE_MAPPED_ID // obj_op_flags
+    + min::EMBEDDED_LINE,
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11506,7 +11504,8 @@ const min::obj_format * min::embedded_line_obj_format =
 
 static min::obj_format isolated_line_obj_format =
 {
-    min::ISOLATED_LINE,	    // obj_op_flags
+      min::ENABLE_MAPPED_ID // obj_op_flags
+    + min::ISOLATED_LINE,
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11614,8 +11613,7 @@ static min::gen_format element_gen_format =
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL			    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::element_gen_format =
     & ::element_gen_format;
@@ -11627,8 +11625,7 @@ static min::gen_format top_gen_format =
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL /* id_map_gen_format */    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::top_gen_format =
     & ::top_gen_format;
@@ -11640,8 +11637,7 @@ static min::gen_format value_gen_format =
     & ::quote_all_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL			    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::value_gen_format =
     & ::value_gen_format;
@@ -11653,8 +11649,7 @@ static min::gen_format id_map_gen_format =
     & ::quote_separator_and_mark_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::isolated_line_obj_format,
-    NULL			    // id_map_format
+    & ::isolated_line_obj_format
 };
 const min::gen_format * min::id_map_gen_format =
     & ::id_map_gen_format;
@@ -11666,8 +11661,7 @@ static min::gen_format name_gen_format =
     & ::quote_separator_and_mark_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL			    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::name_gen_format =
     & ::name_gen_format;
@@ -11679,8 +11673,7 @@ static min::gen_format leading_always_gen_format =
     & ::standard_str_format,
     & ::leading_always_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL
+    & ::compact_obj_format
 };
 const min::gen_format *
     min::leading_always_gen_format =
@@ -11693,8 +11686,7 @@ static min::gen_format trailing_always_gen_format =
     & ::standard_str_format,
     & ::trailing_always_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL
+    & ::compact_obj_format
 };
 const min::gen_format *
     min::trailing_always_gen_format =
@@ -11707,8 +11699,7 @@ static min::gen_format id_gen_format =
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::id_obj_format,
-    NULL			    // id_map_format
+    & ::id_obj_format
 };
 const min::gen_format * min::id_gen_format =
     & ::id_gen_format;
@@ -11720,8 +11711,7 @@ static min::gen_format always_quote_gen_format =
     & ::quote_all_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL /* id_map_gen_format */    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::always_quote_gen_format =
     & ::always_quote_gen_format;
@@ -11733,8 +11723,7 @@ static min::gen_format never_quote_gen_format =
     NULL,
     & ::name_lab_format,
     & ::name_special_format,
-    & ::compact_obj_format,
-    NULL /* id_map_gen_format */    // id_map_format
+    & ::compact_obj_format
 };
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
@@ -11746,8 +11735,7 @@ static min::gen_format paragraph_gen_format =
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::paragraph_obj_format,
-    NULL			    // id_map_format
+    & ::paragraph_obj_format
 };
 const min::gen_format *
 	min::paragraph_gen_format =
@@ -11760,8 +11748,7 @@ static min::gen_format line_gen_format =
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::line_obj_format,
-    NULL			    // id_map_format
+    & ::line_obj_format
 };
 const min::gen_format *
 	min::line_gen_format =
@@ -11777,7 +11764,8 @@ const min::print_format min::default_print_format =
     min::break_after_space_break_control,
 
     & ::standard_char_name_format,
-    & ::top_gen_format
+    & ::top_gen_format,
+    & ::id_map_gen_format
 };
 
 static void init_pgen_formats ( void )
@@ -11880,13 +11868,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::paragraph_obj_format.quote_type =
         min::doublequote;
-
-    ::top_gen_format.id_map_format =
-        min::id_map_gen_format;
-    ::always_quote_gen_format.id_map_format =
-        min::id_map_gen_format;
-    ::never_quote_gen_format.id_map_format =
-        min::id_map_gen_format;
 }
 
 const min::op min::flush_one_id
@@ -11923,8 +11904,7 @@ min::printer min::print_one_id
         return printer;
 
     if ( f == NULL )
-        f = printer->print_format.gen_format
-	           ->id_map_format;
+        f = printer->print_format.id_map_gen_format;
 
     min::uns32 id = id_map->next;
     * ( min::uns32 * ) & id_map->next = id + 1;
@@ -11975,8 +11955,7 @@ min::printer min::print_mapped
     }
 
     if ( f == NULL )
-	f = printer->print_format.gen_format
-                   ->id_map_format;
+        f = printer->print_format.id_map_gen_format;
 
     char buffer[100];
     min::uns32 n;
