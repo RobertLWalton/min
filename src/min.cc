@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 25 10:12:58 EDT 2017
+// Date:	Wed Aug  2 15:54:28 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11242,8 +11242,7 @@ const min::flag_format *
 
 static min::obj_format compact_obj_format =
 {
-      min::ENABLE_MAPPED_ID // obj_op_flags
-    + min::ENABLE_COMPACT,
+    min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11307,8 +11306,7 @@ const min::obj_format * min::compact_obj_format =
 
 static min::obj_format line_obj_format =
 {
-      min::ENABLE_MAPPED_ID // obj_op_flags
-    + min::ENABLE_COMPACT
+      min::ENABLE_COMPACT   // obj_op_flags
     + min::ENABLE_LOGICAL_LINE,
 
     NULL,		    // element_format*
@@ -11374,8 +11372,7 @@ const min::obj_format *
 
 static min::obj_format paragraph_obj_format =
 {
-      min::ENABLE_MAPPED_ID // obj_op_flags
-    + min::ENABLE_COMPACT
+      min::ENABLE_COMPACT   // obj_op_flags
     + min::ENABLE_INDENTED_PARAGRAPH,
 
     NULL,		    // element_format*
@@ -11441,8 +11438,7 @@ const min::obj_format * min::paragraph_obj_format =
 
 static min::obj_format embedded_line_obj_format =
 {
-      min::ENABLE_MAPPED_ID // obj_op_flags
-    + min::EMBEDDED_LINE,
+    min::EMBEDDED_LINE,     // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11504,8 +11500,7 @@ const min::obj_format * min::embedded_line_obj_format =
 
 static min::obj_format isolated_line_obj_format =
 {
-      min::ENABLE_MAPPED_ID // obj_op_flags
-    + min::ISOLATED_LINE,
+    min::ISOLATED_LINE,     // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format

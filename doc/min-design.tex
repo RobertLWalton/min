@@ -259,7 +259,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 25, 2017}
+\date{August 2, 2017}
  
 \maketitle
 
@@ -15519,8 +15519,8 @@ The format for printing object \TT{min::gen} values is:
 \TT{obj\_format.obj\_op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{ENABLE\_MAPPED\_ID}
-\LABEL{MIN::ENABLE_MAPPED_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_ID}
+\LABEL{MIN::ENABLE_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
@@ -15639,9 +15639,7 @@ The format for printing object \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{compact\_obj\_format}:}%
 \LABEL{MIN::COMPACT_OBJ_FORMAT}\ARGBREAK
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK
-\verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15719,8 +15717,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
 \verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK
 \end{tabular}
 
@@ -15740,8 +15737,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
 \verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK
 \end{tabular}
 
@@ -15761,8 +15757,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK
-\verb|+ min::EMBEDDED_LINE|\ARGBREAK
+\verb|  min::EMBEDDED_LINE                     // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15790,8 +15785,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK
-\verb|+ min::ISOLATED_LINE|\ARGBREAK
+\verb|  min::ISOLATED_LINE                     // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15839,8 +15833,9 @@ The format for printing object \TT{min::gen} values is:
 
 An object is printed as the ID `\TT{@}{\em <object-id>}' if
 the object already has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
-and the \ttkey{ENABLE\_\EOL MAPPED\_\EOL ID} object format operation flag is on.
-Objects may be given {\em object-ids} by {\TT min::map}: see
+and the \ttkey{ENABLE\_\EOL ID} object format operation flag is on.
+Objects may be given {\em object-ids} by the \ttkey{PRINT\_\EOL ID}
+object format operation flag or the {\TT min::map} function: see
 \pagref{MIN::MAP_OF_ID_MAP}.
 
 Otherwise the object is printed in `\mkey{compact format}{for printing object}'
@@ -15874,11 +15869,11 @@ attribute, it has \underline{both}, and has no \TT{.type}.
 
 \end{enumerate}
 
-Otherwise the object is printed as the ID `\TT{@}{\em <object-id>}' by
-\TT{min::print\_id} (\pagref{MIN::PRINT_ID})
-if the \ttkey{PRINT\_\EOL ID} object format operation flag is on.
-The object is assigned an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
-if it does not already have one.
+Otherwise, if the \ttkey{PRINT\_\EOL ID} object format operation flag is on.
+the object is printed by \TT{min::print\_id} (\pagref{MIN::PRINT_ID})
+which maps the object using
+the {\TT min::map} function (see \pagref{MIN::MAP_OF_ID_MAP})
+and prints it as the ID `\TT{@}{\em <object-id>}'.
 
 Otherwise the
 object is printed in `\mkey{isolated line format}{for printing object}'
@@ -22598,8 +22593,8 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{2.0in}
-\verb|const min::uns32 min::| & \MINKEY{ENABLE\_MAPPED\_ID}
-\LABEL{MIN::ENABLE_MAPPED_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_ID}
+\LABEL{MIN::ENABLE_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
@@ -22732,8 +22727,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK[0in]
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK[0in]
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -22806,8 +22800,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINLKEY{line}{\_obj\_format}:}%
 \LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK[0in]
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK[0in]
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
 \verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK[0in]
 \verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK[0in]
 \end{TABULAR}
@@ -22819,8 +22812,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{paragraph\_obj\_format}:}%
 \LABEL{MIN::PARAGRAPH_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK[0in]
-\verb|+ min::ENABLE_COMPACT|\ARGBREAK[0in]
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
 \verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \end{TABULAR}
@@ -22832,8 +22824,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{embedded\_line\_obj\_format}:}%
 \LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK[0in]
-\verb|+ min::EMBEDDED_LINE|\ARGBREAK[0in]
+\verb|  min::EMBEDDED_LINE                     // obj_op_flags|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|NULL                                     // obj_empty|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
@@ -22847,8 +22838,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{isolated\_line\_obj\_format}:}%
 \LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ENABLE_MAPPED_ID                  // obj_op_flags|\ARGBREAK[0in]
-\verb|+ min::ISOLATED_LINE|\ARGBREAK[0in]
+\verb|  min::ISOLATED_LINE                     // obj_op_flags|\ARGBREAK[0in]
 \verb|min::id_gen_format                       // element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|NULL                                     // obj_empty|\ARGBREAK[0in]
