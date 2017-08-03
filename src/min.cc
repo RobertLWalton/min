@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  2 15:54:28 EDT 2017
+// Date:	Thu Aug  3 16:19:45 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9394,6 +9394,8 @@ min::printer min::init
 	           printer->print_format_stack
 		          ->length );
     }
+
+    id_map_ref(printer) = min::NULL_STUB;
 
     if ( file != NULL_STUB )
         file_ref(printer) = file;

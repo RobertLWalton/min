@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 18 16:30:09 EDT 2017
+// Date:	Thu Aug  3 16:15:28 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4984,8 +4984,6 @@ void test_object_printing ( void )
 	                   ( "MYATTR", "VALUE" ) );
     }
     printer << min::pgen ( obj ) << min::eol;
-    min::print_id ( printer, obj );
-    printer << min::eol << min::flush_one_id;
 
     {
 	min::obj_vec_insptr vp ( obj );
@@ -5015,7 +5013,6 @@ void test_object_printing ( void )
     }
     printer << min::pgen ( obj3 ) << min::eol;
     printer << min::pgen ( obj ) << min::eol;
-    printer << min::eol << min::flush_one_id;
 
     {
 	min::obj_vec_insptr vp ( obj3 );
