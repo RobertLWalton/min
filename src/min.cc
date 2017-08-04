@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  3 16:19:45 EDT 2017
+// Date:	Thu Aug  3 21:13:56 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3441,6 +3441,7 @@ inline L find
 	hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
+    if ( map == min::NULL_STUB ) return 0;
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
@@ -3474,6 +3475,7 @@ inline L find_or_add
 	hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
+    MIN_REQUIRE ( map != min::NULL_STUB );
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
@@ -3661,7 +3663,7 @@ inline void map
 	    MIN_REQUIRE ( id != 0 );
 	    if ( map[id] == map[i+saved_length] )
 	    {
-	        hash_index[i] = id;
+	        hash_index[i] = h;
 		break;
 	    }
 	    MIN_REQUIRE
@@ -11244,7 +11246,8 @@ const min::flag_format *
 
 static min::obj_format compact_obj_format =
 {
-    min::ENABLE_COMPACT,    // obj_op_flags
+      min::ENABLE_COMPACT   // obj_op_flags
+    + min::DEFERRED_ID,
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11559,7 +11562,7 @@ const min::obj_format * min::isolated_line_obj_format =
 
 static min::obj_format id_obj_format =
 {
-    min::PRINT_ID,	    // obj_op_flags
+    min::PREFERRED_ID,	    // obj_op_flags
 
     NULL,		    // element_format
     NULL,		    // top_element_format
@@ -11794,7 +11797,7 @@ static void init_pgen_formats ( void )
         min::doublequote;
 
     ::isolated_line_obj_format.element_format =
-        min::id_gen_format;
+        min::element_gen_format;
     ::isolated_line_obj_format.quote_element_format =
         min::always_quote_gen_format;
     ::isolated_line_obj_format.label_format =
@@ -12255,10 +12258,7 @@ min::printer min::print_obj
     // or embedded line format.
     //
     bool need_type =
-        (    ( obj_op_flags
-	       &
-	       ( min::PRINT_ID + min::ISOLATED_LINE ) )
-	  == 0 );
+        ( ( obj_op_flags & min::ISOLATED_LINE ) == 0 );
 
     // Loop until we determine compact_format and
     // need_type are BOTH false.
@@ -12330,9 +12330,22 @@ min::printer min::print_obj
 	    compact_format = false;
     }
 
-    if (    ! compact_format
-         && ( obj_op_flags & min::PRINT_ID ) )
-        return print_id ( printer, v );
+    if ( ( obj_op_flags & min::PREFERRED_ID )
+         ||
+	 (    ! compact_format
+           && ( obj_op_flags & min::DEFERRED_ID ) ) )
+    {
+        min::uns32 ID =
+	    min::find ( printer->id_map, v );
+	if ( ID != 0 )
+	{
+	    char buffer[100];
+	    min::uns32 n = sprintf
+	        ( buffer, "@%u", ID );
+	    return min::print_item
+	        ( printer, buffer, n, n );
+	}
+    }
 
     bool isolated_line_format =
            ! compact_format

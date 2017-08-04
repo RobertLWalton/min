@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  2 15:47:58 EDT 2017
+// Date:	Thu Aug  3 21:22:10 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12559,9 +12559,9 @@ namespace min {
 
 	min::pstring		  obj_valreq;
     };
-    const min::uns32 ENABLE_ID	  	  = ( 1 << 0 );
+    const min::uns32 PREFERRED_ID  	  = ( 1 << 0 );
     const min::uns32 ENABLE_COMPACT	  = ( 1 << 1 );
-    const min::uns32 PRINT_ID		  = ( 1 << 2 );
+    const min::uns32 DEFERRED_ID	  = ( 1 << 2 );
     const min::uns32 ISOLATED_LINE	  = ( 1 << 3 );
     const min::uns32 EMBEDDED_LINE	  = ( 1 << 4 );
     const min::uns32 NO_TRAILING_TYPE	  = ( 1 << 5 );
