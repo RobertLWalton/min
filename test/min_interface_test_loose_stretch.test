@@ -3166,7 +3166,7 @@ Flag Parse Errors: `(,)_,34,5'
          fraction
          .type = "T"
 @3 =:
-         F = @9 = E
+         F = @6 = E
          A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
          B = "0123456789"
          C = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
@@ -3179,22 +3179,11 @@ Flag Parse Errors: `(,)_,34,5'
          F = @8 = H
          D = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
               "."'
-         E = @10 = F
+         E = @3 = F
 @7 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 @8 = e f g h:
          G = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-         H = @9 = F
-@9 = a @8 c d:
-         F = @8 = H
-         D = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
-              "."'
-         E = @10 = F
-@10 =:
-          F = @9 = E
-          A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          B = "0123456789"
-          C = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
-               "."'
+         H = @6 = F
 This is the top line:
     This is the first line "."
     This is the second line; This is the third line! This is the fourth

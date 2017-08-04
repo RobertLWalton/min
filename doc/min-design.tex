@@ -118,6 +118,7 @@
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 
 \newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
+\newcommand{\ttikey}[2]{\TT{#1}\index{#2@{\tt #2}}}
 \newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
 \newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
 
@@ -259,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 3, 2017}
+\date{August 4, 2017}
  
 \maketitle
 
@@ -11016,7 +11017,8 @@ for general value formats is as follows:
 \multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{top\_gen\_format}:}
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::element_gen_format.|
+\verb|// Same as min::element_gen_format except for:|\ARGBREAK
+\verb|min::top_obj_format                     // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11061,14 +11063,6 @@ for general value formats is as follows:
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK
 \verb|min::standard_str_format                // str_format|\ARGBREAK
 \verb|min::trailing_always_lab_format         // lab_format|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{id\_gen\_format}:}
-\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::id_obj_format                      // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -15519,12 +15513,12 @@ The format for printing object \TT{min::gen} values is:
 \TT{obj\_format.obj\_op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{ENABLE\_ID}
-\LABEL{MIN::ENABLE_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{PREFERRED\_ID}
+\LABEL{MIN::PREFERRED_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
-\LABEL{MIN::PRINT_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DEFERRED\_ID}
+\LABEL{MIN::DEFERRED_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ISOLATED\_LINE}
 \LABEL{MIN::ISOLATED_LINE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
@@ -15640,6 +15634,7 @@ The format for printing object \TT{min::gen} values is:
                    min::\MINKEY{compact\_obj\_format}:}%
 \LABEL{MIN::COMPACT_OBJ_FORMAT}\ARGBREAK
 \verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
+\verb|+ min::DEFFERED_ID|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -15703,6 +15698,21 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK
 \verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK
 \verb|min::space_less_than_equal_space_pstring // obj_valreq|\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{top}{\_obj\_format}:}%
+\LABEL{MIN::TOP_OBJ_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -15819,30 +15829,19 @@ The format for printing object \TT{min::gen} values is:
 
 \end{indpar}
 
-\begin{indpar}[1em]
-
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{id\_obj\_format}:}%
-\LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
-\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK
-\verb|// All other members are NULL or 0 or NONE().|
-\end{tabular}
-
-\end{indpar}
-
 An object is printed as the ID `\TT{@}{\em <object-id>}' if
-the object already has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
-and the \ttkey{ENABLE\_\EOL ID} object format operation flag is on.
-Objects may be given {\em object-ids} by the \ttkey{PRINT\_\EOL ID}
-object format operation flag or the {\TT min::map} function: see
-\pagref{MIN::MAP_OF_ID_MAP}.
+the object has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
+and the \ttikey{PREFERRED\_\EOL ID}{PREFERRED\_EOL}
+object format operation flag is on.
+Objects may be given {\em object-ids} by
+the {\TT min::map} function: see \pagref{MIN::MAP_OF_ID_MAP}.
 
 Otherwise the object is printed in `\mkey{compact format}{for printing object}'
 if all of the following are true:
 \begin{enumerate}
 
-\item The \ttkey{ENABLE\_\EOL COMPACT} object format operation flag is on.
+\item The \ttikey{ENABLE\_\EOL COMPACT}{ENABLE\_COMPACT}
+object format operation flag is on.
 
 \item The object has no attributes other than \TT{.type},
 \TT{.initiator}, \TT{.terminator}, \TT{.sep\-a\-ra\-tor},
@@ -15857,10 +15856,13 @@ is a string or label whose elements are all strings,
 except that:
 \begin{enumerate}
 \item An \TT{.initiator} value may be \TT{min::\EOL LOGICAL\_\EOL LINE()}
-if the \ttkey{ENABLE\_\EOL LOGICAL\_\EOL LINE} object format operation
+if the \ttikey{ENABLE\_\EOL LOGICAL\_\EOL LINE}{ENABLE\_LOGICAL\_LINE}
+object format operation
 flag is on.
 \item A \TT{.terminator} value may be \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}
-if the \ttkey{ENABLE\_\EOL IN\-DENTED\_\EOL PARAGRAPH} object format operation
+if the \ttikey{ENABLE\_\EOL IN\-DENTED\_\EOL PARAGRAPH}%
+              {ENABLE\_INDENTED\_PARAGRAPH}
+object format operation
 flag is on.
 \end{enumerate}
 
@@ -15869,20 +15871,20 @@ attribute, it has \underline{both}, and has no \TT{.type}.
 
 \end{enumerate}
 
-Otherwise, if the \ttkey{PRINT\_\EOL ID} object format operation flag is on.
-the object is printed by \TT{min::print\_id} (\pagref{MIN::PRINT_ID})
-which maps the object using
-the {\TT min::find\_\EOL or\_\EOL add} function
-(see \pagref{MIN::FIND_OR_ADD_OF_ID_MAP})
-and prints it as the ID `\TT{@}{\em <object-id>}'.
+Otherwise, if the \ttikey{DEFERRED\_\EOL ID}{DEFERRED\_ID}
+object format operation flag is on
+and the object has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
+the object is printed as the ID `\TT{@}{\em <object-id>}'.
 
 Otherwise the
 object is printed in `\mkey{isolated line format}{for printing object}'
-if the \ttkey{ISOLATED\_\EOL LINE} object format operation flag.
+if the \ttikey{ISOLATED\_\EOL LINE}{ISOLATED\_LINE}
+object format operation flag.
 
 Otherwise the
 object is printed in `\mkey{embedded line format}{for printing object}'
-if the \ttkey{EMBEDDED\_\EOL LINE} object format operation flag is on.
+if the \ttikey{EMBEDDED\_\EOL LINE}{EMBEDDED\_LINE}
+object format operation flag is on.
 
 Otherwise, when none of the above apply, the object is printed in
 `\mkey{normal format}{for printing object}'.
@@ -15892,13 +15894,17 @@ The compact format has several variants:
 \item The `\key{logical line compact format}' is used if
 the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
 the object has no \TT{.separator},
-and the \ttkey{ENABLE\_\EOL LOGICAL\_\EOL LINE} object format operation
+and the \ttikey{ENABLE\_\EOL LOGICAL\_\EOL LINE}%
+               {ENABLE\_LOGICAL\_LINE}
+object format operation
 flag is on.
 
 \item Otherwise the `\lkey{indented paragraph}{compact format}' is used if
 the object has a \TT{.terminator} equal to
 \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}, the object has no \TT{.separator},
-the \ttkey{ENABLE\_\EOL INDENTED\_\EOL PARAGRAPH} object format operation
+the \ttikey{ENABLE\_\EOL INDENTED\_\EOL PARAGRAPH}%
+           {ENABLE\_INDENTED\_PARAGRAPH}
+object format operation
 flag is on,
 and the object is being printed as the last element of a containing
 object that is being printed in logical line compact format and has
@@ -15933,9 +15939,11 @@ This is the logical OR of any of the following flags:
 
 \begin{indpar}[0.2in]\begin{itemlist}[0.2in]
 
+\item[\ttmkey{PREFERRED\_ID}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
 \item[\ttmkey{ENABLE\_COMPACT}%
-    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]
-\item[\ttmkey{PRINT\_ID}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
+\item[\ttmkey{DEFERRED\_ID}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
 \item[\ttmkey{ISOLATED\_LINE}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
@@ -15972,8 +15980,7 @@ and indented paragraph compact.
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
 and not as attribute values.
 
-\underline{None} of these members may be \TT{NULL} unless the
-\TT{PRINT\_\EOL ID} flag is on.
+\underline{None} of these members may be \TT{NULL}.
 
 \item[\ttmkey{quote\_element\_format}{in {\tt min::obj\_format}}]~\\
 The is the \TT{min::gen\_format} used to print object elements
@@ -20577,7 +20584,8 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{top\_gen\_format}:}
 \LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::element_gen_format.|
+\verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
+\verb|min::top_obj_format                     // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -20632,16 +20640,6 @@ These are in \verb|min_parameters.h|.
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
 \verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
 \verb|min::trailing_always_lab_format         // lab_format|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{id\_gen\_format}:}
-\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::id_obj_format                      // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -22594,12 +22592,12 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{2.0in}
-\verb|const min::uns32 min::| & \MINKEY{ENABLE\_ID}
-\LABEL{MIN::ENABLE_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{PREFERRED\_ID}
+\LABEL{MIN::PREFERRED_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{PRINT\_ID}
-\LABEL{MIN::PRINT_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DEFERRED\_ID}
+\LABEL{MIN::DEFERRED_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ISOLATED\_LINE}
 \LABEL{MIN::ISOLATED_LINE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EMBEDDED\_LINE}
@@ -22729,6 +22727,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
+\verb|+ min::DEFERRED_ID|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -22798,6 +22797,16 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.3in}
 \multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{top}{\_obj\_format}:}%
+\LABEL{MIN::TOP_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK[0in]
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINLKEY{line}{\_obj\_format}:}%
 \LABEL{MIN::LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
@@ -22850,16 +22859,6 @@ These are in \verb|min_parameters.h|.
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrsep|\ARGBREAK[0in]
 \verb|0                                        // hide_flags|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.3in}
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{id\_obj\_format}:}%
-\LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK[0in]
-\verb|min::PRINT_ID                            // obj_op_flags|\ARGBREAK[0in]
-\verb|// All other members are NULL or 0 or NONE().|
 \end{TABULAR}
 
 \bigskip

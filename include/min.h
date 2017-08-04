@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  3 21:22:10 EDT 2017
+// Date:	Fri Aug  4 05:21:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12570,13 +12570,13 @@ namespace min {
     					  = ( 1 << 7 );
 
     extern const min::obj_format *
+        top_obj_format;
+    extern const min::obj_format *
         compact_obj_format;
     extern const min::obj_format *
         isolated_line_obj_format;
     extern const min::obj_format *
         embedded_line_obj_format;
-    extern const min::obj_format *
-        id_obj_format;
     extern const min::obj_format *
         line_obj_format;
     extern const min::obj_format *
@@ -12610,8 +12610,6 @@ namespace min {
         value_gen_format;
     extern const min::gen_format *
         element_gen_format;
-    extern const min::gen_format *
-        id_gen_format;
     extern const gen_format *
         always_quote_gen_format;
     extern const gen_format *
