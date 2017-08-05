@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  5 04:33:12 EDT 2017
+// Date:	Sat Aug  5 12:10:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3560,6 +3560,13 @@ inline void map_one
     }
     else if ( ! min::is_obj ( v ) ) return;
     else if ( ::find ( map, v ) != 0 ) return;
+    else if ( min::is_obj ( v )
+              &&
+	      min::private_flag_of ( v ) )
+    {
+	::find_or_add ( map, v );
+	return;
+    }
 
     min::obj_vec_ptr vp ( v );
     min::attr_ptr ap ( vp );
@@ -3797,7 +3804,7 @@ inline void map
 	hash_table_insptr;
 
     L saved_length = map->length;
-    ::map_one ( map, v, f, id_f );
+    ::map_one ( map, v, f, id_f, true );
     L n = map->length - saved_length;
     if ( n <= 1 ) return;
 
