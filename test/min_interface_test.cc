@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  3 16:15:28 EDT 2017
+// Date:	Sat Aug  5 04:36:27 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5195,7 +5195,10 @@ void test_object_printing ( void )
 	    ( ap, min::new_str_gen ( "F" ) );
 	min::set ( ap, obj7 );
     }
-    min::map ( printer->id_map, obj8, 20 );
+    min::map
+        ( printer->id_map, obj8,
+          printer->print_format.id_map_gen_format,
+          printer->print_format.id_map_gen_format );
     printer << min::eol << min::flush_id_map;
 
     min::gen line1 = min::new_obj_gen ( 10, 10 );
