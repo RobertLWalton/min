@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  6 03:55:14 EDT 2017
+// Date:	Sun Aug  6 06:01:18 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3522,11 +3522,9 @@ inline L find_or_add
 }
 
 // The map function first executes map_one recursively
-// to enter all the objects into the map, but in REVERSE
-// ORDER, as identifers are entered by map_one before
-// recursive calls are made rather than after, in order
-// to mark objects and strings that are being mapped.
-// Then the identifier order is reversed by map.
+// to enter all the objects into the map, and then
+// sorts the new non-object values in the map to be
+// before the new object values in the map.
 //
 template < typename L >
 static void map_one_obj
@@ -3822,6 +3820,7 @@ inline void map
 	    MIN_REQUIRE ( id != 0 );
 	    if ( map[id] == map[i+saved_length] )
 	    {
+	        MIN_REQUIRE ( id >= saved_length );
 	        hash_index[i] = h;
 		break;
 	    }
@@ -3832,26 +3831,41 @@ inline void map
 	}
     }
 
-    // Modify hash indices.
-    //
-    for ( L i = 0; i < n; ++ i )
-    {
-        L h = hash_index[i];
-        hash_table[h] =
-	       map->length - 1
-	    - ( hash_table[h] - saved_length );
-    }
-
-    // Reverse map values.
+    // Swap non-object values to beginning of n
+    // indices.
     //
     id_map_insptr map_insptr =
-        (id_map_insptr) (min::id_map) map;
-    for ( L i = 0; i < n/2; ++ i )
+	(id_map_insptr) (min::id_map) map;
+    L i = 0;
+    L j = 1;
+    while ( j < n )
     {
-        min::gen tmp = map[saved_length+i];
-        map_insptr[saved_length+i] =
-	    map[map->length-1-i];
-	map_insptr[map->length-i-1] = tmp;
+        if ( ! is_obj ( map[i+saved_length] ) )
+	    ++ i;
+	else if ( j <= i )
+	    j = i + 1;
+	else if ( is_obj ( map[j+saved_length] ) )
+	    ++ j;
+	else
+	{
+	    // i --> object
+	    // j --> non-object
+	    //
+	    min::gen tmp_g = map[j+saved_length];
+	    map_insptr[j+saved_length] =
+	        map[i+saved_length];
+	    map_insptr[i+saved_length] =
+	        tmp_g;
+
+	    L hi = hash_index[i];
+	    L hj = hash_index[j];
+	    L tmp_id = hash_table[hi];
+	    hash_table[hi] = hash_table[hj];
+	    hash_table[hj] = tmp_id;
+
+	    hash_index[i] = hj;
+	    hash_index[j] = hi;
+	}
     }
 }
 
@@ -12068,9 +12082,10 @@ min::printer min::print_id
 {
     if ( printer->id_map == min::NULL_STUB )
     	min::init ( min::id_map_ref ( printer ) );
-
-    min::uns32 id =
-        min::find_or_add ( printer->id_map, v );
+    min::map ( printer->id_map, v,
+               printer->print_format
+	               .id_map_gen_format );
+    min::uns32 id = min::find ( printer->id_map, v );
     return MINT::print_id ( printer, id );
 }
 
