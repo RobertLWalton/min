@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  5 12:10:23 EDT 2017
+// Date:	Sat Aug  5 21:47:04 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3535,7 +3535,6 @@ static void map_one_obj
 		min::id_map_header<L>, L > map,
 	  min::gen v,
 	  const min::gen_format * f,
-	  const min::gen_format * id_f,
 	  bool force_id,
 	  min::attr_ptr ap,
 	  min::attr_info * info,
@@ -3548,7 +3547,6 @@ inline void map_one
 		min::id_map_header<L>, L > map,
 	  min::gen v,
 	  const min::gen_format * f,
-	  const min::gen_format * id_f,
 	  bool force_id = false )
 {
     if ( min::is_str ( v ) )
@@ -3575,13 +3573,13 @@ inline void map_one
     min::unsptr m = min::get_attrs ( info, 100, ap );
     if ( m <= 100 )
         ::map_one_obj
-	    ( map, v, f, id_f, force_id, ap, info, m );
+	    ( map, v, f, force_id, ap, info, m );
 
     min::attr_info info2[m];
     min::uns32 n = min::get_attrs ( info2, m, ap );
     MIN_REQUIRE ( n == m );
     ::map_one_obj
-	( map, v, f, id_f, force_id, ap, info2, m );
+	( map, v, f, force_id, ap, info2, m );
 
 }
 //
@@ -3593,8 +3591,7 @@ inline void map_one_attributes
 	  min::attr_ptr ap,
 	  min::attr_info * info,
 	  min::unsptr number_of_attributes,
-	  const min::gen_format * f,
-	  const min::gen_format * id_f )
+	  const min::gen_format * f )
 {
     const min::obj_format * obj_f =
         ( f == NULL ? NULL : f->obj_format );
@@ -3607,7 +3604,7 @@ inline void map_one_attributes
 	min::unsptr n = info[i].value_count;
 	if ( n == 1 )
 	    ::map_one
-	        ( map, info[i].value, val_f, id_f );
+	        ( map, info[i].value, val_f );
 	else if ( n > 1 )
 	{
 	    min::locate ( ap, info[i].name );
@@ -3615,8 +3612,7 @@ inline void map_one_attributes
 	    MIN_REQUIRE
 	        ( n == min::get ( value, n, ap ) );
 	    for ( min::unsptr j = 0; j < n; ++ j )
-		::map_one ( map, value[j],
-	                    val_f, id_f );
+		::map_one ( map, value[j], val_f );
 	}
 	min::unsptr m = info[i].reverse_attr_count;
 	if ( m == 0 ) continue;
@@ -3630,8 +3626,7 @@ inline void map_one_attributes
 	    min::unsptr r = rinfo[j].value_count;
 	    if ( r == 1 )
 		::map_one
-		    ( map, rinfo[j].value,
-		      id_f, id_f, true );
+		    ( map, rinfo[j].value, f, true );
 	    else if ( r > 1 )
 	    {
 		min::locate_reverse
@@ -3641,8 +3636,7 @@ inline void map_one_attributes
 		    ( r == min::get ( value, r, ap ) );
 		for ( min::unsptr k = 0; k < r; ++ k )
 		    ::map_one
-			( map, value[k],
-			  id_f, id_f, true );
+			( map, value[k], f, true );
 	    }
 	}
     }
@@ -3655,7 +3649,6 @@ static void map_one_obj
 		min::id_map_header<L>, L > map,
 	  min::gen v,
 	  const min::gen_format * f,
-	  const min::gen_format * id_f,
 	  bool force_id,
 	  min::attr_ptr ap,
 	  min::attr_info * info,
@@ -3765,7 +3758,6 @@ static void map_one_obj
 MAKE_ID:
 
     ::find_or_add ( map, v );
-    f = id_f;
 
 MAP_OBJ:
 
@@ -3779,11 +3771,10 @@ MAP_OBJ:
     min::obj_vec_ptr & vp = min::obj_vec_ptr_of ( ap );
     for ( min::unsptr i = 0; i < min::size_of ( vp );
                              ++ i )
-        ::map_one ( map, vp[i], elem_f, id_f );
+        ::map_one ( map, vp[i], elem_f );
 
     ::map_one_attributes
-	( map, ap, info, number_of_attributes,
-	       f, id_f );
+	( map, ap, info, number_of_attributes, f );
 }
 //
 template < typename L >
@@ -3792,8 +3783,7 @@ inline void map
 	      < min::gen,
 		min::id_map_header<L>, L > map,
 	  min::gen v,
-	  const min::gen_format * f,
-	  const min::gen_format * id_f )
+	  const min::gen_format * f )
 {
     typedef min::packed_vec_insptr
     		< min::gen,
@@ -3804,7 +3794,7 @@ inline void map
 	hash_table_insptr;
 
     L saved_length = map->length;
-    ::map_one ( map, v, f, id_f, true );
+    ::map_one ( map, v, f, true );
     L n = map->length - saved_length;
     if ( n <= 1 ) return;
 
@@ -3930,10 +3920,9 @@ min::uns32 min::find_or_add
 
 void min::map
 	( min::id_map map,
-	  min::gen v, const min::gen_format * f,
-	              const min::gen_format * id_f )
+	  min::gen v, const min::gen_format * f )
 {
-    return ::map ( map, v, f, id_f );
+    return ::map ( map, v, f );
 }
 
 void min::insert
