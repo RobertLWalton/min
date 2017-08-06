@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  5 21:46:33 EDT 2017
+// Date:	Sun Aug  6 03:53:31 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12214,8 +12214,8 @@ namespace min {
 
 	min::printer print_cstring
 		( min::printer printer, const char * s,
-		  const min::str_format * sf,
-		  bool use_gen_str_format );
+		  const min::str_format * sf = NULL,
+		  bool allow_force_pgen = true );
     }
 
     inline min::printer print_cstring
@@ -12337,9 +12337,7 @@ inline min::printer operator <<
 	  const char * s )
 {
     return min::internal::print_cstring
-        ( printer, s, NULL,
-	    printer->print_format.op_flags
-	  & min::FORCE_PGEN );
+        ( printer, s );
 }
 
 inline min::printer operator <<
@@ -12347,9 +12345,7 @@ inline min::printer operator <<
 	  min::ptr<const char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! s, NULL,
-	    printer->print_format.op_flags
-	  & min::FORCE_PGEN );
+        ( printer, ! s );
 }
 
 inline min::printer operator <<
@@ -12357,9 +12353,7 @@ inline min::printer operator <<
 	  min::ptr<char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! (min::ptr<const char>) s, NULL,
-	    printer->print_format.op_flags
-	  & min::FORCE_PGEN );
+        ( printer, ! (min::ptr<const char>) s );
 }
 
 inline min::printer operator <<
@@ -12466,7 +12460,10 @@ namespace min {
         const min::str_classifier   str_classifier;
 	min::quote_format 	    quote_format;
 	min::display_control	    display_control;
+	min::uns32		    id_strlen;
     };
+
+    const min::uns32 MIN_ID_STRLEN = 21;
 
     extern const min::str_format *
         quote_separator_str_format;
@@ -12718,6 +12715,20 @@ namespace min {
 	    ( printer, obj, objf, objf->obj_op_flags );
     }
 
+    namespace internal {
+
+        inline min::printer print_id
+	    ( min::printer printer, min::uns32 ID )
+	{
+	    char buffer[100];
+	    min::uns32 n =
+	        sprintf ( buffer, "@%u", ID );
+	    return min::print_item
+	               ( printer, buffer, n, n );
+	}
+
+    }
+
     min::printer print_id
     	    ( min::printer printer, min::gen v );
 
@@ -12822,10 +12833,7 @@ inline min::printer operator <<
 	  const min::str_ptr & s )
 {
     return min::internal::print_cstring
-        ( printer, ! min::begin_ptr_of ( s ),
-	  NULL,
-	    printer->print_format.op_flags
-	  & min::FORCE_PGEN );
+        ( printer, ! min::begin_ptr_of ( s ) );
 }
 
 inline min::printer operator <<

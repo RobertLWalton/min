@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug  5 21:47:04 EDT 2017
+// Date:	Sun Aug  6 03:55:14 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3551,9 +3551,15 @@ inline void map_one
 {
     if ( min::is_str ( v ) )
     {
-	if ( f != NULL && f->str_format != NULL
-	               && min::strlen ( v ) > 20 )
-	    ::find_or_add ( map, v );
+	if ( f == NULL ) return;
+	const min::str_format * str_f = f->str_format;
+	if ( str_f == NULL ) return;
+
+	min::uns32 id_strlen = str_f->id_strlen;
+	if ( id_strlen < min::MIN_ID_STRLEN ) return;
+	if ( min::strlen ( v ) < id_strlen ) return;
+
+	::find_or_add ( map, v );
 	return;
     }
     else if ( ! min::is_obj ( v ) ) return;
@@ -10924,7 +10930,7 @@ min::printer MINT::print_cstring
     // for combining diacritics, and in the future for
     // other things.
     
-    int length = ::strlen ( s );
+    min::uns32 length = ::strlen ( s );
     const char * ends = s + length;
 
     min::Uchar buffer[length+1];
@@ -11296,7 +11302,8 @@ static min::str_format quote_separator_str_format =
 {
     min::quote_separator_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    0
 };
 const min::str_format *
     min::quote_separator_str_format =
@@ -11307,7 +11314,8 @@ static min::str_format
 {
     min::quote_separator_and_mark_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    0
 };
 const min::str_format *
     min::quote_separator_and_mark_str_format =
@@ -11317,7 +11325,8 @@ static min::str_format quote_all_str_format =
 {
     min::quote_all_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    min::MIN_ID_STRLEN
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -11326,7 +11335,8 @@ static min::str_format standard_str_format =
 {
     min::standard_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control
+    min::graphic_only_display_control,
+    min::MIN_ID_STRLEN
 };
 const min::str_format * min::standard_str_format =
     & ::standard_str_format;
@@ -12061,9 +12071,7 @@ min::printer min::print_id
 
     min::uns32 id =
         min::find_or_add ( printer->id_map, v );
-    char buffer[100];
-    min::uns32 n = sprintf ( buffer, "@%u", id );
-    return min::print_item ( printer, buffer, n, n );
+    return MINT::print_id ( printer, id );
 }
 
 min::printer min::print_one_id
@@ -12087,9 +12095,7 @@ min::printer min::print_one_id
     min::gen v = id_map[id];
 
     printer << min::bol;
-    char buffer[100];
-    min::uns32 n = sprintf ( buffer, "@%u", id );
-    min::print_item ( printer, buffer, n, n );
+    MINT::print_id ( printer, id );
     min::print_space ( printer );
     min::print_item ( printer, "=", 1, 1 );
     min::print_space ( printer );
@@ -12499,13 +12505,7 @@ min::printer min::print_obj
         min::uns32 ID =
 	    min::find ( printer->id_map, v );
 	if ( ID != 0 )
-	{
-	    char buffer[100];
-	    min::uns32 n = sprintf
-	        ( buffer, "@%u", ID );
-	    return min::print_item
-	        ( printer, buffer, n, n );
-	}
+	    return MINT::print_id ( printer, ID );
     }
 
     bool isolated_line_format =
@@ -12892,6 +12892,20 @@ min::printer min::standard_pgen
     }
     else if ( min::is_str ( v ) )
     {
+	const min::str_format * sf = f->str_format;
+	if ( sf != NULL )
+	{
+	    min::uns32 id_strlen = sf->id_strlen;
+	    if ( id_strlen >= min::MIN_ID_STRLEN )
+	    {
+	        min::uns32 ID =
+		     min::find ( printer->id_map, v );
+		if ( ID != 0 )
+		    return MINT::print_id
+		               ( printer, ID );
+	    }
+	}
+
 	return min::print_str
 	    ( printer, v, f->str_format );
     }
