@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  7 04:36:02 EDT 2017
+// Date:	Mon Aug  7 07:15:51 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12105,19 +12105,11 @@ min::printer min::print_one_id
     if ( f == NULL )
         f = printer->print_format.id_map_gen_format;
 
-    min::uns32 id = id_map->next;
-    * ( min::uns32 * ) & id_map->next = id + 1;
-    min::gen v = id_map[id];
+    min::uns32 ID = id_map->next;
+    * ( min::uns32 * ) & id_map->next = ID + 1;
 
-    printer << min::bol;
-    MINT::print_id ( printer, id );
-    min::print_space ( printer );
-    min::print_item ( printer, "=", 1, 1 );
-    min::print_space ( printer );
-
-    printer << min::save_indent;
-    min::print_gen ( printer, v, f );
-    return printer << min::bol << min::restore_indent;
+    return min::print_mapped_id
+		( printer, ID, id_map, f );
 }
 
 min::printer min::print_id_map
@@ -12135,6 +12127,33 @@ min::printer min::print_id_map
         min::print_one_id ( printer, id_map, f );
 
     return printer;
+}
+
+min::printer min::print_mapped_id
+	( min::printer printer,
+	  min::uns32 ID,
+	  min::id_map id_map,
+	  const min::gen_format * f )
+{
+    if ( id_map == min::NULL_STUB )
+        id_map = printer->id_map;
+    MIN_REQUIRE ( id_map != min::NULL_STUB );
+
+    if ( f == NULL )
+        f = printer->print_format.id_map_gen_format;
+    MIN_REQUIRE ( f != NULL );
+
+    MIN_REQUIRE ( ID < id_map->length );
+
+    printer << min::bol;
+    MINT::print_id ( printer, ID );
+    min::print_space ( printer );
+    min::print_item ( printer, "=", 1, 1 );
+    min::print_space ( printer );
+
+    printer << min::save_indent;
+    min::print_gen ( printer, id_map[ID], f );
+    return printer << min::bol << min::restore_indent;
 }
 
 min::printer min::print_mapped
@@ -12155,12 +12174,14 @@ min::printer min::print_mapped
         f = printer->print_format.id_map_gen_format;
 
     min::map ( id_map, v, f );
-    min::uns32 id = min::find ( id_map, v );
+    min::uns32 ID = min::find_or_add ( id_map, v );
 
-    if ( id >= id_map->next )
-	min::print_id_map ( printer, id_map, f );
+    if ( ID >= id_map->next )
+	return min::print_id_map ( printer, id_map, f );
 
-    return printer;
+    min::print_id_map ( printer, id_map, f );
+    return min::print_mapped_id
+		( printer, ID, id_map, f );
 }
 
 // Return true if attributes printed and false if

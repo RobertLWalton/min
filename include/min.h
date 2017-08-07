@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  6 03:53:31 EDT 2017
+// Date:	Mon Aug  7 07:15:24 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12739,6 +12739,11 @@ namespace min {
 
     min::printer print_id_map
     	    ( min::printer printer,
+	      min::id_map id_map = min::NULL_STUB,
+	      const min::gen_format * f  = NULL );
+
+    min::printer print_mapped_id
+    	    ( min::printer printer, min::uns32 ID,
 	      min::id_map id_map = min::NULL_STUB,
 	      const min::gen_format * f  = NULL );
 

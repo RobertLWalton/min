@@ -11651,10 +11651,12 @@ The function to do this is:
 \end{tabular}\end{indpar}
 
 This function executes
-\TT{min::find\_or\_add} (\pagref{MIN::FIND_OR_ADD_OF_ID_MAP})
-to locate the ID number {\em <id>} of
-\TT{v} in \TT{printer->\EOL id\_\EOL map} and then outputs
-`\TT{@}{\em <id>}'.
+\begin{indpar}
+\verb|min::map ( printer->id_map, v| \\
+\verb|           printer->print_format.id_map_gen_format )|
+\end{indpar}
+(\pagref{MIN::MAP_OF_ID_MAP})
+to give \TT{v} an ID number {\em <id>} and then outputs `\TT{@}{\em <id>}'.
 
 A printer's \TT{id\_map} member is initialized automatically when
 needed.  However, it can also be set by:
@@ -11733,6 +11735,30 @@ that is used in place of
 The function
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_mapped\_id}
+\LABEL{MIN::PRINT_MAPPED_ID}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::uns32 ID,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
+\end{tabular}\end{indpar}
+
+prints \TT{id\_map[ID]} in a lines of the form:
+\begin{center}
+\TT{@}{\em <ID>} \TT{=} {\em value}
+\end{center}
+
+If the \TT{gen\_format} argument is not given or \TT{NULL},
+it defaults to
+\begin{center}
+\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}
+\end{center}
+If the \TT{id\_map} argument is not given or \TT{min::\EOL NULL\_\EOL STUB},
+it defaults to \TT{printer->\EOL id\_\EOL map}.
+
+The function
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_mapped}
 \LABEL{MIN::PRINT_MAPPED}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
@@ -11741,25 +11767,23 @@ The function
     \verb|  const min::gen_format * gen_format = NULL )| \\
 \end{tabular}\end{indpar}
 
-does the equivalent of
+first executes
 
 \begin{indpar}\begin{verbatim}
-    min::find_and_add ( id_map, min::stub_of ( v ) );
-    return min::print_id_map ( printer, id_map, gen_format );
+    min::map ( id_map, v, gen_format )
+    min::uns32 ID = min::find_or_add ( id_map, v )
+    min::print_id_map ( printer, id_map, gen_format );
 \end{verbatim}\end{indpar}
 
-if \TT{v} has a stub and is not already in \TT{id\_\EOL map}.
-If \TT{id\_\EOL map} is \underline{not} given (i.e., equals
-\TT{min::\EOL NULL\_\EOL STUB}), \TT{printer->\EOL id\_\EOL map}
-is used instead, and is initialized before use if it has not previously
-been initialized.
+Then if this has not printed a line of the form
+`\TT{@}{\em <ID>} \TT{=} {\em value of \TT{v}}', it further
+executes
 
-If \TT{v} has a stub and is already in \TT{id\_\EOL map},
-this function prints a line for \TT{v} with the same format
-as \TT{min::\EOL print\_\EOL one\_\EOL id}.
-If instead \TT{v} does not have a stub, this function prints a line that
-is the same except `\TT{@(NONE)}' is printed in place of the \TT{id\_\EOL map}
-derived ID.
+\begin{indpar}\begin{verbatim}
+    min::print_mapped_id ( printer, ID, id_map, gen_format );
+\end{verbatim}\end{indpar}
+
+In any case it returns the `\TT{printer}' argument as its value.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -21099,6 +21123,12 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.7in}
+\verb|min::printer min::| & \MINKEY{print\_mapped\_id}
+\LABEL{MIN::PRINT_MAPPED_ID}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::uns32 ID,|\ARGBREAK
+    \verb|  min::id_map id_map = min::NULL_STUB,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format = NULL )| \\
 \verb|min::printer min::| & \MINKEY{print\_mapped}
 \LABEL{MIN::PRINT_MAPPED}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
