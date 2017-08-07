@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  6 06:01:18 EDT 2017
+// Date:	Mon Aug  7 04:36:02 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12154,30 +12154,13 @@ min::printer min::print_mapped
     if ( f == NULL )
         f = printer->print_format.id_map_gen_format;
 
-    char buffer[100];
-    min::uns32 n;
+    min::map ( id_map, v, f );
+    min::uns32 id = min::find ( id_map, v );
 
-    if ( v == min::NONE() )
-        n = sprintf ( buffer, "@0" );
-    else
-    {
-	min::uns32 id =
-	    min::find_or_add ( id_map, v );
+    if ( id >= id_map->next )
+	min::print_id_map ( printer, id_map, f );
 
-	if ( id >= id_map->next )
-	    return min::print_id_map
-	               ( printer, id_map, f );
-
-	n = sprintf ( buffer, "@%u", id );
-    }
-    printer << min::bol;
-    min::print_item ( printer, buffer, n, n );
-    min::print_space ( printer );
-    min::print_item ( printer, "=", 1, 1 );
-    min::print_space ( printer );
-    printer << min::save_indent;
-    min::print_gen ( printer, v, f );
-    return printer << min::bol << min::restore_indent;
+    return printer;
 }
 
 // Return true if attributes printed and false if

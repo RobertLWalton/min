@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 4, 2017}
+\date{August 7, 2017}
  
 \maketitle
 
@@ -8306,7 +8306,7 @@ Creation and use of id maps is accomplished by the following:
 \verb|void min::| & \MINKEY{map\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g,|\ARGBREAK
-    \verb|  min::unsptr strlen )|
+    \verb|  const min::gen_format * f = NULL )|
 \LABEL{MIN::MAP_OF_ID_MAP} \\
 \end{tabular}\end{indpar}
 
@@ -8349,16 +8349,21 @@ The \TT{min::map} function is more sophisticated than
 \TT{min::find\_\EOL or\_\EOL add} and is preferred.  If its
 argument \TT{g} does
 not already have an identifier, it performs
-\TT{min::find\_\EOL or\_\EOL add} on \TT{g} \underline{after}
-performing \TT{min::map} on all the objects that are elements or
-attribute values of \TT{g} that do not already have identifiers and are
-also not arguments to the recursive calls to \TT{min::map}.
-It also treats strings of length greater than \TT{strlen} as
-objects and gives them identifiers.  The effect is to assign
-identifiers so that if an object references another object or a string,
-the referenced object or string has a smaller identifier
-than the referencing object, unless there are
-recursive references.
+\TT{min::find\_\EOL or\_\EOL add} on \TT{g} and
+then performs \TT{min::map} recursively on element and attribute values
+of \TT{g} using the format \TT{f} for guidance, as if \TT{g} were
+being printed with format \TT{f}.  During this process an object
+that would be printed as an identifier if it had an identifier
+is given an identifier by \TT{min::find\_\EOL or\_\EOL add}.  Objects
+that would be printed in compact format are not given such identifiers
+unless the format that would be used to print them has the
+\TT{min::\EOL PREFERRED\_\EOL ID} flag.
+Also strings that would be printed as identifiers and which are
+as long is the \ttikey{id\_\EOL strlen}{id\_strlen}
+members of the \TT{min::\EOL str\_\EOL format} that would be used
+to print them are given identifiers.  After all identifiers have
+been assigned, they are swapped as necessary to make new non-object
+identifiers come before new object identifiers.
 
 When \TT{min::\EOL find\_\EOL and\_\EOL add} or \TT{min::map}
 assign new identifiers, \TT{map->length} is incremented but
@@ -10897,22 +10902,26 @@ operations:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer, min::gen v )|
+\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
+\verb|min::op min::|
+    & \MINKEY{set\_gen\_format}\ARGBREAK
+	  \verb|( const min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NAME} \\
 \verb|min::op min::| & \MINKEY{pgen\_quote} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_QUOTE} \\
 \verb|min::op min::| & \MINKEY{pgen\_never\_quote} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NEVER_QUOTE} \\
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  const min::gen_format * gen_format )|
-\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
-\verb|min::printer |
-    & \TTOMKEY{<<}{<{}<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer, min::gen v )|
-\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
 The expression `\TT{printer\,<{}<\,min::pgen(v)}'
@@ -10946,6 +10955,16 @@ The following function has the same effect:
 \LABEL{MIN::PRINT_GEN_WITH_FORMAT} \\
 \end{tabular}\end{indpar}
 
+The expression
+`\TT{printer\,<{}<\,min::set\_gen\_format(f)}' sets
+\begin{center}
+\TT{printer->\EOL print\_\EOL format.gen\_\EOL format} \\
+\end{center}
+to the value `\TT{f}'.  The default value of
+\begin{center}
+\TT{printer->\EOL print\_\EOL format.gen\_\EOL format} \\
+\end{center}
+is \ttkey{min::top\_gen\_format} (\pagref{MIN::TOP_GEN_FORMAT}).
 
 \TT{min::\EOL pgen\_\EOL name(v)},
 \TT{min::\EOL pgen\_\EOL quote(v)}, and
@@ -19481,7 +19500,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::| & \MINKEY{map\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen g,|\ARGBREAK
-    \verb|  min::unsptr strlen )|
+    \verb|  const min::gen_format * f = NULL )|
 \LABEL{MIN::MAP_OF_ID_MAP} \\
 \verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
@@ -20505,22 +20524,26 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 \verb|min::op min::| & \MINKEY{pgen} \verb|( min::gen v )|
 \LABEL{MIN::PGEN} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer, min::gen v )|
+\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
+\verb|min::op min::|
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb|( min::gen v,|\ARGBREAK
+	  \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
+\verb|min::op min::|
+    & \MINKEY{set\_gen\_format}\ARGBREAK
+	  \verb|( const min::gen_format * gen_format )|
+\LABEL{MIN::SET_GEN_FORMAT} \\
 \verb|min::op min::| & \MINKEY{pgen\_name} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NAME} \\
 \verb|min::op min::| & \MINKEY{pgen\_quote} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_QUOTE} \\
 \verb|min::op min::| & \MINKEY{pgen\_never\_quote} \verb|( min::gen v )|
 \LABEL{MIN::PGEN_NEVER_QUOTE} \\
-\verb|min::op min::|
-    & \MINKEY{pgen}\ARGBREAK
-	  \verb|( min::gen v,|\ARGBREAK
-	  \verb|  const min::gen_format * gen_format )|
-\LABEL{MIN::PGEN_WITH_GEN_FORMAT} \\
-\verb|min::printer |
-    & \TTOMKEY{<<}{<{}<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer, min::gen v )|
-\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
