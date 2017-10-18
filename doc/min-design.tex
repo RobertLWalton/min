@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 17, 2017}
+\date{October 18, 2017}
  
 \maketitle
 
@@ -8354,14 +8354,18 @@ then performs \TT{min::map} recursively on element and attribute values
 of \TT{g} using the format \TT{f} for guidance, as if \TT{g} were
 being printed with format \TT{f}.  During this process an object
 that would be printed as an identifier if it had an identifier
-is given an identifier by \TT{min::find\_\EOL or\_\EOL add}.  Objects
+is given an identifier by \TT{min::\EOL find\_\EOL or\_\EOL add}.  Objects
 that would be printed in compact format are not given such identifiers
 unless the format that would be used to print them has the
 \TT{min::\EOL PREFERRED\_\EOL ID} flag.
-Also strings that would be printed as identifiers and which are
-as long is the \ttikey{id\_\EOL strlen}{id\_strlen}
-members of the \TT{min::\EOL str\_\EOL format} that would be used
-to print them are given identifiers.  After all identifiers have
+Also strings whose byte length equals or exceeds
+the \ttikey{id\_\EOL strlen}{id\_strlen}
+member of the \TT{min::\EOL str\_\EOL format} that would be used
+to print them
+are given identifiers by \TT{min::\EOL find\_\EOL or\_\EOL add},
+provided the \TT{id\_\EOL strlen} member is as least as large as
+the value of \TT{MIN\_ID\_STRLEN}.
+After all identifiers have
 been assigned, they are swapped as necessary to make new non-object
 identifiers come before new object identifiers.
 
@@ -11398,8 +11402,8 @@ and \itemref{LEADING-AND-TRAILING-SEPARATORS} for the uses of string
 classes in determining the behavior of the
 \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
 
-`\TT{printer <{}< min::pgen ( str )}' calls \TT{min::\EOL print\_\EOL cstring}
-with
+When `\TT{printer <{}< min::pgen ( str )}' calls
+\TT{min::\EOL print\_\EOL cstring}, it uses
 \begin{center}
 \TT{str\_format = printer->print\_format.gen\_format->str\_format}
 \end{center}
@@ -11467,6 +11471,16 @@ The following function may be called to print a string \TT{min::gen} value:
 This function just calls the \TT{min::\EOL print\_\EOL cstring} function
 described above with the \TT{const char *} part of the string general value.
 The \TT{str} argument must be a string general value.
+
+The \TT{min::\EOL standard\_\EOL pgen} function that prints general
+values for \TT{min::pgen} will print a long enough string as an
+identifier of the form \TT{@}{\em <id>} if
+the \ttikey{id\_\EOL strlen}{id\_strlen}
+member of the \TT{min::\EOL str\_\EOL format} being used
+to print the string has a \TT{id\_\EOL strlen} member is as least as large as
+the value of \TT{MIN\_ID\_STRLEN} but no larger than the string length,
+and provided that the string has \underline{already} been given
+an identifier (e.g., by \TT{min::map}, see \pagref{MIN::MAP_OF_ID_MAP}).
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}
@@ -20864,9 +20878,9 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{0.1in}
-\TTKEY{MIN\_ID\_STRLEN}
-    \verb|  // == 21, minimum effective value for id_strlen.|
+\begin{TABULAR}{1.6in}
+\TTKEY{MIN\_ID\_STRLEN} &
+    \verb|  // == 21, minimum effective value for id_strlen.|\ARGBREAK
 \LABEL{MIN_ID_STRLEN}
 \end{TABULAR}
 

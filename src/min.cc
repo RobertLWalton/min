@@ -12915,7 +12915,9 @@ min::printer min::standard_pgen
 	if ( sf != NULL )
 	{
 	    min::uns32 id_strlen = sf->id_strlen;
-	    if ( id_strlen >= min::MIN_ID_STRLEN )
+	    if ( id_strlen >= min::MIN_ID_STRLEN
+	         &&
+	         min::strlen ( v ) >= id_strlen )
 	    {
 	        min::uns32 ID =
 		     min::find ( printer->id_map, v );
