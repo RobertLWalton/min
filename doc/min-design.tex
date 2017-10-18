@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 7, 2017}
+\date{October 17, 2017}
  
 \maketitle
 
@@ -11290,9 +11290,17 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::uns32            id_strlen;|%
+\ttmindex{id\_strlen}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::STR_FORMAT}
 \end{tabular}\end{indpar}
+
+\begin{indpar}[1em]
+\TTKEY{MIN\_ID\_STRLEN}
+    \verb|  // == 21, minimum effective value for id_strlen.|
+\LABEL{MIN_ID_STRLEN}
+\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
@@ -11300,7 +11308,8 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|MIN_ID_STRLEN                          // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11317,6 +11326,7 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
 \verb|min::quote_separator_and_mark_str_classifier // str_classifier|\ARGBREAK
+\verb|0                                            // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11324,7 +11334,8 @@ The formats for printing string \TT{min::gen} values are:
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
-\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
+\verb|min::quote_all_str_classifier                // str_classifier|\ARGBREAK
+\verb|0                                            // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -20846,7 +20857,17 @@ These are in \verb|min_parameters.h|.
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::display_control  display_control;|%
 \ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::uns32            id_strlen;|%
+\ttmindex{id\_strlen}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{0.1in}
+\TTKEY{MIN\_ID\_STRLEN}
+    \verb|  // == 21, minimum effective value for id_strlen.|
+\LABEL{MIN_ID_STRLEN}
 \end{TABULAR}
 
 \bigskip
@@ -20857,7 +20878,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|
+\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
+\verb|MIN_ID_STRLEN                          // id_strlen|
 \end{TABULAR}
 
 \bigskip
@@ -20878,6 +20900,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
 \verb|min::quote_separator_and_mark_str_classifier // str_classifier|\ARGBREAK
+\verb|0                                            // id_strlen|
 \end{TABULAR}
 
 \bigskip
@@ -20887,7 +20910,8 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{quote\_all\_str\_format}:}
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
-\verb|min::quote_all_str_classifier          // str_classifier|\ARGBREAK
+\verb|min::quote_all_str_classifier                // str_classifier|\ARGBREAK
+\verb|0                                            // id_strlen|
 \end{TABULAR}
 
 \bigskip
