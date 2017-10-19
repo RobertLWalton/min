@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 18 04:39:18 EDT 2017
+// Date:	Thu Oct 19 08:04:51 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12075,8 +12075,7 @@ const min::op min::flush_one_id
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
-
-min::printer min::print_id
+min::printer min::map_id
 	( min::printer printer,
 	  min::gen v )
 {
@@ -12085,8 +12084,19 @@ min::printer min::print_id
     min::map ( printer->id_map, v,
                printer->print_format
 	               .id_map_gen_format );
-    min::uns32 id = min::find ( printer->id_map, v );
-    return MINT::print_id ( printer, id );
+    return printer;
+}
+
+
+min::printer min::print_id
+	( min::printer printer,
+	  min::gen v )
+{
+    if ( printer->id_map == min::NULL_STUB )
+    	min::init ( min::id_map_ref ( printer ) );
+    min::uns32 ID =
+        min::find_or_add ( printer->id_map, v );
+    return MINT::print_id ( printer, ID );
 }
 
 min::printer min::print_one_id
@@ -12106,6 +12116,9 @@ min::printer min::print_one_id
         f = printer->print_format.id_map_gen_format;
 
     min::uns32 ID = id_map->next;
+    if ( ID >= id_map->length )
+        return printer;
+
     * ( min::uns32 * ) & id_map->next = ID + 1;
 
     return min::print_mapped_id

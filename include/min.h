@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  7 07:15:24 EDT 2017
+// Date:	Thu Oct 19 08:07:23 EDT 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12728,6 +12728,9 @@ namespace min {
 	}
 
     }
+
+    min::printer map_id
+    	    ( min::printer printer, min::gen v );
 
     min::printer print_id
     	    ( min::printer printer, min::gen v );

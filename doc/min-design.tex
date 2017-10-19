@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 18, 2017}
+\date{October 19, 2017}
  
 \maketitle
 
@@ -11666,7 +11666,22 @@ and long strings, can be
 output as an identifier of the form \TT{@}{\em <id>} by using
 the printer \key{identifier map} (\itemref{IDENTIFIER-MAPS}).
 
-The function to do this is:
+The function to give a value \TT{v} an appropriate ID is:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{map\_id}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::MAP_ID} \\
+\end{tabular}\end{indpar}
+
+which executes (\pagref{MIN::MAP_OF_ID_MAP}):
+\begin{indpar}
+\verb|min::map ( printer->id_map, v| \\
+\verb|           printer->print_format.id_map_gen_format )|
+\end{indpar}
+
+The function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
@@ -11675,13 +11690,18 @@ The function to do this is:
 \LABEL{MIN::PRINT_ID} \\
 \end{tabular}\end{indpar}
 
-This function executes
-\begin{indpar}
-\verb|min::map ( printer->id_map, v| \\
-\verb|           printer->print_format.id_map_gen_format )|
-\end{indpar}
-(\pagref{MIN::MAP_OF_ID_MAP})
-to give \TT{v} an ID number {\em <id>} and then outputs `\TT{@}{\em <id>}'.
+executes (\pagref{MIN::FIND_OR_ADD_OF_ID_MAP}):
+
+\begin{indpar}\begin{verbatim}
+    min::uns32 ID = min::find_or_add ( id_map, v );
+    printer << "@" << ID;
+\end{verbatim}\end{indpar}
+
+It is used when an ID \underline{must} be printed
+to represent an object but the object may not already have gotten
+an ID.  In this case \TT{min::map} cannot be used because it may
+create forward references to long strings, which cannot be handled
+on input.
 
 A printer's \TT{id\_map} member is initialized automatically when
 needed.  However, it can also be set by:
@@ -11714,7 +11734,11 @@ the printer operations:
 
 The first operation prints the value at \TT{printer->\EOL id\_\EOL map[i]}
 where \TT{i} equals \TT{printer->\EOL id\_\EOL map->\EOL next}, and then
-increments \TT{printer->\EOL id\_\EOL map->\EOL next}.  The second operation
+increments \TT{printer->\EOL id\_\EOL map->\EOL next}.
+However it does nothing if 
+\TT{printer->\EOL id\_\EOL map->\EOL next} is initially beyond the
+end of \TT{printer->\EOL id\_\EOL map[i]}.
+The second operation
 simply repeats the first operation as long as
 \TT{printer->\EOL id\_\EOL map->\EOL next}
 is less than \TT{printer->\EOL id\_\EOL map->\EOL length}.
@@ -11731,6 +11755,17 @@ to print the \TT{printer->id\_map[i]} {\em values} in lines of the form:
 \begin{center}
 \TT{@}{\em <id>} \TT{=} {\em value}
 \end{center}
+
+In the following functions,
+if the \TT{gen\_format} argument is not given or \TT{NULL},
+it defaults to
+\begin{center}
+\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}
+\end{center}
+and if the \TT{id\_map} argument is not given or \TT{min::\EOL NULL\_\EOL STUB},
+it defaults to \TT{printer->\EOL id\_\EOL map}.
+Also in all these functions the `\TT{printer}' argument is returned as the
+function value.
 
 The functions
 
@@ -11749,13 +11784,8 @@ The functions
 
 are equivalent to \TT{printer <{}< min::flush\_one\_id}
 and \TT{printer <{}< min::\EOL flush\_\EOL id\_\EOL map} respectively,
-except that
-if \TT{id\_\EOL map} is given (not \TT{NULL\_\EOL STUB}),
-that is used in place of \TT{printer->\EOL id\_\EOL map}, and
-if \TT{gen\_\EOL format} is given (not \TT{NULL}),
-that is used in place of
-\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}.
-
+except an alternative \TT{id\_map} and \TT{gen\_\EOL format}
+can be given.
 
 The function
 
@@ -11768,18 +11798,10 @@ The function
     \verb|  const min::gen_format * gen_format = NULL )| \\
 \end{tabular}\end{indpar}
 
-prints \TT{id\_map[ID]} in a lines of the form:
+prints \TT{id\_map[ID]} in a line of the form:
 \begin{center}
 \TT{@}{\em <ID>} \TT{=} {\em value}
 \end{center}
-
-If the \TT{gen\_format} argument is not given or \TT{NULL},
-it defaults to
-\begin{center}
-\TT{printer->\EOL print\_\EOL format.id\_\EOL map\_\EOL gen\_\EOL format}
-\end{center}
-If the \TT{id\_map} argument is not given or \TT{min::\EOL NULL\_\EOL STUB},
-it defaults to \TT{printer->\EOL id\_\EOL map}.
 
 The function
 
@@ -11795,8 +11817,8 @@ The function
 first executes
 
 \begin{indpar}\begin{verbatim}
-    min::map ( id_map, v, gen_format )
-    min::uns32 ID = min::find_or_add ( id_map, v )
+    min::map ( id_map, v, gen_format );
+    min::uns32 ID = min::find_or_add ( id_map, v );
     min::print_id_map ( printer, id_map, gen_format );
 \end{verbatim}\end{indpar}
 
@@ -11807,8 +11829,6 @@ executes
 \begin{indpar}\begin{verbatim}
     min::print_mapped_id ( printer, ID, id_map, gen_format );
 \end{verbatim}\end{indpar}
-
-In any case it returns the `\TT{printer}' argument as its value.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -21123,6 +21143,10 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
+\verb|min::printer min::| & \MINKEY{map\_id}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen v )|
+\LABEL{MIN::MAP_ID} \\
 \verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v )|
