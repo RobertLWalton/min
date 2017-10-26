@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 19, 2017}
+\date{October 25, 2017}
  
 \maketitle
 
@@ -15785,7 +15785,7 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::left_curly_star_space_pstring       // obj_valbegin|\ARGBREAK
 \verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK
 \verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK
-\verb|min::space_less_than_equal_space_pstring // obj_valreq|\ARGBREAK
+\verb|min::space_equal_space_pstring           // obj_valreq|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -16227,7 +16227,7 @@ $\ell$			& is	& \TT{min::leading} \\
 The indent is saved and set by \TT{min::save\_\EOL indent} just before
 printing the first element (and restored by \TT{min::\EOL restore\_\EOL indent}
 after printing the object), and a break is set by
-\TT{min::set\_break} just before printing every other element.
+\TT{min::set\_break} just before printing every element but the first.
 If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
