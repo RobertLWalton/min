@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 19 08:07:23 EDT 2017
+// Date:	Tue Nov  7 15:08:30 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6600,7 +6600,8 @@ namespace min {
 
 namespace min {
 
-    // Object Flags: see below.
+    // Object Flags: there are up to 12 flags located
+    // as 3 groups of 4 flags each: see below.
     //
     // OBJ_PUBLIC means vec_insptrs not allowed for
     // object.
