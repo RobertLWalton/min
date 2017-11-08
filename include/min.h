@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 15:08:30 EST 2017
+// Date:	Tue Nov  7 19:32:35 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6618,10 +6618,19 @@ namespace min {
     const unsigned OBJ_PUBLIC  = ( 1 << 1 );
     const unsigned OBJ_AUX     = ( 1 << 3 );
 
-    // OBJ_TYPE means object first variable (var[0])
-    // points at the object's type.
+    // OBJ_GTYPE means object first variable (var(0))
+    // points at the object's graph type.
     //
-    const unsigned OBJ_TYPED   = ( 1 << 0 );
+    // OBJ_IS_GTYPE means object is graph type and its
+    // first variable (var(0)) is an upper bound on the
+    // value of any index general value in the graph
+    // rooted at the object.  That is, any index value
+    // i is such that i < var(0).  Other objects in the
+    // graph do not have this flag unless they root
+    // subgraphs that are also graph types.
+    //
+    const unsigned OBJ_GTYPED     = ( 1 << 0 );
+    const unsigned OBJ_IS_GTYPE   = ( 1 << 1 );
 
 #   if MIN_IS_COMPACT
 
@@ -6659,8 +6668,9 @@ namespace min { namespace internal {
     //
     //  Unused Offset Bits:
     //
-    //    0		OBJ_TYPED
-    //	  1..3		reserved for more flags
+    //    0		OBJ_GTYPED
+    //    1		OBJ_IS_GTYPE
+    //	  2..3		reserved for more flags
     //	  4..N-1	unused offset - 1
     //
     //  Aux Offset Bits:
