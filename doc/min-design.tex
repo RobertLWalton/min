@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 25, 2017}
+\date{November 8, 2017}
  
 \maketitle
 
@@ -1638,7 +1638,7 @@ Specifies that a feature is enabled.
 \item[\TT{const min::gen min::}\MINKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
-(\itemref{TYPED-OBJECTS}) that has no value and can be indirected.
+(\itemref{GRAPH-TYPED-OBJECTS}) that has no value and can be indirected.
 \item[\TT{const min::gen min::}\MINKEY{SUCCESS()}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
@@ -11882,12 +11882,13 @@ Flags, called \key{attribute flags}, can be attached to an attribute name.
 Note that flags are attached to object attribute names, and not to arrows,
 values, or reverse attribute names.
 
-There are also typed objects, each of which is a pair of objects,
-one called the type that is constant, is shared among many typed objects,
-and contains attribute labels, and one called the
-context, which contains a vector of \skey{variable}s that hold attribute
-values.  Typed objects are described in more detail in
-\itemref{TYPED-OBJECTS}.
+There are also graph typed objects, each of which is a pair of objects,
+one called the graph type that is constant,
+is shared among many graph typed objects,
+and contains attribute labels and constant attribute values, and one called the
+context, which contains a vector of \skey{variable}s that hold variable
+attribute values.  Graph typed objects are described in more detail in
+\itemref{GRAPH-TYPED-OBJECTS}.
 
 \subsubsection{Object Bodies}
 \label{OBJECT-BODIES}
@@ -11908,7 +11909,7 @@ auxiliary area
 
 The \mkey{header}{of object} contains object flags
 (including \TT{min::OBJ\_\EOL PRIVATE}, \TT{min::OBJ\_\EOL PUBLIC},
-and \TT{min::OBJ\_\EOL TYPED})
+and \TT{min::OBJ\_\EOL GTYPED})
 and the sizes of the other 5 parts.
 The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
@@ -11979,7 +11980,7 @@ and attribute level (\itemref{OBJECT-ATTRIBUTE-LEVEL}).
 The interfaces to all of these levels is protected.  In addition
 there is an unprotected vector level interface
 (\itemref{OBJECT-UNPROTECTED-VECTOR-LEVEL}) and a
-typed object interface (\itemref{TYPED-OBJECTS}).
+graph typed object interface (\itemref{GRAPH-TYPED-OBJECTS}).
 
 \subsubsection{Object Creation}
 \label{OBJECT-CREATION}
@@ -15423,8 +15424,8 @@ With this in mind, the short-cut functions are:
 \LABEL{MIN::FLIP_FLAG_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-\subsubsection{Typed Objects}
-\label{TYPED-OBJECTS}
+\subsubsection{Graph Typed Objects}
+\label{GRAPH-TYPED-OBJECTS}
 
 [Typed objects are not yet implemented and are not discussed outside
 this section.  Implementation is likely to consist merely of special
@@ -15436,33 +15437,57 @@ object pointers.  In addition an acyclic unification algorithm
 will be provided (cyclic algorithms do not work if only variable
 nodes can be forwarded).]
 
-A \key{typed object} is a pair of objects: the \mkey{type}{of typed object}
-which provides attribute labels, and the \mkey{context}{of typed object}
-which provides variables that give attribute values.  The type
-contains variable indices that act as indirect pointers to the
+A \key{graph typed object}\index{typed object!graph}
+is a pair of objects:
+the \mkey{graph type}{of typed object}\index{type!graph type}
+which provides attribute labels and some attribute values,
+and the \mkey{context}{of graph typed object}
+which provides variables that give other attribute values.  The graph type
+contains variable values that are \TT{min::gen} indices which
+act as indirect pointers to the
 variables in the context.  By abuse of language the context may be
-called the `typed object'.
+called the `graph typed object'.
 
 Typed objects may be introduced in two different ways.  In the first
-method the context is given the \TT{min::\EOL OBJ\_\EOL TYPED} flag
-and its first variable points at the type.  In the second method
-the typed object is represented by a stub of \TT{min::\EOL TYPED\_\EOL OBJECT}
-type which in turn points at an auxiliary stub that holds two pointers
-to stubs: one pointing at the type and the second pointing at the context.
-The type is pointed at by the control of the auxiliary stub, the context
-is pointed at by the value of the auxiliary stub.
+method the context is given the \minkey{OBJ\_\EOL GTYPED} flag
+and its first variable points at the graph type.  In the second method
+the graph typed object is represented by
+a stub of \minkey{GTYPED\_\EOL OBJ}\label{MIN::GTYPED_OBJ} type
+that points at an auxilary stub
+of \minkey{GTYPED\_\EOL OBJ\_\EOL AUX}\label{MIN::GTYPED_OBJ_AUX} type
+that holds two pointers
+to stubs: one pointing at the graph type and the second pointing at the context.
+The graph type is pointed at by the control of the auxilary stub,
+and the context is pointed at by the value of the auxilary stub.
+An auxilary stub is necessary in order to allow garbage collection
+of the stubs (the control of the primary stub is reserved for GC use).
 
 Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \TT{min::gen} value that holds the index of a
+just a single index \TT{min::gen} value in the graph type
+that holds the index of a
 variable vector element.  This always refers to a variable in the context.
-The second is an indirect \TT{min::gen} value that points at a pair
-of values in an auxiliary area: the first being an index \TT{min::gen}
-value and the second a pointer-to-object-stub \TT{min::gen} value.
-This refers to the variable vector element of the object pointed to
-that is indexed by the given index.  If an attribute value is an indirect
+The second is a stub of \minkey{VAR\_\EOL PTR}\label{MIN::VAR_PTR} type
+that holds a pointer to an auxilary stub of
+\minkey{VAR\_\EOL PTR\_\EOL AUX}\label{MIN::VAR_PTR_AUX} type
+that contains a pointer to
+a context object and an index of a variable in the context.
+An auxilary stub is necessary in order to allow garbage collection
+of the stubs (the control of the primary stub is reserved for GC use).
+
+If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
 taken, to any depth.
+
+Graph types are objects with the
+\minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag.  The first variable of a graph
+type is an integer that bounds the indices stored in the graph type.
+That is, if this integer is \TT{B} then any index \TT{i} stored in the graph
+type is in the range $0\leq$\TT{i}$<$\TT{B}.
+Strictly speaking, a graph type is an object that is the root of a tree
+of objects, and the non-root members of the tree do \underline{not}
+have the \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag, unless they are
+roots of graph subtypes.
 
 \subsubsection{Printing Object General Values}
 \label{PRINTING-OBJECT-GENERAL-VALUES}
@@ -16995,6 +17020,14 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
 \LABEL{MIN::SUBLIST_AUX} \\
+\verb|const int min::| & \MINKEY{GTYPED\_OBJ}
+\LABEL{MIN::GTYPED_OBJ} \\
+\verb|const int min::| & \MINKEY{GTYPED\_OBJ\_AUX}
+\LABEL{MIN::GTYPED_OBJ_AUX} \\
+\verb|const int min::| & \MINKEY{VAR\_PTR}
+\LABEL{MIN::VAR_PTR} \\
+\verb|const int min::| & \MINKEY{VAR\_PTR\_AUX}
+\LABEL{MIN::VAR_PTR_AUX} \\
 \end{TABULAR}
 \end{indpar}
 

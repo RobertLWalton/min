@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  7 19:32:35 EST 2017
+// Date:	Wed Nov  8 02:45:42 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -471,6 +471,8 @@ namespace min {
     const int SHORT_STR			= 15;
     const int LONG_STR			= 16;
     const int LABEL			= 17;
+    const int GTYPED_OBJ		= 18;
+    const int VAR_PTR			= 19;
 
     // Uncollectible.
     //
@@ -480,6 +482,8 @@ namespace min {
     const int SUBLIST_AUX		= -4;
     const int HASHTABLE_AUX		= -5;
     const int RELOCATE_BODY		= -6;
+    const int GTYPED_OBJ_AUX		= -7;
+    const int VAR_PTR_AUX		= -8;
 
     extern const char ** type_name;
         // type_name[i] is the name of type i.  E.g.,
@@ -10192,6 +10196,11 @@ namespace min { namespace unprotected {
 
     	list_ptr_type<vecptr> lp;
 	    // A working pointer for temporary use.
+	
+	vecptr cp;
+	    // Pointer to context; set for graph type
+	    // objects (the attr_ptr proper points at
+	    // the graph type).
 
     // Friends:
 
