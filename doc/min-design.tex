@@ -140,6 +140,7 @@
 
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\ttlindex}[2]{\index{#1#2@{\tt #1}!{\tt #2}}}
 
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
@@ -260,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 8, 2017}
+\date{November 9, 2017}
  
 \maketitle
 
@@ -11908,8 +11909,8 @@ auxiliary area
 \end{center}
 
 The \mkey{header}{of object} contains object flags
-(including \TT{min::OBJ\_\EOL PRIVATE}, \TT{min::OBJ\_\EOL PUBLIC},
-and \TT{min::OBJ\_\EOL GTYPED})
+(including \TT{min::\EOL OBJ\_\EOL PRIVATE}, \TT{min::\EOL OBJ\_\EOL PUBLIC},
+\TT{min::\EOL OBJ\_\EOL GTYPED}, and \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE})
 and the sizes of the other 5 parts.
 The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
@@ -11966,7 +11967,8 @@ longer subject to change will be compacted, to make it as small as possible,
 and this is one kind of object body reorganization.
 Objects are compacted by the `\TT{min::\EOL publish\REORG}'
 function that sets the
-object \TT{OBJ\_\EOL PUBLIC} flag which prevents changes to the
+object \TT{OBJ\_\EOL PUBLIC} flag\label{OBJ_PUBLIC}
+which prevents changes to the
 attribute labels, attribute label flags, and number of attribute values
 of an object.
 Reorganization can also occur whenever an object is relocated by the
@@ -15489,6 +15491,26 @@ of objects, and the non-root members of the tree do \underline{not}
 have the \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag, unless they are
 roots of graph subtypes.
 
+To make a new graph type, first construct the graph making use of
+\TT{min::\EOL new\_\EOL index\_\EOL gen} (\pagref{MIN::NEW_INDEX_GEN})
+to reference variables in the context.  Then execute the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_gtype} \verb|( min::gen gtype )|
+\LABEL{MIN::NEW_GTYPE} \\
+\end{tabular}\end{indpar}
+
+This compacts the object's in the graph rooted at the \TT{gtype} argument,
+makes them public by setting their
+\TT{min::\EOL OBJ\_EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
+sets the first variable of the \TT{gtype} object to one plus the
+maximum index in the graph,
+and sets the object's \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE} flag.
+It is permissible for some subgraphs to already
+be graph types and some objects in the graph to already be public
+before this function is called.  The function returns the \TT{gtype}
+argument.
+
 \subsubsection{Printing Object General Values}
 \label{PRINTING-OBJECT-GENERAL-VALUES}
 
@@ -15973,8 +15995,8 @@ if the \ttikey{ENABLE\_\EOL LOGICAL\_\EOL LINE}{ENABLE\_LOGICAL\_LINE}
 object format operation
 flag is on.
 \item A \TT{.terminator} value may be \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}
-if the \ttikey{ENABLE\_\EOL IN\-DENTED\_\EOL PARAGRAPH}%
-              {ENABLE\_INDENTED\_PARAGRAPH}
+if the \TT{ENABLE\_\EOL IN\-DENT\-ED\_\EOL PARAGRAPH}%
+\ttlindex{ENABLE\_INDENTED\_}{PARAGRAPH}
 object format operation
 flag is on.
 \end{enumerate}
@@ -16015,8 +16037,8 @@ flag is on.
 \item Otherwise the `\lkey{indented paragraph}{compact format}' is used if
 the object has a \TT{.terminator} equal to
 \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()}, the object has no \TT{.separator},
-the \ttikey{ENABLE\_\EOL INDENTED\_\EOL PARAGRAPH}%
-           {ENABLE\_INDENTED\_PARAGRAPH}
+the \TT{ENABLE\_\EOL IN\-DENT\-ED\_\EOL PARAGRAPH}%
+\ttlindex{ENABLE\_INDENTED\_}{PARAGRAPH}
 object format operation
 flag is on,
 and the object is being printed as the last element of a containing
