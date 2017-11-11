@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 9, 2017}
+\date{November 11, 2017}
  
 \maketitle
 
@@ -15429,16 +15429,6 @@ With this in mind, the short-cut functions are:
 \subsubsection{Graph Typed Objects}
 \label{GRAPH-TYPED-OBJECTS}
 
-[Typed objects are not yet implemented and are not discussed outside
-this section.  Implementation is likely to consist merely of special
-functions to get and set attribute values respecting indirection of
-these values while augmenting attribute pointers to hold the
-equivalent of \TT{min::\EOL TYPED\_\EOL OBJECT}s
-as pointers in place of the equivalent of \TT{min::\EOL gen}
-object pointers.  In addition an acyclic unification algorithm
-will be provided (cyclic algorithms do not work if only variable
-nodes can be forwarded).]
-
 A \key{graph typed object}\index{typed object!graph}
 is a pair of objects:
 the \mkey{graph type}{of typed object}\index{type!graph type}
@@ -15450,7 +15440,7 @@ act as indirect pointers to the
 variables in the context.  By abuse of language the context may be
 called the `graph typed object'.
 
-Typed objects may be introduced in two different ways.  In the first
+Graph typed objects may be introduced in two different ways.  In the first
 method the context is given the \minkey{OBJ\_\EOL GTYPED} flag
 and its first variable points at the graph type.  In the second method
 the graph typed object is represented by
@@ -15463,6 +15453,8 @@ The graph type is pointed at by the control of the auxilary stub,
 and the context is pointed at by the value of the auxilary stub.
 An auxilary stub is necessary in order to allow garbage collection
 of the stubs (the control of the primary stub is reserved for GC use).
+This second method of introducing graph typed objects allows graph typed
+objects to be viewed with several different graph types.
 
 Typed objects make use of two kinds of indirect pointer.  The first is
 just a single index \TT{min::gen} value in the graph type
@@ -15475,11 +15467,20 @@ that contains a pointer to
 a context object and an index of a variable in the context.
 An auxilary stub is necessary in order to allow garbage collection
 of the stubs (the control of the primary stub is reserved for GC use).
+This second kind of pointer is only supported when it is stored in
+context variables.
 
 If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
 taken, to any depth.
+
+Graph type objects and contexts are given the
+\TT{min::\EOL OBJ\_\EOL PUBLIC} flag (\pagref{OBJ_PUBLIC}),
+so it is not possible to add attributes to a graph type or
+graph type object.  It is also not allowed for a graph type
+object to have attributes
+with more than one value or double arrow values.
 
 Graph types are objects with the
 \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag.  The first variable of a graph
@@ -15490,6 +15491,9 @@ Strictly speaking, a graph type is an object that is the root of a tree
 of objects, and the non-root members of the tree do \underline{not}
 have the \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag, unless they are
 roots of graph subtypes.
+
+\subsubsubsection{Creating Graph Typed Objects}
+\label{CREATING-GRAPH-TYPED-OBJECTS}
 
 To make a new graph type, first construct the graph making use of
 \TT{min::\EOL new\_\EOL index\_\EOL gen} (\pagref{MIN::NEW_INDEX_GEN})
@@ -15502,14 +15506,86 @@ to reference variables in the context.  Then execute the function:
 
 This compacts the object's in the graph rooted at the \TT{gtype} argument,
 makes them public by setting their
-\TT{min::\EOL OBJ\_EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
+\TT{min::\EOL OBJ\_\EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
 sets the first variable of the \TT{gtype} object to one plus the
 maximum index in the graph,
 and sets the object's \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE} flag.
 It is permissible for some subgraphs to already
 be graph types and some objects in the graph to already be public
-before this function is called.  The function returns the \TT{gtype}
-argument.
+before this function is called.
+The function returns the \TT{gtype} argument if the new graph type
+is acyclic and does not have any attributes with more than one
+value or double arrow values,
+and otherwise returns \TT{min::\EOL ERROR()} and writes an
+error message into \TT{min::\EOL error\_\EOL message}
+(\pagref{ERROR_MESSAGE}).
+
+To make a new context with a given graph type, execute the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_context} \verb|( min::gen gtype )|
+\LABEL{MIN::NEW_CONTEXT} \\
+\end{tabular}\end{indpar}
+
+The new context is returned.
+The new context has the number of variables specified by the graph
+type, and the first of these is set to point at the graph type.
+All the other variables are set to \TT{min::\EOL UNDEFINED()}
+(\pagref{MIN::UNDEFINED}).
+
+\subsubsubsection{Pointers to Graph Typed Objects}
+\label{POINTERS-TO-GRAPH-TYPED-OBJECTS}
+
+Attribute pointers to objects that might be graph typed
+must be created by one of the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{attr\_ptr} \verb|ap|\ARGBREAK
+	  \verb|( min::gen obj )|
+\LABEL{MIN::ATTR_PTR_OF_OBJ} \\
+\verb|min::attr_ptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_ptr}}\ARGBREAK
+	  \verb|( min::attr_ptr & ap,|\ARGBREAK
+	  \verb|  min::gen obj )|
+\LABEL{MIN::=ATTR_PTR_OF_OBJ} \\
+(constructor)~\verb|min::|
+	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
+	  \verb|( min::gen obj )|
+\LABEL{MIN::ATTR_UPDPTR_OF_OBJ} \\
+\verb|min::attr_updptr & |
+	& \TTOMKEY{=}{=}{of {\tt min::attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap,|\ARGBREAK
+	  \verb|  min::gen obj )|
+\LABEL{MIN::=ATTR_UPDPTR_OF_OBJ} \\
+\end{tabular}\end{indpar}
+
+The object \TT{obj} must be public, even if it does not
+have the graph type.
+
+Pointers of \TT{min::list\_xxxptr} or \TT{min::\EOL attr\_xxxptr} type
+cannot point at contexts (i.e., objects with
+the \TT{OBJ\_\EOL GTYPED} flag set).
+Pointers of \TT{min::\EOL list\_\EOL updptr} or
+\TT{min::\EOL attr\_\EOL updptr} type
+cannot point at graph types (i.e., objects with
+the \TT{OBJ\_\EOL IS\_\EOL GTYPE} flag set).
+Pointers of \TT{min::xxxx\_insptr} type
+cannot point at contexts or graph types (i.e., objects with
+the \TT{OBJ\_\EOL PUBLIC} flag set).
+
+When used with attribute pointers created with the above functions,
+\TT{min::get} follows the indirect pointers that are index \TT{min::gen}
+values, treating these as indices of variables in the graph typed object's
+contest,
+and also follows indirect pointers that are 
+\TT{min::gen} values pointing at \TT{min::\EOL VAR\_\EOL PTR}
+stubs \underline{provided} these are stored in context variables.
+The \TT{min::update} function
+follows these same indirect pointers, and requires that the location
+stored into be a context variable.
+\TT{Min::gen} values pointing at \TT{min::\EOL VAR\_\EOL PTR}
+stubs may be stored using \TT{min::\EOL update}.
 
 \subsubsection{Printing Object General Values}
 \label{PRINTING-OBJECT-GENERAL-VALUES}
