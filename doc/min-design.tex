@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 11, 2017}
+\date{November 12, 2017}
  
 \maketitle
 
@@ -922,9 +922,10 @@ stored inside a body to point at some part, called an
 There are several subtypes of auxiliary pointers storable in bodies.
 See~\pagref{OBJECT-BODY-AUXILIARY-POINTER}.
 
-An \key{index} is an integer that is used to give the index of a variable
+An \key{index}
+is an integer that is used to give the index of a variable
 that is an element of an object body.
-See~\pagref{OBJECTS}.
+See~\pagref{INDEX}.
 
 A \key{control code} is an integer that represents flags and codes
 stored in a general value.  Control codes can have different
@@ -15454,15 +15455,18 @@ and the \mkey{context}{of graph typed object}
 which provides variables that give other attribute values.  The graph type
 contains variable values that are \TT{min::gen} indices which
 act as indirect pointers to the
-variables in the context.  By abuse of language the context may be
-called the `graph typed object'.
+variables in the context.
+The context contains a pointer to the graph type most commonly paired
+with the context.
+By abuse of language the context may be
+called a `graph typed object'.
 
 Graph typed objects may be introduced in two different ways.  In the first
 method the context is given the \minkey{OBJ\_\EOL GTYPED} flag
 and its first variable points at the graph type.  In the second method
-the graph typed object is represented by
+the graph typed object is represented by a \TT{min::gen} value pointing at
 a stub of \minkey{GTYPED\_\EOL OBJ}\label{MIN::GTYPED_OBJ} type
-that points at an auxilary stub
+that in turn points at an auxilary stub
 of \minkey{GTYPED\_\EOL OBJ\_\EOL AUX}\label{MIN::GTYPED_OBJ_AUX} type
 that holds two pointers
 to stubs: one pointing at the graph type and the second pointing at the context.
@@ -15470,21 +15474,24 @@ The graph type is pointed at by the control of the auxilary stub,
 and the context is pointed at by the value of the auxilary stub.
 An auxilary stub is necessary in order to allow garbage collection
 of the stubs (the control of the primary stub is reserved for GC use).
-This second method of introducing graph typed objects allows graph typed
-objects to be viewed with several different graph types.
+This second method of introducing graph typed objects allows a context
+to be viewed with several different graph types.
 
 Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \TT{min::gen} value in the graph type
+just a single index \TT{min::gen}\label{INDEX} value
+(\itemref{GENERAL-VALUES})
+in the graph type
 that holds the index of a
 variable vector element.  This always refers to a variable in the context.
-The second is a stub of \minkey{VAR\_\EOL PTR}\label{MIN::VAR_PTR} type
+The second is a \TT{min::gen} value pointing at a
+stub of \minkey{VAR\_\EOL PTR}\label{MIN::VAR_PTR} type
 that holds a pointer to an auxilary stub of
 \minkey{VAR\_\EOL PTR\_\EOL AUX}\label{MIN::VAR_PTR_AUX} type
 that contains a pointer to
 a context object and an index of a variable in the context.
 An auxilary stub is necessary in order to allow garbage collection
 of the stubs (the control of the primary stub is reserved for GC use).
-This second kind of pointer is only supported when it is stored in
+This second kind of index pointer is only supported when it is stored in
 context variables.
 
 If an attribute value is an indirect
@@ -15494,20 +15501,21 @@ taken, to any depth.
 
 Graph type objects and contexts are given the
 \TT{min::\EOL OBJ\_\EOL PUBLIC} flag (\pagref{OBJ_PUBLIC}),
-so it is not possible to add attributes to a graph type or
+so it is not possible to add attributes to a graph type, context, or
 graph type object.  It is also not allowed for a graph type
-object to have attributes
-with more than one value or double arrow values.
+or graph typed object to have attributes
+with more than one value or attributes with double arrow values.
 
 Graph types are objects with the
 \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag.  The first variable of a graph
 type is an integer that bounds the indices stored in the graph type.
-That is, if this integer is \TT{B} then any index \TT{i} stored in the graph
-type is in the range $0\leq$\TT{i}$<$\TT{B}.
+That is, this integer is the maximum plus \TT{1} of
+all the indices  stored in the graph type.
 Strictly speaking, a graph type is an object that is the root of a tree
-of objects, and the non-root members of the tree do \underline{not}
+of objects, and the non-root objects in the tree do \underline{not}
 have the \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag, unless they are
-roots of graph subtypes.
+roots of graph subtypes.  However the non-root objects must have
+the \TT{OBJ\_\EOL PUBLIC} flag.
 
 \subsubsubsection{Creating Graph Typed Objects}
 \label{CREATING-GRAPH-TYPED-OBJECTS}
@@ -15526,16 +15534,34 @@ makes them public by setting their
 \TT{min::\EOL OBJ\_\EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
 sets the first variable of the \TT{gtype} object to one plus the
 maximum index in the graph,
-and sets the object's \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE} flag.
+and sets this object's \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE} flag.
 It is permissible for some subgraphs to already
 be graph types and some objects in the graph to already be public
 before this function is called.
 The function returns the \TT{gtype} argument if the new graph type
-is acyclic and does not have any attributes with more than one
-value or double arrow values,
+contains no errors,
 and otherwise returns \TT{min::\EOL ERROR()} and writes an
 error message into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}).
+Errors include:
+\begin{indpar}\begin{enumerate}
+\item The graph type contains a cycle.
+\item The graph type contains an attribute with more than one value.
+\item The graph type contains an attribute with a double arrow value.
+\item The graph type contains a \TT{min::gen} index value with index \TT{0}
+(which would mean that the graph type would point to itself via the
+context first variable).
+\item The graph type contains a \TT{min::gen} index value larger
+than \TT{MIN\_\EOL CONTEXT\_\EOL SIZE\_\EOL LIMIT}.
+\end{enumerate}\end{indpar}
+
+Error checking makes use of:
+
+\begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
+\TTKEY{MIN\_CONTEXT\_SIZE\_LIMIT}	& Maximum number of variables in
+                                          a context.  Defaults to \TT{1000}.
+\LABEL{MIN_CONTEXT_SIZE_LIMIT}
+\end{tabular}\end{indpar}
 
 To make a new context with a given graph type, execute the function:
 
@@ -15577,18 +15603,56 @@ must be created by one of the following:
 \LABEL{MIN::=ATTR_UPDPTR_OF_OBJ} \\
 \end{tabular}\end{indpar}
 
-The object \TT{obj} must be public, even if it does not
-have the graph type.
+The argument \TT{obj} may by an object or may be a \TT{GTYPED\_\EOL OBJ}
+pointer (see above).  If it is an object, it must be public,
+even if it is not a context with a graph type.
+Creating an attribute pointer this way creates vector pointers inside
+the attribute pointer.  These can be accessed by the functions:
 
-Pointers of \TT{min::list\_xxxptr} or \TT{min::\EOL attr\_xxxptr} type
-cannot point at contexts (i.e., objects with
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::obj_vec_ptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
+	  \verb|( min::attr_ptr & ap )|
+[See \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_PTR}] \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap )|
+[See \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR}] \\
+\end{tabular}\end{indpar}
+
+which point at the graph type (or at the object \TT{obj} if that is
+a non-graph-typed object) and:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::obj_vec_ptr & min::|
+	& \MINMKEY{context\_obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
+	  \verb|( min::attr_ptr & ap )|
+\LABEL{MIN::CONTEXT_OBJ_VEC_PTR_OF_ATTR_PTR} \\
+\verb|min::obj_vec_updptr & min::|
+	& \MINMKEY{context\_obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap )|
+\LABEL{MIN::CONTEXT_OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
+\end{tabular}\end{indpar}
+
+which point at the context of a graph typed object, or are set to
+\TT{min::\EOL NULL\_\EOL STUB} if \TT{obj} is a non-graph-typed object.
+
+The usual attribute pointer creation functions that take a vector
+pointer as argument
+(see \pagref{MIN::ATTR_PTR_OF_OBJ_VEC_PTR},
+\pagref{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR},
+and \pagref{MIN::ATTR_INSPTR_OF_OBJ_VEC_INSPTR})
+cannot be used to create
+\TT{min::list\_xxxptr} or \TT{min::\EOL attr\_xxxptr} pointers
+pointing at contexts (i.e., objects with
 the \TT{OBJ\_\EOL GTYPED} flag set).
-Pointers of \TT{min::\EOL list\_\EOL updptr} or
-\TT{min::\EOL attr\_\EOL updptr} type
-cannot point at graph types (i.e., objects with
+Nor can they be used to create
+\TT{min::\EOL list\_\EOL updptr} or
+\TT{min::\EOL attr\_\EOL updptr} pointers
+pointing at graph types (i.e., objects with
 the \TT{OBJ\_\EOL IS\_\EOL GTYPE} flag set).
-Pointers of \TT{min::xxxx\_insptr} type
-cannot point at contexts or graph types (i.e., objects with
+Nor can they be used to create of \TT{min::xxxx\_insptr} pointers
+pointing at contexts or graph types (i.e., objects with
 the \TT{OBJ\_\EOL PUBLIC} flag set).
 
 When used with attribute pointers created with the above functions,
@@ -16975,6 +17039,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
 \TTKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
+\TTKEY{MIN\_CONTEXT\_SIZE\_LIMIT}
+\LABEL{MIN_CONTEXT_SIZE_LIMIT} \\
 \end{tabular}
 
 \end{indpar}
