@@ -439,8 +439,8 @@ Macro Name		& Meaning	& Page Reference \\[1ex]
 \TT{-DMIN\_IS\_COMPACT=1}
 			& make implementation compact
 					& \pagref{MIN_IS_COMPACT} \\
-\TT{-DMIN\_ASSERT\_CALL\_NEVER}	& delete protection checks
-					& \pagref{ASSERT_MACROS} \\
+\TT{-DMIN\_NO\_PROTECTION=1}	& suppress integrity checks
+					& \pagref{MIN_NO_PROTECTION} \\
 \end{tabular}
 \end{indpar}
 
@@ -508,7 +508,8 @@ Protected functions use the following macro to enforce protection:
 \TT{MIN\_ASSERT} is actually defined to be one of the following:
 \begin{indpar}\begin{tabular}{lp{3.0in}}
 \TTKEY{MIN\_ASSERT\_CALL\_ON\_FAIL}\TT{(}$e$\TT{,...)}
-	& The default value of \TT{MIN\_ASSERT}.
+	& The default value of \TT{MIN\_ASSERT}
+	  if \TT{MIN\_\EOL NO\_\EOL PROTECTION == 0}.
 	  Evaluates $e$, and if the value is
 	  false, calls the \TT{min::\EOL assert\_\EOL hook} function.
 \LABEL{MIN_ASSERT_CALL_ON_FAIL} \\
@@ -519,6 +520,8 @@ Protected functions use the following macro to enforce protection:
 \LABEL{MIN_ASSERT_CALL_ALWAYS} \\
 \TTKEY{MIN\_ASSERT\_CALL\_NEVER}\TT{(}$e$\TT{,...)}
 	& Does nothing.  Does not even evaluate $e$.
+	  The default value of \TT{MIN\_ASSERT}
+	  if \TT{MIN\_\EOL NO\_\EOL PROTECTION == 1}.
 \LABEL{MIN_ASSERT_CALL_NEVER} \\
 \end{tabular}\end{indpar}
 
@@ -535,12 +538,26 @@ or set for debugging by
 \TT{\# define MIN\_ASSERT MIN\_ASSERT\_CALL\_ALWAYS}
 \end{center}
 
+If not defined by a compiler option or a definition preceeding
+\TT{\#include} statements, the definition of
+\TT{MIN\_ASSERT} is controlled by:
+
+\begin{indpar}[0.2in]\begin{tabular}{p{2.1in}p{3.5in}}
+\TTKEY{MIN\_NO\_PROTECTION}	& 1 to suppress integrity checks,
+                                  such as \TT{MIN\_\EOL ASSERT}'s,
+                                  \TT{MIN\_\EOL REQUIRES}'s,
+                                  and code that initializes
+				  variables that should never
+				  be use.  Defaults to 0.  
+\LABEL{MIN_NO_PROTECTION}
+\end{tabular}\end{indpar}
+
 Three alternatives to \TT{MIN\_ASSERT} are:
 
 \begin{indpar}\begin{tabular}{lp{4.5in}}
 \TTKEY{MIN\_REQUIRE}\TT{(}$e$\TT{)}
 	& Defined to always be the equivalent of
-	  \TT{MIN\_\EOL ASSERT\_\EOL CALL\_\EOL ON\_\EOL FAIL(}$e$\TT{,NULL)}.
+	  \TT{MIN\_\EOL ASSERT(}$e$\TT{,NULL)}.
 	  Used for system integrity checks.
 \LABEL{MIN_REQUIRE} \\
 \TTKEY{MIN\_CHECK}\TT{(}$e$\TT{)}
@@ -16938,6 +16955,8 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
+\TTKEY{MIN\_NO\_PROTECTION}
+\LABEL{MIN_NO_PROTECTION} \\
 \TTKEY{MIN\_IS\_COMPACT}
 \LABEL{MIN_IS_COMPACT} \\
 \TTKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}

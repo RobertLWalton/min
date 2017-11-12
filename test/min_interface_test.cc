@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  6 04:52:24 EDT 2017
+// Date:	Sat Nov 11 23:23:01 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -97,6 +97,8 @@ bool memory_debug = false;
 
 # undef MIN_ASSERT
 # define MIN_ASSERT MIN_ASSERT_CALL_ALWAYS
+# undef MIN_REQUIRE
+# define MIN_REQUIRE(e) MIN_ASSERT_CALL_ON_FAIL(e,NULL)
 
 
 // Run-Time System for Interface Tests

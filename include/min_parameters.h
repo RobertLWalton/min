@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 07:05:23 EDT 2015
+// Date:	Sat Nov 11 23:11:47 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -28,7 +28,7 @@
 // The following compiler options illustrate typical use
 // in overriding defaults:
 //
-// -DMIN_ASSERT=MIN_ASSERT_CALL_NEVER
+// -DMIN_NO_PROTECTION=1
 // -DMIN_IS_COMPACT=1
 // -DMIN_USE_OBJ_AUX_STUBS=1
 // -DMIN_MAX_EPHEMERAL_LEVELS=1
@@ -40,6 +40,10 @@
 # define MIN_PARAMETERS_H
 
 # include <cstdio>
+
+# ifndef MIN_NO_PROTECTION
+#   define MIN_NO_PROTECTION 0
+# endif
 
 // Assert
 // ------
@@ -89,13 +93,7 @@ namespace min {
 	      __VA_ARGS__ ) )
 # define MIN_ASSERT_CALL_NEVER(expression,...)
 # define MIN_REQUIRE(expression) \
-    ( expression ? (void) 0 : \
-        ( * min::assert_hook ) \
-	    ( false, \
-	      #expression, \
-	      __FILE__, __LINE__, \
-	      __PRETTY_FUNCTION__, \
-	      NULL ) )
+    MIN_ASSERT ( expression, NULL )
 # define MIN_CHECK(expression) \
     ( ( * min::assert_hook ) \
 	    ( (expression), \
@@ -112,7 +110,11 @@ namespace min {
 	      __VA_ARGS__ ), min::no_return() )
 
 # ifndef MIN_ASSERT
-#	define MIN_ASSERT MIN_ASSERT_CALL_ON_FAIL
+#   if MIN_NO_PROTECTION
+#       define MIN_ASSERT MIN_ASSERT_CALL_NEVER
+#   else
+#       define MIN_ASSERT MIN_ASSERT_CALL_ON_FAIL
+#   endif
 # endif
 
 

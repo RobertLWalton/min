@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  8 02:45:42 EST 2017
+// Date:	Sat Nov 11 22:59:05 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7173,16 +7173,18 @@ namespace min {
 	{
 	    if ( s == NULL )
 	    {
-		unused_offset = 0;
-		aux_offset = 0;
-		hash_size = 0;
-		total_size = 0;
-		var_offset = 0;
-		hash_offset = 0;
-		attr_offset = 0;
-		total_size_flags = 0;
-		unused_offset_flags = 0;
-		aux_offset_flags = 0;
+#		if ! MIN_NO_PROTECTION
+		    unused_offset = 0;
+		    aux_offset = 0;
+		    hash_size = 0;
+		    total_size = 0;
+		    var_offset = 0;
+		    hash_offset = 0;
+		    attr_offset = 0;
+		    total_size_flags = 0;
+		    unused_offset_flags = 0;
+		    aux_offset_flags = 0;
+#		endif
 		return;
 	    }
 
@@ -7296,16 +7298,18 @@ namespace min {
 	    default:
 	    {
 	        s = NULL;
-		unused_offset = 0;
-		aux_offset = 0;
-		hash_size = 0;
-		total_size = 0;
-		var_offset = 0;
-		hash_offset = 0;
-		attr_offset = 0;
-		total_size_flags = 0;
-		unused_offset_flags = 0;
-		aux_offset_flags = 0;
+#		if ! MIN_NO_PROTECTION
+		    unused_offset = 0;
+		    aux_offset = 0;
+		    hash_size = 0;
+		    total_size = 0;
+		    var_offset = 0;
+		    hash_offset = 0;
+		    attr_offset = 0;
+		    total_size_flags = 0;
+		    unused_offset_flags = 0;
+		    aux_offset_flags = 0;
+#		endif
 		return;
 	    }
 	    }
