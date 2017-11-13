@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 11 22:59:05 EST 2017
+// Date:	Mon Nov 13 12:17:21 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6622,10 +6622,10 @@ namespace min {
     const unsigned OBJ_PUBLIC  = ( 1 << 1 );
     const unsigned OBJ_AUX     = ( 1 << 3 );
 
-    // OBJ_GTYPE means object first variable (var(0))
+    // OBJ_CONTEXT means object first variable (var(0))
     // points at the object's graph type.
     //
-    // OBJ_IS_GTYPE means object is graph type and its
+    // OBJ_GTYPE means object is graph type and its
     // first variable (var(0)) is an upper bound on the
     // value of any index general value in the graph
     // rooted at the object.  That is, any index value
@@ -6633,8 +6633,8 @@ namespace min {
     // graph do not have this flag unless they root
     // subgraphs that are also graph types.
     //
-    const unsigned OBJ_GTYPED     = ( 1 << 0 );
-    const unsigned OBJ_IS_GTYPE   = ( 1 << 1 );
+    const unsigned OBJ_CONTEXT = ( 1 << 0 );
+    const unsigned OBJ_GTYPE   = ( 1 << 1 );
 
 #   if MIN_IS_COMPACT
 
@@ -6672,8 +6672,8 @@ namespace min { namespace internal {
     //
     //  Unused Offset Bits:
     //
-    //    0		OBJ_GTYPED
-    //    1		OBJ_IS_GTYPE
+    //    0		OBJ_CONTEXT
+    //    1		OBJ_GTYPE
     //	  2..3		reserved for more flags
     //	  4..N-1	unused offset - 1
     //
@@ -6881,7 +6881,15 @@ namespace min {
 	( min::obj_vec_ptr & vp );
     bool public_flag_of
 	( min::obj_vec_ptr & vp );
+    bool gtype_flag_of
+	( min::obj_vec_ptr & vp );
+    bool context_flag_of
+	( min::obj_vec_ptr & vp );
     void set_public_flag_of
+	( min::obj_vec_insptr & vp );
+    void set_gtype_flag_of
+	( min::obj_vec_insptr & vp );
+    void set_context_flag_of
 	( min::obj_vec_insptr & vp );
 
     min::unsptr hash_count_of
@@ -7083,7 +7091,15 @@ namespace min {
 	    ( min::obj_vec_ptr & vp );
 	friend bool public_flag_of
 	    ( min::obj_vec_ptr & vp );
+	friend bool gtype_flag_of
+	    ( min::obj_vec_ptr & vp );
+	friend bool context_flag_of
+	    ( min::obj_vec_ptr & vp );
 	friend void set_public_flag_of
+	    ( min::obj_vec_insptr & vp );
+	friend void set_gtype_flag_of
+	    ( min::obj_vec_insptr & vp );
+	friend void set_context_flag_of
 	    ( min::obj_vec_insptr & vp );
 
 	friend void resize
@@ -7599,10 +7615,34 @@ namespace min {
     {
         return vp.total_size_flags & OBJ_PUBLIC;
     }
+    inline bool gtype_flag_of
+	( min::obj_vec_ptr & vp )
+    {
+        return vp.unused_offset_flags & OBJ_GTYPE;
+    }
+    inline bool context_flag_of
+	( min::obj_vec_ptr & vp )
+    {
+        return vp.unused_offset_flags & OBJ_CONTEXT;
+    }
     inline void set_public_flag_of
 	( min::obj_vec_insptr & vp )
     {
         vp.total_size_flags |= OBJ_PUBLIC;
+	vp = NULL_STUB;
+    }
+    inline void set_gtype_flag_of
+	( min::obj_vec_insptr & vp )
+    {
+        vp.unused_offset_flags |=
+	    OBJ_GTYPE | OBJ_PUBLIC;
+	vp = NULL_STUB;
+    }
+    inline void set_context_flag_of
+	( min::obj_vec_insptr & vp )
+    {
+        vp.unused_offset_flags |=
+	    OBJ_CONTEXT | OBJ_PUBLIC;
 	vp = NULL_STUB;
     }
 
@@ -10065,6 +10105,16 @@ namespace min { namespace unprotected {
 	    return * this;
 	}
 
+        attr_ptr_type ( min::gen obj )
+	    : attr_name ( NONE() ),
+	      reverse_attr_name ( NONE() ),
+	      state ( INIT )
+	{
+	    vp = obj;
+	    MIN_ASSERT ( min::public_flag_of ( vp ),
+	                 "object is NOT public" );
+	}
+
     private:
 
     // Private Data:
@@ -10201,10 +10251,17 @@ namespace min { namespace unprotected {
     	list_ptr_type<vecptr> lp;
 	    // A working pointer for temporary use.
 	
-	vecptr cp;
-	    // Pointer to context; set for graph type
-	    // objects (the attr_ptr proper points at
-	    // the graph type).
+	vecptr vp;
+	    // For attr_xxxptr created from a min::gen
+	    // object, vecptr at object if object is not
+	    // graph typed, or vecptr at context if
+	    // object is graph typed.  Unused for other
+	    // attr_xxxptr's.
+	
+	vecptr gvp;
+	    // For attr_xxxptr created from a min::gen
+	    // object, vecptr at graph type if object is
+	    // graph typed.  Unused otherwise.
 
     // Friends:
 
