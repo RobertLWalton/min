@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 12, 2017}
+\date{November 13, 2017}
  
 \maketitle
 
@@ -11927,8 +11927,8 @@ auxiliary area
 \end{center}
 
 The \mkey{header}{of object} contains object flags
-(including \TT{min::\EOL OBJ\_\EOL PRIVATE}, \TT{min::\EOL OBJ\_\EOL PUBLIC},
-\TT{min::\EOL OBJ\_\EOL GTYPED}, and \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE})
+(see Object Flags, \pagref{OBJECT-FLAGS-LIST}, for a complete list of
+object flags)
 and the sizes of the other 5 parts.
 The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
@@ -12343,7 +12343,9 @@ does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
 
 An object has two flags that regulate the creation of vector level
-pointers: \minkey{OBJ\_PRIVATE} and \minkey{OBJ\_PUBLIC}.
+pointers: \minkey{OBJ\_PRIVATE}\label{MIN::OBJ_PRIVATE}
+and
+\minkey{OBJ\_PUBLIC}\label{MIN::OBJ_PUBLIC}.
 If an object has neither of these flags, an object vector pointer
 to the object may be created, and this will set the \TT{min::OBJ\_PRIVATE}
 flag.  When the object vector pointer is destructed, this flag will be cleared.
@@ -15462,12 +15464,13 @@ By abuse of language the context may be
 called a `graph typed object'.
 
 Graph typed objects may be introduced in two different ways.  In the first
-method the context is given the \minkey{OBJ\_\EOL GTYPED} flag
+method the context is given the
+\minkey{OBJ\_\EOL CONTEXT}\label{MIN::OBJ_CONTEXT} flag
 and its first variable points at the graph type.  In the second method
 the graph typed object is represented by a \TT{min::gen} value pointing at
-a stub of \minkey{GTYPED\_\EOL OBJ}\label{MIN::GTYPED_OBJ} type
+a stub of \minkey{GTYPED\_\EOL PTR}\label{MIN::GTYPED_PTR} type
 that in turn points at an auxilary stub
-of \minkey{GTYPED\_\EOL OBJ\_\EOL AUX}\label{MIN::GTYPED_OBJ_AUX} type
+of \minkey{GTYPED\_\EOL PTR\_\EOL AUX}\label{MIN::GTYPED_PTR_AUX} type
 that holds two pointers
 to stubs: one pointing at the graph type and the second pointing at the context.
 The graph type is pointed at by the control of the auxilary stub,
@@ -15507,13 +15510,14 @@ or graph typed object to have attributes
 with more than one value or attributes with double arrow values.
 
 Graph types are objects with the
-\minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag.  The first variable of a graph
+\minkey{OBJ\_\EOL GTYPE}\label{MIN::OBJ_GTYPE} flag.
+The first variable of a graph
 type is an integer that bounds the indices stored in the graph type.
 That is, this integer is the maximum plus \TT{1} of
 all the indices  stored in the graph type.
 Strictly speaking, a graph type is an object that is the root of a tree
 of objects, and the non-root objects in the tree do \underline{not}
-have the \minkey{OBJ\_\EOL IS\_\EOL GTYPE} flag, unless they are
+have the \minkey{OBJ\_\EOL GTYPE} flag, unless they are
 roots of graph subtypes.  However the non-root objects must have
 the \TT{OBJ\_\EOL PUBLIC} flag.
 
@@ -15534,7 +15538,7 @@ makes them public by setting their
 \TT{min::\EOL OBJ\_\EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
 sets the first variable of the \TT{gtype} object to one plus the
 maximum index in the graph,
-and sets this object's \TT{min::\EOL OBJ\_\EOL IS\_\EOL GTYPE} flag.
+and sets this object's \TT{min::\EOL OBJ\_\EOL GTYPE} flag.
 It is permissible for some subgraphs to already
 be graph types and some objects in the graph to already be public
 before this function is called.
@@ -15603,7 +15607,7 @@ must be created by one of the following:
 \LABEL{MIN::=ATTR_UPDPTR_OF_OBJ} \\
 \end{tabular}\end{indpar}
 
-The argument \TT{obj} may by an object or may be a \TT{GTYPED\_\EOL OBJ}
+The argument \TT{obj} may by an object or may be a \TT{GTYPED\_\EOL PTR}
 pointer (see above).  If it is an object, it must be public,
 even if it is not a context with a graph type.
 Creating an attribute pointer this way creates vector pointers inside
@@ -15645,12 +15649,12 @@ and \pagref{MIN::ATTR_INSPTR_OF_OBJ_VEC_INSPTR})
 cannot be used to create
 \TT{min::list\_xxxptr} or \TT{min::\EOL attr\_xxxptr} pointers
 pointing at contexts (i.e., objects with
-the \TT{OBJ\_\EOL GTYPED} flag set).
+the \TT{OBJ\_\EOL CONTEXT} flag set).
 Nor can they be used to create
 \TT{min::\EOL list\_\EOL updptr} or
 \TT{min::\EOL attr\_\EOL updptr} pointers
 pointing at graph types (i.e., objects with
-the \TT{OBJ\_\EOL IS\_\EOL GTYPE} flag set).
+the \TT{OBJ\_\EOL GTYPE} flag set).
 Nor can they be used to create of \TT{min::xxxx\_insptr} pointers
 pointing at contexts or graph types (i.e., objects with
 the \TT{OBJ\_\EOL PUBLIC} flag set).
@@ -15667,6 +15671,24 @@ follows these same indirect pointers, and requires that the location
 stored into be a context variable.
 \TT{Min::gen} values pointing at \TT{min::\EOL VAR\_\EOL PTR}
 stubs may be stored using \TT{min::\EOL update}.
+
+\subsubsubsection{Graph Typed Object Maintenance}
+\label{GRAPH-TYPED-OBJECT-MAINTENANCE}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{gtype\_flag\_of}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::GTYPE_FLAG_OF_OBJ_VEC_PTR} \\
+\verb|bool min::| & \MINKEY{context\_flag\_of}\ARGBREAK
+    \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::CONTEXT_FLAG_OF_OBJ_VEC_PTR} \\
+\verb|void min::| & \MINKEY{set\_gtype\_flag\_of}\ARGBREAK
+    \verb|( min::obj_vec_insptr & vp )|
+\LABEL{MIN::SET_GTYPE_FLAG_OF_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{set\_context\_flag\_of}\ARGBREAK
+    \verb|( min::obj_vec_insptr & vp )|
+\LABEL{MIN::SET_CONTEXT_FLAG_OF_OBJ_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
 
 \subsubsection{Printing Object General Values}
 \label{PRINTING-OBJECT-GENERAL-VALUES}
@@ -17203,10 +17225,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
 \LABEL{MIN::SUBLIST_AUX} \\
-\verb|const int min::| & \MINKEY{GTYPED\_OBJ}
-\LABEL{MIN::GTYPED_OBJ} \\
-\verb|const int min::| & \MINKEY{GTYPED\_OBJ\_AUX}
-\LABEL{MIN::GTYPED_OBJ_AUX} \\
+\verb|const int min::| & \MINKEY{GTYPED\_PTR}
+\LABEL{MIN::GTYPED_PTR} \\
+\verb|const int min::| & \MINKEY{GTYPED\_PTR\_AUX}
+\LABEL{MIN::GTYPED_PTR_AUX} \\
 \verb|const int min::| & \MINKEY{VAR\_PTR}
 \LABEL{MIN::VAR_PTR} \\
 \verb|const int min::| & \MINKEY{VAR\_PTR\_AUX}
@@ -21438,6 +21460,23 @@ These are in \verb|min_parameters.h|.
 \end{indpar}
 
 \bigskip
+
+
+\INDEXHEADER{Object Flags}\label{OBJECT-FLAGS-LIST}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.4in}
+\verb|const int min::| & \MINKEY{OBJ\_PRIVATE}
+\LABEL{MIN::OBJ_PRIVATE} \\
+\verb|const int min::| & \MINKEY{OBJ\_PUBLIC}
+\LABEL{MIN::OBJ_PUBLIC} \\
+\verb|const int min::| & \MINKEY{OBJ\_GTYPE}
+\LABEL{MIN::OBJ_GTYPE} \\
+\verb|const int min::| & \MINKEY{OBJ\_CONTEXT}
+\LABEL{MIN::OBJ_CONTEXT} \\
+\end{TABULAR}
+\end{indpar}
 
 \INDEXHEADER{Object Maintenance}
 
