@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 12:17:21 EST 2017
+// Date:	Tue Nov 14 02:06:45 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -471,7 +471,7 @@ namespace min {
     const int SHORT_STR			= 15;
     const int LONG_STR			= 16;
     const int LABEL			= 17;
-    const int GTYPED_OBJ		= 18;
+    const int GTYPED_PTR		= 18;
     const int VAR_PTR			= 19;
 
     // Uncollectible.
@@ -482,7 +482,7 @@ namespace min {
     const int SUBLIST_AUX		= -4;
     const int HASHTABLE_AUX		= -5;
     const int RELOCATE_BODY		= -6;
-    const int GTYPED_OBJ_AUX		= -7;
+    const int GTYPED_PTR_AUX		= -7;
     const int VAR_PTR_AUX		= -8;
 
     extern const char ** type_name;
@@ -6971,6 +6971,11 @@ namespace min {
 	    return s;
 	}
 
+	operator bool ( void ) const
+	{
+	    return s != min::NULL_STUB;
+	}
+
 	obj_vec_ptr & operator =
 		( const min::stub * s )
 	{
@@ -10110,9 +10115,51 @@ namespace min { namespace unprotected {
 	      reverse_attr_name ( NONE() ),
 	      state ( INIT )
 	{
-	    vp = obj;
-	    MIN_ASSERT ( min::public_flag_of ( vp ),
-	                 "object is NOT public" );
+	    const min::stub * s = min::stub_of ( obj );
+	    MIN_ASSERT
+	        ( s != min::NULL_STUB,
+	          "argument does NOT point at stub" );
+	    if (    unprotected::type_of ( s )
+	         == min::GTYPED_PTR )
+	    {
+		const min::stub * saux =
+		    unprotected::stub_of
+		        ( unprotected::gen_of ( s ) );
+		vp = unprotected::gen_of ( saux );
+		MIN_REQUIRE
+		    (    vp
+		      && min::context_flag_of ( vp ) );
+		min::uns64 c =
+		    unprotected::control_of ( saux );
+		gvp =
+		    unprotected::stub_of_control ( c );
+		MIN_REQUIRE
+		    (    gvp
+		      && min::gtype_flag_of ( gvp ) );
+	        goto FINISH;
+	    }
+	    vp = s;
+	    MIN_ASSERT
+	        ( vp && min::public_flag_of ( vp ),
+	          "argument is NOT public object"
+		  " or GTYPED_PTR" );
+	    if ( ! min::context_flag_of ( vp ) )
+	    {
+	        dlp = vp;
+		locate_dlp = vp;
+		lp = vp;
+		return;
+	    }
+	    gvp = min::var ( vp, 0 );
+	    MIN_ASSERT
+	        ( gvp && min::gtype_flag_of ( vp ),
+		  "context var[0] is NOT graph type" );
+
+	FINISH:
+
+	    dlp = gvp;
+	    locate_dlp = gvp;
+	    lp = gvp;
 	}
 
     private:

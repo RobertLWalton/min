@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 13, 2017}
+\date{November 14, 2017}
  
 \maketitle
 
@@ -12418,6 +12418,10 @@ may be created and set by the following functions:
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
           \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
+	& \TTOMKEY{bool}{bool}%
+	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
+          \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::OBJ_VEC_PTR_TO_BOOL} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
@@ -12450,6 +12454,9 @@ vector pointer from another, as the latter will be converted to a
 \TT{const min::\EOL stub~*} value, but note that the object
 must be public in order for more than one object vector pointer to
 point at it.
+
+The conversion of a vector pointer to a \TT{bool} returns \TT{true}
+iff the vector pointer stub is \underline{not} \TT{min::\EOL NULL\_\EOL STUB}.
 
 Unlike label, packed structure, or packed vector pointers,
 object vector pointers cache information about the object, and must always
@@ -15675,6 +15682,10 @@ stubs may be stored using \TT{min::\EOL update}.
 \subsubsubsection{Graph Typed Object Maintenance}
 \label{GRAPH-TYPED-OBJECT-MAINTENANCE}
 
+The following functions can be used to read and set the
+\TT{min::\EOL OBJ\_\EOL GTYPE}
+and \TT{min::\EOL OBJ\_\EOL CONTEXT} flags.
+
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{gtype\_flag\_of}\ARGBREAK
     \verb|( min::obj_vec_ptr & vp )|
@@ -15689,6 +15700,11 @@ stubs may be stored using \TT{min::\EOL update}.
     \verb|( min::obj_vec_insptr & vp )|
 \LABEL{MIN::SET_CONTEXT_FLAG_OF_OBJ_VEC_INSPTR} \\
 \end{tabular}\end{indpar}
+
+The functions that set the flags also set the \TT{min::\EOL OBJ\_\EOL PUBLIC}
+flag and set the insertable object vector pointer
+to \TT{min::\EOL NULL\_\EOL STUB}, as an insertable object vector
+pointer is not allowed to point at a public object.
 
 \subsubsection{Printing Object General Values}
 \label{PRINTING-OBJECT-GENERAL-VALUES}
@@ -21585,6 +21601,10 @@ These are in \verb|min_parameters.h|.
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
           \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
+	& \TTOMKEY{bool}{bool}%
+	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
+          \verb|( min::obj_vec_ptr & vp )|
+\LABEL{MIN::OBJ_VEC_PTR_TO_BOOL} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
 	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
