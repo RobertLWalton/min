@@ -1912,6 +1912,27 @@ in \itemref{UNPROTECTED-BODY-POINTERS}.
 Note also that \ikey{deallocation}{deallocate} of a body is treated as
 reallocation of the body to inaccessible virtual memory.
 
+\centerline{\large \bf IMPORTANT WARNING}
+
+\begin{quote} \it
+If a protected body pointer points at a body, the body's stub must not
+be garbage collected, and the fact that it is being pointed at
+by a protected body pointer is \underline{not} sufficient to
+prevent this.  Therefore \underline{another}
+pointer to the body's stub must
+be stored elsewhere, such as in a \TT{min::\EOL locatable\_...}
+variable (\pagref{LOCATABLE-VARIABLES}) or in another body that
+is protected from garbage collection,
+to keep the body's stub from being garbage collected.
+
+However,
+the body may be relocated without compromising the protected body
+pointer.  Additionally, if the body is deallocated (without
+garbage collecting its stub, see \pagref{MIN::DEALLOCATE}),
+references using the protected body pointer will very likely
+cause a segment fault, and not an undefined result.
+\end{quote}
+
 \subsubsection{Type Specific Body Pointers}
 \label{TYPE-SPECIFIC-BODY-POINTERS}
 
@@ -15523,10 +15544,8 @@ type is an integer that bounds the indices stored in the graph type.
 That is, this integer is the maximum plus \TT{1} of
 all the indices  stored in the graph type.
 Strictly speaking, a graph type is an object that is the root of a tree
-of objects, and the non-root objects in the tree do \underline{not}
-have the \minkey{OBJ\_\EOL GTYPE} flag, unless they are
-roots of graph subtypes.  However the non-root objects must have
-the \TT{OBJ\_\EOL PUBLIC} flag.
+of objects, all of which must
+have the \minkey{OBJ\_\EOL GTYPE} flag and be the root of a graph subtype.
 
 \subsubsubsection{Creating Graph Typed Objects}
 \label{CREATING-GRAPH-TYPED-OBJECTS}
@@ -15667,7 +15686,8 @@ pointing at contexts or graph types (i.e., objects with
 the \TT{OBJ\_\EOL PUBLIC} flag set).
 
 When used with attribute pointers created with the above functions,
-\TT{min::get} follows the indirect pointers that are index \TT{min::gen}
+single argument
+\TT{min::\EOL get} follows the indirect pointers that are index \TT{min::gen}
 values, treating these as indices of variables in the graph typed object's
 contest,
 and also follows indirect pointers that are 
@@ -15676,8 +15696,36 @@ stubs \underline{provided} these are stored in context variables.
 The \TT{min::update} function
 follows these same indirect pointers, and requires that the location
 stored into be a context variable.
-\TT{Min::gen} values pointing at \TT{min::\EOL VAR\_\EOL PTR}
-stubs may be stored using \TT{min::\EOL update}.
+
+The \TT{min::update} function \underline{cannot} be used to store
+a \TT{min::\EOL VAR\_\EOL PTR} type \TT{min::\EOL gen} value.  Instead,
+the single argument \TT{min::\EOL get} function stores information
+in the attribute pointer that can be used by the following functions
+(provided no other \TT{min::\EOL get} function execution on the
+attribute pointer intervenes):
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINMKEY{var\_ptr\_to}{of {\tt attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap )|
+\LABEL{MIN::VAR_PTR_TO_ATTR_UPDPTR} \\
+\verb|bool min::|
+	& \MINMKEY{set\_var}{of {\tt attr\_updptr}}\ARGBREAK
+	  \verb|( min::attr_updptr & ap, min::gen v )|
+\LABEL{MIN::SET_VAR_OF_ATTR_UPDPTR} \\
+\end{tabular}\end{indpar}
+
+The \TT{min::\EOL var\_\EOL \_ptr\_\EOL to} function returns
+a \TT{min::\EOL VAR\_\EOL PTR} pointing to the variable whose
+value the \TT{min::\EOL get} returned, or returns
+\TT{min::\EOL NULL\_\EOL STUB} if the \TT{min::\EOL get}
+returned a value from a location that was \underline{not}
+an object variable.  The \TT{min::\EOL set\_\EOL var}
+function stores its \TT{v} argument in the variable whose
+value the \TT{min::\EOL get} returned and returns \TT{true},
+or does nothing but return \TT{false} if the \TT{min::\EOL get}
+returned a value from a location that was \underline{not}
+an object variable.
 
 \subsubsubsection{Graph Typed Object Maintenance}
 \label{GRAPH-TYPED-OBJECT-MAINTENANCE}
