@@ -1289,15 +1289,15 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 1", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
+    strcmp ( "Line 1", ~ & file1->buffer [min::next_line(file1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 2", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
+    strcmp ( "Line 2", ~ & file1->buffer [min::next_line(file1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 3", ! & file1->buffer [min::next_line(file1)] ) == 0 => true
+    strcmp ( "Line 3", ~ & file1->buffer [min::next_line(file1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file1 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 2", ! & file1->buffer [min::line(file1,1)] ) == 0 => true
+    strcmp ( "Line 2", ~ & file1->buffer [min::line(file1,1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1305,9 +1305,9 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 0", ! & file2->buffer [min::next_line(file2)] ) == 0 => true
+    strcmp ( "Line 0", ~ & file2->buffer [min::next_line(file2)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line 1", ! & file2->buffer [min::next_line(file2)] ) == 0 => true
+    strcmp ( "Line 1", ~ & file2->buffer [min::next_line(file2)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file2 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1323,11 +1323,11 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     data_length == file4->buffer->length => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strncmp ( ! & file3->buffer[0], ! & file4->buffer[0], data_length ) == 0 => true
+    strncmp ( ~ & file3->buffer[0], ~ & file4->buffer[0], data_length ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line A", ! & file4->buffer [min::next_line(file4)] ) == 0 => true
+    strcmp ( "Line A", ~ & file4->buffer [min::next_line(file4)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Line B", ! & file4->buffer [min::next_line(file4)] ) == 0 => true
+    strcmp ( "Line B", ~ & file4->buffer [min::next_line(file4)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file4 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1339,9 +1339,9 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     file4->buffer->length == file5->buffer->length => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strncmp ( ! & file4->buffer[0], ! & file5->buffer[0], file4->buffer->length ) == 0 => true
+    strncmp ( ~ & file4->buffer[0], ~ & file5->buffer[0], file4->buffer->length ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    strcmp ( "Partial Line", ! & file5->buffer [min::next_line(file5)] ) == 0 => true
+    strcmp ( "Partial Line", ~ & file5->buffer [min::next_line(file5)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file5 ) => true
 

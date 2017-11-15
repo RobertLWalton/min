@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 14, 2017}
+\date{November 15, 2017}
  
 \maketitle
 
@@ -2028,6 +2028,10 @@ The functions for creating and using reference types are:
 	& \TTOMKEY{->}{->}{of {\tt min::ref<T>}}
 	   \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_->} \\
+\verb|T & |
+	& \TTOMKEY{\textasciitilde}{\textasciitilde}{of {\tt min::ref<T>}}
+	  \verb|( min::ref<T> const & r )| ~~~~ [unprotected]
+\LABEL{MIN::TILDE_OF_REF} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2077,6 +2081,19 @@ of type \TT{T} stores the value in the location.  Setting a reference
 \underline{not} copy the internal pointers, but instead copies the
 value at the \TT{r2} location to the \TT{r} location.
 
+A reference of type \TT{min::ref<T>} can be \underline{explicitly} converted
+to an \underline{relocation unprotected}
+reference of type `\TT{T\&}' by the unary `\TT{\textasciitilde}' operator.
+In this case the value of the unary `\TT{\textasciitilde}'
+is a reference \underline{not}
+protected from relocation, so its only good use is to pass it to an
+expression or function that will not relocate anything.
+One must be careful that other arguments in the same statement
+do not perform relocation, as then with the wrong optimized
+order of argument evaluation `\TT{\textasciitilde}'
+can be performed just before a
+relocation and its result used just afterwords.
+
 A \TT{min::ref<T>} value is implicitly convertible to the type \TT{T}
 by reading the value referenced.
 As this implicit conversion
@@ -2096,7 +2113,8 @@ can be used.
 The implicit conversion of a \TT{min::\EOL ref<T>} value \TT{r} to a \TT{T}
 value is \underline{not} activated by the C++ `\TT{.}' operator,
 so if \TT{T} is a structure type with member \TT{m}, then \TT{r.m}
-fails.  One must use \TT{(\&r)->m} instead, which works because
+fails.  One must use \TT{(\textasciitilde r).m}
+or \TT{(\&r)->m} instead.  The latter works because
 the `\TT{->}' operator has been defined for \TT{min::\EOL ptr<T>}
 values (see \pagref{PTR->}).
 Unfortunately C++ does not allow a similar definition for the
@@ -2237,9 +2255,9 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}ll}
 \verb|T * |
-	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}
+	& \TTOMKEY{\textasciitilde}{\textasciitilde}{of {\tt min::ptr<T>}}
 	  \verb|( min::ptr<T> const & p )| & [unprotected]
-\LABEL{MIN::!_OF_PTR} \\
+\LABEL{MIN::TILDE_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}
 	   \verb|( min::ptr<S> const & p )| & [unprotected]
@@ -2317,22 +2335,24 @@ the manner that it permits definitions of `\TT{operator ->}', or else
 this awkwardness would not arise.
 
 A pointer of type \TT{min::ptr<T>} can be \underline{explicitly} converted
-to an unprotected relocatable
-pointer of type `\TT{T*}' by the unary `\TT{!}' operator.
+to an \underline{relocation unprotected}
+pointer of type `\TT{T*}' by the unary `\TT{\textasciitilde}' operator.
 This can be of use in code such as
 \begin{indpar}\begin{verbatim}
 ptr<char> s = ...;
-int length = strlen ( ! s );
+int length = strlen ( ~ s );
 char buffer[length+1];
-strcpy ( buffer, ! s );
+strcpy ( buffer, ~ s );
 \end{verbatim}\end{indpar}
 
-In this case the value of the unary `\TT{!}' is a pointer \underline{not}
+In this case the value of the unary `\TT{\textasciitilde}'
+is a pointer \underline{not}
 protected from relocation, so its only good use is to pass it to a
 function such as \TT{strlen} or \TT{strcpy} which will not relocate
 anything.  One must be careful that other arguments in the same statement
 do not perform relocation, as then with the wrong optimized
-order of argument evaluation `\TT{!}' can be performed just before a
+order of argument evaluation `\TT{\textasciitilde}'
+can be performed just before a
 relocation and its result used just afterwords.
 
 If \TT{p} is of type \TT{min::ptr<S>}, then \TT{min::ptr<T>(p)} is just
@@ -2427,7 +2447,7 @@ which expands as follows:
 \\[1ex]
 expands to \\[1ex]
 \verb|T name [length];| \\
-\verb|memcpy ( name, ! (source),| \\
+\verb|memcpy ( name, ~ (source),| \\
 \verb|         sizeof ( T ) * (length) )|
 \end{indpar}
 
@@ -5309,7 +5329,7 @@ The \TT{min::begin\_ptr\_of} function
 returns a \TT{min::ptr<const char>} pointer to
 the \TT{NUL}-termin\-at\-ed vector of \TT{char}'s that is the string.
 Its value can be converted to a `\TT{const char *}' by the unitary
-`\TT{!}' operator, and that value
+`\TT{\textasciitilde}' operator, and that value
 may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
 
@@ -6886,13 +6906,13 @@ check that \TT{0<=i<pvp->length}).
 The vector elements in a
 packed vector are organized as a C language vector so that
 \begin{center}
-\TT{(!~\& pvp[0])[i]} references the same element as \TT{pvp[i]}
+\TT{(\textasciitilde~\& pvp[0])[i]} references the same element as \TT{pvp[i]}
 \end{center}
 But the vector elements are stored in a body whose address can change
 if a relocating function is called, so C pointers to packed vector
 elements are relocatable.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
-function, so, for example, `\TT{!~\& pvp[i]}' may be used as an
+function, so, for example, `\TT{\textasciitilde~\& pvp[i]}' may be used as an
 argument to \TT{memcpy}.
 
 \TT{pvp+i} can be used to compute a \TT{min::ptr<E const>} pointer that
@@ -6909,9 +6929,10 @@ except the latter will always fail because the index is not less than
 For example, if \TT{memcpy} is used to copy
 from the vector, use \TT{min::begin\_\EOL ptr(pvp)}:
 \begin{indpar}\begin{verbatim}
-memcpy ( ..., ! min::begin_ptr(pvp), sizeof ( E ) * pvp->length );
+memcpy ( ..., ~ min::begin_ptr(pvp), sizeof ( E ) * pvp->length );
 \end{verbatim}\end{indpar}
-Using \TT{!~\& pvp[0]} instead of \TT{!~min::begin\_ptr(pvp)}
+Using \TT{\textasciitilde~\& pvp[0]}
+instead of \TT{\textasciitilde~min::begin\_ptr(pvp)}
 will fail with a \TT{MIN\_\EOL ASSERT} fault if \TT{pvp->\EOL length == 0}.
 
 The read-write \TT{min::\EOL packed\_\EOL vec\_\EOL updptr<E,H,L>}
@@ -10542,8 +10563,8 @@ If a line would print as blank, and if
 \TT{blank\_\EOL line} is not \TT{NULL},
 \TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
-ASCII and LATIN1 non-graphic characters (including horizontal tabs and
-single spaces, see \pagref{MIN::IS_GRAPHIC})
+ASCII and LATIN1 horizontal space characters (including horizontal tabs and
+single spaces, see \pagref{MIN::IS_HSPACE})
 which when printed represent themselves or are suppressed.
 
 If there is no line
@@ -17645,6 +17666,11 @@ These are in \verb|min_parameters.h|.
 	          {of {\tt min::ref<T>}}\ARGBREAK
 	  \verb|( min::ref<T> const & r )|
 \LABEL{MIN::REF_->} \\
+\verb|T & |
+	& \TTOMKEY{\textasciitilde}{\textasciitilde}{of {\tt min::ref<T>}}%
+		\ARGBREAK
+	  \verb|( min::ref<T> const & r )| ~~ [unprotected]
+\LABEL{MIN::TILDE_OF_REF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -17750,9 +17776,10 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|T * |
-	& \TTOMKEY{!}{!}{of {\tt min::ptr<T>}}\ARGBREAK
+	& \TTOMKEY{\textasciitilde}{\textasciitilde}%
+	  {of {\tt min::ptr<T>}}\ARGBREAK
 	  \verb|( min::ptr<T> const & p )| ~ [unprotected]
-\LABEL{MIN::!_OF_PTR} \\
+\LABEL{MIN::TILDE_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr<T>}\ARGBREAK
 	  \verb|( min::ptr<S> const & p )| ~ [unprotected]

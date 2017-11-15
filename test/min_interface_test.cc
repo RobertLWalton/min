@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 11 23:23:01 EST 2017
+// Date:	Wed Nov 15 06:32:37 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2254,10 +2254,10 @@ void test_packed_vectors ( void )
                NULL, 88, { 0 } };
     min::push(pvip) = e1;
     MIN_CHECK ( pvip->length == 1 );
-    MIN_CHECK ( (&pvip[0])->j == 88 );
+    MIN_CHECK ( (~pvip[0]).j == 88 );
     pvptr pvp = min::new_stub_gen ( v );
     MIN_CHECK ( pvp->length == 1 );
-    MIN_CHECK ( (&pvp[0])->j == 88 );
+    MIN_CHECK ( (~pvp[0]).j == 88 );
 
     pve e2[3] = { { min::MISSING(), min::NONE(),
                     NULL, 11, { 0 } },
@@ -2346,24 +2346,24 @@ void test_file ( void )
 	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n" ) );
     MIN_CHECK
         (    strcmp ( "Line 1",
-	              ! & file1->buffer
+	              ~ & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
     MIN_CHECK
         (    strcmp ( "Line 2",
-	              ! & file1->buffer
+	              ~ & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
     MIN_CHECK
         (    strcmp ( "Line 3",
-	              ! & file1->buffer
+	              ~ & file1->buffer
 		              [min::next_line(file1)] )
 	  == 0 );
     MIN_CHECK
         ( min::NO_LINE == min::next_line ( file1 ) );
     MIN_CHECK
         (    strcmp ( "Line 2",
-	              ! & file1->buffer
+	              ~ & file1->buffer
 		              [min::line(file1,1)] )
 	  == 0 );
 
@@ -2375,12 +2375,12 @@ void test_file ( void )
 	  0 );
     MIN_CHECK
         (    strcmp ( "Line 0",
-	              ! & file2->buffer
+	              ~ & file2->buffer
 		              [min::next_line(file2)] )
 	  == 0 );
     MIN_CHECK
         (    strcmp ( "Line 1",
-	              ! & file2->buffer
+	              ~ & file2->buffer
 		              [min::next_line(file2)] )
 	  == 0 );
     MIN_CHECK
@@ -2397,17 +2397,17 @@ void test_file ( void )
     min::flush_file ( file3 );
     MIN_CHECK ( data_length == file3->buffer->length );
     MIN_CHECK ( data_length == file4->buffer->length );
-    MIN_CHECK ( strncmp ( ! & file3->buffer[0],
-    			   ! & file4->buffer[0],
+    MIN_CHECK ( strncmp ( ~ & file3->buffer[0],
+    			   ~ & file4->buffer[0],
                            data_length ) == 0 );
     MIN_CHECK
         (    strcmp ( "Line A",
-	              ! & file4->buffer
+	              ~ & file4->buffer
 		              [min::next_line(file4)] )
 	  == 0 );
     MIN_CHECK
         (    strcmp ( "Line B",
-	              ! & file4->buffer
+	              ~ & file4->buffer
 		              [min::next_line(file4)] )
 	  == 0 );
     MIN_CHECK
@@ -2428,8 +2428,8 @@ void test_file ( void )
     min::flush_file ( file5 );
     MIN_CHECK (    file4->buffer->length
                  == file5->buffer->length );
-    MIN_CHECK (    strncmp ( ! & file4->buffer[0],
-    			      ! & file5->buffer[0],
+    MIN_CHECK (    strncmp ( ~ & file4->buffer[0],
+    			      ~ & file5->buffer[0],
                               file4->buffer->length )
 		 == 0 );
 
@@ -2440,7 +2440,7 @@ void test_file ( void )
     min::next_line ( file5 );
     MIN_CHECK
         (    strcmp ( "Partial Line",
-	              ! & file5->buffer
+	              ~ & file5->buffer
 		              [min::next_line(file5)] )
 	  == 0 );
     MIN_CHECK

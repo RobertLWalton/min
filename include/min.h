@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 00:18:22 EST 2017
+// Date:	Wed Nov 15 04:37:38 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2910,6 +2910,11 @@ namespace min {
 	    return * this;
 	}
 
+	T & operator ~ ( void ) const
+	{
+	    return * location();
+	}
+
 	operator T ( void ) const
 	{
 	    return * location();
@@ -3056,7 +3061,7 @@ namespace min {
 	    return location();
 	}
 
-	T * operator ! ( void ) const
+	T * operator ~ ( void ) const
 	{
 	    return location();
 	}
@@ -3204,6 +3209,16 @@ namespace min {
 	unprotected::set_type_of ( s, min::PTR );
 	return min::new_stub_gen ( s );
     }
+
+    namespace unprotected {
+
+	template < typename T >
+        min::ptr<T> new_ptr ( min::gen p )
+	{
+	}
+	    
+
+    }
 }
 
 namespace min {
@@ -3220,7 +3235,7 @@ namespace min {
 #   define MIN_STACK_COPY(T,name,length,source) \
 	T name[length]; \
 	min::min_stack_copy \
-	    ( name, ! (source), (length) )
+	    ( name, ~ (source), (length) )
 }
 
 // Locatable Variables
@@ -4179,12 +4194,12 @@ namespace min {
 		if ( n <= 3 )
 		    return unprotected::
 			   new_direct_str_gen
-			       ( ! p, n );
+			       ( ~ p, n );
 #	elif MIN_IS_LOOSE
 		if ( n <= 5 )
 		    return unprotected::
 			   new_direct_str_gen
-			       ( ! p, n );
+			       ( ~ p, n );
 #	endif
 	    return internal::new_str_stub_gen ( p, n );
 	}
@@ -4207,14 +4222,14 @@ namespace min {
 	    ( min::ptr<const char> p )
     {
 	return internal::new_str_gen
-	    ( p, ::strlen ( ! p ) );
+	    ( p, ::strlen ( ~ p ) );
     }
 
     inline min::gen new_str_gen
             ( min::ptr<const char> p, min::unsptr n )
     {
         return internal::new_str_gen
-	    ( p, internal::strnlen ( ! p, n ) );
+	    ( p, internal::strnlen ( ~ p, n ) );
     }
 
     // Compensate for the lack of implicit conversion
@@ -4225,7 +4240,7 @@ namespace min {
     {
 	return internal::new_str_gen
 	    ( (min::ptr<const char>) p,
-	      ::strlen ( ! p ) );
+	      ::strlen ( ~ p ) );
     }
 
     inline min::gen new_str_gen
@@ -4233,7 +4248,7 @@ namespace min {
     {
         return internal::new_str_gen
 	    ( (min::ptr<const char>) p,
-	      internal::strnlen ( ! p, n ) );
+	      internal::strnlen ( ~ p, n ) );
     }
 
     min::gen new_str_gen
@@ -4248,7 +4263,7 @@ namespace min {
 	      min::unsptr n )
     {
         return new_str_gen
-	    ( ! p, n );
+	    ( ~ p, n );
     }
 
     // Compensate for the lack of implicit conversion
@@ -4259,7 +4274,7 @@ namespace min {
 	      min::unsptr n )
     {
         return new_str_gen
-	    ( ! p, n );
+	    ( ~ p, n );
     }
 
     inline min::uns32 str_class
@@ -4283,7 +4298,7 @@ namespace min {
 	min::unsptr len = min::strlen ( sp );
 	min::Uchar s[len];
 	min::Uchar * p = s;
-	const char * q = ! min::begin_ptr_of ( sp );
+	const char * q = ~ min::begin_ptr_of ( sp );
 	min::utf8_to_unicode 
 	    ( p, p + len, q, q + len );
 	return ( * strcl )
@@ -4689,7 +4704,7 @@ namespace min {
     inline min::gen new_name_gen
 	    ( min::ptr<const char> s )
     {
-	min::uns32 len = ::strlen ( ! s );
+	min::uns32 len = ::strlen ( ~ s );
 	MIN_STACK_COPY ( char, buffer, len + 1, s );
         return new_name_gen ( buffer );
     }
@@ -5795,7 +5810,7 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	E * p = ! end_ptr_of ( pvip );
+	E * p = ~ end_ptr_of ( pvip );
 	memset ( p, 0, sizeof ( E ) );
 	++ * (L *) & pvip->length;
 	return unprotected::new_ref ( pvip, * p );
@@ -5808,7 +5823,7 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	E * p = ! end_ptr_of ( pvip );
+	E * p = ~ end_ptr_of ( pvip );
 	if ( vp )
 	{
 	    memcpy ( p, vp, n * sizeof ( E ) );
@@ -5826,8 +5841,8 @@ namespace min {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	E * p = ! end_ptr_of ( pvip );
-	memcpy ( p, ! vp, n * sizeof ( E ) );
+	E * p = ~ end_ptr_of ( pvip );
+	memcpy ( p, ~ vp, n * sizeof ( E ) );
 	write_update<E> X ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
@@ -5858,7 +5873,7 @@ namespace min {
 	* (L *) & pvip->length -= n;
 	if ( vp )
 	    memcpy ( vp,
-		     ! end_ptr_of ( pvip ),
+		     ~ end_ptr_of ( pvip ),
 		     n * sizeof ( E ) );
     }
     template < typename E, typename H, typename L >
@@ -5866,7 +5881,7 @@ namespace min {
 	( typename min::packed_vec_insptr<E,H,L> pvip,
 	  min::unsptr n, min::ptr<E> vp )
     {
-        pop<E,H,L> ( pvip, ! vp );
+        pop<E,H,L> ( pvip, ~ vp );
     }
 
     template < typename E, typename H, typename L >
@@ -12598,7 +12613,7 @@ inline min::printer operator <<
 	  min::ptr<const char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! s );
+        ( printer, ~ s );
 }
 
 inline min::printer operator <<
@@ -12606,7 +12621,7 @@ inline min::printer operator <<
 	  min::ptr<char> s )
 {
     return min::internal::print_cstring
-        ( printer, ! (min::ptr<const char>) s );
+        ( printer, ~ (min::ptr<const char>) s );
 }
 
 inline min::printer operator <<
@@ -12928,7 +12943,7 @@ namespace min {
     {
         min::str_ptr sp ( str );
 	return min::internal::print_cstring
-	    ( printer, ! min::begin_ptr_of ( sp ),
+	    ( printer, ~ min::begin_ptr_of ( sp ),
 	      sf, false );
     }
 
@@ -13094,7 +13109,7 @@ inline min::printer operator <<
 	  const min::str_ptr & s )
 {
     return min::internal::print_cstring
-        ( printer, ! min::begin_ptr_of ( s ) );
+        ( printer, ~ min::begin_ptr_of ( s ) );
 }
 
 inline min::printer operator <<

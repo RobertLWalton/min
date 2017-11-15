@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 19 08:04:51 EDT 2017
+// Date:	Wed Nov 15 04:59:18 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1838,7 +1838,7 @@ int min::strncmp
 min::gen MINT::new_str_stub_gen
 	( min::ptr<const char> p, min::unsptr n )
 {
-    uns32 hash = strnhash ( ! p, n );
+    uns32 hash = strnhash ( ~ p, n );
     uns32 h = hash & MINT::str_hash_mask;
     const char * q;
 
@@ -1849,7 +1849,7 @@ min::gen MINT::new_str_stub_gen
 
         if (    n <= 8
 	     && type_of ( s ) == SHORT_STR
-	     && ::strncmp ( ! p, s->v.c8, n ) == 0
+	     && ::strncmp ( ~ p, s->v.c8, n ) == 0
 	     && (    n == 8
 	          || s->v.c8[n] == 0 ) )
 	{
@@ -1861,7 +1861,7 @@ min::gen MINT::new_str_stub_gen
 	else if (    n > 8
 	          && type_of ( s ) == LONG_STR
 	          && ::strncmp
-		       ( ! p, q = MUP::str_of (
+		       ( ~ p, q = MUP::str_of (
 			            MUP::long_str_of
 				        ( s ) ),
 			 n )
@@ -1887,7 +1887,7 @@ min::gen MINT::new_str_stub_gen
 
         if (    n <= 8
 	     && type_of ( s2 ) == SHORT_STR
-	     && ::strncmp ( ! p, s2->v.c8, n ) == 0
+	     && ::strncmp ( ~ p, s2->v.c8, n ) == 0
 	     && (    n == 8
 	          || s2->v.c8[n] == 0 ) )
 	{
@@ -1900,7 +1900,7 @@ min::gen MINT::new_str_stub_gen
 	else if (    n > 8
 	          && type_of ( s2 ) == LONG_STR
 	          && ::strncmp
-		       ( ! p, q = MUP::str_of (
+		       ( ~ p, q = MUP::str_of (
 			            MUP::long_str_of
 				        ( s2 ) ),
 			  n )
@@ -1920,7 +1920,7 @@ min::gen MINT::new_str_stub_gen
     {
 	MUP::set_type_of ( s2, SHORT_STR );
 	s2->v.u64 = 0;
-	::strncpy ( s2->v.c8, ! p, n );
+	::strncpy ( s2->v.c8, ~ p, n );
     }
     else
     {
@@ -1939,7 +1939,7 @@ min::gen MINT::new_str_stub_gen
 	  ( MUP::str_of(ls) + n - n % 8 ) = 0;
 
 	::strncpy
-	    ( (char *) MUP::str_of ( ls ), ! p, n );
+	    ( (char *) MUP::str_of ( ls ), ~ p, n );
     }
 
     s = MUP::new_aux_stub ();
@@ -1970,7 +1970,7 @@ bool min::strto ( min::int32 & value,
 		  min::unsptr & i, int base )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::int64 v = strtol ( beginp, & endp, base );
@@ -1987,7 +1987,7 @@ bool min::strto ( min::int64 & value,
 		  min::unsptr & i, int base )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::int64 v = strtoll ( beginp, & endp, base );
@@ -2003,7 +2003,7 @@ bool min::strto ( min::uns32 & value,
 		  min::unsptr & i, int base )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::uns64 v = strtoul ( beginp, & endp, base );
@@ -2020,7 +2020,7 @@ bool min::strto ( min::uns64 & value,
 		  min::unsptr & i, int base )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::uns64 v = strtoull ( beginp, & endp, base );
@@ -2036,7 +2036,7 @@ bool min::strto ( min::float32 & value,
 		  min::unsptr & i )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::float32 v = strtof ( beginp, & endp );
@@ -2052,7 +2052,7 @@ bool min::strto ( min::float64 & value,
 		  min::unsptr & i )
 {
     const char * beginp =
-        ! ( min::begin_ptr_of ( sp ) + i );
+        ~ ( min::begin_ptr_of ( sp ) + i );
     char * endp;
     errno = 0;
     min::float64 v = strtod ( beginp, & endp );
@@ -2166,7 +2166,7 @@ min::uns32 min::labhash
 min::gen min::new_lab_gen
 	( min::ptr<const min::gen> p, min::uns32 n )
 {
-    uns32 hash = labhash ( ! p, n );
+    uns32 hash = labhash ( ~ p, n );
     uns32 h = hash & MINT::lab_hash_mask;
 
     // Search for existing label stub with given
@@ -2226,7 +2226,7 @@ min::gen min::new_lab_gen
     MINT::lab_header * lh = MINT::lab_header_of ( s2 );
     lh->length = n;
     lh->hash = hash;
-    memcpy ( lh + 1, ! p, n * sizeof ( min::gen ) );
+    memcpy ( lh + 1, ~ p, n * sizeof ( min::gen ) );
 
     s = MUP::new_aux_stub ();
     MUP::set_ptr_of ( s, s2 );
@@ -2503,7 +2503,7 @@ void min::load_string
     MIN_ASSERT ( ! min::file_is_complete ( file ),
                  "file is complete" );
 
-    uns64 length = ::strlen ( ! string );
+    uns64 length = ::strlen ( ~ string );
     uns32 offset = file->buffer->length;
     MIN_ASSERT ( length <= ( 1ull << 32 ) - 1 - offset,
                  "string is too long or file buffer"
@@ -2551,7 +2551,7 @@ bool min::load_named_file
     uns64 file_size;
     if ( ! min::os::file_size
                ( file_size,
-	         ! min::begin_ptr_of ( fname ),
+	         ~ min::begin_ptr_of ( fname ),
 	         error_buffer ) )
     {
 	ERR << "During attempt to find the size of"
@@ -2576,7 +2576,7 @@ bool min::load_named_file
     // while open/read is OS dependent.
 
     FILE * in =
-        fopen ( ! min::begin_ptr_of ( fname ), "r" );
+        fopen ( ~ min::begin_ptr_of ( fname ), "r" );
 
     if ( in == NULL )
     {
@@ -2592,7 +2592,7 @@ bool min::load_named_file
 
     errno = 0;
     uns64 bytes =
-        fread ( ! ( file->buffer + offset ), 1,
+        fread ( ~ ( file->buffer + offset ), 1,
 	        (size_t) file_size, in );
 
     if ( bytes < file_size )
@@ -2696,7 +2696,7 @@ min::uns32 min::next_line ( min::file file )
 
 	    uns32 length =
 		::strlen
-		    ( ! ( ifile->buffer + ioffset ) );
+		    ( ~ ( ifile->buffer + ioffset ) );
 	    min::push ( file->buffer, length,
 	                ifile->buffer + ioffset );
 	}
@@ -2708,7 +2708,7 @@ min::uns32 min::next_line ( min::file file )
 
     file->next_offset +=
         1 + ::strlen
-	        ( ! ( file->buffer + line_offset ) );
+	        ( ~ ( file->buffer + line_offset ) );
     ++ file->next_line_number;
 
     if ( file->line_index != NULL_STUB )
@@ -2776,14 +2776,14 @@ min::uns32 min::print_line
     }
     else
         length =
-	    ::strlen ( ! ( file->buffer + offset ) );
+	    ::strlen ( ~ ( file->buffer + offset ) );
 
     // Move line to stack so that (1) it will not be
     // relocatable when printer is called, and (2) it
     // will end with NUL even if it is a partial line.
     //
     char buffer[length+1];
-    memcpy ( buffer, ! ( file->buffer + offset ),
+    memcpy ( buffer, ~ ( file->buffer + offset ),
              length );
     buffer[length] = 0;
 
@@ -2803,26 +2803,29 @@ min::uns32 min::print_line
     else
     {
 	const char * p = & buffer[0];
-	min::uns32 name_or_picture_flags =
-	    ! printer->print_format.display_control
-				   .display_char
-	    &
-	    ! printer->print_format.display_control
-				   .display_suppress;
+	min::uns32 display_flags = min::IS_GRAPHIC;
 	if (   printer->print_format.op_flags
 	     & min::DISPLAY_NON_GRAPHIC )
-	    name_or_picture_flags |=
-	        min::IS_NON_GRAPHIC;
+	    display_flags |= min::IS_NON_GRAPHIC;
+	min::uns32 no_display_flags =
+	    printer->print_format.display_control
+	                         .display_char
+	    |
+	    printer->print_format.display_control
+	                         .display_suppress;
 
 	while ( * p && (unsigned) * p < 256 )
 	{
 	    min::uns32 cflags =
 		 char_flags[(unsigned char) *p];
-	    if ( cflags & min::IS_GRAPHIC )
+	    if ( cflags & display_flags )
 	        break;
-	    if ( name_or_picture_flags & cflags )
+	    if ( ( cflags & min::IS_HSPACE )
+	         &&
+		 ( cflags & no_display_flags ) )
+	        ++ p;
+	    else
 	        break;
-	    ++ p;
 	}
 
 	if ( * p == 0 )
@@ -2900,7 +2903,7 @@ min::uns32 min::print_line_column
     }
     else
         length =
-	    ::strlen ( ! ( file->buffer + offset ) );
+	    ::strlen ( ~ ( file->buffer + offset ) );
 
     min::print_format pf = print_format;
     min::uns32 flags = min::DISPLAY_EOL
@@ -2914,7 +2917,7 @@ min::uns32 min::print_line_column
 	  min::graphic_only_display_control :
 	  min::graphic_and_hspace_display_control );
     pf.break_control = min::no_auto_break_break_control;
-    min::pwidth ( column, ! ( file->buffer + offset ),
+    min::pwidth ( column, ~ ( file->buffer + offset ),
     		  position.offset <= length ?
 		      position.offset : length, pf );
     return column;
@@ -3037,14 +3040,14 @@ void min::flush_line
 		 " beyond end of file" );
 
     if ( file->ostream != NULL )
-        * file->ostream << ! ( file->buffer + offset )
+        * file->ostream << ~ ( file->buffer + offset )
 	                << std::endl;
 
     if ( file->ofile != NULL_STUB )
     {
 	min::file ofile = file->ofile;
         uns32 length =
-	    ::strlen ( ! ( file->buffer + offset ) );
+	    ::strlen ( ~ ( file->buffer + offset ) );
 	min::push ( ofile->buffer, length,
 	            file->buffer + offset );
 	min::end_line ( ofile );
@@ -3068,7 +3071,7 @@ void min::flush_remaining ( min::file file )
 
     if ( file->ostream != NULL )
     {
-        * file->ostream << ! ( file->buffer + offset );
+        * file->ostream << ~ ( file->buffer + offset );
 	std::flush ( * file->ostream );
     }
 
@@ -3123,8 +3126,8 @@ void min::flush_spool
     uns32 buffer_offset =
 	file->line_index[lines_to_delete];
     if ( buffer_offset < file->buffer->length )
-	memmove ( ! ( file->buffer + 0 ) ,
-		  ! ( file->buffer + buffer_offset ),
+	memmove ( ~ ( file->buffer + 0 ) ,
+		  ~ ( file->buffer + buffer_offset ),
 		    file->buffer->length
 		  - buffer_offset );
     min::pop ( file->buffer, buffer_offset );
@@ -3181,13 +3184,13 @@ std::ostream & operator <<
     {
         min::uns32 offset = min::next_line ( file );
 	if ( offset == min::NO_LINE ) break;
-	out << ! ( file->buffer + offset ) << std::endl;
+	out << ~ ( file->buffer + offset ) << std::endl;
     }
 
     if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-        out << ! ( file->buffer + file->next_offset );
+        out << ~ ( file->buffer + file->next_offset );
 	min::pop ( file->buffer );
 	file->next_offset = file->buffer->length;
     }
@@ -3202,7 +3205,7 @@ min::file operator <<
         min::uns32 offset = min::next_line ( ifile );
 	if ( offset == min::NO_LINE ) break;
         min::uns32 length =
-	    ::strlen ( ! ( ifile->buffer + offset ) );
+	    ::strlen ( ~ ( ifile->buffer + offset ) );
 	min::push ( ofile->buffer, length,
 	            ifile->buffer + offset );
 	min::end_line ( ofile );
@@ -9973,8 +9976,8 @@ min::printer operator <<
 
 	    min::push ( buffer, n );
 	    if ( len > 0 )
-	        memmove ( ! & buffer[offset + n],
-		          ! & buffer[offset],
+	        memmove ( ~ & buffer[offset + n],
+		          ~ & buffer[offset],
 			  len );
 
 	    printer->column += n;
@@ -10257,9 +10260,9 @@ bool MINT::insert_line_break ( min::printer printer )
 	//
 	if ( movelen > 0 )
 	    memmove
-	        ( ! & buffer[ begoff
+	        ( ~ & buffer[ begoff
 		             +line_break.indent+1],
-		  ! & buffer[endoff],
+		  ~ & buffer[endoff],
 		  movelen );
 	min::pop
 	    ( buffer, gap - line_break.indent - 1 );
@@ -10272,9 +10275,9 @@ bool MINT::insert_line_break ( min::printer printer )
 	    ( buffer, line_break.indent + 1 - gap );
 	if ( movelen > 0 )
 	    memmove
-	        ( ! & buffer[begoff+line_break.indent
+	        ( ~ & buffer[begoff+line_break.indent
 		                   +1],
-		  ! & buffer[endoff],
+		  ~ & buffer[endoff],
 		  movelen );
     }
 
@@ -10447,7 +10450,7 @@ min::printer MINT::print_unicode
 	if (    substring != NULL
 	     && c == substring[0]
 	     && n >= substring_length
-	     &&    memcmp ( !p, substring,
+	     &&    memcmp ( ~p, substring,
 	                          substring_length
 				* sizeof ( min::Uchar) )
 		== 0 )
@@ -10728,7 +10731,7 @@ void min::debug_str_class
     char buffer [7*n+1];
     char * bp = buffer;
     const char * endbp = buffer + sizeof ( buffer );
-    const Uchar * q = ! p;
+    const Uchar * q = ~ p;
     unicode_to_utf8 ( bp, endbp, q, q + n );
     MIN_REQUIRE ( bp < endbp );
     * bp = 0;
