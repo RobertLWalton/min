@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 14 02:06:45 EST 2017
+// Date:	Wed Nov 15 00:18:22 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -472,7 +472,7 @@ namespace min {
     const int LONG_STR			= 16;
     const int LABEL			= 17;
     const int GTYPED_PTR		= 18;
-    const int VAR_PTR			= 19;
+    const int PTR			= 19;
 
     // Uncollectible.
     //
@@ -483,7 +483,7 @@ namespace min {
     const int HASHTABLE_AUX		= -5;
     const int RELOCATE_BODY		= -6;
     const int GTYPED_PTR_AUX		= -7;
-    const int VAR_PTR_AUX		= -8;
+    const int PTR_AUX			= -8;
 
     extern const char ** type_name;
         // type_name[i] is the name of type i.  E.g.,
@@ -3184,6 +3184,25 @@ namespace min {
     {
 	return unprotected::new_ref<T>
 	    ( p.s, p.offset );
+    }
+}
+
+namespace min {
+
+    template < typename T >
+    min::gen new_ptr_gen ( const min::ptr<T> & p )
+    {
+        min::stub * s = unprotected::new_acc_stub();
+        min::stub * saux = unprotected::new_aux_stub();
+	unprotected::set_gen_of
+	    ( s, unprotected::new_stub_gen ( saux ) );
+	unprotected::set_value_of ( saux, p.offset );
+	min::uns64 c =
+	    unprotected::new_control_with_type
+	        ( min::PTR_AUX, p.s );
+	unprotected::set_control_of ( saux, c );
+	unprotected::set_type_of ( s, min::PTR );
+	return min::new_stub_gen ( s );
     }
 }
 
@@ -10309,6 +10328,8 @@ namespace min { namespace unprotected {
 	    // For attr_xxxptr created from a min::gen
 	    // object, vecptr at graph type if object is
 	    // graph typed.  Unused otherwise.
+	
+	min::ptr<min::gen> get_ptr;
 
     // Friends:
 
@@ -10760,7 +10781,7 @@ namespace min {
 
 	min::gen c = update_refresh ( ap.dlp );
 	if ( ! is_sublist ( c ) )
-	    return c;
+	    goto CHECK_INDEX;
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
 	if ( is_list_end ( c )
@@ -10769,15 +10790,119 @@ namespace min {
 	     ||
 	     is_control_code ( c ) )
 	    return NONE();
-	min::gen d = next ( ap.lp );
-	if ( is_list_end ( d )
+	{
+	    min::gen d = next ( ap.lp );
+	    if ( is_list_end ( d )
+		 ||
+		 is_sublist ( d )
+		 ||
+		 is_control_code ( d ) )
+		goto CHECK_INDEX;
+	    else
+		return MULTI_VALUED();
+	}
+
+    CHECK_INDEX:
+
+	if ( min::is_index ( c ) && ap.gvp )
+	{
+	    min::unsgen i = unprotected::index_of ( c );
+	    c = var ( ap.vp, i );
+	    while ( true )
+	    {
+	        const min::stub * s =
+		    min::stub_of ( c );
+		if ( s == min::NULL_STUB ) break;
+		if (    unprotected::type_of ( s )
+		     != min::PTR ) break;
+		c = unprotected::gen_of ( s );
+		s = unprotected::stub_of ( c );
+		min::uns64 cn =
+		    unprotected::control_of ( s );
+		c = * unprotected::new_ptr<min::gen>
+		  ( unprotected::stub_of_control ( cn ),
+		    unprotected::value_of ( s ) );
+	    }
+	}
+	return c;
+    }
+
+    template <>
+    inline min::gen get<min::obj_vec_updptr>
+	    ( min::attr_updptr & ap )
+    {
+	typedef min::attr_updptr ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::LOCATE_ANY:
+	    return internal::get ( ap );
+
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    return NONE();
+	}
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	    goto CHECK_INDEX;
+	start_sublist ( ap.lp, ap.dlp );
+	c = current ( ap.lp );
+	if ( is_list_end ( c )
 	     ||
-	     is_sublist ( d )
+	     is_sublist ( c )
 	     ||
-	     is_control_code ( d ) )
-	    return c;
+	     is_control_code ( c ) )
+	    return NONE();
+	{
+	    min::gen d = next ( ap.lp );
+	    if ( is_list_end ( d )
+		 ||
+		 is_sublist ( d )
+		 ||
+		 is_control_code ( d ) )
+		goto CHECK_INDEX;
+	    else
+		return MULTI_VALUED();
+	}
+
+    CHECK_INDEX:
+
+	if ( min::is_index ( c ) && ap.gvp )
+	{
+	    min::unsgen i = unprotected::index_of ( c );
+	    min::ptr<min::gen> p = & var ( ap.vp, i );
+	    while ( true )
+	    {
+		c = * p;
+	        const min::stub * s =
+		    min::stub_of ( c );
+		if ( s == min::NULL_STUB ) break;
+		if (    unprotected::type_of ( s )
+		     != min::PTR ) break;
+		c = unprotected::gen_of ( s );
+		s = unprotected::stub_of ( c );
+		min::uns64 cn =
+		    unprotected::control_of ( s );
+		p = unprotected::new_ptr<min::gen>
+		  ( unprotected::stub_of_control ( cn ),
+		    unprotected::value_of ( s ) );
+	    }
+	    if ( c == min::UNDEFINED() )
+	        ap.get_ptr = p;
+	    else
+	        ap.get_ptr =
+		    unprotected::new_ptr<min::gen>
+		        ( min::NULL_STUB,
+			  (min::unsptr) 0 );
+	}
 	else
-	    return MULTI_VALUED();
+	    ap.get_ptr =
+		unprotected::new_ptr<min::gen>
+		    ( min::NULL_STUB, (min::unsptr) 0 );
+
+	return c;
     }
 
     template < class vecptr >

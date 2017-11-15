@@ -2289,6 +2289,9 @@ a \TT{T~*} location creates a \TT{min::\EOL ptr<T>} pointer in which
 the pointer \TT{T} is \TT{const} if and only if the location \TT{T}
 is \TT{const}.
 
+The `\TT{min::\EOL ptr<T>} p' constructor with no arguments creates \TT{p}
+with \TT{p.s = NULL\_STUB} and \TT{ps.offset = 0}.
+
 Given a \TT{min::\EOL ptr<T>} value \TT{p} and an index \TT{i} of some
 suitable index type \TT{I} (such as \TT{int} or \TT{min::\EOL uns32}),
 \TT{p[i]} is a \TT{min::\EOL ref<T>}
@@ -15515,9 +15518,9 @@ in the graph type
 that holds the index of a
 variable vector element.  This always refers to a variable in the context.
 The second is a \TT{min::gen} value pointing at a
-stub of \minkey{VAR\_\EOL PTR}\label{MIN::VAR_PTR} type
+stub of \minkey{PTR}\label{MIN::PTR} type
 that holds a pointer to an auxilary stub of
-\minkey{VAR\_\EOL PTR\_\EOL AUX}\label{MIN::VAR_PTR_AUX} type
+\minkey{PTR\_\EOL AUX}\label{MIN::PTR_AUX} type
 that contains a pointer to
 a context object and an index of a variable in the context.
 An auxilary stub is necessary in order to allow garbage collection
@@ -15691,41 +15694,32 @@ single argument
 values, treating these as indices of variables in the graph typed object's
 contest,
 and also follows indirect pointers that are 
-\TT{min::gen} values pointing at \TT{min::\EOL VAR\_\EOL PTR}
+\TT{min::gen} values pointing at \TT{min::\EOL PTR}
 stubs \underline{provided} these are stored in context variables.
 The \TT{min::update} function
 follows these same indirect pointers, and requires that the location
 stored into be a context variable.
 
 The \TT{min::update} function \underline{cannot} be used to store
-a \TT{min::\EOL VAR\_\EOL PTR} type \TT{min::\EOL gen} value.  Instead,
+a \TT{min::\EOL PTR} type \TT{min::\EOL gen} value.  Instead,
 the single argument \TT{min::\EOL get} function stores information
-in the attribute pointer that can be used by the following functions
+in the attribute pointer that can be returned by the following function
 (provided no other \TT{min::\EOL get} function execution on the
 attribute pointer intervenes):
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::|
-	& \MINMKEY{var\_ptr\_to}{of {\tt attr\_updptr}}\ARGBREAK
+\verb|min::ptr<min::gen> min::|
+	& \MINMKEY{get\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
 	  \verb|( min::attr_updptr & ap )|
-\LABEL{MIN::VAR_PTR_TO_ATTR_UPDPTR} \\
-\verb|bool min::|
-	& \MINMKEY{set\_var}{of {\tt attr\_updptr}}\ARGBREAK
-	  \verb|( min::attr_updptr & ap, min::gen v )|
-\LABEL{MIN::SET_VAR_OF_ATTR_UPDPTR} \\
+\LABEL{MIN::GET_PTR_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
-The \TT{min::\EOL var\_\EOL \_ptr\_\EOL to} function returns
-a \TT{min::\EOL VAR\_\EOL PTR} pointing to the variable whose
-value the \TT{min::\EOL get} returned, or returns
-\TT{min::\EOL NULL\_\EOL STUB} if the \TT{min::\EOL get}
-returned a value from a location that was \underline{not}
-an object variable.  The \TT{min::\EOL set\_\EOL var}
-function stores its \TT{v} argument in the variable whose
-value the \TT{min::\EOL get} returned and returns \TT{true},
-or does nothing but return \TT{false} if the \TT{min::\EOL get}
-returned a value from a location that was \underline{not}
-an object variable.
+This function returns
+a \TT{min::\EOL ptr<min::gen>} pointer pointing to the variable whose
+value the \TT{min::\EOL get} returned, provided this value equaled
+\TT{min::\EOL UNDEFINED()}.  Otherwise a
+\TT{min::\EOL ptr<min::gen>} pointer is returned that will cause
+a segment fault if it is used.
 
 \subsubsubsection{Graph Typed Object Maintenance}
 \label{GRAPH-TYPED-OBJECT-MAINTENANCE}
@@ -17294,9 +17288,9 @@ These are in \verb|min_parameters.h|.
 \verb|const int min::| & \MINKEY{GTYPED\_PTR\_AUX}
 \LABEL{MIN::GTYPED_PTR_AUX} \\
 \verb|const int min::| & \MINKEY{VAR\_PTR}
-\LABEL{MIN::VAR_PTR} \\
+\LABEL{MIN::PTR} \\
 \verb|const int min::| & \MINKEY{VAR\_PTR\_AUX}
-\LABEL{MIN::VAR_PTR_AUX} \\
+\LABEL{MIN::PTR_AUX} \\
 \end{TABULAR}
 \end{indpar}
 
