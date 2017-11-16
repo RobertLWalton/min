@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 15, 2017}
+\date{November 16, 2017}
  
 \maketitle
 
@@ -1978,7 +1978,12 @@ that have bodies.
 In addition to specialized pointer types for each type of object,
 there are a general body reference and pointer types
 that reference any type an element in any body associated with any stub.
-The functions for creating and using reference types are:
+
+\subsubsubsection{Body References}
+\label{BODY-REFERENCES}
+
+The functions for creating and using \TT{min::\EOL ref<T>}
+body reference types are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::|\MINKEY{ref<T>}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
@@ -2190,6 +2195,9 @@ or if the value stored is \TT{min::\EOL NULL\_\EOL STUB},
 then the \TT{min::\EOL acc\_\EOL write\_\EOL update} functions
 are \underline{not} implicitly called.
 
+\subsubsubsection{Body Pointers}
+\label{BODY-POINTERS}
+
 Associated with the \TT{min::\EOL ref<T>} reference type is
 the companion \TT{min::\EOL ptr<T>} pointer type:
 
@@ -2225,6 +2233,16 @@ the companion \TT{min::\EOL ptr<T>} pointer type:
     & \TTOMKEY{=}{=}{of {\tt min::ref<T>}}
       \verb|( min::ptr<T> & p, min::ptr<T> const & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}ll}
+\verb|bool |
+	& \TTOMKEY{bool}{bool}{of {\tt min::ptr<T>}}
+	  \verb|( min::ptr<T> const & p )|
+\LABEL{MIN::BOOL_OF_PTR} \\
+\verb|min::ptr<T> min::|
+	& \MINKEY{null\_ptr<T>} \verb|()|
+\LABEL{MIN::NULL_OF_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2287,14 +2305,6 @@ but for \TT{min::\EOL ref<T>} types
 it returns \TT{v} (see \pagref{REF->}), the location designated by
 the value in the location designated by the reference.
 
-A \TT{min::\EOL ptr<T>} value can be created by applying the
-\TT{\&} operator to a \TT{min::\EOL ref<T>} value or to a
-locatable variable (see \TT{operator \&} for locatable variables,
-\pagref{LOCATABLE_VAR_PTR}).
-A \TT{min::\EOL ref<T>} value can be recovered from a
-pointer value by applying the
-\TT{*} operator to the \TT{min::\EOL ptr<T>} value.
-
 Creation of \TT{min::\EOL ptr<T>} values by \TT{\ldots::new\_\EOL ptr}
 functions is just like
 creation of \TT{min::\EOL ref<T>} values by \TT{\ldots::new\_\EOL ref}
@@ -2308,7 +2318,19 @@ the pointer \TT{T} is \TT{const} if and only if the location \TT{T}
 is \TT{const}.
 
 The `\TT{min::\EOL ptr<T>} p' constructor with no arguments creates \TT{p}
-with \TT{p.s = NULL\_STUB} and \TT{ps.offset = 0}.
+with \TT{p.s = NULL\_STUB} and \TT{ps.offset = 0}, which is the
+\mkey{null value}{of {\tt ptr<T>}} of \TT{min::\EOL ptr<T>}.
+The same value is returned by `\TT{min::\EOL null\_\EOL ptr<T>()}'.
+Converting a \TT{min::\EOL ptr<T>} value to a \TT{bool} returns \TT{true}
+if and only if the pointer is \underline{not} the null value.
+
+A \TT{min::\EOL ptr<T>} value can be created by applying the
+\TT{\&} operator to a \TT{min::\EOL ref<T>} value or to a
+locatable variable (see \TT{operator \&} for locatable variables,
+\pagref{LOCATABLE_VAR_PTR}).
+A \TT{min::\EOL ref<T>} value can be recovered from a
+pointer value by applying the
+\TT{*} operator to the \TT{min::\EOL ptr<T>} value.
 
 Given a \TT{min::\EOL ptr<T>} value \TT{p} and an index \TT{i} of some
 suitable index type \TT{I} (such as \TT{int} or \TT{min::\EOL uns32}),
@@ -2373,12 +2395,12 @@ allow these values to be used to step through a vector:
 \verb|min::ptr<T> |
     & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}
     & [postfix \TT{++}]\ARGBREAK
-      \verb|( min::ptr<T> & r, int )|
+      \verb|( min::ptr<T> & p, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{--}{-{}-}{of {\tt min::ptr<T>}}
     & [prefix \TT{-{}-}]\ARGBREAK
-      \verb|( min::ptr<T> & r )|
+      \verb|( min::ptr<T> & p )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
@@ -2397,13 +2419,8 @@ false if the two pointers point at different relocatable bodies.
 So one should use the pointers to access data only if the smaller
 pointer is still \TT{<} than the larger pointer.
 
-There is a protected \TT{min::\EOL ptr<T>} constructor of no
-variables that constructs a variable with a
-\mkey{null}{of {\tt min::ptr<T>} type} value that is
-like \TT{NULL}, in that it cannot equal any useful pointer value,
-and will probably cause a memory fault if dereferenced.
-To allow pointers to be tested for this null value the following
-are defined:
+The following functions can be used to test if
+\TT{min::\EOL ptr<T>} values are equal:
 
 \begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
 \verb|bool |
@@ -2416,22 +2433,40 @@ are defined:
 \LABEL{MIN::!=_OF_PTR_OF_T} \\
 \end{tabular}\end{indpar}
 
-Example usages are:
-\begin{indpar}\begin{verbatim}
-ptr<char> s = ...;
-. . . . .
-if ( s != min::ptr<char>() )
-{
-    . . . . .
-}
+\subsubsubsection{Pointer General Values}
+\label{POINTER-GENERAL-VALUES}
 
-ptr<int> null_p, p = ...;
-. . . . .
-if ( p != null_p )
-{
-    . . . . .
-}
-\end{verbatim}\end{indpar}
+A \TT{min::ptr<T>} value can be stored in a \key{pointer general value}
+and later retrieved from that general value.  The retrieval is
+unprotected because \TT{T} cannot be stored in the general value.
+
+A pointer general value is a pointer to a stub of
+\ttkey{min::PTR}\label{MIN::PTR} type
+that holds a pointer to an auxilary stub of
+\minkey{PTR\_\EOL AUX}\label{MIN::PTR_AUX} type
+that contains the stub pointer and offset of a \TT{min::\EOL ptr<T>} value.
+The offset is stored as a \TT{min::\EOL unsgen} in the value of the
+auxilary stub, and the stub pointer is stored in the control of
+the auxilary stub.  An auxilary stub is necessary because the stub
+of \TT{min::\EOL PTR} type is garbage collectable, and the control of
+this stub is used by the garbage collector.
+
+The functions for creating a pointer general value and retrieving
+the \TT{min::\EOL ptr<T>} value it contains are:
+
+\begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
+\verb|min::gen min::|
+	& \MINKEY{new\_ptr\_gen}
+           \verb|( min::ptr<T> & p )|
+\LABEL{MIN::NEW_PTR_GEN} \\
+\verb|min::ptr<T> MUP::|
+	& \MUPKEY{new\_ptr<T>}
+           \verb|( min::gen p )|
+\LABEL{MIN::NEW_PTR_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+If the \TT{min::gen} argument to \TT{MUP::\EOL new\_\EOL ptr<T>} is not
+a pointer general value, \TT{min::\EOL null\_\EOL ptr<T>()} is returned.
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
 \label{STACK-TEMPORARIES-OF-RELOCATABLE-VECTORS}
@@ -15533,19 +15568,15 @@ This second method of introducing graph typed objects allows a context
 to be viewed with several different graph types.
 
 Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \TT{min::gen}\label{INDEX} value
+just a single index\label{INDEX} general value
 (\itemref{GENERAL-VALUES})
 in the graph type
 that holds the index of a
 variable vector element.  This always refers to a variable in the context.
-The second is a \TT{min::gen} value pointing at a
-stub of \minkey{PTR}\label{MIN::PTR} type
-that holds a pointer to an auxilary stub of
-\minkey{PTR\_\EOL AUX}\label{MIN::PTR_AUX} type
-that contains a pointer to
-a context object and an index of a variable in the context.
-An auxilary stub is necessary in order to allow garbage collection
-of the stubs (the control of the primary stub is reserved for GC use).
+The second is a \TT{min::gen} pointer general value
+(\itemref{POINTER-GENERAL-VALUES})
+pointing at a
+a variable in a context.
 This second kind of index pointer is only supported when it is stored in
 context variables.
 
@@ -15738,9 +15769,8 @@ attribute pointer intervenes):
 This function returns
 a \TT{min::\EOL ptr<min::gen>} pointer pointing to the variable whose
 value the \TT{min::\EOL get} returned, provided this value equaled
-\TT{min::\EOL UNDEFINED()}.  Otherwise a
-\TT{min::\EOL ptr<min::gen>} pointer is returned that will cause
-a segment fault if it is used.
+\TT{min::\EOL UNDEFINED()}.
+Otherwise a null \TT{min::\EOL ptr<min::gen>} pointer is returned.
 
 \subsubsubsection{Graph Typed Object Maintenance}
 \label{GRAPH-TYPED-OBJECT-MAINTENANCE}
@@ -17748,6 +17778,16 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
+\verb|bool |
+	& \TTOMKEY{bool}{bool}{of {\tt min::ptr<T>}}
+	  \verb|( min::ptr<T> const & p )|
+\LABEL{MIN::BOOL_OF_PTR} \\
+\verb|min::ptr<T> min::|
+	& \MINKEY{null\_ptr<T>} \verb|()|
+\LABEL{MIN::NULL_OF_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
 \verb|T * |
 	& \TTOMKEY{->}{->}%
 	          {of {\tt min::ptr<T>}}\ARGBREAK
@@ -17795,12 +17835,12 @@ These are in \verb|min_parameters.h|.
 \verb|min::ptr<T> |
     & \TTOMKEY{++}{++}{of {\tt min::ptr<T>}}%
     \hspace*{1.3in} [postfix {\tt ++}]\ARGBREAK
-      \verb|( min::ptr<T> & r, int )|
+      \verb|( min::ptr<T> & p, int )|
 \LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
 \verb|min::ptr<T> |
     & \TTOMKEY{--}{-{}-}{of {\tt min::ptr<T>}}%
     \hspace*{1.3in} [prefix {\tt --}]\ARGBREAK
-      \verb|( min::ptr<T> & r )|
+      \verb|( min::ptr<T> & p )|
 \LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
 \end{TABULAR}
 

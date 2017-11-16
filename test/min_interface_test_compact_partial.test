@@ -1207,11 +1207,11 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pvip->length == 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    (&pvip[0])->j == 88 => true
+    (~pvip[0]).j == 88 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pvp->length == 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    (&pvp[0])->j == 88 => true
+    (~pvp[0]).j == 88 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     (&pvp[1])->j == 11 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

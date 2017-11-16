@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 04:37:38 EST 2017
+// Date:	Thu Nov 16 03:10:58 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3066,6 +3066,11 @@ namespace min {
 	    return location();
 	}
 
+	operator bool ( void ) const
+	{
+	    return s != NULL;
+	}
+
 	template <typename I> ref<T> operator []
 		( I index ) const
 	{
@@ -3177,6 +3182,13 @@ namespace min {
     }
 
     template < typename T >
+    inline min::ptr<T> null_ptr ( void )
+    {
+	return unprotected::new_ptr<T>
+	    ( min::NULL_STUB, (min::unsptr) 0 );
+    }
+
+    template < typename T >
     inline min::ptr<T> operator &
 	    ( const min::ref<T> & r )
     {
@@ -3215,9 +3227,23 @@ namespace min {
 	template < typename T >
         min::ptr<T> new_ptr ( min::gen p )
 	{
+	    const min::stub * s = min::stub_of ( p );
+	    if ( s == min::NULL_STUB
+	         ||
+		 min::type_of ( s ) != min::PTR )
+	        return min::null_ptr<T>;
+	    const min::stub * saux =
+	        unprotected::stub_of
+		    ( unprotected::gen_of ( s ) );
+	    min::uns64 offset =
+	        unprotected::value_of ( saux );
+	    min::uns64  c =
+		unprotected::control_of ( saux );
+	    const min::stub * sptr =
+		unprotected::stub_of_control ( c );
+	    return unprotected::new_ptr<T>
+	        ( sptr, offset );
 	}
-	    
-
     }
 }
 
@@ -10907,15 +10933,10 @@ namespace min {
 	    if ( c == min::UNDEFINED() )
 	        ap.get_ptr = p;
 	    else
-	        ap.get_ptr =
-		    unprotected::new_ptr<min::gen>
-		        ( min::NULL_STUB,
-			  (min::unsptr) 0 );
+	        ap.get_ptr = min::null_ptr<min::gen>();
 	}
 	else
-	    ap.get_ptr =
-		unprotected::new_ptr<min::gen>
-		    ( min::NULL_STUB, (min::unsptr) 0 );
+	    ap.get_ptr = min::null_ptr<min::gen>();
 
 	return c;
     }
