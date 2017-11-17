@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 16, 2017}
+\date{November 17, 2017}
  
 \maketitle
 
@@ -305,6 +305,7 @@ and the corresponding code:
 \ttmkey{bra}{abbreviation}	& opening bracket (\pagref{OBJ_BRA}) \\
 \ttmkey{DISP}{abbreviation}	& displacement (\pagref{MIN::DISP}) \\
 \ttmkey{gen}{abbreviation}	& general value (\itemref{GENERAL-VALUES}) \\
+\ttmkey{gtyped}{abbreviation}	& graph typed (\itemref{GRAPH-TYPED-OBJECTS}) \\
 \ttmkey{insptr}{abbreviation}	& insertable pointer
 				  (read-write, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
@@ -15692,23 +15693,23 @@ The argument \TT{obj} may by an object or may be a \TT{GTYPED\_\EOL PTR}
 pointer (see above).  If it is an object, it must be public,
 even if it is not a context with a graph type.
 Creating an attribute pointer this way creates vector pointers inside
-the attribute pointer.  These can be accessed by the functions:
+the attribute pointer.  If \TT{obj} is \underline{not} a graph typed object,
+the vector pointer created inside the attribute pointer can be accessed by the
+\TT{min::\EOL obj\_\EOL vec\_\EOL ptr\_\EOL of} function
+(see \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_PTR}
+and \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR}).
+If \TT{obj} is a graph typed object, the two vector pointers created
+inside the attribute pointer can be accessed by:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::obj_vec_ptr & min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
+	& \MINMKEY{graph\_obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
 	  \verb|( min::attr_ptr & ap )|
-[See \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_PTR}] \\
+\LABEL{MIN::GRAPH_OBJ_VEC_PTR_OF_ATTR_PTR} \\
 \verb|min::obj_vec_updptr & min::|
-	& \MINMKEY{obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
+	& \MINMKEY{graph\_obj\_vec\_ptr\_of}{of {\tt attr\_updptr}}\ARGBREAK
 	  \verb|( min::attr_updptr & ap )|
-[See \pagref{MIN::OBJ_VEC_PTR_OF_ATTR_UPDPTR}] \\
-\end{tabular}\end{indpar}
-
-which point at the graph type (or at the object \TT{obj} if that is
-a non-graph-typed object) and:
-
-\begin{indpar}\begin{tabular}{r@{}l}
+\LABEL{MIN::GRAPH_OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \verb|min::obj_vec_ptr & min::|
 	& \MINMKEY{context\_obj\_vec\_ptr\_of}{of {\tt attr\_ptr}}\ARGBREAK
 	  \verb|( min::attr_ptr & ap )|
@@ -15719,8 +15720,19 @@ a non-graph-typed object) and:
 \LABEL{MIN::CONTEXT_OBJ_VEC_PTR_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
-which point at the context of a graph typed object, or are set to
-\TT{min::\EOL NULL\_\EOL STUB} if \TT{obj} is a non-graph-typed object.
+The following functions can be used to determine if \TT{obj} was a
+graph typed object or not:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::|
+	& \MINMKEY{is\_gtyped}{of {\tt attr\_ptr}}
+	  \verb|( min::attr_ptr & ap )|
+\LABEL{MIN::IS_GTYPED_OF_ATTR_PTR} \\
+\verb|bool min::|
+	& \MINMKEY{is\_gtyped}{of {\tt attr\_updptr}}
+	  \verb|( min::attr_ptr & ap )|
+\LABEL{MIN::IS_GTYPED_OF_ATTR_UPDPTR} \\
+\end{tabular}\end{indpar}
 
 The usual attribute pointer creation functions that take a vector
 pointer as argument

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 16 03:10:58 EST 2017
+// Date:	Thu Nov 16 23:20:24 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9837,6 +9837,16 @@ namespace min {
 	          < vecptr > & ap );
 
     template < class vecptr >
+    vecptr & graph_obj_vec_ptr_of
+    	    ( min::unprotected::attr_ptr_type
+	          < vecptr > & ap );
+
+    template < class vecptr >
+    vecptr & context_obj_vec_ptr_of
+    	    ( min::unprotected::attr_ptr_type
+	          < vecptr > & ap );
+
+    template < class vecptr >
     void locate
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap,
@@ -10222,6 +10232,12 @@ namespace min { namespace unprotected {
 	    lp = gvp;
 	}
 
+	attr_ptr_type & operator = ( min::gen obj )
+	{
+	    new ( this ) attr_ptr_type ( obj );
+	    return * this;
+	}
+
     private:
 
     // Private Data:
@@ -10375,6 +10391,12 @@ namespace min { namespace unprotected {
     // Friends:
 
 	friend vecptr & obj_vec_ptr_of<>
+		( min::unprotected
+		     ::attr_ptr_type<vecptr> & ap );
+	friend vecptr & graph_obj_vec_ptr_of<>
+		( min::unprotected
+		     ::attr_ptr_type<vecptr> & ap );
+	friend vecptr & context_obj_vec_ptr_of<>
 		( min::unprotected
 		     ::attr_ptr_type<vecptr> & ap );
 	friend void locate<>
@@ -10590,6 +10612,30 @@ namespace min {
 	         ::attr_ptr_type<vecptr> & ap )
     {
         return obj_vec_ptr_of ( ap.locate_dlp );
+    }
+
+    template < class vecptr >
+    inline vecptr & graph_obj_vec_ptr_of
+	    ( min::unprotected
+	         ::attr_ptr_type<vecptr> & ap )
+    {
+        return ap.gvp;
+    }
+
+    template < class vecptr >
+    inline vecptr & context_obj_vec_ptr_of
+	    ( min::unprotected
+	         ::attr_ptr_type<vecptr> & ap )
+    {
+        return ap.vp;
+    }
+
+    template < class vecptr >
+    inline bool is_gtyped
+	    ( min::unprotected
+	         ::attr_ptr_type<vecptr> & ap )
+    {
+        return ap.gvp;
     }
 
     template < class vecptr >
@@ -11050,14 +11096,17 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	case ap_type::LOCATE_ANY:
 	    return internal::update ( ap, v );
+	        // Never returns
 	}
 
 	min::gen c = update_refresh ( ap.dlp );
+    	unprotected::list_ptr_type<vecptr> * lp;
 	if ( ! is_sublist ( c ) )
 	{
-	    update ( ap.dlp, v );
-	    return c;
+	    lp = & ap.dlp;
+	    goto CHECK_INDEX;
 	}
+
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
 	if ( ! is_list_end ( c )
@@ -11073,11 +11122,50 @@ namespace min {
 		 ||
 		 is_control_code ( d ) )
 	    {
-		update ( ap.lp, v );
-		return c;
+		lp = & ap.lp;
+		goto CHECK_INDEX;
 	    }
 	}
+
 	return internal::update ( ap, v );
+	    // Never returns
+
+    CHECK_INDEX:
+
+	if ( min::is_index ( c ) && ap.gvp )
+	{
+	    min::unsgen i = unprotected::index_of ( c );
+	    min::ptr<min::gen> p = & var ( ap.vp, i );
+	    while ( true )
+	    {
+		c = * p;
+	        const min::stub * s =
+		    min::stub_of ( c );
+		if ( s == min::NULL_STUB ) break;
+		if (    unprotected::type_of ( s )
+		     != min::PTR ) break;
+		c = unprotected::gen_of ( s );
+		s = unprotected::stub_of ( c );
+		min::uns64 cn =
+		    unprotected::control_of ( s );
+		p = unprotected::new_ptr<min::gen>
+		  ( unprotected::stub_of_control ( cn ),
+		    unprotected::value_of ( s ) );
+	    }
+	    * p = v;
+	}
+	else
+	    update ( * lp, v );
+
+	return c;
+    }
+
+    template <>
+    inline min::gen update<min::obj_vec_ptr>
+	    ( min::attr_ptr & ap,
+	      min::gen v )
+    {
+        MIN_ABORT ( "updating a (readonly) attr_ptr" );
     }
 
     inline void set
