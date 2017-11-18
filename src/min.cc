@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 18 00:00:28 EST 2017
+// Date:	Sat Nov 18 03:41:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9215,7 +9215,7 @@ bool min::flip_flag
 // Graph Typed Objects
 // ----- ----- -------
 
-bool gtype_error
+int gtype_error
 	( min::obj_vec_ptr & vp, const char * message )
 {
     min::gen gtype =
@@ -9231,7 +9231,7 @@ bool gtype_error
 	<< min::eol
 	<< min::restore_indent;
 
-    return false;
+    return -1;
 }
 
 struct gtype_stack
@@ -9239,11 +9239,15 @@ struct gtype_stack
     min::gen gtype;
     gtype_stack * previous;
 };
-static bool make_gtype
+static int make_gtype
 	( min::obj_vec_ptr & vp,
 	  gtype_stack * stackp,
 	  min::unsptr max_attributes )
 {
+    if ( min::public_flag_of ( vp ) )
+	return gtype_error
+	    ( vp, "object in graph is already public" );
+
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
     min::unsptr count = min::get_attrs
@@ -9251,6 +9255,7 @@ static bool make_gtype
     if ( count > max_attributes )
         return make_gtype ( vp, stackp, count );
 
+    int max_index = 0;
     for ( min::unsptr i = 0; i < count; ++ i )
     {
         min::attr_info ai = info[i];
@@ -9269,7 +9274,21 @@ static bool make_gtype
 	{
 	    if ( min::is_index ( ai.value ) )
 	    {
+	        int index =
+		    min::index_of ( ai.value);
+		if ( index == 0 )
+		    return gtype_error
+			( vp, "attribute has 0 index"
+			      " value" );
+		else if (   index
+		          > MIN_CONTEXT_SIZE_LIMIT )
+		    return gtype_error
+			( vp, "attribute has too large"
+			      " index value" );
+		else if ( index > max_index )
+		    max_index = index;
 	    }
+	    continue;
 	}
 	if ( min::gtype_flag_of ( avp ) )
 	    return true;
@@ -9286,10 +9305,22 @@ static bool make_gtype
 		// TBD; cannot print cyclic graph
 
 	gtype_stack stack = { ai.value, stackp };
-	if ( ! make_gtype ( avp, & stack, 20 ) )
-	    return false;
+	int index = make_gtype ( avp, & stack, 20 );
+	if ( index < 0 ) return index;
+	else if ( index > max_index )
+	    max_index = index;
     }
 
+    min::gen gtype =
+        min::new_stub_gen ( (const min::stub *) vp );
+    vp = min::NULL_STUB;
+    min::obj_vec_insptr vip ( gtype );
+    min::compact ( vip, 1, 0, false );
+    min::var ( vip, 0 ) =
+        min::new_num_gen ( max_index + 1 );
+    min::set_gtype_flag_of ( vip );
+
+    return max_index;
 }
 
 min::gen min::new_gtype ( min::gen gtype )
@@ -9298,10 +9329,32 @@ min::gen min::new_gtype ( min::gen gtype )
     if ( min::gtype_flag_of ( vp ) )
         return gtype;
     gtype_stack stack = { gtype, NULL };
-    if ( make_gtype ( vp, & stack, 20 ) )
+    if ( make_gtype ( vp, & stack, 20 ) >= 0 )
         return gtype;
     else
         return min::ERROR();
+}
+
+min::gen min::new_context ( min::gen gtype )
+{
+    min::obj_vec_ptr vp ( gtype );
+    MIN_ASSERT ( min::gtype_flag_of ( vp ),
+                 "argument to new_context is not"
+		 " gtype" );
+    min::unsgen index_limit =
+        min::int_of ( min::var ( vp, 0 ) );
+
+    min::locatable_gen c
+        ( min::new_obj_gen
+	      ( 0, 0, index_limit, false ) );
+    min::obj_vec_insptr vip ( c );
+
+    min::var ( vip, 0 ) = gtype;
+    for ( min::unsptr i = 1; i < index_limit; ++ i )
+        min::var ( vip, i ) = min::UNDEFINED();
+    min::set_context_flag_of ( vip );
+
+    return c;
 }
 
 

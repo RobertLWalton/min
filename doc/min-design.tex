@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 17, 2017}
+\date{November 18, 2017}
  
 \maketitle
 
@@ -15622,8 +15622,7 @@ sets the first variable of the \TT{gtype} object to one plus the
 maximum index in the graph,
 and sets this object's \TT{min::\EOL OBJ\_\EOL GTYPE} flag.
 It is permissible for some subgraphs to already
-be graph types and some objects in the graph to already be public
-before this function is called.
+be graph types before this function is called.
 The function returns the \TT{gtype} argument if the new graph type
 contains no errors,
 and otherwise returns \TT{min::\EOL ERROR()} and writes an
@@ -15631,6 +15630,7 @@ error message into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}).
 Errors include:
 \begin{indpar}\begin{enumerate}
+\item The graph type contains a public object that is not already a graph type.
 \item The graph type contains a cycle.
 \item The graph type contains an attribute with more than one value.
 \item The graph type contains an attribute with a double arrow value.
