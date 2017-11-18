@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 11 23:11:47 EST 2017
+// Date:	Fri Nov 17 23:58:40 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,6 +32,7 @@
 // -DMIN_IS_COMPACT=1
 // -DMIN_USE_OBJ_AUX_STUBS=1
 // -DMIN_MAX_EPHEMERAL_LEVELS=1
+// -DMIN_CONTEXT_SIZE_LIMIT=16384
 // 
 // See below for the definition of these parameters.
 // Other parameters are computed from these.
@@ -188,6 +189,13 @@ namespace min {
 // integer constant if set.
 //
 // # define MIN_STUB_BASE xxx
+
+// Limit to the number of variables in a a context of a
+// graph typed object.
+//
+# ifndef MIN_CONTEXT_SIZE_LIMIT
+#   define MIN_CONTEXT_SIZE_LIMIT 4096
+# endif
 
 // Rarely Set Software Parameters
 // ------ --- -------- ----------

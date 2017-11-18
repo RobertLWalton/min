@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 04:59:18 EST 2017
+// Date:	Sat Nov 18 00:00:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,6 +27,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Graph Typed Objects
 //	Printers
 //	Printing General values
 
@@ -9210,6 +9211,99 @@ bool min::flip_flag
     min::locate ( ap, attr );
     return min::flip_flag ( ap, n );
 }
+
+// Graph Typed Objects
+// ----- ----- -------
+
+bool gtype_error
+	( min::obj_vec_ptr & vp, const char * message )
+{
+    min::gen gtype =
+        min::new_stub_gen ( (const min::stub *) vp );
+    vp = min::NULL_STUB;
+    min::init ( min::error_message )
+        << "ERROR CREATING GRAPH TYPE: " << message
+	<< " in "
+	<< min::save_indent
+	<< min::set_indent ( 4 )
+	<< min::indent
+	<< min::pgen ( gtype )
+	<< min::eol
+	<< min::restore_indent;
+
+    return false;
+}
+
+struct gtype_stack
+{
+    min::gen gtype;
+    gtype_stack * previous;
+};
+static bool make_gtype
+	( min::obj_vec_ptr & vp,
+	  gtype_stack * stackp,
+	  min::unsptr max_attributes )
+{
+    min::attr_ptr ap ( vp );
+    min::attr_info info[max_attributes];
+    min::unsptr count = min::get_attrs
+        ( info, max_attributes, ap, true );
+    if ( count > max_attributes )
+        return make_gtype ( vp, stackp, count );
+
+    for ( min::unsptr i = 0; i < count; ++ i )
+    {
+        min::attr_info ai = info[i];
+	if ( ai.value_count > 1 )
+	    return gtype_error
+	        ( vp, "attribute has more than one"
+		      " value" );
+	if ( ai.reverse_attr_count > 0 )
+	    return gtype_error
+	        ( vp, "attribute has double arrow"
+		      " values" );
+	if ( ai.value_count == 0 ) continue;
+
+	min::obj_vec_ptr avp ( ai.value );
+	if ( ! avp )
+	{
+	    if ( min::is_index ( ai.value ) )
+	    {
+	    }
+	}
+	if ( min::gtype_flag_of ( avp ) )
+	    return true;
+
+	bool found = false;
+	for ( gtype_stack * sp = stackp;
+	      !found && sp; sp = sp->previous )
+	{
+	    found = ( sp->gtype == ai.value );
+	}
+	if ( found )
+	    return gtype_error
+	        ( vp, "graph type is cyclic" );
+		// TBD; cannot print cyclic graph
+
+	gtype_stack stack = { ai.value, stackp };
+	if ( ! make_gtype ( avp, & stack, 20 ) )
+	    return false;
+    }
+
+}
+
+min::gen min::new_gtype ( min::gen gtype )
+{
+    min::obj_vec_ptr vp ( gtype );
+    if ( min::gtype_flag_of ( vp ) )
+        return gtype;
+    gtype_stack stack = { gtype, NULL };
+    if ( make_gtype ( vp, & stack, 20 ) )
+        return gtype;
+    else
+        return min::ERROR();
+}
+
 
 // Printers
 // --------

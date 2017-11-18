@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 16 23:20:24 EST 2017
+// Date:	Fri Nov 17 23:55:28 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -40,6 +40,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Graph Typed Objects
 //	Printers
 //	Printing General Values
 //	More Allocator/Collector/Compactor Interface
@@ -11817,6 +11818,17 @@ namespace min {
         ( min::gen obj, min::gen attr, unsigned n );
     bool flip_flag
         ( min::gen obj, min::gen attr, unsigned n );
+}
+
+// Graph Typed Objects
+// ----- ----- -------
+
+namespace min {
+
+    min::gen new_gtype ( min::gen gtype );
+
+    min::gen new_context ( min::gen gtype );
+
 }
 
 // Printers
