@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 18, 2017}
+\date{November 21, 2017}
  
 \maketitle
 
@@ -15584,7 +15584,8 @@ context variables.
 If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
-taken, to any depth.
+taken, to any depth.  The first indirection must be an index general
+value, but the remaining indirections can be either kind of indirect pointer.
 
 Graph type objects and contexts are given the
 \TT{min::\EOL OBJ\_\EOL PUBLIC} flag (\pagref{OBJ_PUBLIC}),
@@ -15599,9 +15600,13 @@ The first variable of a graph
 type is an integer that bounds the indices stored in the graph type.
 That is, this integer is the maximum plus \TT{1} of
 all the indices  stored in the graph type.
-Strictly speaking, a graph type is an object that is the root of a tree
-of objects, all of which must
-have the \minkey{OBJ\_\EOL GTYPE} flag and be the root of a graph subtype.
+
+A graph type is an object that is the root of an acycle graph
+of objects, all of which \underline{must} be graph types.  However objects with
+the \TT{OBJ\_\EOL PUBLIC} flag but \underline{without} the
+\TT{OBJ\_\EOL GTYPE} flag are treated as graph types that do
+\underline{not} contain any index general values (i.e., have no
+indirect pointers to variables).
 
 \subsubsubsection{Creating Graph Typed Objects}
 \label{CREATING-GRAPH-TYPED-OBJECTS}
@@ -15615,14 +15620,18 @@ to reference variables in the context.  Then execute the function:
 \LABEL{MIN::NEW_GTYPE} \\
 \end{tabular}\end{indpar}
 
-This compacts the object's in the graph rooted at the \TT{gtype} argument,
-makes them public by setting their
-\TT{min::\EOL OBJ\_\EOL PUBLIC} flags (\pagref{OBJ_PUBLIC}),
-sets the first variable of the \TT{gtype} object to one plus the
-maximum index in the graph,
-and sets this object's \TT{min::\EOL OBJ\_\EOL GTYPE} flag.
-It is permissible for some subgraphs to already
-be graph types before this function is called.
+The \TT{gtype} object must be the root of an acyclic graph whose
+leaves are non-objects or objects with the \TT{OBJ\_\EOL PUBLIC}
+flag (these last leaves may or may not also have their
+\TT{OBJ\_\EOL GTYPE} flag set).
+First all non-root, non-leaf objects in this graph are
+made into graph types by recursively calling \TT{min::\EOL new\_\EOL gtype}.
+Then the \TT{gtype} object is compacted and its \TT{OBJ\_\EOL PUBLIC}
+flag is set.  If there are any
+index general values in the acyclic graph rooted at the \TT{gtype} object,
+the first variable of the \TT{gtype} object is set to one plus the
+maximum index in the graph, and the \TT{gtype} object's
+\TT{OBJ\_\EOL GTYPE} flag is set.
 The function returns the \TT{gtype} argument if the new graph type
 contains no errors,
 and otherwise returns \TT{min::\EOL ERROR()} and writes an
@@ -15630,15 +15639,19 @@ error message into \TT{min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}).
 Errors include:
 \begin{indpar}\begin{enumerate}
-\item The graph type contains a public object that is not already a graph type.
-\item The graph type contains a cycle.
-\item The graph type contains an attribute with more than one value.
-\item The graph type contains an attribute with a double arrow value.
-\item The graph type contains a \TT{min::gen} index value with index \TT{0}
+\item The graph rooted at the \TT{gtype} object (with leaves as defined
+above) contains a cycle.
+\item The \TT{gtype} object has an attribute with more than one value.
+\item The \TT{gtype} object has an attribute with a double arrow value.
+\item The \TT{gtype} object has an attribute with
+an index general value with index \TT{0}
 (which would mean that the graph type would point to itself via the
 context first variable).
-\item The graph type contains a \TT{min::gen} index value larger
+\item The \TT{gtype} object has an index general value with index larger
 than \TT{MIN\_\EOL CONTEXT\_\EOL SIZE\_\EOL LIMIT}.
+\item The graph rooted at the \TT{gtype} object (with leaves as defined
+above) contains an object with has one of the above errors when
+\TT{min::\EOL new\_\EOL gtype} is called recursively for that object.
 \end{enumerate}\end{indpar}
 
 Error checking makes use of:

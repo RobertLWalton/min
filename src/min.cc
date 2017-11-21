@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 18 03:41:14 EST 2017
+// Date:	Tue Nov 21 04:56:29 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9245,8 +9245,12 @@ static int make_gtype
 	  min::unsptr max_attributes )
 {
     if ( min::public_flag_of ( vp ) )
-	return gtype_error
-	    ( vp, "object in graph is already public" );
+    {
+        if ( min::gtype_flag_of ( vp ) )
+	    return min::int_of ( min::var ( vp, 0 ) );
+	else
+	    return 0;
+    }
 
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
@@ -9315,10 +9319,15 @@ static int make_gtype
         min::new_stub_gen ( (const min::stub *) vp );
     vp = min::NULL_STUB;
     min::obj_vec_insptr vip ( gtype );
-    min::compact ( vip, 1, 0, false );
-    min::var ( vip, 0 ) =
-        min::new_num_gen ( max_index + 1 );
-    min::set_gtype_flag_of ( vip );
+    min::compact ( vip, max_index > 0, 0, false );
+    if ( max_index > 0 )
+    {
+	min::var ( vip, 0 ) =
+	    min::new_num_gen ( max_index + 1 );
+	min::set_gtype_flag_of ( vip );
+    }
+    else
+	min::set_public_flag_of ( vip );
 
     return max_index;
 }
@@ -9326,8 +9335,6 @@ static int make_gtype
 min::gen min::new_gtype ( min::gen gtype )
 {
     min::obj_vec_ptr vp ( gtype );
-    if ( min::gtype_flag_of ( vp ) )
-        return gtype;
     gtype_stack stack = { gtype, NULL };
     if ( make_gtype ( vp, & stack, 20 ) >= 0 )
         return gtype;

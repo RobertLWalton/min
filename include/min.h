@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 17 23:55:28 EST 2017
+// Date:	Tue Nov 21 04:56:02 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10898,6 +10898,12 @@ namespace min {
 	    c = var ( ap.vp, i );
 	    while ( true )
 	    {
+		while ( min::is_index ( c ) )
+		{
+		    i = unprotected::index_of ( c );
+		    c = var ( ap.vp, i );
+		}
+
 	        const min::stub * s =
 		    min::stub_of ( c );
 		if ( s == min::NULL_STUB ) break;
@@ -10964,6 +10970,12 @@ namespace min {
 	    while ( true )
 	    {
 		c = * p;
+		while ( min::is_index ( c ) )
+		{
+		    i = unprotected::index_of ( c );
+		    p = & var ( ap.vp, i );
+		    c = * p;
+		}
 	        const min::stub * s =
 		    min::stub_of ( c );
 		if ( s == min::NULL_STUB ) break;
@@ -11140,6 +11152,12 @@ namespace min {
 	    while ( true )
 	    {
 		c = * p;
+		while ( min::is_index ( c ) )
+		{
+		    i = unprotected::index_of ( c );
+		    p = & var ( ap.vp, i );
+		    c = * p;
+		}
 	        const min::stub * s =
 		    min::stub_of ( c );
 		if ( s == min::NULL_STUB ) break;
