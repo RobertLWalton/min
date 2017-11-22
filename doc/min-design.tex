@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 21, 2017}
+\date{November 22, 2017}
  
 \maketitle
 
@@ -15662,6 +15662,34 @@ Error checking makes use of:
 \LABEL{MIN_CONTEXT_SIZE_LIMIT}
 \end{tabular}\end{indpar}
 
+It is also possible to activate an additional feature of
+\TT{min::\EOL new\_\EOL gtype} by giving it a second argument:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_gtype}\ARGBREAK
+        \verb|( min::gen gtype,|\ARGBREAK
+	\verb|  min::packed_vec_insptr<min::gen> vartab )|
+\LABEL{MIN::NEW_GTYPE_WITH_VARTAB} \\
+\end{tabular}\end{indpar}
+
+When this is done any leaf object found in the acyclic graph that
+is a variable name is specially treated.
+A \key{variable name} is an object with
+\TT{.type} attribute equal to the symbol \ttkey{*VARNAME*},
+no other non-hidden attributes (i.e., no other attributes that do
+\underline{not} have an \TT{H} flag), and a single element that
+is a symbol or label.  This symbol is looked up in \TT{vartab}
+and if found at \TT{vartab[i]} the variable name object is
+replaced by an index general value with index \TT{i}.  If not
+found, the symbol is added to the end of \TT{vartab} and treated
+as if it were found.
+
+The \TT{vartab} argument must be initialized with \TT{vartab[0]}
+equal to \TT{min::\EOL MISSING()}.  Other elements may or may not
+be preset to \TT{min::\EOL MISSING()} or to a symbol or label
+in order to prevent the use of an index or pre-assign an index
+to a name.
+
 To make a new context with a given graph type, execute the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -17050,68 +17078,6 @@ The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 \end{center}
 if \TT{v} is an object.
 
-
-\subsection{TBD Obsolete}
-
-Old stuff to be deleted as it is incorporated elsewhere.
-
-The \TT{min::gen\_format} members are:
-
-\begin{itemlist}[0.4in]
-
-\item[\ttmkey{str\_max\_length}{in {\tt min::gen\_format}}]~\\
-This member is only enabled if \TT{STR\_\EOL ID\_\EOL FLAG} is on.
-In this case \TT{min::gen} string values that have length greater
-than \TT{str\_\EOL max\_\EOL length} have an identifier i allocated
-in \TT{printer->\EOL id\_\EOL map} and are printed as `\TT{@}i'.
-
-\end{itemlist}
-
-Strictly for testing purposes, in situations where \TT{min::printer}'s
-are not working, general values can be printed to \TT{std::ostreams}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{<{}<}{of {\tt std::ostream \&}}\ARGBREAK
-      \verb|( std::ostream & out,|\ARGBREAK
-      \verb|  min::gen g )|
-\LABEL{OPERATOR<<_OF_OSTREAM_AND_GEN} \\
-\end{tabular}\end{indpar}
-
-Objects print as `\TT{new\_stub\_gen (} {\em address} \TT{)}',
-but other \TT{min::gen} values print in a reasonable way.
-
-\begin{indpar}[0.1in]\begin{itemlist}[0.4in]
-
-
-\item[\ttmkey{STR\_ID\_FLAG}{of {\tt min::gen\_format} flag}]~\\
-If set, \TT{min::gen} string values that have length greater
-than \TT{str\_\EOL max\_\EOL length} (see below)
-have an identifier i allocated
-in \TT{printer->\EOL id\_\EOL map} and are printed as `\TT{@}i'.
-Otherwise string values are printed normally.
-
-\end{itemlist}\end{indpar}
-
-\section{Code and Execution}
-
-\subsection{Execution Flags}
-\label{EXECUTION-FLAGS}
-
-TBD: relocation flag
-
-\section{TBD Implementation Ideas}
-
-
-\subsection{Stack and not Ephemeral}
-
-Instead of ephemeral, we use stack objects.  A stack stub is a stub that
-is only reachable from pointers in the stack.   When a stack stub
-pointer (as a general value) is stored in a non-stack object, the price
-of tracing what it points at to make its target non-stack is paid.
-This is a logical time to pay this cost.
-
-\section{To Do}
 
 \clearpage
 
