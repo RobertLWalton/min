@@ -9607,7 +9607,7 @@ Here \TT{printer <{}< min::display\_picture} sets the
 while the \TT{printer <{}< min::\EOL nodisplay\_\EOL picture} clears this flag.
 The other operations similarly set or clear their associated flags.
 
-The \TT{printer\_format.support\_control} can be set by the following
+The \TT{print\_format.support\_control} can be set by the following
 printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9629,7 +9629,7 @@ Here \TT{min::ascii} is equivalent to
 \end{center}
 and similarly for \TT{min::latin1} and \TT{min::support\_all}.
 
-The \TT{printer\_format.display\_control} can be set by the following
+The \TT{print\_format.display\_control} can be set by the following
 printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9654,7 +9654,7 @@ Here \TT{min::graphic\_and\_hspace} is equivalent to
 and similarly for \TT{min::\EOL graphic\_\EOL only},
 \TT{min::\EOL graphic\_\EOL and\_vhspace}, and \TT{min::\EOL display\_\EOL all}.
 
-The \TT{printer\_format.break\_control} can be set by the following
+The \TT{print\_format.break\_control} can be set by the following
 printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11104,7 +11104,7 @@ for general value formats is as follows:
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::gen_format * gen_format );|%
+    \verb|         const void * gen_format );|%
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point are for use of|\ARGBREAK
@@ -11229,12 +11229,12 @@ is:
 \verb|min::printer ( * pgen )|\\
 \verb|     ( min::printer printer,|\\
 \verb|       min::gen v,|\\
-\verb|       const min::gen_format * gen_format )|
+\verb|       const void * gen_format )|
 \end{indpar}
 
-This first member is called with the \TT{min::\EOL gen\_\EOL format}
+This first member is called with the general value format
 itself as third argument to execute the \TT{pgen} operation.  So in
-effect a \TT{min::\EOL gen\_\EOL format} value is a
+effect a general value format is a
 `\mkey{closure}{\tt min::gen\_\EOL format}' whose first member is
 the function to execute and whose remaining members are data for
 this function.
@@ -11245,7 +11245,7 @@ The standard first member function value is:
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * gen_format )|
+    \verb|  const void * gen_format )|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -11253,7 +11253,7 @@ The \TT{min::\EOL gen\_\EOL format} structure described above
 is what is expected by this
 `\ikey{standard \TT{pgen}}{standard pgen@standard {\tt pgen}}'.
 In this document it is this format and the standard \TT{pgen}
-that are implicitly described.
+that are being described unless specified otherwise.
 
 The members of a general value format control the printing
 of different kinds of general values.  For example, the

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 15 06:32:37 EST 2017
+// Date:	Wed Nov 22 07:12:48 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4928,7 +4928,11 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( "T" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
+    const min::standard_gen_format * f =
+        (const min::standard_gen_format *)
+	printer->print_format.gen_format;
     min::print_obj ( printer, obj3,
+    		     f->obj_format,
                        min::ENABLE_COMPACT
 		     + min::NO_TRAILING_TYPE );
     min::print_obj ( printer, obj3,

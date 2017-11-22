@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 21 04:56:02 EST 2017
+// Date:	Wed Nov 22 05:32:55 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12994,6 +12994,14 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      const min::gen_format * gen_format );
+    };
+
+    struct standard_gen_format
+    {
+	min::printer     ( * pgen )
+	    ( min::printer printer,
+	      min::gen v,
+	      const min::gen_format * gen_format );
 
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
@@ -13101,27 +13109,6 @@ namespace min {
 	    ( printer, obj, objf, objf->obj_op_flags );
     }
 
-    inline min::printer print_obj
-	    ( min::printer printer, min::gen obj,
-	      min::uns32 obj_op_flags )
-    {
-	const min::obj_format * objf =
-	    printer->print_format.gen_format
-	           ->obj_format;
-        return min::print_obj
-	    ( printer, obj, objf, obj_op_flags );
-    }
-
-    inline min::printer print_obj
-	    ( min::printer printer, min::gen obj )
-    {
-	const min::obj_format * objf =
-	    printer->print_format.gen_format
-	           ->obj_format;
-        return min::print_obj
-	    ( printer, obj, objf, objf->obj_op_flags );
-    }
-
     namespace internal {
 
         inline min::printer print_id
@@ -13174,9 +13161,9 @@ namespace min {
     inline min::printer print_gen
             ( min::printer printer, min::gen v )
     {
-        const min::gen_format * f =
-	    printer->print_format.gen_format;
-        return ( * f->pgen ) ( printer, v, f );
+        return min::print_gen
+	    ( printer, v,
+	      printer->print_format.gen_format );
     }
 
     inline op pgen ( min::gen v )

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 21 04:56:29 EST 2017
+// Date:	Wed Nov 22 05:33:15 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3554,7 +3554,10 @@ inline void map_one
     if ( min::is_str ( v ) )
     {
 	if ( f == NULL ) return;
-	const min::str_format * str_f = f->str_format;
+	if ( f->pgen != & min::standard_pgen ) return;
+	const min::standard_gen_format * sf =
+	    (const min::standard_gen_format *) f;
+	const min::str_format * str_f = sf->str_format;
 	if ( str_f == NULL ) return;
 
 	min::uns32 id_strlen = str_f->id_strlen;
@@ -3601,10 +3604,15 @@ inline void map_one_attributes
 	  min::unsptr number_of_attributes,
 	  const min::gen_format * f )
 {
-    const min::obj_format * obj_f =
-        ( f == NULL ? NULL : f->obj_format );
-    const min::gen_format * val_f =
-        ( obj_f == NULL ? NULL : obj_f->value_format );
+    const min::obj_format * obj_f = NULL;
+    const min::gen_format * val_f = NULL;
+    if ( f->pgen == & min::standard_pgen )
+    {
+	const min::standard_gen_format * sf =
+	    (const min::standard_gen_format *) f;
+        obj_f = sf->obj_format;
+        val_f = obj_f->value_format;
+    }
 
     for ( min::unsptr i = 0; i < number_of_attributes;
                              ++ i )
@@ -3662,15 +3670,19 @@ static void map_one_obj
 	  min::attr_info * info,
 	  min::unsptr number_of_attributes )
 {
-    const min::obj_format * obj_f;
+    const min::obj_format * obj_f = NULL;
     min::uns32 obj_op_flags;
     bool compact_format;
     bool use_top_element_format = false;
 
-    if ( force_id ) goto MAKE_ID;
-    if ( f == NULL ) goto MAKE_ID;
-    obj_f = f->obj_format;
+    if ( f != NULL && f->pgen == & min::standard_pgen )
+    {
+	const min::standard_gen_format * sf =
+	    (const min::standard_gen_format *) f;
+	obj_f = sf->obj_format;
+    }
     if ( obj_f == NULL ) goto MAKE_ID;
+    if ( force_id ) goto MAKE_ID;
     obj_op_flags = obj_f->obj_op_flags;
     if ( obj_op_flags & min::PREFERRED_ID )
         goto MAKE_ID;
@@ -3769,7 +3781,6 @@ MAKE_ID:
 
 MAP_OBJ:
 
-    obj_f = ( f == NULL ? NULL : f->obj_format );
     const min::gen_format * elem_f =
         ( obj_f == NULL ?  NULL :
 	  use_top_element_format ?
@@ -11093,8 +11104,8 @@ min::printer MINT::print_cstring
 	 &&
 	   printer->print_format.op_flags
 	 & min::FORCE_PGEN )
-        sf = printer->print_format.gen_format
-	            ->str_format;
+        return min::print_gen
+	    ( printer, min::new_str_gen ( s ) );
 
     // We translate this case to the punicode case
     // because we need to be able to perform look-ahead
@@ -11133,10 +11144,9 @@ min::printer operator <<
 {
     if (   printer->print_format.op_flags
 	 & min::FORCE_PGEN )
-        return min::print_num
-	    ( printer, (min::float64) i,
-	      printer->print_format.gen_format
-		     ->num_format );
+        return min::print_gen
+	    ( printer,
+	      min::new_num_gen ( (min::float64) i ) );
 
     char buffer[32];
     min::unsptr n = sprintf ( buffer, "%lld", i );
@@ -11149,10 +11159,9 @@ min::printer operator <<
 {
     if (   printer->print_format.op_flags
 	 & min::FORCE_PGEN )
-        return min::print_num
-	    ( printer, (min::float64) u,
-	      printer->print_format.gen_format
-		     ->num_format );
+        return min::print_gen
+	    ( printer,
+	      min::new_num_gen ( (min::float64) u ) );
 
     char buffer[32];
     min::unsptr n = sprintf ( buffer, "%llu", u );
@@ -11165,10 +11174,8 @@ min::printer operator <<
 {
     if (   printer->print_format.op_flags
 	 & min::FORCE_PGEN )
-        return min::print_num
-	    ( printer, f,
-	      printer->print_format.gen_format
-		     ->num_format );
+        return min::print_gen
+	    ( printer, min::new_num_gen ( f ) );
 
     char buffer[64];
     min::unsptr n = sprintf ( buffer, "%.15g", f );
@@ -11400,9 +11407,7 @@ min::printer min::print_num
 	  min::float64 value,
 	  const min::num_format * nf )
 {
-    if ( nf == NULL )
-        nf = printer->print_format.gen_format
-	            ->num_format;
+    MIN_REQUIRE ( nf != NULL );
 
     char buffer[128];
     min::uns32 len;
@@ -11958,7 +11963,7 @@ static min::obj_format isolated_line_obj_format =
 const min::obj_format * min::isolated_line_obj_format =
     & ::isolated_line_obj_format;
 
-static min::gen_format element_gen_format =
+static min::standard_gen_format element_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -11968,9 +11973,10 @@ static min::gen_format element_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format * min::element_gen_format =
+    (const min::gen_format *)
     & ::element_gen_format;
 
-static min::gen_format top_gen_format =
+static min::standard_gen_format top_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -11980,9 +11986,10 @@ static min::gen_format top_gen_format =
     & ::top_obj_format
 };
 const min::gen_format * min::top_gen_format =
+    (const min::gen_format *)
     & ::top_gen_format;
 
-static min::gen_format value_gen_format =
+static min::standard_gen_format value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -11992,9 +11999,10 @@ static min::gen_format value_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format * min::value_gen_format =
+    (const min::gen_format *)
     & ::value_gen_format;
 
-static min::gen_format id_map_gen_format =
+static min::standard_gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12004,9 +12012,10 @@ static min::gen_format id_map_gen_format =
     & ::isolated_line_obj_format
 };
 const min::gen_format * min::id_map_gen_format =
+    (const min::gen_format *)
     & ::id_map_gen_format;
 
-static min::gen_format name_gen_format =
+static min::standard_gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12016,9 +12025,11 @@ static min::gen_format name_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format * min::name_gen_format =
+    (const min::gen_format *)
     & ::name_gen_format;
 
-static min::gen_format leading_always_gen_format =
+static min::standard_gen_format
+	leading_always_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12027,11 +12038,12 @@ static min::gen_format leading_always_gen_format =
     & ::bracket_special_format,
     & ::compact_obj_format
 };
-const min::gen_format *
-    min::leading_always_gen_format =
-	& ::leading_always_gen_format;
+const min::gen_format * min::leading_always_gen_format =
+    (const min::gen_format *)
+    & ::leading_always_gen_format;
 
-static min::gen_format trailing_always_gen_format =
+static min::standard_gen_format
+	trailing_always_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12041,10 +12053,12 @@ static min::gen_format trailing_always_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format *
-    min::trailing_always_gen_format =
-	& ::trailing_always_gen_format;
+	min::trailing_always_gen_format =
+    (const min::gen_format *)
+    & ::trailing_always_gen_format;
 
-static min::gen_format always_quote_gen_format =
+static min::standard_gen_format
+	always_quote_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12054,9 +12068,10 @@ static min::gen_format always_quote_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format * min::always_quote_gen_format =
+    (const min::gen_format *)
     & ::always_quote_gen_format;
 
-static min::gen_format never_quote_gen_format =
+static min::standard_gen_format never_quote_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12066,9 +12081,10 @@ static min::gen_format never_quote_gen_format =
     & ::compact_obj_format
 };
 const min::gen_format * min::never_quote_gen_format =
+    (const min::gen_format *)
     & ::never_quote_gen_format;
 
-static min::gen_format paragraph_gen_format =
+static min::standard_gen_format paragraph_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12079,9 +12095,10 @@ static min::gen_format paragraph_gen_format =
 };
 const min::gen_format *
 	min::paragraph_gen_format =
+    (const min::gen_format *)
     & ::paragraph_gen_format;
 
-static min::gen_format line_gen_format =
+static min::standard_gen_format line_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12092,6 +12109,7 @@ static min::gen_format line_gen_format =
 };
 const min::gen_format *
 	min::line_gen_format =
+    (const min::gen_format *)
     & ::line_gen_format;
 
 const min::print_format min::default_print_format =
@@ -12104,8 +12122,8 @@ const min::print_format min::default_print_format =
     min::break_after_space_break_control,
 
     & ::standard_char_name_format,
-    & ::top_gen_format,
-    & ::id_map_gen_format
+    (const min::gen_format *) & ::top_gen_format,
+    (const min::gen_format *) & ::id_map_gen_format
 };
 
 static void init_pgen_formats ( void )
@@ -13059,8 +13077,10 @@ min::printer min::print_obj
 min::printer min::standard_pgen
 	( min::printer printer,
 	  min::gen v,
-	  const min::gen_format * f )
+	  const min::gen_format * gen_format )
 {
+    const min::standard_gen_format * f =
+        (const min::standard_gen_format *) gen_format;
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
         // This must be first as MINT::null_stub
@@ -13113,7 +13133,8 @@ min::printer min::standard_pgen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) printer << lf->lab_separator;
-	    (* f->pgen) ( printer, labp[i], f );
+	    (* f->pgen) ( printer, labp[i],
+	                  (const min::gen_format *) f );
 	}
 
 	printer << lf->lab_postfix;
