@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 22 19:17:49 EST 2017
+// Date:	Thu Nov 23 03:51:58 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4869,6 +4869,9 @@ void test_object_printing ( void )
     min::assert_print = false;
     min::assert_throw = false;
 
+    const min::gen_format * f =
+	printer->print_format.gen_format;
+
     min::gen obj = min::new_obj_gen ( 5, 5 );
 
     printer << min::pgen ( obj ) << min::eol;
@@ -4928,15 +4931,13 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( "T" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    const min::gen_format * f =
-	printer->print_format.gen_format;
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
     		     f->obj_format,
                        min::ENABLE_COMPACT
 		     + min::NO_TRAILING_TYPE );
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
                      min::embedded_line_obj_format );
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
                      min::embedded_line_obj_format,
                        min::EMBEDDED_LINE
 		     + min::NO_TRAILING_TYPE );
@@ -4948,9 +4949,9 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_str_gen ( ";" ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
 		     min::embedded_line_obj_format );
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
 		     min::isolated_line_obj_format );
 
     {
@@ -4962,7 +4963,7 @@ void test_object_printing ( void )
 	min::set ( ap, min::new_num_gen ( 123 ) );
     }
     printer << min::pgen ( obj3 ) << min::eol;
-    min::print_obj ( printer, obj3,
+    min::print_obj ( printer, obj3, f,
                      min::embedded_line_obj_format );
 
     {
@@ -5043,9 +5044,9 @@ void test_object_printing ( void )
 	min::set_flag ( ap, 512 );
     }
     printer << min::pgen ( obj ) << min::eol;
-    min::print_obj ( printer, obj,
+    min::print_obj ( printer, obj, f,
                      min::embedded_line_obj_format );
-    min::print_obj ( printer, obj,
+    min::print_obj ( printer, obj, f,
                      min::isolated_line_obj_format );
 
     {
@@ -5060,9 +5061,9 @@ void test_object_printing ( void )
 	      + ( 'H' - 'A' ) );
     }
     printer << min::pgen ( obj ) << min::eol;
-    min::print_obj ( printer, obj,
+    min::print_obj ( printer, obj, f,
                      min::embedded_line_obj_format );
-    min::print_obj ( printer, obj,
+    min::print_obj ( printer, obj, f,
                      min::isolated_line_obj_format );
 
     min::gen obj4 = min::new_obj_gen ( 5, 5 );

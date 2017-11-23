@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 22, 2017}
+\date{November 23, 2017}
  
 \maketitle
 
@@ -11106,10 +11106,9 @@ for general value formats is as follows:
     \verb|         min::gen v,|\ARGBREAK
     \verb|         const min::gen_format * gen_format );|%
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  // Members beyond this point are for use of|\ARGBREAK
-    \verb|  // min::standard_pgen.|\ARGBREAK
     \verb||\ARGBREAK
+    \verb|  // The following are used by min::standard_pgen:|\ARGBREAK
+    \verb|  //|\ARGBREAK
     \verb|  const min::num_format *  num_format;|%
 \ttmindex{num\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::str_format *  str_format;|%
@@ -11120,6 +11119,11 @@ for general value formats is as follows:
 \ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|  const min::obj_format *  obj_format;|%
 \ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  // The following is NOT used by min::standard_pgen:|\ARGBREAK
+    \verb|  //|\ARGBREAK
+    \verb|  const void *  non_standard;|%
+\ttmindex{non\_standard}{in {\tt min::gen\_format}}\ARGBREAK
     \verb|};|
 \end{tabular}
 \end{indpar}
@@ -11134,6 +11138,7 @@ for general value formats is as follows:
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
+\verb|NULL                                    // non_standard|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -17032,52 +17037,35 @@ the \TT{text\_\EOL buffer} input `\TT{*a(b)\_c34,200,5d}' the
 flag numbers output would be 0, 12, 13, 14, 200, 15 and the
 \TT{text\_\EOL buffer} output would be `\TT{(,)\_,34,5}'.
 
-The following function can be used to print object general values:
+The following functions can be used to print object general values:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::PRINT_OBJ} \\
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
+    \verb|  const min::obj_format * obj_format )|
+\LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT} \\
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
     \verb|  const min::obj_format * obj_format,|\ARGBREAK
     \verb|  min::uns32 obj_op_flags )|
-\LABEL{MIN::PRINT_OBJ} \\
+\LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT_AND_FLAGS} \\
 \end{tabular}\end{indpar}
 
-This function prints the object using the given \TT{obj\_\EOL format}
-with \TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} replaced by
-the \TT{obj\_\EOL op\_\EOL flags} argument.  Either or both of the
-last two arguments may be omitted as in
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen obj,|\ARGBREAK
-    \verb|  const min::obj_format * obj_format )|
-\LABEL{MIN::PRINT_OBJ_WITHOUT_FLAGS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen obj,|\ARGBREAK
-    \verb|  min::uns32 obj_op_flags )|
-\LABEL{MIN::PRINT_OBJ_WITHOUT_FORMAT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen obj )|\ARGBREAK
-\LABEL{MIN::PRINT_OBJ_BARE} \\
-\end{tabular}\end{indpar}
-
-If \TT{obj\_format} is omitted,
-\begin{center}
-\TT{printer->print\_format.gen\_format->obj\_format}
-\end{center}
-is used in its place.  If \TT{obj\_op\_flags} is omitted,
-\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} is used
-in its place.
+The second function is equivalent to the first but with
+the \TT{obj\_\EOL format} argument replacing
+\TT{gen\_\EOL format->obj\_\EOL format}.
+The third function is equivalent to the second but with
+the \TT{obj\_\EOL op\_\EOL flags} argument replacing
+\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags}.
 
 The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 \begin{center}
@@ -20998,22 +20986,19 @@ These are in \verb|min_parameters.h|.
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::gen_format * gen_format );|%
-\ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb||\\[-5ex]\ARGBREAK
-    \verb|  // Members beyond this point may be moved and|\ARGBREAK
-    \verb|  // new members may be added.|\ARGBREAK
+    \verb|         const min::gen_format * gen_format );|\ARGBREAK
     \verb||\ARGBREAK
-    \verb|  const min::num_format *  num_format;|%
-\ttmindex{num\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb|  const min::str_format *  str_format;|%
-\ttmindex{str\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb|  const min::lab_format *  lab_format;|%
-\ttmindex{lab\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb|  const min::special_format *  special_format;|%
-\ttmindex{special\_format}{in {\tt min::gen\_format}}\ARGBREAK
-    \verb|  const min::obj_format *  obj_format;|%
-\ttmindex{obj\_format}{in {\tt min::gen\_format}}\ARGBREAK
+    \verb|  // The following are used by min::standard_pgen:|\ARGBREAK
+    \verb|  //|\ARGBREAK
+    \verb|  const min::num_format *  num_format;|\ARGBREAK
+    \verb|  const min::str_format *  str_format;|\ARGBREAK
+    \verb|  const min::lab_format *  lab_format;|\ARGBREAK
+    \verb|  const min::special_format *  special_format;|\ARGBREAK
+    \verb|  const min::obj_format *  obj_format;|\ARGBREAK
+    \verb||\ARGBREAK
+    \verb|  // The following is NOT used by min::standard_pgen:|\ARGBREAK
+    \verb|  //|\ARGBREAK
+    \verb|  const void *  non_standard;|\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -21028,7 +21013,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::quote_separator_str_format         // str_format|\ARGBREAK[0in]
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
 \verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
-\verb|min::compact_obj_format                 // obj_format|
+\verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
+\verb|NULL                                    // non_standard|
 \end{TABULAR}
 
 \bigskip
@@ -23384,9 +23370,21 @@ These are in \verb|min_parameters.h|.
 \verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format )|
+\LABEL{MIN::PRINT_OBJ} \\
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
+    \verb|  const min::obj_format * obj_format )|
+\LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT} \\
+\verb|min::printer min::| & \MINKEY{print\_obj}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::gen obj,|\ARGBREAK
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
     \verb|  const min::obj_format * obj_format,|\ARGBREAK
     \verb|  min::uns32 obj_op_flags )|
-\LABEL{MIN::PRINT_OBJ} \\
+\LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT_AND_FLAGS} \\
 \end{TABULAR}
 
 \end{indpar}

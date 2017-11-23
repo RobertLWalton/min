@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 22 19:02:33 EST 2017
+// Date:	Thu Nov 23 04:07:43 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12607,6 +12607,7 @@ static bool print_attributes
 min::printer min::print_obj
 	( min::printer printer,
 	  min::gen v,
+	  const min::gen_format * f,
 	  const min::obj_format * objf,
 	  min::uns32 obj_op_flags,
 	  min::unsptr max_attrs )
@@ -12618,7 +12619,8 @@ min::printer min::print_obj
     min::unsptr m =
         min::get_attrs ( info, max_attrs, ap );
     if ( m > max_attrs )
-        return min::print_obj ( printer, v, objf, m );
+        return min::print_obj
+	    ( printer, v, f, objf, obj_op_flags, m );
 
     min::gen separator = min::NONE();
     min::gen initiator = min::NONE();
@@ -13180,8 +13182,7 @@ min::printer min::standard_pgen
     }
 
     else if ( min::is_obj ( v ) )
-        return min::print_obj
-	    ( printer, v, f->obj_format );
+        return min::print_obj ( printer, v, f );
 
     else if ( min::is_preallocated ( v ) )
     {
