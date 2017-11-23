@@ -11104,7 +11104,7 @@ for general value formats is as follows:
     \verb|  min::printer ( * pgen )|\ARGBREAK
     \verb|       ( min::printer printer,|\ARGBREAK
     \verb|         min::gen v,|\ARGBREAK
-    \verb|         const void * gen_format );|%
+    \verb|         const min::gen_format * gen_format );|%
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\\[-5ex]\ARGBREAK
     \verb|  // Members beyond this point are for use of|\ARGBREAK
@@ -11229,7 +11229,7 @@ is:
 \verb|min::printer ( * pgen )|\\
 \verb|     ( min::printer printer,|\\
 \verb|       min::gen v,|\\
-\verb|       const void * gen_format )|
+\verb|       const min::gen_format * gen_format )|
 \end{indpar}
 
 This first member is called with the general value format
@@ -11245,7 +11245,7 @@ The standard first member function value is:
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const void * gen_format )|
+    \verb|  const min::gen_format * gen_format )|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -11253,13 +11253,20 @@ The \TT{min::\EOL gen\_\EOL format} structure described above
 is what is expected by this
 `\ikey{standard \TT{pgen}}{standard pgen@standard {\tt pgen}}'.
 In this document it is this format and the standard \TT{pgen}
+function \TT{min::\EOL standard\_\EOL pgen}
 that are being described unless specified otherwise.
 
-The members of a general value format control the printing
+Most members of a general value format control the printing
 of different kinds of general values.  For example, the
 \TT{str\_\EOL format} member controls the printing of string
 general values.  We will describe how each member is used in
 the following subsections.
+
+The \TT{non\_standard} member is an exception.  It is
+\underline{not} used by the \TT{min::\EOL standard\_\EOL pgen}
+function
+and is available for use
+as a pointer to extra format data by non-standard \TT{pgen} functions.
 
 \subsubsection{Printing Numeric General Values}
 \label{PRINTING-NUMERIC-GENERAL-VALUES}

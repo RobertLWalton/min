@@ -12994,20 +12994,13 @@ namespace min {
 	    ( min::printer printer,
 	      min::gen v,
 	      const min::gen_format * gen_format );
-    };
-
-    struct standard_gen_format
-    {
-	min::printer     ( * pgen )
-	    ( min::printer printer,
-	      min::gen v,
-	      const min::gen_format * gen_format );
 
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
         const min::lab_format *	    lab_format;
         const min::special_format * special_format;
         const min::obj_format *	    obj_format;
+	const void *		    non_standard;
     };
 
     extern const min::gen_format *
