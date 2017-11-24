@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 23, 2017}
+\date{November 24, 2017}
  
 \maketitle
 
@@ -6713,7 +6713,7 @@ pointers is enabled.
 
 \begin{itemlist}[1.0in]
 
-\item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]\label{PACKED_SUBTYPE}
 A small integer automatically assigned to uniquely identify \TT{pvtype}.
 This is stored in the `\TT{control}' member of all packed
 vectors that are created by \TT{pvtype.new\_\EOL gen} or
@@ -9182,9 +9182,14 @@ This defines the prefix and suffix on character names and
 codes: e.g., provides the prefix \TT{<} and suffix \TT{>} for
 the representative \TT{<FF>} of a form feed character.
 
-\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]~\\
-This controls the printing of
+\item[\ttmkey{print\_format.gen\_format}{in {\tt min::printer}}]
+\item[\ttmkey{print\_format.id\_map\_gen\_format}{in {\tt min::printer}}]%
+\vspace{-1.5ex}~\\
+These control the printing of
 \TT{min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
+The \TT{gen\_\EOL format} is used normally and the
+\TT{id\_\EOL map\_\EOL gen\_\EOL format} member is used by id map mapping
+and flushing functions (\itemref{PRINTING-USING-AN-IDENTIFIER-MAP}).
 
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with \TT{min::save\_print\_format} and
@@ -11096,15 +11101,22 @@ Copies can be made in the stack.
 The detailed structure and available standard values
 for general value formats is as follows:
 
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{{\tt typedef min::printer ( * min::}
+		\MINKEY{pgen\_function} {\tt )} }
+\LABEL{MIN::PGEN_FUNCTION}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::gen v,|\ARGBREAK
+      \verb|  const min::gen_format * gen_format,|\ARGBREAK
+      \verb|  bool disable_mapping )|
+\end{tabular}\end{indpar}
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{gen\_format}}
 \LABEL{MIN::GEN_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::printer ( * pgen )|\ARGBREAK
-    \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::gen_format * gen_format );|%
+    \verb|  min::pgen_function pgen;|
 \ttmindex{pgen}{in {\tt min::gen\_format}}\ARGBREAK
     \verb||\ARGBREAK
     \verb|  // The following are used by min::standard_pgen:|\ARGBREAK
@@ -11250,7 +11262,8 @@ The standard first member function value is:
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * gen_format )|
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -11260,6 +11273,11 @@ is what is expected by this
 In this document it is this format and the standard \TT{pgen}
 function \TT{min::\EOL standard\_\EOL pgen}
 that are being described unless specified otherwise.
+
+The \TT{disable\_mapping} argument is normally \TT{false}, but
+is set \TT{true} when defined format functions decline
+to specially format a \TT{min::gen} value: see
+\itemref{PRINTING-USING-DEFINED-FORMATS}.
 
 Most members of a general value format control the printing
 of different kinds of general values.  For example, the
@@ -11941,6 +11959,105 @@ executes
 \begin{indpar}\begin{verbatim}
     min::print_mapped_id ( printer, ID, id_map, gen_format );
 \end{verbatim}\end{indpar}
+
+\subsubsection{Printing Using Defined Formats}
+\label{PRINTING-USING-DEFINED-FORMATS}
+
+Packed structures and vectors and objects with particular
+\TT{.type} attribute values can be printed using user defined
+formats.  A \key{defined format} is a closure consisting of
+a C++ function and arguments.  The defined format is specifically
+a packed vector whose header contains a pointer to its function:
+
+\begin{indpar}[0.1in]\begin{tabular}{l}
+\verb|typedef min::packed_vec_ptr<min::gen,min::defined_format_header>|\\
+\hspace*{1in}\verb|min:| \MINKEY{defined\_format} \\
+\verb|typedef min::packed_vec_insptr<min::gen,min::defined_format_header>|\\
+\hspace*{1in}\verb|min:| \MINKEY{defined\_format\_insptr} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{{\tt typedef min::printer ( * min::}
+		\MINKEY{defined\_format\_function} {\tt )} }
+\LABEL{MIN::DEFINED_FORMAT_FUNCTION}\ARGBREAK
+      \verb|( const min::printer printer,|\ARGBREAK
+      \verb|  min::gen v,|\ARGBREAK
+      \verb|  const min::gen_format * gen_format,|\ARGBREAK
+      \verb|  min::defined_format defined_format )|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct                         min::| & \MINKEY{defined\_format\_header}
+\LABEL{MIN::DEFINED_FORMAT_HEADER} \\
+\verb|{                                   | \\
+\verb|     min::uns32 |
+	& \TTMKEY{control}{in {\tt min::defined\_format\_header}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{length}{in {\tt min::defined\_format\_header}} \\
+\verb|     min::uns32 |
+	& \TTMKEY{max\_length}{in {\tt min::defined\_format\_header}} \\
+\verb|     min::defined_format_function |
+	& \TTMKEY{defined\_format\_function}{in {\tt min::defined\_format\_header}} \\
+\verb|}                                   | \\
+\end{tabular}\end{indpar}
+
+There is a \key{packed defined format map}
+of packed structure/vector subtypes (\pagref{PACKED_SUBTYPE})
+to defined formats that can be edited by the function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{map\_packed\_subtype\REL}\ARGBREAK
+    \verb|( min::uns32 subtype,|\ARGBREAK
+    \verb|  min::defined_format defined_format )|
+\LABEL{MIN::MAP_PACKED_SUBTYPE_TO_DEFINED_FORMAT} \\
+\end{tabular}\end{indpar}
+
+If the \TT{defined\_format} argument is \TT{min::\EOL NULL\_\EOL STUB}
+the subtype is in effect unmapped.
+
+When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
+about to print a packed structure or vector, it looks up the subtype in
+the packed defined format map, and if the value found is a
+defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
+format function is called to do the printing.  This call passes
+the value \TT{v} to be printed (which contains a pointer to the
+packed structure or vector), the \TT{min::\EOL gen\_\EOL format}
+that \TT{min::\EOL standard\_\EOL pgen} was using print \TT{v},
+and the defined format found in the map.
+
+Similarly there is a \key{typed defined format map} of \TT{.type}
+attribute values to defined formats that can be edited by the function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{map\_packed\_subtype\REL}\ARGBREAK
+    \verb|( min::gen type,|\ARGBREAK
+    \verb|  min::defined_format defined_format )|
+\LABEL{MIN::MAP_TYPE_TO_DEFINED_FORMAT} \\
+\end{tabular}\end{indpar}
+
+If the \TT{defined\_format} argument is \TT{min::\EOL NULL\_\EOL STUB}
+the \TT{type} is in effect unmapped.
+
+When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
+about to print an object with a \TT{.type} value, it looks up
+the \TT{.type} value in
+the typed defined format map, and if the value found is a
+defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
+format function is called to do the printing.  This call passes
+the value \TT{v} to be printed (which points at the object),
+the \TT{min::\EOL gen\_\EOL format}
+that \TT{min::\EOL standard\_\EOL pgen} was using to print \TT{v},
+and the defined format found in the map.
+
+When the defined format function is called it must act as a substitute
+for \TT{min::\EOL standard\_\EOL pgen}.  If it wishes to decline this
+opportunity, it may call
+\begin{indpar}\begin{verbatim}
+    ( * gen_format->pgen ) ( printer, v, gen_format, true )
+\end{verbatim}\end{indpar}
+
+with the \TT{disable\_\EOL mapping} argument set to \TT{true} to
+suppress defined format mapping.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -20979,14 +21096,21 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.2in}
+\multicolumn{2}{l}{{\tt typedef min::printer ( * min::}
+		\MINKEY{pgen\_function} {\tt )} }
+\LABEL{MIN::PGEN_FUNCTION}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::gen v,|\ARGBREAK
+      \verb|  const min::gen_format * gen_format,|\ARGBREAK
+      \verb|  bool disable_mapping )|
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
 \multicolumn{2}{l}{\tt struct
                        min::\MINKEY{gen\_format}}
 \LABEL{MIN::GEN_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::printer ( * pgen )|\ARGBREAK
-    \verb|       ( min::printer printer,|\ARGBREAK
-    \verb|         min::gen v,|\ARGBREAK
-    \verb|         const min::gen_format * gen_format );|\ARGBREAK
+    \verb|  min::pgen_function pgen;|\ARGBREAK
     \verb||\ARGBREAK
     \verb|  // The following are used by min::standard_pgen:|\ARGBREAK
     \verb|  //|\ARGBREAK
@@ -21129,7 +21253,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::printer min::| & \MINKEY{standard\_pgen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * gen_format )|
+    \verb|  const min::gen_format * gen_format,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::STANDARD_PGEN} \\
 \end{TABULAR}
 

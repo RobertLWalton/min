@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 23 04:07:43 EST 2017
+// Date:	Fri Nov 24 03:02:30 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13076,7 +13076,8 @@ min::printer min::print_obj
 min::printer min::standard_pgen
 	( min::printer printer,
 	  min::gen v,
-	  const min::gen_format * f )
+	  const min::gen_format * f,
+	  bool disable_mapping )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -13130,7 +13131,8 @@ min::printer min::standard_pgen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) printer << lf->lab_separator;
-	    (* f->pgen) ( printer, labp[i], f );
+	    (* f->pgen) ( printer, labp[i],
+	                  f, disable_mapping );
 	}
 
 	printer << lf->lab_postfix;

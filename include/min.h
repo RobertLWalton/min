@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 23 04:06:59 EST 2017
+// Date:	Fri Nov 24 02:59:52 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12988,12 +12988,15 @@ namespace min {
     extern const min::obj_format *
         paragraph_obj_format;
 
-    struct gen_format
-    {
-	min::printer     ( * pgen )
+    typedef min::printer ( * pgen_function )
 	    ( min::printer printer,
 	      min::gen v,
-	      const min::gen_format * gen_format );
+	      const min::gen_format * gen_format,
+	      bool disable_mapping );
+
+    struct gen_format
+    {
+        min::pgen_function pgen;
 
         const min::num_format *	    num_format;
         const min::str_format *	    str_format;
@@ -13075,7 +13078,8 @@ namespace min {
     min::printer standard_pgen
 	    ( min::printer printer,
 	      min::gen v,
-	      const min::gen_format * gen_format );
+	      const min::gen_format * gen_format,
+	      bool disable_mapping = false );
 
     inline min::printer print_str
     	    ( min::printer printer, min::gen str,
@@ -13160,7 +13164,7 @@ namespace min {
     {
         MIN_ASSERT ( f != NULL,
 	             "third argument is NULL" );
-        return ( * f->pgen ) ( printer, v, f );
+        return ( * f->pgen ) ( printer, v, f, false );
     }
 
     inline min::printer print_gen
