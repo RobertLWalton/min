@@ -11246,7 +11246,8 @@ is:
 \verb|min::printer ( * pgen )|\\
 \verb|     ( min::printer printer,|\\
 \verb|       min::gen v,|\\
-\verb|       const min::gen_format * gen_format )|
+\verb|       const min::gen_format * gen_format,|\\
+\verb|       bool disable_mapping )|
 \end{indpar}
 
 This first member is called with the general value format
@@ -11963,11 +11964,12 @@ executes
 \subsubsection{Printing Using Defined Formats}
 \label{PRINTING-USING-DEFINED-FORMATS}
 
-Packed structures and vectors and objects with particular
+Packed structures, packed vectors, and objects with
 \TT{.type} attribute values can be printed using user defined
 formats.  A \key{defined format} is a closure consisting of
 a C++ function and arguments.  The defined format is specifically
-a packed vector whose header contains a pointer to its function:
+a packed vector whose header contains a pointer to its function
+and whose elements are the closure arguments to that function:
 
 \begin{indpar}[0.1in]\begin{tabular}{l}
 \verb|typedef min::packed_vec_ptr<min::gen,min::defined_format_header>|\\
@@ -12016,7 +12018,8 @@ If the \TT{defined\_format} argument is \TT{min::\EOL NULL\_\EOL STUB}
 the subtype is in effect unmapped.
 
 When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
-about to print a packed structure or vector, it looks up the subtype in
+about to print a packed structure or vector and its
+\TT{disable\_\EOL mapping} argument is \TT{false}, it looks up the subtype in
 the packed defined format map, and if the value found is a
 defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
 format function is called to do the printing.  This call passes
@@ -12029,7 +12032,7 @@ Similarly there is a \key{typed defined format map} of \TT{.type}
 attribute values to defined formats that can be edited by the function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{map\_packed\_subtype\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{map\_type\REL}\ARGBREAK
     \verb|( min::gen type,|\ARGBREAK
     \verb|  min::defined_format defined_format )|
 \LABEL{MIN::MAP_TYPE_TO_DEFINED_FORMAT} \\
@@ -12039,7 +12042,8 @@ If the \TT{defined\_format} argument is \TT{min::\EOL NULL\_\EOL STUB}
 the \TT{type} is in effect unmapped.
 
 When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
-about to print an object with a \TT{.type} value, it looks up
+about to print an object with a \TT{.type} value and its
+\TT{disable\_\EOL mapping} argument is \TT{false}, it looks up
 the \TT{.type} value in
 the typed defined format map, and if the value found is a
 defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
@@ -12049,7 +12053,7 @@ the \TT{min::\EOL gen\_\EOL format}
 that \TT{min::\EOL standard\_\EOL pgen} was using to print \TT{v},
 and the defined format found in the map.
 
-When the defined format function is called it must act as a substitute
+When a defined format function is called it must act as a substitute
 for \TT{min::\EOL standard\_\EOL pgen}.  If it wishes to decline this
 opportunity, it may call
 \begin{indpar}\begin{verbatim}
