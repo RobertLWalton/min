@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 24 20:28:45 EST 2017
+// Date:	Sat Nov 25 06:28:09 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -95,7 +95,7 @@ min::locatable_gen min::dot_arguments;
 min::locatable_gen min::dot_keys;
 min::locatable_gen min::dot_operator;
 
-static min::uns32 gen_element_disp[2] =
+static min::uns32 zero_disp[2] =
     { 0, min::DISP_END };
 
 min::packed_vec<char>
@@ -112,7 +112,7 @@ min::packed_vec<min::ustring>
         ( "min::ustring_packed_vec_type" );
 min::packed_vec<min::gen> min::gen_packed_vec_type
     ( "min::gen_packed_vec_type",
-      gen_element_disp );
+      ::zero_disp );
 
 static const unsigned
     standard_special_names_length = 25;
@@ -12611,6 +12611,7 @@ min::printer min::print_obj
 	  const min::gen_format * f,
 	  const min::obj_format * objf,
 	  min::uns32 obj_op_flags,
+	  bool disable_mapping,
 	  min::unsptr max_attrs )
 {
     min::obj_vec_ptr vp ( v );
@@ -12621,7 +12622,8 @@ min::printer min::print_obj
         min::get_attrs ( info, max_attrs, ap );
     if ( m > max_attrs )
         return min::print_obj
-	    ( printer, v, f, objf, obj_op_flags, m );
+	    ( printer, v, f, objf, obj_op_flags,
+	      disable_mapping, m );
 
     min::gen separator = min::NONE();
     min::gen initiator = min::NONE();
@@ -12702,6 +12704,26 @@ min::printer min::print_obj
 	}
 	else if ( terminator != min::NONE() )
 	    compact_format = false;
+    }
+
+    if (    type != min::NONE()
+         && compact_format
+	 && ! disable_mapping
+	 &&    MINT::defined_format_type_map
+	    != min::MISSING() )
+    {
+        min::gen dfg =
+	    min::get ( MINT::defined_format_type_map,
+	               type );
+	if ( dfg != min::NONE() )
+	{
+	    min::defined_format df =
+	        (min::defined_format)
+		min::stub_of ( dfg );
+	    if ( df != min::NULL_STUB )
+		return ( * df->defined_format_function )
+		    ( printer, v, f, df );
+	}
     }
 
     if ( ( obj_op_flags & min::PREFERRED_ID )
@@ -13185,7 +13207,10 @@ min::printer min::standard_pgen
     }
 
     else if ( min::is_obj ( v ) )
-        return min::print_obj ( printer, v, f );
+        return min::print_obj
+	    ( printer, v, f, f->obj_format,
+	      f->obj_format->obj_op_flags,
+	      disable_mapping );
 
     else if ( min::is_preallocated ( v ) )
     {
@@ -13261,7 +13286,7 @@ static min::packed_vec
 	    <min::gen,min::defined_format_header>
 	defined_format_type
     ( "min::defined_format_type",
-      gen_element_disp );
+      ::zero_disp );
            
 
 min::defined_format_insptr min::new_defined_format
@@ -13279,14 +13304,48 @@ min::defined_format_insptr min::new_defined_format
     return p;
 }
 
+min::locatable_var
+	<MINT::defined_format_packed_map_insptr>
+    MINT::defined_format_packed_map
+	( min::NULL_STUB );
+
+static min::packed_vec<min::defined_format>
+	defined_format_packed_map_type
+    ( "::defined_format_packed_map_type",
+      NULL, ::zero_disp );
+
 void min::map_packed_subtype
     ( min::uns32 subtype,
       min::defined_format defined_format )
 {
+    if (    MINT::defined_format_packed_map
+         == min::NULL_STUB )
+    {
+      MINT::defined_format_packed_map =
+	(MINT::defined_format_packed_map_insptr)
+	::defined_format_packed_map_type.new_stub();
+    }
+    while (    MINT::defined_format_packed_map->
+    			length
+            <= subtype )
+	min::push(MINT::defined_format_packed_map) =
+	    min::NULL_STUB;
+
+    MINT::defined_format_packed_map[subtype] =
+        defined_format;
 }
+
+min::locatable_gen MINT::defined_format_type_map
+				( min::MISSING() );
 
 void min::map_type
     ( min::gen type,
       min::defined_format defined_format )
 {
+    if (    MINT::defined_format_type_map
+         == min::MISSING() )
+        MINT::defined_format_type_map =
+	    min::new_obj_gen ( 4096, 1024 );
+    min::set ( MINT::defined_format_type_map, type,
+               min::new_stub_gen ( defined_format ) );
 }

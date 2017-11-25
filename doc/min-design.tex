@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 24, 2017}
+\date{November 25, 2017}
  
 \maketitle
 
@@ -12013,7 +12013,7 @@ A defined format can be created by the function:
 \LABEL{MIN::NEW_DEFINED_FORMAT} \\
 \end{tabular}\end{indpar}
 
-There is a \key{packed defined format map}
+There is a \key{defined format packed map}
 of packed structure/vector subtypes (\pagref{PACKED_SUBTYPE})
 to defined formats that can be edited by the function:
 
@@ -12030,7 +12030,7 @@ the subtype is in effect unmapped.
 When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
 about to print a packed structure or vector and its
 \TT{disable\_\EOL mapping} argument is \TT{false}, it looks up the subtype in
-the packed defined format map, and if the value found is a
+the defined format packed map, and if the value found is a
 defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
 format function is called to do the printing.  This call passes
 the value \TT{v} to be printed (which contains a pointer to the
@@ -12038,7 +12038,8 @@ packed structure or vector), the \TT{min::\EOL gen\_\EOL format}
 that \TT{min::\EOL standard\_\EOL pgen} was using print \TT{v},
 and the defined format found in the map.
 
-Similarly there is a \key{typed defined format map} of \TT{.type}
+Similarly there is a \key{defined format type map}%
+\label{DEFINED-FORMAT-TYPE-MAP} of \TT{.type}
 attribute values to defined formats that can be edited by the function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -12055,13 +12056,14 @@ When \TT{min::standard\_pgen} (\pagref{MIN::STANDARD_PGEN}) is
 about to print an object with a \TT{.type} value and its
 \TT{disable\_\EOL mapping} argument is \TT{false}, it looks up
 the \TT{.type} value in
-the typed defined format map, and if the value found is a
+the defined format type map, and if the value found is a
 defined format and not \TT{min::\EOL NULL\_\EOL STUB}, the defined
 format function is called to do the printing.  This call passes
 the value \TT{v} to be printed (which points at the object),
 the \TT{min::\EOL gen\_\EOL format}
 that \TT{min::\EOL standard\_\EOL pgen} was using to print \TT{v},
 and the defined format found in the map.
+See \pagref{DEFINED-FORMAT-TYPE-TRANSLATION} for more details.
 
 When a defined format function is called it must act as a substitute
 for \TT{min::\EOL standard\_\EOL pgen}.  If it wishes to decline this
@@ -16510,6 +16512,28 @@ Otherwise, when none of the above apply, the object is printed in
 
 The compact format has several variants:
 \begin{enumerate}
+\item If the object has a \TT{.type} attribute and any
+\TT{disable\_\EOL mapping} argument to the function being used to
+print the object (e.g., \TT{min::\EOL standard\_\EOL pgen} or
+\TT{min::\EOL print\_\EOL obj}) is \TT{false}, and if the \TT{.type}
+attribute value has a non-\TT{NULL\_\EOL STUB}
+entry \TT{df} in the defined format type map
+(\pagref{DEFINED-FORMAT-TYPE-MAP}), then the defined format function
+is called.  E.g.,
+\begin{center}
+\TT{min::standard\_pgen ( printer, v, gen\_format, false )}
+\end{center}
+or
+\begin{center}
+\TT{min::print\_obj
+    ( printer, v, gen\_format, obj\_format, obj\_op\_flags, false )}
+\end{center}
+is translated to
+\label{DEFINED-FORMAT-TYPE-TRANSLATION}
+\begin{center}
+\TT{(* df->defined\_format\_function) ( printer, v, gen\_format, df )}
+\end{center}
+
 \item The `\key{logical line compact format}' is used if
 the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
 the object has no \TT{.separator},
@@ -17187,7 +17211,8 @@ The following functions can be used to print object general values:
     \verb|  min::gen obj,|\ARGBREAK
     \verb|  const min::gen_format * gen_format,|\ARGBREAK
     \verb|  const min::obj_format * obj_format,|\ARGBREAK
-    \verb|  min::uns32 obj_op_flags )|
+    \verb|  min::uns32 obj_op_flags,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT_AND_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -17196,7 +17221,10 @@ the \TT{obj\_\EOL format} argument replacing
 \TT{gen\_\EOL format->obj\_\EOL format}.
 The third function is equivalent to the second but with
 the \TT{obj\_\EOL op\_\EOL flags} argument replacing
-\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags}.
+\TT{obj\_\EOL format->obj\_\EOL op\_\EOL flags} and
+additionally an option to set \TT{disable\_\EOL mapping} to \TT{true}
+(see \pagref{DEFINED-FORMAT-TYPE-TRANSLATION} for \TT{disable\_\EOL mapping}
+details).
 
 The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 \begin{center}
@@ -23522,7 +23550,8 @@ These are in \verb|min_parameters.h|.
     \verb|  min::gen obj,|\ARGBREAK
     \verb|  const min::gen_format * gen_format,|\ARGBREAK
     \verb|  const min::obj_format * obj_format,|\ARGBREAK
-    \verb|  min::uns32 obj_op_flags )|
+    \verb|  min::uns32 obj_op_flags,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::PRINT_OBJ_WITH_OBJ_FORMAT_AND_FLAGS} \\
 \end{TABULAR}
 

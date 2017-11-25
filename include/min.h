@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 24 19:48:19 EST 2017
+// Date:	Sat Nov 25 06:28:18 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13097,6 +13097,7 @@ namespace min {
 	      const min::gen_format * f,
 	      const min::obj_format * objf,
 	      min::uns32 obj_op_flags,
+	      bool disable_mapping = false,
 	      min::unsptr max_attrs = 1000 );
 	// Max_attrs is hidden and undocumented.
 
@@ -13295,6 +13296,20 @@ namespace min {
         ( min::gen type,
 	  min::defined_format defined_format );
 
+    namespace internal {
+
+        typedef min::packed_vec_insptr
+			<min::defined_format>
+	    defined_format_packed_map_insptr;
+
+	extern min::locatable_var
+	    <internal::defined_format_packed_map_insptr>
+	  defined_format_packed_map;
+
+	extern min::locatable_gen
+	    defined_format_type_map;
+
+    }
 }
 
 // More Allocator/Collector/Compactor Interface
