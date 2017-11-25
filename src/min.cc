@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 24 03:02:30 EST 2017
+// Date:	Fri Nov 24 20:28:45 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,6 +30,7 @@
 //	Graph Typed Objects
 //	Printers
 //	Printing General values
+//	Defined Formats
 
 // Setup
 // -----
@@ -13251,4 +13252,41 @@ min::printer min::standard_pgen
 	if ( sf ) printer << sf->special_postfix;
 	return printer;
     }
+}
+
+// Defined Formats
+// ------- -------
+
+static min::packed_vec
+	    <min::gen,min::defined_format_header>
+	defined_format_type
+    ( "min::defined_format_type",
+      gen_element_disp );
+           
+
+min::defined_format_insptr min::new_defined_format
+    ( min::defined_format_function f,
+      min::uns32 number_of_arguments )
+{
+    min::defined_format_insptr p =
+        (min::defined_format_insptr)
+        ::defined_format_type.new_stub
+	    ( number_of_arguments );
+
+    * (min::defined_format_function *) &
+      ( p->defined_format_function) = f;
+
+    return p;
+}
+
+void min::map_packed_subtype
+    ( min::uns32 subtype,
+      min::defined_format defined_format )
+{
+}
+
+void min::map_type
+    ( min::gen type,
+      min::defined_format defined_format )
+{
 }
