@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 24 02:59:52 EST 2017
+// Date:	Fri Nov 24 19:48:19 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,6 +43,7 @@
 //	Graph Typed Objects
 //	Printers
 //	Printing General Values
+//	Defined Formats
 //	More Allocator/Collector/Compactor Interface
 
 // Namespaces:
@@ -13253,7 +13254,48 @@ inline min::printer operator <<
 {
     return printer << min::pgen ( g );
 }
+
+// Defined Formats
+// ------- -------
 
+namespace min {
+
+    struct defined_format_header;
+    typedef min::packed_vec_ptr
+            <min::gen,min::defined_format_header>
+	defined_format;
+    typedef min::packed_vec_insptr
+            <min::gen,min::defined_format_header>
+	defined_format_insptr;
+
+    typedef min::printer ( * defined_format_function )
+    	( min::printer printer,
+	  min::gen v,
+	  const min::gen_format * gen_format,
+	  min::defined_format defined_format );
+
+    struct defined_format_header
+    {
+        const min::uns32 control;
+	const min::uns32 length;
+	const min::uns32 max_length;
+	const min::defined_format_function
+	    defined_format_function;
+    };
+
+    min::defined_format_insptr new_defined_format
+        ( min::defined_format_function f,
+	  min::uns32 number_of_arguments );
+
+    void map_packed_subtype
+        ( min::uns32 subtype,
+	  min::defined_format defined_format );
+
+    void map_type
+        ( min::gen type,
+	  min::defined_format defined_format );
+
+}
 
 // More Allocator/Collector/Compactor Interface
 // ---- ----------------------------- ---------

@@ -11981,26 +11981,36 @@ and whose elements are the closure arguments to that function:
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{{\tt typedef min::printer ( * min::}
 		\MINKEY{defined\_format\_function} {\tt )} }
-\LABEL{MIN::DEFINED_FORMAT_FUNCTION}\ARGBREAK
-      \verb|( const min::printer printer,|\ARGBREAK
-      \verb|  min::gen v,|\ARGBREAK
-      \verb|  const min::gen_format * gen_format,|\ARGBREAK
+\LABEL{MIN::DEFINED_FORMAT_FUNCTION}\ARGBREAK[0.5in]
+      \verb|( min::printer printer,|\ARGBREAK[0.5in]
+      \verb|  min::gen v,|\ARGBREAK[0.5in]
+      \verb|  const min::gen_format * gen_format,|\ARGBREAK[0.5in]
       \verb|  min::defined_format defined_format )|
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{rl}
+\begin{indpar}[0.1in]\begin{tabular}{rl}
 \verb|struct                         min::| & \MINKEY{defined\_format\_header}
 \LABEL{MIN::DEFINED_FORMAT_HEADER} \\
-\verb|{                                   | \\
-\verb|     min::uns32 |
+\verb|{                                    | \\
+\verb|  const min::uns32 |
 	& \TTMKEY{control}{in {\tt min::defined\_format\_header}} \\
-\verb|     min::uns32 |
+\verb| const min::uns32 |
 	& \TTMKEY{length}{in {\tt min::defined\_format\_header}} \\
-\verb|     min::uns32 |
+\verb| const min::uns32 |
 	& \TTMKEY{max\_length}{in {\tt min::defined\_format\_header}} \\
-\verb|     min::defined_format_function |
+\verb|  const min::defined_format_function |
 	& \TTMKEY{defined\_format\_function}{in {\tt min::defined\_format\_header}} \\
-\verb|}                                   | \\
+\verb|}                                    | \\
+\end{tabular}\end{indpar}
+
+A defined format can be created by the function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{{\tt min::defined\_format\_insptr min::}
+	\MINKEY{new\_defined\_format\REL}}\ARGBREAK[0.5in]
+    \verb|( min::defined_format_function f,|\ARGBREAK[0.5in]
+    \verb|  min::uns32_number of_arguments )|
+\LABEL{MIN::NEW_DEFINED_FORMAT} \\
 \end{tabular}\end{indpar}
 
 There is a \key{packed defined format map}
