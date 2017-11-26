@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 23 03:51:58 EST 2017
+// Date:	Sun Nov 26 02:53:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5069,7 +5069,17 @@ void test_object_printing ( void )
     min::gen obj4 = min::new_obj_gen ( 5, 5 );
     {
 	min::obj_vec_insptr vp ( obj4 );
-	min::attr_push ( vp, 3 );
+	min::attr_push ( vp, 1 );
+	vp[0] = min::new_str_gen
+	    ( "This is a \"quoted string\"." );
+	min::attr_insptr ap  ( vp );
+	min::locate ( ap, min::dot_type );
+	min::set ( ap, min::doublequote );
+    }
+    printer << min::pgen ( obj4 ) << min::eol;
+    {
+	min::obj_vec_insptr vp ( obj4 );
+	min::attr_push ( vp, 2 );
 	vp[0] = min::new_str_gen ( "X" );
 	vp[1] = min::new_str_gen ( "Y" );
 	vp[2] = min::new_str_gen ( "Z" );

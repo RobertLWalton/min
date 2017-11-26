@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 01:29:10 EST 2017
+// Date:	Sun Nov 26 02:50:21 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12870,27 +12870,6 @@ min::printer min::print_obj
 	    return
 	        printer << objf->obj_empty
 			<< min::restore_print_format;
-	else if ( type == objf->quote_type
-	          &&
-		  type != min::NONE()
-		  &&
-		  separator == min::NONE() )
-	{
-	    for ( min::unsptr i = 0;
-	          i < min::size_of ( vp ); ++ i )
-	    {
-		if ( i != 0 )
-		{
-		    min::print_space ( printer );
-		    printer << min::set_break;
-		}
-		min::print_gen
-		    ( printer,
-		      vp[i],
-		      objf->quote_element_format );
-	    }
-	    return printer << min::restore_print_format;
-	}
 	else
 	{
 	    printer << objf->obj_bra;
@@ -13369,17 +13348,13 @@ min::printer min::quote_defined_format_function
 	 ! min::is_str ( vp[0] ) )
     {
         vp = min::NULL_STUB;
-	printer << "DOUBLE QUOTE FAILED " << min::eol;
         return (* gen_format->pgen )
 	    ( printer, v, gen_format, true );
     }
     else
-    {
-	printer << "DOUBLE QUOTE SUCCEEDED " << min::eol;
 	return min::print_str
 	    ( printer, vp[0],
 	      min::quote_all_str_format );
-    }
 }
 
 static void defined_format_initialize ( void )

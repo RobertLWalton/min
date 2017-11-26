@@ -3145,12 +3145,12 @@ A B C:
         myreverse = @2 = myforward
         .separator = ","
         .terminator = [< "*" "}" >]
+"This<SP>is<SP>a<SP><Q>quoted<SP>string<Q>."
 {T|X Y Z|T}
 {+ X Y Z +}
 {< X Y Z >}
 {{ X Y Z 0 0 0 }}
-DOUBLE QUOTE FAILED
-"X" "Y" "Z" 0 0 0
+{"<Q>"|X Y Z 0 0 0|"<Q>"}
 Flag Parse Errors: `(,)_,34,5'
 {T: A[*abcd,200] = "value"|X Y Z 0 0 0|T}
 
