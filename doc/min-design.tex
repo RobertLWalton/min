@@ -16512,7 +16512,8 @@ Otherwise, when none of the above apply, the object is printed in
 
 The compact format has several variants:
 \begin{enumerate}
-\item If the object has a \TT{.type} attribute and any
+\item If the object has a \TT{.type} attribute and no other
+non-hidden attributes, and if any
 \TT{disable\_\EOL mapping} argument to the function being used to
 print the object (e.g., \TT{min::\EOL standard\_\EOL pgen} or
 \TT{min::\EOL print\_\EOL obj}) is \TT{false}, and if the \TT{.type}

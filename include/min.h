@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 25 06:28:18 EST 2017
+// Date:	Sun Nov 26 01:12:43 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13310,6 +13310,11 @@ namespace min {
 	    defined_format_type_map;
 
     }
+    min::printer quote_defined_format_function
+	    ( min::printer printer,
+	      min::gen v,
+	      const min::gen_format * gen_format,
+	      min::defined_format );
 }
 
 // More Allocator/Collector/Compactor Interface

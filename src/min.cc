@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 25 06:28:09 EST 2017
+// Date:	Sun Nov 26 01:29:10 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12706,26 +12706,6 @@ min::printer min::print_obj
 	    compact_format = false;
     }
 
-    if (    type != min::NONE()
-         && compact_format
-	 && ! disable_mapping
-	 &&    MINT::defined_format_type_map
-	    != min::MISSING() )
-    {
-        min::gen dfg =
-	    min::get ( MINT::defined_format_type_map,
-	               type );
-	if ( dfg != min::NONE() )
-	{
-	    min::defined_format df =
-	        (min::defined_format)
-		min::stub_of ( dfg );
-	    if ( df != min::NULL_STUB )
-		return ( * df->defined_format_function )
-		    ( printer, v, f, df );
-	}
-    }
-
     if ( ( obj_op_flags & min::PREFERRED_ID )
          ||
 	 (    ! compact_format
@@ -12754,6 +12734,33 @@ min::printer min::print_obj
     bool attributes_printed = false;
     if ( compact_format )
     {
+
+	if (    type != min::NONE()
+	     && separator == min::NONE()
+	     && ! disable_mapping
+	     &&    MINT::defined_format_type_map
+		!= min::MISSING() )
+	{
+	    min::gen dfg =
+		min::get
+		    ( MINT::defined_format_type_map,
+		      type );
+	    if ( dfg != min::NONE() )
+	    {
+		min::defined_format df =
+		    (min::defined_format)
+		    min::stub_of ( dfg );
+		if ( df != min::NULL_STUB )
+		{
+		    vp = min::NULL_STUB;
+		    ( * df->defined_format_function )
+			( printer, v, f, df );
+		    return printer
+		           << min::restore_print_format;
+		}
+	    }
+	}
+
 	if ( obj_op_flags & min::ENABLE_LOGICAL_LINE
 	     &&
 	     initiator == min::LOGICAL_LINE()
@@ -13349,3 +13356,42 @@ void min::map_type
     min::set ( MINT::defined_format_type_map, type,
                min::new_stub_gen ( defined_format ) );
 }
+
+min::printer min::quote_defined_format_function
+	( min::printer printer,
+	  min::gen v,
+	  const min::gen_format * gen_format,
+	  min::defined_format )
+{
+    min::obj_vec_ptr vp ( v );
+    if ( min::size_of ( vp ) != 1
+         ||
+	 ! min::is_str ( vp[0] ) )
+    {
+        vp = min::NULL_STUB;
+	printer << "DOUBLE QUOTE FAILED " << min::eol;
+        return (* gen_format->pgen )
+	    ( printer, v, gen_format, true );
+    }
+    else
+    {
+	printer << "DOUBLE QUOTE SUCCEEDED " << min::eol;
+	return min::print_str
+	    ( printer, vp[0],
+	      min::quote_all_str_format );
+    }
+}
+
+static void defined_format_initialize ( void )
+{
+    min::locatable_var<min::defined_format>
+        quote_defined_format =
+	    min::new_defined_format
+		( min::quote_defined_format_function,
+		  0 );
+    min::map_type
+        ( min::doublequote, quote_defined_format );
+}
+
+static min::initializer defined_format_initializer
+    ( :: defined_format_initialize );
