@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 01:12:43 EST 2017
+// Date:	Sun Nov 26 05:57:01 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11881,6 +11881,8 @@ namespace min {
     };
 
     extern const min::display_control
+        graphic_and_sp_display_control;
+    extern const min::display_control
         graphic_and_hspace_display_control;
     extern const min::display_control
         graphic_only_display_control;
@@ -11924,9 +11926,10 @@ namespace min {
 	min::uns32		      op_flags;
 	const min::uns32 *	      char_flags;
 
-	min::support_control 	      support_control;
-	min::display_control 	      display_control;
-	min::break_control 	      break_control;
+	min::support_control 	 support_control;
+	min::display_control 	 display_control;
+	min::display_control     quoted_display_control;
+	min::break_control 	 break_control;
 
 	const min::char_name_format * char_name_format;
 	const min::gen_format *	      gen_format;
@@ -12073,6 +12076,7 @@ namespace min {
 
 	    SET_SUPPORT_CONTROL,
 	    SET_DISPLAY_CONTROL,
+	    SET_QUOTED_DISPLAY_CONTROL,
 	    SET_BREAK_CONTROL,
 
 	    VERBATIM,
@@ -12321,6 +12325,13 @@ namespace min {
         return op ( op::SET_DISPLAY_CONTROL, & dc );
     }
 
+    inline op set_quoted_display_control
+    	( const min::display_control & dc )
+    {
+        return op
+	    ( op::SET_QUOTED_DISPLAY_CONTROL, & dc );
+    }
+
     inline op set_break_control
     	( const min::break_control & bc )
     {
@@ -12397,6 +12408,7 @@ namespace min {
     extern const op latin1;
     extern const op support_all;
 
+    extern const op graphic_and_sp;
     extern const op graphic_and_hspace;
     extern const op graphic_only;
     extern const op graphic_and_vhspace;
@@ -12853,10 +12865,10 @@ namespace min {
 
     struct quote_format
     {
-	min::ustring	str_prefix;
-	min::ustring	str_postfix;
-	min::ustring	str_postfix_replacement;
-	min::ustring	str_concatenator;
+	min::ustring		str_prefix;
+	min::ustring		str_postfix;
+	min::ustring		str_postfix_replacement;
+	min::ustring		str_concatenator;
     };
 
     extern const min::quote_format
@@ -12867,7 +12879,6 @@ namespace min {
 
         const min::str_classifier   str_classifier;
 	min::quote_format 	    quote_format;
-	min::display_control	    display_control;
 	min::uns32		    id_strlen;
     };
 

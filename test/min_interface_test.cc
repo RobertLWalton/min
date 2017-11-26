@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 02:53:14 EST 2017
+// Date:	Sun Nov 26 07:38:30 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2823,7 +2823,8 @@ void test_printer ( void )
 
     printer << min::bom;
 
-    printer << min::graphic_only
+    printer << min::set_quoted_display_control
+    		( min::graphic_only_display_control )
             << min::pgen
                    ( min::new_str_gen
 			 ( "this is a string with a"
@@ -2837,7 +2838,8 @@ void test_printer ( void )
 			   " quote (\")" ) )
             << min::eol;
 
-    printer << min::graphic_and_hspace
+    printer << min::set_quoted_display_control
+	     ( min::graphic_and_hspace_display_control )
 	    << min::nodisplay_picture
             << min::pgen
                    ( min::new_str_gen

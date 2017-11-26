@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 25, 2017}
+\date{November 26, 2017}
  
 \maketitle
 
@@ -8648,41 +8648,37 @@ following printer parameters:
 \LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{rll}
+\begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{print\_\EOL format}
-	& \verb|// Defaults:|
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
+				 & \verb|// Defaults:| \\
 \verb|{                        | \\
 \verb|            min::uns32   |
-	& \TTMKEY{op\_flags}{in {\tt min::print\_format}}
+	& \TTMKEY{op\_flags}{in {\tt min::print\_format}} \\
 	& \verb|// min::EXPAND_HT| \\
 \verb|            min::uns32 * |
-	& \TTMKEY{char\_flags}{in {\tt min::print\_format}}
-	& \verb|// min::standard_| \\
-      & & \verb|//   char_flags| \\
+	& \TTMKEY{char\_flags}{in {\tt min::print\_format}} \\
+	& \verb|// min::standard_char_flags| \\
 \verb|     min::support_control|
-	& \TTMKEY{support\_control}{in {\tt min::print\_format}}
-        & \verb|// min::latin1_| \\
-      & & \verb|//   support_control| \\
+	& \TTMKEY{support\_control}{in {\tt min::print\_format}} \\
+        & \verb|// min::latin1_support_control| \\
 \verb|     min::display_control|
-	& \TTMKEY{display\_control}{in {\tt min::print\_format}}
-        & \verb|// min::graphic_and_| \\
-      & & \verb|//   hspace_| \\
-      & & \verb|//   display_control| \\
+	& \TTMKEY{display\_control}{in {\tt min::print\_format}} \\
+        & \verb|// min::graphic_and_hspace_display_control| \\
+\verb|     min::display_control|
+	& \TTMKEY{quoted\_display\_control}{in {\tt min::print\_format}} \\
+        & \verb|// min::graphic_and_sp_display_control| \\
 \verb|       min::break_control|
-	& \TTMKEY{break\_control}{in {\tt min::print\_format}}
-        & \verb|// min::break_after_| \\
-      & & \verb|//   space_| \\
-      & & \verb|//   break_control| \\
+	& \TTMKEY{break\_control}{in {\tt min::print\_format}} \\
+        & \verb|// min::break_after_space_break_control| \\
 \verb|  min::char_name_format *|
-	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}}
-        & \verb|// min::standard_| \\
-      & & \verb|//   char_name_format| \\
+	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}} \\
+        & \verb|// min::standard_char_name_format| \\
 \verb|        min::gen_format *|
-	& \TTMKEY{gen\_format}{in {\tt min::print\_format}}
+	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::top_gen_format| \\
 \verb|        min::gen_format *|
-	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}}
+	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::id_map_gen_format| \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
@@ -8757,8 +8753,12 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINLKEY{graphic\_and\_sp}{\_display\_control} =}\ARGBREAK[1.0in]
+	\verb|{ min::IS_SP + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SP_DISPLAY_CONTROL} \\
+\multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_and\_hspace}{\_display\_control} =}\ARGBREAK[1.0in]
-	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
+	\verb|{ min::IS_HSPACE + min::IS_GRAPHIC, 0 };|
 \LABEL{MIN::GRAPHIC_AND_HSPACE_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::\MINLKEY{graphic\_only}{\_display\_control} =}\ARGBREAK[1.0in]
@@ -8860,7 +8860,10 @@ if ( ( cflags & sc.support_mask ) == 0 )
 \item Compute printed representation of \TT{c}:%
 \label{COMPUTE-PRINTED-REPRESENTATION}
 \begin{indpar}\begin{verbatim}
-min::display_control dc = printer->print_format.display_control;
+min::display_control dc =
+    [are we printing quoted character] ?
+        printer->print_format.quoted_display_control :
+        printer->print_format.display_control;
 if ( printer->print_format.op_flags & min::DISPLAY_NON_GRAPHIC )
 {
     dc.display_char &= ~ min::IS_NON_GRAPHIC;
@@ -9118,12 +9121,17 @@ See `Replace character flags \ldots{} if \ldots{} unsupported' above
 (\pagref{REPLACE-CHARACTER-FLAGS}).
 
 \item[\ttmkey{print\_format.display\_control}{in {\tt min::printer}}]%
-\label{PRINT_FORMAT_DISPLAY_CONTROL}~\\
-This \TT{min::display\_control} controls which characters display as
+\label{PRINT_FORMAT_DISPLAY_CONTROL}
+\item[\ttmkey{print\_format.quoted\_display\_control}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_QUOTED_DISPLAY_CONTROL}\vspace*{-1.5ex}~\\
+These control which characters display as
 themselves and which are suppressed (ignored and not printed).
+For characters in quoted strings, \TT{quoted\_\EOL display\_\EOL control}
+is used, while for all other characters \TT{display\_\EOL control} is used.
+
 The \TT{display\_\EOL char} mask
 (e.g., \TT{min::\EOL IS\_\EOL SP + min::\EOL IS\_\EOL GRAPHIC})
-is bitwise AND'ed with
+is AND'ed bitwise with
 the character flags and if the result is non-zero,
 the character is displayed as itself.  Note however there may
 be special processing in this case for the horizontal tab character.
@@ -9638,6 +9646,8 @@ The \TT{print\_format.display\_control} can be set by the following
 printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{graphic\_and\_sp}
+\LABEL{MIN::GRAPHIC_AND_SP} \\
 \verb|const min::op min::| & \MINKEY{graphic\_and\_hspace}
 \LABEL{MIN::GRAPHIC_AND_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_only}
@@ -9652,12 +9662,23 @@ printer operations:
 \LABEL{MIN::SET_DISPLAY_CONTROL} \\
 \end{tabular}\end{indpar}
 
-Here \TT{min::graphic\_and\_hspace} is equivalent to
+Here \TT{min::graphic\_and\_sp} is equivalent to
 \begin{center}
-\verb|min::set_display_control ( min::graphic_and_hspace_display_control )|
+\verb|min::set_display_control ( min::graphic_and_sp_display_control )|
 \end{center}
-and similarly for \TT{min::\EOL graphic\_\EOL only},
-\TT{min::\EOL graphic\_\EOL and\_vhspace}, and \TT{min::\EOL display\_\EOL all}.
+and similarly for \TT{min::\EOL graphic\_\EOL and\_\EOL hspace},
+\TT{min::\EOL graphic\_\EOL only},
+\TT{min::\EOL graphic\_\EOL and\_\EOL vhspace},
+and \TT{min::\EOL display\_\EOL all}.
+
+The \TT{print\_format.quoted\_display\_control} can be set by the following:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_quoted\_display\_control}\ARGBREAK
+          \verb|( const min::display_control & dc )|
+\LABEL{MIN::SET_QUOTED_DISPLAY_CONTROL} \\
+\end{tabular}\end{indpar}
 
 The \TT{print\_format.break\_control} can be set by the following
 printer operations:
@@ -11423,8 +11444,6 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::quote_format     quote_format;|%
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::display_control  display_control;|%
-\ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_strlen;|%
 \ttmindex{id\_strlen}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
@@ -11443,7 +11462,6 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|MIN_ID_STRLEN                          // id_strlen|
 \end{tabular}\end{indpar}
 
@@ -11567,7 +11585,8 @@ surrounded by single spaces.
 
 Lastly, the characters of the string being quoted (but \underline{not}
 those of \TT{str\_\EOL format->\EOL quote\_\EOL format.str\_\ldots})
-are printed using \TT{str\_\EOL format->\EOL display\_\EOL control}
+are printed using
+\TT{printer->\EOL print\_format.quoted\_\EOL display\_\EOL control}
 instead of \TT{printer->\EOL print\_\EOL format.display\_\EOL control}.
 E.g., only graphic characters may be allowed to print as themselves,
 and everything else may be represented by a character name
@@ -20178,6 +20197,8 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{support\_control}{in {\tt min::print\_format}} \\
 \verb|       min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}} \\
+\verb|       min::display_control|
+	& \TTMKEY{quoted\_display\_control}{in {\tt min::print\_format}} \\
 \verb|         min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}} \\
 \verb|   min::char_name_format *|
@@ -20275,6 +20296,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::display\_control
+    min::\MINLKEY{graphic\_and\_sp}{\_display\_control} =}\ARGBREAK[0.5in]
+	\verb|{ min::IS_SP + min::IS_GRAPHIC, 0 };|
+\LABEL{MIN::GRAPHIC_AND_SP_DISPLAY_CONTROL} \\
 \multicolumn{2}{l}{\tt const min::display\_control
     min::~{graphic\_and\_hspace\_display\_control} =}\ARGBREAK[0.5in]
 	\verb|{ min::IS_HSPACE  + min::IS_GRAPHIC, 0 };|
@@ -20634,6 +20659,8 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{graphic\_and\_sp}
+\LABEL{MIN::GRAPHIC_AND_SP} \\
 \verb|const min::op min::| & \MINKEY{graphic\_and\_hspace}
 \LABEL{MIN::GRAPHIC_AND_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_only}
@@ -20645,7 +20672,10 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_display\_control}\ARGBREAK
           \verb|( const min::display_control & dc )|
-\LABEL{MIN::SET_DISPLAY_CONTROL}
+\LABEL{MIN::SET_DISPLAY_CONTROL} \\
+\verb|min::op min::|
+    & \MINKEY{set\_quoted\_display\_control}\ARGBREAK
+          \verb|( const min::display_control & dc )|
 \end{TABULAR}
 
 \bigskip
@@ -21404,8 +21434,6 @@ These are in \verb|min_parameters.h|.
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::quote_format     quote_format;|%
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
-    \verb|  min::display_control  display_control;|%
-\ttmindex{display\_control}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_strlen;|%
 \ttmindex{id\_strlen}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
@@ -21427,7 +21455,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|min::graphic_only_display_control      // display_control|\ARGBREAK
 \verb|MIN_ID_STRLEN                          // id_strlen|
 \end{TABULAR}
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 02:50:21 EST 2017
+// Date:	Sun Nov 26 07:31:35 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9392,6 +9392,12 @@ const min::support_control
 };
 
 const min::display_control
+        min::graphic_and_sp_display_control =
+{
+    min::IS_SP + min::IS_GRAPHIC, 0
+};
+
+const min::display_control
         min::graphic_and_hspace_display_control =
 {
     min::IS_HSPACE + min::IS_GRAPHIC, 0
@@ -9974,6 +9980,10 @@ min::printer operator <<
         printer->print_format.display_control =
 	    * (const min::display_control *) op.v1.p;
 	return printer;
+    case min::op::SET_QUOTED_DISPLAY_CONTROL:
+        printer->print_format.quoted_display_control =
+	    * (const min::display_control *) op.v1.p;
+	return printer;
     case min::op::SET_BREAK_CONTROL:
         printer->print_format.break_control =
 	    * (const min::break_control *) op.v1.p;
@@ -10310,6 +10320,9 @@ const min::op min::support_all
     ( min::op::SET_SUPPORT_CONTROL,
       & min::support_all_support_control );
 
+const min::op min::graphic_and_sp
+    ( min::op::SET_DISPLAY_CONTROL,
+      & min::graphic_and_sp_display_control );
 const min::op min::graphic_and_hspace
     ( min::op::SET_DISPLAY_CONTROL,
       & min::graphic_and_hspace_display_control );
@@ -10847,7 +10860,8 @@ static min::printer print_quoted_unicode
     {
 	MINT::print_unicode
 	    ( printer, length, p, width,
-	               & sf->display_control,
+	               & printer->print_format
+		                .quoted_display_control,
 	               postfix_string,
 		       postfix_length,
 		       qf.str_postfix_replacement );
@@ -11476,7 +11490,6 @@ static min::str_format quote_separator_str_format =
 {
     min::quote_separator_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
     0
 };
 const min::str_format *
@@ -11488,7 +11501,6 @@ static min::str_format
 {
     min::quote_separator_and_mark_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
     0
 };
 const min::str_format *
@@ -11499,7 +11511,6 @@ static min::str_format quote_all_str_format =
 {
     min::quote_all_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
     min::MIN_ID_STRLEN
 };
 const min::str_format * min::quote_all_str_format =
@@ -11509,7 +11520,6 @@ static min::str_format standard_str_format =
 {
     min::standard_str_classifier,
     min::standard_quote_format,
-    min::graphic_only_display_control,
     min::MIN_ID_STRLEN
 };
 const min::str_format * min::standard_str_format =
@@ -12117,6 +12127,7 @@ const min::print_format min::default_print_format =
 
     min::latin1_support_control,
     min::graphic_and_hspace_display_control,
+    min::graphic_and_sp_display_control,
     min::break_after_space_break_control,
 
     & ::standard_char_name_format,
