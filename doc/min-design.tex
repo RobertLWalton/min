@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 26, 2017}
+\date{November 27, 2017}
  
 \maketitle
 
@@ -16038,8 +16038,6 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              top_element_format;|%
 \ttmindex{top\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  const min::gen_format *              quote_element_format;|%
-\ttmindex{quote\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              label_format;|%
 \ttmindex{label\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              value_format;|%
@@ -16062,8 +16060,6 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::str_classifier                  mark_classifier;|%
 \ttmindex{mark\_classifier}{in {\tt min::obj\_format}}\ARGBREAK
-    \verb|  min::gen                             quote_type;|%
-\ttmindex{quote\_type}{in {\tt min::obj\_format}}
 \end{tabular}
 
 \bigskip
@@ -16280,7 +16276,6 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::element_gen_format                  // element_format|\ARGBREAK
 \verb|NULL                                     // top_element_format|\ARGBREAK
-\verb|min::always_quote_gen_format             // quote_element_format|\ARGBREAK
 \verb|min::value_gen_format                    // value_format|\ARGBREAK
 \verb|min::name_gen_format                     // label_format|\ARGBREAK
 \end{tabular}
@@ -16293,7 +16288,6 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK
-\verb|min::doublequote                         // quote_type|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -16580,13 +16574,9 @@ is used if the object has an \TT{.initiator} and \TT{.terminator}.
 no elements and no \TT{.type}.  Note that the object may have a
 \TT{.separator} which will not be printed.
 
-\item Otherwise the `\key{quote compact format}' is used if
-the object has a \TT{.type} equal to the object format
-\TT{quote\_\EOL type} and the object has no \TT{.separator}.
-
 \item Otherwise the `\key{default compact format}' is used.
-In this case the object has a \TT{.type} other than
-\TT{quote\_\EOL type}, no \TT{.initiator}, 
+In this case the object has a \TT{.type},
+no \TT{.initiator}, 
 no \TT{.terminator}, but may have a \TT{.separator}.
 
 \end{enumerate}
@@ -16645,10 +16635,6 @@ and not as attribute values.
 
 \underline{None} of these members may be \TT{NULL}.
 
-\item[\ttmkey{quote\_element\_format}{in {\tt min::obj\_format}}]~\\
-The is the \TT{min::gen\_format} used to print object elements
-in quote compact format.  No attributes are printed in this format.
-
 \item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]~\\
 The is the \TT{min::gen\_format} used to print object elements
 in logical line and indented paragraph compact formats.
@@ -16677,16 +16663,6 @@ to see if a compact object printout of the
 form `\TT{\{[< T1 T2 >]|}\ldots\TT{|\}}' may be replaced by
 `\TT{\{T1}\ldots\TT{T2\}}',
 See \pagref{MARK_CLASSIFIER_USAGE}.
-
-\item[\ttmkey{quote\_type}{in {\tt min::obj\_format}}]~\\
-If an object being printed in compact format has \TT{.type} attribute
-equal to \TT{quote\_\EOL type} and does not have
-\TT{.initiator}, \TT{.separator}, or \TT{.terminator} attributes,
-the object is printed in quote compact format
-as a list of its elements with each element
-being printed using the \TT{quote\_\EOL element\_\EOL format}.
-This is typically used to replace \TT{\{"~...~"\}} by
-\TT{"..."}.
 
 \item[\ttmkey{obj\_empty}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed in empty compact format
@@ -16815,24 +16791,6 @@ are no elements and no attributes other than \TT{.separator} and
 attributes with a \TT{hide\_\EOL flag},
 just \TT{obj\_empty} is printed, which for the above compact
 enabled object formats is just `\TT{\{\}}'.
-
-In \mkey{quote compact format}{of printed object}, where there are
-are no attributes other than \TT{.type}
-and attributes with a \TT{hide\_\EOL flag},
-with \TT{.type} being equal to \TT{quote\_\EOL type},
-the object elements are just printed using
-\TT{quote\_\EOL element\_\EOL format} with elements being
-separated by a single space.  A break is set by
-\TT{min::set\_\EOL break} just before each element is printed.
-
-Typically \TT{quote\_\EOL type} is set
-to \TT{min::\EOL doublequote} which is just the string consisting
-of a single \TT{"}, and \TT{quote\_\EOL element\_\EOL format} is set to
-\TT{min::\EOL always\_\EOL quote\_\EOL gen\_\EOL format}, so
-if the object \TT{.type} is \TT{"} and the object
-elements are strings, just the elements are printed as quoted
-strings.  Thus instead of printing a one element object
-as \TT{\{"<Q>"|\ldots|"<Q>"\}}, the object prints as \TT{"\ldots"}.
 
 In \mkey{logical line compact format}{of printed object},%
 \label{LOGICAL-LINE-COMPACT-FORMAT}
@@ -23236,14 +23194,12 @@ These are in \verb|min_parameters.h|.
     \verb|  min::uns32                           obj_op_flags;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              element_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              top_element_format;|\ARGBREAK[0in]
-    \verb|  const min::gen_format *              quote_element_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              label_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              value_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              initiator_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              separator_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              terminator_format;|\ARGBREAK[0in]
     \verb|  min::str_classifier                  mark_classifier;|\ARGBREAK[0in]
-    \verb|  min::gen                             quote_type;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_empty;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_bra;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_braend;|\ARGBREAK[0in]
@@ -23411,7 +23367,6 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::element_gen_format                  // element_format|\ARGBREAK[0in]
 \verb|NULL                                     // top_element_format|\ARGBREAK[0in]
-\verb|min::always_quote_gen_format             // quote_element_format|\ARGBREAK[0in]
 \verb|min::value_gen_format                    // value_format|\ARGBREAK[0in]
 \verb|min::name_gen_format                     // label_format|\ARGBREAK[0in]
 \end{TABULAR}
@@ -23424,7 +23379,6 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::standard_str_classifier             // mark_classifier|\ARGBREAK[0in]
-\verb|min::doublequote                         // quote_type|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}

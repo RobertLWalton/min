@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 07:31:35 EST 2017
+// Date:	Mon Nov 27 01:35:58 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11598,7 +11598,6 @@ static min::obj_format compact_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11608,7 +11607,6 @@ static min::obj_format compact_obj_format =
 
     min::standard_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -11662,7 +11660,6 @@ static min::obj_format top_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11672,7 +11669,6 @@ static min::obj_format top_obj_format =
 
     min::standard_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -11727,7 +11723,6 @@ static min::obj_format line_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11737,7 +11732,6 @@ static min::obj_format line_obj_format =
 
     min::standard_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -11793,7 +11787,6 @@ static min::obj_format paragraph_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11803,7 +11796,6 @@ static min::obj_format paragraph_obj_format =
 
     min::standard_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     min::left_curly_right_curly_pstring,
 			    // obj_empty
@@ -11858,7 +11850,6 @@ static min::obj_format embedded_line_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11868,7 +11859,6 @@ static min::obj_format embedded_line_obj_format =
 
     min::null_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     NULL,                   // obj_empty
 
@@ -11920,7 +11910,6 @@ static min::obj_format isolated_line_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
-    NULL,		    // quote_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
@@ -11930,7 +11919,6 @@ static min::obj_format isolated_line_obj_format =
 
     min::null_str_classifier,
     			    // mark_classifier
-    min::NONE(),	    // quote_type*
 
     NULL,		    // obj_empty
 
@@ -12148,8 +12136,6 @@ static void init_pgen_formats ( void )
 
     ::compact_obj_format.element_format =
         min::element_gen_format;
-    ::compact_obj_format.quote_element_format =
-        min::always_quote_gen_format;
     ::compact_obj_format.label_format =
         min::name_gen_format;
     ::compact_obj_format.value_format =
@@ -12160,13 +12146,9 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::compact_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::compact_obj_format.quote_type =
-        min::doublequote;
 
     ::top_obj_format.element_format =
         min::element_gen_format;
-    ::top_obj_format.quote_element_format =
-        min::always_quote_gen_format;
     ::top_obj_format.label_format =
         min::name_gen_format;
     ::top_obj_format.value_format =
@@ -12177,13 +12159,9 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::top_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::top_obj_format.quote_type =
-        min::doublequote;
 
     ::isolated_line_obj_format.element_format =
         min::element_gen_format;
-    ::isolated_line_obj_format.quote_element_format =
-        min::always_quote_gen_format;
     ::isolated_line_obj_format.label_format =
         min::name_gen_format;
     ::isolated_line_obj_format.value_format =
@@ -12194,13 +12172,9 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::isolated_line_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::isolated_line_obj_format.quote_type =
-        min::doublequote;
 
     ::embedded_line_obj_format.element_format =
         min::element_gen_format;
-    ::embedded_line_obj_format.quote_element_format =
-        min::always_quote_gen_format;
     ::embedded_line_obj_format.label_format =
         min::name_gen_format;
     ::embedded_line_obj_format.value_format =
@@ -12211,16 +12185,11 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::embedded_line_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::embedded_line_obj_format.quote_type =
-        min::doublequote;
 
     ::line_obj_format.element_format =
         min::element_gen_format;
     ::line_obj_format.top_element_format =
         min::paragraph_gen_format;
-    ::line_obj_format
-	    .quote_element_format =
-        min::always_quote_gen_format;
     ::line_obj_format.label_format =
         min::name_gen_format;
     ::line_obj_format.value_format =
@@ -12231,15 +12200,11 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::line_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::line_obj_format.quote_type =
-        min::doublequote;
 
     ::paragraph_obj_format.element_format =
         min::element_gen_format;
     ::paragraph_obj_format.top_element_format =
         min::line_gen_format;
-    ::paragraph_obj_format.quote_element_format =
-        min::always_quote_gen_format;
     ::paragraph_obj_format.label_format =
         min::name_gen_format;
     ::paragraph_obj_format.value_format =
@@ -12250,8 +12215,6 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::paragraph_obj_format.terminator_format =
         min::trailing_always_gen_format;
-    ::paragraph_obj_format.quote_type =
-        min::doublequote;
 }
 
 const min::op min::flush_one_id

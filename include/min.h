@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 05:57:01 EST 2017
+// Date:	Mon Nov 27 01:35:27 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4840,8 +4840,6 @@ namespace min {
 	    const min::uns32 size; // sizeof ( S )
 	    const min::uns32 * const gen_disp;
 	    const min::uns32 * const stub_disp;
-	    const min::uns32 * io_disp;
-	    const min::gen   * io_names;
 
 	    // Since many members of the descriptor are
 	    // const's, we need to set them with a
@@ -4859,9 +4857,7 @@ namespace min {
 		      ( type, subtype, id, name ),
 		  size ( size ),
 		  gen_disp ( gen_disp ),
-		  stub_disp ( stub_disp ),
-		  io_disp ( NULL ),
-		  io_names ( NULL ) {}
+		  stub_disp ( stub_disp ) {}
 	};
 
 	// Pointer base inherited by public pointer
@@ -5240,8 +5236,6 @@ namespace min {
 	    const min::uns32 * const element_gen_disp;
 	    const min::uns32 * const
 	                       element_stub_disp;
-	    const min::uns32 * element_io_disp;
-	    const min::gen   * element_io_names;
 
 	    const min::uns32 header_size;
 	        // sizeof ( H ) rounded up as per
@@ -5249,8 +5243,6 @@ namespace min {
 	    const min::uns32 * const header_gen_disp;
 	    const min::uns32 * const
 	                       header_stub_disp;
-	    const min::uns32 * header_io_disp;
-	    const min::gen   * header_io_names;
 
 	    min::unsptr initial_max_length;
 	    min::float64 increment_ratio;
@@ -5284,15 +5276,11 @@ namespace min {
 		  element_gen_disp ( element_gen_disp ),
 		  element_stub_disp
 		      ( element_stub_disp ),
-		  element_io_disp ( NULL ),
-		  element_io_names ( NULL ),
 
 		  header_size ( header_size ),
 		  header_gen_disp ( header_gen_disp ),
 		  header_stub_disp
 		      ( header_stub_disp ),
-		  header_io_disp ( NULL ),
-		  header_io_names ( NULL ),
 
 		  initial_max_length ( 128 ),
 		  increment_ratio (0.5),
@@ -12939,7 +12927,6 @@ namespace min {
 
 	const min::gen_format *   element_format;
 	const min::gen_format *   top_element_format;
-	const min::gen_format *   quote_element_format;
         const min::gen_format *	  label_format;
 	const min::gen_format *   value_format;
 
@@ -12948,7 +12935,6 @@ namespace min {
 	const min::gen_format *   terminator_format;
 
 	min::str_classifier	  mark_classifier;
-	min::gen		  quote_type;
 
 	min::pstring		  obj_empty;
 
