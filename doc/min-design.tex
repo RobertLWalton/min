@@ -12008,9 +12008,9 @@ and whose elements are the closure arguments to that function:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{rl}
-\verb|struct                         min::| & \MINKEY{defined\_format\_header}
+\multicolumn{2}{l}{{\tt struct min::}\MINKEY{defined\_format\_header}}
 \LABEL{MIN::DEFINED_FORMAT_HEADER} \\
-\verb|{                                    | \\
+\verb|{                                       | \\
 \verb|  const min::uns32 |
 	& \TTMKEY{control}{in {\tt min::defined\_format\_header}} \\
 \verb| const min::uns32 |
@@ -12019,7 +12019,7 @@ and whose elements are the closure arguments to that function:
 	& \TTMKEY{max\_length}{in {\tt min::defined\_format\_header}} \\
 \verb|  const min::defined_format_function |
 	& \TTMKEY{defined\_format\_function}{in {\tt min::defined\_format\_header}} \\
-\verb|}                                    | \\
+\verb|}                                       | \\
 \end{tabular}\end{indpar}
 
 A defined format can be created by the function:
@@ -21700,6 +21700,68 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \bigskip
+
+\end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Printing Using Defined Formats}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.0in}
+\multicolumn{2}{l}{{\tt typedef min::printer ( * min::}
+		\MINKEY{defined\_format\_function} {\tt )} }
+\LABEL{MIN::DEFINED_FORMAT_FUNCTION}\ARGBREAK[0.5in]
+      \verb|( min::printer printer,|\ARGBREAK[0.5in]
+      \verb|  min::gen v,|\ARGBREAK[0.5in]
+      \verb|  const min::gen_format * gen_format,|\ARGBREAK[0.5in]
+      \verb|  min::defined_format defined_format )|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{3.5in}
+\multicolumn{2}{l}{{\tt struct min::}\MINKEY{defined\_format\_header}}
+\LABEL{MIN::DEFINED_FORMAT_HEADER} \\
+\verb|{                                       | \\
+\verb|  const min::uns32 |
+	& \TTMKEY{control}{in {\tt min::defined\_format\_header}} \\
+\verb| const min::uns32 |
+	& \TTMKEY{length}{in {\tt min::defined\_format\_header}} \\
+\verb| const min::uns32 |
+	& \TTMKEY{max\_length}{in {\tt min::defined\_format\_header}} \\
+\verb|  const min::defined_format_function |
+	& \TTMKEY{defined\_format\_function}{in {\tt min::defined\_format\_header}} \\
+\verb|}                                       | \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.0in}
+\multicolumn{2}{l}{{\tt min::defined\_format\_insptr min::}
+	\MINKEY{new\_defined\_format\REL}}\ARGBREAK[0.5in]
+    \verb|( min::defined_format_function f,|\ARGBREAK[0.5in]
+    \verb|  min::uns32_number of_arguments )|
+\LABEL{MIN::NEW_DEFINED_FORMAT} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\verb|void min::| & \MINKEY{map\_packed\_subtype\REL}\ARGBREAK
+    \verb|( min::uns32 subtype,|\ARGBREAK
+    \verb|  min::defined_format defined_format )|
+\LABEL{MIN::MAP_PACKED_SUBTYPE_TO_DEFINED_FORMAT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+\verb|void min::| & \MINKEY{map\_type\REL}\ARGBREAK
+    \verb|( min::gen type,|\ARGBREAK
+    \verb|  min::defined_format defined_format )|
+\LABEL{MIN::MAP_TYPE_TO_DEFINED_FORMAT} \\
+\end{TABULAR}
+
 
 \end{indpar}
 
