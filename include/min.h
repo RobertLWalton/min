@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 27 01:35:27 EST 2017
+// Date:	Mon Nov 27 23:56:37 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7009,6 +7009,8 @@ namespace min {
 	{
 	    // If called by ~ obj_vec_updptr
 	    // s == NULL but type == UPDATABLE.
+	    // If called by ~ obj_vec_gcptr
+	    // s == NULL but type == GC.
 	    //
 	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == READONLY,
@@ -7208,7 +7210,8 @@ namespace min {
         enum {
 	    READONLY = 1,
 	    UPDATABLE = 2,
-	    INSERTABLE = 3 };
+	    INSERTABLE = 3,
+	    GC = 4 };
 	int type;
 	    // Set by constructor.  Checked by
 	    // destructor.
@@ -7386,6 +7389,8 @@ namespace min {
 	    }
 
 	    attr_offset = hash_offset + hash_size;
+
+	    if ( this->type == GC ) return;
 
 	    MIN_ASSERT
 	        (    ( total_size_flags & OBJ_PRIVATE )
@@ -7613,6 +7618,30 @@ namespace min {
 	    return * this;
 	}
     };
+
+    namespace internal {
+
+	// Object vector pointer for GC scanvenger.
+	// Ignores PUBLIC/PRIVATE flags and makes no
+	// changes.
+	//
+	class obj_vec_gcptr : public obj_vec_ptr {
+
+	public:
+
+	    obj_vec_gcptr ( const min::stub * s )
+		: obj_vec_ptr ( s, GC )
+		{}
+
+	    ~ obj_vec_gcptr ( void )
+	    {
+		MIN_ASSERT
+		    ( type == GC,
+		     "system programmer error" );
+		s = NULL;
+	    }
+	};
+    }
 
     inline const min::gen * & unprotected::base
 	( min::obj_vec_ptr & vp )

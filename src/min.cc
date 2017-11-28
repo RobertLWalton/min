@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 27 01:35:58 EST 2017
+// Date:	Mon Nov 27 23:56:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -340,6 +340,10 @@ const min::flag_parser *
     min::standard_attr_flag_parser =
 	& ::standard_attr_flag_parser;
 
+static void ptr_scavenger_routine
+	( MINT::scavenge_control & sc );
+static void gtyped_ptr_scavenger_routine
+	( MINT::scavenge_control & sc );
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void packed_struct_scavenger_routine
@@ -471,6 +475,10 @@ void MINT::initialize ( void )
 
     MINT::acc_initializer();
 
+    MINT::scavenger_routines[PTR]
+    	= & ptr_scavenger_routine;
+    MINT::scavenger_routines[GTYPED_PTR]
+    	= & gtyped_ptr_scavenger_routine;
     MINT::scavenger_routines[LABEL]
     	= & lab_scavenger_routine;
     MINT::scavenger_routines[PACKED_STRUCT]
@@ -865,6 +873,79 @@ unsigned MINT::number_of_acc_levels;
     accumulator |= c; \
     ++ sc.stub_count;
 
+// Scavenger routine for pointers.
+//
+static void ptr_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    const min::stub * saux =
+        MUP::stub_of ( MUP::gen_of ( sc.s1 ) );
+    min::uns64 cntl = MUP::control_of ( saux );
+    min::stub * s2 =
+        MUP::stub_of_control ( cntl );
+    if ( s2 == NULL ) return;
+    if ( s2 == MUP::ZERO_STUB ) return;
+        // This is just an optimization as
+	// MINT::is_scavengable ( ZERO_STUB ) is false.
+
+    if ( sc.gen_count >= sc.gen_limit )
+    {
+	sc.state = sc.RESTART;
+	return;
+    }
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    MIN_SCAVENGE_S2 ( sc.state = sc.RESTART; return );
+    sc.stub_flag_accumulator = accumulator;
+
+    ++ sc.gen_count;
+    sc.state = 0;
+}
+
+// Scavenger routine for graph typed pointers.  State
+// == 0 to scavenge all and == 1 to scavenge just graph
+// type.
+//
+static void gtyped_ptr_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    const min::stub * saux =
+        MUP::stub_of ( MUP::gen_of ( sc.s1 ) );
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    min::stub * s2;
+    if ( sc.state == 0 )
+    {
+
+	min::gen val = MUP::gen_of ( saux );
+	s2 = MUP::stub_of ( val );
+	MIN_REQUIRE ( s2 != NULL );
+
+	if ( sc.gen_count >= sc.gen_limit )
+	    return;
+
+	MIN_SCAVENGE_S2 ( return );
+	++ sc.gen_count;
+    }
+
+    min::uns64 cntl = MUP::control_of ( saux );
+    s2 = MUP::stub_of_control ( cntl );
+    MIN_REQUIRE ( s2 != NULL );
+
+    if ( sc.gen_count >= sc.gen_limit )
+    {
+	sc.state = 1;
+	return;
+    }
+
+    MIN_SCAVENGE_S2 ( sc.state = 1; return );
+    ++ sc.gen_count;
+
+    sc.stub_flag_accumulator = accumulator;
+
+    sc.state = 0;
+}
+
 // Scavenger routine for labels.  State equals i + 1
 // where i is the index next label element to scavenge.
 //
@@ -1227,7 +1308,7 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    min::obj_vec_ptr vp ( sc.s1 );
+    MINT::obj_vec_gcptr vp ( sc.s1 );
 
     min::unsptr next = (min::unsptr ) sc.state;
     if ( next <= MUP::var_offset_of ( vp ) )
