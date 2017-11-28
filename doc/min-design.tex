@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 27, 2017}
+\date{November 28, 2017}
  
 \maketitle
 
@@ -15827,32 +15827,37 @@ Error checking makes use of:
 \end{tabular}\end{indpar}
 
 It is also possible to activate an additional feature of
-\TT{min::\EOL new\_\EOL gtype} by giving it a second argument:
+\TT{min::\EOL new\_\EOL gtype} by giving it more arguments:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_gtype}\ARGBREAK
         \verb|( min::gen gtype,|\ARGBREAK
-	\verb|  min::packed_vec_insptr<min::gen> vartab )|
+	\verb|  min::packed_vec_insptr<min::gen> vartab,|\ARGBREAK
+	\verb|  min::gen varname = min::standard_varname )|
 \LABEL{MIN::NEW_GTYPE_WITH_VARTAB} \\
+\verb|min::gen min::| & \MINKEY{standard\_varname}\ARGBREAK
+	\verb|// Defaults to min::new_str_gen ( "*VARNAME*" )|
+\LABEL{MIN::STANDARD_VARNAME} \\
 \end{tabular}\end{indpar}
 
 When this is done any leaf object found in the acyclic graph that
 is a variable name is specially treated.
 A \key{variable name} is an object with
-\TT{.type} attribute equal to the symbol \ttkey{*VARNAME*},
+\TT{.type} attribute equal to the \TT{varname} argument, with
 no other non-hidden attributes (i.e., no other attributes that do
-\underline{not} have an \TT{H} flag), and a single element that
-is a symbol or label.  This symbol is looked up in \TT{vartab}
+\underline{not} have an \TT{H} flag), and with a single element that
+is a symbol or label.  This element is looked up in \TT{vartab}
 and if found at \TT{vartab[i]} the variable name object is
 replaced by an index general value with index \TT{i}.  If not
 found, the symbol is added to the end of \TT{vartab} and treated
 as if it were found.
 
 The \TT{vartab} argument must be initialized with \TT{vartab[0]}
-equal to \TT{min::\EOL MISSING()}.  Other elements may or may not
-be preset to \TT{min::\EOL MISSING()} or to a symbol or label
-in order to prevent the use of an index or pre-assign an index
-to a name.
+equal to \TT{min::\EOL MISSING()}.  Other elements if they exist
+must be \TT{min::\EOL MISSING()} or a symbol or label.
+This will preassign indices to symbols or labels, or in the case
+of \TT{min::\EOL MISSING()} will prevent the use of an index by
+a name.
 
 To make a new context with a given graph type, execute the function:
 
