@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 27 23:56:37 EST 2017
+// Date:	Wed Nov 29 03:03:25 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
