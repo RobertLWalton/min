@@ -11861,7 +11861,13 @@ namespace min {
 
 namespace min {
 
-    min::gen new_gtype ( min::gen gtype );
+    extern min::locatable_gen standard_varname;
+
+    min::gen new_gtype
+        ( min::gen gtype,
+	  min::packed_vec_insptr<min::gen> vartab
+	      = min::NULL_STUB,
+	  min::gen varname = min::standard_varname );
 
     min::gen new_context ( min::gen gtype );
 

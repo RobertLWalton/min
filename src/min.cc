@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 27 23:56:14 EST 2017
+// Date:	Wed Nov 29 03:01:44 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9298,6 +9298,10 @@ bool min::flip_flag
 // Graph Typed Objects
 // ----- ----- -------
 
+min::locatable_gen min::standard_varname;
+
+static const int GTYPE_ERROR = -1e9;
+
 int gtype_error
 	( min::obj_vec_ptr & vp, const char * message )
 {
@@ -9314,7 +9318,7 @@ int gtype_error
 	<< min::eol
 	<< min::restore_indent;
 
-    return -1;
+    return GTYPE_ERROR;
 }
 
 struct gtype_stack
@@ -9322,10 +9326,19 @@ struct gtype_stack
     min::gen gtype;
     gtype_stack * previous;
 };
+
+// If vp points at an object that is or becomes a graph
+// type, return the maximum index found in the this
+// graph type.  If vp points at a public object, return
+// 0.  If vp points at a variable, return MINUS the
+// index of the variable.
+//
 static int make_gtype
 	( min::obj_vec_ptr & vp,
 	  gtype_stack * stackp,
-	  min::unsptr max_attributes )
+	  min::unsptr max_attributes,
+	  min::packed_vec_insptr<min::gen> vartab,
+	  min::gen varname )
 {
     if ( min::public_flag_of ( vp ) )
     {
@@ -9340,9 +9353,11 @@ static int make_gtype
     min::unsptr count = min::get_attrs
         ( info, max_attributes, ap, true );
     if ( count > max_attributes )
-        return make_gtype ( vp, stackp, count );
+        return make_gtype
+	    ( vp, stackp, count, vartab, varname );
 
     int max_index = 0;
+    min::gen type = min::NONE();
     for ( min::unsptr i = 0; i < count; ++ i )
     {
         min::attr_info ai = info[i];
@@ -9355,6 +9370,9 @@ static int make_gtype
 	        ( vp, "attribute has double arrow"
 		      " values" );
 	if ( ai.value_count == 0 ) continue;
+
+	if ( ai.name == min::dot_type )
+	    type = ai.value;
 
 	min::obj_vec_ptr avp ( ai.value );
 	if ( ! avp )
@@ -9377,8 +9395,9 @@ static int make_gtype
 	    }
 	    continue;
 	}
-	if ( min::gtype_flag_of ( avp ) )
-	    return true;
+
+	else if ( min::gtype_flag_of ( avp ) )
+	    return min::int_of ( min::var ( avp, 0 ) );
 
 	bool found = false;
 	for ( gtype_stack * sp = stackp;
@@ -9392,16 +9411,60 @@ static int make_gtype
 		// TBD; cannot print cyclic graph
 
 	gtype_stack stack = { ai.value, stackp };
-	int index = make_gtype ( avp, & stack, 20 );
-	if ( index < 0 ) return index;
+	int index = make_gtype
+	    ( avp, & stack, 20, vartab, varname );
+	if ( index == GTYPE_ERROR ) return index;
+	else if ( index < 0 )
+	{
+	    const min::stub * gstub =
+	    	(const min::stub *) vp;
+	    vp = min::NULL_STUB;
+	    min::obj_vec_updptr vup ( gstub );
+
+	    min::attr_updptr aup ( vup );
+	    min::locate ( aup, ai.name );
+	    min::update
+	        ( aup, min::new_index_gen ( - index ) );
+
+	    vup = min::NULL_STUB;
+	    vp = gstub;
+	}
 	else if ( index > max_index )
 	    max_index = index;
     }
 
-    min::gen gtype =
-        min::new_stub_gen ( (const min::stub *) vp );
+    if (    vartab != min::NULL_STUB
+         && type == varname
+	 && min::size_of ( vp ) == 1
+	 && (    min::is_str ( vp[0] )
+	      || min::is_lab ( vp[0] ) ) )
+    {
+    	min::uns32 i;
+	min::uns32 length = vartab->length;
+	
+	for ( i = 0; i < length; ++ i )
+	{
+	    if ( vartab[i] == vp[0] ) break;
+	}
+	if ( i == length )
+	    min::push ( vartab ) = vp[0];
+
+	MIN_ASSERT ( i > 0,
+	             "vartab[0] not min::MISSING()" );
+
+	return - i;
+    }
+
+    for ( min::unsptr i = 0;
+          i < min::size_of ( vp ) ; ++ i )
+    {
+    }
+
+
+    const min::stub * gstub = (const min::stub *) vp;
     vp = min::NULL_STUB;
-    min::obj_vec_insptr vip ( gtype );
+    min::obj_vec_insptr vip ( gstub );
+
     min::compact ( vip, max_index > 0, 0, false );
     if ( max_index > 0 )
     {
@@ -9415,14 +9478,21 @@ static int make_gtype
     return max_index;
 }
 
-min::gen min::new_gtype ( min::gen gtype )
+min::gen min::new_gtype
+	( min::gen gtype,
+	  min::packed_vec_insptr<min::gen> vartab,
+	  min::gen varname )
 {
     min::obj_vec_ptr vp ( gtype );
     gtype_stack stack = { gtype, NULL };
-    if ( make_gtype ( vp, & stack, 20 ) >= 0 )
-        return gtype;
-    else
+    int index = make_gtype
+        ( vp, & stack, 10, vartab, varname );
+    if ( index == GTYPE_ERROR )
         return min::ERROR();
+    else if ( index < 0 )
+        return min::new_index_gen ( - index );
+    else
+        return gtype;
 }
 
 min::gen min::new_context ( min::gen gtype )
@@ -9446,6 +9516,15 @@ min::gen min::new_context ( min::gen gtype )
 
     return c;
 }
+
+static void graph_type_initialize ( void )
+{
+    min::standard_varname =
+        min::new_str_gen ( "*VARNAME*" );
+}
+
+static min::initializer graph_type_initializer
+    ( :: graph_type_initialize );
 
 
 // Printers

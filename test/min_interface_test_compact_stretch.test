@@ -468,7 +468,7 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MINT::acc_stack == ::acc_stack + 2 => true
 
 Test stub allocator functions:
-initial stubs allocated = 31
+initial stubs allocated = 33
 MINT::acc_expand_stub_free_list (1) called
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     stub1 == begin_stub_region + sbase => true
@@ -628,6 +628,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 
 Test string general values:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::new_str_gen ( s13, 8 ) == strgen8 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::new_str_gen ( s13, 20 ) == strgen13 => true
@@ -752,8 +754,6 @@ Test protected string ptrs:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strlen ( strgen13 ) == 13 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strhash ( strgen13 ) == s13hash => true
@@ -823,6 +823,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strhash ( p13 ) == min::strhash ( s13 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( p13str_before, s13 ) == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     p13str_after != p13str_before => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -942,8 +944,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     snumsp[j] == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( si, sspace ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sd, spoint ) => true
@@ -986,6 +986,8 @@ Test label hash:
 labhash1: 95375049
 
 Test labels:
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::is_lab ( lab ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1128,13 +1130,13 @@ LABEL A: "A"
 LABEL B: "B"
 LABEL C: "C"
 LABEL D: "D"
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 LABEL AA BB: [< "AA" "BB" >]
-LABEL BB CC: [< "BB" "CC" >]
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
+LABEL BB CC: [< "BB" "CC" >]
 LABEL AA BB CC: [< "AA" "BB" "CC" >]
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 LABEL AA BB CC DDDD: [< "AA" "BB" "CC" "DDDD" >]
 
 Finish Names Test!
@@ -1150,8 +1152,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv1->i == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv1->i == 88 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 upv2->control = 2
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv2->i == 0 => true
@@ -1165,6 +1165,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->i == 55 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->j == 99 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv2 == min::stub_of ( v2 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1356,8 +1358,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->occupied == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
