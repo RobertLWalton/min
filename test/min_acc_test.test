@@ -82,16 +82,8 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     min::is_preallocated ( gen_pre ) => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     min::id_of_preallocated ( gen_pre ) == 55 => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
-    index < unused_offset => true
-    index argument too large
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp1[0] == num1 => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
-    index < unused_offset => true
-    index argument too large
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp2[0] == num2 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
@@ -108,16 +100,8 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     stub_obj1 == MACC::stub_of_body ( bp1 ) => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     stub_obj2 == MACC::stub_of_body ( bp2 ) => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
-    index < unused_offset => true
-    index argument too large
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp1[0] == num2 => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
-    index < unused_offset => true
-    index argument too large
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp2[0] == num1 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
@@ -128,10 +112,6 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     min::type_of ( stub_obj1 ) == min::PREALLOCATED => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     MUP::body_size_of ( stub_obj1 ) == 0 => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in min::ref<min::gen> min::obj_vec_updptr::operator[](min::unsptr) const:
-    index < unused_offset => true
-    index argument too large
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp1[0] == num2 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 03:01:44 EST 2017
+// Date:	Wed Nov 29 03:59:19 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9303,18 +9303,21 @@ min::locatable_gen min::standard_varname;
 static const int GTYPE_ERROR = -1e9;
 
 int gtype_error
-	( min::obj_vec_ptr & vp, const char * message )
+	( min::gen parent, const char * message )
 {
-    min::gen gtype =
-        min::new_stub_gen ( (const min::stub *) vp );
-    vp = min::NULL_STUB;
     min::init ( min::error_message )
         << "ERROR CREATING GRAPH TYPE: " << message
 	<< " in "
 	<< min::save_indent
 	<< min::set_indent ( 4 )
-	<< min::indent
-	<< min::pgen ( gtype )
+	<< min::indent;
+
+    if ( parent == min::MISSING() )
+        min::error_message << "top level expression";
+    else
+        min::error_message << min::pgen ( parent );
+
+    min::error_message
 	<< min::eol
 	<< min::restore_indent;
 
@@ -9327,19 +9330,54 @@ struct gtype_stack
     gtype_stack * previous;
 };
 
-// If vp points at an object that is or becomes a graph
-// type, return the maximum index found in the this
-// graph type.  If vp points at a public object, return
-// 0.  If vp points at a variable, return MINUS the
-// index of the variable.
+// Element is the element of parent that is to be
+// processed.  If it is an index, return the index
+// value.  If it points at a non-index non-object or a
+// public object that is not a graph type, return 0.
+// If it points at an object that is already a graph
+// type, return the maximum index in this graph type.
+// If it is a variable, convert the variable to an index
+// and return MINUS the index.  If it points at an
+// object should become a graph type, make the object
+// a graph type and return the maximum index found in
+// this graph type.  If it points at a non-public
+// object that contains no indices, make the object
+// public and return 0.
+//
+// Returns GTYPE_ERROR if there is an error, and puts
+// an error message in min::error_message.
 //
 static int make_gtype
-	( min::obj_vec_ptr & vp,
+	( min::gen element,
+	  min::gen parent,
 	  gtype_stack * stackp,
 	  min::unsptr max_attributes,
 	  min::packed_vec_insptr<min::gen> vartab,
 	  min::gen varname )
 {
+    min::obj_vec_ptr vp ( element );
+
+    if ( ! vp )
+    {
+	if ( min::is_index ( element ) )
+	{
+	    int index = min::index_of ( element);
+	    if ( index == 0 )
+		return gtype_error
+		    ( parent, "attribute or element"
+		              " has 0 index value" );
+	    else if (   index
+		      > MIN_CONTEXT_SIZE_LIMIT )
+		return gtype_error
+		    ( parent, "attribute or element"
+		              " has too large"
+			      " index value" );
+	    else return index;
+	}
+	else
+	    return 0;
+    }
+
     if ( min::public_flag_of ( vp ) )
     {
         if ( min::gtype_flag_of ( vp ) )
@@ -9348,78 +9386,59 @@ static int make_gtype
 	    return 0;
     }
 
+    bool found = false;
+    for ( gtype_stack * sp = stackp;
+	  !found && sp; sp = sp->previous )
+    {
+	found = ( sp->gtype == element );
+    }
+    if ( found )
+	return gtype_error
+	    ( parent, "graph type is cyclic" );
+	    // TBD; cannot print cyclic graph
+
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
     min::unsptr count = min::get_attrs
         ( info, max_attributes, ap, true );
     if ( count > max_attributes )
+    {
+        vp = min::NULL_STUB;
         return make_gtype
-	    ( vp, stackp, count, vartab, varname );
+	    ( element, parent, stackp, count, vartab,
+	      varname );
+    }
 
+    // Object that might become a graph type or public
+    // object or might be a variable.
+    //
     int max_index = 0;
+    gtype_stack stack = { element, stackp };
     min::gen type = min::NONE();
     for ( min::unsptr i = 0; i < count; ++ i )
     {
         min::attr_info ai = info[i];
 	if ( ai.value_count > 1 )
 	    return gtype_error
-	        ( vp, "attribute has more than one"
-		      " value" );
+	        ( element, "attribute has more than one"
+		           " value" );
 	if ( ai.reverse_attr_count > 0 )
 	    return gtype_error
-	        ( vp, "attribute has double arrow"
-		      " values" );
+	        ( element, "attribute has double arrow"
+		           " values" );
 	if ( ai.value_count == 0 ) continue;
 
 	if ( ai.name == min::dot_type )
 	    type = ai.value;
 
-	min::obj_vec_ptr avp ( ai.value );
-	if ( ! avp )
-	{
-	    if ( min::is_index ( ai.value ) )
-	    {
-	        int index =
-		    min::index_of ( ai.value);
-		if ( index == 0 )
-		    return gtype_error
-			( vp, "attribute has 0 index"
-			      " value" );
-		else if (   index
-		          > MIN_CONTEXT_SIZE_LIMIT )
-		    return gtype_error
-			( vp, "attribute has too large"
-			      " index value" );
-		else if ( index > max_index )
-		    max_index = index;
-	    }
-	    continue;
-	}
-
-	else if ( min::gtype_flag_of ( avp ) )
-	    return min::int_of ( min::var ( avp, 0 ) );
-
-	bool found = false;
-	for ( gtype_stack * sp = stackp;
-	      !found && sp; sp = sp->previous )
-	{
-	    found = ( sp->gtype == ai.value );
-	}
-	if ( found )
-	    return gtype_error
-	        ( vp, "graph type is cyclic" );
-		// TBD; cannot print cyclic graph
-
-	gtype_stack stack = { ai.value, stackp };
 	int index = make_gtype
-	    ( avp, & stack, 20, vartab, varname );
+	    ( ai.value, element, & stack, 20,
+	      vartab, varname );
 	if ( index == GTYPE_ERROR ) return index;
 	else if ( index < 0 )
 	{
-	    const min::stub * gstub =
-	    	(const min::stub *) vp;
 	    vp = min::NULL_STUB;
-	    min::obj_vec_updptr vup ( gstub );
+	    min::obj_vec_updptr vup ( element );
 
 	    min::attr_updptr aup ( vup );
 	    min::locate ( aup, ai.name );
@@ -9427,9 +9446,11 @@ static int make_gtype
 	        ( aup, min::new_index_gen ( - index ) );
 
 	    vup = min::NULL_STUB;
-	    vp = gstub;
+	    vp = element;
+	    index = - index;
 	}
-	else if ( index > max_index )
+
+	if ( index > max_index )
 	    max_index = index;
     }
 
@@ -9458,12 +9479,29 @@ static int make_gtype
     for ( min::unsptr i = 0;
           i < min::size_of ( vp ) ; ++ i )
     {
+	int index = make_gtype
+	    ( vp[i], element, & stack, 20,
+	      vartab, varname );
+	if ( index == GTYPE_ERROR ) return index;
+	else if ( index < 0 )
+	{
+	    vp = min::NULL_STUB;
+	    min::obj_vec_updptr vup ( element );
+
+	    vup[i] = min::new_index_gen ( - index );
+
+	    vup = min::NULL_STUB;
+	    vp = element;
+	    index = - index;
+	}
+
+	if ( index > max_index )
+	    max_index = index;
     }
 
 
-    const min::stub * gstub = (const min::stub *) vp;
     vp = min::NULL_STUB;
-    min::obj_vec_insptr vip ( gstub );
+    min::obj_vec_insptr vip ( element );
 
     min::compact ( vip, max_index > 0, 0, false );
     if ( max_index > 0 )
@@ -9483,10 +9521,10 @@ min::gen min::new_gtype
 	  min::packed_vec_insptr<min::gen> vartab,
 	  min::gen varname )
 {
-    min::obj_vec_ptr vp ( gtype );
     gtype_stack stack = { gtype, NULL };
     int index = make_gtype
-        ( vp, & stack, 10, vartab, varname );
+        ( gtype, min::MISSING(), & stack, 10,
+	  vartab, varname );
     if ( index == GTYPE_ERROR )
         return min::ERROR();
     else if ( index < 0 )
