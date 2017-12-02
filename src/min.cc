@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 03:59:19 EST 2017
+// Date:	Sat Dec  2 05:59:16 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9324,6 +9324,9 @@ int gtype_error
     return GTYPE_ERROR;
 }
 
+// Stack of objects that are ancestors of the
+// current object.  Used to check for cycles.
+//
 struct gtype_stack
 {
     min::gen gtype;
@@ -9341,8 +9344,9 @@ struct gtype_stack
 // object should become a graph type, make the object
 // a graph type and return the maximum index found in
 // this graph type.  If it points at a non-public
-// object that contains no indices, make the object
-// public and return 0.
+// object that is the root of an acyclic graph that
+// contains no indices, make the object public and
+// return 0.
 //
 // Returns GTYPE_ERROR if there is an error, and puts
 // an error message in min::error_message.
@@ -9388,7 +9392,7 @@ static int make_gtype
 
     bool found = false;
     for ( gtype_stack * sp = stackp;
-	  !found && sp; sp = sp->previous )
+	  ! found && sp; sp = sp->previous )
     {
 	found = ( sp->gtype == element );
     }
@@ -9400,7 +9404,9 @@ static int make_gtype
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
     min::unsptr count = min::get_attrs
-        ( info, max_attributes, ap, true );
+        ( info, max_attributes, ap );
+	// We do not include attribute vector here.
+
     if ( count > max_attributes )
     {
         vp = min::NULL_STUB;
@@ -9417,7 +9423,7 @@ static int make_gtype
     min::gen type = min::NONE();
     for ( min::unsptr i = 0; i < count; ++ i )
     {
-        min::attr_info ai = info[i];
+        min::attr_info & ai = info[i];
 	if ( ai.value_count > 1 )
 	    return gtype_error
 	        ( element, "attribute has more than one"
@@ -9432,22 +9438,22 @@ static int make_gtype
 	    type = ai.value;
 
 	int index = make_gtype
-	    ( ai.value, element, & stack, 20,
+	    ( ai.value, element, & stack, 10,
 	      vartab, varname );
 	if ( index == GTYPE_ERROR ) return index;
 	else if ( index < 0 )
 	{
+	    index = - index;
 	    vp = min::NULL_STUB;
 	    min::obj_vec_updptr vup ( element );
 
 	    min::attr_updptr aup ( vup );
 	    min::locate ( aup, ai.name );
 	    min::update
-	        ( aup, min::new_index_gen ( - index ) );
+	        ( aup, min::new_index_gen ( index ) );
 
 	    vup = min::NULL_STUB;
 	    vp = element;
-	    index = - index;
 	}
 
 	if ( index > max_index )
@@ -9476,29 +9482,31 @@ static int make_gtype
 	return - i;
     }
 
+    // We process vector separately so that
+    // max_attributes can be kept small.
+    //
     for ( min::unsptr i = 0;
           i < min::size_of ( vp ) ; ++ i )
     {
 	int index = make_gtype
-	    ( vp[i], element, & stack, 20,
+	    ( vp[i], element, & stack, 10,
 	      vartab, varname );
 	if ( index == GTYPE_ERROR ) return index;
 	else if ( index < 0 )
 	{
+	    index = - index;
 	    vp = min::NULL_STUB;
 	    min::obj_vec_updptr vup ( element );
 
-	    vup[i] = min::new_index_gen ( - index );
+	    vup[i] = min::new_index_gen ( index );
 
 	    vup = min::NULL_STUB;
 	    vp = element;
-	    index = - index;
 	}
 
 	if ( index > max_index )
 	    max_index = index;
     }
-
 
     vp = min::NULL_STUB;
     min::obj_vec_insptr vip ( element );
