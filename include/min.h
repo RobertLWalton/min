@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 29 03:03:25 EST 2017
+// Date:	Sun Dec  3 01:50:43 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11957,6 +11957,7 @@ namespace min {
 	const min::char_name_format * char_name_format;
 	const min::gen_format *	      gen_format;
 	const min::gen_format *	      id_map_gen_format;
+	min::uns32                    max_depth;
     };
 
     extern const print_format default_print_format;
@@ -12026,6 +12027,8 @@ namespace min {
 	    print_format_stack;
 
 	const min::id_map id_map;
+
+	const min::uns32 depth;
 
 	// The following are not printer parameters but
 	// are set during printer operation.
@@ -13194,11 +13197,18 @@ namespace min {
 
     inline min::printer print_gen
             ( min::printer printer, min::gen v,
-	      const min::gen_format * f )
+	      const min::gen_format * f,
+	      bool disable_mapping = false )
     {
         MIN_ASSERT ( f != NULL,
 	             "third argument is NULL" );
-        return ( * f->pgen ) ( printer, v, f, false );
+	* (min::uns32 *) & printer->depth =
+	    printer->depth + ! disable_mapping;
+        ( * f->pgen )
+	    ( printer, v, f, disable_mapping );
+	* (min::uns32 *) & printer->depth =
+	    printer->depth - ! disable_mapping;
+	return printer;
     }
 
     inline min::printer print_gen

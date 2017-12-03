@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec  2 05:59:16 EST 2017
+// Date:	Sun Dec  3 01:51:52 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9953,6 +9953,7 @@ min::printer min::init
     printer->print_format = min::default_print_format;
     printer->state = 0;
     printer->last_str_class = 0;
+    * (min::uns32 *) & printer->depth = 0;
 
     return printer;
 }
@@ -12326,7 +12327,8 @@ const min::print_format min::default_print_format =
 
     & ::standard_char_name_format,
     & ::top_gen_format,
-    & ::id_map_gen_format
+    & ::id_map_gen_format,
+    10
 };
 
 static void init_pgen_formats ( void )
@@ -13268,6 +13270,10 @@ min::printer min::standard_pgen
 	  const min::gen_format * f,
 	  bool disable_mapping )
 {
+    if (   printer->depth
+         > printer->print_format.max_depth )
+        return min::print_item ( printer, "...", 3, 3 );
+
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
         // This must be first as MINT::null_stub
@@ -13320,8 +13326,7 @@ min::printer min::standard_pgen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) printer << lf->lab_separator;
-	    (* f->pgen) ( printer, labp[i],
-	                  f, disable_mapping );
+	    min::print_gen ( printer, labp[i], f );
 	}
 
 	printer << lf->lab_postfix;
@@ -13528,7 +13533,7 @@ min::printer min::quote_defined_format_function
 	 ! min::is_str ( vp[0] ) )
     {
         vp = min::NULL_STUB;
-        return (* gen_format->pgen )
+        return min::print_gen
 	    ( printer, v, gen_format, true );
     }
     else

@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 28, 2017}
+\date{December 3, 2017}
  
 \maketitle
 
@@ -8680,6 +8680,9 @@ following printer parameters:
 \verb|        min::gen_format *|
 	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::id_map_gen_format| \\
+\verb|        min::uns32|
+	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
+        & \verb|// 10| \\
 \verb|}                        | \\
 \end{tabular}\end{indpar}
 
@@ -8706,6 +8709,12 @@ following printer parameters:
 \verb|min::uns32 printer->|
     & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 printer->|
+    & \TTMKEY{\EOL depth}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_DEPTH} \\
 \end{tabular}\end{indpar}
 
 \TT{print\_format.op\_flags}:
@@ -9199,6 +9208,13 @@ The \TT{gen\_\EOL format} is used normally and the
 \TT{id\_\EOL map\_\EOL gen\_\EOL format} member is used by id map mapping
 and flushing functions (\itemref{PRINTING-USING-AN-IDENTIFIER-MAP}).
 
+\item[\ttmkey{print\_format.max\_depth}{in {\tt min::printer}}]%
+\label{PRINT_FORMAT_MAX_DEPTH}~\\
+If \TT{printer->depth} exceeds this value 
+when \TT{min::\EOL standard\_\EOL pgen} is called,
+`\TT{...}' will be printed instead of the \TT{min::gen} argument to
+\TT{min::\EOL standard\_\EOL pgen}.
+
 \item[\ttmkey{print\_\EOL format\_\EOL stack}{in {\tt min::printer}}]~\\
 Used with \TT{min::save\_print\_format} and
 \TT{min::\EOL restore\_\EOL print\_\EOL format} to save and
@@ -9211,6 +9227,12 @@ Used to find or create identifiers when printing values with stubs
 and \TT{min::gen} values that contain stub pointers.
 See \itemref{IDENTIFIER-MAPS} and
 \TT{flush\_\EOL id\_\EOL map} (\pagref{MIN::FLUSH_ID_MAP}).
+
+\item[\ttmkey{depth}{in {\tt min::printer}}]~\\
+The current nesting depth.  Incremented when \TT{min::\EOL print\_\EOL gen}
+is called to print a value with a \TT{false} \TT{disable\_\EOL mapping}
+argument, and decremented when this function finishes.
+See \TT{print\_format.max\_depth}, \pagref{PRINT_FORMAT_MAX_DEPTH}.
 
 \end{itemlist}
 
@@ -11075,15 +11097,23 @@ The following function has the same effect:
 
 The expression `\TT{printer\,<{}<\,min::pgen(v,f)}' is similar but
 uses \TT{f} as the \TT{gen\_\EOL format} value.
-The following function has the same effect:
+The following function with 3 arguments has the same effect:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * f )|
+    \verb|  const min::gen_format * f,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::PRINT_GEN_WITH_FORMAT} \\
 \end{tabular}\end{indpar}
+
+The fourth \TT{disable\_mapping} argument disables use of
+defined formats (\itemref{PRINTING-USING-DEFINED-FORMATS})
+for printing the top level of \TT{v}
+if it is set to \TT{true}.  This argument does not affect
+the printing of components of \TT{v}, and is normally only used
+by defined format printing functions.
 
 The expression
 `\TT{printer\,<{}<\,min::set\_gen\_format(f)}' sets
@@ -11296,10 +11326,11 @@ In this document it is this format and the standard \TT{pgen}
 function \TT{min::\EOL standard\_\EOL pgen}
 that are being described unless specified otherwise.
 
-The \TT{disable\_mapping} argument is normally \TT{false}, but
-is set \TT{true} when defined format functions decline
-to specially format a \TT{min::gen} value: see
-\itemref{PRINTING-USING-DEFINED-FORMATS}.
+The \TT{disable\_mapping} argument disables use of
+defined formats (\itemref{PRINTING-USING-DEFINED-FORMATS})
+for printing the top level of \TT{v}
+if it is set to \TT{true}.  This argument does not affect
+the printing of components of \TT{v}.
 
 Most members of a general value format control the printing
 of different kinds of general values.  For example, the
@@ -12088,11 +12119,12 @@ When a defined format function is called it must act as a substitute
 for \TT{min::\EOL standard\_\EOL pgen}.  If it wishes to decline this
 opportunity, it may call
 \begin{indpar}\begin{verbatim}
-    ( * gen_format->pgen ) ( printer, v, gen_format, true )
+    min::print_gen ( printer, v, gen_format, true )
 \end{verbatim}\end{indpar}
 
 with the \TT{disable\_\EOL mapping} argument set to \TT{true} to
-suppress defined format mapping.
+suppress defined format mapping for \TT{v} (but not for the
+components of \TT{v}).
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -20170,6 +20202,8 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
 \verb|          min::gen_format *|
 	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
+\verb|        min::uns32|
+	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
 \verb|}                           | \\
 \end{TABULAR}
 
@@ -20203,6 +20237,12 @@ These are in \verb|min_parameters.h|.
 \verb|min::uns32 printer->|
     & \TTMKEY{\EOL id\_\EOL map->\EOL next}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_ID_MAP_NEXT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.8in}
+\verb|min::uns32 printer->|
+    & \TTMKEY{\EOL depth}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_DEPTH} \\
 \end{TABULAR}
 
 \bigskip
@@ -21125,7 +21165,8 @@ These are in \verb|min_parameters.h|.
 \verb|min::printer min::| & \MINKEY{print\_gen}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v,|\ARGBREAK
-    \verb|  const min::gen_format * f )|
+    \verb|  const min::gen_format * f,|\ARGBREAK
+    \verb|  bool disable_mapping = false )|
 \LABEL{MIN::PRINT_GEN_WITH_FORMAT} \\
 \end{TABULAR}
 
