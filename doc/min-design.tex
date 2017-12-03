@@ -9728,6 +9728,15 @@ and similarly for \TT{min::break\_\EOL after\_\EOL space},
 \TT{min::break\_\EOL before\_\EOL all},
 and \TT{min::break\_\EOL after\_\EOL hyphens}.
 
+The value of \TT{print\_format.max\_depth} can be set by the following
+printer operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{set\_max\_depth} \verb|( min::uns32 d )|
+\LABEL{MIN::SET_MAX_DEPTH} \\
+\end{tabular}\end{indpar}
+
 The printer operation:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -20696,6 +20705,14 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{set\_break\_control}\ARGBREAK
           \verb|( const min::break_control & bc )|
 \LABEL{MIN::SET_BREAK_CONTROL}
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::op min::|
+    & \MINKEY{set\_max\_depth} \verb|( min::uns32 d )|
+\LABEL{MIN::SET_MAX_DEPTH} \\
 \end{TABULAR}
 
 \bigskip

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 01:50:43 EST 2017
+// Date:	Sun Dec  3 06:29:50 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12104,6 +12104,7 @@ namespace min {
 	    SET_DISPLAY_CONTROL,
 	    SET_QUOTED_DISPLAY_CONTROL,
 	    SET_BREAK_CONTROL,
+	    SET_MAX_DEPTH,
 
 	    VERBATIM,
 
@@ -12362,6 +12363,11 @@ namespace min {
     	( const min::break_control & bc )
     {
         return op ( op::SET_BREAK_CONTROL, & bc );
+    }
+
+    inline op set_max_depth ( uns32 d )
+    {
+        return op ( op::SET_MAX_DEPTH, d );
     }
 
     inline op left ( uns32 width )

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 01:51:52 EST 2017
+// Date:	Sun Dec  3 06:31:14 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9306,6 +9306,7 @@ int gtype_error
 	( min::gen parent, const char * message )
 {
     min::init ( min::error_message )
+	<< min::set_max_depth ( 3 )
         << "ERROR CREATING GRAPH TYPE: " << message
 	<< " in "
 	<< min::save_indent
@@ -9399,7 +9400,8 @@ static int make_gtype
     if ( found )
 	return gtype_error
 	    ( parent, "graph type is cyclic" );
-	    // TBD; cannot print cyclic graph
+	    // printer->print_format.max_depth
+	    // is set to 3 for error messages.
 
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
@@ -10194,6 +10196,9 @@ min::printer operator <<
     case min::op::SET_BREAK_CONTROL:
         printer->print_format.break_control =
 	    * (const min::break_control *) op.v1.p;
+	return printer;
+    case min::op::SET_MAX_DEPTH:
+        printer->print_format.max_depth = op.v1.u32;
 	return printer;
     case min::op::VERBATIM:
 	printer->print_format.op_flags &=
