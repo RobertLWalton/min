@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 06:29:50 EST 2017
+// Date:	Sun Dec 10 21:11:19 EST 2017
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10007,6 +10007,8 @@ namespace min {
     bool flip_flag
 	    ( min::attr_insptr & ap,
 	      unsigned n );
+    min::ptr<min::gen> get_ptr_of
+	    ( min::attr_updptr & ap );
 
     namespace internal {
 
@@ -10406,6 +10408,9 @@ namespace min { namespace unprotected {
 	    // graph typed.  Unused otherwise.
 	
 	min::ptr<min::gen> get_ptr;
+	    // Points at the var element whose UNDEFINED
+	    // value was returned by min::get on a
+	    // graph type min::attr_updptr, or is null.
 
     // Friends:
 
@@ -10528,6 +10533,8 @@ namespace min { namespace unprotected {
 	friend bool min::flip_flag
 		( min::attr_insptr & ap,
 		  unsigned n );
+	friend min::ptr<min::gen> min::get_ptr_of
+	        ( min::attr_updptr & ap );
 
     #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    friend void min::internal::locate<>
@@ -11016,6 +11023,12 @@ namespace min {
 	    ap.get_ptr = min::null_ptr<min::gen>();
 
 	return c;
+    }
+
+    inline min::ptr<min::gen> get_ptr_of
+	    ( min::attr_updptr & ap )
+    {
+        return ap.get_ptr;
     }
 
     template < class vecptr >
