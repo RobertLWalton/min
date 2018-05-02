@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec  3 06:31:14 EST 2017
+// Date:	Wed May  2 03:02:24 EDT 2018
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1562,11 +1562,6 @@ static void init_standard_char_flags ( void )
 		   break;
 
 	case '`':
-		    flags = min::IS_GRAPHIC
-		          + min::IS_LEADING
-			  + min::IS_MARK;
-		    break;
-
 	case 0xA1:	// Inverted !
 	case 0xBF:	// Inverted ?
 		    flags = min::IS_GRAPHIC
@@ -1575,7 +1570,6 @@ static void init_standard_char_flags ( void )
 			  + min::IS_MARK;
 		    break;
 	
-	case '\'':
 	case ',':
 	case ';':
 		    flags = min::IS_GRAPHIC
@@ -1596,6 +1590,7 @@ static void init_standard_char_flags ( void )
 		          + min::NEEDS_QUOTES;
 		    break;
 
+	case '\'':
 	case '!':
 	case '?':
 	case '.':
