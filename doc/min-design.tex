@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 13, 2019}
+\date{February 15, 2019}
  
 \maketitle
 
@@ -4118,6 +4118,12 @@ defined by
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_DIGIT}
+\LABEL{MIN::IS_DIGIT} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NATURAL}
+\LABEL{MIN::IS_NATURAL} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
+\LABEL{MIN::IS_LETTER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
 \end{tabular}\end{indpar}
@@ -4255,25 +4261,37 @@ is as follows:
 \end{center}
 
 
+The following flags serve to identify various types of lexemes.
+A lexeme that has a character with the \minkey{IS\_\EOL DIGIT} flag before
+any character with the \minkey{IS\_\EOL LETTER} flag is a `\key{number}.
+A number consisting of just characters with the \minkey{IS\_\EOL NATURAL}
+flag is a `\key{natural number}', unless it begins with `\TT{0}' and
+has more than one digit.
+A lexeme that has a character with the \minkey{IS\_\EOL LETTER} flag before
+any character with the \minkey{IS\_\EOL DIGIT} flag is a `\key{word}.
 A lexeme all of whose characters have the \minkey{IS\_\EOL MARK} flag is
-called a `\key{mark}', and can be used just inside parentheses
-as the type of a parenthesized list: see
-\TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+a `\key{mark}'.
+See \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
 (\itemref{STRING-CLASSIFIERS})
 and the 
 \TT{mark\_\EOL classifier} of the object format,
 \pagref{MARK_CLASSIFIER}.
 
-The assignment of this flag in \TT{min::standard\_char\_flags}
+The assignment of these flags in \TT{min::standard\_char\_flags}
 is as follows:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
+\ttkey{min::IS\_DIGIT}: & category \TT{Nd} (digits) \\
+\ttkey{min::IS\_NATURAL}: & the characters
+                            \TT{0}, \TT{1}, \TT{2}, \TT{3}, \TT{4},
+                            \TT{5}, \TT{6}, \TT{7}, \TT{8}, and \TT{9} \\
+\ttkey{min::IS\_LETTER}: & category \TT{L} (letters) \\
 \ttkey{min::IS\_MARK}: & categories \TT{P} and \TT{S}
                          (punctuation and symbols), \\
 		       & but \underline{not} characters 
-		         with the \TT{IS\_\EOL SEPARATOR}
-			 or \TT{NEEDS\_\EOL QUOTES} flags
+		         with the \TT{IS\_\EOL SEPARATOR} \\
+		       & or \TT{NEEDS\_\EOL QUOTES} flags
 \end{tabular}
 \end{center}
 
@@ -4649,7 +4667,7 @@ leading or trailing, and if the string is a mark that can be used as a type.
 \LABEL{MIN::NULL_STR_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
-The flags returned by the string classifier are used by the printer
+The flags returned by the string classifier that can be used by the printer
 to make printing decisions as follows:
 
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
@@ -4715,7 +4733,8 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings all of whose characters
+			  this is returned for strings \underline{all}
+			  of whose characters
 			  have the \TT{IS\_\EOL GRAPHICS} flag.
 \label{IS_GRAPHIC_CLASSIFIER} \\
 \end{tabular}\end{indpar}
@@ -4726,7 +4745,8 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings all of whose characters
+			  this is returned for strings \underline{all}
+			  of whose characters
 			  have the \TT{IS\_\EOL LEADING} flag.
 \label{IS_LEADING_CLASSIFIER} \\
 \end{tabular}\end{indpar}
@@ -4737,9 +4757,51 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings all of whose characters
+			  this is returned for strings \underline{all}
+			  of whose characters
 			  have the \TT{IS\_\EOL TRAILING} flag.
 \label{IS_TRAILING_CLASSIFIER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_DIGIT}	& The string is a number.
+
+			  ~~
+
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings
+			  that have a character with the \TT{IS\_\EOL DIGIT}
+			  flag before any character with the
+			  \TT{IS\_\EOL LETTER} flag.
+\label{IS_DIGIT_CLASSIFIER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_NATURAL}	& The string is a natural number.
+
+			  ~~
+
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings \underline{all}
+			  of whose characters are have the
+			  \TT{IS\_\EOL NATURAL} flag (indicating they
+			  are ASCII digits) and which
+			  either do not begin with `\TT{0}' or consist
+			  of the single digit `\TT{0}'.
+\label{IS_NATURAL_CLASSIFIER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_LETTER}	& The string is a word.
+
+			  ~~
+
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings
+			  that have a character with the \TT{IS\_\EOL LETTER}
+			  flag before any character with the
+			  \TT{IS\_\EOL DIGIT} flag.
+\label{IS_LETTER_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
@@ -4750,7 +4812,8 @@ no flags (0 returned)	& The string is used just for formatting and
 			  ~~
 
 			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings all of whose characters
+			  this is returned for strings \underline{all}
+			  of whose characters
 			  have the \TT{IS\_MARK} flag.
 \label{IS_MARK_CLASSIFIER} \\
 \end{tabular}\end{indpar}
@@ -4772,7 +4835,8 @@ The \minkey{quote\_all\_str\_classifier} always returns just the
 \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
 
 The \minkey{null\_str\_classifier} is used when printing with a
-\TT{min::str\_\EOL format} that is \TT{NULL} and returns 0 if all characters
+\TT{min::str\_\EOL format} that is \TT{NULL} and returns 0
+if \underline{all} characters
 in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \TT{min::\EOL IS\_\EOL GRAPHIC} otherwise.
 
