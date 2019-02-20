@@ -11645,12 +11645,26 @@ function.
 Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
 
 If \TT{str\_\EOL format} is \TT{NULL},
-the string is printed as is without quoting.
-Otherwise \TT{str\_\EOL format->\EOL str\_\EOL classifier}
-is used to compute the
-string class of the string, and if that has the
+the string is printed as is without quoting or breaking the string
+into parts.
+Otherwise \TT{str\_\EOL format->\EOL str\_\EOL classifier} is used
+to compute the string class of the string.  If this string class has the
 \TT{min::\EOL NEEDS\_\EOL QUOTES} flag or does \underline{not} have the
-\TT{min::\EOL IS\_\EOL GRAPHIC} flag, the string is quoted.
+\TT{min::\EOL IS\_\EOL GRAPHIC} flag, the string is printed by
+the \TT{min::\EOL print\_\EOL quoted\_\EOL unicode} function
+(\pagref{MIN::PRINT_QUOTED_UNICODE}) with surrounding quotes
+and special representations of control characters.  Otherwise
+if the string class has one of the
+\TT{min::\EOL IS\_\EOL DIGIT},
+\TT{min::\EOL IS\_\EOL LETTER},
+or \TT{min::\EOL IS\_\EOL MARK} flag, has the
+\TT{min::\EOL IS\_\EOL GRAPHIC} flag, and does \underline{not} either the 
+\TT{min::\EOL IS\_\EOL LEADING} or
+\TT{min::\EOL IS\_\EOL TRAILING} flag, the string is printed by
+the \TT{min::\EOL print\_\EOL lexeme\_\EOL unicode} function
+(\pagref{MIN::PRINT_LEXEME_UNICODE}) that may break the string
+into parts.
+
 
 If not quoted, the string
 is considered to be a print item (\pagref{PRINT-ITEM}).
