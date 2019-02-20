@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 15, 2019}
+\date{February 20, 2019}
  
 \maketitle
 
@@ -11626,17 +11626,23 @@ The formats for printing string \TT{min::gen} values are:
 The \TT{ustring} members of \TT{min::quote\_format} \underline{must not}
 contain non-graphic characters (e.g., no spaces).
 
-The following function, which is used to print string general values,
-prints a UTF-8 encoded \TT{const char *}
-value according to the above formats:
+The following function prints a string of
+of \TT{n} UNICODE \TT{Uchar}'s pointed at by \TT{p}.  Functions are given
+below that print UTF-8 encoded strings by first copying
+the UTF-8 string into the stack unpacking the UTF-8 characters
+into \TT{Uchar}'s and then calling this
+function.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_cstring}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  const char * str,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
     \verb|  const min::str_format * str_format = NULL )|
-\LABEL{MIN::PRINT_CSTRING} \\
+\LABEL{MIN::PRINT_UNICODE} \\
 \end{tabular}\end{indpar}
+
+Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
 
 If \TT{str\_\EOL format} is \TT{NULL},
 the string is printed as is without quoting.
@@ -11699,20 +11705,18 @@ and everything else may be represented by a character name
 (or if the \TT{min::\EOL DISPLAY\_\EOL PICTURE} printer operation
 flag is set, by a character picture).
 
-If instead of a \TT{const char *} string you want to print a vector
-of \TT{n} UNICODE \TT{Uchar}'s pointed at by \TT{p}, you may use the
-function:
+The following function
+prints a UTF-8 encoded \TT{const char *}
+string by copying it into the stack, translating UTF-8 encoded
+characters to \TT{Uchar}'s, and then calling \TT{min::\EOL print\_\EOL unicode} (\pagref{MIN::PRINT_UNICODE}).
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_cstring}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n,|\ARGBREAK
-    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const char * str,|\ARGBREAK
     \verb|  const min::str_format * str_format = NULL )|
-\LABEL{MIN::PRINT_UNICODE} \\
+\LABEL{MIN::PRINT_CSTRING} \\
 \end{tabular}\end{indpar}
-
-Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
 
 The following function may be called to print a string \TT{min::gen} value:
 
