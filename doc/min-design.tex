@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 20, 2019}
+\date{February 21, 2019}
  
 \maketitle
 
@@ -4737,6 +4737,18 @@ no flags (0 returned)	& The string is used just for formatting and
 			  of whose characters
 			  have the \TT{IS\_\EOL GRAPHICS} flag.
 \label{IS_GRAPHIC_CLASSIFIER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
+\TT{min::IS\_SEPARATOR}	& The string is a \underline{strict} separator.
+
+			  ~~
+
+			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+			  this is returned for strings \underline{all}
+			  of whose characters
+			  have the \TT{IS\_\EOL SEPARATOR} flag.
+\label{IS_SEPARATOR_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
@@ -10578,6 +10590,9 @@ string functions:
 \LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
 \end{tabular}\end{indpar}
 
+WARNING: The character string \TT{p} argument to \TT{min::\EOL print\_\EOL item}
+\underline{may not be relocatable}.
+
 The \TT{min::print\_item} function prints a single print item
 that is a UTF-8 string of \TT{n} \TT{chars} taking the given
 number of columns and having the given string class.  However,
@@ -10650,6 +10665,10 @@ using the functions:
 	\verb|  min::uns32 columns )|
 \LABEL{MIN::PRINT_CHARS} \\
 \end{tabular}\end{indpar}
+
+WARNING: The character string \TT{p} argument to
+\TT{min::\EOL print\_\EOL chars}
+\underline{may not be relocatable}.
 
 The \TT{min::print\_item\_preface} function does the string class
 processing steps of \TT{min::\EOL print\_\EOL item}, while the
@@ -11654,47 +11673,38 @@ to compute the string class of the string.  If this string class has the
 the \TT{min::\EOL print\_\EOL quoted\_\EOL unicode} function
 (\pagref{MIN::PRINT_QUOTED_UNICODE}) with surrounding quotes
 and special representations of control characters.  Otherwise
-if the string class has one of the
-\TT{min::\EOL IS\_\EOL DIGIT},
-\TT{min::\EOL IS\_\EOL LETTER},
-or \TT{min::\EOL IS\_\EOL MARK} flag, has the
-\TT{min::\EOL IS\_\EOL GRAPHIC} flag, and does \underline{not} either the 
-\TT{min::\EOL IS\_\EOL LEADING} or
-\TT{min::\EOL IS\_\EOL TRAILING} flag, the string is printed by
-the \TT{min::\EOL print\_\EOL lexeme\_\EOL unicode} function
-(\pagref{MIN::PRINT_LEXEME_UNICODE}) that may break the string
+if the string class has the
+\TT{min::\EOL CAN\_\EOL BREAK} flag, the string is printed by
+the \TT{min::\EOL print\_\EOL breakable\_\EOL unicode} function
+(\pagref{MIN::PRINT_BREAKABLE_UNICODE}) that may break the string
 into parts.
 
 
-If not quoted, the string
+Otherwise, the string
 is considered to be a print item (\pagref{PRINT-ITEM}).
 As such its string class is computed by
 \TT{str\_\EOL format->\EOL str\_\EOL classifier} if \TT{str\_\EOL format}
 is not \TT{NULL}, and by \TT{min::\EOL null\_\EOL str\_\EOL classifier}
 otherwise.
-See \itemref{STRING-CLASSIFIERS} for details on string classifiers
-and \itemref{LEADING-AND-TRAILING-SEPARATORS} for the uses of string
-classes in determining the behavior of the
-\TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
+A space may or may not be inserted before the string according to
+the value of this string class and what has been printed before the
+string: see \itemref{LEADING-AND-TRAILING-SEPARATORS}.
 
-When `\TT{printer <{}< min::pgen ( str )}' calls
-\TT{min::\EOL print\_\EOL cstring}, it uses
-\begin{center}
-\TT{str\_format = printer->print\_format.gen\_format->str\_format}
-\end{center}
-However,
-\TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
-implicitly used when \TT{min::\EOL print\_\EOL cstring} is called directly
-with a \TT{NULL} third argument.
+The following function prints a string with surrounding quotes:
 
-\TT{min::print\_cstring} copies the string to the stack (converting from
-UTF-8 to a UNICODE \TT{min::\EOL Uchar} vector) before invoking
-any functions that might allocate or relocate objects, so \TT{str}
-\underline{can} be a relocatable address.
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_quoted\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format * str_format )|
+\LABEL{MIN::PRINT_QUOTED_UNICODE} \\
+\end{tabular}\end{indpar}
 
 
-If the string is to be quoted, \TT{str\_format->quote\_format}
-determines how the string is quoted.  The quoted string is preceded
+Here \TT{str\_format->quote\_format} determines how the string is quoted,
+and neither this nor \TT{str\_\EOL format} may be \TT{NULL}.
+The quoted string is preceded
 by the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and followed by the
 \TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the quoted string itself
 contains a copy of the \TT{str\_\EOL postfix} member (e.g., \TT{"}),
@@ -11732,6 +11742,16 @@ characters to \TT{Uchar}'s, and then calling \TT{min::\EOL print\_\EOL unicode} 
 \LABEL{MIN::PRINT_CSTRING} \\
 \end{tabular}\end{indpar}
 
+The operator \TT{<{}<} in `\TT{printer <{}< min::pgen ( str )}' calls
+\TT{min::\EOL print\_\EOL cstring} using
+\begin{center}
+\TT{str\_format = printer->print\_format.gen\_format->str\_format}
+\end{center}
+However,
+\TT{printer->\EOL print\_\EOL format.str\_\EOL format} is \underline{not}
+implicitly used when \TT{min::\EOL print\_\EOL cstring} is called directly
+with a \TT{NULL} third argument.
+
 The following function may be called to print a string \TT{min::gen} value:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11745,6 +11765,8 @@ The following function may be called to print a string \TT{min::gen} value:
 This function just calls the \TT{min::\EOL print\_\EOL cstring} function
 described above with the \TT{const char *} part of the string general value.
 The \TT{str} argument must be a string general value.
+The \TT{str\_\EOL format} parameter is passed directly to
+\TT{min::\EOL print\_\EOL cstring} even if it is \TT{NULL}.
 
 The \TT{min::\EOL standard\_\EOL pgen} function that prints general
 values for \TT{min::pgen} will print a long enough string as an
@@ -18597,6 +18619,12 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_DIGIT}
+\LABEL{MIN::IS_DIGIT} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_NATURAL}
+\LABEL{MIN::IS_NATURAL} \\
+\verb|const min::uns32 min::| & \MINKEY{IS\_LETTER}
+\LABEL{MIN::IS_LETTER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{MIN::IS_MARK} \\
 \end{TABULAR}
@@ -21628,12 +21656,22 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_str}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min:gen str,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK
     \verb|        str_format = NULL )|
-\LABEL{MIN::PRINT_STR} \\
+\LABEL{MIN::PRINT_UNICODE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_quoted\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format * str_format )|
+\LABEL{MIN::PRINT_QUOTED_UNICODE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -21646,13 +21684,12 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::printer min::| & \MINKEY{print\_unicode}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{print\_str}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n,|\ARGBREAK
-    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  min:gen str,|\ARGBREAK
     \verb|  const min::str_format *|\ARGBREAK
     \verb|        str_format = NULL )|
-\LABEL{MIN::PRINT_UNICODE} \\
+\LABEL{MIN::PRINT_STR} \\
 \end{TABULAR}
 
 \end{indpar}

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  2 03:02:24 EDT 2018
+// Date:	Thu Feb 21 04:16:39 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10718,11 +10718,11 @@ void MINT::print_item_preface
 		  &&
 		  ( flags & min::FORCE_SPACE_OK ) )
 	    /* Do nothing, i.e., print space. */;
-	else if ( flags & min::IS_TRAILING
+	else if ( flags & min::AFTER_TRAILING
 		  &&
 		  ( str_class & min::IS_TRAILING ) )
 	    flags = 0; // Do NOT print space.
-	else if ( flags & min::IS_LEADING
+	else if ( flags & min::AFTER_LEADING
 	          &&
 		  (   printer->last_str_class
 		    & min::IS_LEADING ) )
@@ -10996,7 +10996,7 @@ min::printer MINT::print_unicode
     return printer;
 }
 
-static min::printer print_quoted_unicode
+min::printer print_quoted_unicode
 	( min::printer printer,
 	  min::unsptr length,
 	  min::ptr<const min::Uchar> p,

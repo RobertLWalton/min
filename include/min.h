@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 10 21:11:19 EST 2017
+// Date:	Thu Feb 21 04:16:24 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3618,9 +3618,6 @@ namespace min {
 
     const min::uns32 IS_UNSUPPORTED	= ( 1 << 7 );
 
-    // WARNING: IS_LEADING/TRAILING are the same bits
-    // as AFTER_LEADING/TRAILING in printer->state.
-    //
     const min::uns32 IS_LEADING		= ( 1 << 8 );
     const min::uns32 IS_TRAILING	= ( 1 << 9 );
 
@@ -12004,10 +12001,6 @@ namespace min {
 	    // the line compact format printer if it 
 	    // prints a .terminator.
 
-	// WARNING: AFTER_LEADING/TRAILING are the same
-	// bits as IS_LEADING/TRAILING in character
-	// flags.
-	//
         AFTER_LEADING		= ( 1 << 8 ),
         AFTER_TRAILING		= ( 1 << 9 ),
 	    // We are immediately after a min::leading/
@@ -12718,6 +12711,18 @@ namespace min {
 	return internal::print_unicode
 		( printer, n, p, width );
     }
+
+    min::printer print_quoted_unicode
+	    ( min::printer printer,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      const min::str_format * );
+
+    min::printer print_breakable_unicode
+	    ( min::printer printer,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p,
+	      const min::str_format * );
 
     inline min::printer print_ustring
     	    ( min::printer printer,
