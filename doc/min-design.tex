@@ -4087,7 +4087,8 @@ The assignment of this flag in \TT{min::standard\_char\_flags} is:
 Other character flags are used by the printer context data and can
 be adapted according to the application.  The following flags are
 defined by 
-\TT{min::\EOL standard\_\EOL char\_\EOL flags}:
+\TT{min::\EOL standard\_\EOL char\_\EOL flags}:%
+\label{STANDARD_CHAR_FLAGS_FLAGS}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{IS\_SP}
@@ -4652,6 +4653,11 @@ leading or trailing, and if the string is a mark that can be used as a type.
 \LABEL{MIN::STR_CLASSIFIER} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{IS\_BREAKABLE}
+\LABEL{MIN::IS_BREAKABLE} \\
+\end{tabular}\end{indpar}
+
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::str_classifier min::| & \MINKEY{standard\_str\_classifier}
 \LABEL{MIN::STANDARD_STR_CLASSIFIER} \\
@@ -4670,165 +4676,146 @@ leading or trailing, and if the string is a mark that can be used as a type.
 The flags returned by the string classifier that can be used by the printer
 to make printing decisions as follows:
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-no flags (0 returned)	& The string is used just for formatting and
-                          contains no graphic characters.  In some contexts the
-			  string is printed as is and in others it is
-			  quoted.
+\begin{itemlist}[1.5in]
 
-			  ~~
-			  
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  no flags are returned if the string is empty
-			  or contains only characters which have the
-			  \TT{IS\_\EOL VHSPACE} flag, and does not contain
-			  any characters with the \TT{NEEDS\_\EOL QUOTES}
-			  flag.
-\label{NO_FLAGS_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+\item[no flags (0 returned)]\label{NO_FLAGS_CLASSIFIER}
+The string is used just for formatting and contains no
+graphic characters.  In some contexts the string is printed
+as is and in others it is quoted.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::NEEDS\_QUOTES}	& The string needs to be quoted.
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} no flags
+are returned if the string is empty or contains only characters
+which have the \TT{IS\_\EOL VHSPACE} flag, and does not contain
+any characters with the \TT{NEEDS\_\EOL QUOTES} flag.
 
-			  ~~
+\item[\ttmkey{NEEDS\_QUOTES}{{\tt min::str\_classifier} flag}]%
+\label{NEEDS_QUOTES_CLASSIFIER}
+The string needs to be quoted.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned if the string:
-			  \begin{enumerate}
-			  \item
-			  contains any character with the
-			  \TT{NEEDS\_\EOL QUOTES} flag
-			  \item
-			  contains a character that does not
-			  have the \TT{IS\_\EOL GRAPHIC} flag and a (possibly
-			  different) character that does not have the
-			  \TT{IS\_\EOL VHSPACE} flag
-			  \item
-			  \underline{all} of the following are true:
-			  \begin{enumerate}
-			  \item The first string character has the
-			  \TT{IS\_\EOL LEADING} flag,
-			  or the last string character has the
-			  \TT{IS\_\EOL TRAILING} flag,
-			  or any string character has the
-			  \TT{IS\_\EOL SEPARATOR} flag
-			  \item there is more than one character in the
-			  string
-			  \item not all characters in the string are identical
-			  or the string character does not have the
-			  \TT{IS\_\EOL REPEATER} flag.
-			  \end{enumerate}
-			  \end{enumerate}
-\label{NEEDS_QUOTES_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned if \underline{any} of the following are true:
+\begin{enumerate}
+\item
+The string contains any character with the \TT{NEEDS\_\EOL QUOTES} flag.
+\item
+The string contains a character that does not have the
+\TT{IS\_\EOL GRAPHIC} flag and a (possibly different) character that
+does not have the \TT{IS\_\EOL VHSPACE} flag.
+\item
+\underline{All} of the following are true:
+\begin{enumerate}
+\item The first string character has the \TT{IS\_\EOL LEADING} flag,
+or the last string character has the \TT{IS\_\EOL TRAILING} flag,
+or any string character has the \TT{IS\_\EOL SEPARATOR} flag
+\item there is more than one character in the string
+\item not all characters in the string are identical
+or the string character does not have the \TT{IS\_\EOL REPEATER} flag.
+\end{enumerate}
+\end{enumerate}
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_GRAPHIC}	& Unless the \TT{NEEDS\_QUOTES} flag is present,
-                          the string should be printed unquoted and may be
-                          immediately preceded by leading separators or
-			  immediately followed
-			  by trailing separators.  Separators also have
-			  this flag.
+\item[\ttmkey{IS\_BREAKABLE}{{\tt min::str\_classifier} flag}]%
+\label{IS_BREAKABLE_CLASSIFIER}
+The string can be broken into parts if it is too long to fit on one line,
+as per \TT{min::\EOL print\_\EOL breakable\_\EOL unicode}
+(\pageref{MIN::PRINT_BREAKABLE_UNICODE}).  This flag is meaningful
+only if the \TT{NEEDS\_\EOL QUOTE} flag is not returned.
 
-			  ~~
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is returned
+if the \underline{all} of the following are true:
+\begin{enumerate}
+\item
+\underline{All} the string characters have the \TT{IS\_\EOL GRAPHIC} flag.
+\item
+The string contains a character with either the \TT{IS\_\EOL LETTER}
+or \TT{IS\_\EOL DIGIT} flag, or \underline{all} the characters of
+the string have the \TT{IS\_\EOL MARK} flag (i.e., the string is
+a word, number, or mark).
+\item
+No string character has the \TT{IS\_\EOL SEPARATOR} flag.
+\item
+No string character has the \TT{NEEDS\_\EOL QUOTES} flag.
+\item
+The first string character does \underline{not} have the
+\TT{IS\_\EOL LEADING} flag.
+\item
+The last string character does \underline{not} have the
+\TT{IS\_\EOL TRAILING} flag.
+\end{enumerate}
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters
-			  have the \TT{IS\_\EOL GRAPHICS} flag.
-\label{IS_GRAPHIC_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+\item[\ttmkey{IS\_GRAPHIC}{{\tt min::str\_classifier} flag}]%
+\label{IS_GRAPHIC_CLASSIFIER}
+Unless the \TT{NEEDS\_QUOTES} flag is present, the string should
+be printed unquoted and may be immediately preceded by leading
+separators or immediately followed by trailing separators.
+Separators also have this flag.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_SEPARATOR}	& The string is a \underline{strict} separator.
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings \underline{all} of whose characters
+have the \TT{IS\_\EOL GRAPHICS} flag.
 
-			  ~~
+\item[\ttmkey{IS\_SEPARATOR}{{\tt min::str\_classifier} flag}]%
+\label{IS_SEPARATOR_CLASSIFIER}
+The string is a \underline{strict} separator.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters
-			  have the \TT{IS\_\EOL SEPARATOR} flag.
-\label{IS_SEPARATOR_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings \underline{all} of whose characters
+have the \TT{IS\_\EOL SEPARATOR} flag.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_LEADING}	& The string is a leading separator.
+\item[\ttmkey{IS\_LEADING}{{\tt min::str\_classifier} flag}]%
+\label{IS_LEADING_CLASSIFIER}
+The string is a leading separator.
 
-			  ~~
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+this is returned for strings \underline{all} of whose characters
+have the \TT{IS\_\EOL LEADING} flag.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters
-			  have the \TT{IS\_\EOL LEADING} flag.
-\label{IS_LEADING_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+\item[\ttmkey{IS\_TRAILING}{{\tt min::str\_classifier} flag}]%
+\label{IS_TRAILING_CLASSIFIER}
+The string is a trailing separator.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_TRAILING}	& The string is a trailing separator.
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
+this is returned for strings \underline{all} of whose characters
+have the \TT{IS\_\EOL TRAILING} flag.
 
-			  ~~
+\item[\ttmkey{IS\_DIGIT}{{\tt min::str\_classifier} flag}]%
+\label{IS_DIGIT_CLASSIFIER}
+The string is a number.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters
-			  have the \TT{IS\_\EOL TRAILING} flag.
-\label{IS_TRAILING_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings that have a character with the \TT{IS\_\EOL DIGIT}
+flag before any character with the \TT{IS\_\EOL LETTER} flag.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_DIGIT}	& The string is a number.
+\item[\ttmkey{IS\_NATURAL}{{\tt min::str\_classifier} flag}]%
+\label{IS_NATURAL_CLASSIFIER}
+The string is a natural number.
 
-			  ~~
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings \underline{all} of whose characters are have the
+\TT{IS\_\EOL NATURAL} flag (indicating they are ASCII digits) and which
+either do not begin with `\TT{0}' or consist of the single digit `\TT{0}'.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings
-			  that have a character with the \TT{IS\_\EOL DIGIT}
-			  flag before any character with the
-			  \TT{IS\_\EOL LETTER} flag.
-\label{IS_DIGIT_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+\item[\ttmkey{IS\_LETTER}{{\tt min::str\_classifier} flag}]%
+\label{IS_LETTER_CLASSIFIER}
+The string is a word.
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_NATURAL}	& The string is a natural number.
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings that have a character with the \TT{IS\_\EOL LETTER}
+flag before any character with the \TT{IS\_\EOL DIGIT} flag.
 
-			  ~~
+\item[\ttmkey{IS\_MARK}{{\tt min::str\_classifier} flag}]%
+\label{IS_MARK_CLASSIFIER}
+The string is a mark, and as such can be used as the type of
+a bracketed expression that can be output in compact form.
 
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters are have the
-			  \TT{IS\_\EOL NATURAL} flag (indicating they
-			  are ASCII digits) and which
-			  either do not begin with `\TT{0}' or consist
-			  of the single digit `\TT{0}'.
-\label{IS_NATURAL_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} this is
+returned for strings \underline{all} of whose characters
+have the \TT{IS\_MARK} flag.
+\end{itemlist}
 
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_LETTER}	& The string is a word.
-
-			  ~~
-
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings
-			  that have a character with the \TT{IS\_\EOL LETTER}
-			  flag before any character with the
-			  \TT{IS\_\EOL DIGIT} flag.
-\label{IS_LETTER_CLASSIFIER} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{p{1.5in}@{~~~}p{4.0in}}
-\TT{min::IS\_MARK}	& The string is a mark, and as such can be
-                          used as the type of a bracketed expression
-			  that can be output in compact form.
-
-			  ~~
-
-			  For \TT{min::\EOL standard\_\EOL str\_\EOL classifier}
-			  this is returned for strings \underline{all}
-			  of whose characters
-			  have the \TT{IS\_MARK} flag.
-\label{IS_MARK_CLASSIFIER} \\
-\end{tabular}\end{indpar}
+All these flags are also used in
+\TT{min::\EOL standard\_\EOL char\_\EOL flags}
+(\pagref{STANDARD_CHAR_FLAGS_FLAGS}) except
+\TT{min::\EOL IS\_\EOL BREAK\-ABLE}.
 
 The \minlkey{quote\_separator}{\_str\_classifier} is just like the
 \TT{min::\EOL standard\_\EOL str\_\EOL class\-ifier} except that
@@ -18704,6 +18691,11 @@ These are in \verb|min_parameters.h|.
       \verb|  min::unsptr n,|\ARGBREAK
       \verb|  min::ptr<const min::Uchar> p )|
 \LABEL{MIN::STR_CLASSIFIER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.5in}
+\verb|const min::uns32 min::| & \MINKEY{IS\_BREAKABLE}
+\LABEL{MIN::IS_BREAKABLE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.5in}

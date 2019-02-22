@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 04:13:17 EST 2019
+// Date:	Fri Feb 22 14:28:22 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11169,6 +11169,18 @@ static min::uns32 standard_str_classifier_function
     }
 
     result |= and_of_cflags;
+
+    if ( ( result & ( SELECTOR + min::IS_MARK ) )
+         &&
+	 ( and_of_cflags & min::IS_GRAPHIC )
+	 &&
+	 ! ( or_of_cflags & (   min::NEEDS_QUOTES
+	                      + min::IS_SEPARATOR ) )
+	 &&
+	 ! ( first_cflags & min::IS_LEADING )
+	 &&
+	 ! ( last_cflags & min::IS_TRAILING ) )
+        result |= min::IS_BREAKABLE;
 
     if ( result & min::IS_NATURAL )
     {
