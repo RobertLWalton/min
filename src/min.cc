@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 03:37:24 EST 2019
+// Date:	Fri Feb 22 04:13:17 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10495,12 +10495,12 @@ const min::op min::force_space
 const min::op min::noforce_space
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FORCE_SPACE );
-const min::op min::disable_breaks
+const min::op min::disable_str_breaks
     ( min::op::SET_PRINT_OP_FLAGS,
-      min::DISABLE_BREAKS );
-const min::op min::nodisable_breaks
+      min::DISABLE_STR_BREAKS );
+const min::op min::nodisable_str_breaks
     ( min::op::CLEAR_PRINT_OP_FLAGS,
-      min::DISABLE_BREAKS );
+      min::DISABLE_STR_BREAKS );
 const min::op min::force_pgen
     ( min::op::SET_PRINT_OP_FLAGS,
       min::FORCE_PGEN );
@@ -11074,9 +11074,17 @@ min::printer print_quoted_unicode
 	postfix_length = q - postfix_string;
     }
 
-    min::print_ustring ( printer, qf.str_prefix );
 
-    min::uns32 width = reduced_width;
+    min::uns32 width =
+        ( printer->state & min::DISABLE_STR_BREAKS ?
+	  0xFFFFFFFF : reduced_width );
+    min::break_control break_control_save =
+        printer->print_format.break_control;
+    printer->print_format.break_control =
+        min::no_auto_break_break_control;
+    if ( printer->state & min::BREAK_AFTER )
+	printer << min::set_break;
+    min::print_ustring ( printer, qf.str_prefix );
     while ( length > 0 )
     {
 	MINT::print_unicode
@@ -11101,6 +11109,8 @@ min::printer print_quoted_unicode
 	width = reduced_width - break_begin_columns;
     }
     min::print_ustring ( printer, qf.str_postfix );
+    printer->print_format.break_control =
+        break_control_save;
 
     return printer;
 }

@@ -1533,6 +1533,12 @@ name
 "name"
 ..name
 ...
+"this is a very, very, very, very, very, very, very, very, very, v"#
+    #"ery, very, very, very, very, very, very, very, very, very, very,"#
+    #" very, very, very, very, very, very, very, very, very, very, ver"#
+    #"y, very, very, very, very, very, very, very, very, very, very, v"#
+    #"ery, very, very, very, very, very, very, very, very, very, very,"#
+    #" very, very, very, very, very, very, long string"
 "this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")

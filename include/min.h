@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 03:37:44 EST 2019
+// Date:	Fri Feb 22 04:13:03 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11895,7 +11895,7 @@ namespace min {
     const min::uns32 FLUSH_ON_EOL	  = ( 1 << 4 );
     const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 5 );
     const min::uns32 FORCE_SPACE	  = ( 1 << 6 );
-    const min::uns32 DISABLE_BREAKS	  = ( 1 << 7 );
+    const min::uns32 DISABLE_STR_BREAKS	  = ( 1 << 7 );
     const min::uns32 FORCE_PGEN		  = ( 1 << 8 );
 
     struct line_break
@@ -12432,8 +12432,8 @@ namespace min {
 
     extern const op force_space;
     extern const op noforce_space;
-    extern const op disable_breaks;
-    extern const op nodisable_breaks;
+    extern const op disable_str_breaks;
+    extern const op nodisable_str_breaks;
     extern const op force_pgen;
     extern const op noforce_pgen;
 

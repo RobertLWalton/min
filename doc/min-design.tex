@@ -8818,8 +8818,8 @@ following printer parameters:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{DISABLE\_BREAKS}
-\LABEL{MIN::DISABLE_BREAKS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_STR\_BREAKS}
+\LABEL{MIN::DISABLE_STR_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
 \LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{tabular}\end{indpar}
@@ -9172,7 +9172,7 @@ This flag forces the \TT{min::leading} and \TT{min::trailing}
 printer operations to output a single space character.
 See \pagref{FORCE_SPACE}.
 
-\item[\ttmkey{DISABLE\_BREAKS}%
+\item[\ttmkey{DISABLE\_STR\_BREAKS}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
 This flag disables breaking quoted strings and breakable strings.
 See \pagref{MIN::PRINT_QUOTED_UNICODE}
@@ -9718,10 +9718,10 @@ following printer operations:
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
 \LABEL{MIN::NOFORCE_SPACE} \\
-\verb|const min::op min::| & \MINKEY{disable\_breaks}
-\LABEL{MIN::DISABLE_BREAKS} \\
-\verb|const min::op min::| & \MINKEY{nodisable\_breaks}
-\LABEL{MIN::NODISABLE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{disable\_str\_breaks}
+\LABEL{MIN::DISABLE_STR_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_str\_breaks}
+\LABEL{MIN::NODISABLE_STR_BREAKS} \\
 \verb|const min::op min::| & \MINKEY{force\_pgen}
 \LABEL{MIN::FORCE_PGEN} \\
 \verb|const min::op min::| & \MINKEY{noforce\_pgen}
@@ -10407,7 +10407,7 @@ We want the first line to output `\TT{(100)}' in which there are
 while we want the second line to output `\TT{(+ 100 +)}'
 in which there are \underline{two} spaces.
 
-So how to we compute whether \TT{min::leading/trailing} output
+So how do we compute whether \TT{min::leading/trailing} output
 a space? 
 
 First, we run every string that is output though a string classifier.
@@ -11581,6 +11581,10 @@ The formats for printing string \TT{min::gen} values are:
     \verb|{|\ARGBREAK
     \verb|  min::str_classifier   str_classifier;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::ustring          str_break_begin;|%
+\ttmindex{str\_break\_begin}{in {\tt min::quote\_format}}\ARGBREAK
+    \verb|  min::ustring          str_break_end;|%
+\ttmindex{str\_break\_end}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  min::quote_format     quote_format;|%
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_strlen;|%
@@ -11600,6 +11604,8 @@ The formats for printing string \TT{min::gen} values are:
     min::\MINKEY{standard\_str\_format}:}
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"          // str_break_begin|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"          // str_break_end|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|MIN_ID_STRLEN                          // id_strlen|
 \end{tabular}\end{indpar}
@@ -11640,8 +11646,6 @@ The formats for printing string \TT{min::gen} values are:
 \ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  min::ustring    str_postfix_name;|%
 \ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  min::ustring    str_concatenator;|%
-\ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
 \LABEL{MIN::QUOTE_FORMAT}
 \end{tabular}\end{indpar}
@@ -11652,7 +11656,6 @@ The formats for printing string \TT{min::gen} values are:
 \verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
 \verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \LABEL{MIN::STANDARD_QUOTE_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -20407,8 +20410,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
-\verb|const min::uns32 min::| & \MINKEY{DISABLE\_BREAKS}
-\LABEL{MIN::DISABLE_BREAKS_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_STR\_BREAKS}
+\LABEL{MIN::DISABLE_STR_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
 \LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{TABULAR}
@@ -20775,10 +20778,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
 \LABEL{MIN::NOFORCE_SPACE} \\
-\verb|const min::op min::| & \MINKEY{disable\_breaks}
-\LABEL{MIN::DISABLE_BREAKS} \\
-\verb|const min::op min::| & \MINKEY{nodisable\_breaks}
-\LABEL{MIN::NODISABLE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{disable\_str\_breaks}
+\LABEL{MIN::DISABLE_STR_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_str\_breaks}
+\LABEL{MIN::NODISABLE_STR_BREAKS} \\
 \verb|const min::op min::| & \MINKEY{force\_pgen}
 \LABEL{MIN::FORCE_PGEN} \\
 \verb|const min::op min::| & \MINKEY{noforce\_pgen}
@@ -21585,6 +21588,10 @@ These are in \verb|min_parameters.h|.
     \verb|{|\ARGBREAK
     \verb|  min::str_classifier   quote_control;|%
 \ttmindex{quote\_control}{in {\tt min::str\_format}}\ARGBREAK
+    \verb|  min::ustring          str_break_begin;|%
+\ttmindex{str\_break\_begin}{in {\tt min::quote\_format}}\ARGBREAK
+    \verb|  min::ustring          str_break_end;|%
+\ttmindex{str\_break\_end}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  min::quote_format     quote_format;|%
 \ttmindex{quote\_format}{in {\tt min::str\_format}}\ARGBREAK
     \verb|  min::uns32            id_strlen;|%
@@ -21607,6 +21614,8 @@ These are in \verb|min_parameters.h|.
     min::\MINKEY{standard\_str\_format}:}
 \LABEL{MIN::STANDARD_STR_FORMAT}\ARGBREAK
 \verb|min::standard_str_classifier           // str_classifier|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"          // str_break_begin|\ARGBREAK
+\verb|(min::ustring) "\x01\x01" "#"          // str_break_end|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
 \verb|MIN_ID_STRLEN                          // id_strlen|
 \end{TABULAR}
@@ -21656,8 +21665,6 @@ These are in \verb|min_parameters.h|.
 \ttmindex{str\_postfix}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|  min::ustring    str_postfix_name;|%
 \ttmindex{str\_postfix\_name}{in {\tt min::quote\_format}}\ARGBREAK
-    \verb|  min::ustring    str_concatenator;|%
-\ttmindex{str\_concatenator}{in {\tt min::quote\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -21670,7 +21677,6 @@ These are in \verb|min_parameters.h|.
 \verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
 \verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
-\verb|(min::ustring) "\x01\x01" "#"    // str_concatenator|\ARGBREAK
 \end{TABULAR}
 
 \bigskip
