@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 21 04:16:39 EST 2019
+// Date:	Fri Feb 22 02:56:39 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10494,6 +10494,12 @@ const min::op min::force_space
 const min::op min::noforce_space
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::FORCE_SPACE );
+const min::op min::disable_breaks
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::DISABLE_BREAKS );
+const min::op min::nodisable_breaks
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::DISABLE_BREAKS );
 const min::op min::force_pgen
     ( min::op::SET_PRINT_OP_FLAGS,
       min::FORCE_PGEN );

@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 21, 2019}
+\date{February 22, 2019}
  
 \maketitle
 
@@ -8818,6 +8818,8 @@ following printer parameters:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_BREAKS}
+\LABEL{MIN::DISABLE_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
 \LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{tabular}\end{indpar}
@@ -9169,6 +9171,12 @@ a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 This flag forces the \TT{min::leading} and \TT{min::trailing}
 printer operations to output a single space character.
 See \pagref{FORCE_SPACE}.
+
+\item[\ttmkey{DISABLE\_BREAKS}%
+    {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+This flag disables breaking quoted strings and breakable strings.
+See \pagref{MIN::PRINT_QUOTED_UNICODE}
+and \pagref{MIN::PRINT_BREAKABLE_UNICODE}.
 
 \item[\ttmkey{FORCE\_PGEN}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -9710,6 +9718,10 @@ following printer operations:
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
 \LABEL{MIN::NOFORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{disable\_breaks}
+\LABEL{MIN::DISABLE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_breaks}
+\LABEL{MIN::NODISABLE_BREAKS} \\
 \verb|const min::op min::| & \MINKEY{force\_pgen}
 \LABEL{MIN::FORCE_PGEN} \\
 \verb|const min::op min::| & \MINKEY{noforce\_pgen}
@@ -20395,6 +20407,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.4in}
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_SPACE}
 \LABEL{MIN::FORCE_SPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_BREAKS}
+\LABEL{MIN::DISABLE_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
 \LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{TABULAR}
@@ -20761,6 +20775,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::FORCE_SPACE} \\
 \verb|const min::op min::| & \MINKEY{noforce\_space}
 \LABEL{MIN::NOFORCE_SPACE} \\
+\verb|const min::op min::| & \MINKEY{disable\_breaks}
+\LABEL{MIN::DISABLE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_breaks}
+\LABEL{MIN::NODISABLE_BREAKS} \\
 \verb|const min::op min::| & \MINKEY{force\_pgen}
 \LABEL{MIN::FORCE_PGEN} \\
 \verb|const min::op min::| & \MINKEY{noforce\_pgen}
