@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 26 07:38:30 EST 2017
+// Date:	Fri Feb 22 03:47:44 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2819,6 +2819,22 @@ void test_printer ( void )
     min::print_cstring
         ( printer, "...",
           min::standard_str_format )
+	<< min::eol;
+    min::print_cstring
+        ( printer, "this is a very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+	           " very, very, very, very, very,"
+		   " long string",
+	  min::quote_all_str_format )
 	<< min::eol;
 
     printer << min::bom;

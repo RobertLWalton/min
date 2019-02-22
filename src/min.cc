@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 02:56:39 EST 2019
+// Date:	Fri Feb 22 03:37:24 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10291,6 +10291,7 @@ min::printer operator <<
 	printer->line_break.offset =
 	    printer->file->buffer->length;
 	printer->line_break.column = printer->column;
+	printer->state &= ~ min::BREAK_AFTER;
 	return printer;
     case min::op::LEFT:
         if (   printer->column
@@ -11043,12 +11044,19 @@ min::printer print_quoted_unicode
     MIN_ASSERT ( postfix_columns > 0,
                  "str_postfix ustring_columns"
 		 " is zero" );
+    min::uns32 break_begin_columns =
+        ( sf->str_break_begin == NULL ? 0 :
+	  min::ustring_columns ( sf->str_break_begin ) );
+    min::uns32 break_end_columns =
+        ( sf->str_break_end == NULL ? 0 :
+	  min::ustring_columns ( sf->str_break_end ) );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
         - line_break.indent
 	- prefix_columns
-        - postfix_columns;
+        - postfix_columns
+	- break_end_columns;
     if ( reduced_width < 10 ) reduced_width = 10;
 
     min::uns32 postfix_length =
@@ -11082,23 +11090,15 @@ min::printer print_quoted_unicode
 	if ( length == 0 ) break;
 
 	min::print_ustring ( printer, qf.str_postfix );
+	min::print_ustring
+	        ( printer, sf->str_break_begin );
 	min::print_space ( printer );
 	printer << min::set_break;
-	if ( qf.str_concatenator != NULL )
-	{
-	    min::print_ustring
-	        ( printer, qf.str_concatenator );
-	    min::print_space ( printer );
-	}
+	min::print_ustring
+	        ( printer, sf->str_break_end );
 	min::print_ustring ( printer, qf.str_prefix );
 
-	min::uns32 cat_columns =
-	      min::ustring_columns
-		  ( qf.str_concatenator );
-	MIN_ASSERT ( cat_columns > 0,
-	             "str_concatenator ustring_columns"
-		     " is zero" );
-	width = reduced_width - 1 - cat_columns;
+	width = reduced_width - break_begin_columns;
     }
     min::print_ustring ( printer, qf.str_postfix );
 
@@ -11696,12 +11696,13 @@ const min::quote_format min::standard_quote_format =
     (min::ustring) "\x01\x01" "\"",
     (min::ustring) "\x01\x01" "\"",
     (min::ustring) "\x03\x03" "<Q>",
-    (min::ustring) "\x01\x01" "#"
 };
 
 static min::str_format quote_separator_str_format =
 {
     min::quote_separator_str_classifier,
+    (min::ustring) "\x01\x01" "#",
+    (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     0
 };
@@ -11713,6 +11714,8 @@ static min::str_format
     quote_separator_and_mark_str_format =
 {
     min::quote_separator_and_mark_str_classifier,
+    (min::ustring) "\x01\x01" "#",
+    (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     0
 };
@@ -11723,6 +11726,8 @@ const min::str_format *
 static min::str_format quote_all_str_format =
 {
     min::quote_all_str_classifier,
+    (min::ustring) "\x01\x01" "#",
+    (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     min::MIN_ID_STRLEN
 };
@@ -11732,6 +11737,8 @@ const min::str_format * min::quote_all_str_format =
 static min::str_format standard_str_format =
 {
     min::standard_str_classifier,
+    (min::ustring) "\x01\x01" "#",
+    (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     min::MIN_ID_STRLEN
 };

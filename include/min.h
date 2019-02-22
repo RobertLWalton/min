@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 02:55:22 EST 2019
+// Date:	Fri Feb 22 03:37:44 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12921,7 +12921,6 @@ namespace min {
 	min::ustring		str_prefix;
 	min::ustring		str_postfix;
 	min::ustring		str_postfix_replacement;
-	min::ustring		str_concatenator;
     };
 
     extern const min::quote_format
@@ -12930,7 +12929,9 @@ namespace min {
     struct str_format
     {
 
-        const min::str_classifier   str_classifier;
+        min::str_classifier         str_classifier;
+	min::ustring		    str_break_begin;
+	min::ustring		    str_break_end;
 	min::quote_format 	    quote_format;
 	min::uns32		    id_strlen;
     };
