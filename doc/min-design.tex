@@ -11673,13 +11673,13 @@ the string is printed as is without quoting or breaking the string
 into parts.
 Otherwise \TT{str\_\EOL format->\EOL str\_\EOL classifier} is used
 to compute the string class of the string.  If this string class has the
-\TT{min::\EOL NEEDS\_\EOL QUOTES} flag or does \underline{not} have the
+\minkey{NEEDS\_QUOTES} flag or does \underline{not} have the
 \TT{min::\EOL IS\_\EOL GRAPHIC} flag, the string is printed by
 the \TT{min::\EOL print\_\EOL quoted\_\EOL unicode} function
 (\pagref{MIN::PRINT_QUOTED_UNICODE}) with surrounding quotes
 and special representations of control characters.  Otherwise
 if the string class has the
-\TT{min::\EOL CAN\_\EOL BREAK} flag, the string is printed by
+\minkey{IS\_BREAKABLE} flag, the string is printed by
 the \TT{min::\EOL print\_\EOL breakable\_\EOL unicode} function
 (\pagref{MIN::PRINT_BREAKABLE_UNICODE}) that may break the string
 into parts.
@@ -11690,10 +11690,9 @@ is considered to be a print item (\pagref{PRINT-ITEM}).
 As such its string class is computed by
 \TT{str\_\EOL format->\EOL str\_\EOL classifier} if \TT{str\_\EOL format}
 is not \TT{NULL}, and by \TT{min::\EOL null\_\EOL str\_\EOL classifier}
-otherwise.
-A space may or may not be inserted before the string according to
-the value of this string class and what has been printed before the
-string: see \itemref{LEADING-AND-TRAILING-SEPARATORS}.
+otherwise, and this class is used to determine whether or not to
+insert a space before the string:
+see \itemref{LEADING-AND-TRAILING-SEPARATORS}.
 
 The following function prints a string with surrounding quotes:
 
@@ -11706,23 +11705,42 @@ The following function prints a string with surrounding quotes:
 \LABEL{MIN::PRINT_QUOTED_UNICODE} \\
 \end{tabular}\end{indpar}
 
+This function assigns the string class containing just
+the \TT{IS\_\EOL GRAPHIC} flag to the whole quoted string
+for the purpose of determining whether a space is to be inserted
+before and/or after
+the quoted string: see \itemref{LEADING-AND-TRAILING-SEPARATORS}.
 
-Here \TT{str\_format->quote\_format} determines how the string is quoted,
-and neither this nor \TT{str\_\EOL format} may be \TT{NULL}.
-The quoted string is preceded
-by the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and followed by the
-\TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the quoted string itself
+Then this function uses \TT{str\_format->quote\_format}
+to determine how the string is quoted.  Neither this nor
+\TT{str\_\EOL format} may be \TT{NULL}.
+The quoted string is begins
+with the \TT{str\_\EOL prefix} member (e.g., \TT{"}) and ends with the
+\TT{str\_\EOL postfix} member (e.g., \TT{"}).  If the string being
+quoted itself
 contains a copy of the \TT{str\_\EOL postfix} member (e.g., \TT{"}),
 that copy is replaced by the \TT{str\_\EOL postfix\_\EOL replacement}
-member (e.g., \TT{<Q>}).  If the string is too long to fit in the
+member (e.g., \TT{<Q>}).
+
+The quoted string is printed without any breaks inside it (break
+control is suspended).  However, if
+the quoted string is too long to fit in the
 columns between \TT{printer->\EOL line\_\EOL break.indent}
 and \TT{printer->\EOL line\_\EOL break.line\_\EOL length}
-(\pagref{LINE-LENGTH}), and if
-the \TT{str\_\EOL concatenator} member is not \TT{NULL}, then
-the quoted string is broken into multiple quoted strings, each
-fitting within the columns, separated by copies of
-\TT{str\_\EOL concatenator} (e.g., \TT{\#})
-surrounded by single spaces.
+(\pagref{LINE-LENGTH}), and if the printer
+\TT{print\_\EOL format.op\_\EOL flags}
+\TT{min::\EOL DISABLE\_\EOL STR\_\EOL BREAKS} flag is not set, then
+the quoted string is broken into multiple quoted partial strings, each
+fitting within the columns, with all quoted partial strings but the
+last immediately followed by
+\TT{str\_\EOL format->\EOL str\_\EOL break\_\EOL begin}
+(e.g., \TT{\#})
+and all quoted partial strings but the first immediately preceded by
+\TT{str\_\EOL format->\EOL str\_\EOL break\_\EOL end}
+(e.g., \TT{\#}).
+A single space is inserted between consecutive
+quoted partial strings (e.g., between the two \TT{\#}'s),
+with a break after each of these spaces.
 
 Lastly, the characters of the string being quoted (but \underline{not}
 those of \TT{str\_\EOL format->\EOL quote\_\EOL format.str\_\ldots})
@@ -11733,6 +11751,47 @@ E.g., only graphic characters may be allowed to print as themselves,
 and everything else may be represented by a character name
 (or if the \TT{min::\EOL DISPLAY\_\EOL PICTURE} printer operation
 flag is set, by a character picture).
+
+The following function prints a string that can be broken into
+parts by using the string format \TT{str\_\EOL break\_\EOL begin}
+and \TT{str\_\EOL break\_\EOL end} members.  In this case the
+string should be a word, number, or mark consisting of all graphic
+characters.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{print\_breakable\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format * str_format )|
+\LABEL{MIN::PRINT_BREAKABLE_UNICODE} \\
+\end{tabular}\end{indpar}
+
+This function assigns the string class containing just
+the \TT{IS\_\EOL GRAPHIC} flag to the whole string
+for the purpose of determining whether a space is to be inserted
+before and/or after
+the string: see \itemref{LEADING-AND-TRAILING-SEPARATORS}.
+
+The string is printed without any breaks inside it (break
+control is suspended).  However, if
+the string is too long to fit in the
+columns between \TT{printer->\EOL line\_\EOL break.indent}
+and \TT{printer->\EOL line\_\EOL break.line\_\EOL length}
+(\pagref{LINE-LENGTH}), and if the printer
+\TT{print\_\EOL format.op\_\EOL flags}
+\TT{min::\EOL DISABLE\_\EOL STR\_\EOL BREAKS} flag is not set, then
+the string is broken into multiple partial strings, each
+fitting within the columns, with all partial strings but the
+last immediately followed by
+\TT{str\_\EOL format->\EOL str\_\EOL break\_\EOL begin}
+(e.g., \TT{\#})
+and all partial strings but the first immediately preceded by
+\TT{str\_\EOL format->\EOL str\_\EOL break\_\EOL end}
+(e.g., \TT{\#}).
+A single space is inserted between consecutive
+partial strings (e.g., between the two \TT{\#}'s),
+with a break after each of these spaces.
 
 The following function
 prints a UTF-8 encoded \TT{const char *}
@@ -21691,6 +21750,15 @@ These are in \verb|min_parameters.h|.
     \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
     \verb|  const min::str_format * str_format )|
 \LABEL{MIN::PRINT_QUOTED_UNICODE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::printer min::| & \MINKEY{print\_breakable\_unicode}\ARGBREAK
+    \verb|( min::printer printer,|\ARGBREAK
+    \verb|  min::unsptr n,|\ARGBREAK
+    \verb|  min::ptr<const min::Uchar> p,|\ARGBREAK
+    \verb|  const min::str_format * str_format )|
+\LABEL{MIN::PRINT_BREAKABLE_UNICODE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
