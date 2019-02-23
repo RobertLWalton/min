@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 14:28:22 EST 2019
+// Date:	Sat Feb 23 05:27:08 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10773,6 +10773,7 @@ min::printer MINT::print_unicode
 	  min::unsptr & n,
 	  min::ptr<const min::Uchar> & p,
 	  min::uns32 & width,
+	  const min::break_control * break_control,
 	  const min::display_control * display_control,
 	  const min::Uchar * substring,
 	  min::unsptr substring_length,
@@ -10784,6 +10785,9 @@ min::printer MINT::print_unicode
 
     min::support_control sc =
         printer->print_format.support_control;
+    min::break_control bc =
+        break_control != NULL ? * break_control :
+        printer->print_format.break_control;
     min::display_control dc =
         display_control != NULL ? * display_control :
         printer->print_format.display_control;
@@ -10793,8 +10797,6 @@ min::printer MINT::print_unicode
         dc.display_char &= ~ min::IS_NON_GRAPHIC;
         dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
     }
-    min::break_control bc =
-        printer->print_format.break_control;
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
 
@@ -11078,10 +11080,6 @@ min::printer print_quoted_unicode
     min::uns32 width =
         ( printer->state & min::DISABLE_STR_BREAKS ?
 	  0xFFFFFFFF : reduced_width );
-    min::break_control break_control_save =
-        printer->print_format.break_control;
-    printer->print_format.break_control =
-        min::no_auto_break_break_control;
     if ( printer->state & min::BREAK_AFTER )
 	printer << min::set_break;
     min::print_ustring ( printer, qf.str_prefix );
@@ -11089,6 +11087,8 @@ min::printer print_quoted_unicode
     {
 	MINT::print_unicode
 	    ( printer, length, p, width,
+		       & min::
+		            no_auto_break_break_control,
 	               & printer->print_format
 		                .quoted_display_control,
 	               postfix_string,
@@ -11109,8 +11109,75 @@ min::printer print_quoted_unicode
 	width = reduced_width - break_begin_columns;
     }
     min::print_ustring ( printer, qf.str_postfix );
-    printer->print_format.break_control =
-        break_control_save;
+
+    return printer;
+}
+
+min::printer print_breakable_unicode
+	( min::printer printer,
+	  min::unsptr length,
+	  min::ptr<const min::Uchar> p,
+	  const min::str_format * sf )
+{
+    min::print_item_preface
+        ( printer, min::IS_GRAPHIC );
+
+    min::line_break_stack line_break_stack =
+        printer->line_break_stack;
+
+    min::line_break line_break = printer->line_break;
+        // We copy this from its relocatable position
+	// in the stack so we do not have to use a
+	// min::ptr to access it.
+    for ( min::uns32 i = 0;
+          i < line_break_stack->length; ++ i )
+    {
+        if (   (&line_break_stack[i])->column
+	     > (&line_break_stack[i])->indent
+	     &&
+                (&line_break_stack[i])->offset
+	     >= printer->file->end_offset )
+	{
+	    line_break = line_break_stack[i];
+	    break;
+	}
+    }
+
+    min::uns32 break_begin_columns =
+        ( sf->str_break_begin == NULL ? 0 :
+	  min::ustring_columns ( sf->str_break_begin ) );
+    min::uns32 break_end_columns =
+        ( sf->str_break_end == NULL ? 0 :
+	  min::ustring_columns ( sf->str_break_end ) );
+
+    min::uns32 reduced_width =
+          printer->line_break.line_length
+        - line_break.indent
+	- break_end_columns;
+    if ( reduced_width < 10 ) reduced_width = 10;
+
+    min::uns32 width =
+        ( printer->state & min::DISABLE_STR_BREAKS ?
+	  0xFFFFFFFF : reduced_width );
+    if ( printer->state & min::BREAK_AFTER )
+	printer << min::set_break;
+    while ( length > 0 )
+    {
+	MINT::print_unicode
+	    ( printer, length, p, width,
+	      & min::no_auto_break_break_control );
+
+	if ( length == 0 ) break;
+
+	min::print_ustring
+	        ( printer, sf->str_break_begin );
+	min::print_space ( printer );
+	printer << min::set_break;
+	min::print_ustring
+	        ( printer, sf->str_break_end );
+
+	width = reduced_width - break_begin_columns;
+    }
 
     return printer;
 }
@@ -11310,13 +11377,19 @@ min::printer min::print_unicode
 	         printer->print_format
 		         .support_control,
 	         n, p, sf->str_classifier );
-    if (    sf != NULL
-         && ( ( str_class & min::NEEDS_QUOTES )
-	      ||
-	      ! ( str_class & min::IS_GRAPHIC ) ) )
-	return ::print_quoted_unicode
-	    ( printer, n, p, sf );
-    else if ( n == 0 ) return printer;
+    if ( sf != NULL )
+    {
+        if ( ( str_class & min::NEEDS_QUOTES )
+	     ||
+	     ! ( str_class & min::IS_GRAPHIC ) )
+	    return ::print_quoted_unicode
+		( printer, n, p, sf );
+	else if ( str_class & min::IS_BREAKABLE )
+	    return ::print_breakable_unicode
+		( printer, n, p, sf );
+    }
+
+    if ( n == 0 ) return printer;
     else
     {
 	min::uns32 width = 0xFFFFFFFF;

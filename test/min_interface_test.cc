@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 03:47:44 EST 2019
+// Date:	Sat Feb 23 06:13:00 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2866,6 +2866,19 @@ void test_printer ( void )
 
 
     printer << min::eom;
+
+    printer << min::pgen
+                   ( min::new_str_gen
+			 ( "this-is-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "very-very-very-very-"
+			   "long-symbol" ) )
+            << min::eol;
 
     min::gen lab1[2] =
         { min::new_num_gen ( 1.234 ),

@@ -1542,6 +1542,9 @@ name
 "this<SP>is<SP>a<SP>string<SP>with<SP>a<SP>quote<SP>(<Q>)"
 "this␣is␣a␣string␣with␣a␣quote␣(<Q>)"
 this is a string with a quote (")
+this-is-very-very-very-very-very-very-very-very-very-very-very-very#
+    #-very-very-very-very-very-very-very-very-very-very-very-very-very-#
+    #very-very-very-very-very-very-long-symbol
 [< 5.6 [< 1.234 "str 1" >] "str 2" >]
 A "," B / [< A "," B >]
 MISSING
@@ -2948,6 +2951,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_flags ( ap, codes1, 0 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 12 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 TEST REVERSE ATTRIBUTE VALUES ( "label1", "label2", 1)

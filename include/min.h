@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 22 11:46:57 EST 2019
+// Date:	Sat Feb 23 05:25:22 EST 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12496,6 +12496,8 @@ namespace min {
 		  min::unsptr & n,
 		  min::ptr<const min::Uchar> & p,
 		  min::uns32 & width,
+		  const min::break_control *
+		      break_control = NULL,
 		  const min::display_control *
 		      display_control = NULL,
 		  const min::Uchar * substring = NULL,
