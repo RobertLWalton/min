@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 23 05:25:22 EST 2019
+// Date:	Sun Mar 10 04:19:28 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6611,9 +6611,15 @@ namespace min {
             ( min::id_map map,
 	      min::gen v,
 	      const min::gen_format * f = NULL );
-    void insert
-            ( min::id_map map, min::gen g,
-	      min::uns32 id );
+    inline min::gen get
+	    ( min::id_map map, min::uns32 id )
+    {
+        if ( id >= map->length ) return min::NONE();
+	else			 return map[id];
+    }
+    void put ( min::id_map map, min::uns32 id,
+               min::gen g );
+    void clear ( min::id_map map, min::uns32 id );
 }
 
 // UNICODE Name Tables

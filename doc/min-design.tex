@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 23, 2019}
+\date{March 10, 2019}
  
 \maketitle
 
@@ -2941,7 +2941,7 @@ Neither stub may be the target of an existing
 \TT{min::obj\_vec\_\ldots{}ptr}.
 
 Stubs are most often swapped when one of the stubs has the
-\TT{PREALLOCATED} (\pagref{MIN::PREALLOCATED}) type.
+\TT{PREALLOCATED} type (see \pagref{PREALLOCATED_ID} for an example).
 Functions for this type are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2958,7 +2958,8 @@ Functions for this type are:
 
 The \TT{min::new\_preallocate\_gen} function returns a
 \TT{min::gen} value pointing at a new stub
-of \TT{min::PREALLOCATED} type that stores the given \TT{id}.
+of \TT{min::PREALLOCATED}\label{MIN::PREALLOCATED}
+type that stores the given \TT{id}.
 When a preallocated stub is created from an identifier input
 from a file, the ID of the identifier can be recorded in the
 preallocated stub.  Then the preallocated stub can be used
@@ -8443,8 +8444,6 @@ Creation and use of id maps is accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::ref<const min::gen> map| & \TTBMKEY{id}{of {\tt min::id\_map}}
-\LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
 \verb|const min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
@@ -8476,11 +8475,25 @@ Creation and use of id maps is accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
-    \verb|  min::gen g,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::INSERT_OF_ID_MAP} \\
+\LABEL{MIN::GET_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{put\REL}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::uns32 id,|\ARGBREAK
+    \verb|  min::gen g )|
+\LABEL{MIN::PUT_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{clear}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::uns32 id )|
+\LABEL{MIN::CLEAR_OF_ID_MAP} \\
 \end{tabular}\end{indpar}
 
 If \TT{map} is a \TT{min::\EOL id\_\EOL map},
@@ -8550,15 +8563,34 @@ in the the form
 This operation outputs smallest identifiers first and increments
 \TT{map->next} until it equals \TT{map->length}.
 
-If identifiers are being input, \TT{map[id]} can be used
-to find the \TT{min::gen} value
-associated with \TT{id}, unless there is no such value.
-If there is no value associated with \TT{id}, a \TT{min::gen}
-value pointing at a stub of \minkey{PREALLOCATED}\LABEL{MIN::PREALLOCATED}
-type can be created and inserted into the map with the \TT{min::\EOL insert}
-function, which will increase the length of the map if necessary to
-accommodate \TT{id}.  Later the contents of the stub can be set by using
-\TT{MUP::stub\_swap}: see \itemref{SWAPPING-STUBS}.
+If identifiers are being input, \TT{min::get(map,id)} can be used
+to return the \TT{min::gen} value associated with \TT{id}.  If there
+is no such value, \TT{min::\EOL get} will return \TT{min::\EOL NONE()},
+and the \TT{min::\EOL put} function can be used to associate a
+\TT{min::gen} value with {\tt id}.  The \TT{min::put} function
+can also be used to change the value associate with \TT{id}, but
+it cannot be used to change the value to \TT{min::\EOL NONE()}.
+To do this last, use the \TT{min::\EOL clear} function.
+
+If there is no value associated with \TT{id}, the
+\TT{min::\EOL new\_\EOL preallocate\_\EOL gen} function
+(\pagref{MIN::NEW_PREALLOCATED_GEN}) can be used to create
+a preallocated stub that becomes the value associated with \TT{id}
+by \TT{min::\EOL put}.%
+\label{PREALLOCATED_ID}
+Later the contents of the stub can be set by using
+\TT{MUP::stub\_swap} (\itemref{SWAPPING-STUBS}) if the value
+is an object, even if other data already points at the
+preallocated stub.
+
+If instead the value to be associated with the identifier is not
+an object, but, for example, it is a MIN string, the value can be
+reset using \TT{min::\EOL id\_\EOL of\_\EOL preallocated} to find
+the identifier and then using \TT{min::\EOL put} to change the
+associated value.
+However, in this case the preallocated value \underline{must not}
+be pointed at by other data when 
+\TT{min::\EOL put} is used.
 
 The \TT{min::find} function is used internally by \TT{min::map} to find
 out which objects or long strings already have an identifier.
@@ -20260,8 +20292,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{3.2in}
-\verb|min::ref<const min::gen> map| & \TTBMKEY{id}{of {\tt min::id\_map}}
-\LABEL{MIN::ID_MAP_[]} \\
 \verb|const min::uns32 map->| & \TTMKEY{length}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_LENGTH} \\
 \verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
@@ -20284,11 +20314,19 @@ These are in \verb|min_parameters.h|.
     \verb|  min::gen g,|\ARGBREAK
     \verb|  const min::gen_format * f = NULL )|
 \LABEL{MIN::MAP_OF_ID_MAP} \\
-\verb|void min::| & \MINKEY{insert\REL}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
-    \verb|  min::gen g,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::INSERT_OF_ID_MAP} \\
+\LABEL{MIN::GET_OF_ID_MAP} \\
+\verb|void min::| & \MINKEY{put\REL}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::uns32 id,|\ARGBREAK
+    \verb|  min::gen g )|
+\LABEL{MIN::PUT_OF_ID_MAP} \\
+\verb|void min::| & \MINKEY{clear}\ARGBREAK
+    \verb|( min::id_map map,|\ARGBREAK
+    \verb|  min::uns32 id )|
+\LABEL{MIN::CLEAR_OF_ID_MAP} \\
 \end{TABULAR}
 
 \end{indpar}

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 23 05:27:08 EST 2019
+// Date:	Sun Mar 10 04:22:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3471,10 +3471,12 @@ static void new_hash_table
 	// number generator with modulus 2^32.
     map_insptr->hash_max_offset = 0;
 
+    * (L *) & map_insptr->occupied = 0;
     for ( L id = 0; id < map->length; ++ id )
     {
 	min::gen g = map[id];
 	if ( g == min::NONE() ) continue;
+	++ * (L *) & map_insptr->occupied;
 
 	L h = ::hash ( map, g );
 	L offset = 0;
@@ -3952,12 +3954,12 @@ inline void map
 }
 
 template < typename L >
-inline void insert
+inline void put
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L> > map,
-	  min::gen g,
-	  L id )
+	  L id,
+	  min::gen g )
 {
     typedef min::packed_vec_insptr
     		< min::gen,
@@ -3977,6 +3979,12 @@ inline void insert
         min::push(map_insptr) = min::NONE();
     map_insptr[id] = g;
     ++ * (L *) & map_insptr->occupied;
+        // We increment occupied even if map[id] was
+	// not previously NONE, in order to indicate
+	// there will now be both a new entry in the
+	// hash table and a stale entry.  Occupied
+	// will be recomputed when hash table is
+	// remade.
 
     hash_table_insptr hash_table = map->hash_table;
 
@@ -4000,6 +4008,31 @@ inline void insert
     hash_table[h] = id;
     if ( map->hash_max_offset < offset )
         map_insptr->hash_max_offset = offset;
+
+    // Its OK if the previous map[id] value was not
+    // NONE and its entry is still in the hash table.
+    // Such stale hash table entries do no harm except
+    // for occupying space which will be collected
+    // when the hash table is resized.
+}
+
+template < typename L >
+inline void clear
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L> > map,
+	  L id )
+{
+    if ( id >= map->length ) return;
+
+    typedef min::packed_vec_insptr
+    		< min::gen,
+		  min::id_map_header<L>, L >
+        id_map_insptr;
+
+    id_map_insptr map_insptr = (id_map_insptr) map;
+
+    map_insptr[id] = min::NONE();
 }
 
 min::id_map min::init
@@ -4027,11 +4060,16 @@ void min::map
     return ::map ( map, v, f );
 }
 
-void min::insert
-	( min::id_map map, min::gen g,
-	  min::uns32 id )
+void min::put
+	( min::id_map map, min::uns32 id, min::gen g )
 {
-    ::insert ( map, g, id );
+    ::put ( map, id, g );
+}
+
+void min::clear
+	( min::id_map map, min::uns32 id )
+{
+    ::clear ( map, id );
 }
 
 

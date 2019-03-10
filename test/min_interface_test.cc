@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 23 06:13:00 EST 2019
+// Date:	Sun Mar 10 04:22:38 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2483,7 +2483,7 @@ void test_identifier_map ( void )
         ( min::find_or_add ( ::id_map, g1 ) == 1 );
     MIN_CHECK
         ( min::find ( ::id_map, g2 ) == 0 );
-    min::insert ( ::id_map, g2, 3 );
+    min::put ( ::id_map, 3, g2 );
     MIN_CHECK
         ( min::find ( ::id_map, g3 ) == 0 );
     MIN_CHECK
