@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 10 04:19:28 EDT 2019
+// Date:	Mon Mar 11 01:12:58 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1742,7 +1742,7 @@ namespace min {
 	return (uns8 *) & (p->*d) - (uns8 *) p;
     }
 
-    min::gen new_preallocated_gen ( min::uns64 id );
+    min::gen new_preallocated_gen ( min::uns32 id );
 
     inline bool is_preallocated ( min::gen g )
     {
@@ -1753,14 +1753,40 @@ namespace min {
 	    return min::type_of ( s ) == PREALLOCATED;
     }
 
-    inline min::uns64 id_of_preallocated ( min::gen g )
+    inline min::uns32 id_of_preallocated ( min::gen g )
     {
 	const min::stub * s = min::stub_of ( g );
 	if ( s == NULL ) return 0;
 	else if ( min::type_of ( s ) != PREALLOCATED )
 	    return 0;
 	else
-	    return unprotected::value_of ( s );
+	    return (min::uns32)
+	           unprotected::value_of ( s );
+    }
+
+    inline min::uns32 count_of_preallocated
+	    ( min::gen g )
+    {
+	const min::stub * s = min::stub_of ( g );
+	if ( s == NULL ) return 0;
+	else if ( min::type_of ( s ) != PREALLOCATED )
+	    return 0;
+	else
+	    return (min::uns32)
+	           (    unprotected::value_of ( s )
+		     >> 32 );
+    }
+
+    inline void increment_preallocated ( min::gen g )
+    {
+	min::stub * s = unprotected::stub_of ( g );
+	MIN_REQUIRE ( s != NULL );
+	MIN_ASSERT ( min::type_of ( s ) == PREALLOCATED,
+		     "gen argument type is not"
+		     " PREALLOCATED" );
+	unprotected::set_value_of
+	    ( s, unprotected::value_of ( s )
+	         + ( 1ull << 32 ) );
     }
 }
 

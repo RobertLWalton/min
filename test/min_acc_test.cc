@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul 17 14:02:54 EDT 2017
+// Date:	Mon Mar 11 01:34:07 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -154,6 +154,11 @@ void test_acc_interface ( void )
     MIN_CHECK ( min::is_preallocated ( gen_pre ) );
     MIN_CHECK
         ( min::id_of_preallocated ( gen_pre ) == 55 );
+    MIN_CHECK
+        ( min::count_of_preallocated ( gen_pre ) == 1 );
+    min::increment_preallocated ( gen_pre );
+    MIN_CHECK
+        ( min::count_of_preallocated ( gen_pre ) == 2 );
 
     const min::stub * stub_obj1 = MUP::stub_of ( obj1 );
     const min::stub * stub_obj2 = MUP::stub_of ( obj2 );

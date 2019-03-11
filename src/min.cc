@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 10 04:22:12 EDT 2019
+// Date:	Mon Mar 11 01:38:24 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -774,13 +774,14 @@ void MINT::thread_interrupt ( void ) {}  // TBD
 // Allocator/Collector/Compactor 
 // -----------------------------
 
-min::gen min::new_preallocated_gen ( min::uns64 id )
+min::gen min::new_preallocated_gen ( min::uns32 id )
 {
     min::stub * s =
 	min::unprotected::new_acc_stub();
     min::unprotected::set_type_of
 	( s, min::PREALLOCATED );
-    min::unprotected::set_value_of ( s, id );
+    min::unprotected::set_value_of
+        ( s, (1ull << 32) + (min::uns64) id );
     return min::new_stub_gen ( s );
 }
 
@@ -11086,10 +11087,12 @@ min::printer print_quoted_unicode
 		 " is zero" );
     min::uns32 break_begin_columns =
         ( sf->str_break_begin == NULL ? 0 :
-	  min::ustring_columns ( sf->str_break_begin ) );
+	  min::ustring_columns
+	      ( sf->str_break_begin ) );
     min::uns32 break_end_columns =
         ( sf->str_break_end == NULL ? 0 :
-	  min::ustring_columns ( sf->str_break_end ) );
+	  min::ustring_columns
+	      ( sf->str_break_end ) );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
@@ -11183,10 +11186,12 @@ min::printer print_breakable_unicode
 
     min::uns32 break_begin_columns =
         ( sf->str_break_begin == NULL ? 0 :
-	  min::ustring_columns ( sf->str_break_begin ) );
+	  min::ustring_columns
+	      ( sf->str_break_begin ) );
     min::uns32 break_end_columns =
         ( sf->str_break_end == NULL ? 0 :
-	  min::ustring_columns ( sf->str_break_end ) );
+	  min::ustring_columns
+	      ( sf->str_break_end ) );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
@@ -11673,8 +11678,12 @@ std::ostream & operator <<
     }
     else if ( min::is_preallocated ( g ) )
     {
-        min::uns64 id = min::id_of_preallocated ( g );
-	return out << "PREALLOCATED(" << id << ")";
+        min::uns32 id =
+	    min::id_of_preallocated ( g );
+        min::uns32 count =
+	    min::count_of_preallocated ( g );
+	return out << "PREALLOCATED("
+	           << count << "*" << id << ")";
     }
     else if ( min::is_stub ( g ) )
     {
@@ -13531,11 +13540,15 @@ min::printer min::standard_pgen
 
     else if ( min::is_preallocated ( v ) )
     {
-        min::uns64 id = min::id_of_preallocated ( v );
+        min::uns32 id =
+	    min::id_of_preallocated ( v );
+        min::uns32 count =
+	    min::count_of_preallocated ( v );
 	char buffer[100];
 	min::uns32 n =
 	    sprintf ( buffer,
-	              "PREALLOCATED(%llu)", id );
+	              "PREALLOCATED(%u*%u)",
+		      count, id );
 	return min::print_item
 	    ( printer, buffer, n, n );
     }

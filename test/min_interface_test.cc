@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 10 04:22:38 EDT 2019
+// Date:	Mon Mar 11 01:44:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2926,6 +2926,12 @@ void test_printer ( void )
                     ( min::MISSING(),
 		      min::top_gen_format )
             << min::eol;
+
+    min::gen preallocated_gen =
+        min::new_preallocated_gen ( 123 );
+    printer << preallocated_gen << min::eol;
+    min::increment_preallocated ( preallocated_gen );
+    printer << preallocated_gen << min::eol;
 
     printer << min::eom;
     

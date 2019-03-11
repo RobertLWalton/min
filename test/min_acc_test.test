@@ -83,6 +83,17 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     min::id_of_preallocated ( gen_pre ) == 55 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
+    min::count_of_preallocated ( gen_pre ) == 1 => true
+ASSERT SUCCEEDED: ../include/min.h:XXXX:
+    in void min::increment_preallocated(min::gen):
+    s != __null => true
+ASSERT SUCCEEDED: ../include/min.h:XXXX:
+    in void min::increment_preallocated(min::gen):
+    min::type_of ( s ) == PREALLOCATED => true
+    gen argument type is not PREALLOCATED
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
+    min::count_of_preallocated ( gen_pre ) == 2 => true
+ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp1[0] == num1 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     vp2[0] == num2 => true
