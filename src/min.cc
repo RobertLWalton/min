@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 01:38:24 EDT 2019
+// Date:	Fri Mar 15 21:33:36 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8462,11 +8462,10 @@ void MINT::set
 	    else
 	    {
 		start_sublist ( ap.lp, ap.dlp );
-		for ( c = current ( ap.lp );
-		         ! is_list_end ( c )
-		      && ! is_sublist ( c )
-		      && ! is_control_code ( c );
-		    )
+		while ( c = current ( ap.lp ),
+		           ! is_list_end ( c )
+		        && ! is_sublist ( c )
+		        && ! is_control_code ( c ) )
 		    remove ( ap.lp, 1 );
 	    }
 	}
