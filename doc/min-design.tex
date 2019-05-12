@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 11, 2019}
+\date{May 12, 2019}
  
 \maketitle
 
@@ -15326,7 +15326,8 @@ or returns the special value
 has more than one value.
 
 The \TT{min::\EOL get\_\EOL flags}
-function returns the control codes in the flag set pointed at and stores
+function returns the control codes in the flag set
+(see Attribute Flags, \pagref{ATTRIBUTE-FLAGS}) pointed at and stores
 these in the \TT{min::gen} vector `\TT{out}'.
 The total number of control codes in the flag set is returned
 (regardless of the value of \TT{n}).
@@ -15800,9 +15801,10 @@ assumed to be unduplicated when removed.
 The \TT{min::\EOL set\_\EOL flags\RESIZE} function sets the control codes
 of the flag set the attribute pointer points at.
 The new control codes are given in the `\TT{in}' vector which
-has length \TT{n}: see the discussion of
-\TT{min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTR}
-for the format of this vector.
+has length \TT{n}: see 
+Attribute Flags, \pagref{ATTRIBUTE-FLAGS},
+for the format of this vector.  The elements of the vector must
+be control codes, as per \TT{min::\EOL is\_\EOL control\_\EOL code}.
 If the previous flag set had more control codes that the new flag
 set, the extra control codes will be retained but will be zeroed.
 If \TT{n} is zero, all existing control codes are zeroed.
@@ -15815,6 +15817,8 @@ and \TT{min::\EOL flip\_\EOL some\_\EOL flags}
 can be used to alter flags.  If the bit corresponding
 to the flag is on in the `\TT{in}' vector, it is set, cleared,
 or flipped, respectively.
+The elements of the vector must
+be control codes, as per \TT{min::\EOL is\_\EOL control\_\EOL code}.
 
 The \TT{min::\EOL set\_\EOL flag\RESIZE},
 \TT{min::\EOL clear\_\EOL flag},
