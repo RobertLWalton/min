@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 12 23:20:29 EDT 2019
+// Date:	Mon May 13 05:39:54 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9981,12 +9981,12 @@ namespace min {
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap );
     template < class vecptr >
-    void attr_info_of
+    bool attr_info_of
 	    ( min::attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap );
     template < class vecptr >
-    void reverse_attr_info_of
+    bool reverse_attr_info_of
 	    ( min::reverse_attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap );
@@ -10083,6 +10083,9 @@ namespace min {
 	void relocate
 		( unprotected::attr_ptr_type
 		      < vecptr > & ap );
+	bool compute_attr_info
+		( min::attr_info & info,
+		  min::list_ptr & lp );
 	template < class vecptr >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
@@ -10523,11 +10526,11 @@ namespace min { namespace unprotected {
 	friend min::gen min::reverse_attr_name_of<>
 		( min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
-	friend void min::attr_info_of<>
+	friend bool min::attr_info_of<>
 		( min::attr_info & info,
 		  min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
-	friend void min::reverse_attr_info_of<>
+	friend bool min::reverse_attr_info_of<>
 		( min::reverse_attr_info & info,
 		  min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
@@ -10906,20 +10909,53 @@ namespace min {
         return ap.reverse_attr_name;
     }
     template < class vecptr >
-    void attr_info_of
+    bool attr_info_of
 	    ( min::attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap )
     {
-        info.value_count = 0;
+	typedef min::unprotected
+	           ::attr_ptr_type<vecptr> ap_type;
+
+	info.name = ap.attr_name;
+	info.value_count = 0;
+	info.flag_count = 0;
+	info.reverse_attr_count = 0;
+	info.value = min::NONE();
+	info.flags = 0;
+
+	switch ( ap.state )
+	{
+	case ap_type::LOCATE_FAIL:
+	case ap_type::INIT:
+	    info.name = min::NONE();
+	    return false;
+	}
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! min::is_sublist ( c ) )
+	{
+	    ++ info.value_count;
+	    info.value = c;
+	    return true;
+	}
+	else if ( c == min::EMPTY_SUBLIST() )
+	    return false;
+	else
+	{
+	    start_sublist ( ap.lp, ap.dlp );
+	    return internal::compute_attr_info
+	    	( info, ap.lp );
+	}
     }
     template < class vecptr >
-    void reverse_attr_info_of
+    bool reverse_attr_info_of
 	    ( min::reverse_attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap )
     {
         info.value_count = 0;
+	return false;
     }
 
     // Access Functions:

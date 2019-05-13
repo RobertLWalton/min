@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 15 21:33:36 EDT 2019
+// Date:	Mon May 13 05:39:41 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7829,7 +7829,7 @@ template bool MINT::test_flag
 // double-arrow-sublist.  Return number of reverse
 // attribute names with non-empty value sets.
 //
-static min::unsptr count_reverse_attrs
+inline min::unsptr count_reverse_attrs
 	( min::list_ptr & lp )
 {
     min::unsptr result = 0;
@@ -7846,6 +7846,53 @@ static min::unsptr count_reverse_attrs
     return result;
 }
 
+bool min::internal::compute_attr_info
+	( min::attr_info & info,
+	  min::list_ptr & lp )
+{
+    min::unsptr flag_count = 0;
+    const min::gen zero_cc =
+	min::new_control_code_gen ( 0 );
+    for ( min::gen c = min::current ( lp );
+	  ! min::is_list_end ( c );
+	  c = min::next ( lp ) )
+    {
+#   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    if ( min::is_sublist ( c ) )
+	    {
+		c = min::next ( lp );
+		if ( min::is_list_end ( c ) )
+		    break;
+	    }
+#   	    endif
+	if ( min::is_sublist ( c ) )
+	    info.reverse_attr_count =
+		count_reverse_attrs ( lp );
+	else if ( min::is_control_code ( c ) )
+	{
+	    min::unsptr shift =
+		flag_count * min::VSIZE;
+	    if ( shift < 64 )
+		info.flags |=
+		    (min::uns64)
+		    MUP::control_code_of ( c )
+		    <<
+		    shift;
+	    ++ flag_count;
+	    if ( c != zero_cc )
+		info.flag_count = flag_count;
+	}
+	else if ( ++ info.value_count == 1 )
+	    info.value = c;
+	else
+	    info.value = min::MULTI_VALUED();
+    }
+
+    return (    info.value_count > 0
+	     || info.flag_count > 0
+	     || info.reverse_attr_count > 0 );
+}
+
 // Called with current(lp) equal to attribute-/node-
 // descriptor for attribute.  Compute counts for
 // attribute in info, and also the value and flags
@@ -7854,8 +7901,8 @@ static min::unsptr count_reverse_attrs
 // zero.
 //
 static bool compute_counts
-	( min::list_ptr & lp,
-	  min::attr_info & info )
+	( min::attr_info & info,
+	  min::list_ptr & lp )
 {
     info.value_count = 0;
     info.flag_count = 0;
@@ -7877,47 +7924,8 @@ static bool compute_counts
         min::list_ptr lpv
 	    ( min::obj_vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
-	min::unsptr flag_count = 0;
-	const min::gen zero_cc =
-	    min::new_control_code_gen ( 0 );
-	for ( c = min::current ( lpv );
-	      ! min::is_list_end ( c );
-	      c = min::next ( lpv ) )
-	{
-#   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		if ( min::is_sublist ( c ) )
-		{
-		    c = min::next ( lpv );
-		    if ( min::is_list_end ( c ) )
-			break;
-		}
-#   	    endif
-	    if ( min::is_sublist ( c ) )
-	        info.reverse_attr_count =
-		    count_reverse_attrs ( lpv );
-	    else if ( min::is_control_code ( c ) )
-	    {
-		min::unsptr shift =
-		    flag_count * min::VSIZE;
-		if ( shift < 64 )
-		    info.flags |=
-			(min::uns64)
-			MUP::control_code_of ( c )
-			<<
-			shift;
-	        ++ flag_count;
-		if ( c != zero_cc )
-	            info.flag_count = flag_count;
-	    }
-	    else if ( ++ info.value_count == 1 )
-	        info.value = c;
-	    else
-		info.value = min::MULTI_VALUED();
-	}
-
-	return (    info.value_count > 0
-		 || info.flag_count > 0
-		 || info.reverse_attr_count > 0 );
+	return min::internal::compute_attr_info
+	    ( info, lpv );
     }
 }
 
@@ -7962,7 +7970,7 @@ static bool compute_counts
 	    labvec[depth] = c;
 	    min::next ( lpv );
 	    min::attr_info info;
-	    if ( compute_counts ( lpv, info ) )
+	    if ( compute_counts ( info, lpv ) )
 	    {
 		info.name = new_label =
 		    min::new_lab_gen
@@ -8008,7 +8016,7 @@ min::unsptr min::get_attrs
 		        new_lab_gen ( & info.name, 1 );
 #	    endif
 	    next ( lp );
-	    if ( compute_counts ( lp, info ) )
+	    if ( compute_counts ( info, lp ) )
 	    {
 		if ( m < n ) out[m] = info;
 		++ m;
@@ -8030,7 +8038,7 @@ min::unsptr min::get_attrs
 	    continue;
 
 	info.name = new_num_gen ( i );
-	if ( compute_counts ( lp, info ) )
+	if ( compute_counts ( info, lp ) )
 	{
 	    if ( m < n ) out[m] = info;
 	    ++ m;
