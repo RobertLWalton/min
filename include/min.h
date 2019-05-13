@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 01:12:58 EDT 2019
+// Date:	Sun May 12 23:20:29 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9973,6 +9973,24 @@ namespace min {
 	      min::unsptr n );
 
     template < class vecptr >
+    min::gen attr_name_of
+	    ( unprotected::attr_ptr_type
+	          < vecptr > & ap );
+    template < class vecptr >
+    min::gen reverse_attr_name_of
+	    ( unprotected::attr_ptr_type
+	          < vecptr > & ap );
+    template < class vecptr >
+    void attr_info_of
+	    ( min::attr_info & info,
+	      unprotected::attr_ptr_type
+	          < vecptr > & ap );
+    template < class vecptr >
+    void reverse_attr_info_of
+	    ( min::reverse_attr_info & info,
+	      unprotected::attr_ptr_type
+	          < vecptr > & ap );
+    template < class vecptr >
     min::unsptr get_attrs
 	    ( min::attr_info * out,
 	      min::unsptr n,
@@ -10499,6 +10517,20 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_ptr_type<vecptr> & ap,
 		  unsigned n );
+	friend min::gen min::attr_name_of<>
+		( min::unprotected::attr_ptr_type
+		      < vecptr > & ap );
+	friend min::gen min::reverse_attr_name_of<>
+		( min::unprotected::attr_ptr_type
+		      < vecptr > & ap );
+	friend void min::attr_info_of<>
+		( min::attr_info & info,
+		  min::unprotected::attr_ptr_type
+		      < vecptr > & ap );
+	friend void min::reverse_attr_info_of<>
+		( min::reverse_attr_info & info,
+		  min::unprotected::attr_ptr_type
+		      < vecptr > & ap );
 	friend min::unsptr min::get_attrs<>
 	        ( min::attr_info * out,
 		  min::unsptr n,
@@ -10856,6 +10888,39 @@ namespace min {
 	        length = 0;
 	}
 #   endif
+
+    // Information Functions:
+ 
+    template < class vecptr >
+    min::gen attr_name_of
+	    ( unprotected::attr_ptr_type
+	          < vecptr > & ap )
+    {
+        return ap.attr_name;
+    }
+    template < class vecptr >
+    min::gen reverse_attr_name_of
+	    ( unprotected::attr_ptr_type
+	          < vecptr > & ap )
+    {
+        return ap.reverse_attr_name;
+    }
+    template < class vecptr >
+    void attr_info_of
+	    ( min::attr_info & info,
+	      unprotected::attr_ptr_type
+	          < vecptr > & ap )
+    {
+        info.value_count = 0;
+    }
+    template < class vecptr >
+    void reverse_attr_info_of
+	    ( min::reverse_attr_info & info,
+	      unprotected::attr_ptr_type
+	          < vecptr > & ap )
+    {
+        info.value_count = 0;
+    }
 
     // Access Functions:
 
