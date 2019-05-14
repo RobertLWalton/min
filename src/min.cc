@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 13 05:39:41 EDT 2019
+// Date:	Tue May 14 03:32:04 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3658,13 +3658,13 @@ inline void map_one
     min::attr_ptr ap ( vp );
 
     min::attr_info info[100];
-    min::unsptr m = min::get_attrs ( info, 100, ap );
+    min::unsptr m = min::attr_info_of ( info, 100, ap );
     if ( m <= 100 )
         ::map_one_obj
 	    ( map, v, f, force_id, ap, info, m );
 
     min::attr_info info2[m];
-    min::uns32 n = min::get_attrs ( info2, m, ap );
+    min::uns32 n = min::attr_info_of ( info2, m, ap );
     MIN_REQUIRE ( n == m );
     ::map_one_obj
 	( map, v, f, force_id, ap, info2, m );
@@ -3709,7 +3709,7 @@ inline void map_one_attributes
 
 	min::locate ( ap, info[i].name );
 	min::reverse_attr_info rinfo[m];
-	MIN_REQUIRE ( m == min::get_reverse_attrs
+	MIN_REQUIRE ( m == min::reverse_attr_info_of
 	                     ( rinfo, m, ap ) );
 	for ( min::unsptr j = 0; j < m; ++ j )
 	{
@@ -7823,7 +7823,7 @@ template bool MINT::test_flag
 	( min::attr_insptr & ap,
 	  unsigned n );
 
-// Helper functions for min::get_attrs.
+// Helper functions for min::attr_info_of.
 
 // Called with current(lp) being start of
 // double-arrow-sublist.  Return number of reverse
@@ -7985,7 +7985,7 @@ static bool compute_counts
 # endif
 
 template < class vecpt >
-min::unsptr min::get_attrs
+min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
 	  MUP::attr_ptr_type < vecpt > & ap,
 	  bool include_attr_vec )
@@ -8051,21 +8051,21 @@ min::unsptr min::get_attrs
 
     return m;
 }
-template min::unsptr min::get_attrs
+template min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
 	  min::attr_ptr & ap,
 	  bool include_attr_vec );
-template min::unsptr min::get_attrs
+template min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
 	  min::attr_updptr & ap,
 	  bool include_attr_vec );
-template min::unsptr min::get_attrs
+template min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
 	  min::attr_insptr & ap,
 	  bool include_attr_vec );
 
 template < class vecpt >
-min::unsptr min::get_reverse_attrs
+min::unsptr min::reverse_attr_info_of
 	( min::reverse_attr_info * out, min::unsptr n,
 	  MUP::attr_ptr_type < vecpt > & ap )
 {
@@ -8076,7 +8076,7 @@ min::unsptr min::get_reverse_attrs
     {
     case ap_type::INIT:
 	MIN_ABORT
-	    ( "min::get_reverse_attrs called before"
+	    ( "min::reverse_attr_info_of called before"
 	      " locate" );
     case ap_type::LOCATE_FAIL:
         return m;
@@ -8132,13 +8132,13 @@ min::unsptr min::get_reverse_attrs
 
     return m;
 }
-template min::unsptr min::get_reverse_attrs
+template min::unsptr min::reverse_attr_info_of
 	( min::reverse_attr_info * out, min::unsptr n,
 	  min::attr_ptr & ap );
-template min::unsptr min::get_reverse_attrs
+template min::unsptr min::reverse_attr_info_of
 	( min::reverse_attr_info * out, min::unsptr n,
 	  min::attr_updptr & ap );
-template min::unsptr min::get_reverse_attrs
+template min::unsptr min::reverse_attr_info_of
 	( min::reverse_attr_info * out, min::unsptr n,
 	  min::attr_insptr & ap );
 
@@ -9446,7 +9446,7 @@ static int make_gtype
 
     min::attr_ptr ap ( vp );
     min::attr_info info[max_attributes];
-    min::unsptr count = min::get_attrs
+    min::unsptr count = min::attr_info_of
         ( info, max_attributes, ap );
 	// We do not include attribute vector here.
 
@@ -12871,7 +12871,7 @@ static bool print_attributes
 	if ( vc > 1 ) min::get ( value, vc, ap );
 	else if ( vc == 1 ) value[0] = info[i].value;
 	if ( rc > 0 )
-	    min::get_reverse_attrs ( rinfo, rc, ap );
+	    min::reverse_attr_info_of ( rinfo, rc, ap );
 
 	if ( vc + rc != 1 && ! line_format )
 	    printer << objf->obj_valbegin
@@ -12963,7 +12963,7 @@ min::printer min::print_obj
 
     min::attr_info info[max_attrs];
     min::unsptr m =
-        min::get_attrs ( info, max_attrs, ap );
+        min::attr_info_of ( info, max_attrs, ap );
     if ( m > max_attrs )
         return min::print_obj
 	    ( printer, v, f, objf, obj_op_flags,

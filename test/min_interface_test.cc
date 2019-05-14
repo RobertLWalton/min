@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 11 01:44:45 EDT 2019
+// Date:	Tue May 14 03:33:42 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4077,8 +4077,8 @@ void test_object_list_level ( void )
 
 // Object Attribute Level
 
-// Call get_attrs ( ap ), sort the resulting packed
-// vec entries by label, and compare to aip[0 .. n-1].
+// Call attr_info_of ( vector, n+100, ap ), sort vector
+// entries by label, and compare to aip[0 .. n-1].
 // Print differences and return false if there are any
 // differences.  Return true if there are no
 // differences.
@@ -4091,7 +4091,7 @@ static bool check_attr_info
     bool save_min_assert_print = min::assert_print;
     min::assert_print = false;
     min::attr_info aiv[n+100];
-    min::unsptr m = min::get_attrs
+    min::unsptr m = min::attr_info_of
         ( aiv, n+100, ap, include_attr_vec );
     min::sort_attr_info ( aiv, m );
 
@@ -4566,7 +4566,8 @@ void test_reverse_attribute_values
 
     min::reverse_attr_info rinfo;
     MIN_CHECK
-        (    min::get_reverse_attrs ( & rinfo, 1, ap )
+        (    min::reverse_attr_info_of
+		( & rinfo, 1, ap )
 	  == 1 );
     MIN_CHECK ( rinfo.name == rlabel1 );
     MIN_CHECK ( rinfo.value_count == 3 );
@@ -4580,7 +4581,8 @@ void test_reverse_attribute_values
 	  min::obj_vec_ptr_of ( ap ) );
 
     MIN_CHECK
-        (    min::get_reverse_attrs ( & rinfo, 1, ap1 )
+        (    min::reverse_attr_info_of
+		( & rinfo, 1, ap1 )
 	  == 1 );
     MIN_CHECK ( rinfo.name == label1 );
     MIN_CHECK ( rinfo.value_count == 1 );
@@ -5462,7 +5464,7 @@ void test_object_debugging ( void )
     {
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
-	info_length = min::get_attrs
+	info_length = min::attr_info_of
 	    ( info, 100, ap, true );
 	MIN_REQUIRE ( info_length < 100 );
 	min::sort_attr_info ( info, info_length );
@@ -5482,7 +5484,7 @@ void test_object_debugging ( void )
 
 	min::obj_vec_insptr vp ( copy_obj );
 	min::attr_insptr ap  ( vp );
-	copy_info_length = min::get_attrs
+	copy_info_length = min::attr_info_of
 	    ( copy_info, 100, ap, true );
 	MIN_REQUIRE ( copy_info_length == info_length );
 	min::sort_attr_info ( copy_info, info_length );

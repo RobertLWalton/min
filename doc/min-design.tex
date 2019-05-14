@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 13, 2019}
+\date{May 14, 2019}
  
 \maketitle
 
@@ -15203,21 +15203,21 @@ Information Functions:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_ptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS} \\
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_PTR} \\
 \verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
     \verb|( min::attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_ATTR_INFO} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_ptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF} \\
 \verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_REVERSE_ATTR_INFO} \\
@@ -15388,7 +15388,8 @@ of flag \TT{n}.
 
 The attribute names for an object form a list ordered in an implementation
 dependent fashion.  
-The \TT{min::\EOL get\_\EOL attrs} function gets information about each
+The \TT{min::\EOL attr\_\EOL info\_\EOL of} function
+gets information about each
 attribute in this list.  The information about an attribute is stored in a
 \TT{min::\EOL attr\_\EOL info} structure and includes the attribute
 name in the \TT{name} member,
@@ -15428,20 +15429,20 @@ element vector `\TT{out}'
 that should be allocated to the stack.  If there are more than
 \TT{n} structs, only the first \TT{n}
 are returned, but the total number available is returned as the value of
-the \TT{min::\EOL get\_\EOL attrs} function, and this should be used
+the \TT{min::\EOL attr\_\EOL info\_\EOL of} function, and this should be used
 to retry with a larger `\TT{out}' vector.
 
 The implementation dependent order of the \TT{attr\_info}
-values returned by \TT{min::\EOL get\_\EOL attrs} may change if attribute
+values returned by \TT{min::\EOL attr\_\EOL info\_\EOL of} may change if attribute
 values are added to or removed from the object or
 attribute flags are set or cleared, or if the object is reorganized.
 The \TT{min::\EOL sort\_\EOL attr\_\EOL info} function can be used
 to sort by attribute name the
-vector returned by \TT{min::\EOL get\_\EOL attrs}.
+vector returned by \TT{min::\EOL attr\_\EOL info\_\EOL of}.
 The \TT{min::\EOL compare} function, \pagref{MIN::COMPARE},
 is used to determine the ordering of names.
 
-The \TT{min::\EOL get\_\EOL reverse\_\EOL attrs}
+The \TT{min::\EOL reverse\_attr\_info\_of}
 function is analogous but involves the list of
 reverse attribute names associated
 with a particular object and attribute name stored in the attribute
@@ -15573,15 +15574,15 @@ Information Functions:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_updptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_UPDPTR} \\
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_updptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF_ATTR_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 Functions defined for read-only attribute pointers are also
@@ -15803,15 +15804,15 @@ Information Functions:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_insptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_INSPTR} \\
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_insptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 Functions defined for updatable attribute pointers are also
@@ -23294,11 +23295,11 @@ Information Functions:
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_ptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS} \\
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_PTR} \\
 \verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
     \verb|( min::attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_ATTR_INFO} \\
@@ -23307,11 +23308,11 @@ Information Functions:
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out,|\ARGBREAK
      \verb|  min::unsptr n,|\ARGBREAK
      \verb|  min::attr_ptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF} \\
 \verb|void min::| & \MINKEY{sort\_reverse\_attr\_info}\ARGBREAK
      \verb|( min::reverse_attr_info * out,|\ARGBREAK
      \verb|  min::unsptr n )|
@@ -23437,16 +23438,16 @@ Information Functions:
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_updptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS_OF_ATTR_UPDPTR} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_UPDPTR} \\
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out,|\ARGBREAK
      \verb|  min::unsptr n,|\ARGBREAK
      \verb|  min::attr_updptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_UPDPTR} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF_ATTR_UPDPTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -23661,16 +23662,16 @@ Information Functions:
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
      \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_insptr & ap,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::GET_ATTRS_OF_ATTR_INSPTR} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
+\LABEL{MIN::ATTR_INFO_VEC_OF_ATTR_INSPTR} \\
+\verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out,|\ARGBREAK
      \verb|  min::unsptr n,|\ARGBREAK
      \verb|  min::attr_insptr & ap )|
-\LABEL{MIN::GET_REVERSE_ATTRS_OF_ATTR_INSPTR} \\
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_OF_ATTR_INSPTR} \\
 \end{TABULAR}
 
 \end{indpar}
