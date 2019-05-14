@@ -15236,7 +15236,7 @@ pointer.  This must be done whenever the vector pointer itself
 is reassigned to point at a different object.  Once reassigned,
 the effect of previous locate functions is lost.
 
-\ikey{Locator functions}{locator function}
+\ikey{Locator functions}{locator function!of attribute pointer}
 find attributes within an object and set the current
 attribute name and reverse attribute name of an attribute pointer.
 The \TT{min::\EOL locate} function sets the attribute name of the pointer.
@@ -15300,7 +15300,7 @@ Note that \underline{no} special functions need to be called when an attribute
 value is updated using \TT{min::\EOL update} on
 an updatable attribute pointer (\pagref{UPDATABLE-ATTRIBUTE-FUNCTIONS}).
 
-\ikey{Accessor functions}{accessor function}
+\ikey{Accessor functions}{accessor function!of attribute pointer}
 can be used for reading attribute values and flags.
 For the purposes of describing these functions,
 an attribute pointer is considered to point at the attribute
@@ -15386,36 +15386,73 @@ flag $N$ is zero.
 The \TT{min::\EOL test\_\EOL flag} function returns the value
 of flag \TT{n}.
 
-The attribute names for an object form a list ordered in an implementation
-dependent fashion.  
-The \TT{min::\EOL attr\_\EOL info\_\EOL of} function
-gets information about each
-attribute in this list.  The information about an attribute is stored in a
-\TT{min::\EOL attr\_\EOL info} structure and includes the attribute
-name in the \TT{name} member,
-the number of values in the attribute value multiset in the \TT{value\_count}
-member, the number of control codes in the attribute flag set in
-the \TT{flag\_count} member, and the number of associated
-reverse attribute names which have non-empty value multisets in the
-\TT{reverse\_attr\_count} member.
+\ikey{Information functions}{information function!of attribute pointer}
+return information about an attribute pointer.
+The \TT{min::\EOL name\_\EOL of} function returns the \TT{name}
+argument of the last call to a \TT{min::\EOL locate\ldots} function
+for an attribute pointer.
+The \TT{min::\EOL reverse\_\EOL name\_\EOL of} function
+returns the \TT{reverse\_\EOL name} argument of the last call to a
+\TT{min::\EOL reverse\_\EOL locate}
+function, or returns \TT{min::\EOL NONE()} if no
+\TT{min::\EOL reverse\_\EOL locate} calls have been made
+since the last \TT{min::\EOL locate\ldots} call.  Both functions
+require a previous call to a \TT{min::\EOL locate\ldots} function.
 
-In addition, the \TT{value} member is set to the attribute value if there
-is exactly one value, or to \TT{min::\EOL NONE()} if there is no value,
-or to \TT{min::\EOL MULTI\_\EOL VALUED()} if there is more than one value,
-and the \TT{flags} member is set to the low order 64 bits of the flags
-(or to \TT{0} if there are no flags).
+The 2-argument \TT{min::attr\_info\_of} function returns information
+about the current attribute of an attribute pointer (i.e., the
+attribute whose name was given by the last \TT{min::\EOL locate\ldots} call
+for the attribute pointer).  Values stored in the
+\TT{min::\EOL attr\_\EOL info}\ttindex{min::attr\_info}
+structure members are as follows:
 
-If a name has only one component that is an {\em atom}, the name is returned
-as that {\em atom}; all other names are returned as {\em labels}.
+\begin{indpar}
+\begin{tabular}{lp{4.0in}}
+\ttmkey{name}{member of {\tt min::attr\_info}}
+    & Name of the current attribute, i.e., the
+      argument of last \TT{min::\EOL locate\ldots} call.
+      If a name has only one component that is an {\em atom},
+      this is that {\em atom}; all other names are returned as {\em labels}.
+\\[0.5ex]
+\ttmkey{value}{member of {\tt min::attr\_info}}
+    & Value of the current attribute if the attribute has a single value.
+      \TT{min::\EOL NONE()} if the attribute has no value.
+      \TT{min::\EOL MULTI\_\EOL VALUED()} if the attribute has more than
+      one value.
+\\[0.5ex]
+\ttmkey{flags}{member of {\tt min::attr\_info}}
+    & First 64 flags of the current attribute.  Zero if no current attribute.
+\\[0.5ex]
+\ttmkey{value\_count}{member of {\tt min::attr\_info}}
+    & Number of values of the current attribute.  Zero if no current attribute.
+\\[0.5ex]
+\ttmkey{flag\_count}{member of {\tt min::attr\_info}}
+    & Minimum number
+      of condition codes required to store the flags of the current
+      attribute (vector length for \TT{min::\EOL get\_\EOL flags}).
+      High order zero control codes are treated as if they do not exist.
+      Zero if no current attribute.
+\\[0.5ex]
+\ttmkey{reverse\_attr\_count}{member of {\tt min::attr\_info}}
+    & Number of reverse attribute labels associated with the current
+      attribute which have one or more values.
+      Zero if no current attribute.
+\end{tabular}
+\end{indpar}
 
-At least one of the three counts must be
-non-zero for an attribute, or else the attribute is treated as if it
-were not in the list of all attribute names.  In computing
-\TT{flag\_count}, high order zero control codes are treated as if they
-did not exist, and the value of \TT{flag\_count} is the
-same as the value that would be returned by \TT{min::\EOL get\_\EOL flags}.
+The 3-argument \TT{min::attr\_info\_of} function returns in the
+\TT{info} vector the same information
+for all attributes of the object pointed at by the attribute pointer that
+have a non-zero value for one of their three counts.  The number $N$ of such
+attributes is returned.  Information about the first $\min(N,$\TT{n}$)$
+of these attributes is returned, in arbitrary order.
+The \TT{min::\EOL sort\_\EOL attr\_\EOL info} function can be used
+to sort the vector by \TT{name}.
+The \TT{min::\EOL compare} function, \pagref{MIN::COMPARE},
+is used to determine the ordering of names.
 
-Attributes accessed through the attribute vector are not returned unless
+Attributes accessed through the attribute vector are not returned
+by the 3-argument \TT{min::\EOL attr\_\EOL info\_\EOL of} function unless
 the \TT{include\_\EOL attr\_\EOL vec} argument is \TT{true}.  These are
 just the attributes whose name is a small integer
 \TT{i} with \TT{0 <= i < m}, where \TT{m} is the size of the object
@@ -15424,38 +15461,48 @@ If the \TT{MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
 macro is set to \TT{1}, any attribute whose name is a label beginning
 with such an integer is also not returned.
 
-The \TT{min::\EOL attr\_\EOL info} structs are stored in an \TT{n}
-element vector `\TT{out}'
-that should be allocated to the stack.  If there are more than
-\TT{n} structs, only the first \TT{n}
-are returned, but the total number available is returned as the value of
-the \TT{min::\EOL attr\_\EOL info\_\EOL of} function, and this should be used
-to retry with a larger `\TT{out}' vector.
+The 2-argument \TT{min::reverse\_attr\_info\_of} function returns information
+about the current reverse attribute of an attribute pointer (i.e., the
+attribute whose name was given by the last \TT{min::\EOL locate\ldots} call
+for the attribute pointer and whose reverse name was given by the last
+subsequent \TT{min::\EOL locate\_\EOL reverse} call).  Values stored in the
+\TT{min::\EOL reverse\_\EOL attr\_\EOL info}\ttindex{min::reverse\_attr\_info}
+structure members are as follows:
 
-The implementation dependent order of the \TT{attr\_info}
-values returned by \TT{min::\EOL attr\_\EOL info\_\EOL of} may change if attribute
-values are added to or removed from the object or
-attribute flags are set or cleared, or if the object is reorganized.
-The \TT{min::\EOL sort\_\EOL attr\_\EOL info} function can be used
-to sort by attribute name the
-vector returned by \TT{min::\EOL attr\_\EOL info\_\EOL of}.
+\begin{indpar}
+\begin{tabular}{lp{4.0in}}
+\ttmkey{name}{member of!{\tt min::reverse\_attr\_info}}
+    & \TT{Name} of the current reverse attribute, i.e., the
+      argument of last \TT{min::\EOL locate\_\EOL reverse} call.
+      If a name has only one component that is an {\em atom},
+      this is that {\em atom}; all other names are returned as {\em labels}.
+      \TT{min::NONE()} if there is no such call after the last
+      \TT{min::\EOL locate\ldots} call.
+\\[0.5ex]
+\ttmkey{value}{member of!{\tt min::reverse\_attr\_info}}
+    & Value of the current reverse attribute if the attribute
+      has a single value.  \TT{min::\EOL MULTI\_\EOL VALUED()}
+      if the reverse attribute has more than one value.
+      \TT{min::\EOL NONE()} if the reverse attribute has no value
+      (includes cases where \TT{name} is \TT{min::\EOL NONE()} or
+      \TT{min::\EOL ANY()}).
+\\[0.5ex]
+\ttmkey{value\_count}{member of!{\tt min::reverse\_attr\_info}}
+    & Number of values of the current reverse attribute.
+      Zero if \TT{value} member is \TT{min::\EOL NONE()}.
+\end{tabular}
+\end{indpar}
+
+The 3-argument \TT{min::reverse\_attr\_info\_of} function returns in the
+\TT{info} vector the same information
+for all reverse attributes of the current attribute that
+have one or more values.  The number $N$ of such
+reverse attributes is returned.  Information about the first $\min(N,$\TT{n}$)$
+of these reverse attributes is returned, in arbitrary order.
+The \TT{min::\EOL sort\_\EOL reverse \_\EOL attr\_\EOL info}
+function can be used to sort the vector by \TT{name}.
 The \TT{min::\EOL compare} function, \pagref{MIN::COMPARE},
 is used to determine the ordering of names.
-
-The \TT{min::\EOL reverse\_attr\_info\_of}
-function is analogous but involves the list of
-reverse attribute names associated
-with a particular object and attribute name stored in the attribute
-pointer.
-\TT{min::locate\ldots} must be used to set the attribute name to be used.
-There is a \TT{min::\EOL reverse\_\EOL
-attr\_\EOL info} struct for each reverse attribute name, and there is only
-one count member in this, the \TT{value\_count} member that is the number
-of values in the value multiset of the reverse attribute pointed at.
-A reverse attribute name with an empty value multiset is treated as if it
-were not in the list of reverse attribute names.
-The \TT{value} member is the reverse attribute value if there is only one
-value, or is \TT{min::\EOL MULTI\_\EOL VALUED()} otherwise.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
