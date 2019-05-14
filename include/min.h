@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 13 05:52:25 EDT 2019
+// Date:	Mon May 13 20:23:15 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9973,11 +9973,11 @@ namespace min {
 	      min::unsptr n );
 
     template < class vecptr >
-    min::gen attr_name_of
+    min::gen name_of
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap );
     template < class vecptr >
-    min::gen reverse_attr_name_of
+    min::gen reverse_name_of
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap );
     template < class vecptr >
@@ -10520,10 +10520,10 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_ptr_type<vecptr> & ap,
 		  unsigned n );
-	friend min::gen min::attr_name_of<>
+	friend min::gen min::name_of<>
 		( min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
-	friend min::gen min::reverse_attr_name_of<>
+	friend min::gen min::reverse_name_of<>
 		( min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
 	friend bool min::attr_info_of<>
@@ -10895,14 +10895,14 @@ namespace min {
     // Information Functions:
  
     template < class vecptr >
-    min::gen attr_name_of
+    min::gen name_of
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap )
     {
         return ap.attr_name;
     }
     template < class vecptr >
-    min::gen reverse_attr_name_of
+    min::gen reverse_name_of
 	    ( unprotected::attr_ptr_type
 	          < vecptr > & ap )
     {
