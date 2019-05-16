@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 14, 2019}
+\date{May 16, 2019}
  
 \maketitle
 
@@ -15440,6 +15440,9 @@ structure members are as follows:
 \end{tabular}
 \end{indpar}
 
+The 2-argument \TT{min::attr\_info\_of} function returns \TT{true} if
+any of the 3 counts is non-zero, and \TT{false} otherwise.
+
 The 3-argument \TT{min::attr\_info\_of} function returns in the
 \TT{info} vector the same information
 for all attributes of the object pointed at by the attribute pointer that
@@ -15494,6 +15497,9 @@ structure members are as follows:
       Zero if \TT{value} member is \TT{min::\EOL NONE()}.
 \end{tabular}
 \end{indpar}
+
+The 2-argument \TT{min::reverse\_attr\_info\_of} function returns \TT{true}
+of \TT{value\_\EOL count} is non-zero, and \TT{false} otherwise.
 
 The 3-argument \TT{min::reverse\_attr\_info\_of} function returns in the
 \TT{info} vector the same information
