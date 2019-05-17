@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 03:28:28 EDT 2019
+// Date:	Fri May 17 05:17:48 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10945,9 +10945,14 @@ namespace min {
 	    return false;
 	else
 	{
-	    start_sublist ( ap.lp, ap.dlp );
+	    // We cannot use ap.lp because it is a
+	    // insptr and not a ptr.
+	    //
+	    min::list_ptr lp
+	        ( min::obj_vec_ptr_of ( ap.dlp ) );
+	    start_sublist ( lp, ap.dlp );
 	    return internal::compute_attr_info
-	    	( info, ap.lp );
+	    	( info, lp );
 	}
     }
     template < class vecptr >
