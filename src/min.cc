@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 03:32:04 EDT 2019
+// Date:	Sat May 18 06:57:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7984,16 +7984,14 @@ static bool compute_counts
     }
 # endif
 
-template < class vecpt >
 min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
-	  MUP::attr_ptr_type < vecpt > & ap,
+	  min::obj_vec_ptr & vp,
 	  bool include_attr_vec )
 {
     min::unsptr m = 0;  // Return value.
     attr_info info;
 
-    vecpt & vp = obj_vec_ptr_of ( ap.locate_dlp );
     min::list_ptr lp ( vp );
 
     for ( unsptr i = 0;
@@ -8051,18 +8049,55 @@ min::unsptr min::attr_info_of
 
     return m;
 }
-template min::unsptr min::attr_info_of
-	( min::attr_info * out, min::unsptr n,
-	  min::attr_ptr & ap,
-	  bool include_attr_vec );
-template min::unsptr min::attr_info_of
-	( min::attr_info * out, min::unsptr n,
-	  min::attr_updptr & ap,
-	  bool include_attr_vec );
-template min::unsptr min::attr_info_of
-	( min::attr_info * out, min::unsptr n,
-	  min::attr_insptr & ap,
-	  bool include_attr_vec );
+
+bool min::has_single_attr
+	( min::obj_vec_ptr & vp, bool include_attr_vec )
+{
+    min::list_ptr lp1 ( vp );
+    min::list_ptr lp2 ( vp );
+
+    for ( unsptr i = 0;
+          i < hash_size_of ( vp );
+	  ++ i )
+    {
+	start_hash ( lp1, i );
+	for ( min::gen c = min::current ( lp1 );
+	      ! min::is_list_end ( c );
+	      c = min::next ( lp1 ) )
+	{
+	    next ( lp1 );
+	    c = next ( lp1 );
+	    if ( ! is_sublist ( c ) ) return true;
+	    start_sublist ( lp2, lp1 );
+	    c = current ( lp2 );
+	    if ( ! is_list_end ( c )
+	         &&
+		 ! is_sublist ( c )
+		 &&
+		 ! is_control_code ( c ) )
+	        return true;
+	    // TBD: MIN_ALLOW_PARTIAL_ATTR_LABELS
+	}
+    }
+
+    if ( include_attr_vec )
+    for ( unsptr i = 0;
+          i < attr_size_of ( vp );
+	  ++ i )
+    {
+	start_attr ( lp1, i );
+	min::gen c = current ( lp1 );
+	if ( ! is_list_end ( c )
+	     &&
+	     ! is_sublist ( c )
+	     &&
+	     ! is_control_code ( c ) )
+	    return true;
+	// TBD: MIN_ALLOW_PARTIAL_ATTR_LABELS
+    }
+
+    return false;
+}
 
 template < class vecpt >
 min::unsptr min::reverse_attr_info_of

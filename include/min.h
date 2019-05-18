@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 17 05:17:48 EDT 2019
+// Date:	Sat May 18 06:55:59 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9990,12 +9990,13 @@ namespace min {
 	    ( min::reverse_attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap );
-    template < class vecptr >
     min::unsptr attr_info_of
 	    ( min::attr_info * out,
 	      min::unsptr n,
-	      unprotected::attr_ptr_type
-	          < vecptr > & ap,
+	      min::obj_vec_ptr & vp,
+	      bool include_attr_vec = false );
+    bool has_single_attr
+	    ( min::obj_vec_ptr & vp,
 	      bool include_attr_vec = false );
     template < class vecptr >
     min::unsptr reverse_attr_info_of
@@ -10534,11 +10535,10 @@ namespace min { namespace unprotected {
 		( min::reverse_attr_info & info,
 		  min::unprotected::attr_ptr_type
 		      < vecptr > & ap );
-	friend min::unsptr min::attr_info_of<>
+	friend min::unsptr min::attr_info_of
 	        ( min::attr_info * out,
 		  min::unsptr n,
-		  min::unprotected
-		     ::attr_ptr_type<vecptr> & ap,
+		  min::obj_vec_ptr & vp,
 	          bool include_attr_vec );
 	friend min::unsptr min::reverse_attr_info_of<>
 	        ( min::reverse_attr_info * out,
@@ -10954,6 +10954,18 @@ namespace min {
 	    return internal::compute_attr_info
 	    	( info, lp );
 	}
+    }
+    template < class vecptr >
+    min::unsptr attr_info_of
+	    ( min::attr_info * out,
+	      min::unsptr n,
+	      unprotected::attr_ptr_type
+	          < vecptr > & ap,
+	      bool include_attr_vec = false )
+    {
+        return min::attr_info_of
+	    ( out, n, min::obj_vec_ptr_of ( ap ),
+	      include_attr_vec );
     }
     template < class vecptr >
     bool reverse_attr_info_of
