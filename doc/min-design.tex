@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 16, 2019}
+\date{May 18, 2019}
  
 \maketitle
 
@@ -15066,8 +15066,14 @@ An insertable \TT{min::\EOL attr\_\EOL insptr}
 permits read-write access to attribute values and flags
 and also permits values to be added to or removed from attributes.
 
-The functions for using a read-only \TT{min::\EOL attr\_\EOL ptr}
-are:
+\subsubsubsubsection{Read-Only Attribute Pointers}
+\label{READ-ONLY-ATTRIBUTE-POINTERS}
+
+Read-only attribute pointers\index{read-only!attribute pointer}%
+\index{attribute pointer!read-only}
+are used to read information from objects.
+The functions for using a \TT{min::\EOL attr\_\EOL ptr}
+are:\label{READ-ONLY-ATTRIBUTE-FUNCTIONS}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -15214,6 +15220,18 @@ Information Functions:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::obj_vec_ptr & vp,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
+\LABEL{MIN::ATTR_INFO_VEC_OF_VEC_PTR} \\
+\verb|bool min::| & \MINKEY{has\_single\_attr}\ARGBREAK
+     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
+\LABEL{MIN::HAS_SINGLE_ATTR_OF_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINLKEY{reverse\_attr}{\_info\_of}\ARGBREAK
      \verb|( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
      \verb|  min::attr_ptr & ap )|
@@ -15236,7 +15254,10 @@ pointer.  This must be done whenever the vector pointer itself
 is reassigned to point at a different object.  Once reassigned,
 the effect of previous locate functions is lost.
 
-\ikey{Locator functions}{locator function!of attribute pointer}
+\subsubsubsubsection{Attribute Locator Functions}
+\label{ATTRIBUTE-LOCATOR-FUNCTIONS}
+
+Attribute locator functions\index{locator function!of attribute pointer}
 find attributes within an object and set the current
 attribute name and reverse attribute name of an attribute pointer.
 The \TT{min::\EOL locate} function sets the attribute name of the pointer.
@@ -15300,7 +15321,10 @@ Note that \underline{no} special functions need to be called when an attribute
 value is updated using \TT{min::\EOL update} on
 an updatable attribute pointer (\pagref{UPDATABLE-ATTRIBUTE-FUNCTIONS}).
 
-\ikey{Accessor functions}{accessor function!of attribute pointer}
+\subsubsubsubsection{Attribute Accessor Functions}
+\label{ATTRIBUTE-ACCESSOR-FUNCTIONS}
+
+Attribute accessor functions\index{accessor function!of attribute pointer}
 can be used for reading attribute values and flags.
 For the purposes of describing these functions,
 an attribute pointer is considered to point at the attribute
@@ -15386,7 +15410,10 @@ flag $N$ is zero.
 The \TT{min::\EOL test\_\EOL flag} function returns the value
 of flag \TT{n}.
 
-\ikey{Information functions}{information function!of attribute pointer}
+\subsubsubsubsection{Attribute Information Functions}
+\label{ATTRIBUTE-INFORMATION-FUNCTIONS}
+
+Attribute information functions\index{information function!of attribute pointer}
 return information about an attribute pointer.
 The \TT{min::\EOL name\_\EOL of} function returns the \TT{name}
 argument of the last call to a \TT{min::\EOL locate\ldots}~function
@@ -15465,6 +15492,15 @@ If the \TT{MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
 macro is set to \TT{1}, any attribute whose name is a label beginning
 with such an integer is also not returned.
 
+The 3-argument \TT{min::attr\_info\_of} function can also take a read-only
+\TT{min::\EOL obj\_\EOL vec\_\EOL ptr} pointing at the object instead
+of a \TT{min::\EOL attr\_\EOL ptr}.
+
+The \TT{min::has\_single\_attr} function is the optimized
+equivalent of getting all the information that the 3-argument
+\TT{min::attr\_info\_of} gets and then returning \TT{true} iff any
+\TT{value\_\EOL count} is greater than zero.
+
 The 2-argument \TT{min::reverse\_attr\_info\_of} function returns information
 about the current reverse attribute of an attribute pointer (i.e., the
 attribute whose name was given by the last \TT{min::\EOL locate\ldots}~call
@@ -15513,7 +15549,12 @@ function can be used to sort the vector by \TT{name}.
 The \TT{min::\EOL compare} function, \pagref{MIN::COMPARE},
 is used to determine the ordering of names.
 
-Updatable attribute pointers can set existing values as well as perform
+\subsubsubsubsection{Updatable Attribute Pointers}
+\label{UPDATABLE-ATTRIBUTE-POINTERS}
+
+Updatable attribute pointers\index{updatable!attribute pointer}%
+\index{attribute pointer!updatable}
+can set existing values as well as perform
 the operations of read-only attribute pointers.
 The functions for using a \TT{min::\EOL attr\_\EOL updptr}
 are:\label{UPDATABLE-ATTRIBUTE-FUNCTIONS}
@@ -15658,7 +15699,12 @@ reverse attribute name is not \TT{min::NONE()}.
 It is an error if the new value is not a legal attribute value
 (see \pagref{MIN::IS_ATTR_LEGAL}).
 
-Insertable attribute pointers can remove and insert values and
+\subsubsubsubsection{Insertable Attribute Pointers}
+\label{INSERTABLE-ATTRIBUTE-POINTERS}
+
+Insertable attribute pointers\index{insertable!attribute pointer}%
+\index{attribute pointer!insertable}
+can remove and insert values and
 set and clear flags,
 as well as perform the operations of updatable attribute pointers.
 The functions for using a
@@ -23359,6 +23405,18 @@ Information Functions:
 \verb|void min::| & \MINKEY{sort\_attr\_info}\ARGBREAK
     \verb|( min::attr_info * out, min::unsptr n )|
 \LABEL{MIN::SORT_ATTR_INFO} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::unsptr min::| & \MINKEY{attr\_info\_of}\ARGBREAK
+     \verb|( min::attr_info * out, min::unsptr n,|\ARGBREAK
+     \verb|  min::obj_vec_ptr & vp,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
+\LABEL{MIN::ATTR_INFO_VEC_OF_VEC_PTR} \\
+\verb|bool min::| & \MINKEY{has\_single\_attr}\ARGBREAK
+     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+     \verb|  bool include_attr_vec = false )|
+\LABEL{MIN::HAS_SINGLE_ATTR_OF_VEC_PTR} \\
 \end{TABULAR}
 
 \bigskip

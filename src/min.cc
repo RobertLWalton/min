@@ -8079,7 +8079,6 @@ min::unsptr min::attr_info_of
 	        return true;
 	}
 	return false;
-
     }
 #   endif
 
@@ -8087,6 +8086,35 @@ bool min::has_single_attr
 	( min::obj_vec_ptr & vp, bool include_attr_vec )
 {
     min::list_ptr lp1 ( vp );
+
+    // Check attr_vec first as if its non-empty it will
+    // probably have a value.
+    //
+    if ( include_attr_vec )
+    for ( unsptr i = 0;
+          i < attr_size_of ( vp );
+	  ++ i )
+    {
+    	min::gen c = vp[i];
+	if ( ! is_list_aux ( c ) ) return true;
+	start_attr ( lp1, i );
+	c = current ( lp1 );
+	if ( is_list_end ( c )
+	     ||
+	     is_control_code ( c ) )
+	    continue;
+	if ( is_sublist ( c ) )
+	{
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		if ( ::has_single_attr ( vp, lp1 ) )
+		    return true;
+#	    endif
+		continue;
+	}
+	else
+	    return true;
+    }
+
     min::list_ptr lp2 ( vp );
 
     for ( unsptr i = 0;
@@ -8117,29 +8145,6 @@ bool min::has_single_attr
 	    else
 	        return true;
 	}
-    }
-
-    if ( include_attr_vec )
-    for ( unsptr i = 0;
-          i < attr_size_of ( vp );
-	  ++ i )
-    {
-	start_attr ( lp1, i );
-	min::gen c = current ( lp1 );
-	if ( is_list_end ( c )
-	     ||
-	     is_control_code ( c ) )
-	    continue;
-	if ( is_sublist ( c ) )
-	{
-#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		if ( ::has_single_attr ( vp, lp1 ) )
-		    return true;
-#	    endif
-		continue;
-	}
-	else
-	    return true;
     }
 
     return false;
