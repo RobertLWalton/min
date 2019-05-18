@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 06:57:23 EDT 2019
+// Date:	Sat May 18 10:30:38 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8050,6 +8050,39 @@ min::unsptr min::attr_info_of
     return m;
 }
 
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    static bool has_single_attr
+	    ( min::obj_vec_ptr & vp,
+	      min::list_ptr & lp1 )
+    {
+	min::start_sublist ( lp1 );
+        min::list_ptr lp2 ( vp );
+	for ( min::gen c = min::current ( lp1 );
+	      ! min::is_list_end ( c );
+	      c = min::next ( lp1 ) )
+	{
+	    c = next ( lp1 );
+	    if ( ! is_sublist ( c ) ) return true;
+	    start_sublist ( lp2, lp1 );
+	    c = current ( lp2 );
+	    if ( is_list_end ( c )
+	         ||
+		 is_control_code ( c ) )
+	        continue;
+	    else if ( is_sublist ( c ) )
+	    {
+	        if ( ::has_single_attr ( vp, lp2 ) )
+		    return true;
+	        continue;
+	    }
+	    else
+	        return true;
+	}
+	return false;
+
+    }
+#   endif
+
 bool min::has_single_attr
 	( min::obj_vec_ptr & vp, bool include_attr_vec )
 {
@@ -8065,18 +8098,24 @@ bool min::has_single_attr
 	      ! min::is_list_end ( c );
 	      c = min::next ( lp1 ) )
 	{
-	    next ( lp1 );
 	    c = next ( lp1 );
 	    if ( ! is_sublist ( c ) ) return true;
 	    start_sublist ( lp2, lp1 );
 	    c = current ( lp2 );
-	    if ( ! is_list_end ( c )
-	         &&
-		 ! is_sublist ( c )
-		 &&
-		 ! is_control_code ( c ) )
+	    if ( is_list_end ( c )
+	         ||
+		 is_control_code ( c ) )
+	        continue;
+	    if ( is_sublist ( c ) )
+	    {
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    if ( ::has_single_attr ( vp, lp2 ) )
+		        return true;
+#	        endif
+		continue;
+	    }
+	    else
 	        return true;
-	    // TBD: MIN_ALLOW_PARTIAL_ATTR_LABELS
 	}
     }
 
@@ -8087,13 +8126,20 @@ bool min::has_single_attr
     {
 	start_attr ( lp1, i );
 	min::gen c = current ( lp1 );
-	if ( ! is_list_end ( c )
-	     &&
-	     ! is_sublist ( c )
-	     &&
-	     ! is_control_code ( c ) )
+	if ( is_list_end ( c )
+	     ||
+	     is_control_code ( c ) )
+	    continue;
+	if ( is_sublist ( c ) )
+	{
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		if ( ::has_single_attr ( vp, lp1 ) )
+		    return true;
+#	    endif
+		continue;
+	}
+	else
 	    return true;
-	// TBD: MIN_ALLOW_PARTIAL_ATTR_LABELS
     }
 
     return false;
