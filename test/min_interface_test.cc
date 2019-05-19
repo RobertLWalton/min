@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 14 03:33:42 EDT 2019
+// Date:	Sun May 19 05:31:56 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1390,9 +1390,6 @@ void test_acc_interface ( void )
     cout << endl;
     cout << "Finish Allocator/Collector/Compactor"
 	    " Interface Test!" << endl;
-
-    // MUP::stub_swap and min::new_preallocated_stub are
-    // tested in min_acc_test.cc.
 }
 
 // Numbers
@@ -3370,6 +3367,36 @@ void test_printer ( void )
 static min::gen short_obj_gen;
 static min::gen long_obj_gen;
 
+void check_object
+	( min::gen obj_gen, int type,
+	  min::unsptr unused_size,
+	  min::unsptr hash_size )
+{
+    MIN_CHECK ( min::type_of ( obj_gen ) == type );
+    min::obj_vec_ptr vp ( obj_gen );
+    min::unsptr vo = MUP::var_offset_of ( vp );
+    min::unsptr hs = min::hash_size_of ( vp );
+    min::unsptr as = min::attr_size_of ( vp );
+    min::unsptr us = min::unused_size_of ( vp );
+    min::unsptr auxs = min::aux_size_of ( vp );
+    min::unsptr ts = min::total_size_of ( vp );
+    cout << "vo: " << vo << " hs: " << hs
+	 << " us: " << us
+	 << " as: " << as
+	 << " auxs: " << auxs
+	 << " ts: " << ts << endl;
+    MIN_CHECK ( hs >= hash_size );
+    MIN_CHECK ( us >= unused_size );
+    MIN_CHECK ( as == 0 );
+    MIN_CHECK ( auxs == 0 );
+    MIN_CHECK
+	( ts == vo + hs + as + us + auxs );
+    const min::stub * s = min::stub_of ( obj_gen );
+    MIN_CHECK ( MUP::body_size_of ( s )
+		 ==
+		 ts * sizeof ( min::gen ) );
+}
+
 void test_objects ( void )
 {
     cout << endl;
@@ -3378,67 +3405,38 @@ void test_objects ( void )
     cout << endl;
     cout << "Test short objects:" << endl;
     short_obj_gen = min::new_obj_gen ( 500, 100 );
-    const min::stub * sstub =
-	min::stub_of ( short_obj_gen );
-    MIN_CHECK
-	(    min::type_of ( sstub )
-	  == min::SHORT_OBJ );
-    {
-	min::obj_vec_ptr svp ( sstub );
-	min::unsptr sh = MUP::var_offset_of ( svp );
-	min::unsptr sht = min::hash_size_of ( svp );
-	min::unsptr sav = min::attr_size_of ( svp );
-	min::unsptr sua =
-	    min::unused_size_of ( svp );
-	min::unsptr saa = min::aux_size_of ( svp );
-	min::unsptr st = min::total_size_of ( svp );
-	cout << "sh: " << sh << " sht: " << sht
-	     << " sua: " << sua
-	     << " sav: " << sav
-	     << " saa: " << saa
-	     << " st: " << st << endl;
-	MIN_CHECK ( sht >= 100 );
-	MIN_CHECK ( sua >= 500 );
-	MIN_CHECK ( sav == 0 );
-	MIN_CHECK ( saa == 0 );
-	MIN_CHECK
-	    ( st == sh + sht + sav + sua + saa );
-	MIN_CHECK ( MUP::body_size_of ( sstub )
-		     ==
-		     st * sizeof ( min::gen ) );
-    }
+    check_object
+        ( short_obj_gen, min::SHORT_OBJ, 500, 100 );
 
     cout << endl;
     cout << "Test long objects:" << endl;
     long_obj_gen = min::new_obj_gen ( 70000, 7000 );
-    const min::stub * lstub =
-	min::stub_of ( long_obj_gen );
+    check_object
+        ( long_obj_gen, min::LONG_OBJ, 70000, 700 );
+
+    cout << endl;
+    cout << "Test preallocated objects:" << endl;
+    min::gen pre_obj_gen =
+        min::new_preallocated_gen ( 55 );
+    MIN_CHECK ( min::is_preallocated ( pre_obj_gen ) );
     MIN_CHECK
-	( min::type_of ( lstub ) == min::LONG_OBJ );
-    {
-	min::obj_vec_ptr lvp ( long_obj_gen );
-	min::uns32 lh = MUP::var_offset_of ( lvp );
-	min::uns32 lht = min::hash_size_of ( lvp );
-	min::uns32 lav = min::attr_size_of ( lvp );
-	min::uns32 lua =
-	    min::unused_size_of ( lvp );
-	min::uns32 laa = min::aux_size_of ( lvp );
-	min::uns32 lt = min::total_size_of ( lvp );
-	cout << "lh: " << lh << " lht: " << lht
-	     << " lua: " << lua
-	     << " lav: " << lav
-	     << " laa: " << laa
-	     << " lt: " << lt << endl;
-	MIN_CHECK ( lht >= 7000 );
-	MIN_CHECK ( lua >= 70000 );
-	MIN_CHECK ( lav == 0 );
-	MIN_CHECK ( laa == 0 );
-	MIN_CHECK
-	    ( lt == lh + lht + lav + lua + laa );
-	MIN_CHECK ( MUP::body_size_of ( lstub )
-		     ==
-		     lt * sizeof ( min::gen ) );
-    }
+        (    min::id_of_preallocated ( pre_obj_gen )
+	  == 55 );
+    MIN_CHECK
+        (    min::count_of_preallocated ( pre_obj_gen )
+	  == 1 );
+    min::increment_preallocated ( pre_obj_gen );
+    MIN_CHECK
+        (    min::id_of_preallocated ( pre_obj_gen )
+	  == 55 );
+    MIN_CHECK
+        (    min::count_of_preallocated ( pre_obj_gen )
+	  == 2 );
+    min::gen test_gen =
+        min::new_obj_gen ( pre_obj_gen, 500, 100 );
+    MIN_CHECK ( test_gen == pre_obj_gen );
+    check_object
+        ( pre_obj_gen, min::SHORT_OBJ, 500, 100 );
 
     cout << endl;
     cout << "Finish Objects Test!" << endl;

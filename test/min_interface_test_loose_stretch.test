@@ -1633,39 +1633,68 @@ Test short objects:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::type_of ( sstub ) == min::SHORT_OBJ => true
-sh: 1 sht: 100 sua: 922 sav: 0 saa: 0 st: 1023
+    min::type_of ( obj_gen ) == type => true
+vo: 1 hs: 100 us: 922 as: 0 auxs: 0 ts: 1023
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sht >= 100 => true
+    hs >= hash_size => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sua >= 500 => true
+    us >= unused_size => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sav == 0 => true
+    as == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    saa == 0 => true
+    auxs == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    st == sh + sht + sav + sua + saa => true
+    ts == vo + hs + as + us + auxs => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    MUP::body_size_of ( sstub ) == st * sizeof ( min::gen ) => true
+    MUP::body_size_of ( s ) == ts * sizeof ( min::gen ) => true
 
 Test long objects:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next_body + m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::type_of ( lstub ) == min::LONG_OBJ => true
-lh: 2 lht: 7000 lua: 70000 lav: 0 laa: 0 lt: 77002
+    min::type_of ( obj_gen ) == type => true
+vo: 2 hs: 7000 us: 70000 as: 0 auxs: 0 ts: 77002
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    lht >= 7000 => true
+    hs >= hash_size => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    lua >= 70000 => true
+    us >= unused_size => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    lav == 0 => true
+    as == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    laa == 0 => true
+    auxs == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    lt == lh + lht + lav + lua + laa => true
+    ts == vo + hs + as + us + auxs => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    MUP::body_size_of ( lstub ) == lt * sizeof ( min::gen ) => true
+    MUP::body_size_of ( s ) == ts * sizeof ( min::gen ) => true
+
+Test preallocated objects:
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::is_preallocated ( pre_obj_gen ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::id_of_preallocated ( pre_obj_gen ) == 55 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::count_of_preallocated ( pre_obj_gen ) == 1 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::id_of_preallocated ( pre_obj_gen ) == 55 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::count_of_preallocated ( pre_obj_gen ) == 2 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    test_gen == pre_obj_gen => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::type_of ( obj_gen ) == type => true
+vo: 1 hs: 100 us: 922 as: 0 auxs: 0 ts: 1023
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    hs >= hash_size => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    us >= unused_size => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    as == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    auxs == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ts == vo + hs + as + us + auxs => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    MUP::body_size_of ( s ) == ts * sizeof ( min::gen ) => true
 
 Finish Objects Test!
 
@@ -2626,6 +2655,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    next + 2 * m <= end_body_region => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap ) == int1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap ) == int1 => true
@@ -2975,8 +3006,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 Finish Object Attribute Level Test!
 
 Start Object Attribute Short-Cut Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
