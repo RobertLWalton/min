@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 06:55:59 EDT 2019
+// Date:	Sat May 18 23:02:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6859,11 +6859,43 @@ namespace min { namespace internal {
 
 namespace min {
 
-    min::gen new_obj_gen
+    namespace internal {
+
+	min::gen new_obj_gen
+	    ( min::stub * s,
+	      min::unsptr unused_size,
+	      min::unsptr hash_size,
+	      min::unsptr var_size,
+	      bool expand );
+    }
+
+    inline min::gen new_obj_gen
 	    ( min::unsptr unused_size,
 	      min::unsptr hash_size = 0,
 	      min::unsptr var_size = 0,
-	      bool expand = true );
+	      bool expand = true )
+    {
+        return internal::new_obj_gen
+	    ( (min::stub *) min::NULL_STUB,
+	      unused_size, hash_size, var_size,
+	      expand );
+    }
+
+    inline min::gen new_obj_gen
+	    ( min::gen preallocated,
+	      min::unsptr unused_size,
+	      min::unsptr hash_size = 0,
+	      min::unsptr var_size = 0,
+	      bool expand = true )
+    {
+        MIN_ASSERT ( is_stub ( preallocated ),
+	             "first new_obj_gen argument is not"
+		     " PREALLOCATE object" );
+        return internal::new_obj_gen
+	    ( unprotected::stub_of ( preallocated ),
+	      unused_size, hash_size, var_size,
+	      expand );
+    }
 
     inline bool is_obj ( min::gen g )
     {

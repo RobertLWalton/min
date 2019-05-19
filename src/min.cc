@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 10:30:38 EDT 2019
+// Date:	Sat May 18 23:02:23 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4378,9 +4378,9 @@ inline void compute_object_header
     }
 }
 
-
-min::gen min::new_obj_gen
-	    ( min::unsptr unused_size,
+min::gen MINT::new_obj_gen
+	    ( min::stub * s, 
+	      min::unsptr unused_size,
 	      min::unsptr hash_size,
 	      min::unsptr var_size,
 	      bool expand )
@@ -4393,7 +4393,17 @@ min::gen min::new_obj_gen
 	( type, total_size, header_size,
 	  var_size, hash_size, expand );
 
-    min::stub * s = MUP::new_acc_stub();
+    if ( s == min::NULL_STUB )
+	s = MUP::new_acc_stub();
+    else
+    {
+	MIN_ASSERT
+	    ( MUP::type_of ( s ) == min::PREALLOCATED,
+	      "first new_obj_gen argument is not"
+	      " PREALLOCATED object" );
+	MUP::set_type_of ( s, min::AUX_FREE );
+    }
+
     MUP::new_body ( s, sizeof (min::gen) * total_size );
 
     ::compute_object_header
