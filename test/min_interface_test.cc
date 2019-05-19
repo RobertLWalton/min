@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 19 05:31:56 EDT 2019
+// Date:	Sun May 19 06:16:02 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4599,6 +4599,8 @@ void test_object_attribute_level ( void )
     min::obj_vec_insptr vp ( obj_gen );
     min::attr_insptr ap ( vp );
 
+    MIN_CHECK ( ! min::has_single_attr ( vp ) );
+
     min::gen lab1 = min::new_str_gen ( "label1" );
     min::gen lab2 = min::new_str_gen ( "label2" );
     min::gen lab3 = min::new_str_gen ( "label3" );
@@ -4625,6 +4627,7 @@ void test_object_attribute_level ( void )
     min::locate ( ap, lab1 );
     min::set ( ap, int1 );
     MIN_CHECK ( min::get ( ap ) == int1 );
+    MIN_CHECK ( min::has_single_attr ( vp ) );
 
     min::locate ( ap, lab2 );
     min::set ( ap, int2 );
@@ -4731,6 +4734,20 @@ void test_object_attribute_level ( void )
 	( ap, lab1, lab2, int1, obj1, obj2, obj3 );
     ai[4].reverse_attr_count = 1;
     MIN_CHECK ( check_attr_info ( ap, ai, 12 ) );
+
+    min::obj_vec_insptr vp1 ( obj1 );
+    MIN_CHECK ( ! min::has_single_attr ( vp1 ) );
+    min::attr_push ( vp1 ) = int1;
+    MIN_CHECK ( ! min::has_single_attr ( vp1 ) );
+    MIN_CHECK ( min::has_single_attr ( vp1, true ) );
+    MIN_CHECK ( int1 == min::attr_pop ( vp1 ) );
+    MIN_CHECK ( ! min::has_single_attr ( vp1, true ) );
+    min::attr_insptr ap1 ( vp1 );
+    min::locate ( ap1, lab2 );
+    MIN_CHECK ( min::get ( ap1 ) == min::NONE() );
+    MIN_CHECK ( ! min::has_single_attr ( vp1 ) );
+    min::set ( ap1, int1 );
+    MIN_CHECK ( min::has_single_attr ( vp1 ) );
 
     // Object Attribute Short-Cuts are tested
     // separately.
