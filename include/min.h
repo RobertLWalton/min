@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 20 23:25:48 EDT 2019
+// Date:	Tue May 21 04:49:57 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7025,11 +7025,14 @@ namespace min {
 	  min::unsptr unused_size,
 	  min::unsptr var_size,
 	  bool expand = true );
-    min::gen copy
-	( min::obj_vec_ptr & vp,
-	  min::unsptr unused_size,
-	  min::unsptr var_size,
-	  bool expand = true );
+    namespace internal {
+	min::gen copy
+	    ( min::stub * s,
+	      min::obj_vec_ptr & vp,
+	      min::unsptr unused_size,
+	      min::unsptr var_size,
+	      bool expand = true );
+    }
     void reorganize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr hash_size,
@@ -7240,8 +7243,9 @@ namespace min {
 	      min::unsptr unused_size,
 	      min::unsptr var_size,
 	      bool expand );
-	friend min::gen copy
-	    ( min::obj_vec_ptr & vp,
+	friend min::gen internal::copy
+	    ( min::stub * s,
+	      min::obj_vec_ptr & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size,
 	      bool expand );
@@ -8020,8 +8024,10 @@ namespace min {
 	( min::obj_vec_ptr & vp,
 	  min::unsptr unused_size )
     {
-	return copy ( vp, unused_size,
-		      var_size_of ( vp ), true );
+	return internal::copy
+	    ( (min::stub *) min::NULL_STUB,
+	      vp, unused_size,
+	      var_size_of ( vp ), true );
     }
     inline min::gen copy
 	( min::gen obj,
@@ -8030,16 +8036,33 @@ namespace min {
 	  bool expand = true )
     {
         min::obj_vec_ptr vp ( obj );
-	return copy
-	    ( vp, unused_size, var_size, expand );
+	return internal::copy
+	    ( (min::stub *) min::NULL_STUB,
+	      vp, unused_size, var_size, expand );
     }
     inline min::gen copy
 	( min::gen obj,
 	  min::unsptr unused_size )
     {
         min::obj_vec_ptr vp ( obj );
-	return copy ( vp, unused_size,
-	              var_size_of ( vp ), true );
+	return internal::copy
+	    ( (min::stub *) min::NULL_STUB,
+	      vp, unused_size,
+	      var_size_of ( vp ), true );
+    }
+    inline min::gen copy
+	( min::gen preallocated,
+	  min::gen obj,
+	  min::unsptr unused_size )
+    {
+        MIN_ASSERT ( is_stub ( preallocated ),
+	             "first object copy argument is not"
+		     " PREALLOCATE object" );
+        min::obj_vec_ptr vp ( obj );
+	return internal::copy
+	    ( unprotected::stub_of ( preallocated ),
+	      vp, unused_size,
+	      var_size_of ( vp ), true );
     }
 
     inline void reorganize

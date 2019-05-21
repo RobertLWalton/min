@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 21 00:04:10 EDT 2019
+// Date:	Tue May 21 04:49:44 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4406,7 +4406,7 @@ min::gen MINT::new_obj_gen
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
 	      "first new_obj_gen argument is not"
 	      " PREALLOCATED object" );
-	MUP::set_type_of ( s, min::AUX_FREE );
+	MUP::set_type_of ( s, min::ACC_FREE );
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
@@ -4593,8 +4593,9 @@ void min::resize
 
 # endif // MIN_USE_OBJ_AUX_STUBS
 
-min::gen min::copy
-    ( min::obj_vec_ptr & vp,
+min::gen MINT::copy
+    ( min::stub * s,
+      min::obj_vec_ptr & vp,
       min::unsptr unused_size,
       min::unsptr var_size,
       bool expand )
@@ -4615,7 +4616,17 @@ min::gen min::copy
     unused_size += total_size - header_size
                  - saved_total_size;
 
-    min::stub * s = MUP::new_acc_stub();
+    if ( s == min::NULL_STUB )
+	s = MUP::new_acc_stub();
+    else
+    {
+	MIN_ASSERT
+	    ( MUP::type_of ( s ) == min::PREALLOCATED,
+	      "first object copy argument is not"
+	      " PREALLOCATED object" );
+	MUP::set_type_of ( s, min::ACC_FREE );
+    }
+
     MUP::new_body ( s, sizeof (min::gen) * total_size );
 
     const min::gen * & oldb = MUP::base ( vp );
