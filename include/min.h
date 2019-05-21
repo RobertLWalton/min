@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 21 04:49:57 EDT 2019
+// Date:	Tue May 21 06:06:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6877,6 +6877,9 @@ namespace min {
 	      min::unsptr hash_size,
 	      min::unsptr var_size,
 	      bool expand );
+
+	void acc_write_update
+	    ( min::obj_vec_ptr & vp );
     }
 
     inline min::gen new_obj_gen

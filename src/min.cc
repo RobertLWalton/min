@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 21 04:49:44 EDT 2019
+// Date:	Tue May 21 06:06:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4616,6 +4616,7 @@ min::gen MINT::copy
     unused_size += total_size - header_size
                  - saved_total_size;
 
+    bool was_preallocated = false;
     if ( s == min::NULL_STUB )
 	s = MUP::new_acc_stub();
     else
@@ -4625,6 +4626,7 @@ min::gen MINT::copy
 	      "first object copy argument is not"
 	      " PREALLOCATED object" );
 	MUP::set_type_of ( s, min::ACC_FREE );
+	was_preallocated = true;
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
@@ -4687,7 +4689,78 @@ min::gen MINT::copy
                  "system programming error" );
 
     MUP::set_type_of ( s, new_type );
+
+    if ( was_preallocated )
+    {
+        min::obj_vec_ptr vp2 ( s );
+	MINT::acc_write_update ( vp2 );
+    }
+
     return min::new_stub_gen ( s );
+}
+
+# if MIN_USE_OBJ_AUX_STUBS
+
+    static void acc_write_update_aux_stub
+            ( const min::stub * s1,
+	      const min::stub * s2 );
+    inline void acc_write_update_aux_stub
+            ( const min::stub * s1, min::gen v )
+    {
+        if ( ! min::is_stub ( v ) ) return;
+	const min::stub * s2 = MUP::stub_of ( v );
+	int type = MUP::type_of ( s2 );
+	if ( type == min::LIST_AUX
+	     ||
+	     type == min::SUBLIST_AUX )
+	    ::acc_write_update_aux_stub ( s1, s2 );
+	else
+	    MUP::acc_write_update ( s1, s2 );
+    }
+
+    static void acc_write_update_aux_stub
+	    ( const min::stub * s1,
+	      const min::stub * s2 )
+    {
+	while ( true )
+	{
+	    ::acc_write_update_aux_stub
+		( s1, MUP::gen_of ( s2 ) );
+	    min::uns64 c2 = MUP::control_of ( s2 );
+	    if ( c2 & MUP::STUB_ADDRESS )
+		s2 = MUP::stub_of_control ( c2 );
+	    else
+		break;
+	}
+    }
+
+# else // ! MIN_USE_OBJ_AUX_STUBS
+
+    inline void acc_write_update_aux_stub
+            ( const min::stub * s1, min::gen v )
+    {
+        if ( ! min::is_stub ( v ) ) return;
+	const min::stub * s2 = MUP::stub_of ( v );
+        MUP::acc_write_update ( s1, s2 );
+    }
+
+# endif // MIN_USE_OBJ_AUX_STUBS
+
+void MINT::acc_write_update
+    ( min::obj_vec_ptr & vp )
+{
+    unsptr var_offset = MUP::var_offset_of ( vp );
+    unsptr unused_offset = MUP::unused_offset_of ( vp );
+    unsptr aux_offset = MUP::aux_offset_of ( vp );
+    unsptr total_size = min::total_size_of ( vp );
+
+    const min::stub * s1 = MUP::stub_of ( vp );
+    const min::gen * & base = MUP::base ( vp );
+
+    for ( unsptr i = var_offset; i < unused_offset; )
+        ::acc_write_update_aux_stub ( s1, base[i++] );
+    for ( unsptr i = aux_offset; i < total_size; )
+        ::acc_write_update_aux_stub ( s1, base[i++] );
 }
 
 // Object List Level
