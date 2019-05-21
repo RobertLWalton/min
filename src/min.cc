@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 23:02:23 EDT 2019
+// Date:	Tue May 21 00:04:10 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -846,33 +846,37 @@ unsigned MINT::number_of_acc_levels;
 // this macro stores the `accumulator' and executes
 // the FAIL statements.  Otherwise this macro increments
 // sc.stub_count but does not access sc.gen_count/limit.
+// Stubs with type < 0 are ignored.
 //
 #define MIN_SCAVENGE_S2(FAIL) \
     min::uns64 c = MUP::control_of ( s2 ); \
     int type = MUP::type_of_control ( c ); \
-    \
-    if ( ( c & sc.stub_flag ) == 0 ) \
-	; /* do nothing */ \
-    else if ( type < 0 \
-	      || \
-	      ! MINT::is_scavengable ( type ) ) \
-	MUP::clear_flags_of \
-	    ( s2, sc.stub_flag ); \
-    else if (    sc.to_be_scavenged \
-	      >= sc.to_be_scavenged_limit ) \
+    if ( type >= 0 ) \
     { \
-	sc.stub_flag_accumulator = accumulator; \
-	FAIL; \
-    } \
-    else \
-    { \
-	* sc.to_be_scavenged ++ = s2; \
-	MUP::clear_flags_of \
-	    ( s2, sc.stub_flag ); \
-    } \
-    \
-    accumulator |= c; \
-    ++ sc.stub_count;
+        if ( c & sc.clear_flag ) \
+	{ \
+	    if ( ! MINT::is_scavengable ( type ) ) \
+	    { \
+		accumulator |= c; \
+		c |= sc.set_flag; \
+	    } \
+	    else if (    sc.to_be_scavenged \
+		      >= sc.to_be_scavenged_limit ) \
+	    { \
+		sc.stub_flag_accumulator = \
+		    accumulator; \
+		FAIL; \
+	    } \
+	    else \
+	    { \
+		accumulator |= c; \
+		* sc.to_be_scavenged ++ = s2; \
+	    } \
+	    c &= ~ sc.clear_flag; \
+	    MUP::set_control_of ( s2, c ); \
+        } \
+	++ sc.stub_count; \
+    }
 
 // Scavenger routine for pointers.
 //
@@ -1220,38 +1224,39 @@ static void packed_vec_scavenger_routine
         \
 	if ( type < 0 ) \
 	{ \
-	    sc.stub_flag_accumulator = \
-		accumulator; \
+	    sc.stub_flag_accumulator = accumulator; \
 	    if ( obj_aux_scavenge ( sc, s2 ) ) \
 	    { \
 		FAIL; \
 	    } \
-	    accumulator = \
-		sc.stub_flag_accumulator; \
+	    accumulator = sc.stub_flag_accumulator; \
 	} \
 	else \
 	{ \
-	    if ( ( c & sc.stub_flag ) == 0 ) \
-	        /* Do nothing */ ; \
-	    else if ( ! MINT::is_scavengable \
-			    ( type ) ) \
-		MUP::clear_flags_of \
-		    ( s2, sc.stub_flag ); \
-	    else if (    sc.to_be_scavenged \
-		      >= sc.to_be_scavenged_limit ) \
+	    if ( c & sc.clear_flag ) \
 	    { \
-		sc.stub_flag_accumulator = \
-		    accumulator; \
-		FAIL; \
-	    } \
-	    else \
-	    { \
-		* sc.to_be_scavenged ++ = s2; \
-		MUP::clear_flags_of \
-		    ( s2, sc.stub_flag ); \
+	        if ( ! MINT::is_scavengable ( type ) ) \
+	        { \
+	            accumulator |= c; \
+		    c |= sc.set_flag; \
+	        } \
+	        else \
+		if (    sc.to_be_scavenged \
+		     >= sc.to_be_scavenged_limit ) \
+	        { \
+		    sc.stub_flag_accumulator = \
+		        accumulator; \
+		    FAIL; \
+	        } \
+	        else \
+	        { \
+	            accumulator |= c; \
+		    * sc.to_be_scavenged ++ = s2; \
+		} \
+		c &= ~ sc.clear_flag; \
+		MUP::set_control_of ( s2, c ); \
 	    } \
 	    ++ sc.stub_count; \
-	    accumulator |= c; \
 	}
 
     // Helper for obj_scavenger_routine that scavenges

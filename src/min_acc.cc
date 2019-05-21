@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 16 21:07:06 EDT 2017
+// Date:	Mon May 20 22:43:08 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1837,11 +1837,14 @@ min::unsptr MACC::process_acc_stack
 	    unsigned level =
 	        MINT::log2floor ( mark );
 	    mark ^= 1 << level;
+
+	    c2 &= ~ UNMARKED ( level );
 	    int type = MUP::type_of_control ( c2 );
 	    if ( MINT::is_scavengable ( type ) )
 		levels[level]
 		    .to_be_scavenged.push ( s2 );
-	    c2 &= ~ UNMARKED ( level );
+	    else
+	        c2 |= SCAVENGED ( level );
 	}
 	while ( make_root != 0 )
 	{
@@ -1876,6 +1879,8 @@ min::unsptr MACC::process_acc_stack
 		    MIN_REQUIRE ( type >= 0 );
 		    if ( MINT::is_scavengable ( type ) )
 			lev.to_be_scavenged.push ( s2 );
+		    else
+			c2 |= SCAVENGED ( level );
 		}
 	    }
 	}
@@ -2215,7 +2220,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
 	    sc.state = 0;
-	    sc.stub_flag = UNMARKED ( level );
+	    sc.clear_flag = UNMARKED ( level );
+	    sc.set_flag = SCAVENGED ( level );
 	    sc.gen_limit = MACC::scan_limit;
 	    lev.collector_phase = LOCK_SCAVENGING_ROOT;
         }

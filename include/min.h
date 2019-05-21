@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 18 23:02:43 EDT 2019
+// Date:	Mon May 20 23:25:48 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2682,11 +2682,13 @@ namespace min { namespace internal {
     // done.
     //
     // First, a particular flag of s2, designated by
-    // sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and if s2 is scaven-
-    // gable a pointer to s2 is put in a to-be-scavenged
-    // stack.  s2 is scavengable if and only if
-    // scavenger_rountines[type_of(s2)] != NULL;
+    // sc.clear_flag, is checked to see if it is on.
+    // If it is, it is turned off and then if s2 is
+    // scavengable a pointer to s2 is put in a to-be-
+    // scavenged stack, but if s2 is not scavengable,
+    // the flag defined by sc.set_flag is turned on.
+    // s2 is scavengable if and only if scavenger_
+    // rountines[type_of(s2)] != NULL;
     //
     // The second thing is to logically OR the control
     // word of s2 into an accumulator designed as
@@ -2743,13 +2745,20 @@ namespace min { namespace internal {
 	static const min::uns64 RESTART =
 	    min::uns64 ( min::int64 ( -1 ) );
 
-	min::uns64 stub_flag;
-	    // A word with a single bit set.  If this
-	    // bit is set in the stub control of s2 then
-	    // the scavenger routine must clear the bit
-	    // in s2's control and, if scavenger_
-	    // routines[type_of(s2)] is not NULL, put s2
-	    // on the to-be-scavenged stack.
+	min::uns64 clear_flag, set_flag;
+	    // Two words, each with a single bit set.
+	    // If the clear_flag bit is set in the stub
+	    // control of s2 then the scavenger routine
+	    // must clear the clear_flag bit in s2's
+	    // control and then, if scavenger_routines
+	    // [type_of(s2)] is not NULL, put s2 on the
+	    // to-be-scavenged stack, but if it is NULL,
+	    // set the set_flag bit in s2's control
+	    // instead.
+	    //
+	    // If is also allowed for the set_flag word
+	    // to be zero, so it will not actually set
+	    // any flag.
 
 	min::uns64 stub_flag_accumulator;
 	    // Logical OR of all the stub controls of
@@ -2807,11 +2816,12 @@ namespace min { namespace internal {
     // table_gen, locatable_num_gen, and locatable_stub_
     // ptr structures, finding all pointers therein to
     // acc stubs s2.  For each s2 found, a particular
-    // flag of s2, designated by sc.stub_flag, is
+    // flag of s2, designated by sc.clear_flag, is
     // checked to see if it is on.  If it is, it is
-    // turned off, and if the s2 stub is scavengable, a
-    // pointer to s2 is pushed onto the to_be_scavenged
-    // stack.
+    // turned off, and then if the s2 stub is scaveng-
+    // able, a pointer to s2 is pushed onto the to_be_
+    // scavenged stack, but if s2 is not scavengable,
+    // the sc.set_flag of s2 is set.
     //
     // This is known as thread scavenging.
     //
