@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 21 06:06:00 EDT 2019
+// Date:	Wed May 22 01:30:43 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4616,7 +4616,6 @@ min::gen MINT::copy
     unused_size += total_size - header_size
                  - saved_total_size;
 
-    bool was_preallocated = false;
     if ( s == min::NULL_STUB )
 	s = MUP::new_acc_stub();
     else
@@ -4626,7 +4625,6 @@ min::gen MINT::copy
 	      "first object copy argument is not"
 	      " PREALLOCATED object" );
 	MUP::set_type_of ( s, min::ACC_FREE );
-	was_preallocated = true;
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
@@ -4690,11 +4688,8 @@ min::gen MINT::copy
 
     MUP::set_type_of ( s, new_type );
 
-    if ( was_preallocated )
-    {
-        min::obj_vec_ptr vp2 ( s );
-	MINT::acc_write_update ( vp2 );
-    }
+    min::obj_vec_ptr svp ( s );
+    MINT::acc_write_update ( svp );
 
     return min::new_stub_gen ( s );
 }
@@ -4704,7 +4699,7 @@ min::gen MINT::copy
     static void acc_write_update_aux_stub
             ( const min::stub * s1,
 	      const min::stub * s2 );
-    inline void acc_write_update_aux_stub
+    inline void acc_write_update_obj_element
             ( const min::stub * s1, min::gen v )
     {
         if ( ! min::is_stub ( v ) ) return;
@@ -4724,7 +4719,7 @@ min::gen MINT::copy
     {
 	while ( true )
 	{
-	    ::acc_write_update_aux_stub
+	    ::acc_write_update_obj_element
 		( s1, MUP::gen_of ( s2 ) );
 	    min::uns64 c2 = MUP::control_of ( s2 );
 	    if ( c2 & MUP::STUB_ADDRESS )
@@ -4736,7 +4731,7 @@ min::gen MINT::copy
 
 # else // ! MIN_USE_OBJ_AUX_STUBS
 
-    inline void acc_write_update_aux_stub
+    inline void acc_write_update_obj_element
             ( const min::stub * s1, min::gen v )
     {
         if ( ! min::is_stub ( v ) ) return;
@@ -4758,9 +4753,11 @@ void MINT::acc_write_update
     const min::gen * & base = MUP::base ( vp );
 
     for ( unsptr i = var_offset; i < unused_offset; )
-        ::acc_write_update_aux_stub ( s1, base[i++] );
+        ::acc_write_update_obj_element
+	    ( s1, base[i++] );
     for ( unsptr i = aux_offset; i < total_size; )
-        ::acc_write_update_aux_stub ( s1, base[i++] );
+        ::acc_write_update_obj_element
+	    ( s1, base[i++] );
 }
 
 // Object List Level
