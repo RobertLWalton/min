@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 15:23:59 EDT 2019
+// Date:	Fri May 24 16:42:16 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -453,7 +453,7 @@ namespace min {
     const int ACC_FREE			= 1;
     const int DEALLOCATED		= 2;
     const int PREALLOCATED		= 3;
-    const int REALLOCATING		= 4;
+    const int FILLING			= 4;
 
     const int OBJ			= 8;
     const int OBJ_MASK			= -4;

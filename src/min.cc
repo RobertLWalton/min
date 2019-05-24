@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 22 01:30:43 EDT 2019
+// Date:	Fri May 24 16:42:40 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -373,7 +373,7 @@ void MINT::initialize ( void )
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";
     type_name[PREALLOCATED] = "PREALLOCATED";
-    type_name[REALLOCATING] = "REALLOCATING";
+    type_name[FILLING] = "FILLING";
     type_name[NUMBER] = "NUMBER";
     type_name[SHORT_STR] = "SHORT_STR";
     type_name[LONG_STR] = "LONG_STR";
@@ -4407,7 +4407,7 @@ min::gen MINT::new_obj_gen
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
 	      "first new_obj_gen argument is not"
 	      " PREALLOCATED object" );
-	MUP::set_type_of ( s, min::REALLOCATING );
+	MUP::set_type_of ( s, min::FILLING );
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
@@ -4631,7 +4631,7 @@ min::gen MINT::copy
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
 	      "first object copy argument is not"
 	      " PREALLOCATED object" );
-	MUP::set_type_of ( s, min::REALLOCATING );
+	MUP::set_type_of ( s, min::FILLING );
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
