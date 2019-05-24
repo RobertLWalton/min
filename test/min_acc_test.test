@@ -76,85 +76,33 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     p6 != p7 => true
 
-Test stub swap function:
-TRACE: allocating new subregion for 128 byte fixed size blocks
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::is_preallocated ( gen_pre ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::id_of_preallocated ( gen_pre ) == 55 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::count_of_preallocated ( gen_pre ) == 1 => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in void min::increment_preallocated(min::gen):
-    s != __null => true
-ASSERT SUCCEEDED: ../include/min.h:XXXX:
-    in void min::increment_preallocated(min::gen):
-    min::type_of ( s ) == PREALLOCATED => true
-    gen argument type is not PREALLOCATED
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::count_of_preallocated ( gen_pre ) == 2 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    vp1[0] == num1 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    vp2[0] == num2 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    stub_obj1 == MACC::stub_of_body ( bp1 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    stub_obj2 == MACC::stub_of_body ( bp2 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    p_obj1 != p_obj2 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    p_obj1 == MUP::ptr_of ( stub_obj2 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    p_obj2 == MUP::ptr_of ( stub_obj1 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    stub_obj1 == MACC::stub_of_body ( bp1 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    stub_obj2 == MACC::stub_of_body ( bp2 ) => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    vp1[0] == num2 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    vp2[0] == num1 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::type_of ( stub_pre ) == min::PREALLOCATED => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    MUP::body_size_of ( stub_pre ) == 0 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    min::type_of ( stub_obj1 ) == min::PREALLOCATED => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    MUP::body_size_of ( stub_obj1 ) == 0 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    vp1[0] == num2 => true
-ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
-    stub_pre == MACC::stub_of_body ( bp ) => true
-
 Finish Allocator/Collector/Compactor Interface Test!
 
 Start ACC Garbage Collector Test!
 Before Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:            31          2021          2052
+                          Stubs:            28          2024          2052
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:             8          2040          2048
-                128 Byte Blocks:             2           510           512
                 256 Byte Blocks:             5           251           256
                1024 Byte Blocks:             1            63            64
               65536 Byte Blocks:             1             0             1
-     Bytes in Fixed Size Blocks:         68368        324848        393216
+     Bytes in Fixed Size Blocks:         68112        259568        327680
 TRACE: allocating new subregion for 64 byte fixed size blocks
 TRACE: allocating new subregion for 8192 byte fixed size blocks
 TRACE: allocating new subregion for 2048 byte fixed size blocks
 TRACE: allocating new subregion for 4096 byte fixed size blocks
+TRACE: allocating new subregion for 128 byte fixed size blocks
 TRACE: allocating new subregion for 512 byte fixed size blocks
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:          1034          1018          2052
+                          Stubs:          1031          1021          2052
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:            11          2037          2048
                  64 Byte Blocks:            22          1002          1024
-                128 Byte Blocks:            35           477           512
+                128 Byte Blocks:            33           479           512
                 256 Byte Blocks:            59           197           256
                 512 Byte Blocks:            97            31           128
                1024 Byte Blocks:           206            50           256
@@ -162,16 +110,16 @@ After Allocation
                4096 Byte Blocks:           144             0           144
                8192 Byte Blocks:             1             7             8
               65536 Byte Blocks:             1             0             1
-     Bytes in Fixed Size Blocks:       1852784        440976       2293760
+     Bytes in Fixed Size Blocks:       1852528        441232       2293760
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     check_vec_of_objects ( v ) => true
 After Random Deallocation
                       Numbers of          Used          Free         Total
-                          Stubs:        101034           443        101477
+                          Stubs:        101031           446        101477
                  16 Byte Blocks:             1          4095          4096
                  32 Byte Blocks:            13          2035          2048
                  64 Byte Blocks:            10          1014          1024
-                128 Byte Blocks:            31           481           512
+                128 Byte Blocks:            29           483           512
                 256 Byte Blocks:            60           196           256
                 512 Byte Blocks:            93           163           256
                1024 Byte Blocks:           212           108           320
@@ -179,10 +127,10 @@ After Random Deallocation
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
               65536 Byte Blocks:             1             0             1
-     Bytes in Fixed Size Blocks:       1913264        904784       2818048
+     Bytes in Fixed Size Blocks:       1913008        905040       2818048
 START COLLECTOR level 2 generation counts:
-    0/0,0,0,0,0/0,0,0,0,101023
-END COLLECTOR INITING level 2 collectible 101023 root 0
+    0/0,0,0,0,0/0,0,0,0,101020
+END COLLECTOR INITING level 2 collectible 101020 root 0
 TRACE: new_paged_block_region (262144, 8)
 TRACE: new_pool ( 64 )
 TRACE: new_paged_block_region returns & region_table[3]
@@ -190,7 +138,7 @@ END COLLECTOR SCAVENGING level 2
           scanned 155253 stubs scanned 1029 scavenged 1006 thrashed 1
 END COLLECTOR COLLECTING level 2
           AUX HASH: kept 10 collected 0
-          NON-HASH: kept 1009 collected 100004
+          NON-HASH: kept 1009 collected 100001
 END COLLECTOR PROMOTING level 2 promoted 0
 COLLECTOR DONE level 2 generation counts:
     0/0,0,0,0,0/0,0,0,1019,0

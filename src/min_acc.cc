@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 20 22:43:08 EDT 2019
+// Date:	Fri May 24 15:24:21 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1203,59 +1203,6 @@ void MUP::deallocate_body
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
-void MUP::stub_swap
-        ( const min::stub * s1, const min::stub * s2 )
-{
-    MIN_REQUIRE
-        ( ! min::is_name ( min::new_stub_gen ( s1 ) ) );
-    MIN_REQUIRE
-        ( ! min::is_name ( min::new_stub_gen ( s2 ) ) );
-
-    min::uns64 v1 = MUP::value_of ( s1 );
-    min::uns64 v2 = MUP::value_of ( s2 );
-    min::uns64 c1 = MUP::control_of ( s1 );
-    min::uns64 c2 = MUP::control_of ( s2 );
-
-    if ( MUP::body_size_of ( s1 ) != 0 )
-    {
-	min::uns64 * bp1 =
-	    (min::uns64 *) MUP::ptr_of ( s1 ) - 1;
-	MIN_REQUIRE
-	    ( s1 == MACC::stub_of_body ( bp1 ) );
-	* bp1 = MUP::renew_control_stub ( * bp1, s2 );
-    }
-    if ( MUP::body_size_of ( s2 ) != 0 )
-    {
-	min::uns64 * bp2 =
-	    (min::uns64 *) MUP::ptr_of ( s2 ) - 1;
-	MIN_REQUIRE
-	    ( s2 == MACC::stub_of_body ( bp2 ) );
-	* bp2 = MUP::renew_control_stub ( * bp2, s1 );
-    }
-
-    min::stub * S1 = (min::stub *) s1;
-    min::stub * S2 = (min::stub *) s2;
-
-    if ( c1 & MINT::ACC_FIXED_BODY_FLAG )
-	MUP::set_flags_of
-	    ( S2, MINT::ACC_FIXED_BODY_FLAG );
-    else
-	MUP::clear_flags_of
-	    ( S2, MINT::ACC_FIXED_BODY_FLAG );
-    if ( c2 & MINT::ACC_FIXED_BODY_FLAG )
-	MUP::set_flags_of
-	    ( S1, MINT::ACC_FIXED_BODY_FLAG );
-    else
-	MUP::clear_flags_of
-	    ( S1, MINT::ACC_FIXED_BODY_FLAG );
-
-    MUP::set_type_of
-        ( S1, MUP::type_of_control ( c2 ) );
-    MUP::set_type_of
-        ( S2, MUP::type_of_control ( c1 ) );
-    MUP::set_value_of ( S1, v2 );
-    MUP::set_value_of ( S2, v1 );
-}
 
 // Packed Type Allocator
 // ------ ---- ---------
