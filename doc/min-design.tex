@@ -1793,11 +1793,14 @@ that contains a \TT{const char} vector and its size.
 \item[\TT{const int min::DEALLOCATED}]~\\
 Stub has a deallocated body.
 \item[\TT{const int min::PREALLOCATED}]~\\
-Stub is preallocated, and does not yet have a body.
+Stub is preallocated, and does not yet have a body or other
+contents.
 This can happen when an identifier referencing a stub via
 an \TT{min::\EOL id\_\EOL map} precedes the definition of the
-identified object.  See \itemref{IDENTIFIER-MAPS} and
-\itemref{SWAPPING-STUBS}.
+identified object.  See \itemref{PREALLOCATED-STUBS}.
+\item[\TT{const int min::FILLING}]~\\
+Stub is preallocated that is being filled in.
+See \itemref{FILLING-PREALLOCATED-STUBS}.
 
 \end{list}
 \end{indpar}
@@ -2925,22 +2928,11 @@ pointed is called the `\key{deallocated body}' of the stub.
 This is large enough that any attempt to access the body of a
 deallocated stub will cause a memory fault.
 
-\subsubsection{Swapping Stubs}
-\label{SWAPPING-STUBS}
+\subsubsection{Preallocated Stubs}
+\label{PREALLOCATED-STUBS}
 
-The type and values of two stubs can be swapped by:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void MUP::| & \MUPKEY{stub\_swap}\ARGBREAK
-    \verb|( const min::stub * s1, const min::stub * s2 )|
-\LABEL{MUP::STUB_SWAP}
-\end{tabular}\end{indpar}
-
-Neither stub may be the stub of a name (number, string, or label).
-Neither stub may be the target of an existing
-\TT{min::obj\_vec\_\ldots{}ptr}.
-
-Stubs are most often swapped when one of the stubs has the
+A stub can be \key{preallocated}, referenced, and even garbage
+collected, before its contents are known.  Such stubs have the
 \TT{PREALLOCATED} type (see \pagref{PREALLOCATED_ID} for an example).
 Functions for this type are:
 
@@ -2966,11 +2958,13 @@ The \TT{min::new\_preallocate\_gen} function returns a
 \TT{min::gen} value pointing at a new stub
 of \TT{min::\EOL PREALLOCATED}\label{MIN::PREALLOCATED}
 type that stores the given \TT{id}.  The preallocated
-stub represents an object whose contents are yet unspecified.
+stub represents an object or other non-atomic value
+whose contents are yet unspecified.
 The preallocated stub can be
-referenced as is, and then later \TT{min::\EOL stub\_\EOL swap}
-can be used to fill in the contents of the object represented
-by the stub.
+referenced as is, and functions such as
+\TT{min::\EOL new\_\EOL object} (\pagref{MIN::PREALLOCATED_NEW_OBJ})
+and \TT{min::\EOL copy} (\pagref{MIN::PREALLCATED_COPY})
+can be used to fill in the final contents of the stub.
 
 Preallocated stubs store two \TT{min::uns32} values: an identifier
 and a count.  When a preallocated stub is created from an identifier input
@@ -2985,22 +2979,32 @@ has been read from the file.
 
 It is possible to assign a non-object value to an identifier:
 see the \TT{min::\EOL put} function in \itemref{IDENTIFIER-MAPS}.
-This should be done only if the count of the preallocated
-stub is \TT{1}, indicating that the identifier has been input
-from its file only once, at the same time as the value to be
-assigned to the identifier was input.  Otherwise references to the
-stub that pre-exist the assignment will be dangling.
+When this is done for an identifier associated with a preallocated
+object, the preallocated object ends up dangling.  The identifier
+count can be used to tell if this is an error.  Typically if the
+count is \TT{1}, the only reference to the preallocated object in
+the input file is the one being used to set the identifier value,
+and there is no error, but if the count is greater than \TT{1},
+some previous reference in the input file will be left pointing
+at the now dangling preallocated object.  However, this is
+\underline{not} an Allocator-Collector-Compactor error;
+it is an application error.
 
 If the object represented by the preallocated stub never
-has its contents filled in, references to it become
-dangling.  Then the ID recorded in the stub can be used
-in debugging to find the source of the dangling references.
+has its contents filled in, the ID recorded in the stub can be used
+in debugging to find the references to the preallocated stub in the
+input file.
 
 The functions above create preallocated stubs,
 test a \TT{min::gen} value to see if it points at a
 preallocate stub, return the stub's identifier and count, and increment
 the count.  If \TT{g} does not point at a preallocated
 stub, \TT{0} is returned as its identifier or count.
+
+\subsubsubsection{Filling Preallocated Stubs}
+\label{FILLING-PREALLOCATED-STUBS}
+
+TBD
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
@@ -8607,10 +8611,9 @@ If there is no value associated with \TT{id}, the
 a preallocated stub that becomes the value associated with \TT{id}
 by \TT{min::\EOL put}.%
 \label{PREALLOCATED_ID}
-Later the contents of the stub can be set by using
-\TT{MUP::stub\_swap} (\itemref{SWAPPING-STUBS}) if the value
-is an object, even if other data already points at the
-preallocated stub.
+Later the contents of the preallocated stub can be filled in
+even if other data already points at the
+stub: see \itemref{FILLING-PREALLOCATED-STUBS}.
 
 If instead the value to be associated with the identifier is not
 an object, but, for example, it is a MIN string, the value can be
@@ -17967,10 +17970,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
-\verb|void MUP::| & \MUPKEY{stub\_swap}\ARGBREAK
-    \verb|( const min::stub * s1,|\ARGBREAK
-    \verb|  const min::stub * s2 )|
-\LABEL{MUP::STUB_SWAP} \\
 \verb|min::gen min::| & \MINKEY{new\_preallocated\_gen}
     \verb|( min::uns32 id )|
 \LABEL{MIN::NEW_PREALLOCATED_GEN} \\

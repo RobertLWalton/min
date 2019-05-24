@@ -451,9 +451,9 @@ namespace min {
     // Collectable.
     //
     const int ACC_FREE			= 1;
-    const int ACC_MARK			= 2;
-    const int DEALLOCATED		= 3;
-    const int PREALLOCATED		= 4;
+    const int DEALLOCATED		= 2;
+    const int PREALLOCATED		= 3;
+    const int REALLOCATING		= 4;
 
     const int OBJ			= 8;
     const int OBJ_MASK			= -4;

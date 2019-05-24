@@ -373,6 +373,7 @@ void MINT::initialize ( void )
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";
     type_name[PREALLOCATED] = "PREALLOCATED";
+    type_name[REALLOCATING] = "REALLOCATING";
     type_name[NUMBER] = "NUMBER";
     type_name[SHORT_STR] = "SHORT_STR";
     type_name[LONG_STR] = "LONG_STR";
@@ -4406,7 +4407,7 @@ min::gen MINT::new_obj_gen
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
 	      "first new_obj_gen argument is not"
 	      " PREALLOCATED object" );
-	MUP::set_type_of ( s, min::ACC_FREE );
+	MUP::set_type_of ( s, min::REALLOCATING );
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
@@ -4600,6 +4601,12 @@ min::gen MINT::copy
       min::unsptr var_size,
       bool expand )
 {
+    min::locatable_gen protect_source
+        ( min::new_stub_gen
+	    ( (const min::stub *) vp ) );
+	// Must protect pointers IN original object
+	// from GC while copying.
+
     unsptr hash_size = min::hash_size_of ( vp );
     unsptr attr_size = min::attr_size_of ( vp );
     unsptr aux_size = min::aux_size_of ( vp );
@@ -4624,7 +4631,7 @@ min::gen MINT::copy
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
 	      "first object copy argument is not"
 	      " PREALLOCATED object" );
-	MUP::set_type_of ( s, min::ACC_FREE );
+	MUP::set_type_of ( s, min::REALLOCATING );
     }
 
     MUP::new_body ( s, sizeof (min::gen) * total_size );
