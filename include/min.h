@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 16:42:16 EDT 2019
+// Date:	Sat May 25 08:36:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2471,6 +2471,9 @@ namespace min { namespace unprotected {
     //
     void deallocate_body
 	( min::stub * s, min::unsptr n );
+
+    void move_body
+	( min::stub * s1, min::stub * s2 );
 } }
 
 

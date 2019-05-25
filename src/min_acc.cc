@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 25 03:58:09 EDT 2019
+// Date:	Sat May 25 08:35:58 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1201,6 +1201,32 @@ void MUP::deallocate_body
 
     MUP::set_ptr_of ( s, MACC::deallocated_body );
     MUP::set_type_of ( s, min::DEALLOCATED );
+}
+
+void MUP::move_body ( min::stub * s1, min::stub * s2 )
+{
+    MIN_REQUIRE ( MUP::body_size_of ( s2 ) != 0 );
+
+    void * p2 = MUP::ptr_of ( s2 );
+    min::uns64 c2 = MUP::control_of ( s2 );
+
+    min::uns64 * bp2 = (min::uns64 *) p2 - 1;
+    MIN_REQUIRE ( s2 == MACC::stub_of_body ( bp2 ) );
+
+
+    * bp2 = MUP::renew_control_stub ( * bp2, s1 );
+
+    if ( c2 & MINT::ACC_FIXED_BODY_FLAG )
+	MUP::set_flags_of
+	    ( s1, MINT::ACC_FIXED_BODY_FLAG );
+    else
+	MUP::clear_flags_of
+	    ( s1, MINT::ACC_FIXED_BODY_FLAG );
+
+    MUP::set_ptr_of ( s2, MACC::deallocated_body );
+    MUP::set_type_of ( s2, min::DEALLOCATED );
+
+    MUP::set_ptr_of ( s1, p2 );
 }
 
 
