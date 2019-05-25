@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 18, 2019}
+\date{May 25, 2019}
  
 \maketitle
 
@@ -1790,6 +1790,10 @@ Stub value is 0-8 \TT{const char} string, \TT{NUL} padded.
 \item[\TT{const int min::LONG\_STR}]~\\
 Stub value is a pointer at a body of type \TT{min::long\_\EOL string}
 that contains a \TT{const char} vector and its size. 
+\item[\TT{const int min::ACC\_FREE}]~\\
+Stub has just been allocated but not filled in with contents.
+Stubs with this type will not be collected by the garbage collector
+even if they are marked by the garbage collector as dangling.
 \item[\TT{const int min::DEALLOCATED}]~\\
 Stub has a deallocated body.
 \item[\TT{const int min::PREALLOCATED}]~\\
@@ -1801,6 +1805,8 @@ identified object.  See \itemref{PREALLOCATED-STUBS}.
 \item[\TT{const int min::FILLING}]~\\
 Stub is preallocated that is being filled in.
 See \itemref{FILLING-PREALLOCATED-STUBS}.
+Stubs with this type will not be collected by the garbage collector
+even if they are marked by the garbage collector as dangling.
 
 \end{list}
 \end{indpar}
@@ -2962,8 +2968,8 @@ stub represents an object or other non-atomic value
 whose contents are yet unspecified.
 The preallocated stub can be
 referenced as is, and functions such as
-\TT{min::\EOL new\_\EOL object} (\pagref{MIN::PREALLOCATED_NEW_OBJ})
-and \TT{min::\EOL copy} (\pagref{MIN::PREALLCATED_COPY})
+\TT{min::\EOL new\_\EOL obj\_\EOL gen} (\pagref{MIN::PREALLOCATED_NEW_OBJ_GEN})
+and \TT{min::\EOL copy} (\pagref{MIN::PREALLOCATED_COPY_UNUSED})
 can be used to fill in the final contents of the stub.
 
 Preallocated stubs store two \TT{min::uns32} values: an identifier
@@ -3004,7 +3010,66 @@ stub, \TT{0} is returned as its identifier or count.
 \subsubsubsection{Filling Preallocated Stubs}
 \label{FILLING-PREALLOCATED-STUBS}
 
-TBD
+Filling a preallocated stub with contents requires care in order
+to interact correctly with the garbage collector.  The preallocated
+stub is itself subject to garbage collection, and so must be protected
+against such collection.
+
+The algorithm for filling a preallocated stub is as follows.  Unless
+otherwise indicated, the garbage collector may \underline{not} interrupt this
+algorithm.
+
+\begin{enumerate}
+\item
+Protect from garbage collection
+any stubs that will be pointed at by the new contents of the preallocated stub.
+For example, if the contents of an object X are being copied to
+the preallocated stub, protecting X with \TT{min::\EOL locatable\_\EOL gen}
+(\pagref{MIN::LOCATABLE_GEN}) suffices.
+
+\item\label{PREALLOCATED-CHECK-TYPE}
+Verify that the stub has \TT{min::PREALLOCATED} type (and so has
+not been collected).
+
+\item\label{PREALLOCATED-SET-FILLING}
+Change the stub type to \TT{min::FILLING}
+with \TT{MUP::\EOL set\_\EOL type\_\EOL of} (\pagref{MUP::SET_TYPE_OF}).
+This will keep the garbage collector from collecting the stub while it
+is being filled.
+
+\item
+Fill the stub with contents.  You may call \TT{MUP::\EOL new\_\EOL body}
+(\pagref{MUP::NEW_BODY}) to allocate a body for the stub.
+The garbage collector
+may interrupt this step.
+
+\item
+Execute \TT{MUP::\EOL acc\_\EOL write\_\EOL update} for any pointer
+stored in the new contents.  The garbage collector
+may interrupt this step.
+
+\item\label{PREALLOCATED-SET-TYPE}
+Change the stub's type to its final value with
+\TT{MUP::\EOL set\_\EOL type\_\EOL of}.
+
+\end{enumerate}
+
+It is also possible to move the contents of a second stub to a
+preallocated stub.  In this case modify Step
+\ref{PREALLOCATED-CHECK-TYPE} to check the types of both
+stubs, modify Step \ref{PREALLOCATED-SET-FILLING} to set the
+types of both stubs to \TT{min::\EOL FILLING}, and modify Step
+\ref{PREALLOCATED-SET-TYPE} to set the type of the second stub
+to \TT{min::\EOL DEALLOCATED}.
+
+Note that if a stub is temporarily given type \TT{min::\EOL FILLING} 
+the normal operations on the stub may not work, because they check
+for a different type.  Also note that preallocated stubs may be
+garbage collected as soon as their type is changed from \TT{min::\EOL FILLING}
+in Step \ref{PREALLOCATED-SET-TYPE},
+as preallocated stubs are usually visible to the garbage collector.
+In normal circumstances preallocated stubs are protected from
+garbage collection before the above filling algorithm is executed.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
@@ -12536,6 +12601,19 @@ An object can be created by the protected function:
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
+A preallocated stub (\itemref{PREALLOCATED-STUBS})
+may be filled by a new object using the protected function:
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
+    \verb|( min::gen preallocated,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  min::unsptr hash_size = 0,|\ARGBREAK
+    \verb|  min::unsptr variable_size = 0,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::PREALLOCATED_NEW_OBJ_GEN} \\
+\end{tabular}\end{indpar}
+where the \TT{preallocated} argument designates the preallocated stub.
+
 The new object has a zero length attribute vector, but this can be
 expanded by growing the attribute vector upward into the unused area.
 Similarly the auxiliary area is zero length, but can be expanded by
@@ -12801,10 +12879,24 @@ by their argument, they make a new resized object which they return:
 \LABEL{MIN::COPY_UNUSED} \\
 \end{tabular}\end{indpar}
 
+The new object copy may also be used to fill a preallocated stub
+(\itemref{PREALLOCATED-STUBS}) 
+by using the function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen preallocated,|\ARGBREAK
+    \verb|  min::gen object,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::PREALLOCATED_COPY_UNUSED} \\
+\end{tabular}\end{indpar}
+where the \TT{preallocated} argument designates the preallocated stub.
+
 The new object is \underline{not} public even if the original
-object is.  The second 2-argument form of \TT{min::\EOL copy}
-always expands the unused area to fit the space actually allocated
-to the new object.
+object is.  The forms of \TT{min::\EOL copy} with no \TT{expand}
+argument
+always expand the unused area to fit the space actually allocated
+to the new object, as if they had a \TT{true} \TT{expand} argument.
 
 Alternative forms of these functions take object
 vector pointers (see \itemref{PROTECTED-OBJECT-VECTOR-POINTERS}):

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 15:24:21 EDT 2019
+// Date:	Sat May 25 03:58:09 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2924,7 +2924,9 @@ unsigned MACC::collector_increment ( unsigned level )
 		        MUP::type_of_control ( c );
 		    if ( c & UNMARKED ( level )
 		         &&
-			 type != min::ACC_FREE )
+			 type != min::ACC_FREE
+			 &&
+			 type != min::FILLING )
 		    {
 			// Remove s from acc list.
 			//
@@ -2933,6 +2935,9 @@ unsigned MACC::collector_increment ( unsigned level )
 			// but not yet put in a place
 			// that the collector can find
 			// and mark them, so they are
+			// not collected.  FILLING stubs
+			// are preallocated stubs being
+			// filled and are similarly
 			// not collected.
 			//
 			if ( s == lev.first_g[1]
