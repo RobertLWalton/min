@@ -3054,6 +3054,16 @@ Change the stub's type to its final value with
 
 \end{enumerate}
 
+Note that preallocated stubs may be garbage collected as soon
+as their type is changed from \TT{min::\EOL FILLING}
+in Step \ref{PREALLOCATED-SET-TYPE},
+as preallocated stubs are usually visible to the garbage collector.
+If the preallocated stub is not already protected from garbage collection,
+then to protect it you will need to set some protected variable, such
+as a \TT{min::\EOL locatable\_\EOL gen} variable,
+to point at the preallocated stub between the last step
+of the algorithm and the time the garbage collector might next run.
+
 It is also possible to move the contents of a second stub to a
 preallocated stub.  Specifically, if the value of a datum with
 a stub and body is to be moved to a preallocated stub, the algorithm
@@ -3080,19 +3090,9 @@ of inaccessible memory.
 except \underline{do not permit} the garbage collector to interrupt.
 
 \item[Step \ref{PREALLOCATED-SET-TYPE}] Copy the type from
-the second stub the preallocated stub, and then set the
+the second stub to the preallocated stub, and then set the
 type of the second stub to \TT{min::\EOL DEALLOCATED}.
 \end{itemize}
-
-Note that preallocated stubs may be garbage collected as soon
-as their type is changed from \TT{min::\EOL FILLING}
-in Step \ref{PREALLOCATED-SET-TYPE},
-as preallocated stubs are usually visible to the garbage collector.
-If the preallocated stub is not already protected from garbage collection,
-then to protect it you will need to set some protected variable, such
-as a \TT{min::\EOL locatable\_\EOL gen} variable,
-to point at the preallocated stub between the last step
-of the algorithm and the time the garbage collector might next run.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
