@@ -3044,8 +3044,11 @@ The garbage collector
 may interrupt this step.
 
 \item\label{PREALLOCATED-ACC-WRITE-UPDATE}
-Execute \TT{MUP::\EOL acc\_\EOL write\_\EOL update} for any pointer
-stored in the new contents.  The garbage collector
+Execute \TT{MUP::\EOL acc\_\EOL write\_\EOL update}
+(\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) for any pointer
+stored in the new contents
+(for objects see \pagref{MUP::ACC_WRITE_UPDATE_OF_OBJ_VEC_PTR}).
+The garbage collector
 may interrupt this step.
 
 \item\label{PREALLOCATED-SET-TYPE}
@@ -3164,12 +3167,19 @@ if \TT{s2} is not \TT{NULL}.  The second updates the stub \TT{s1}
 and the stub pointed at by \TT{g} if \TT{g} points at a stub.
 The third of the above functions equals the second function for a compact
 (\pagref{COMPACT}) implementation, and is a no-operation for a loose
-implementation.
+implementation.  The stubs updated \underline{must} be collectable
+(i.e., they \underline{must not} be auxiliary stubs).
 
-The last three of the above functions look at all the
-values \TT{p[0]}, \ldots, \TT{p[n-1]}, and for each of these
-call the corresponding function chosen from the first three
+The last three of the above functions use all the
+values \TT{p[0]}, \ldots, \TT{p[n-1]}
+as a second argument in a call to
+the corresponding function chosen from the first three
 of the above functions.
+
+The \TT{min::acc\_write\_update} function on
+\pagref{MUP::ACC_WRITE_UPDATE_OF_OBJ_VEC_PTR} is similar to these
+last functions, but takes all the pointers stored in an object
+as second arguments.
 
 The \TT{min::\EOL acc\_\EOL write\_\EOL num\_\EOL update}
 functions should only be used if all the
@@ -3182,7 +3192,6 @@ with \TT{min::ACC\_\EOL FREE} type, which can only happen when the
 stub has been recently returned by
 \TT{min::\EOL new\_\EOL acc\_\EOL stub}.
 See \itemref{STUB-ALLOCATION-FUNCTIONS}.
-
 
 \subsubsection{Stub Allocation Functions}
 \label{STUB-ALLOCATION-FUNCTIONS}
@@ -13594,6 +13603,16 @@ required functions are:
 
 \end{tabular}\end{indpar}
 
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|  bool interrupts_allowed = true )|
+\LABEL{MUP::ACC_WRITE_UPDATE_OF_OBJ_VEC_PTR} \\
+
+\end{tabular}\end{indpar}
+
 The offset values returned by the above are those of the
 variable vector(\TT{var}), hash table(\TT{hash}),
 attribute vector(\TT{attr}), unused area (\TT{unused}), 
@@ -13676,6 +13695,21 @@ For example, objects which have auxiliary stubs
 (\pagref{OBJECT-AUXILIARY-STUBS})
 may be flagged, thereby identifying objects that need extra work
 when deallocated or reorganized.
+
+The \TT{MUP::acc\_write\_update} function applied to the
+\TT{min::\EOL obj\_\EOL vec\_\EOL ptr} \TT{vp} calls
+\begin{center}
+\tt min::\EOL acc\_\EOL write\_\EOL update ( s1, s2 )
+\end{center}
+(see \itemref{ACC-WRITE-UPDATE-FUNCTIONS}) with \TT{s1} being the
+stub of \TT{vp} and \TT{s2} iterating over all the
+collectable stubs pointed at by the contents of the object that
+\TT{vp} points at.  If \TT{interrupts\_\EOL allowed} is \TT{true},
+\TT{min::\EOL interrupt()} is called after each of these calls;
+otherwise \TT{min::\EOL interrupt()} is \underline{not}
+called.  See Step \ref{PREALLOCATED-ACC-WRITE-UPDATE} of the
+algorithm in \itemref{FILLING-PREALLOCATED-STUBS} for an application
+of this function.
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
@@ -22973,6 +23007,14 @@ These are in \verb|min_parameters.h|.
 \verb|min::unsptr & MUP::| & \MUPKEY{aux\_offset\_of}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp )|
 \LABEL{MUP::AUX_OFFSET_OF_VEC_INSPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|  bool interrupts_allowed = true )|
+\LABEL{MUP::ACC_WRITE_UPDATE_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \end{indpar}
