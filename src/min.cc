@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 26 02:05:14 EDT 2019
+// Date:	Sun May 26 04:08:12 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4705,9 +4705,11 @@ min::gen MINT::copy
 
     static void acc_write_update_aux_stub
             ( const min::stub * s1,
-	      const min::stub * s2 );
+	      const min::stub * s2,
+	      bool allow_interrupts );
     inline void acc_write_update_obj_element
-            ( const min::stub * s1, min::gen v )
+            ( const min::stub * s1, min::gen v,
+	      bool allow_interrupts )
     {
         if ( ! min::is_stub ( v ) ) return;
 	const min::stub * s2 = MUP::stub_of ( v );
@@ -4715,19 +4717,25 @@ min::gen MINT::copy
 	if ( type == min::LIST_AUX
 	     ||
 	     type == min::SUBLIST_AUX )
-	    ::acc_write_update_aux_stub ( s1, s2 );
+	    ::acc_write_update_aux_stub
+	        ( s1, s2, allow_interrupts );
 	else
+	{
 	    MUP::acc_write_update ( s1, s2 );
+	    if ( allow_interrupts ) min::interrupt();
+	}
     }
 
     static void acc_write_update_aux_stub
 	    ( const min::stub * s1,
-	      const min::stub * s2 )
+	      const min::stub * s2,
+	      bool allow_interrupts)
     {
 	while ( true )
 	{
 	    ::acc_write_update_obj_element
-		( s1, MUP::gen_of ( s2 ) );
+		( s1, MUP::gen_of ( s2 ),
+		  allow_interrupts );
 	    min::uns64 c2 = MUP::control_of ( s2 );
 	    if ( c2 & MUP::STUB_ADDRESS )
 		s2 = MUP::stub_of_control ( c2 );
@@ -4739,17 +4747,19 @@ min::gen MINT::copy
 # else // ! MIN_USE_OBJ_AUX_STUBS
 
     inline void acc_write_update_obj_element
-            ( const min::stub * s1, min::gen v )
+            ( const min::stub * s1, min::gen v,
+	      bool allow_interrupts )
     {
         if ( ! min::is_stub ( v ) ) return;
 	const min::stub * s2 = MUP::stub_of ( v );
         MUP::acc_write_update ( s1, s2 );
+	if ( allow_interrupts ) min::interrupt();
     }
 
 # endif // MIN_USE_OBJ_AUX_STUBS
 
 void MINT::acc_write_update
-    ( min::obj_vec_ptr & vp )
+    ( min::obj_vec_ptr & vp, bool allow_interrupts )
 {
     unsptr var_offset = MUP::var_offset_of ( vp );
     unsptr unused_offset = MUP::unused_offset_of ( vp );
@@ -4761,10 +4771,10 @@ void MINT::acc_write_update
 
     for ( unsptr i = var_offset; i < unused_offset; )
         ::acc_write_update_obj_element
-	    ( s1, base[i++] );
+	    ( s1, base[i++], allow_interrupts );
     for ( unsptr i = aux_offset; i < total_size; )
         ::acc_write_update_obj_element
-	    ( s1, base[i++] );
+	    ( s1, base[i++], allow_interrupts );
 }
 
 // Object List Level

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 19 06:16:02 EDT 2019
+// Date:	Sun May 26 04:01:13 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,9 +115,11 @@ bool memory_debug = false;
 // counts the interrupt_count variable.
 //
 min::uns32 interrupt_count = 0;
+static void initialize_acc_stack ( void );
 bool MINT::acc_interrupt ( void )
 {
     min::initialize();
+    initialize_acc_stack();
     ++ interrupt_count;
     min::thread_interrupt();
     return true;
@@ -440,7 +442,7 @@ static min::stub ** acc_stack_end = acc_stack + 1000;
 
 // Initialize the acc_stack.
 //
-void initialize_acc_stack ( void )
+static void initialize_acc_stack ( void )
 {
     MINT::acc_stack = ::acc_stack;
     MINT::acc_stack_limit = ::acc_stack_end - 6;
