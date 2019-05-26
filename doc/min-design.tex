@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 25, 2019}
+\date{May 26, 2019}
  
 \maketitle
 
@@ -3063,7 +3063,7 @@ is as above with the following modifications:
 \item[Step \ref{PREALLOCATE-PROTECTING-POINTERS}]
 Do \underline{not} protect the stubs that are pointed
 at by the body to be moved.  Instead, inhibit garbage collector
-interrupts during the entire algorithm.
+interrupts during the \underline{entire} algorithm.
 
 \item[Step \ref{PREALLOCATED-CHECK-TYPE}] Leave as is.
 
@@ -3073,11 +3073,11 @@ as the garbage collector cannot run during this algorithm.
 \item[Step \ref{PREALLOCATED-CONTENT-FILLING}] Use
 \TT{MUP::move\_\EOL body} (\pagref{MUP::MOVE_BODY}) to move the
 body pointer from the second stub to the preallocated stub
-and set the body pointer of the second stub to
-\TT{MACC::\EOL deallocated\_\EOL body}.
+and set the body pointer of the second stub to point at a block
+of inaccessible memory.
 
 \item[Step \ref{PREALLOCATED-ACC-WRITE-UPDATE}] Leave as is,
-except do not permit the garbage collector to interrupt.
+except \underline{do not permit} the garbage collector to interrupt.
 
 \item[Step \ref{PREALLOCATED-SET-TYPE}] Copy the type from
 the second stub the preallocated stub, and then set the
@@ -3601,6 +3601,27 @@ a pointer to the body, which may be relocated by a call to
 a relocating function (\pagref{RELOCATING-FUNCTIONS}).
 Whenever the body is relocated the value of P is changed to
 point to the new body location.
+
+A body pointer can be moved from one stub to another as part
+of the algorithm for filling preallocated stubs
+described at the end of \itemref{FILLING-PREALLOCATED-STUBS}.
+The function which does this is:
+
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|void MUP::| & \MUPKEY{move\_body}
+	                \verb|( min::stub * s1, min::stub * s2 )| 
+\LABEL{MUP::MOVE_BODY} \\
+\end{tabular}\end{indpar}
+
+This function requires \TT{s2} to have a body pointer, which it
+moves to \TT{s1}, and then it sets the body pointer of \TT{s2}
+to point at a block of inaccessible memory.  Note that to move
+a body pointer between stubs also requires stub flags to be
+adjusted and pointers from the body back to its stub to be
+adjusted, all of which this function does.  Also calls to
+\TT{min::\EOL acc\_\EOL write\_\EOL update} must be made for
+\TT{s1} and pointers stored in the body after this function is called
+and before the garbage collector can be allowed to interrupt.
 
 In order to change the size of a body, the following
 can be used:
@@ -12619,7 +12640,7 @@ An object can be created by the protected function:
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
     \verb|( min::unsptr unused_size,|\ARGBREAK
     \verb|  min::unsptr hash_size = 0,|\ARGBREAK
-    \verb|  min::unsptr variable_size = 0,|\ARGBREAK
+    \verb|  min::unsptr var_size = 0,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
@@ -12631,7 +12652,7 @@ may be filled by a new object using the protected function:
     \verb|( min::gen preallocated,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  min::unsptr hash_size = 0,|\ARGBREAK
-    \verb|  min::unsptr variable_size = 0,|\ARGBREAK
+    \verb|  min::unsptr var_size = 0,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::PREALLOCATED_NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
@@ -12704,7 +12725,7 @@ area and variable area:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{resize\RESIZE}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::RESIZE} \\
@@ -12780,7 +12801,7 @@ and unused area.
 \verb|void min::| & \MINKEY{reorganize\REORG}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
     \verb|  min::unsptr hash_size,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::REORGANIZE} \\
@@ -12801,7 +12822,7 @@ to about twice this number.  The following functions use this idea:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{compact\REORG}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COMPACT_AND_RESIZE} \\
@@ -12892,7 +12913,7 @@ by their argument, they make a new resized object which they return:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COPY} \\
@@ -12927,7 +12948,7 @@ vector pointers (see \itemref{PROTECTED-OBJECT-VECTOR-POINTERS}):
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COPY_VEC_PTR} \\
@@ -12935,6 +12956,11 @@ vector pointers (see \itemref{PROTECTED-OBJECT-VECTOR-POINTERS}):
     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|  min::unsptr unused_size )|
 \LABEL{MIN::COPY_UNUSED_VEC_PTR} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen preallocated,|\ARGBREAK
+    \verb|  min::obj_vec_ptr & vp,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::PREALLOCATED_COPY_UNUSED_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
 
@@ -13456,7 +13482,7 @@ pointer is not allowed to point at a public object.
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{resize\RESIZE}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
@@ -13475,7 +13501,7 @@ pointer is not allowed to point at a public object.
 \verb|void min::| & \MINKEY{reorganize\REORG}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
     \verb|  min::unsptr hash_size,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::REORGANIZE_OBJ_VEC_INSPTR} \\
@@ -13484,7 +13510,7 @@ pointer is not allowed to point at a public object.
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{compact\REORG}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\
@@ -18906,6 +18932,9 @@ These are in \verb|min_parameters.h|.
 \verb|void * & MUP::| & \MUPKEY{ptr\_ref\_of}
 	      \verb|( min::stub * s )| 
 \LABEL{MUP::PTR_REF_OF_STUB} \\
+\verb|void MUP::| & \MUPKEY{move\_body}\ARGBREAK
+	                \verb|( min::stub * s1, min::stub * s2 )| 
+\LABEL{MUP::MOVE_BODY} \\
 \end{TABULAR}
 
 \medskip
@@ -22438,6 +22467,13 @@ These are in \verb|min_parameters.h|.
     \verb|  min::unsptr hash_size = 0,|\ARGBREAK
     \verb|  min::unsptr variables_size = 0 )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
+    \verb|( min::gen preallocated,|\ARGBREAK
+    \verb|  min::unsptr unused_size,|\ARGBREAK
+    \verb|  min::unsptr hash_size = 0,|\ARGBREAK
+    \verb|  min::unsptr var_size = 0,|\ARGBREAK
+    \verb|  bool expand = true )|
+\LABEL{MIN::PREALLOCATED_NEW_OBJ_GEN} \\
 \verb|bool min::| & \MINKEY{is\_obj} \verb|( min::gen v )|
 \LABEL{MIN::IS_OBJ}
 \end{TABULAR}
@@ -22470,7 +22506,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{resize\RESIZE}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::RESIZE} \\
@@ -22487,7 +22523,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COPY} \\
@@ -22500,7 +22536,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COPY_VEC_PTR} \\
@@ -22508,13 +22544,18 @@ These are in \verb|min_parameters.h|.
     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|  min::unsptr unused_size )|
 \LABEL{MIN::COPY_UNUSED_VEC_PTR} \\
+\verb|min::gen min::| & \MINKEY{copy\REL}\ARGBREAK
+    \verb|( min::gen preallocated,|\ARGBREAK
+    \verb|  min::obj_vec_ptr & vp,|\ARGBREAK
+    \verb|  min::unsptr unused_size )|
+\LABEL{MIN::PREALLOCATED_COPY_UNUSED_VEC_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{reorganize\REORG}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
     \verb|  min::unsptr hash_size,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::REORGANIZE}
@@ -22523,7 +22564,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{compact\REORG}\ARGBREAK
     \verb|( min::gen object,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COMPACT_AND_RESIZE} \\
@@ -22830,7 +22871,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 \verb|void min::| & \MINKEY{resize\RESIZE}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
@@ -22848,7 +22889,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::| & \MINKEY{reorganize\REORG}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
     \verb|  min::unsptr hash_size,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::REORGANIZE_OBJ_VEC_INSPTR} \\
@@ -22857,7 +22898,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 \verb|void min::| & \MINKEY{compact\REORG}\ARGBREAK
     \verb|( min::obj_vec_insptr & vp,|\ARGBREAK
-    \verb|  min::unsptr variable_size,|\ARGBREAK
+    \verb|  min::unsptr var_size,|\ARGBREAK
     \verb|  min::unsptr unused_size,|\ARGBREAK
     \verb|  bool expand = true )|
 \LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\

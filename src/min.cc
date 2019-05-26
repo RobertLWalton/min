@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 24 16:42:40 EDT 2019
+// Date:	Sun May 26 02:05:14 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4597,8 +4597,8 @@ void min::resize
 min::gen MINT::copy
     ( min::stub * s,
       min::obj_vec_ptr & vp,
-      min::unsptr unused_size,
       min::unsptr var_size,
+      min::unsptr unused_size,
       bool expand )
 {
     min::locatable_gen protect_source
@@ -4629,7 +4629,7 @@ min::gen MINT::copy
     {
 	MIN_ASSERT
 	    ( MUP::type_of ( s ) == min::PREALLOCATED,
-	      "first object copy argument is not"
+	      "first object copy argument is not a"
 	      " PREALLOCATED object" );
 	MUP::set_type_of ( s, min::FILLING );
     }
