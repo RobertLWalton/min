@@ -1213,7 +1213,6 @@ void MUP::move_body ( min::stub * s1, min::stub * s2 )
     min::uns64 * bp2 = (min::uns64 *) p2 - 1;
     MIN_REQUIRE ( s2 == MACC::stub_of_body ( bp2 ) );
 
-
     * bp2 = MUP::renew_control_stub ( * bp2, s1 );
 
     if ( c2 & MINT::ACC_FIXED_BODY_FLAG )
@@ -1223,10 +1222,8 @@ void MUP::move_body ( min::stub * s1, min::stub * s2 )
 	MUP::clear_flags_of
 	    ( s1, MINT::ACC_FIXED_BODY_FLAG );
 
-    MUP::set_ptr_of ( s2, MACC::deallocated_body );
-    MUP::set_type_of ( s2, min::DEALLOCATED );
-
     MUP::set_ptr_of ( s1, p2 );
+    MUP::set_ptr_of ( s2, MACC::deallocated_body );
 }
 
 

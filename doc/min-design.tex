@@ -3020,7 +3020,7 @@ otherwise indicated, the garbage collector may \underline{not} interrupt this
 algorithm.
 
 \begin{enumerate}
-\item
+\item\label{PREALLOCATE-PROTECTING-POINTERS}
 Protect from garbage collection
 any stubs that will be pointed at by the new contents of the preallocated stub.
 For example, if the contents of an object X are being copied to
@@ -3037,13 +3037,13 @@ with \TT{MUP::\EOL set\_\EOL type\_\EOL of} (\pagref{MUP::SET_TYPE_OF}).
 This will keep the garbage collector from collecting the stub while it
 is being filled.
 
-\item
+\item\label{PREALLOCATED-CONTENT-FILLING}
 Fill the stub with contents.  You may call \TT{MUP::\EOL new\_\EOL body}
 (\pagref{MUP::NEW_BODY}) to allocate a body for the stub.
 The garbage collector
 may interrupt this step.
 
-\item
+\item\label{PREALLOCATED-ACC-WRITE-UPDATE}
 Execute \TT{MUP::\EOL acc\_\EOL write\_\EOL update} for any pointer
 stored in the new contents.  The garbage collector
 may interrupt this step.
@@ -3055,21 +3055,44 @@ Change the stub's type to its final value with
 \end{enumerate}
 
 It is also possible to move the contents of a second stub to a
-preallocated stub.  In this case modify Step
-\ref{PREALLOCATED-CHECK-TYPE} to check the types of both
-stubs, modify Step \ref{PREALLOCATED-SET-FILLING} to set the
-types of both stubs to \TT{min::\EOL FILLING}, and modify Step
-\ref{PREALLOCATED-SET-TYPE} to set the type of the second stub
-to \TT{min::\EOL DEALLOCATED}.
+preallocated stub.  Specifically, if the value of a datum with
+a stub and body is to be moved to a preallocated stub, the algorithm
+is as above with the following modifications:
 
-Note that if a stub is temporarily given type \TT{min::\EOL FILLING} 
-the normal operations on the stub may not work, because they check
-for a different type.  Also note that preallocated stubs may be
-garbage collected as soon as their type is changed from \TT{min::\EOL FILLING}
+\begin{itemize}
+\item[Step \ref{PREALLOCATE-PROTECTING-POINTERS}]
+Do \underline{not} protect the stubs that are pointed
+at by the body to be moved.  Instead, inhibit garbage collector
+interrupts during the entire algorithm.
+
+\item[Step \ref{PREALLOCATED-CHECK-TYPE}] Leave as is.
+
+\item[Step \ref{PREALLOCATED-SET-FILLING}] Omit this step, 
+as the garbage collector cannot run during this algorithm.
+
+\item[Step \ref{PREALLOCATED-CONTENT-FILLING}] Use
+\TT{MUP::move\_\EOL body} (\pagref{MUP::MOVE_BODY}) to move the
+body pointer from the second stub to the preallocated stub
+and set the body pointer of the second stub to
+\TT{MACC::\EOL deallocated\_\EOL body}.
+
+\item[Step \ref{PREALLOCATED-ACC-WRITE-UPDATE}] Leave as is,
+except do not permit the garbage collector to interrupt.
+
+\item[Step \ref{PREALLOCATED-SET-TYPE}] Copy the type from
+the second stub the preallocated stub, and then set the
+type of the second stub to \TT{min::\EOL DEALLOCATED}.
+\end{itemize}
+
+Note that preallocated stubs may be garbage collected as soon
+as their type is changed from \TT{min::\EOL FILLING}
 in Step \ref{PREALLOCATED-SET-TYPE},
 as preallocated stubs are usually visible to the garbage collector.
-In normal circumstances preallocated stubs are protected from
-garbage collection before the above filling algorithm is executed.
+If the preallocated stub is not already protected from garbage collection,
+then to protect it you will need to set some protected variable, such
+as a \TT{min::\EOL locatable\_\EOL gen} variable,
+to point at the preallocated stub between the last step
+of the algorithm and the time the garbage collector might next run.
 
 \subsection{Implementing New Stub Types}
 \label{IMPLEMENTING-NEW-STUB-TYPES}
