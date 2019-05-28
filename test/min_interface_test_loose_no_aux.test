@@ -2813,16 +2813,18 @@ A B C:
      myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
     {|1 2 3 4 5:
-      myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
-          [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+      myattr[#Z,64,512] =
+          {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+             [< "MYATTR" "SECOND" "VALUE" >] *}
       .initiator = [< "{" "*" >]
       myreverse = @2 = myforward
       .separator = ","
       .terminator = [< "*" "}" >]
     |}
 1 2 3 4 5:
-        myattr[#Z,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
-            [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+        myattr[#Z,64,512] =
+            {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+               [< "MYATTR" "SECOND" "VALUE" >] *}
         .initiator = [< "{" "*" >]
         myreverse = @2 = myforward
         .separator = ","
@@ -2836,8 +2838,9 @@ A B C:
       .terminator = [< "*" "}" >]
     |}
 1 2 3 4 5:
-        myattr[#HZ,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
-            [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+        myattr[#HZ,64,512] =
+            {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+               [< "MYATTR" "SECOND" "VALUE" >] *}
         .initiator = [< "{" "*" >]
         myreverse = @2 = myforward
         .separator = ","
@@ -2852,8 +2855,9 @@ Flag Parse Errors: `(,)_,34,5'
 {T: A[*abcd,200] = "value"|X Y Z 0 0 0|T}
 
 @1 = 1 2 3 4 5:
-         myattr[#HZ,64,512] = [< "MYATTR" "THIRD" "VALUE" >],
-             [< "MYATTR" "VALUE" >], [< "MYATTR" "SECOND" "VALUE" >]
+         myattr[#HZ,64,512] =
+             {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
+                [< "MYATTR" "SECOND" "VALUE" >] *}
          .initiator = [< "{" "*" >]
          myreverse = @2 = myforward
          .separator = ","

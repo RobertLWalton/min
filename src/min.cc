@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 28 04:17:58 EDT 2019
+// Date:	Tue May 28 15:23:59 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12914,7 +12914,13 @@ min::printer min::print_mapped
 }
 
 // Return true if attributes printed and false if
-// nothing printed.
+// nothing printed.  If line_format is false and
+// an attribute is printed, this has begun with
+//
+//   printer << objf->obj_attrbegin
+//           << min::save_indent;
+//
+// and NOT done a corresponding min::restore_indent.
 //
 static bool print_attributes
 	( min::printer printer, 
@@ -12944,6 +12950,7 @@ static bool print_attributes
 
 	if ( first_attr )
 	{
+	    first_attr = false;
 	    if ( line_format )
 	    {
 	        printer << objf->obj_attreol
@@ -12987,7 +12994,7 @@ static bool print_attributes
 	    ( printer, info[i].name,
 		       objf->label_format );
 
-	if ( suppress_value ) goto END_ATTR;
+	if ( suppress_value ) continue;
  
 	if ( vc > 1 || rc > 0 || fc * min::VSIZE > 64 )
 		min::locate ( ap, info[i].name );
@@ -13155,15 +13162,7 @@ static bool print_attributes
 			       objf->label_format );
 	    }
 	}
-
-    END_ATTR:
-
-	if ( first_attr && ! line_format )
-	    printer << min::restore_indent;
-
-	first_attr = false;
     }
-
 
     if ( ! first_attr && line_format )
 	printer << min::adjust_indent ( - adjust );
@@ -13638,7 +13637,9 @@ min::printer min::print_obj
 		      objf->label_format );
 	    printer << objf->obj_ket;
 	}
-	if ( compact_format && ! first )
+
+	if (    ( ! first && compact_format )
+	     || attributes_printed )
 	    printer << min::restore_indent;
     }
 
