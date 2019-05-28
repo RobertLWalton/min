@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 26 04:01:13 EDT 2019
+// Date:	Tue May 28 16:08:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4925,6 +4925,9 @@ void test_object_printing ( void )
     min::assert_print = false;
     min::assert_throw = false;
 
+    MIN_REQUIRE
+        ( printer->line_break_stack->length == 0 );
+
     const min::gen_format * f =
 	printer->print_format.gen_format;
 
@@ -5393,6 +5396,9 @@ void test_object_printing ( void )
             << min::pgen ( top_line,
 	                   min::line_gen_format )
 	    << min::eom;
+
+    MIN_REQUIRE
+        ( printer->line_break_stack->length == 0 );
 
     min::assert_print = saved_min_assert_print;
     min::assert_throw = saved_min_assert_throw;
