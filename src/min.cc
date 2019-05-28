@@ -13149,7 +13149,8 @@ static bool print_attributes
 		    else
 			printer << objf->obj_valsep
 				<< min::set_break;
-		    min::print_id ( printer, rvalue[k] );
+		    min::print_id
+		        ( printer, rvalue[k] );
 		}
 
 		if ( rvc > 1 )
