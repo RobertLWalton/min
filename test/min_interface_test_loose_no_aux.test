@@ -2782,17 +2782,17 @@ Start Object Printing Test!
     {T|A B C|T}
     {T|A B C|}
 {T|A; B; C|T}
-    {T|A B C:
+    {T|A B C|
        .separator = ";"
-    |T}
+    : T}
 A B C:
         .separator = ";"
         .type = "T"
 {T: number = 123, .separator = ";"|A B C|T}
-    {T|A B C:
-       number = 123
+    {T|A B C|
+       number = 123,
        .separator = ";"
-    |T}
+    : T}
 {T: no scientific, number = 123, .separator = ";", fraction|A B C|T}
 {"": myattr = [< "MYATTR" "VALUE" >], .initiator = [< "{" "*" >],
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
@@ -2814,15 +2814,15 @@ A B C:
         [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
      myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
-    {|1 2 3 4 5:
+    {|1 2 3 4 5|
       myattr[#Z,64,512] =
           {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-             [< "MYATTR" "SECOND" "VALUE" >] *}
-      .initiator = [< "{" "*" >]
-      myreverse = @2 = myforward
-      .separator = ","
+             [< "MYATTR" "SECOND" "VALUE" >] *},
+      .initiator = [< "{" "*" >],
+      myreverse = @2 = myforward,
+      .separator = ",",
       .terminator = [< "*" "}" >]
-    |}
+    }
 1 2 3 4 5:
         myattr[#Z,64,512] =
             {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
@@ -2833,12 +2833,12 @@ A B C:
         .terminator = [< "*" "}" >]
 {"": .initiator = [< "{" "*" >], myreverse = @2 = myforward,
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
-    {|1 2 3 4 5:
-      .initiator = [< "{" "*" >]
-      myreverse = @2 = myforward
-      .separator = ","
+    {|1 2 3 4 5|
+      .initiator = [< "{" "*" >],
+      myreverse = @2 = myforward,
+      .separator = ",",
       .terminator = [< "*" "}" >]
-    |}
+    }
 1 2 3 4 5:
         myattr[#HZ,64,512] =
             {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],

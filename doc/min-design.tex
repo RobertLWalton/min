@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 26, 2019}
+\date{May 29, 2019}
  
 \maketitle
 
@@ -17071,8 +17071,8 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|NULL                                     // obj_attrbegin|\ARGBREAK
-\verb|NULL                                     // obj_attrsep|\ARGBREAK
+\verb|min::trailing_always_colon_space_pstring // obj_attrbegin|\ARGBREAK
+\verb|min::trailing_always_comma_pstring       // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -17606,7 +17606,7 @@ is like default compact format except that if:
 then `\TT{\{T|}' is replace by
 \begin{center}
 \TT{\{}\TT{T}\TT{:\textvisiblespace} {\em <attribute>}
-    \OPEN{} \TT{,\textvisiblespace} {\em attribute} \CLOSE\STAR{} \TT{|}
+    \OPEN{} \TT{,\textvisiblespace} {\em <attribute>} \CLOSE\STAR{} \TT{|}
 \end{center}
 where
 \begin{center}
@@ -17630,8 +17630,11 @@ would be `{\em attribute-label-and-flags} \TT{= FALSE}' is replaced by
 just `\TT{no }{\em attribute-label-and-flags}\,'.
 
 The \mkey{embedded line format}{of printed object} prints the object
-on separate lines, but is indented for use where the object is an
-element of some containing object.  If
+in the same way as normal format but with {\em <attribute>}s after the
+the {\em <element>}s and with each {\em <attribute>} on a line by
+itself.  Also any last attribute and following trailing type is
+separated by an \TT{obj\_\EOL attrbegin} (e.g., `\TT{:}').
+Thus if
 \begin{center}
 \begin{tabular}{lcl}
 \TT{obj\_bra}		& is	& \TT{"\{"} \\
@@ -17640,7 +17643,8 @@ element of some containing object.  If
 \TT{obj\_ketbegin}	& is	& \TT{"|"} \\
 \TT{obj\_ket}		& is	& \TT{"\}"} \\
 \TT{.type}		& is	& \TT{"T"} \\
-\TT{obj\_attreol}	& is	& \TT{":"} \\
+\TT{obj\_attrbegin}	& is	& \TT{":"} \\
+\TT{obj\_attrsep}	& is	& \TT{","} \\
 \TT{obj\_attreq}	& is	& \TT{" = "} \\
 \TT{obj\_attrneg}	& is	& \TT{"no "} \\
 \end{tabular}
@@ -17648,27 +17652,28 @@ element of some containing object.  If
 then the object in embedded line format has the form:
 \begin{center}
 \begin{tabular}{l}
-\TT{\{T|} {\em element}
-          \OPEN{} \textvisiblespace {\em element} \CLOSE\STAR{}\TT{:} \\
-~~~~{\em attribute} \\
+\TT{\{T|} {\em <element>}
+          \OPEN{} \textvisiblespace {\em <element>} \CLOSE\STAR{}\TT{|} \\
+~~~~{\em <attribute>}\TT{,} \\
 ~~~~\ldots\ldots\ldots \\
-~~~~{\em attribute} \\
-\TT{|T\}} \\
+~~~~{\em <attribute>}\TT{,} \\
+\TT{: T\}} \\
 \end{tabular}
 \end{center}
 
 The object begins as if it were in default compact format, but
 any \TT{.separator} attribute is \underline{not} used
 to separate elements (\TT{obj\_\EOL sep} is used), and the
-list of elements is terminated by \TT{obj\_\EOL attreol} (\TT{:} here)
-which introduces an indented paragraph with one attribute per line,
-so that \TT{obj\_\EOL attrsep} is \underline{not} used.
+list of elements is terminated by \TT{obj\_\EOL ketbegin} (\TT{|} here)
+which introduces the attributes, one per line, with each attribute
+but the last followed by \TT{obj\_\EOL attrsep} (`\TT{,}' here) on its line.
+If attributes are followed by a type, the type is separated from
+the last attribute by \TT{obj\_\EOL attrbegin} (\TT{:} here).
 The object printout begins with a \TT{min::\EOL indent} operation and
 ends with a \TT{min::\EOL eol} operation.
 If there are no attributes other than \TT{.type},
 in particular no \TT{.separator} attribute,
-\TT{obj\_\EOL attreol} (\TT{:} here) is \underline{not} printed and
-embedded line format is identical to normal format except for
+the embedded line format is identical to normal format except for
 the \TT{min::\EOL indent} and \TT{min::\EOL eol} operations.
 
 The \mkey{isolated line format}{of printed object} prints the object
@@ -17687,11 +17692,11 @@ as when the object is printed when flushing an identifier map
 then the object in isolated line format has the form:
 \begin{center}
 \begin{tabular}{l}
-{\em element}
-          \OPEN{} \textvisiblespace {\em element} \CLOSE\STAR{}\TT{:} \\
-~~~~{\em attribute} \\
+{\em <element>}
+          \OPEN{} \textvisiblespace {\em <element>} \CLOSE\STAR{}\TT{:} \\
+~~~~{\em <attribute>} \\
 ~~~~\ldots\ldots\ldots \\
-~~~~{\em attribute} \\
+~~~~{\em <attribute>} \\
 \end{tabular}
 \end{center}
 

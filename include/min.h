@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 26 04:07:09 EDT 2019
+// Date:	Wed May 29 15:29:32 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13060,6 +13060,8 @@ namespace min {
     	trailing_vbar_leading_pstring;
     extern min::pstring
     	trailing_always_colon_space_pstring;
+    extern min::pstring
+    	trailing_always_comma_pstring;
     extern min::pstring
     	trailing_always_comma_space_pstring;
     extern min::pstring

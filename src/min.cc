@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 28 15:23:59 EDT 2019
+// Date:	Wed May 29 15:30:00 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10035,6 +10035,17 @@ static min::printer trailing_always_colon_space_pstring
 min::pstring min::trailing_always_colon_space_pstring =
     & ::trailing_always_colon_space_pstring;
 
+static min::printer trailing_always_comma_pstring
+	( min::printer printer )
+{
+    min::print_trailing_always ( printer );
+    return min::print_item
+        ( printer, ",", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+}
+min::pstring min::trailing_always_comma_pstring =
+    & ::trailing_always_comma_pstring;
+
 static min::printer trailing_always_comma_space_pstring
 	( min::printer printer )
 {
@@ -12442,8 +12453,10 @@ static min::obj_format embedded_line_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
+    min::trailing_always_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_always_comma_pstring,
+    			    // obj_attrsep
 
     min::erase_all_space_colon_pstring,
 			    // obj_attreol
@@ -12929,7 +12942,7 @@ static bool print_attributes
 	  min::attr_ptr & ap,
 	  min::attr_info * info,
 	  min::unsptr m,
-	  bool line_format,
+	  min::uns32 line_format,
 	  min::gen type = min::NONE() )
 {
     bool first_attr = true;
@@ -12953,7 +12966,10 @@ static bool print_attributes
 	    first_attr = false;
 	    if ( line_format )
 	    {
-	        printer << objf->obj_attreol
+	        printer << (    line_format
+		             == min::EMBEDDED_LINE ?
+			     objf->obj_ketbegin :
+			     objf->obj_attreol )
 			<< min::eol << min::indent
 			<< min::adjust_indent
 			      ( adjust );
@@ -12965,11 +12981,16 @@ static bool print_attributes
 	else
 	{
 	    if ( line_format )
+	    {
+	        if (    line_format
+		     == min::EMBEDDED_LINE )
+		    printer << objf->obj_attrsep;
 		printer << min::adjust_indent
 			      ( - adjust )
 	                << min::indent
 			<< min::adjust_indent
 			      ( adjust );
+	    }
 	    else
 	    {
 		printer << objf->obj_attrsep
@@ -13531,7 +13552,7 @@ min::printer min::print_obj
 		       objf->label_format );
 	attributes_printed = ::print_attributes
 	    ( printer, objf, vp, ap, info, m,
-	      false, type );
+	      0, type );
         printer << objf->obj_braend;
     }
 
@@ -13580,18 +13601,23 @@ min::printer min::print_obj
 
 	attributes_printed = ::print_attributes
 		( printer, objf, vp, ap, info, m,
-		  true, type );
+		  min::EMBEDDED_LINE, type );
 	if ( attributes_printed )
 	    printer << min::restore_indent
 	            << min::indent;
-	printer << objf->obj_ketbegin;
+	else
+	    printer << objf->obj_ketbegin;
 	if (    (   obj_op_flags
 		  & min::NO_TRAILING_TYPE )
 	     == 0
 	     &&
 	     type != min::NONE() )
+	{
+	    if ( attributes_printed )
+		printer << objf->obj_attrbegin;
 	    min::print_gen
 		( printer, type, objf->label_format );
+	}
 	printer << objf->obj_ket;
 	if ( ! attributes_printed )
 	    printer << min::restore_indent;
@@ -13603,7 +13629,8 @@ min::printer min::print_obj
 
 	printer << min::adjust_indent ( 4 );
         ::print_attributes
-	    ( printer, objf, vp, ap, info, m, true );
+	    ( printer, objf, vp, ap, info, m,
+	      min::ISOLATED_LINE );
 	printer << min::adjust_indent ( -4 );
 	printer << min::eol;
     }
