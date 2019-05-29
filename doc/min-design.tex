@@ -17611,23 +17611,29 @@ then `\TT{\{T|}' is replace by
 where
 \begin{center}
 \begin{tabular}{rcl}
-{\em attribute} & ::= & {\em attribute-label-and-flags}
+{\em <attribute>} & ::= & {\em attribute-label} {\em attribute-flags}\QMARK{}
+                        \{ \TT{\textvisiblespace=\textvisiblespace}
+			{\em attribute-value} \}\QMARK{} \\
+		& $|$ & {\em attribute-label} {\em attribute-flags}\QMARK{}
                         \TT{\textvisiblespace=\textvisiblespace}
-			{\em attribute-value} \\
-		& $|$ & {\em attribute-label-and-flags} \\
-		& $|$ & \TT{no\textvisiblespace}
-		        {\em attribute-label-and-flags} \\
+			{\em object-id}
+                        \TT{\textvisiblespace=\textvisiblespace}
+			{\em attribute-label} \\
+		& $|$ & {\em attribute-label} \\
+		& $|$ & \TT{no\textvisiblespace}{\em attribute-label} \\
 \end{tabular}
 \end{center}
 
-Here the attribute label in {\em attribute-label-and-flags} is printed with
-\TT{label\_\EOL format} and the flags are printed with \TT{flags\_\EOL format}.
-See \pagref{ATTRIBUTE-FLAG-NAMES} for  more detail on printing the flags.
-The {\em attribute-value} is printed with with \TT{value\_\EOL format}.
-What would be `{\em attribute-label-and-flags} \TT{= TRUE}' is replaced by
-just `{\em attribute-label-and-flags}\,', and what
-would be `{\em attribute-label-and-flags} \TT{= FALSE}' is replaced by
-just `\TT{no }{\em attribute-label-and-flags}\,'.
+Here any {\em attribute-label} is printed with
+\TT{label\_\EOL format} and any {\em attribute-flags}
+is printed with \TT{flags\_\EOL format}
+(see \pagref{ATTRIBUTE-FLAG-NAMES} for  more detail on printing the flags).
+The {\em attribute-value} is printed with with \TT{value\_\EOL format},
+and the {\em object-id} is printed with \TT{min::\EOL print\_\EOL id}.
+What would be `{\em attribute-label} \TT{= TRUE}' is replaced by
+just `{\em attribute-label}\,', and what
+would be `{\em attribute-label} \TT{= FALSE}' is replaced by
+just `\TT{no }{\em attribute-label}\,'.
 
 The \mkey{embedded line format}{of printed object} prints the object
 in the same way as normal format but with {\em <attribute>}s after the
