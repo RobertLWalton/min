@@ -2771,6 +2771,8 @@ Finish Object Attribute Short-Cut Test!
 Start Object Printing Test!
 
 {}
+    {||}
+
 {|1 2 3|}
 {* 1, 2, 3, 4, 5 *}
 [{* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *}; {* 1, 2, 3, 4, 5 *};
