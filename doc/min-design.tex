@@ -261,7 +261,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 29, 2019}
+\date{May 30, 2019}
  
 \maketitle
 
@@ -17425,11 +17425,14 @@ then the object is printed in the format:
 \end{center}
 where
 \begin{center}
-\begin{tabular}{lcl}
+\begin{tabular}{rcl}
 $\ell$			& is	& \TT{min::leading} \\
 {\em ta}		& is	& \TT{min::trailing\_always} \\
 \TT{\textvisiblespace}	& is	& a single space character \\
-{\em t}			& is	& \TT{min::trailing} \\
+{\em t}			& is	& \TT{min::trailing}
+\\[1ex]
+{\em <element>}		& is	& printed by \TT{min::print\_gen} \\
+			&	& using the \TT{element\_format} \\
 \end{tabular}
 \end{center}
 
@@ -17538,7 +17541,7 @@ except that `\TT{[} $\ell$' has been replaced
 by `\TT{\{T|}' where `\TT{\{}' is what \TT{obj\_\EOL bra} prints and
 `\TT{|}' is what \TT{obj\_\EOL braend} prints, and
 `{\em t} \TT{]}' has been replaced
-by `\TT{|T\}}' where `\TT{|}' is what \TT{obj\_\EOL ketend} prints and
+by `\TT{|T\}}' where `\TT{|}' is what \TT{obj\_\EOL ketbegin} prints and
 `\TT{\}}' is what \TT{obj\_\EOL ket} prints.
 If any explicit
 spaces, leading spaces, or trailing spaces
@@ -17601,6 +17604,9 @@ is like default compact format except that if:
 \TT{obj\_attrsep}	& is	& \TT{", "} \\
 \TT{obj\_attreq}	& is	& \TT{" = "} \\
 \TT{obj\_attrneg}	& is	& \TT{"no "} \\
+\TT{obj\_valbegin}	& is	& \TT{"\{* "} \\
+\TT{obj\_valsep}	& is	& \TT{", "} \\
+\TT{obj\_valend}	& is	& \TT{" *\}"} \\
 \end{tabular}
 \end{center}
 then `\TT{\{T|}' is replace by
@@ -17613,27 +17619,58 @@ where
 \begin{tabular}{rcl}
 {\em <attribute>} & ::= & {\em attribute-label} {\em attribute-flags}\QMARK{}
                         \{ \TT{\textvisiblespace=\textvisiblespace}
-			{\em attribute-value} \}\QMARK{} \\
+			{\em attribute-values} \}\QMARK{} \\
 		& $|$ & {\em attribute-label} {\em attribute-flags}\QMARK{}
+			\begin{tabular}[t]{@{}l@{}}
                         \TT{\textvisiblespace=\textvisiblespace}
-			{\em object-id}
+			    {\em object-ids} \\
                         \TT{\textvisiblespace=\textvisiblespace}
-			{\em attribute-label} \\
+			{\em reverse-attribute-label} \\
+			\end{tabular} \\
 		& $|$ & {\em attribute-label} \\
-		& $|$ & \TT{no\textvisiblespace}{\em attribute-label} \\
+		& $|$ & \TT{no\textvisiblespace}{\em attribute-label}
+\\[1ex]
+{\em attribute-values} & ::= & {\em attribute-value} \\
+		       & $|$ & \TT{\{*\textvisiblespace}{\em attribute-value}
+		               \{ \TT{,\textvisiblespace}{\em attribute-value}
+			       \}\PLUS{} \TT{\textvisiblespace *\}}
+\\[1ex]
+{\em object-ids} & ::= & {\em object-id} \\
+		       & $|$ & \TT{\{*\textvisiblespace}{\em object-id}
+		               \{ \TT{,\textvisiblespace}{\em object-id}
+			       \}\PLUS{} \TT{\textvisiblespace *\}}
+\\[1ex]
+{\em attribute-label} & is & printed by \TT{min::print\_gen} \\
+		      &    & using \TT{label\_format}
+\\[1ex]
+{\em reverse-attribute-label} & ::= & {\em attribute-label}
+\\[1ex]
+{\em attribute-flags} & is & printed using \TT{flags\_format} \\
+		      &    & (see \pagref{ATTRIBUTE-FLAG-NAMES})
+\\[1ex]
+{\em attribute-value} & is & printed by \TT{min::print\_gen} \\
+		      &    & using \TT{value\_format}
+\\[1ex]
+{\em object-id} & is & printed by \TT{min::print\_id} \\
 \end{tabular}
 \end{center}
 
-Here any {\em attribute-label} is printed with
-\TT{label\_\EOL format} and any {\em attribute-flags}
-is printed with \TT{flags\_\EOL format}
-(see \pagref{ATTRIBUTE-FLAG-NAMES} for  more detail on printing the flags).
-The {\em attribute-value} is printed with with \TT{value\_\EOL format},
-and the {\em object-id} is printed with \TT{min::\EOL print\_\EOL id}.
-What would be `{\em attribute-label} \TT{= TRUE}' is replaced by
-just `{\em attribute-label}\,', and what
-would be `{\em attribute-label} \TT{= FALSE}' is replaced by
-just `\TT{no }{\em attribute-label}\,'.
+Here
+\begin{enumerate}
+\item
+An {\em <attribute>} that is just `{\em attribute-label}'
+is equivalent to `{\em attribute-label} \TT{= TRUE}'.
+\item
+An {\em <attribute>} that is just `\TT{no }{\em attribute-label}'
+is equivalent to `{\em attribute-label} \TT{= FALSE}'.
+\item
+An {\em attribute-label} may appear in more that one {\em <attribute>},
+but at most one without any {\em reverse-attribute-label}, and in
+at most one with any particular {\em reverse-attribute-label}.
+\item
+An {\em attribute-label} may appear with {\em attribute-flags}
+in at most one {\em <attribute>}.
+\end{enumerate}
 
 The \mkey{embedded line format}{of printed object} prints the object
 in the same way as normal format but with {\em <attribute>}s after the
@@ -17651,8 +17688,6 @@ Thus if
 \TT{.type}		& is	& \TT{"T"} \\
 \TT{obj\_attrbegin}	& is	& \TT{":"} \\
 \TT{obj\_attrsep}	& is	& \TT{","} \\
-\TT{obj\_attreq}	& is	& \TT{" = "} \\
-\TT{obj\_attrneg}	& is	& \TT{"no "} \\
 \end{tabular}
 \end{center}
 then the object in embedded line format has the form:
@@ -17691,8 +17726,6 @@ as when the object is printed when flushing an identifier map
 \begin{tabular}{lcl}
 \TT{obj\_sep}		& is	& \TT{" "} \\
 \TT{obj\_attreol}	& is	& \TT{":"} \\
-\TT{obj\_attreq}	& is	& \TT{" = "} \\
-\TT{obj\_attrneg}	& is	& \TT{"no "} \\
 \end{tabular}
 \end{center}
 then the object in isolated line format has the form:
@@ -17791,7 +17824,8 @@ it sets it to a string of the form
 \end{center}
 which is made from the input \TT{text\_\EOL buffer} by replacing
 every string of correctly interpreted characters by a single comma,
-and lastly deleting any beginning or ending comma,
+and then deleting any beginning or ending commas and any commas
+following other commas,
 leaving sequences of incomprehensible
 characters separated by commas.  Incomprehensible characters are ignored
 by the parser.
