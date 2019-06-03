@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 29 15:30:00 EDT 2019
+// Date:	Mon Jun  3 02:12:18 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7961,7 +7961,8 @@ inline min::unsptr count_reverse_attrs
 
 bool min::internal::compute_attr_info
 	( min::attr_info & info,
-	  min::list_ptr & lp )
+	  min::list_ptr & lp,
+	  bool include_reverse_attr )
 {
     min::unsptr flag_count = 0;
     const min::gen zero_cc =
@@ -7979,8 +7980,11 @@ bool min::internal::compute_attr_info
 	    }
 #   	    endif
 	if ( min::is_sublist ( c ) )
-	    info.reverse_attr_count =
-		count_reverse_attrs ( lp );
+	{
+	    if ( include_reverse_attr )
+		info.reverse_attr_count =
+		    count_reverse_attrs ( lp );
+	}
 	else if ( min::is_control_code ( c ) )
 	{
 	    min::unsptr shift =
@@ -8015,7 +8019,8 @@ bool min::internal::compute_attr_info
 //
 static bool compute_counts
 	( min::attr_info & info,
-	  min::list_ptr & lp )
+	  min::list_ptr & lp,
+	  bool include_reverse_attr )
 {
     info.value_count = 0;
     info.flag_count = 0;
@@ -8038,7 +8043,7 @@ static bool compute_counts
 	    ( min::obj_vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
 	return min::internal::compute_attr_info
-	    ( info, lpv );
+	    ( info, lpv, include_reverse_attr );
     }
 }
 
@@ -8055,7 +8060,8 @@ static bool compute_counts
 	( min::list_ptr & lp,
 	  min::gen * components, min::unsptr depth,
 	  min::attr_info * out, min::unsptr n,
-	  min::unsptr & m )
+	  min::unsptr & m,
+	  bool include_reverse_attr )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
@@ -8083,7 +8089,9 @@ static bool compute_counts
 	    labvec[depth] = c;
 	    min::next ( lpv );
 	    min::attr_info info;
-	    if ( compute_counts ( info, lpv ) )
+	    if ( compute_counts
+	             ( info, lpv,
+		       include_reverse_attr ) )
 	    {
 		info.name = new_label =
 		    min::new_lab_gen
@@ -8092,7 +8100,8 @@ static bool compute_counts
 		++ m;
 	    }
 	    compute_children
-	        ( lpv, labvec, depth + 1, out, n, m );
+	        ( lpv, labvec, depth + 1, out, n, m,
+		  include_reverse_attr );
 	}
     }
 # endif
@@ -8100,6 +8109,7 @@ static bool compute_counts
 min::unsptr min::attr_info_of
 	( min::attr_info * out, min::unsptr n,
 	  min::obj_vec_ptr & vp,
+	  bool include_reverse_attr,
 	  bool include_attr_vec )
 {
     min::unsptr m = 0;  // Return value.
@@ -8127,14 +8137,16 @@ min::unsptr min::attr_info_of
 		        new_lab_gen ( & info.name, 1 );
 #	    endif
 	    next ( lp );
-	    if ( compute_counts ( info, lp ) )
+	    if ( compute_counts
+		   ( info, lp, include_reverse_attr ) )
 	    {
 		if ( m < n ) out[m] = info;
 		++ m;
 	    }
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		compute_children
-		    ( lp, & c, 1, out, n, m );
+		    ( lp, & c, 1, out, n, m,
+		      include_reverse_attr );
 #	    endif
 	}
     }
@@ -8149,14 +8161,16 @@ min::unsptr min::attr_info_of
 	    continue;
 
 	info.name = new_num_gen ( i );
-	if ( compute_counts ( info, lp ) )
+	if ( compute_counts
+	         ( info, lp, include_reverse_attr ) )
 	{
 	    if ( m < n ) out[m] = info;
 	    ++ m;
 	}
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    compute_children
-	        ( lp, & info.name, 1, out, n, m );
+	        ( lp, & info.name, 1, out, n, m,
+		  include_reverse_attr );
 #	endif
     }
 

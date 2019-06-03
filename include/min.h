@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 29 15:29:32 EDT 2019
+// Date:	Mon Jun  3 02:07:45 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10073,7 +10073,8 @@ namespace min {
     bool attr_info_of
 	    ( min::attr_info & info,
 	      unprotected::attr_ptr_type
-	          < vecptr > & ap );
+	          < vecptr > & ap,
+	      bool include_reverse_attr = true );
     template < class vecptr >
     bool reverse_attr_info_of
 	    ( min::reverse_attr_info & info,
@@ -10083,6 +10084,7 @@ namespace min {
 	    ( min::attr_info * out,
 	      min::unsptr n,
 	      min::obj_vec_ptr & vp,
+	      bool include_reverse_attr = true,
 	      bool include_attr_vec = false );
     bool has_single_attr
 	    ( min::obj_vec_ptr & vp,
@@ -10175,7 +10177,8 @@ namespace min {
 		      < vecptr > & ap );
 	bool compute_attr_info
 		( min::attr_info & info,
-		  min::list_ptr & lp );
+		  min::list_ptr & lp,
+		  bool include_reverse_attr );
 	template < class vecptr >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
@@ -10619,7 +10622,8 @@ namespace min { namespace unprotected {
 	friend bool min::attr_info_of<>
 		( min::attr_info & info,
 		  min::unprotected::attr_ptr_type
-		      < vecptr > & ap );
+		      < vecptr > & ap,
+		  bool include_reverse_attr );
 	friend bool min::reverse_attr_info_of<>
 		( min::reverse_attr_info & info,
 		  min::unprotected::attr_ptr_type
@@ -10628,6 +10632,7 @@ namespace min { namespace unprotected {
 	        ( min::attr_info * out,
 		  min::unsptr n,
 		  min::obj_vec_ptr & vp,
+	          bool include_reverse_attr,
 	          bool include_attr_vec );
 	friend min::unsptr min::reverse_attr_info_of<>
 	        ( min::reverse_attr_info * out,
@@ -11001,7 +11006,8 @@ namespace min {
     bool attr_info_of
 	    ( min::attr_info & info,
 	      unprotected::attr_ptr_type
-	          < vecptr > & ap )
+	          < vecptr > & ap,
+	      bool include_reverse_attr = true )
     {
 	typedef min::unprotected
 	           ::attr_ptr_type<vecptr> ap_type;
@@ -11041,7 +11047,7 @@ namespace min {
 	        ( min::obj_vec_ptr_of ( ap.dlp ) );
 	    start_sublist ( lp, ap.dlp );
 	    return internal::compute_attr_info
-	    	( info, lp );
+	    	( info, lp, include_reverse_attr );
 	}
     }
     template < class vecptr >
@@ -11050,10 +11056,12 @@ namespace min {
 	      min::unsptr n,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap,
+	      bool include_reverse_attr = true,
 	      bool include_attr_vec = false )
     {
         return min::attr_info_of
 	    ( out, n, min::obj_vec_ptr_of ( ap ),
+	      include_reverse_attr,
 	      include_attr_vec );
     }
     template < class vecptr >

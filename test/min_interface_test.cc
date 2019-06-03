@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 29 07:43:17 EDT 2019
+// Date:	Mon Jun  3 02:17:11 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4092,7 +4092,7 @@ static bool check_attr_info
     min::assert_print = false;
     min::attr_info aiv[n+100];
     min::unsptr m = min::attr_info_of
-        ( aiv, n+100, ap, include_attr_vec );
+        ( aiv, n+100, ap, true, include_attr_vec );
     min::sort_attr_info ( aiv, m );
 
     if ( m != n )
@@ -5494,7 +5494,7 @@ void test_object_debugging ( void )
 	min::obj_vec_insptr vp ( obj );
 	min::attr_insptr ap  ( vp );
 	info_length = min::attr_info_of
-	    ( info, 100, ap, true );
+	    ( info, 100, ap, true, true );
 	MIN_REQUIRE ( info_length < 100 );
 	min::sort_attr_info ( info, info_length );
     }
@@ -5514,7 +5514,7 @@ void test_object_debugging ( void )
 	min::obj_vec_insptr vp ( copy_obj );
 	min::attr_insptr ap  ( vp );
 	copy_info_length = min::attr_info_of
-	    ( copy_info, 100, ap, true );
+	    ( copy_info, 100, ap, true, true );
 	MIN_REQUIRE ( copy_info_length == info_length );
 	min::sort_attr_info ( copy_info, info_length );
 
