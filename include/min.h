@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:07:45 EDT 2019
+// Date:	Mon Jun  3 02:56:28 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10085,9 +10085,6 @@ namespace min {
 	      min::unsptr n,
 	      min::obj_vec_ptr & vp,
 	      bool include_reverse_attr = true,
-	      bool include_attr_vec = false );
-    bool has_single_attr
-	    ( min::obj_vec_ptr & vp,
 	      bool include_attr_vec = false );
     template < class vecptr >
     min::unsptr reverse_attr_info_of

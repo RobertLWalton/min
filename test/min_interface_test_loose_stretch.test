@@ -2653,15 +2653,11 @@ Start Object Attribute Level Test!
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::has_single_attr ( vp ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap ) == int1 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::has_single_attr ( vp ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap ) == int1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -3007,21 +3003,9 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 12 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::has_single_attr ( vp1 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::has_single_attr ( vp1 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::has_single_attr ( vp1, true ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     int1 == min::attr_pop ( vp1 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::has_single_attr ( vp1, true ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap1 ) == min::NONE() => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::has_single_attr ( vp1 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::has_single_attr ( vp1 ) => true
 
 Finish Object Attribute Level Test!
 
