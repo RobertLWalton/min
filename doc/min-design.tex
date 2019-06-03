@@ -15406,10 +15406,6 @@ Information Functions:
      \verb|  bool include_reverse_attr = true,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::ATTR_INFO_VEC_OF_VEC_PTR} \\
-\verb|bool min::| & \MINKEY{has\_single\_attr}\ARGBREAK
-     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
-     \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::HAS_SINGLE_ATTR_OF_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -15691,11 +15687,6 @@ with such an integer is also not returned.
 The 3-argument \TT{min::attr\_info\_of} function can also take a read-only
 \TT{min::\EOL obj\_\EOL vec\_\EOL ptr} pointing at the object instead
 of a \TT{min::\EOL attr\_\EOL ptr}.
-
-The \TT{min::has\_single\_attr} function is the optimized
-equivalent of getting all the information that the 3-argument
-\TT{min::attr\_info\_of} gets and then returning \TT{true} iff any
-\TT{value\_\EOL count} is greater than zero.
 
 The 2-argument \TT{min::reverse\_attr\_info\_of} function returns information
 about the current reverse attribute of an attribute pointer (i.e., the
@@ -23680,10 +23671,6 @@ Information Functions:
      \verb|  bool include_reverse_attr = true,|\ARGBREAK
      \verb|  bool include_attr_vec = false )|
 \LABEL{MIN::ATTR_INFO_VEC_OF_VEC_PTR} \\
-\verb|bool min::| & \MINKEY{has\_single\_attr}\ARGBREAK
-     \verb|( min::obj_vec_ptr & vp,|\ARGBREAK
-     \verb|  bool include_attr_vec = false )|
-\LABEL{MIN::HAS_SINGLE_ATTR_OF_VEC_PTR} \\
 \end{TABULAR}
 
 \bigskip
