@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:57:07 EDT 2019
+// Date:	Thu Jun  6 06:16:41 EDT 2019
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12834,6 +12834,18 @@ min::printer min::print_mapped
 
     if ( ID >= id_map->next )
 	return min::print_id_map ( printer, id_map, f );
+
+/*
+    // Although object was printed above, object may
+    // have been changed since it was last printed,
+    // and we do not keep track of this.
+    //
+    printer << min::bol;
+    MINT::print_id ( printer, ID );
+    min::print_space ( printer );
+    min::print_item ( printer, "= see above", 11, 11 );
+    return printer << min::bol;
+*/
 
     min::print_id_map ( printer, id_map, f );
     return min::print_mapped_id
