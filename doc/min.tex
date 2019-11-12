@@ -1,6 +1,6 @@
-% Minimal Descriptive Programming System Design
+% Minimal Runtime System
 %
-% File:         min-design.tex
+% File:         min.tex
 % Author:       Bob Walton (walton@acm.org)
 % Date:		See \date below.
   
@@ -255,13 +255,12 @@
 
 \begin{document}
         
-\title{Internal Design\\[2ex]of the\\[2ex]
-       Minimal\\Descriptive Programming\\System\\[2ex]MIN\\[2ex]
+\title{Minimal Runtime System\\[2ex]MIN\\[2ex]
        (Draft 1a)}
 
 \author{Robert L. Walton}
 
-\date{July 19, 2019}
+\date{November 12, 2019}
  
 \maketitle
 
@@ -279,7 +278,7 @@
 \section{Introduction}
 
 This document describes the internal design of MIN,
-the Minimal Descriptive Programming System.
+the Minimal Runtime System.
 This document is written for readers who wish to add C++ code
 to a MIN implementation, or who wish to maintain an implementation.
 
@@ -372,7 +371,7 @@ directories:
 \\[1ex]
 \ldots\TT{/}\ttkey{min/test} & test scripts such as \TT{min\_interface\_test.cc}
 \\[1ex]
-\ldots\TT{/}\ttkey{min/doc} & documentation files such as \TT{min-design.tex}
+\ldots\TT{/}\ttkey{min/doc} & documentation files such as \TT{min.tex}
 \end{tabular}
 \end{center}
 
