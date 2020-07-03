@@ -2,15 +2,11 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed May 13 01:29:50 EDT 2015
+# Date:		Fri Jul  3 05:57:44 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
-#
-# We need the following to mask RCS lines
-#
-D = $$
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -104,9 +100,6 @@ diffs:
 	    -e '/\.h:[0-9]*:/s//.h:XXXX:/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
 	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
             < $*.out > $*.test
@@ -118,9 +111,6 @@ diffs:
 	    -e '/\.h:[0-9]*:/s//.h:XXXX:/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
-	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
-	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
-	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
 	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
             < $*.out | diff -u $*.test -
