@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  6 06:16:41 EDT 2019
+// Date:	Sat Jul  4 15:13:47 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4120,6 +4120,16 @@ min::unicode_name_table min::init
 	        if ( ( char_flags[i] & flags ) != 0 )
 		    ++ length;
 	    }
+	    for ( unsigned j = 0;
+	          j < min::unicode::extra_names_number;
+		  ++ j )
+	    {
+	        Uchar c =
+		    min::unicode::extra_names[j].c;
+		min::uns16 i = min::Uindex ( c );
+	        if ( ( char_flags[i] & flags ) != 0 )
+		    ++ length;
+	    }
 	}
 
 	length *= 3;
@@ -4142,6 +4152,19 @@ min::unicode_name_table min::init
 	    min::add ( table,
 	               min::ustring_chars ( name ),
 		       c );
+	}
+	for ( unsigned j = 0;
+	      j < min::unicode::extra_names_number;
+	      ++ j )
+	{
+	    const min::unicode::extra_name & e =
+		min::unicode::extra_names[j];
+	    min::uns16 i = min::Uindex ( e.c );
+	    if ( ( char_flags[i] & flags ) == 0 )
+	        continue;
+	    min::add ( table,
+	               min::ustring_chars ( e.name ),
+		       e.c );
 	}
     }
     return table;

@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 04:34:12 EDT 2020
+// Date:	Sat Jul  4 15:22:42 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,7 +77,7 @@ uns32 index_limit = 0;
 
 const uns32 extra_names_size = 4096;
 uns32 extra_names_number = 0;
-extra_name const extra_names [extra_names_size];
+extra_name extra_names [extra_names_size];
 
 Uchar character[index_size];
 const char * category[index_size];
@@ -236,8 +236,8 @@ void store_name ( Uchar c, const char * n )
 	    e.c = c;
 	}
     }
-
-    name[c] = (ustring) strdup ( (char *) buffer );
+    else
+	name[c] = (ustring) strdup ( (char *) buffer );
 
     // Check for name being used more than once.
     //
@@ -991,6 +991,7 @@ int main ( int argc, const char ** argv )
     ::line_count = 0;
     strcpy ( ::line, "set builtin defaults" );
 
+    store_name ( SOFTWARE_NL, "SWNL" );
     store_name ( UNKNOWN_UCHAR, "UUC" );
 
     set_support_sets();

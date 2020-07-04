@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 04:34:27 EDT 2020
+// Date:	Sat Jul  4 15:32:31 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -361,8 +361,9 @@ void extra_name_output
 	char name[100];
 	sprintf ( name, "\"%s\"",
 	          ustring_chars ( e.name ) );
-	sprintf ( buffer, "    { \"\\x%02X\\x%02X\""
-	                  " %16s, 0x%08X }",
+	sprintf ( buffer, "    { (ustring)"
+	                  " \"\\x%02X\\x%02X\""
+	                  " %12s, 0x%08X }",
 		  ustring_length ( e.name ),
 		  ustring_columns ( e.name ),
 	          name, e.c );
@@ -454,7 +455,7 @@ void output ( ostream & out,
 	      unsigned size )
 {
     char format[20];
-    sprintf ( format, "0x%%0%dX", ( b + 3 ) / 4 );
+    sprintf ( format, "0x%%0%dllX", ( b + 3 ) / 4 );
 
     const char * finish = "";
     for ( unsigned i = 0; i < size; ++ i )

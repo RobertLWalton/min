@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  6 01:08:18 EST 2015
+// Date:	Sat Jul  4 16:28:36 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,6 +62,11 @@ using UNI::cc_support_sets_mask;
 using UNI::index_size;
 using UNI::index;
 using UNI::index_limit;
+
+using UNI::extra_name;
+using UNI::extra_names_size;
+using UNI::extra_names_number;
+using UNI::extra_names;
 
 using UNI::character;
 using UNI::category;

@@ -76,6 +76,12 @@ UNI::uns64 const
 UNI::ustring const
     UNI::name[UNI::index_limit] =
         { UNICODE_NAME };
+const UNI::uns32
+    UNI::extra_names_number =
+        UNICODE_EXTRA_NAMES_NUMBER;
+UNI::extra_name const
+    UNI::extra_names[UNI::extra_names_number] =
+        { UNICODE_EXTRA_NAMES };
 UNI::ustring const
     UNI::picture[UNI::index_limit] =
         { UNICODE_PICTURE };

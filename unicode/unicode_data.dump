@@ -16,8 +16,8 @@
    6 ACK  ␆ Cc    0 BN   N ascii, 06
    7 BEL  ␇ Cc    0 BN   N ascii, 07
    8 BS   ␈ Cc    0 BN   N ascii, 08
-   9 TAB  ␉ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 09
-  10 EOL  ␊ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0A
+   9 HT   ␉ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 09
+  10 LF   ␊ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0A
   11 VT   ␋ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 0B
   12 FF   ␌ Cc    0 WS   N ascii, Pattern_White_Space, White_Space, 0C
   13 CR   ␍ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0D
@@ -25553,7 +25553,7 @@
  743        Lo    0 L    N Diacritic, AAC0, AAC2
  744        Cs    0 L    N D800, DB7F, DB80, DBFF, DC00, DFFF
  745        Co    0 L    N E000, F8FF
- 746      ␤                F0FF
+ 746 SWNL ␤                F0FF
  747        Lo    0 L    N 3, Ideographic, F96B
  748        Lo    0 L    N 10, Ideographic, F973, F9FD
  749        Lo    0 L    N 2, Ideographic, F978
@@ -25592,7 +25592,7 @@
  777        Po    0 CS   N Sentence_Terminal, Terminal_Punctuation, FE52, FF0E
  778        Po    0 ON   N Other_Math, FE61, FE68, FF3C
  779        Pd    0 ES   N Dash, Hyphen, Other_Math, FE63
- 780 ZWNBSP   Cf    0 BN   N FEFF
+ 780 BOM    Cf    0 BN   N FEFF
  781        Po    0 ON   N Quotation_Mark, FF02, FF07
  782        Pd    0 ES   N Dash, Hyphen, FF0D
  783        Po    0 CS   N FF0F

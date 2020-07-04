@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 12, 2019}
+\date{July 4, 2020}
  
 \maketitle
 
@@ -3903,7 +3903,33 @@ find out the name and picture of \TT{c} by using:
 \LABEL{MIN::UNICODE::PICTURE} \\
 \end{tabular}\end{indpar}
 
-You can also find out the character flags of \TT{c} as described
+Almost all UNICODE characters have just one name, but a few
+have more than one.  The following table describes the extra
+names:
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct       min::| & \MINKEY{unicode::extra\_\EOL name}
+\LABEL{MIN::UNICODE::EXTRA_NAME_STRUCT} \\
+\verb|{                 | \\
+\verb|     min::ustring |
+	& \TTMKEY{name}{in {\tt min::unicode::extra\_name}} \\
+\verb|     min::Uchar   |
+	& \TTMKEY{c}{in {\tt min::unicode::extra\_name}} \\
+\verb|}                 | \\
+\verb|min::unicode::extra_name min::|
+    & \MINKEY{unicode::extra\_names}
+\LABEL{MIN::UNICODE::EXTRA_NAMES} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode::extra\_names\_number}
+\LABEL{MIN::UNICODE::EXTRA_NAMES_NUMBER} \\
+\end{tabular}\end{indpar}
+
+Here each of the \TT{min::unicode::extra\_names\_number}
+entries in \TT{min::\EOL unicode::\EOL extra\_\EOL names}
+givens an extra \TT{name} for a character \TT{c}.
+Extra names are useful when a character is input by name:
+see \itemref{UNICODE-NAME-TABLES}.
+
+You can find out the character flags of \TT{c} as described
 below in \itemref{UNICODE-CHARACTER-FLAGS}.
 So that ASCII and LATIN1 characters can each have their own
 flags, each has its own index\label{ASCII-LATIN1-UNIQUE-INDEX}.  That is:
@@ -5035,9 +5061,12 @@ of print columns these take; the maximum is 63.
 \label{UNICODE-NAME-TABLES}
 
 A \key{UNICODE name table} can be used to look up a UNICODE
-character given its name.  For most characters the name is that
+character given one of its names.  For most characters the name is that
 given by \TT{min::\EOL unicode::\EOL name} (\pagref{MIN::UNICODE::NAME}),
-but other names may be associated with characters.
+but other names may be associated with characters by
+\TT{min::\EOL unicode::\EOL extra\_\EOL names}
+(\pagref{MIN::UNICODE::EXTRA_NAMES}) or by the {\tt min::add}
+function immediately below.
 
 UNICODE name tables have the type
 
@@ -5061,7 +5090,7 @@ read using the following functions:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{add}\ARGBREAK
+\verb|void min::| & \MINKEY{add\REL}\ARGBREAK
     \verb|( min::unicode_name_table table,|\ARGBREAK
     \verb|  const char * name,|\ARGBREAK
     \verb|  min::Uchar c,|\ARGBREAK
@@ -5079,7 +5108,8 @@ and sets this argument to the new hash table.  If the table
 already exists, the function and does nothing.  
 
 If the table is created, the \TT{min::\EOL unicode::\EOL name}
-name of a character is added to the table if its flags,
+and \TT{min::\EOL unicode::\EOL extra\_\EOL names}
+of a character is added to the table if the character's flags,
 as given by the \TT{char\_\EOL flags} argument,
 have a flag in common with the \TT{flags} argument.
 Additionally extra space is reserved for later adding character
@@ -19108,6 +19138,23 @@ These are in \verb|min_parameters.h|.
 \verb|min::ustring min::|
     & \MINKEY{unicode::picture}\verb|[i]|
 \LABEL{MIN::UNICODE::PICTURE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.8in}
+\verb|struct       min::| & \MINKEY{unicode::extra\_\EOL name}
+\LABEL{MIN::UNICODE::EXTRA_NAME_STRUCT} \\
+\verb|{                 | \\
+\verb|     min::ustring |
+	& \TTMKEY{name}{in {\tt min::unicode::extra\_name}} \\
+\verb|     min::Uchar   |
+	& \TTMKEY{c}{in {\tt min::unicode::extra\_name}} \\
+\verb|}                 | \\
+\verb|min::unicode::extra_name min::|
+    & \MINKEY{unicode::extra\_names}
+\LABEL{MIN::UNICODE::EXTRA_NAMES} \\
+\verb|min::uns32 min::|
+    & \MINKEY{unicode::extra\_names\_number}
+\LABEL{MIN::UNICODE::EXTRA_NAMES_NUMBER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}

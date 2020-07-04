@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 02:46:09 EDT 2020
+// Date:	Sat Jul  4 15:23:04 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,9 +30,9 @@ const Uchar SOFTWARE_NL = 0xF0FF;
     // This is the private use UNICODE character that
     // is assigned to represent a `software new-line',
     // such as the end of a MIN file line.  It is
-    // given the name "NL" and corresponding control
+    // given the name "SWNL" and corresponding control
     // picture character (as opposed to line-feed
-    // which has the name "LF").
+    // which has the names "LF" and "NL").
 
 const Uchar NO_UCHAR = 0xFFFFFFFF;
     // Denotes a missing Uchar value.
@@ -338,43 +338,45 @@ extern uns64 const properties[];
     // c has property P, where P is one of the
     // following (the items in this table and their
     // order may change in the future):
-enum {
-    ASCII_Hex_Digit,
-    Bidi_Control,
-    Dash,
-    Deprecated,
-    Diacritic,
-    Extender,
-    Hex_Digit,
-    Hyphen,
-    Ideographic,
-    IDS_Binary_Operator,
-    IDS_Trinary_Operator,
-    Join_Control,
-    Logical_Order_Exception,
-    Noncharacter_Code_Point,
-    Other_Alphabetic,
-    Other_Default_Ignorable_Code_Point,
-    Other_Grapheme_Extend,
-    Other_ID_Continue,
-    Other_ID_Start,
-    Other_Lowercase,
-    Other_Math,
-    Other_Uppercase,
-    Pattern_Syntax,
-    Pattern_White_Space,
-    Prepended_Concatenation_Mark,
-    Regional_Indicator,
-    Quotation_Mark,
-    Radical,
-    Sentence_Terminal,
-    Soft_Dotted,
-    STerm,
-    Terminal_Punctuation,
-    Unified_Ideograph,
-    Variation_Selector,
-    White_Space
-};
+
+// Cannot use enum for the following because they
+// are 64 bits and enum may only be 32 bits.
+//
+const uns64 ASCII_Hex_Digit                    = 0;
+const uns64 Bidi_Control                       = 1;
+const uns64 Dash                               = 2;
+const uns64 Deprecated                         = 3;
+const uns64 Diacritic                          = 4;
+const uns64 Extender                           = 5;
+const uns64 Hex_Digit                          = 6;
+const uns64 Hyphen                             = 7;
+const uns64 Ideographic                        = 8;
+const uns64 IDS_Binary_Operator                = 9;
+const uns64 IDS_Trinary_Operator               = 10;
+const uns64 Join_Control                       = 11;
+const uns64 Logical_Order_Exception            = 12;
+const uns64 Noncharacter_Code_Point            = 13;
+const uns64 Other_Alphabetic                   = 14;
+const uns64 Other_Default_Ignorable_Code_Point = 15;
+const uns64 Other_Grapheme_Extend              = 16;
+const uns64 Other_ID_Continue                  = 17;
+const uns64 Other_ID_Start                     = 18;
+const uns64 Other_Lowercase                    = 19;
+const uns64 Other_Math                         = 20;
+const uns64 Other_Uppercase                    = 21;
+const uns64 Pattern_Syntax                     = 22;
+const uns64 Pattern_White_Space                = 23;
+const uns64 Prepended_Concatenation_Mark       = 24;
+const uns64 Regional_Indicator                 = 25;
+const uns64 Quotation_Mark                     = 26;
+const uns64 Radical                            = 27;
+const uns64 Sentence_Terminal                  = 28;
+const uns64 Soft_Dotted                        = 29;
+const uns64 STerm                              = 30;
+const uns64 Terminal_Punctuation               = 31;
+const uns64 Unified_Ideograph                  = 32;
+const uns64 Variation_Selector                 = 33;
+const uns64 White_Space                        = 34;
 
 extern ustring const name[];
     // name[index[c]] is the ustring name of c, or NULL
@@ -391,11 +393,10 @@ struct extra_name
 {
     ustring name;
     Uchar c;
-    extra_name () {};  // Needed for const below.
 };
 extern extra_name const extra_names[];
-extern uns32 extra_names_size;
-extern uns32 extra_names_number;
+extern uns32 const extra_names_size;
+extern uns32 const extra_names_number;
     // A few characters have more than one name.  For
     // these an entry is made in this table for the
     // 2nd, 3rd, ... name of a character.  The size
