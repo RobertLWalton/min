@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Jul  3 22:15:14 EDT 2020
+# Date:		Sat Jul  4 16:49:54 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -10,9 +10,11 @@
 
 .SUFFIXES:
 
+MAKE = make --no-print-directory
+
 all:
-	make -C ../unicode
-	make libmin.a
+	${MAKE} -C ../unicode
+	${MAKE} libmin.a
 
 # O3 is needed to inline functions.
 #
@@ -21,11 +23,6 @@ OPTIMIZE = -O3
 WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
 	 -Wno-char-subscripts
-
-INCLUDE_FILES = \
-	../include/min_parameters.h \
-	../include/min.h \
-	../include/min_unicode.h
 
 O_FILES = min.o min_os.o min_assert.o min_unicode.o
 
@@ -57,11 +54,20 @@ min_os.o:	../src/min_os.cc \
 	    -I ../include \
 	    -c ../src/min_os.cc \
 
-min.o:		${INCLUDE_FILES}
+min.o:		../src/min.cc \
+                ../include/min_parameters.h \
+	        ../include/min.h \
+	        ../include/min_unicode.h \
+		../unicode/unicode_data.h \
+		Makefile
+	rm -f min.o
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -c ../src/min.cc \
 
 libmin.a:	${O_FILES}
 	rm -f libmin.a
 	ar rs libmin.a ${O_FILES}
 
 clean:
-	rm -f *.o
+	rm -f *.o *.a
