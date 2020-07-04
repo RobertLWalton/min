@@ -2,13 +2,17 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Jul  3 13:21:11 EDT 2020
+# Date:		Fri Jul  3 22:15:14 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
 
 .SUFFIXES:
+
+all:
+	make -C ../unicode
+	make libmin.a
 
 # O3 is needed to inline functions.
 #
@@ -33,13 +37,6 @@ min_assert.o:	../src/min_assert.cc \
 	    -I ../include \
 	    -c ../src/min_assert.cc \
 
-../unicode/unicode_data.cc:	\
-		../unicode/make_unicode_data.cc \
-		../unicode/output_unicode_data.cc \
-		../unicode/unicode_data.h \
-		../unicode/Makefile
-	make -C ../unicode
-
 min_unicode.o:	../src/min_unicode.cc \
 		../include/min_unicode.h \
 		../unicode/unicode_data.h \
@@ -62,9 +59,9 @@ min_os.o:	../src/min_os.cc \
 
 min.o:		${INCLUDE_FILES}
 
-libmin.a:
+libmin.a:	${O_FILES}
 	rm -f libmin.a
-	ar rs libmin.a min.o min_assert.o min_unicode.o
+	ar rs libmin.a ${O_FILES}
 
 clean:
 	rm -f *.o
