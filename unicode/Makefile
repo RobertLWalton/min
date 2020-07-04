@@ -2,15 +2,13 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon Jan  5 11:22:49 EST 2015
+# Date:		Fri Jul  3 22:27:01 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
 # for this program.
 #
 
-# O3 is needed to inline functions.
-#
 WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
 	 -Wno-char-subscripts
@@ -25,7 +23,6 @@ DATA = NameAliases.txt \
 LOCAL_DATA = CompositeCharacters.txt \
              SupportSets.txt
 
-
 all:	make_unicode_data.diff \
 	utf8look
 
@@ -36,12 +33,6 @@ curl:
 ${DATA}:
 	rm -f $@
 	curl ${FROM}/$@ >$@
-
-# Derived stuff is no longer used
-#
-${DERIVED}:
-	rm -f $@
-	curl ${FROM}/extracted/$@ >$@
 
 make_unicode_data:	make_unicode_data.cc \
 			output_unicode_data.cc \
