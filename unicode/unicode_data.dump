@@ -16,8 +16,8 @@
    6 ACK  ␆ Cc    0 BN   N ascii, 06
    7 BEL  ␇ Cc    0 BN   N ascii, 07
    8 BS   ␈ Cc    0 BN   N ascii, 08
-   9 HT   ␉ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 09
-  10 LF   ␊ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0A
+   9 TAB  ␉ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 09
+  10 EOL  ␊ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0A
   11 VT   ␋ Cc    0 S    N ascii, Pattern_White_Space, White_Space, 0B
   12 FF   ␌ Cc    0 WS   N ascii, Pattern_White_Space, White_Space, 0C
   13 CR   ␍ Cc    0 B    N ascii, Pattern_White_Space, White_Space, 0D
@@ -11708,19 +11708,15 @@
                            1F196, 1F197, 1F198, 1F199, 1F19A, 1F19B, 1F19C,
                            1F19D, 1F19E, 1F19F, 1F1A0, 1F1A1, 1F1A2, 1F1A3,
                            1F1A4, 1F1A5, 1F1A6, 1F1A7, 1F1A8, 1F1A9, 1F1AA,
-                           1F1AB, 1F1AC, 1F1E6, 1F1E7, 1F1E8, 1F1E9, 1F1EA,
-                           1F1EB, 1F1EC, 1F1ED, 1F1EE, 1F1EF, 1F1F0, 1F1F1,
-                           1F1F2, 1F1F3, 1F1F4, 1F1F5, 1F1F6, 1F1F7, 1F1F8,
-                           1F1F9, 1F1FA, 1F1FB, 1F1FC, 1F1FD, 1F1FE, 1F1FF,
-                           1F200, 1F201, 1F202, 1F210, 1F211, 1F212, 1F213,
-                           1F214, 1F215, 1F216, 1F217, 1F218, 1F219, 1F21A,
-                           1F21B, 1F21C, 1F21D, 1F21E, 1F21F, 1F220, 1F221,
-                           1F222, 1F223, 1F224, 1F225, 1F226, 1F227, 1F228,
-                           1F229, 1F22A, 1F22B, 1F22C, 1F22D, 1F22E, 1F22F,
-                           1F230, 1F231, 1F232, 1F233, 1F234, 1F235, 1F236,
-                           1F237, 1F238, 1F239, 1F23A, 1F23B, 1F240, 1F241,
-                           1F242, 1F243, 1F244, 1F245, 1F246, 1F247, 1F248,
-                           1F250, 1F251
+                           1F1AB, 1F1AC, 1F200, 1F201, 1F202, 1F210, 1F211,
+                           1F212, 1F213, 1F214, 1F215, 1F216, 1F217, 1F218,
+                           1F219, 1F21A, 1F21B, 1F21C, 1F21D, 1F21E, 1F21F,
+                           1F220, 1F221, 1F222, 1F223, 1F224, 1F225, 1F226,
+                           1F227, 1F228, 1F229, 1F22A, 1F22B, 1F22C, 1F22D,
+                           1F22E, 1F22F, 1F230, 1F231, 1F232, 1F233, 1F234,
+                           1F235, 1F236, 1F237, 1F238, 1F239, 1F23A, 1F23B,
+                           1F240, 1F241, 1F242, 1F243, 1F244, 1F245, 1F246,
+                           1F247, 1F248, 1F250, 1F251
  289        Me    0 NSM  N 488, 489, 1ABE, 20DD, 20DE, 20DF, 20E0, 20E2, 20E3,
                            20E4, A670, A671, A672
  290        Po    0 L    N 55A, 55B, 55C, 55D, 55E, 55F, 970, 9FD, A76, AF0,
@@ -25557,7 +25553,7 @@
  743        Lo    0 L    N Diacritic, AAC0, AAC2
  744        Cs    0 L    N D800, DB7F, DB80, DBFF, DC00, DFFF
  745        Co    0 L    N E000, F8FF
- 746 NL   ␤                F0FF
+ 746      ␤                F0FF
  747        Lo    0 L    N 3, Ideographic, F96B
  748        Lo    0 L    N 10, Ideographic, F973, F9FD
  749        Lo    0 L    N 2, Ideographic, F978
@@ -25596,7 +25592,7 @@
  777        Po    0 CS   N Sentence_Terminal, Terminal_Punctuation, FE52, FF0E
  778        Po    0 ON   N Other_Math, FE61, FE68, FF3C
  779        Pd    0 ES   N Dash, Hyphen, Other_Math, FE63
- 780 BOM    Cf    0 BN   N FEFF
+ 780 ZWNBSP   Cf    0 BN   N FEFF
  781        Po    0 ON   N Quotation_Mark, FF02, FF07
  782        Pd    0 ES   N Dash, Hyphen, FF0D
  783        Po    0 CS   N FF0F
@@ -26831,5 +26827,10 @@
                            1EEAC, 1EEAD, 1EEAE, 1EEAF, 1EEB0, 1EEB1, 1EEB2,
                            1EEB3, 1EEB4, 1EEB5, 1EEB6, 1EEB7, 1EEB8, 1EEB9,
                            1EEBA, 1EEBB
-1078        Sk    0 ON   N 1F3FB, 1F3FC, 1F3FD, 1F3FE, 1F3FF
-1079        Lo    0 L    N 9, Ideographic, 2F890
+1078        So    0 L    N Regional_Indicator, 1F1E6, 1F1E7, 1F1E8, 1F1E9,
+                           1F1EA, 1F1EB, 1F1EC, 1F1ED, 1F1EE, 1F1EF, 1F1F0,
+                           1F1F1, 1F1F2, 1F1F3, 1F1F4, 1F1F5, 1F1F6, 1F1F7,
+                           1F1F8, 1F1F9, 1F1FA, 1F1FB, 1F1FC, 1F1FD, 1F1FE,
+                           1F1FF
+1079        Sk    0 ON   N 1F3FB, 1F3FC, 1F3FD, 1F3FE, 1F3FF
+1080        Lo    0 L    N 9, Ideographic, 2F890

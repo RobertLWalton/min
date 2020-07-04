@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:09:57 EDT 2015
+// Date:	Sat Jul  4 04:34:27 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -43,6 +43,7 @@ const char * property_name[] = {
     "Pattern_Syntax",
     "Pattern_White_Space",
     "Prepended_Concatenation_Mark",
+    "Regional_Indicator",
     "Quotation_Mark",
     "Radical",
     "Sentence_Terminal",
@@ -339,6 +340,33 @@ void ustring_output
 	    }
 	    out << '"';
 	}
+    }
+    out << endl;
+}
+
+// Output values for a vector of extra_name's.
+//
+void extra_name_output
+	( ostream & out,
+	  extra_name const * vector,
+	  unsigned size )
+{
+    const char * finish = "";
+    for ( unsigned i = 0; i < size; ++ i )
+    {
+        out << finish << " \\" << endl;
+	finish = ",";
+        extra_name const & e = vector[i];
+	char buffer[200];
+	char name[100];
+	sprintf ( name, "\"%s\"",
+	          ustring_chars ( e.name ) );
+	sprintf ( buffer, "    { \"\\x%02X\\x%02X\""
+	                  " %16s, 0x%08X }",
+		  ustring_length ( e.name ),
+		  ustring_columns ( e.name ),
+	          name, e.c );
+	out << buffer;
     }
     out << endl;
 }
@@ -778,6 +806,25 @@ void output_data ( const char * filename )
 
     out << endl << "# define UNICODE_NAME";
     ustring_output ( out, name, index_limit );
+
+    out <<
+      "\n"
+      "// UNICODE_EXTRA_NAMES_NUMBER is size of\n"
+      "// the UNICODE_EXTRA_NAMES vector below.\n";
+
+    out << endl
+        << "# define UNICODE_EXTRA_NAMES_NUMBER "
+        << extra_names_number << endl;
+
+    out <<
+      "\n"
+      "// UNICODE_EXTRA_NAMES is the list of element\n"
+      "// values of the `extra_names' vector whose\n"
+      "// size is UNICODE_EXTRA_NAMES_NUMBER.\n";
+
+    out << endl << "# define UNICODE_EXTRA_NAMES";
+    extra_name_output
+        ( out, extra_names, extra_names_number );
 
     out <<
       "\n"

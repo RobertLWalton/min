@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:08:40 EDT 2015
+// Date:	Sat Jul  4 04:34:12 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,6 +50,7 @@ using unicode::ustring_columns;
 using unicode::ustring_chars;
 using unicode::utf8_to_unicode;
 using unicode::unicode_to_utf8;
+using unicode::extra_name;
 
 // For each of the extern'ed data in unicode_data.h we
 // have a corresponding datum here with no `const' and
@@ -73,6 +74,10 @@ uns32 cc_support_sets_size = 0;
 const Uchar index_size = 0x30001;
 uns32 index[index_size];
 uns32 index_limit = 0;
+
+const uns32 extra_names_size = 4096;
+uns32 extra_names_number = 0;
+extra_name const extra_names [extra_names_size];
 
 Uchar character[index_size];
 const char * category[index_size];
@@ -220,10 +225,16 @@ void store_name ( Uchar c, const char * n )
 
     if ( name[c] != NULL )
     {
-	line_error ( "character %02X was previously"
-	             " assigned name %s; line ignored",
-		     c, ustring_chars ( name[c] ) );
-	return;
+	if ( extra_names_number >= extra_names_size )
+	    line_error ( "too many extra names" );
+	else
+	{
+	    extra_name & e = * ( extra_name * ) &
+	        extra_names[extra_names_number ++];
+	    e.name = (ustring)
+	        strdup ( (char *) buffer );
+	    e.c = c;
+	}
     }
 
     name[c] = (ustring) strdup ( (char *) buffer );
@@ -232,15 +243,31 @@ void store_name ( Uchar c, const char * n )
     //
     for ( Uchar c2 = 0; c2 < index_size; ++ c2 )
     {
-	if ( ! ustring_eq ( name[c], name[c2] ) )
+	if ( ! ustring_eq ( name[c2],
+	                    (ustring) buffer ) )
 	    continue;
 	if ( c == c2 ) continue;
 
 	line_error ( "character name `%s' used more"
 		     " than once; line accepted", n );
-	break;
+	return;
+    }
+    for ( extra_name const * ep = extra_names;
+          ep < extra_names + extra_names_number;
+	  ++ ep )
+    {
+        if ( ustring_eq ( ep->name, (ustring) buffer )
+	     &&
+	     c != ep->c )
+	{
+	    line_error ( "character name `%s' used more"
+			 " than once; line accepted",
+			 n );
+	    return;
+	}
     }
 }
+
 
 // Current input data:
 //
@@ -964,7 +991,6 @@ int main ( int argc, const char ** argv )
     ::line_count = 0;
     strcpy ( ::line, "set builtin defaults" );
 
-    store_name ( SOFTWARE_NL, "NL" );
     store_name ( UNKNOWN_UCHAR, "UUC" );
 
     set_support_sets();

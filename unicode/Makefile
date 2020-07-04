@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Jul  3 22:27:01 EDT 2020
+# Date:		Sat Jul  4 04:45:15 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,8 +23,9 @@ DATA = NameAliases.txt \
 LOCAL_DATA = CompositeCharacters.txt \
              SupportSets.txt
 
-all:	make_unicode_data.diff \
-	utf8look
+all:	unicode_data.cc \
+	utf8look \
+	latin1look
 
 curl:
 	rm -f ${DATA}
@@ -42,33 +43,13 @@ make_unicode_data:	make_unicode_data.cc \
 	g++ -g ${WFLAGS} -o make_unicode_data \
 	    make_unicode_data.cc
 
-make_unicode_data.out \
 unicode_data.cc \
 unicode_data.dump:	make_unicode_data \
 			${DATA} ${LOCAL_DATA}
-	rm -f unicode_data.cc unicode_data.dump \
-	      make_unicode_data.out
+	rm -f unicode_data.cc unicode_data.dump
 	make_unicode_data unicode_data.cc \
 	                  unicode_data.dump \
-	                  unicode_data_support_sets.h \
-			  > make_unicode_data.out
-	cat make_unicode_data.out
-
-make_unicode_data.test:	make_unicode_data.out
-	rm -f make_unicode_data.test
-	cp -p make_unicode_data.out \
-	      make_unicode_data.test
-
-make_unicode_data.diff:	make_unicode_data.out
-	@echo DIFFING make_unicode_data.test \
-	             make_unicode_data.out
-	@diff -u make_unicode_data.test \
-	         make_unicode_data.out
-
-print_unicode:	print_unicode.cc
-	rm -f print_unicode
-	g++ -g -o print_unicode print_unicode.cc \
-	    -lfontconfig
+	                  unicode_data_support_sets.h
 
 utf8look:	utf8look.cc
 	rm -f utf8look
@@ -107,8 +88,6 @@ latin1-latin1:	latin1look
 	@latin1look 00F8 00F9 00FA 00FB 00FC 00FD 00FE 00FF
 
 clean:
-	rm -f make_unicode_data.out \
-	      make_unicode_data \
+	rm -f make_unicode_data \
 	      utf8look \
-	      latin1look \
-	      print_unicode
+	      latin1look

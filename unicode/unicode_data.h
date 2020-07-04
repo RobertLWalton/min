@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 23 06:18:11 EDT 2015
+// Date:	Sat Jul  4 02:46:09 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -364,6 +364,7 @@ enum {
     Pattern_Syntax,
     Pattern_White_Space,
     Prepended_Concatenation_Mark,
+    Regional_Indicator,
     Quotation_Mark,
     Radical,
     Sentence_Terminal,
@@ -385,6 +386,22 @@ extern ustring const name[];
     //
     // Names are `alias'es read from NameAliases.txt.
     // NULL if missing.
+
+struct extra_name
+{
+    ustring name;
+    Uchar c;
+    extra_name () {};  // Needed for const below.
+};
+extern extra_name const extra_names[];
+extern uns32 extra_names_size;
+extern uns32 extra_names_number;
+    // A few characters have more than one name.  For
+    // these an entry is made in this table for the
+    // 2nd, 3rd, ... name of a character.  The size
+    // of extra_names is extra_names_size and the
+    // actual number of extra_names is extra_names_
+    // number.
 
 extern ustring const picture[];
     // picture[index[c]] is the ustring picture name of
