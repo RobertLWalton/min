@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 15:13:47 EDT 2020
+// Date:	Thu Aug 20 13:36:16 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -427,7 +427,7 @@ void MINT::initialize ( void )
 	min::gen missing = MISSING();
 	float64 v = * (float64 *) & missing;
 
-	MIN_REQUIRE ( isnan ( v ) );
+	MIN_REQUIRE ( std::isnan ( v ) );
 
 	// Attemps to get any kind of NaN to raise an
 	// exception failed, so we cannot test for that.
@@ -438,7 +438,7 @@ void MINT::initialize ( void )
 
 	float64 v2 = v + 1.0;
 
-	MIN_REQUIRE ( isnan ( v2 ) );
+	MIN_REQUIRE ( std::isnan ( v2 ) );
 	uns16 * vp = (uns16 *) & v;
 	uns16 * v2p = (uns16 *) & v2;
 	MIN_REQUIRE ( vp[3*little_endian]
@@ -447,7 +447,7 @@ void MINT::initialize ( void )
 
 	v2 = 0.0;
 	v2 = v2 / v2;
-	MIN_REQUIRE ( isnan ( v2 ) );
+	MIN_REQUIRE ( std::isnan ( v2 ) );
 	MIN_REQUIRE ( vp[3*little_endian]
 		      !=
 		      v2p[3*little_endian] );
@@ -4532,7 +4532,7 @@ void min::resize
     // Initialize unused area.
     //
     from += min::unused_size_of ( vp );
-    memset ( & newb[to], 0,
+    memset ( (void *) & newb[to], 0,
              unused_size * sizeof ( min::gen ) );
     to += unused_size;
 
@@ -4701,7 +4701,7 @@ min::gen MINT::copy
     // Initialize unused area.
     //
     from += min::unused_size_of ( vp );
-    memset ( & newb[to], 0,
+    memset ( (void *) & newb[to], 0,
              unused_size * sizeof ( min::gen ) );
     to += unused_size;
 
@@ -6408,7 +6408,7 @@ inline void copy_hash_to_work
 		MUP::new_list_aux_gen
 		    ( work_end - work_high );
 	    * work_high = min::LIST_END();
-	    memset ( work_high + 1, 0,
+	    memset ( (void *) ( work_high + 1 ), 0,
 		     2 * c
 		       * sizeof ( min::gen ) );
 	}
@@ -6620,7 +6620,8 @@ void min::reorganize
              work_begin,
 	       ( work_low - work_begin )
 	     * sizeof ( min::gen ) );
-    memset ( (min::gen *) newb + unused_offset, 0,
+    memset ( (void *)
+             ( (min::gen *) newb + unused_offset ), 0,
                ( aux_offset - unused_offset )
 	     * sizeof ( min::gen ) );
     memcpy ( (min::gen *) newb + aux_offset,
@@ -8552,6 +8553,8 @@ void MINT::set
 	if ( ap.reverse_attr_name == min::NONE() )
 	    break;
 
+	MIN_FALLTHROUGH
+
     case ap_type::REVERSE_LOCATE_FAIL:
 	if ( n == 0 )
 	    return;
@@ -8710,6 +8713,8 @@ void min::add_to_set
 	    MIN_ABORT
 		( "min::add_to_set called after"
 		  " reverse locate of min::ANY()" );
+	MIN_FALLTHROUGH
+
     case ap_type::REVERSE_LOCATE_FAIL:
 	add_to_multiset ( ap, in, n );
 	return;
@@ -8802,6 +8807,8 @@ void min::add_to_multiset
 	if ( ap.reverse_attr_name == min::NONE() )
 	    break;
 
+	MIN_FALLTHROUGH
+
     case ap_type::REVERSE_LOCATE_FAIL:
         if ( n == 1 )
 	{
@@ -8888,6 +8895,8 @@ min::unsptr min::remove_one
 	    MIN_ABORT
 		( "min::remove_one called after"
 		  " reverse locate of min::ANY()" );
+	MIN_FALLTHROUGH
+
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -8979,6 +8988,8 @@ min::unsptr min::remove_all
 	    MIN_ABORT
 		( "min::remove_all called after"
 		  " reverse locate of min::ANY()" );
+	MIN_FALLTHROUGH
+
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -10461,7 +10472,7 @@ min::printer operator <<
 	    goto eol;
     case min::op::BOL:
         if ( printer->column == 0 ) return printer;
-	// Fall through to EOL.
+	MIN_FALLTHROUGH // to EOL.
     eol:
     case min::op::EOL:
 	::end_line ( printer );
@@ -10555,7 +10566,7 @@ min::printer operator <<
         if (    printer->column + op.v1.u32
 	     <= printer->line_break.line_length )
 	    return printer;
-	// Fall through to INDENT.
+	MIN_FALLTHROUGH // to INDENT.
     case min::op::INDENT:
         if (   printer->column
 	     > printer->line_break.indent )

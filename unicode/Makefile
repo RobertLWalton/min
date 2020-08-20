@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jul  4 04:45:15 EDT 2020
+# Date:		Thu Aug 20 14:04:19 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -23,9 +23,9 @@ DATA = NameAliases.txt \
 LOCAL_DATA = CompositeCharacters.txt \
              SupportSets.txt
 
-all:	unicode_data.cc \
-	utf8look \
-	latin1look
+unicode-all:	unicode_data.cc \
+		utf8look \
+		latin1look
 
 curl:
 	rm -f ${DATA}

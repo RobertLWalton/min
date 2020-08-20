@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:56:28 EDT 2019
+// Date:	Thu Aug 20 13:28:15 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -73,6 +73,8 @@
 # include <cstring>
 # include <cstdarg>
 # include <new>
+
+# define MIN_FALLTHROUGH __attribute__ ((fallthrough));
 
 namespace min { namespace internal {
 
@@ -5862,7 +5864,7 @@ namespace min {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
 	E * p = ~ end_ptr_of ( pvip );
-	memset ( p, 0, sizeof ( E ) );
+	memset ( (void *) p, 0, sizeof ( E ) );
 	++ * (L *) & pvip->length;
 	return unprotected::new_ref ( pvip, * p );
     }
@@ -8188,8 +8190,9 @@ namespace min {
 	if ( m < n ) expand ( vp, n );
 
 	if ( p == NULL )
-	    memset (   unprotected::base(vp)
-		     + vp.unused_offset,
+	    memset ( (void *)
+	             ( unprotected::base(vp)
+		       + vp.unused_offset ),
 		     0, sizeof ( min::gen ) * n );
 	else
 	{
@@ -8221,8 +8224,9 @@ namespace min {
 
 	vp.aux_offset -= n;
 	if ( p == NULL )
-	    memset (   unprotected::base(vp)
-	             + vp.aux_offset,
+	    memset ( (void *)
+	             ( unprotected::base(vp)
+	               + vp.aux_offset ),
 		     0, sizeof ( min::gen ) * n );
 	else
 	{
@@ -11004,7 +11008,7 @@ namespace min {
 	    ( min::attr_info & info,
 	      unprotected::attr_ptr_type
 	          < vecptr > & ap,
-	      bool include_reverse_attr = true )
+	      bool include_reverse_attr )
     {
 	typedef min::unprotected
 	           ::attr_ptr_type<vecptr> ap_type;
@@ -11627,6 +11631,7 @@ namespace min {
 	case ap_type::INIT:
 	case ap_type::LOCATE_ANY:
 	    add_to_set ( ap, & v, 1 );
+	    MIN_FALLTHROUGH
 
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:

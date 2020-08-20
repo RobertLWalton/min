@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jul  4 16:49:54 EDT 2020
+# Date:		Thu Aug 20 14:03:42 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -13,8 +13,8 @@
 MAKE = make --no-print-directory
 
 all:
-	${MAKE} -C ../unicode
-	${MAKE} libmin.a
+	@${MAKE} -C ../unicode
+	@${MAKE} libmin.a
 
 # O3 is needed to inline functions.
 #

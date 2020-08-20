@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 15:32:31 EDT 2020
+// Date:	Thu Aug 20 14:06:37 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -897,12 +897,12 @@ void final_check ( void )
 	            " != 0";
 	else if ( denominator[i] == 0
 	          &&
-		  ! isnan ( numeric_value[i] ) )
+		  ! std::isnan ( numeric_value[i] ) )
 	    error = "denominator == 0 and numeric_value"
 	            " is not NaN";
 	else if ( denominator[i] != 0
 	          &&
-		  isnan ( numeric_value[i] ) )
+		  std::isnan ( numeric_value[i] ) )
 	    error = "denominator != 0 and numeric_value"
 	            " is NaN";
 	else if ( denominator[i] != 0
