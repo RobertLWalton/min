@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 25 08:35:58 EDT 2019
+// Date:	Thu Aug 20 16:44:41 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1923,6 +1923,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase =
 		START_INITING_COLLECTIBLE;
 	}
+	MIN_FALLTHROUGH
 
     case START_INITING_COLLECTIBLE:
 	{
@@ -1933,6 +1934,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase =
 		LOCK_INITING_COLLECTIBLE;
         }
+	MIN_FALLTHROUGH
+
     case LOCK_INITING_COLLECTIBLE:
 	{
 	    // Establish the condition where
@@ -1957,6 +1960,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.collector_phase = INITING_COLLECTIBLE;
 	}
+	MIN_FALLTHROUGH
 
     case INITING_COLLECTIBLE:
         {
@@ -2034,6 +2038,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.hash_stub = MINT::null_stub;
 	    lev.collector_phase = LOCK_INITING_HASH;
 	}
+	MIN_FALLTHROUGH
 
     case LOCK_INITING_HASH:
 	{
@@ -2042,6 +2047,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.g[1].lock = level;
 	    lev.collector_phase = INITING_HASH;
 	}
+	MIN_FALLTHROUGH
 	    
     case INITING_HASH:
         {
@@ -2129,6 +2135,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.root.rewind();
 	    lev.collector_phase = INITING_ROOT;
 	}
+	MIN_FALLTHROUGH
 
     case INITING_ROOT:
 	{
@@ -2195,12 +2202,14 @@ unsigned MACC::collector_increment ( unsigned level )
 	    sc.gen_limit = MACC::scan_limit;
 	    lev.collector_phase = LOCK_SCAVENGING_ROOT;
         }
+	MIN_FALLTHROUGH
 
     case LOCK_SCAVENGING_ROOT:
         {
 	    lev.root.rewind();
 	    lev.collector_phase = SCAVENGING_ROOT;
         }
+	MIN_FALLTHROUGH
 
     case SCAVENGING_ROOT:
         {
@@ -2401,6 +2410,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		MACC::scavenge_limit;
 	    lev.collector_phase = SCAVENGING_THREAD;
 	}
+	MIN_FALLTHROUGH
 
     case SCAVENGING_THREAD:
         {
@@ -2613,6 +2623,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase =
 		REMOVING_TO_BE_SCAVENGED;
 	}
+	MIN_FALLTHROUGH
 
     case REMOVING_TO_BE_SCAVENGED:
         {
@@ -2643,6 +2654,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.next_level = level + 1;
 	    lev.collector_phase = LOCK_REMOVING_ROOT;
 	}
+	MIN_FALLTHROUGH
 
     case LOCK_REMOVING_ROOT:
         {
@@ -2656,6 +2668,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase = REMOVING_ROOT;
 	    // Fall through to REMOVING_ROOT.
 	}
+	MIN_FALLTHROUGH
 
     case REMOVING_ROOT:
         {
@@ -2743,6 +2756,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.hash_table_index = 0;
 	    lev.collector_phase = LOCK_COLLECTING_HASH;
         }
+	MIN_FALLTHROUGH
 
     case LOCK_COLLECTING_HASH:
         {
@@ -2751,6 +2765,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.g[1].lock = level;
 	    lev.collector_phase = COLLECTING_HASH;
 	}
+	MIN_FALLTHROUGH
 
     case COLLECTING_HASH:
         {
@@ -2881,6 +2896,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.last_stub = lev.g->last_before;
 	    lev.collector_phase = LOCK_COLLECTING;
 	}
+	MIN_FALLTHROUGH
+
     case LOCK_COLLECTING:
 	{
 	    end_g->last_before =
@@ -2906,6 +2923,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.collector_phase = COLLECTING;
 	}
+	MIN_FALLTHROUGH
 
     case COLLECTING:
         {
@@ -3144,6 +3162,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.collector_phase = LEVEL_PROMOTING;
 	}
+	MIN_FALLTHROUGH
 
     case LEVEL_PROMOTING:
         {
@@ -3219,6 +3238,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    else
 	        break;
 	}
+	MIN_FALLTHROUGH
 
     case START_GENERATION_PROMOTING:
 	{
@@ -3226,6 +3246,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase =
 		LOCK_GENERATION_PROMOTING;
 	}
+	MIN_FALLTHROUGH
 
     case LOCK_GENERATION_PROMOTING:
         {
@@ -3245,6 +3266,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.collector_phase = GENERATION_PROMOTING;
 	}
+	MIN_FALLTHROUGH
 
     case GENERATION_PROMOTING:
         {

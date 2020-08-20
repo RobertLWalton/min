@@ -1,23 +1,5 @@
 
 Initialize!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    begin_stub_region >= (min::stub *) min::internal::stub_base => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 TEST INITIALIZE CALLED
 
 Start Test!
@@ -88,15 +70,15 @@ ASSERT FAILED: ../include/min.h:XXXX:
 min_interface_test.cc:XXXX desire success:
     igen = min::new_direct_int_gen ( 1 << 27 );
 min_interface_test.cc:XXXX desire failure:
-    igen = min::new_direct_int_gen ( -1 << 29 );
+    igen = min::new_direct_int_gen ( (unsigned) -1 << 29 );
 ASSERT FAILED: ../include/min.h:XXXX:
     in min::gen min::new_direct_int_gen(int):
     DIRECT_MIN_INT <= v && v <= DIRECT_MAX_INT => false
     argument is not direct integer
 min_interface_test.cc:XXXX desire success:
-    igen = min::new_direct_int_gen ( -1 << 28 );
+    igen = min::new_direct_int_gen ( (unsigned) -1 << 28 );
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    MUP::direct_int_of ( igen ) == -1 << 28 => true
+    MUP::direct_int_of ( igen ) == (int) ((unsigned) -1 << 28 ) => true
 
 Test direct string general values:
 strgen: "ABC"
@@ -513,14 +495,10 @@ Test body allocator functions:
 MINT::min_fixed_block_size = 16 MINT::max_fixed_block_size = 131072
 MINT::new_fixed_body ( stub XXX, 128 ) called
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     memcmp ( p1, p2, 128 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     p1 != p2 => true
 MINT::new_fixed_body ( stub XXX, 128 ) called
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     memcmp ( p3, p4, 128 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -627,8 +605,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strnhash ( s13, 3 ) == s3hash => true
 
 Test string general values:
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::new_str_gen ( s13, 8 ) == strgen8 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -824,8 +800,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( p13str_before, s13 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     p13str_after != p13str_before => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strcmp ( s13, p13 ) == 0 => true
@@ -859,10 +833,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( si, sA8, 16 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     si == 168 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( si, s1234567890 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -915,8 +885,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sd, sempty ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     sd == 1e-307 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( si, snumsp, j ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -987,8 +955,6 @@ labhash1: 95375049
 
 Test labels:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::is_lab ( lab ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::is_name ( lab ) => true
@@ -1039,14 +1005,6 @@ LABEL [< "Hello" 55 "End" >]
 Finish Labels Test!
 
 Start Names Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 HASH of new_num_gen ( 1 ) = 3919206129
 HASH of new_num_gen ( 2 ) = 3295440832
 HASH of new_str_gen ( "str 1" ) = 3498587010
@@ -1131,12 +1089,8 @@ LABEL B: "B"
 LABEL C: "C"
 LABEL D: "D"
 LABEL AA BB: [< "AA" "BB" >]
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 LABEL BB CC: [< "BB" "CC" >]
 LABEL AA BB CC: [< "AA" "BB" "CC" >]
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 LABEL AA BB CC DDDD: [< "AA" "BB" "CC" "DDDD" >]
 
 Finish Names Test!
@@ -1165,8 +1119,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->i == 55 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pv2->j == 99 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     upv2 == min::stub_of ( v2 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1199,8 +1151,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     sizeof ( pve ) == 32 => true
 pvtype.name = pvtype
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::packed_subtype_of ( v ) == pvtype.subtype => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::packed_subtype_of ( pvip ) == pvtype.subtype => true
@@ -1226,8 +1176,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pvp->length == 4 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pvp->max_length == 5 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     pvp->length == 4 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1289,10 +1237,6 @@ Finish Packed Vectors Test!
 
 Start File Test!
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 1", ~ & file1->buffer [min::next_line(file1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ~ & file1->buffer [min::next_line(file1)] ) == 0 => true
@@ -1303,25 +1247,11 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 2", ~ & file1->buffer [min::line(file1,1)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 0", ~ & file2->buffer [min::next_line(file2)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line 1", ~ & file2->buffer [min::next_line(file2)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file2 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     data_length == file3->buffer->length => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1334,10 +1264,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     strcmp ( "Line B", ~ & file4->buffer [min::next_line(file4)] ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::NO_LINE == min::next_line ( file4 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     data == ostream.str() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1358,10 +1284,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->occupied == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find ( ::id_map, g1 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1398,8 +1320,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 Finish Identifier Map Test!
 
 Start UNICODE Name Table Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     c == '\f' => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1649,8 +1569,6 @@ Start Objects Test!
 
 Test short objects:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::type_of ( obj_gen ) == type => true
 vo: 2 hs: 100 us: 920 as: 0 auxs: 0 ts: 1022
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1667,8 +1585,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::body_size_of ( s ) == ts * sizeof ( min::gen ) => true
 
 Test long objects:
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next_body + m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::type_of ( obj_gen ) == type => true
 vo: 4 hs: 7000 us: 70000 as: 0 auxs: 0 ts: 77004
@@ -1866,8 +1782,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::var_size_of ( vp ) == 20 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) >= 10 => true
@@ -1895,8 +1809,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     att_end != min::SUCCESS() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     aux_begin != min::SUCCESS() => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     att_end == min::attr ( vp, attr_size - 1 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -2062,8 +1974,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next_body + m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::var_size_of ( vp ) == 20 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) >= 10 => true
@@ -2082,8 +1992,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) >= 10 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next_body + m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::unused_size_of ( vp ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     att_end == min::attr ( vp, attr_size - 1 ) => true
@@ -2093,8 +2001,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     att_end != min::SUCCESS() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     aux_begin != min::SUCCESS() => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next_body + m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     att_end == min::attr ( vp, attr_size - 1 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -2351,8 +2257,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::is_sublist ( min::current ( wlp ) ) => true
 EMPTYING UNUSED AREA
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     resize_happened == ( ! use_obj_aux_stubs && resize ) => true
 RESIZE HAPPENED
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -2535,8 +2439,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::is_sublist ( min::current ( wlp ) ) => true
 EMPTYING UNUSED AREA
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     resize_happened == ( ! use_obj_aux_stubs && resize ) => true
 RESIZE HAPPENED
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -2668,12 +2570,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 Finish Object List Level Test!
 
 Start Object Attribute Level Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::get ( ap ) == int1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -2984,10 +2880,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_flags ( ap, codes1, 0 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_attr_info ( ap, ai, 12 ) => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 TEST REVERSE ATTRIBUTE VALUES ( "label1", "label2", 1)
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     check_values ( ap, values1, 3 ) => true
@@ -3028,10 +2920,6 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 Finish Object Attribute Level Test!
 
 Start Object Attribute Short-Cut Test!
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    next + 2 * m <= end_body_region => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     myvalue == min::get ( obj, myattr ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

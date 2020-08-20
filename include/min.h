@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 13:28:15 EDT 2020
+// Date:	Thu Aug 20 16:28:49 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5883,7 +5883,7 @@ namespace min {
 	    write_update<E> X ( pvip, p, n );
 	}
 	else
-	    memset ( p, 0, n * sizeof ( E ) );
+	    memset ( (void *) p, 0, n * sizeof ( E ) );
 	* (L *) & pvip->length += n;
     }
     template < typename E, typename H, typename L >
@@ -6067,7 +6067,7 @@ const min::stub * min::internal::packed_vec_new_stub
     min::unprotected::new_body ( s, size );
     uns8 * bodyp =
         (uns8 *) min::unprotected::ptr_of ( s );
-    memset ( bodyp, 0, size );
+    memset ( (void *) bodyp, 0, size );
     * (uns32 *) bodyp = pvd->subtype;
     * (L *) ( bodyp + pvd->length_disp ) = length;
     * (L *) ( bodyp + pvd->max_length_disp ) =

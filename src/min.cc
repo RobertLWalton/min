@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 13:36:16 EDT 2020
+// Date:	Thu Aug 20 16:30:14 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2406,7 +2406,7 @@ const min::stub * MINT::packed_struct_new_stub
     min::stub * s = MUP::new_acc_stub();
     MUP::new_body ( s, psd->size );
     uns32 * tp = (uns32 *) MUP::ptr_of ( s );
-    memset ( tp, 0, psd->size );
+    memset ( (void *) tp, 0, psd->size );
     * tp = psd->subtype;
     MUP::set_type_of ( s, PACKED_STRUCT );
     return s;
@@ -6359,7 +6359,8 @@ inline void copy_hash_to_work
     min::unsptr old_hash_size =
         min::hash_size_of ( vp );
     min::unsptr hash_count[new_hash_size];
-    memset ( hash_count, 0, sizeof ( hash_count ) );
+    memset ( (void *) hash_count, 0,
+             sizeof ( hash_count ) );
     min::unsptr begin_index =
         MUP::hash_offset_of ( vp );
     min::unsptr end_index = begin_index + old_hash_size;

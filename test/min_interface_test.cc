@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun  3 02:58:34 EDT 2019
+// Date:	Thu Aug 20 17:11:03 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -168,7 +168,7 @@ void initialize_stub_region ( void )
 	    (min::unsptr) begin_stub_region;
 	min::internal::null_stub = begin_stub_region;
 #   else
-	MIN_CHECK
+	MIN_REQUIRE
 	    (    begin_stub_region
 	      >= (min::stub *)
 	         min::internal::stub_base );
@@ -287,7 +287,7 @@ void MINT::new_non_fixed_body
     min::unsptr m = n + 7;
     m >>= 3;
     ++ m;
-    MIN_CHECK ( next_body + m <= end_body_region );
+    MIN_REQUIRE ( next_body + m <= end_body_region );
 
     * next_body =
         MUP::new_control_with_locator ( 0, s );
@@ -309,7 +309,7 @@ void MINT::new_fixed_body
 
     min::unsptr m = fbl->size >> 3;
     min::uns64 * next = next_body;
-    MIN_CHECK ( next + 2 * m <= end_body_region );
+    MIN_REQUIRE ( next + 2 * m <= end_body_region );
 
     dout << "Using fixed_block_lists["
          << fbl - fixed_block_lists << "]"
@@ -669,15 +669,15 @@ void test_general_value_functions ( void )
 	);
 	desire_failure (
 	    igen = min::new_direct_int_gen
-			( -1 << 29 );
+			( (unsigned) -1 << 29 );
 	);
 	desire_success (
 	    igen = min::new_direct_int_gen
-			( -1 << 28 );
+			( (unsigned) -1 << 28 );
 	);
 	MIN_CHECK
 	    (    MUP::direct_int_of ( igen )
-	      == -1 << 28 );
+	      == (int) ((unsigned) -1 << 28 ));
 #   endif
 
 #   if MIN_IS_LOOSE
