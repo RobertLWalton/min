@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Aug 20 14:03:42 EDT 2020
+# Date:		Fri Aug 21 04:24:26 EDT 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -24,7 +24,8 @@ WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
 	 -Wno-char-subscripts
 
-O_FILES = min.o min_os.o min_assert.o min_unicode.o
+O_FILES = min.o min_os.o min_assert.o \
+          min_unicode.o min_acc.o
 
 min_assert.o:	../src/min_assert.cc \
 		../include/min_parameters.h \
@@ -53,6 +54,19 @@ min_os.o:	../src/min_os.cc \
 	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -c ../src/min_os.cc \
+
+min_acc.o:	../src/min_acc.cc \
+		../include/min_acc.h \
+		../include/min_acc_parameters.h \
+                ../include/min_parameters.h \
+		../include/min.h \
+	        ../include/min_unicode.h \
+		../unicode/unicode_data.h \
+		Makefile
+	rm -f min_acc.o
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -c ../src/min_acc.cc \
 
 min.o:		../src/min.cc \
                 ../include/min_parameters.h \
