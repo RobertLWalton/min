@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 16:28:49 EDT 2020
+// Date:	Fri Aug 21 03:41:18 EDT 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3291,7 +3291,7 @@ namespace min {
         ( T * destination, T const * source,
 	  min::unsptr length )
     {
-        ::memcpy ( destination, source,
+        ::memcpy ( (void *) destination, source,
 	           (sizeof (T)) * length );
     }
 
@@ -5879,7 +5879,7 @@ namespace min {
 	E * p = ~ end_ptr_of ( pvip );
 	if ( vp )
 	{
-	    memcpy ( p, vp, n * sizeof ( E ) );
+	    memcpy ( (void *) p, vp, n * sizeof ( E ) );
 	    write_update<E> X ( pvip, p, n );
 	}
 	else
@@ -5895,7 +5895,7 @@ namespace min {
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
 	E * p = ~ end_ptr_of ( pvip );
-	memcpy ( p, ~ vp, n * sizeof ( E ) );
+	memcpy ( (void *) p, ~ vp, n * sizeof ( E ) );
 	write_update<E> X ( pvip, p, n );
 	* (L *) & pvip->length += n;
     }
@@ -5925,7 +5925,7 @@ namespace min {
 		     " vector has too few elements" );
 	* (L *) & pvip->length -= n;
 	if ( vp )
-	    memcpy ( vp,
+	    memcpy ( (void *) vp,
 		     ~ end_ptr_of ( pvip ),
 		     n * sizeof ( E ) );
     }
@@ -6073,7 +6073,7 @@ const min::stub * min::internal::packed_vec_new_stub
     * (L *) ( bodyp + pvd->max_length_disp ) =
         max_length;
     if ( vp )
-        memcpy ( bodyp + pvd->header_size,
+        memcpy ( (void *) ( bodyp + pvd->header_size ),
 	         vp, length * pvd->element_size);
     min::unprotected::set_type_of ( s, PACKED_VEC );
     return s;
@@ -6120,7 +6120,7 @@ void min::internal::packed_vec_resize
     uns8 * & new_p =
         * (uns8 **)
 	& min::unprotected::new_body_ptr_ref ( r );
-    memcpy ( new_p, old_p, copy_size );
+    memcpy ( (void *) new_p, old_p, copy_size );
     * (L *) ( new_p + pvd->max_length_disp ) =
         max_length;
     if ( length > max_length )
@@ -8196,8 +8196,9 @@ namespace min {
 		     0, sizeof ( min::gen ) * n );
 	else
 	{
-	    memcpy (   unprotected::base(vp)
-		     + vp.unused_offset,
+	    memcpy ( (void *)
+	             (   unprotected::base(vp)
+		       + vp.unused_offset ),
 		     p, sizeof ( min::gen ) * n );
 	    unprotected::acc_write_update
 	        ( vp.s, p, n );
@@ -8230,8 +8231,9 @@ namespace min {
 		     0, sizeof ( min::gen ) * n );
 	else
 	{
-	    memcpy (   unprotected::base(vp)
-	             + vp.aux_offset,
+	    memcpy ( (void *)
+	             (   unprotected::base(vp)
+	               + vp.aux_offset ),
 		     p, sizeof ( min::gen ) * n );
 	    unprotected::acc_write_update
 	        ( vp.s, p, n );
@@ -8259,7 +8261,7 @@ namespace min {
 	vp.unused_offset -= n;
 	if ( p != NULL )
 	    memcpy
-		( p,
+		( (void *) p,
 		    unprotected::base(vp)
 		  + vp.unused_offset,
 		  sizeof ( min::gen ) * n );
@@ -8282,7 +8284,7 @@ namespace min {
 	    ( vp.aux_offset + n <= vp.total_size,
 	      "less than n aux elements left to pop" );
 	if ( p != NULL )
-	    memcpy ( p,
+	    memcpy ( (void *) p,
 		       unprotected::base(vp)
 		     + vp.aux_offset,
 		     sizeof ( min::gen ) * n );
