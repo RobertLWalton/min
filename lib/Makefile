@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Aug 21 04:24:26 EDT 2020
+# Date:		Sat Nov 28 02:21:05 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -12,7 +12,7 @@
 
 MAKE = make --no-print-directory
 
-all:
+min-all:
 	@${MAKE} -C ../unicode
 	@${MAKE} libmin.a
 
