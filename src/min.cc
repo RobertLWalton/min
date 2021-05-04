@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 16:30:14 EDT 2020
+// Date:	Tue May  4 06:23:11 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13163,6 +13163,7 @@ min::printer min::print_obj
 	  min::unsptr max_attrs )
 {
     min::obj_vec_ptr vp ( v );
+    min::unsptr vsize = min::size_of ( vp );
     min::attr_ptr ap ( vp );
 
     min::attr_info info[max_attrs];
@@ -13315,14 +13316,13 @@ min::printer min::print_obj
 	     &&
 	     separator == min::NONE() )
 	{
-	    for ( min::unsptr i = 0;
-	          i < min::size_of ( vp ); ++ i )
+	    for ( min::unsptr i = 0; i < vsize; ++ i )
 	    {
 		if ( i != 0 )
 		{
 		    min::print_space ( printer );
 
-		    if ( i == min::size_of ( vp ) - 1
+		    if ( i == vsize - 1
 		         &&
 			 terminator == min::line_feed )
 		        printer->state |=
@@ -13372,8 +13372,7 @@ min::printer min::print_obj
 		    // adjusted to line indent + 4.
 
 	    bool indent_saved = false;
-	    for ( min::unsptr i = 0;
-	          i < min::size_of ( vp ); ++ i )
+	    for ( min::unsptr i = 0; i < vsize; ++ i )
 	    {
 		if (   printer->state
 	             & min::AFTER_LINE_TERMINATOR )
@@ -13412,9 +13411,7 @@ min::printer min::print_obj
 		  objf->initiator_format );
 	    min::print_leading ( printer );
 	}
-	else if ( min::size_of ( vp ) == 0
-		  &&
-		  type == NONE() )
+	else if ( vsize == 0 && type == NONE() )
 	    return
 	        printer << objf->obj_empty
 			<< min::restore_print_format;
@@ -13476,6 +13473,11 @@ min::printer min::print_obj
 		    }
 		}
 	    }
+
+	    bool is_prefix =
+	        ( vsize == 0
+	          &&
+		  mark_begin_type == mark_end_type );
 	        
 
 	    if ( mark_begin_type != min::NONE() )
@@ -13483,7 +13485,8 @@ min::printer min::print_obj
 		min::print_gen
 		    ( printer, mark_begin_type,
 		      min::never_quote_gen_format );
-		min::print_space ( printer );
+		if ( ! is_prefix )
+		    min::print_space ( printer );
 	    }
 	    else
 	    {
@@ -13491,8 +13494,13 @@ min::printer min::print_obj
 		    min::print_gen
 			( printer, type,
 			  objf->label_format );
-		printer << objf->obj_braend;
+		if ( ! is_prefix )
+		    printer << objf->obj_braend;
 	    }
+	    if ( is_prefix )
+	        return printer
+		    << objf->obj_ket
+		    << min::restore_print_format;
 	}
     }
     else if ( embedded_line_format )
@@ -13518,8 +13526,7 @@ min::printer min::print_obj
     }
 
     bool first = true;
-    for ( min::unsptr i = 0; i < min::size_of ( vp );
-                             ++ i )
+    for ( min::unsptr i = 0; i < vsize; ++ i )
     {
         if ( first ) 
 	{
