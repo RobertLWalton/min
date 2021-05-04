@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  4 06:23:11 EDT 2021
+// Date:	Tue May  4 06:54:16 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13522,6 +13522,13 @@ min::printer min::print_obj
 	attributes_printed = ::print_attributes
 	    ( printer, objf, vp, ap, info, m,
 	      0, type );
+	if ( vsize == 0 )
+	{
+	    if ( attributes_printed )
+	         printer << min::restore_indent;
+	    return printer << objf->obj_ket
+		           << min::restore_print_format;
+	}
         printer << objf->obj_braend;
     }
 
