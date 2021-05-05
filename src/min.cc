@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  5 03:26:29 EDT 2021
+// Date:	Wed May  5 13:21:02 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13166,7 +13166,9 @@ min::printer min::print_obj
         ~ (   min::IN_PARAGRAPH
 	    + min::IN_LOGICAL_LINE
 	    + min::AT_LOGICAL_LINE_END
-	    + min::AFTER_LINE_TERMINATOR );
+	    + min::AFTER_LINE_TERMINATOR
+	    + min::AFTER_PARAGRAPH 
+	    + min::CONTAINS_PARAGRAPH );
 
     min::obj_vec_ptr vp ( v );
     min::unsptr vsize = min::size_of ( vp );
@@ -13322,6 +13324,9 @@ min::printer min::print_obj
 	     &&
 	     separator == min::NONE() )
 	{
+	    min::uns32 state = min::IN_LOGICAL_LINE;
+	        // Add min::CONTAINS_PARAGRAPH when
+		// appropriate.
 	    for ( min::unsptr i = 0; i < vsize; ++ i )
 	    {
 		if ( i != 0 )
@@ -13335,14 +13340,23 @@ min::printer min::print_obj
 			    min::AT_LOGICAL_LINE_END;
 		}
 		printer << min::set_break;
-		printer->state |= min::IN_LOGICAL_LINE;
+		printer->state |= state;
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );
+		if (   printer->state
+	             & min::AFTER_PARAGRAPH )
+		{
+		    printer->state &=
+			~ min::AFTER_PARAGRAPH;
+		    state |= min::CONTAINS_PARAGRAPH;
+		}
 	    }
 	    printer->state &=
 	        ~ (   min::IN_LOGICAL_LINE
-		    + min::AT_LOGICAL_LINE_END );
+		    + min::AT_LOGICAL_LINE_END
+		    + min::AFTER_PARAGRAPH
+		    + min::CONTAINS_PARAGRAPH );
 
 	    if ( terminator != min::line_feed )
 	    {
@@ -13412,6 +13426,10 @@ min::printer min::print_obj
 
 	    if ( indent_saved )
 		printer << min::restore_indent;
+
+	    if (   saved_printer_state
+		 & min::IN_LOGICAL_LINE )
+		printer->state |= min::AFTER_PARAGRAPH;
 
 	    return printer << min::bol
 	                   << min::restore_print_format;

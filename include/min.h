@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  5 03:18:56 EDT 2021
+// Date:	Wed May  5 13:14:49 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12303,9 +12303,23 @@ namespace min {
 	AFTER_LINE_TERMINATOR	= ( 1 << 4 ),
 	    // Set when the compact logical line printer
 	    // prints a non-line-feed .terminator
-	    // provided IN_PARAGRAPH is on when logical
-	    // line printer is called.  Cleared by all
-	    // other object print function calls.
+	    // provided IN_PARAGRAPH is on when the
+	    // logical line printer is called.  Cleared
+	    // by all other object print function calls.
+
+	AFTER_PARAGRAPH		= ( 1 << 5 ),
+	    // Set when the compact paragraph printer
+	    // prints an indented paragraph, provided
+	    // provided IN_LOGICAL_LINE is on when
+	    // the paragraph printer is called.  Cleared
+	    // by all other object print function calls.
+
+	CONTAINS_PARAGRAPH	= ( 1 << 6 ),
+	    // Set when compact logical line printer
+	    // calls to print an element and the logical
+	    // line contains a previous element printed
+	    // by the compact paragraph printer.
+	    // Cleared by all object print functions.
 
         AFTER_LEADING		= ( 1 << 8 ),
         AFTER_TRAILING		= ( 1 << 9 ),
