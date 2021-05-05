@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 11, 2020}
+\date{May 5, 2021}
  
 \maketitle
 
@@ -17596,6 +17596,10 @@ the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
 object format operation flag on, then \TT{T} is omitted from `\TT{|T\}}' which
 becomes `\TT{|\}}'.
 
+If in this format there are no {\em <element>s}, then `\TT{||T}' is
+omitted so just `\TT{\{T\}}' is output, regardless of the setting
+of the \TT{NO\_\EOL TRAILING\_\EOL TYPE} flag.
+
 If instead \TT{mark\_\EOL classifier}\label{MARK_CLASSIFIER_USAGE} is not
 \TT{NULL} and \TT{T} is a string
 whose \TT{mark\_\EOL classifier} defined
@@ -17609,6 +17613,12 @@ which is the same as above but with the \TT{|}'s omitted.
 E.g., if \TT{"+"} is a \TT{.type} value whose \TT{mark\_\EOL classifier} string
 class has the \TT{min::\EOL IS\_\EOL MARK} flag,
 the format is `\TT{\{+}\ldots\TT{+\}}'.
+But if there are no {\em <element>s}, then just `\TT{\{T\}}' is output;
+e.g., as in `\TT{\{+\}}'.
+Note that if the `\TT{|}'s (i.e., \TT{obj\_\EOL braend} and
+\TT{obj\_\EOL ketbegin}) are omitted by the action of
+\TT{mark\_\EOL classifier}, then the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
+object format operation flag has \underline{no} effect.
 
 If instead \TT{mark\_\EOL classifier} is not
 \TT{NULL} and the \TT{.type} attribute is a two element label created by
@@ -17630,11 +17640,7 @@ E.g., if \TT{min::\EOL new\_\EOL lab\_\EOL gen("<",">")} is a \TT{.type}
 value with both \TT{"<"} and \TT{">"} being strings whose
 \TT{mark\_\EOL classifier} string classes both have the
 \TT{min::\EOL IS\_\EOL MARK} flag, the format is `\TT{\{<}\ldots\TT{>\}}'.
-
-Note that if the `\TT{|}'s (i.e., \TT{obj\_\EOL braend} and
-\TT{obj\_\EOL ketbegin}) are omitted by the action of
-\TT{mark\_\EOL classifier}, then the \TT{NO\_\EOL TRAILING\_\EOL TYPE}
-object format operation flag has \underline{no} effect.
+If there are no {\em <element>s}, `\TT{\{T1 T2\}}' is output.
 
 \ikey{Normal format}{normal format!of printed object}, in which there
 are attributes other than \TT{.type}, \TT{.separator}, and \TT{.posi\-tion}
@@ -17713,6 +17719,12 @@ at most one with any particular {\em reverse-attribute-label}.
 An {\em attribute-label} may appear with {\em attribute-flags}
 in at most one {\em <attribute>}.
 \end{enumerate}
+
+In normal format, if there are no {\em <element>'s}, then the
+`\TT{|}'s and the trailing \TT{T} are omitted, regardless
+of the setting of the \TT{NO\_\EOL TRAILING\_\EOL TYPE} flag.
+Thus `\TT{\{T: level = 4\}}' is output instead of
+`\TT{\{T: level = 4||T\}}'.
 
 The \mkey{embedded line format}{of printed object} prints the object
 in the same way as normal format but with {\em <attribute>}s after the
