@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  4 06:54:16 EDT 2021
+// Date:	Wed May  5 03:26:29 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10968,8 +10968,7 @@ void MINT::print_item_preface
 		    | min::AFTER_SET_BREAK ) )
 	      == 0 );
 
-    printer->state &= ~ (   min::PARAGRAPH_POSSIBLE
-	                  | min::AFTER_SAVE_INDENT
+    printer->state &= ~ (   min::AFTER_SAVE_INDENT
 	                  | min::AFTER_SET_BREAK );
 }
 
@@ -13162,6 +13161,13 @@ min::printer min::print_obj
 	  bool disable_mapping,
 	  min::unsptr max_attrs )
 {
+    min::uns32 saved_printer_state = printer->state;
+    printer->state &=
+        ~ (   min::IN_PARAGRAPH
+	    + min::IN_LOGICAL_LINE
+	    + min::AT_LOGICAL_LINE_END
+	    + min::AFTER_LINE_TERMINATOR );
+
     min::obj_vec_ptr vp ( v );
     min::unsptr vsize = min::size_of ( vp );
     min::attr_ptr ap ( vp );
@@ -13326,13 +13332,17 @@ min::printer min::print_obj
 		         &&
 			 terminator == min::line_feed )
 		        printer->state |=
-			    min::PARAGRAPH_POSSIBLE;
+			    min::AT_LOGICAL_LINE_END;
 		}
 		printer << min::set_break;
+		printer->state |= min::IN_LOGICAL_LINE;
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );
 	    }
+	    printer->state &=
+	        ~ (   min::IN_LOGICAL_LINE
+		    + min::AT_LOGICAL_LINE_END );
 
 	    if ( terminator != min::line_feed )
 	    {
@@ -13340,8 +13350,10 @@ min::printer min::print_obj
 		min::print_gen
 		    ( printer, terminator,
 		      objf->terminator_format );
-		printer->state |=
-		    min::AFTER_LINE_TERMINATOR;
+		if (   saved_printer_state
+		     & min::IN_PARAGRAPH )
+		    printer->state |=
+			min::AFTER_LINE_TERMINATOR;
 	    }
 	    return printer << min::restore_print_format;
 	}
@@ -13353,14 +13365,9 @@ min::printer min::print_obj
 		  &&
 		  separator == min::NONE()
 		  &&
-		  (   printer->state
-		    & min::PARAGRAPH_POSSIBLE ) )
+		  (   saved_printer_state
+		    & min::AT_LOGICAL_LINE_END ) )
 	{
-	    printer->state &=
-	        ~ ( min::AFTER_LINE_TERMINATOR
-		    +
-		    min::PARAGRAPH_POSSIBLE );
-
 	    min::print_erase_space
 		( printer, printer->column );
 	    min::print_gen
@@ -13393,10 +13400,15 @@ min::printer min::print_obj
 		    indent_saved = true;
 		}
 
+		printer->state |= min::IN_PARAGRAPH;
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );
 	    }
+	    printer->state &=
+	        ~ (   min::IN_PARAGRAPH
+	            + min::AFTER_LINE_TERMINATOR );
+
 
 	    if ( indent_saved )
 		printer << min::restore_indent;

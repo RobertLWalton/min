@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 21 03:41:18 EDT 2020
+// Date:	Wed May  5 03:18:56 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12283,21 +12283,29 @@ namespace min {
 	    // UNLESS the next character is also a
 	    // break-after character.
 
-	PARAGRAPH_POSSIBLE	= ( 1 << 1 ),
-	    // Set when printing the last element of
-	    // an object with more than one element.
-	    // Such an element may be a paragraph, so
-	    // paragraphs are only recognized if this
-	    // is on.
-	    //
-	    // This flag is turned off by printer init,
-	    // ::end_line, and min::print_item_preface.
+	IN_PARAGRAPH		= ( 1 << 1 ),
+	    // Set when compact paragraph printer calls
+	    // to print an element, and cleared by all
+	    // object print functions.
 
-	AFTER_LINE_TERMINATOR	= ( 1 << 2 ),
-	    // This flag is turned off by the paragraph
-	    // compact format printer and turned on by
-	    // the line compact format printer if it 
-	    // prints a .terminator.
+	IN_LOGICAL_LINE		= ( 1 << 2 ),
+	    // Set when compact logical line printer
+	    // calls to print an element, and cleared
+	    // by all object print functions.
+
+	AT_LOGICAL_LINE_END	= ( 1 << 3 ),
+	    // Set when compact logical line printer
+	    // calls to print its last element and
+	    // the logical line has a line feed
+	    // .terminator.  Cleared by all object
+	    // print functions.
+
+	AFTER_LINE_TERMINATOR	= ( 1 << 4 ),
+	    // Set when the compact logical line printer
+	    // prints a non-line-feed .terminator
+	    // provided IN_PARAGRAPH is on when logical
+	    // line printer is called.  Cleared by all
+	    // other object print function calls.
 
         AFTER_LEADING		= ( 1 << 8 ),
         AFTER_TRAILING		= ( 1 << 9 ),
@@ -12810,8 +12818,7 @@ namespace min {
 	       | AFTER_TRAILING
                | FORCE_SPACE_OK
 	       | AFTER_SAVE_INDENT
-	       | AFTER_SET_BREAK
-	       | PARAGRAPH_POSSIBLE ) )
+	       | AFTER_SET_BREAK ) )
 	    internal::print_item_preface
 	        ( printer, str_class );
 	printer->last_str_class = str_class;
