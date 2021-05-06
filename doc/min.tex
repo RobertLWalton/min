@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 5, 2021}
+\date{May 6, 2021}
  
 \maketitle
 
@@ -17263,9 +17263,8 @@ the \TT{ENABLE\_\EOL IN\-DENT\-ED\_\EOL PARAGRAPH}%
 \ttlindex{ENABLE\_INDENTED\_}{PARAGRAPH}
 object format operation
 flag is on,
-and the object is being printed as the last element of a containing
-object that is being printed in logical line compact format and has
-2 or more elements and a \TT{.terminator} equal to \TT{"<LF>"},
+and the object is being printed as an element of a containing
+object that is being printed in logical line compact format.
 
 \item Otherwise the `\key{bracketed compact format}'
 is used if the object has an \TT{.initiator} and \TT{.terminator}.
@@ -17325,9 +17324,11 @@ as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 \item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements,
-attribute labels, and attribute values, respectively, in all formats
-except empty compact, quote compact, logical line compact,
-and indented paragraph compact.
+attribute labels, and attribute values, respectively, whenever the
+object whose elements are being printed is \underline{not}
+begin printed in
+empty compact, quote compact, logical line compact,
+and indented paragraph compact format.
 
 \TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
@@ -17524,36 +17525,32 @@ there are
 are no attributes other than \TT{.ini\-ti\-ator}, \TT{.terminator},
 and attributes with a \TT{hide\_\EOL flag},
 the \TT{.terminator} is equal to \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()},
-and the object is the last element of a non-terminated line printed with
-logical line compact format which has
-at least one line element preceding
-the paragraph.  First single spaces are erased from the end of the
+and the object is being printed as an element of a containing object
+that is being printed in logical line compact format.
+First single spaces are erased from the end of the
 current line by \TT{min::\EOL print\_\EOL erase\_\EOL space}, then 
 \TT{min::\EOL trailing\_\EOL always} is printed,
 followed by the \TT{.initiator}, followed by \TT{min::eol}, and lastly the
 object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
-The elements of a paragraph are supposed to be lines printed in
-logical line compact format, and elements which are not thus are printed as if
-they were one element non-terminated lines.
-Define a \key{line group} as a maximal sequence of terminated lines followed
-by a non-terminated line, or a maximal sequence of terminated lines at the end
-of a paragraph.
-Because the paragraph is the last thing in a containing line group, the indent
-at the beginning of the paragraph is already set to 4 plus the indent
-of the paragraph's containing line group, so the indent is already
-correctly set.  A paragraph is itself a sequence of line groups,
-and in indented paragraph compact format each of these is preceded by
+The paragraph indent is set to the indent of its containing logical line
+plus 4 if the paragraph is the last and only element of its containing
+logical line that is printed in indented paragraph compact format.
+Otherwise it is set to the indent of its containing logical line plus 8,
+while the indent of non-paragraph element sequences of the containing logical
+line which separate paragraphs is set to the indent of the containing
+logical line plus 4.
+
+If a paragraph element is preceded by a paragraph element that is a
+terminated line (i.e., has a non-line-feed \TT{.ter\-min\-ator})
+and that is printed in the logical line
+compact format, the paragraph element is separated from this preceding
+element by a single space.  Otherwise the element is preceded by
 executing \TT{min::\EOL indent}, \TT{min::\EOL save\_\EOL indent},
 and \TT{min::\EOL place\_\EOL indent(4)} in order and followed by
-executing \TT{min::\EOL restore\_\EOL indent}.  This indents the beginning of
-the line group and indents continuations of the line group beyond the beginning
-of the line group.  Lastly, the lines in a line group are separated
-by single spaces, and \TT{min::\EOL bol} is executed at the end of
+executing \TT{min::\EOL restore\_\EOL indent}.
+Lastly \TT{min::\EOL bol} is executed at the end of
 the paragraph.
-
-An empty paragraph prints nothing but \TT{obj\_\EOL paragraph\_\EOL begin}
-followed by \TT{min::eol}.
 
 In \mkey{default compact format}{of printed object}, where there are
 are no attributes other than \TT{.type}, \TT{.sep\-a\-ra\-tor},
