@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  5 13:21:02 EDT 2021
+// Date:	Wed May  5 14:29:22 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10233,7 +10233,8 @@ static void end_line ( min::printer printer )
     printer->column = 0;
     printer->line_break.offset = buffer->length;
     printer->line_break.column = 0;
-    printer->state = 0;
+    printer->state &= min::AFTER_PARAGRAPH
+                    + min::AFTER_LINE_TERMINATOR;
     printer->last_str_class = 0;
 }
 
@@ -13331,7 +13332,17 @@ min::printer min::print_obj
 	    {
 		if ( i != 0 )
 		{
-		    min::print_space ( printer );
+		    if (   printer->state
+			 & min::AFTER_PARAGRAPH )
+		    {
+			printer->state &=
+			    ~ min::AFTER_PARAGRAPH;
+			state |=
+			    min::CONTAINS_PARAGRAPH;
+		        printer << min::indent;
+		    }
+		    else
+			min::print_space ( printer );
 
 		    if ( i == vsize - 1
 		         &&
@@ -13340,17 +13351,12 @@ min::printer min::print_obj
 			    min::AT_LOGICAL_LINE_END;
 		}
 		printer << min::set_break;
+
 		printer->state |= state;
+
 		min::print_gen
 		    ( printer,
 		      vp[i], objf->top_element_format );
-		if (   printer->state
-	             & min::AFTER_PARAGRAPH )
-		{
-		    printer->state &=
-			~ min::AFTER_PARAGRAPH;
-		    state |= min::CONTAINS_PARAGRAPH;
-		}
 	    }
 	    printer->state &=
 	        ~ (   min::IN_LOGICAL_LINE
@@ -13380,7 +13386,7 @@ min::printer min::print_obj
 		  separator == min::NONE()
 		  &&
 		  (   saved_printer_state
-		    & min::AT_LOGICAL_LINE_END ) )
+		    & min::IN_LOGICAL_LINE ) )
 	{
 	    min::print_erase_space
 		( printer, printer->column );
@@ -13391,6 +13397,17 @@ min::printer min::print_obj
 		    // As we are printing this from
 		    // inside a line, indent is already
 		    // adjusted to line indent + 4.
+
+	    bool extra_indent =
+	        (   saved_printer_state
+		  & min::CONTAINS_PARAGRAPH )
+		||
+		! (   saved_printer_state
+		    & min::AT_LOGICAL_LINE_END );
+
+	    if ( extra_indent )
+	        printer << min::save_line_break
+		        << min::adjust_indent ( +4 );
 
 	    bool indent_saved = false;
 	    for ( min::unsptr i = 0; i < vsize; ++ i )
@@ -13426,6 +13443,9 @@ min::printer min::print_obj
 
 	    if ( indent_saved )
 		printer << min::restore_indent;
+
+	    if ( extra_indent )
+		printer << min::restore_line_break;
 
 	    if (   saved_printer_state
 		 & min::IN_LOGICAL_LINE )
