@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  5 14:29:22 EDT 2021
+// Date:	Sat Aug 14 21:28:55 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1719,6 +1719,9 @@ min::uns32 min::floathash ( min::float64 f )
 // Strings
 // -------
 
+min::uns32 min::max_id_str_length =
+    min::DEFAULT_MAX_ID_STR_LENGTH;
+
 min::uns32 min::strnhash
 	( const char * p, min::unsptr size )
 {
@@ -2008,24 +2011,7 @@ min::gen MINT::new_str_stub_gen
 	::strncpy ( s2->v.c8, ~ p, n );
     }
     else
-    {
-	MUP::set_type_of ( s2, LONG_STR );
-	MUP::new_body
-	    ( s2, sizeof ( MUP::long_str ) + n + 1 );
-
-	MUP::long_str * ls = MUP::long_str_of ( s2 );
-	ls->length = n;
-	ls->hash = hash;
-
-	// Be sure string is NUL padded to a multiple
-	// of 8 bytes.
-	//
-	* (min::uns64 *)
-	  ( MUP::str_of(ls) + n - n % 8 ) = 0;
-
-	::strncpy
-	    ( (char *) MUP::str_of ( ls ), ~ p, n );
-    }
+        MINT::new_long_str_stub ( p, n, s2, hash );
 
     s = MUP::new_aux_stub ();
     MUP::set_ptr_of ( s, s2 );

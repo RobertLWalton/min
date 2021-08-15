@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  5 13:14:49 EDT 2021
+// Date:	Sat Aug 14 21:19:30 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3924,6 +3924,12 @@ namespace min { namespace unprotected {
 
 namespace min {
 
+    // Strings longer than max_id_str_length bytes are
+    // not identifier strings.
+    //
+    extern min::uns32 max_id_str_length;
+    const min::uns32 DEFAULT_MAX_ID_STR_LENGTH = 63;
+
     // Functions to compute the hash of an arbitrary
     // char string.
     //
@@ -4139,8 +4145,6 @@ namespace min {
 	} pseudo_body;
     };
 
-    // Function needed in min::str_ptr definition.
-    //
     inline bool is_str ( min::gen g )
     {
 	if ( is_direct_str ( g ) )
@@ -4152,6 +4156,23 @@ namespace min {
 	return type_of ( s ) == min::SHORT_STR
 	       ||
 	       type_of ( s ) == min::LONG_STR;
+    }
+
+    inline bool is_id_str ( min::gen g )
+    {
+	if ( is_direct_str ( g ) )
+	    return true;
+	if ( ! is_stub ( g ) )
+	    return false;
+	const min::stub * s =
+	    unprotected::stub_of ( g );
+	if ( type_of ( s ) == min::SHORT_STR )
+	    return true;
+	if ( type_of ( s ) != min::LONG_STR )
+	    return false;
+	min::uns32 length = min::unprotected::length_of
+	    ( min::unprotected::long_str_of ( s ) );
+	return length <= max_id_str_length;
     }
 
     inline const char * unprotected::str_of
@@ -4234,6 +4255,34 @@ namespace min {
     namespace internal {
 	min::gen new_str_stub_gen
 	    ( min::ptr<const char> p, min::unsptr n );
+
+	inline void new_long_str_stub
+	    ( min::ptr<const char> p, min::unsptr n,
+	      min::stub * s, min::uns32 hash = 0 )
+	{
+	    // s must have type ACC_FREE or FILLING.
+	    //
+	    unprotected::new_body
+		( s,   sizeof ( unprotected::long_str )
+		     + n + 1 );
+
+	    unprotected::long_str * ls =
+	        unprotected::long_str_of ( s );
+	    ls->length = n;
+	    ls->hash = hash;
+
+	    // Be sure string is NUL padded to a
+	    // multiple of 8 bytes.
+	    //
+	    * (min::uns64 *)
+	      ( unprotected::str_of(ls) + n - n % 8 )
+	      = 0;
+
+	    ::strncpy
+		( (char *) unprotected::str_of ( ls ),
+		  ~ p, n );
+	    unprotected::set_type_of ( s, LONG_STR );
+	}
 
 	inline min::gen new_str_gen
 		( const char * p, min::unsptr n )
