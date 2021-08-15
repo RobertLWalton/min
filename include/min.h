@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 21:19:30 EDT 2021
+// Date:	Sun Aug 15 17:58:14 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4170,9 +4170,22 @@ namespace min {
 	    return true;
 	if ( type_of ( s ) != min::LONG_STR )
 	    return false;
-	min::uns32 length = min::unprotected::length_of
-	    ( min::unprotected::long_str_of ( s ) );
+	min::uns32 length = unprotected::length_of
+	    ( unprotected::long_str_of ( s ) );
 	return length <= max_id_str_length;
+    }
+
+    inline bool is_non_id_str ( min::gen g )
+    {
+	if ( ! is_stub ( g ) )
+	    return false;
+	const min::stub * s =
+	    unprotected::stub_of ( g );
+	if ( type_of ( s ) != min::LONG_STR )
+	    return false;
+	min::uns32 length = unprotected::length_of
+	    ( unprotected::long_str_of ( s ) );
+	return length > max_id_str_length;
     }
 
     inline const char * unprotected::str_of
@@ -4389,6 +4402,31 @@ namespace min {
     {
         return new_str_gen
 	    ( ~ p, n );
+    }
+
+    inline min::gen copy
+	( min::gen preallocated,
+	  const str_ptr & sp )
+    {
+	unsptr len = min::strlen ( sp );
+	MIN_ASSERT ( len > max_id_str_length,
+	             "second string copy argument is"
+		     " not for a non-identifier"
+		     " string" );
+        MIN_ASSERT ( is_stub ( preallocated ),
+	             "first string copy argument is not"
+		     " PREALLOCATED stub" );
+	struct stub * s =
+	    unprotected::stub_of ( preallocated );
+        MIN_ASSERT (    unprotected::type_of ( s )
+	             != PREALLOCATED,
+	             "first string copy argument is not"
+		     " a PREALLOCATED stub" );
+	unprotected::set_type_of ( s, FILLING );
+	internal::new_long_str_stub
+	    ( min::begin_ptr_of ( sp ),
+	      min::strlen ( sp ), s );
+	return new_stub_gen ( s );
     }
 
     inline min::uns32 str_class

@@ -3634,6 +3634,9 @@ adjusted, all of which this function does.  Also calls to
 \TT{min::\EOL acc\_\EOL write\_\EOL update} must be made for
 \TT{s1} and pointers stored in the body after this function is called
 and before the garbage collector can be allowed to interrupt.
+This function does \underline{not} change the types of \TT{s1}
+or \TT{s2}.  Setting the type of \TT{s2} to \TT{min::DEALLOCATED}
+after calling this function is recommended.
 
 In order to change the size of a body, the following
 can be used:

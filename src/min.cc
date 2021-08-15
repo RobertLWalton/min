@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 14 21:28:55 EDT 2021
+// Date:	Sun Aug 15 14:21:41 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1926,6 +1926,12 @@ int min::strncmp
 min::gen MINT::new_str_stub_gen
 	( min::ptr<const char> p, min::unsptr n )
 {
+    if ( n > min::max_id_str_length )
+    {
+	min::stub * s = MUP::new_acc_stub();
+        MINT::new_long_str_stub ( p, n, s );
+	return new_stub_gen ( s );
+    }
     uns32 hash = strnhash ( ~ p, n );
     uns32 h = hash & MINT::str_hash_mask;
     const char * q;
