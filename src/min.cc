@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 14:21:41 EDT 2021
+// Date:	Sun Aug 15 22:39:23 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1719,7 +1719,7 @@ min::uns32 min::floathash ( min::float64 f )
 // Strings
 // -------
 
-min::uns32 min::max_id_str_length =
+min::unsptr min::max_id_str_length =
     min::DEFAULT_MAX_ID_STR_LENGTH;
 
 min::uns32 min::strnhash

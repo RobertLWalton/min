@@ -5298,8 +5298,29 @@ A long string has an string body that holds the string characters
 (there must be more than 8)
 along with the string length and hash value.
 
-All three kinds of strings, direct, short, and long, are immutable
-and have hash values (\pagref{HASH-VALUE}).
+Sufficiently short strings are \skey{identifier string}s.
+The variable:
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{max\_id\_str\_length} ~~~~[default \TT{63}]
+\LABEL{MIN::MAX_ID_STR_LENGTH} \\
+\end{tabular}\end{indpar}
+
+is the maximum length of an identifier string in bytes
+when encoded in UTF-8
+(\underline{not} the same as the length in UNICODE characters).
+Although this parameter variable is writable, it should not
+be reset after any string of length between the new and old value
+has been created, and it should never be set less than \TT{8}.
+
+All three kinds of strings, direct, short, and long, are immutable.
+All identifier strings have hash values (\pagref{HASH-VALUE}).
+An identifier string can be compared for equality with any other string
+by using just the \TT{==} or \TT{!=} operators, but two non-identifier
+strings cannot be so compared.
+Identifier strings are names (\itemref{NAMES})
+and can be components of labels (\itemref{LABELS});
+non-identifier strings are \underline{not} names can cannot
+be components of labels.
 
 \subsubsection{Protected String Functions}
 \label{PROTECTED-STRING-FUNCTIONS}
@@ -5349,14 +5370,17 @@ When a string general value is created,
 \label{STRING-CREATION}
 if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created.
-Otherwise \TT{min::new\_str\_gen} searches to see if any equal string
+Otherwise if the string has at most
+\TT{min::max\_\EOL id\_\EOL str\_\EOL length} bytes
+(see \pagref{MIN::MAX_ID_STR_LENGTH}),
+\TT{min::new\_str\_gen} searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
 string is returned in the new \TT{min::gen} value, and no new stub
 is created.  Otherwise, if the input string is 8 or fewer \TT{char}'s,
 a short string stub is created, and if the input string has more
 than 8 \TT{char}'s, a long string stub and body are created.
 
-Thus if two string \TT{min::gen} values are equal as
+Thus if two identifier string \TT{min::gen} values are equal as
 strings, they have \TT{==~min::gen} values.
 
 There are also functions to create a new general string values from
@@ -5383,7 +5407,11 @@ a string \TT{min::gen} value.
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_str} \verb|( min::gen v )|
-\LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
+\LABEL{MIN::IS_STR_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_id\_str} \verb|( min::gen v )|
+\LABEL{MIN::IS_ID_STR_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_non\_id\_str} \verb|( min::gen v )|
+\LABEL{MIN::IS_NON_ID_STR_OF_GEN} \\[1ex]
 \verb|min::unsptr min::| & \MINKEY{strlen} \verb|( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{strhash} \verb|( min::gen v )|
@@ -5411,6 +5439,10 @@ argument, these functions take a \TT{min::gen} source argument.
 
 The \TT{is\_str} function simply returns true if and only if
 its argument is a string.
+The \TT{is\_id\_str} function returns true if and only if
+its argument is an identifier string.
+The \TT{is\_non\_id\_str} function returns true if and only if
+its argument is a string but is \underline{not} an identifier string.
 
 The \TT{strhead} function is an optimized function that
 returns the first 8 bytes of the string
@@ -6106,18 +6138,19 @@ and furthermore do not check subscript ranges:
 
 A \key{name} is a
 number (\itemref{NUMBERS}),
-string (\itemref{STRINGS}),
-or label (\itemref{LABELS}), i.e., it is an atom or a label.
+an identifier string (\itemref{STRINGS}),
+or a label (\itemref{LABELS}).
 A name can also be viewed as
-a sequence of \skey{name component}s, each of which is a number, string,
+a sequence of \skey{name component}s, each of which is a number, identifier
+string,
 or label.
 Names and name components are all immutable values which have an associated
 hash value.
 
-A number or string is used to represent a 1-component name whose
+A number or identifier string is used to represent a 1-component name whose
 only component is the number or string.  Other names are represented
 by labels whose elements are the components of the names.  A label whose
-only component is a number or string is \underline{not}
+only component is a number or identifer string is \underline{not}
 used to represent a name, in order to ensure that each name has a unique
 representation.
 
@@ -6142,7 +6175,7 @@ The following functions concern names in general:
 \end{tabular}\end{indpar}
 
 The \TT{min::is\_name} function returns true if and only if its argument is
-a name (number, string, or label).
+a name (number, identifier string, or label).
 
 The \TT{min::hash} function returns a non-zero
 \key{hash value}\label{HASH-VALUE} of its argument, which must be
@@ -19554,6 +19587,11 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.4in}
+\verb|min::unsptr min::| & \MINKEY{max\_id\_str\_length}
+\LABEL{MIN::MAX_ID_STR_LENGTH} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb|( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
@@ -19593,6 +19631,10 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|int min::| & \MINKEY{is\_str} \verb|( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_id\_str} \verb|( min::gen v )|
+\LABEL{MIN::IS_ID_STR_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_non\_id\_str} \verb|( min::gen v )|
+\LABEL{MIN::IS_NON_ID_STR_OF_GEN} \\[1ex]
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}

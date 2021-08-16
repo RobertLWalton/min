@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 17:58:14 EDT 2021
+// Date:	Sun Aug 15 22:38:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3927,8 +3927,8 @@ namespace min {
     // Strings longer than max_id_str_length bytes are
     // not identifier strings.
     //
-    extern min::uns32 max_id_str_length;
-    const min::uns32 DEFAULT_MAX_ID_STR_LENGTH = 63;
+    extern min::unsptr max_id_str_length;
+    const min::unsptr DEFAULT_MAX_ID_STR_LENGTH = 63;
 
     // Functions to compute the hash of an arbitrary
     // char string.
