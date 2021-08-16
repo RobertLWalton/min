@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 15, 2021}
+\date{August 16, 2021}
  
 \maketitle
 
@@ -5283,8 +5283,8 @@ encodes the \TT{NUL} character as the `overlong' 2-byte string `\TT{0xC0,0x80}'
 possible encoding of \TT{NUL} in UTF-8).
 
 There are two kinds of string stubs: short strings and long strings.
-In addition, a string of up to 3 \TT{char}'s can be stored within a 32-bit
-\TT{min::gen} value, and a string of up to 5 \TT{char}'s can be stored
+In addition, a string of up to 3 bytes can be stored within a 32-bit
+\TT{min::gen} value, and a string of up to 5 bytes can be stored
 within a 64-bit \TT{min::gen} value,
 without using a stub
 (see \itemref{GENERAL-VALUE-SUBTYPES} and
@@ -5292,9 +5292,9 @@ without using a stub
 Such strings are called \skey{direct string}s, while strings stored in
 stubs or bodies which are pointed at by \TT{min::gen} values,
 the short and long strings, are called \skey{indirect string}s.
-A short string holds up to 8 characters inside the string stub
-(there must be more characters than a direct string will hold).
-A long string has an string body that holds the string characters
+A short string holds up to 8 bytes inside the string stub
+(there must be more bytes than a direct string will hold).
+A long string has an string body that holds the string bytes
 (there must be more than 8)
 along with the string length and hash value.
 
@@ -5359,11 +5359,11 @@ The following functions create new general string values:
 The \TT{min::new\_str\_gen} functions copy the input string after the
 manner of \TT{strcpy} and \TT{strncpy}, respectively.  That is,
 they copy from \TT{p}
-until a \TT{NUL} is copied or \TT{n} characters have been copied, whichever
-comes first.  The forms with a \TT{min::ptr<const char>}
-or \TT{min::ptr<char>}
+until a \TT{NUL} is copied or \TT{n} bytes have been copied, whichever
+comes first.  The forms with a \TT{min::\EOL ptr<const char>}
+or \TT{min::\EOL ptr<char>}
 argument are for use when the input string is part of a relocatable body.
-Because \TT{min::ptr<char>} is not implicitly cast-able to
+Because \TT{min::\EOL ptr<char>} is not implicitly cast-able to
 \TT{min::ptr<const char>}, both types are argument are provided for.
 
 When a string general value is created,
@@ -5383,7 +5383,10 @@ than 8 \TT{char}'s, a long string stub and body are created.
 Thus if two identifier string \TT{min::gen} values are equal as
 strings, they have \TT{==~min::gen} values.
 
-There are also functions to create a new general string values from
+In order to do the search, a hash table of indirect identifier
+strings is maintained.
+
+There are also functions to create new general string values from
 vectors of UNICODE characters:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5444,6 +5447,11 @@ its argument is an identifier string.
 The \TT{is\_non\_id\_str} function returns true if and only if
 its argument is a string but is \underline{not} an identifier string.
 
+The \TT{strhash} function returns the hash value of the string,
+as per the string hashing algorithm on \pagref{HASH-ALGORITHM}.
+It returns \TT{0} if its \TT{min::gen} argument is not an identifier
+string.
+
 The \TT{strhead} function is an optimized function that
 returns the first 8 bytes of the string
 in a \TT{min::uns64} value.  This is intended to be used by
@@ -5470,8 +5478,9 @@ word, but if the first byte is \TT{'} and the second is zero,
 the string may represent a separator.
 Note that the bytes are UTF-8 encoded, and may represent non-ASCII
 UNICODE characters.  Note that UTF-8 can encode a UNICODE character
-in as many as 7 bytes, so if the string begins with two non-ASCII
-characters, the encoding of the second may be truncated.
+in as many as 7 bytes, so if the string contains non-ASCII
+characters, the last of the 8 bytes may belong to a truncated
+non-ASCII UNICODE character.
 
 To permit hash values of arbitrary strings to be computed,
 without creating \TT{min::gen} values from them first,
@@ -5486,8 +5495,9 @@ the following functions are provided:
 \end{tabular}\end{indpar}
 
 Both \TT{strhash} and \TT{strnhash} accept \TT{NUL} terminated strings, but
-\TT{strnhash} stops reading the string after the first \TT{n} characters
-if none of these characters is NUL.
+\TT{strnhash} stops reading the string after the first \TT{n} bytes
+if none of these bytes is NUL.  These functions work for strings of
+arbitrary length, and not just for strings of identifier string length.
 
 A string hash value is computed according to the following machine
 independent algorithm:\label{HASH-ALGORITHM}
@@ -5532,7 +5542,7 @@ string values to numbers:
 \end{tabular}\end{indpar}
 
 If the \TT{min::gen} argument is a
-string consisting of a space surrounded number legal to the UNIX
+string consisting of an ASCII-whitespace surrounded number legal to the UNIX
 \TT{strtol}, \TT{strtoll},
 \TT{strtoul}, or \TT{strtoull} functions with given \TT{base} argument,
 or to the UNIX
@@ -5549,7 +5559,7 @@ numbers storable in the \TT{value} argument.
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
 
-A read-only pointer to the characters of a string \TT{min::gen} value can
+A read-only pointer to the bytes of a string \TT{min::gen} value can
 be obtained using the following functions to create and use
 a \key{string pointer}:
 
@@ -5652,15 +5662,18 @@ Its value can be converted to a `\TT{const char *}' by the unitary
 `\TT{\textasciitilde}' operator, and that value
 may be passed to the \TT{strcpy}, \TT{strcmp}, \ldots{}
 C library functions.
+See \itemref{BODY-POINTERS}.
 
-\TT{sp[i]} can be used to access the \TT{i+1}'st character of
+\TT{sp[i]} can be used to access the \TT{i+1}'st byte of
 the \TT{NUL}-terminated string.
 There is no protection against the operator index
 being longer than the string length.
+Note that the return type is \TT{char} and \underline{not} `\TT{char \&}',
+so \TT{sp]i]} \underline{cannot} be used to write the \TT{i+1}'st byte.
 
 For direct and short strings the string pointer, when it is created,
-copies the string \TT{char}'s into a buffer internal to the string pointer,
-in order to save the \TT{char}'s in a direct string value, or to
+copies the string bytes into a buffer internal to the string pointer,
+in order to save the bytes in a direct string value, or to
 add a missing \TT{NUL} to the end of the short string \TT{char} vector.
 In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
@@ -5708,7 +5721,7 @@ pointer by the following functions:
 
 If the string pointer is not in the \TT{NULL} state and
 the part of the string beginning with \TT{sp[i]} is
-space followed by a number legal to the UNIX
+ASCII whitespace followed by a number legal to the UNIX
 \TT{strtol}, \TT{strtoll},
 \TT{strtoul}, or \TT{strtoull} functions with the given
 \TT{base} argument, or to the UNIX
@@ -5722,6 +5735,21 @@ the case where the \TT{base} argument does not have a legal value,
 and the case where the number that might be returned would be
 outside the range of
 numbers storable in the \TT{value} argument.
+
+The following function makes a copy of a \underline{non-identifier}
+string pointed at
+by a string pointer in a preallocated stub:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{copy}\ARGBREAK
+	\verb|( min::gen preallocated,|\ARGBREAK
+	\verb|  min::str_ptr & const sp )|
+\LABEL{MIN::COPY_STR_TO_PREALLOCATED} \\
+\end{tabular}\end{indpar}
+
+Only non-identifier strings may be so copied, because they
+are the only strings that
+are not in the string hash table.
 
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
@@ -5770,7 +5798,7 @@ Short string values are \TT{NUL} (zero) padded 0 to 8 \TT{char}
 strings.  To be sure any value read is \TT{NUL} terminated, a \TT{NUL} (zero)
 must be stored after the value read, as is done by \TT{u.buf[8] = 0}
 in the example.  Of course, short string values have more
-characters than can be stored in a direct string
+bytes than can be stored in a direct string
 (\pagref{STRING-CREATION}).
 
 A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
@@ -5982,13 +6010,13 @@ min::labhash ( hash, h ):
 
 Comparing this with the hash algorithm for strings
 on \pagref{HASH-ALGORITHM}, one sees that as long as
-label elements are numbers and strings of fewer than 10 characters,
+label elements are numbers and strings of fewer than 10 bytes,
 the hash of a label is equivalent to the hash of the
 string made by concatenating a prefix and then the label elements, where each
-string of fewer than 10 characters is padded to 10 characters
-by prefacing it with \TT{NUL} characters.  Note that
-numbers are treated as 8 character strings; see
-\pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
+string of fewer than 10 bytes is padded to 10 bytes
+by prefacing it with \TT{NUL} bytes.  Note that
+numbers are treated as 8 byte strings; see
+\pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 byte string with
 hash value \TT{min::\EOL labhash\_\EOL initial = 1009}.
 
 The two argument \TT{labhash ( hash, h )} function performs the
@@ -19586,10 +19614,12 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{max\_id\_str\_length}
 \LABEL{MIN::MAX_ID_STR_LENGTH} \\
 \end{TABULAR}
+
+\medskip
 
 \begin{TABULAR}{1.4in}
 \verb|min::gen min::|
@@ -19811,6 +19841,13 @@ These are in \verb|min_parameters.h|.
 	\verb|  min::str_ptr const & sp,|\ARGBREAK
 	\verb|  min::unsptr & i )|
 \LABEL{MIN::STRTO_FLOAT64_OF_STR_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::gen min::| & \MINKEY{copy}\ARGBREAK
+	\verb|( min::gen preallocated,|\ARGBREAK
+	\verb|  min::str_ptr & const sp )|
+\LABEL{MIN::COPY_STR_TO_PREALLOCATED} \\
 \end{TABULAR}
 
 \end{indpar}

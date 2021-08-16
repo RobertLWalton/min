@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 22:38:12 EDT 2021
+// Date:	Mon Aug 16 04:25:17 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4821,7 +4821,7 @@ namespace min {
     {
         return is_num ( g )
 	       ||
-	       is_str ( g )
+	       is_id_str ( g )
 	       ||
 	       is_lab ( g );
     }
