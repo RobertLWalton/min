@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 22:39:23 EDT 2021
+// Date:	Mon Aug 16 16:28:25 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3603,355 +3603,6 @@ inline L find_or_add
     return id;
 }
 
-// The map function first executes map_one recursively
-// to enter all the objects into the map, and then
-// sorts the new non-object values in the map to be
-// before the new object values in the map.
-//
-template < typename L >
-static void map_one_obj
-	( min::packed_vec_ptr
-	      < min::gen,
-		min::id_map_header<L>, L > map,
-	  min::gen v,
-	  const min::gen_format * f,
-	  bool force_id,
-	  min::attr_ptr ap,
-	  min::attr_info * info,
-	  min::unsptr number_of_attributes );
-//
-template < typename L >
-inline void map_one
-	( min::packed_vec_ptr
-	      < min::gen,
-		min::id_map_header<L>, L > map,
-	  min::gen v,
-	  const min::gen_format * f,
-	  bool force_id = false )
-{
-    if ( min::is_str ( v ) )
-    {
-	if ( f == NULL ) return;
-	const min::str_format * str_f = f->str_format;
-	if ( str_f == NULL ) return;
-
-	min::uns32 id_strlen = str_f->id_strlen;
-	if ( id_strlen < min::MIN_ID_STRLEN ) return;
-	if ( min::strlen ( v ) < id_strlen ) return;
-
-	::find_or_add ( map, v );
-	return;
-    }
-    else if ( ! min::is_obj ( v ) ) return;
-    else if ( ::find ( map, v ) != 0 ) return;
-    else if ( min::is_obj ( v )
-              &&
-	      min::private_flag_of ( v ) )
-    {
-	::find_or_add ( map, v );
-	return;
-    }
-
-    min::obj_vec_ptr vp ( v );
-    min::attr_ptr ap ( vp );
-
-    min::attr_info info[100];
-    min::unsptr m = min::attr_info_of ( info, 100, ap );
-    if ( m <= 100 )
-        ::map_one_obj
-	    ( map, v, f, force_id, ap, info, m );
-
-    min::attr_info info2[m];
-    min::uns32 n = min::attr_info_of ( info2, m, ap );
-    MIN_REQUIRE ( n == m );
-    ::map_one_obj
-	( map, v, f, force_id, ap, info2, m );
-
-}
-//
-template < typename L >
-inline void map_one_attributes
-	( min::packed_vec_ptr
-	      < min::gen,
-		min::id_map_header<L>, L > map,
-	  min::attr_ptr ap,
-	  min::attr_info * info,
-	  min::unsptr number_of_attributes,
-	  const min::gen_format * f )
-{
-    const min::obj_format * obj_f = NULL;
-    const min::gen_format * val_f = NULL;
-    if ( f != NULL )
-        obj_f = f->obj_format;
-    if ( obj_f != NULL )
-        val_f = obj_f->value_format;
-
-    for ( min::unsptr i = 0; i < number_of_attributes;
-                             ++ i )
-    {
-	min::unsptr n = info[i].value_count;
-	if ( n == 1 )
-	    ::map_one
-	        ( map, info[i].value, val_f );
-	else if ( n > 1 )
-	{
-	    min::locate ( ap, info[i].name );
-	    min::gen value[n];
-	    MIN_REQUIRE
-	        ( n == min::get ( value, n, ap ) );
-	    for ( min::unsptr j = 0; j < n; ++ j )
-		::map_one ( map, value[j], val_f );
-	}
-	min::unsptr m = info[i].reverse_attr_count;
-	if ( m == 0 ) continue;
-
-	min::locate ( ap, info[i].name );
-	min::reverse_attr_info rinfo[m];
-	MIN_REQUIRE ( m == min::reverse_attr_info_of
-	                     ( rinfo, m, ap ) );
-	for ( min::unsptr j = 0; j < m; ++ j )
-	{
-	    min::unsptr r = rinfo[j].value_count;
-	    if ( r == 1 )
-		::map_one
-		    ( map, rinfo[j].value, f, true );
-	    else if ( r > 1 )
-	    {
-		min::locate_reverse
-		    ( ap, rinfo[j].name );
-		min::gen value[r];
-		MIN_REQUIRE
-		    ( r == min::get ( value, r, ap ) );
-		for ( min::unsptr k = 0; k < r; ++ k )
-		    ::map_one
-			( map, value[k], f, true );
-	    }
-	}
-    }
-}
-//
-template < typename L >
-static void map_one_obj
-	( min::packed_vec_ptr
-	      < min::gen,
-		min::id_map_header<L>, L > map,
-	  min::gen v,
-	  const min::gen_format * f,
-	  bool force_id,
-	  min::attr_ptr ap,
-	  min::attr_info * info,
-	  min::unsptr number_of_attributes )
-{
-    const min::obj_format * obj_f = NULL;
-    min::uns32 obj_op_flags;
-    bool compact_format;
-    bool use_top_element_format = false;
-
-    if ( f != NULL )
-	obj_f = f->obj_format;
-    if ( obj_f == NULL ) goto MAKE_ID;
-    if ( force_id ) goto MAKE_ID;
-    obj_op_flags = obj_f->obj_op_flags;
-    if ( obj_op_flags & min::PREFERRED_ID )
-        goto MAKE_ID;
-    if ( ! ( obj_op_flags & min::DEFERRED_ID ) )
-        goto MAP_OBJ;
-
-    compact_format =
-	( obj_op_flags & min::ENABLE_COMPACT );
-
-    if ( compact_format )
-    {
-	min::gen separator = min::NONE();
-	min::gen initiator = min::NONE();
-	min::gen terminator = min::NONE();
-	min::gen type = min::NONE();
-
-	for ( min::unsptr i = 0;
-	         compact_format
-	      && i < number_of_attributes; ++ i )
-	{
-	    if ( info[i].flags & obj_f->hide_flags )
-		continue;
-
-	    if (    info[i].value_count != 1
-		 || info[i].flag_count != 0
-		 || info[i].reverse_attr_count != 0 )
-		compact_format = false;
-	    else if ( ! min::is_str ( info[i].value )
-		      &&
-		      ! ::is_str_lab ( info[i].value )
-		      &&
-		      ! ( (   obj_op_flags
-			    & min::ENABLE_LOGICAL_LINE )
-			  &&
-			     info[i].name
-			  == min::dot_initiator
-			  &&
-			     info[i].value
-			  == min::LOGICAL_LINE() )
-		      &&
-		      !
-		      ( (   obj_op_flags
-			  & min::
-			    ENABLE_INDENTED_PARAGRAPH )
-			&&
-			   info[i].name
-			== min::dot_terminator
-			&&
-			   info[i].value
-			== min::INDENTED_PARAGRAPH() ) )
-		compact_format = false;
-	    else if ( info[i].name == min::dot_type )
-		type = info[i].value;
-	    else if (    info[i].name
-	              == min::dot_separator )
-		separator = info[i].value;
-	    else if (    info[i].name
-	              == min::dot_initiator )
-		initiator = info[i].value;
-	    else if (    info[i].name
-	              == min::dot_terminator )
-		terminator = info[i].value;
-	    else compact_format = false;
-	}
-
-	// Compact_format does not allow just one of
-	// initiator and terminator.
-	//
-	if ( compact_format )
-	{
-	    if ( initiator != min::NONE() )
-	    {
-		if ( terminator == min::NONE()
-		     ||
-		     type != min::NONE() )
-		    compact_format = false;
-	    }
-	    else if ( terminator != min::NONE() )
-		compact_format = false;
-	}
-	if ( compact_format
-	     &&
-	    ( initiator == min::LOGICAL_LINE()
-	      ||
-	      terminator == min::INDENTED_PARAGRAPH() )
-	   )
-	    use_top_element_format =
-		( separator == min::NONE() );
-    }
-    if ( compact_format ) goto MAP_OBJ;
-
-
-MAKE_ID:
-
-    ::find_or_add ( map, v );
-
-MAP_OBJ:
-
-    const min::gen_format * elem_f =
-        ( obj_f == NULL ?  NULL :
-	  use_top_element_format ?
-	      obj_f->top_element_format :
-	      obj_f->element_format );
-
-    min::obj_vec_ptr & vp = min::obj_vec_ptr_of ( ap );
-    for ( min::unsptr i = 0; i < min::size_of ( vp );
-                             ++ i )
-        ::map_one ( map, vp[i], elem_f );
-
-    ::map_one_attributes
-	( map, ap, info, number_of_attributes, f );
-}
-//
-template < typename L >
-inline void map
-	( min::packed_vec_ptr
-	      < min::gen,
-		min::id_map_header<L>, L > map,
-	  min::gen v,
-	  const min::gen_format * f )
-{
-    typedef min::packed_vec_insptr
-    		< min::gen,
-		  min::id_map_header<L>, L >
-	id_map_insptr;
-    typedef min::packed_vec_insptr
-    		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
-
-    L saved_length = map->length;
-    ::map_one ( map, v, f, true );
-    L n = map->length - saved_length;
-    if ( n <= 1 ) return;
-
-    if ( map->hash_table == min::NULL_STUB )
-	::new_hash_table ( map );
-    hash_table_insptr hash_table = map->hash_table;
-
-    // Compute indices of hash table entries that
-    // need to be modified.
-    //
-    L hash_index[n];
-    for ( L i = 0; i < n; ++ i )
-    {
-	L h = ::hash ( map, map[i+saved_length] );
-	L offset = 0;
-	while ( true )
-	{
-	    L id = hash_table[h];
-	    MIN_REQUIRE ( id != 0 );
-	    if ( map[id] == map[i+saved_length] )
-	    {
-	        MIN_REQUIRE ( id >= saved_length );
-	        hash_index[i] = h;
-		break;
-	    }
-	    MIN_REQUIRE
-	        ( offset < map->hash_max_offset );
-	    h = ( h + 1 ) % hash_table->length;
-	    ++ offset;
-	}
-    }
-
-    // Swap non-object values to beginning of n
-    // indices.
-    //
-    id_map_insptr map_insptr =
-	(id_map_insptr) (min::id_map) map;
-    L i = 0;
-    L j = 1;
-    while ( j < n )
-    {
-        if ( ! is_obj ( map[i+saved_length] ) )
-	    ++ i;
-	else if ( j <= i )
-	    j = i + 1;
-	else if ( is_obj ( map[j+saved_length] ) )
-	    ++ j;
-	else
-	{
-	    // i --> object
-	    // j --> non-object
-	    //
-	    min::gen tmp_g = map[j+saved_length];
-	    map_insptr[j+saved_length] =
-	        map[i+saved_length];
-	    map_insptr[i+saved_length] =
-	        tmp_g;
-
-	    L hi = hash_index[i];
-	    L hj = hash_index[j];
-	    L tmp_id = hash_table[hi];
-	    hash_table[hi] = hash_table[hj];
-	    hash_table[hj] = tmp_id;
-
-	    hash_index[i] = hj;
-	    hash_index[j] = hi;
-	}
-    }
-}
-
 template < typename L >
 inline void put
 	( min::packed_vec_ptr
@@ -4050,13 +3701,6 @@ min::uns32 min::find_or_add
 	( min::id_map map, min::gen g )
 {
     return ::find_or_add ( map, g );
-}
-
-void min::map
-	( min::id_map map,
-	  min::gen v, const min::gen_format * f )
-{
-    return ::map ( map, v, f );
 }
 
 void min::put
@@ -12745,19 +12389,6 @@ const min::op min::flush_one_id
 const min::op min::flush_id_map
     ( min::op::FLUSH_ID_MAP );
 
-min::printer min::map_id
-	( min::printer printer,
-	  min::gen v )
-{
-    if ( printer->id_map == min::NULL_STUB )
-    	min::init ( min::id_map_ref ( printer ) );
-    min::map ( printer->id_map, v,
-               printer->print_format
-	               .id_map_gen_format );
-    return printer;
-}
-
-
 min::printer min::print_id
 	( min::printer printer,
 	  min::gen v )
@@ -12856,7 +12487,6 @@ min::printer min::print_mapped
     if ( f == NULL )
         f = printer->print_format.id_map_gen_format;
 
-    min::map ( id_map, v, f );
     min::uns32 ID = min::find_or_add ( id_map, v );
 
     if ( ID >= id_map->next )
@@ -13726,11 +13356,13 @@ min::printer min::standard_pgen
 	const min::str_format * sf = f->str_format;
 	if ( sf != NULL )
 	{
-	    min::uns32 id_strlen = sf->id_strlen;
+	    min::uns32 id_strlen =
+	        min::max_id_str_length;
 	    if ( id_strlen >= min::MIN_ID_STRLEN
 	         &&
 	         min::strlen ( v ) >= id_strlen )
 	    {
+// TBD
 	        min::uns32 ID =
 		     min::find ( printer->id_map, v );
 		if ( ID != 0 )

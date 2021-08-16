@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 04:25:17 EDT 2021
+// Date:	Mon Aug 16 16:35:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6729,10 +6729,6 @@ namespace min {
     uns32 find_or_add
             ( min::id_map map, min::gen g );
     struct gen_format;
-    void map
-            ( min::id_map map,
-	      min::gen v,
-	      const min::gen_format * f = NULL );
     inline min::gen get
 	    ( min::id_map map, min::uns32 id )
     {
@@ -13605,9 +13601,6 @@ namespace min {
 	}
 
     }
-
-    min::printer map_id
-    	    ( min::printer printer, min::gen v );
 
     min::printer print_id
     	    ( min::printer printer, min::gen v );
