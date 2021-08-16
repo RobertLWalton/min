@@ -2963,7 +2963,7 @@ The \TT{min::new\_preallocate\_gen} function returns a
 \TT{min::gen} value pointing at a new stub
 of \TT{min::\EOL PREALLOCATED}\label{MIN::PREALLOCATED}
 type that stores the given \TT{id}.  The preallocated
-stub represents an object or other non-atomic value
+stub represents an object or non-identifier string value
 whose contents are yet unspecified.
 The preallocated stub can be
 referenced as is, and functions such as
@@ -5838,7 +5838,7 @@ are relocatable.
 
 Object attribute labels
 (see Section~\itemref{OBJECT-ATTRIBUTE-LEVEL})
-are often atoms, i.e., single strings or numbers.
+are often \skey{atom}s, i.e., single numbers or identifier strings.
 But they may be sequences of atoms.  Such sequences are represented by
 \skey{label}s.\footnote{Labels could also be represented by
 sublists stored inside objects (\pagref{LIST-LEVEL}), but each label tends to
@@ -15119,7 +15119,7 @@ the object lists have the syntax:
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
                              $|$ {\em indirect-pointer}
 \\[1ex]
-\emkey{atom} ::= {\em string} $|$ {\em number}
+\emkey{atom} ::= {\em identifier string} $|$ {\em number}
 \\[1ex]
 \emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
@@ -15143,7 +15143,7 @@ a sequence of elements in some list or sublist.
 {\em X-pairs} are sequences of two elements.
 {\em Flag-sets} are sequences of {\em control-codes}.
 
-An {\em atom} is a \TT{min::gen} number or string.
+An {\em atom} is a \TT{min::gen} number or identifier string.
 An {\em label} is a \TT{min::gen} label.
 An {\em object} is a \TT{min::gen} value pointing at an object stub.
 A {\em control-code} is a \TT{min::gen} control code value.
