@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 16, 2021}
+\date{August 17, 2021}
  
 \maketitle
 
@@ -2938,7 +2938,7 @@ deallocated stub will cause a memory fault.
 
 A stub can be \key{preallocated}, referenced, and even garbage
 collected, before its contents are known.  Such stubs have the
-\TT{PREALLOCATED} type (see \pagref{PREALLOCATED_ID} for an example).
+\TT{PREALLOCATED} type.
 Functions for this type are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -8724,21 +8724,16 @@ is returned. As a special case,
 \TT{min::find\_and\_add(map,g)} always returns \TT{0} if \TT{g == min::NONE()}.
 
 When an identifier map is used for output, the following identifier
-map components are used:
+map component is used:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
-\LABEL{MIN::ID_MAP_OCCUPIED} \\
 \verb|min::uns32 map->| & \TTMKEY{next}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_NEXT} \\
-\verb|min::Uchar map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
-			  ~~~~ (defaults to `\TT{@}')
-\LABEL{MIN::ID_MAP_ID_CHAR} \\
 \end{tabular}\end{indpar}
 
 When \TT{min::\EOL find\_\EOL and\_\EOL add}
 assigns new identifiers, \TT{map->length} is incremented but
-\TT{map->next} is not.  The identifiers \TT{map->next}, \ldots{},
+\TT{map->\EOL next} is not.  The identifiers \TT{map->\EOL next}, \ldots{},
 \TT{map->length-1} are for objects that have not yet been
 output.  The \TT{printer << min::flush\_\EOL id\_\EOL map} operation
 (see \pagref{MIN::FLUSH_ID_MAP})
@@ -8750,19 +8745,23 @@ in the the form
 \end{center}
 
 This operation outputs smallest identifiers first and increments
-\TT{map->next} until it equals \TT{map->length}.
+\TT{map->next} until it equals \TT{map->length}.  Outputting an
+identifier with an object value may create new identifiers and
+increase \TT{map->length}.
 
 The identifier map vector is lengthed
 when it needs to become longer.
 The output hash table is created by the first call that
 requires it to exist.  If this hash table is too small, it is
-recreated with a larger size.
-The \TT{map->\EOL occupied} member of the map records the number of
+recreated with a larger size.  The
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_OCCUPIED} \\
+\end{tabular}\end{indpar}
+member of the map, which records the number of
 \TT{map} vector elements that are not \TT{min::NONE()},
 is used to determine the proper size of the hash table when it is
 recreated.
-
-TBD
 
 \subsubsection{Input Using Identifier Maps}
 \label{INPUT-USING-IDENTIFIER-MAPS}
@@ -8870,6 +8869,23 @@ and \TT{min::clear} can be used as for numeric identifiers, except that
 in place of an \TT{min::uns32} numeric identifier one uses a
 \TT{min::get} MIN string identifer.  The string is the {\em symbol},
 with or without the bracketting \TT{@}'s.
+
+TBD
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::ustring map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
+			  ~~~~ (defaults to \TT{"\textbackslash x01%
+			                         \textbackslash x01" "@"})
+\LABEL{MIN::ID_MAP_ID_CHAR} \\
+\verb|min::ustring map->| & \TTMKEY{id\_assign}{of {\tt min::id\_map}}
+			  ~~~~ (defaults to \TT{"\textbackslash x03%
+			                         \textbackslash x03" "::="})
+\LABEL{MIN::ID_MAP_ID_ASSIGN} \\
+\verb|min::ustring map->| & \TTMKEY{id\_paragraph}{of {\tt min::id\_map}}
+			  ~~~~ (defaults to \TT{"\textbackslash x02%
+			                         \textbackslash x02" "::"})
+\LABEL{MIN::ID_MAP_ID_PARAGRAPH} \\
+\end{tabular}\end{indpar}
 
 \subsection{Printers}
 \label{PRINTERS}
@@ -12306,21 +12322,6 @@ and long strings, can be
 output as an identifier of the form \TT{@}{\em <id>} by using
 the printer \key{identifier map} (\itemref{IDENTIFIER-MAPS}).
 
-The function to give a value \TT{v} an appropriate ID is:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{map\_id}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen v )|
-\LABEL{MIN::MAP_ID} \\
-\end{tabular}\end{indpar}
-
-which executes (\pagref{MIN::MAP_OF_ID_MAP}):
-\begin{indpar}
-\verb|min::map ( printer->id_map, v| \\
-\verb|           printer->print_format.id_map_gen_format )|
-\end{indpar}
-
 The function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -12339,9 +12340,7 @@ executes (\pagref{MIN::FIND_OR_ADD_OF_ID_MAP}):
 
 It is used when an ID \underline{must} be printed
 to represent an object but the object may not already have gotten
-an ID.  In this case \TT{min::map} cannot be used because it may
-create forward references to long strings, which cannot be handled
-on input.
+an ID.
 
 A printer's \TT{id\_map} member is initialized automatically when
 needed.  However, it can also be set by:
@@ -12454,20 +12453,14 @@ The function
     \verb|  const min::gen_format * gen_format = NULL )| \\
 \end{tabular}\end{indpar}
 
-first executes
-
-\begin{indpar}\begin{verbatim}
-    min::map ( id_map, v, gen_format );
-    min::uns32 ID = min::find_or_add ( id_map, v );
-    min::print_id_map ( printer, id_map, gen_format );
-\end{verbatim}\end{indpar}
-
-Then if this has not printed a line of the form
-`\TT{@}{\em <ID>} \TT{=} {\em value of \TT{v}}', it further
 executes
 
 \begin{indpar}\begin{verbatim}
-    min::print_mapped_id ( printer, ID, id_map, gen_format );
+    min::uns32 ID = min::find_or_add ( id_map, v );
+    if ( ID < id_map->next )
+        min::print_mapped_id
+            ( printer, ID, id_map, gen_format );
+    min::print_id_map ( printer, id_map, gen_format );
 \end{verbatim}\end{indpar}
 
 \subsubsection{Printing Using Defined Formats}
@@ -20914,13 +20907,10 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
-\LABEL{MIN::ID_MAP_OCCUPIED} \\
 \verb|min::uns32 map->| & \TTMKEY{next}{of {\tt min::id\_map}}
 \LABEL{MIN::ID_MAP_NEXT} \\
-\verb|min::Uchar map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
-			  ~~~~ (defaults to `\TT{@}')
-\LABEL{MIN::ID_MAP_ID_CHAR} \\
+\verb|min::uns32 map->| & \TTMKEY{occupied}{of {\tt min::id\_map}}
+\LABEL{MIN::ID_MAP_OCCUPIED} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}

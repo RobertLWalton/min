@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 17 10:58:03 EDT 2021
+// Date:	Tue Aug 17 15:48:02 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12489,24 +12489,10 @@ min::printer min::print_mapped
 
     min::uns32 ID = min::find_or_add ( id_map, v );
 
-    if ( ID >= id_map->next )
-	return min::print_id_map ( printer, id_map, f );
+    if ( ID < id_map->next )
+	min::print_mapped_id ( printer, ID, id_map, f );
 
-/*
-    // Although object was printed above, object may
-    // have been changed since it was last printed,
-    // and we do not keep track of this.
-    //
-    printer << min::bol;
-    MINT::print_id ( printer, ID );
-    min::print_space ( printer );
-    min::print_item ( printer, "= see above", 11, 11 );
-    return printer << min::bol;
-*/
-
-    min::print_id_map ( printer, id_map, f );
-    return min::print_mapped_id
-		( printer, ID, id_map, f );
+    return min::print_id_map ( printer, id_map, f );
 }
 
 // Return true if attributes printed and false if
