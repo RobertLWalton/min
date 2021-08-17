@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 16:28:25 EDT 2021
+// Date:	Tue Aug 17 10:25:57 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11648,7 +11648,7 @@ static min::str_format quote_separator_str_format =
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    0
+    0xFFFFFFFF
 };
 const min::str_format *
     min::quote_separator_str_format =
@@ -11661,7 +11661,7 @@ static min::str_format
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    0
+    0xFFFFFFFF
 };
 const min::str_format *
     min::quote_separator_and_mark_str_format =
@@ -11673,7 +11673,7 @@ static min::str_format quote_all_str_format =
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    min::MIN_ID_STRLEN
+    0
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -11684,7 +11684,7 @@ static min::str_format standard_str_format =
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    min::MIN_ID_STRLEN
+    0
 };
 const min::str_format * min::standard_str_format =
     & ::standard_str_format;
@@ -13356,15 +13356,14 @@ min::printer min::standard_pgen
 	const min::str_format * sf = f->str_format;
 	if ( sf != NULL )
 	{
-	    min::uns32 id_strlen =
-	        min::max_id_str_length;
-	    if ( id_strlen >= min::MIN_ID_STRLEN
-	         &&
-	         min::strlen ( v ) >= id_strlen )
+	    min::uns32 id_strlen = sf->id_strlen;
+	    if ( id_strlen < min::max_id_str_length )
+		id_strlen = min::max_id_str_length;
+	    if ( min::strlen ( v ) > id_strlen )
 	    {
-// TBD
 	        min::uns32 ID =
-		     min::find ( printer->id_map, v );
+		     min::find_or_add
+		         ( printer->id_map, v );
 		if ( ID != 0 )
 		    return MINT::print_id
 		               ( printer, ID );
