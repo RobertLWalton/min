@@ -5301,8 +5301,8 @@ along with the string length and hash value.
 Sufficiently short strings are \skey{identifier string}s.
 The variable:
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{max\_id\_str\_length} ~~~~[default \TT{63}]
-\LABEL{MIN::MAX_ID_STR_LENGTH} \\
+\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen} ~~~~[default \TT{63}]
+\LABEL{MIN::MAX_ID_STRLEN} \\
 \end{tabular}\end{indpar}
 
 is the maximum length of an identifier string in bytes
@@ -5372,7 +5372,7 @@ if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created.
 Otherwise if the string has at most
 \TT{min::max\_\EOL id\_\EOL str\_\EOL length} bytes
-(see \pagref{MIN::MAX_ID_STR_LENGTH}),
+(see \pagref{MIN::MAX_ID_STRLEN}),
 \TT{min::new\_str\_gen} searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
 string is returned in the new \TT{min::gen} value, and no new stub
@@ -11867,12 +11867,6 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::STR_FORMAT}
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]
-\TTKEY{MIN\_ID\_STRLEN}
-    \verb|  // == 21, minimum effective value for id_strlen.|
-\LABEL{MIN_ID_STRLEN}
-\end{indpar}
-
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
     min::\MINKEY{standard\_str\_format}:}
@@ -11881,7 +11875,7 @@ The formats for printing string \TT{min::gen} values are:
 \verb|(min::ustring) "\x01\x01" "#"          // str_break_begin|\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "#"          // str_break_end|\ARGBREAK
 \verb|min::standard_quote_format             // quote_format|\ARGBREAK
-\verb|MIN_ID_STRLEN                          // id_strlen|
+\verb|0                                      // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11898,7 +11892,7 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::QUOTE_SEPARATOR_AND_MARK_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
 \verb|min::quote_separator_and_mark_str_classifier // str_classifier|\ARGBREAK
-\verb|0                                            // id_strlen|
+\verb|0xFFFFFFFF                                   // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11907,7 +11901,7 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::QUOTE_ALL_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
 \verb|min::quote_all_str_classifier                // str_classifier|\ARGBREAK
-\verb|0                                            // id_strlen|
+\verb|0xFFFFFFFF                                   // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -12124,10 +12118,9 @@ values for \TT{min::pgen} will print a long enough string as an
 identifier of the form \TT{@}{\em <id>} if
 the \ttikey{id\_\EOL strlen}{id\_strlen}
 member of the \TT{min::\EOL str\_\EOL format} being used
-to print the string has a \TT{id\_\EOL strlen} member is as least as large as
-the value of \TT{MIN\_ID\_STRLEN} but no larger than the string length,
-and provided that the string has \underline{already} been given
-an identifier (e.g., by \TT{min::map}, see \pagref{MIN::MAP_OF_ID_MAP}).
+to print the string has a \TT{id\_\EOL strlen} member less than the
+string length and the string length is also greater than
+\TT{min::\EOL max\_id\_strlen}.
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}
@@ -19535,8 +19528,8 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{max\_id\_str\_length}
-\LABEL{MIN::MAX_ID_STR_LENGTH} \\
+\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen}
+\LABEL{MIN::MAX_ID_STRLEN} \\
 \end{TABULAR}
 
 \medskip
@@ -22331,14 +22324,6 @@ These are in \verb|min_parameters.h|.
     \verb|  min::uns32            id_strlen;|%
 \ttmindex{id\_strlen}{in {\tt min::str\_format}}\ARGBREAK
     \verb|};|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\TTKEY{MIN\_ID\_STRLEN} &
-    \verb|  // == 21, minimum effective value for id_strlen.|\ARGBREAK
-\LABEL{MIN_ID_STRLEN}
 \end{TABULAR}
 
 \bigskip

@@ -13341,8 +13341,6 @@ namespace min {
 	min::uns32		    id_strlen;
     };
 
-    const min::uns32 MIN_ID_STRLEN = 21;
-
     extern const min::str_format *
         quote_separator_str_format;
     extern const min::str_format *
