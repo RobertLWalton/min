@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 16:43:24 EDT 2021
+// Date:	Tue Aug 17 11:01:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5527,7 +5527,7 @@ void test_object_debugging ( void )
 int main ( int argc, const char * argv[] )
 {
 
-    min::max_id_str_length = min::MIN_ID_STRLEN;
+    min::max_id_strlen = 20;
 
     min::assert_err = stdout;
     min::assert_print = true;

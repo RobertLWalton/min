@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 16 16:35:36 EDT 2021
+// Date:	Tue Aug 17 10:57:44 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3924,11 +3924,11 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-    // Strings longer than max_id_str_length bytes are
+    // Strings longer than max_id_strlen bytes are
     // not identifier strings.
     //
-    extern min::unsptr max_id_str_length;
-    const min::unsptr DEFAULT_MAX_ID_STR_LENGTH = 63;
+    extern min::unsptr max_id_strlen;
+    const min::unsptr DEFAULT_MAX_ID_STRLEN = 63;
 
     // Functions to compute the hash of an arbitrary
     // char string.
@@ -4172,7 +4172,7 @@ namespace min {
 	    return false;
 	min::uns32 length = unprotected::length_of
 	    ( unprotected::long_str_of ( s ) );
-	return length <= max_id_str_length;
+	return length <= max_id_strlen;
     }
 
     inline bool is_non_id_str ( min::gen g )
@@ -4185,7 +4185,7 @@ namespace min {
 	    return false;
 	min::uns32 length = unprotected::length_of
 	    ( unprotected::long_str_of ( s ) );
-	return length > max_id_str_length;
+	return length > max_id_strlen;
     }
 
     inline const char * unprotected::str_of
@@ -4409,7 +4409,7 @@ namespace min {
 	  const str_ptr & sp )
     {
 	unsptr len = min::strlen ( sp );
-	MIN_ASSERT ( len > max_id_str_length,
+	MIN_ASSERT ( len > max_id_strlen,
 	             "second string copy argument is"
 		     " not for a non-identifier"
 		     " string" );

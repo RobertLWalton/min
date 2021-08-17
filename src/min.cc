@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 17 10:25:57 EDT 2021
+// Date:	Tue Aug 17 10:58:03 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1719,8 +1719,8 @@ min::uns32 min::floathash ( min::float64 f )
 // Strings
 // -------
 
-min::unsptr min::max_id_str_length =
-    min::DEFAULT_MAX_ID_STR_LENGTH;
+min::unsptr min::max_id_strlen =
+    min::DEFAULT_MAX_ID_STRLEN;
 
 min::uns32 min::strnhash
 	( const char * p, min::unsptr size )
@@ -1926,7 +1926,7 @@ int min::strncmp
 min::gen MINT::new_str_stub_gen
 	( min::ptr<const char> p, min::unsptr n )
 {
-    if ( n > min::max_id_str_length )
+    if ( n > min::max_id_strlen )
     {
 	min::stub * s = MUP::new_acc_stub();
         MINT::new_long_str_stub ( p, n, s );
@@ -13357,8 +13357,8 @@ min::printer min::standard_pgen
 	if ( sf != NULL )
 	{
 	    min::uns32 id_strlen = sf->id_strlen;
-	    if ( id_strlen < min::max_id_str_length )
-		id_strlen = min::max_id_str_length;
+	    if ( id_strlen < min::max_id_strlen )
+		id_strlen = min::max_id_strlen;
 	    if ( min::strlen ( v ) > id_strlen )
 	    {
 	        min::uns32 ID =
