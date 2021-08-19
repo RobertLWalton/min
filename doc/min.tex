@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 17, 2021}
+\date{August 18, 2021}
  
 \maketitle
 
@@ -5301,7 +5301,7 @@ along with the string length and hash value.
 Sufficiently short strings are \skey{identifier string}s.
 The variable:
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen} ~~~~[default \TT{63}]
+\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen} ~~~~[default \TT{32}]
 \LABEL{MIN::MAX_ID_STRLEN} \\
 \end{tabular}\end{indpar}
 
@@ -5371,7 +5371,7 @@ When a string general value is created,
 if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created.
 Otherwise if the string has at most
-\TT{min::max\_\EOL id\_\EOL str\_\EOL length} bytes
+\TT{min::max\_\EOL id\_\EOL strlen} bytes
 (see \pagref{MIN::MAX_ID_STRLEN}),
 \TT{min::new\_str\_gen} searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
@@ -8720,8 +8720,9 @@ function can be used to find the index of a \TT{min::gen} value
 \TT{g} for use in output.  If \TT{g} is already
 in the \TT{map}, its associated index is returned.  Otherwise \TT{g}
 is pushed to the end of the \TT{map} vector and assigned an index which
-is returned. As a special case,
-\TT{min::find\_and\_add(map,g)} always returns \TT{0} if \TT{g == min::NONE()}.
+is returned. As special cases,
+\TT{min::find\_and\_add(map,g)} always returns \TT{0} if \TT{g == min::NONE()}
+or if \TT{map} is NULL.
 
 When an identifier map is used for output, the following identifier
 map component is used:
@@ -8759,7 +8760,7 @@ recreated with a larger size.  The
 \LABEL{MIN::ID_MAP_OCCUPIED} \\
 \end{tabular}\end{indpar}
 member of the map, which records the number of
-\TT{map} vector elements that are not \TT{min::NONE()},
+\TT{map} vector elements that are not \TT{min::\EOL NONE()},
 is used to determine the proper size of the hash table when it is
 recreated.
 
@@ -8806,7 +8807,7 @@ if it is in the vector, and by doing nothing if it is not.
 
 When a `\TT{@}{\em index}' token is encountered in the input
 and {\em index} is not in the map, normal procedure is
-to set the \TT{map[{\em index}]} element using \TT{min::set}
+to set the \TT{map[}{\em index}\TT{]} element using \TT{min::set}
 to a new preallocated stub (\itemref{PREALLOCATED-STUBS}).
 Then when a definition for
 `\TT{@}{\em index}' is encountered later in the input, the preallocated
@@ -11900,6 +11901,7 @@ The formats for printing string \TT{min::gen} values are:
 \LABEL{MIN::QUOTE_SEPARATOR_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
 \verb|min::quote_separator_str_classifier    // str_classifier|\ARGBREAK
+\verb|0xFFFFFFFF                             // id_strlen|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -12130,13 +12132,14 @@ The \TT{str\_\EOL format} parameter is passed directly to
 \TT{min::\EOL print\_\EOL cstring} even if it is \TT{NULL}.
 
 The \TT{min::\EOL standard\_\EOL pgen} function that prints general
-values for \TT{min::pgen} will print a long enough string as an
+values for \TT{min::pgen} will print a string as an
 identifier of the form \TT{@}{\em <id>} if
+the string length is longer than both
 the \ttikey{id\_\EOL strlen}{id\_strlen}
 member of the \TT{min::\EOL str\_\EOL format} being used
-to print the string has a \TT{id\_\EOL strlen} member less than the
-string length and the string length is also greater than
-\TT{min::\EOL max\_id\_strlen}.
+to print the string
+and the global variable \TT{min::\EOL max\_id\_strlen}
+(see \pagref{MIN::MAX_ID_STRLEN}).
 
 \subsubsection{Printing Label General Values}
 \label{PRINTING-LABEL-GENERAL-VALUES}
@@ -17226,11 +17229,9 @@ The format for printing object \TT{min::gen} values is:
 \end{indpar}
 
 An object is printed as the ID `\TT{@}{\em <object-id>}' if
-the object has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
-and the \ttikey{PREFERRED\_\EOL ID}{PREFERRED\_EOL}
+\TT{printer->\EOL id\_\EOL map} exists
+and the \ttikey{PREFERRED\_\EOL ID}{PREFERRED\_ID}
 object format operation flag is on.
-Objects may be given {\em object-ids} by
-the {\TT min::map} function: see \pagref{MIN::MAP_OF_ID_MAP}.
 
 Otherwise the object is printed in `\mkey{compact format}{for printing object}'
 if all of the following are true:
@@ -17269,7 +17270,7 @@ attribute, it has \underline{both}, and has no \TT{.type}.
 
 Otherwise, if the \ttikey{DEFERRED\_\EOL ID}{DEFERRED\_ID}
 object format operation flag is on
-and the object has an {\em object-id} in \TT{printer->\EOL id\_\EOL map}
+and \TT{printer->\EOL id\_\EOL map} exists
 the object is printed as the ID `\TT{@}{\em <object-id>}'.
 
 Otherwise the
@@ -19521,7 +19522,7 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen}
+\verb|min::unsptr min::| & \MINKEY{max\_id\_strlen} ~~~~[default \TT{32}]
 \LABEL{MIN::MAX_ID_STRLEN} \\
 \end{TABULAR}
 
@@ -22571,10 +22572,6 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::printer min::| & \MINKEY{map\_id}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::gen v )|
-\LABEL{MIN::MAP_ID} \\
 \verb|min::printer min::| & \MINKEY{print\_id}\ARGBREAK
     \verb|( min::printer printer,|\ARGBREAK
     \verb|  min::gen v )|

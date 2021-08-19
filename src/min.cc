@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 17 15:48:02 EDT 2021
+// Date:	Thu Aug 19 06:01:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3572,7 +3572,7 @@ inline L find_or_add
 	hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
-    MIN_REQUIRE ( map != min::NULL_STUB );
+    if ( map == min::NULL_STUB ) return 0;
 
     if ( map->hash_table == min::NULL_STUB )
 	::new_hash_table ( map );
@@ -12878,7 +12878,7 @@ min::printer min::print_obj
            && ( obj_op_flags & min::DEFERRED_ID ) ) )
     {
         min::uns32 ID =
-	    min::find ( printer->id_map, v );
+	    min::find_or_add ( printer->id_map, v );
 	if ( ID != 0 )
 	    return MINT::print_id ( printer, ID );
     }
