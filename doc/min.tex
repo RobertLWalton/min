@@ -8739,11 +8739,30 @@ assigns new identifiers, \TT{map->length} is incremented but
 output.  The \TT{printer << min::flush\_\EOL id\_\EOL map} operation
 (see \pagref{MIN::FLUSH_ID_MAP})
 outputs the objects and strings referenced by these identifiers
-in the the form
+in the format:
 
 \begin{center}
-\TT{@}{\em identifier} \TT{=} {\em object-or-string}
+\TT{@}{\em identifier} \TT{::=} {\em object-or-string}
 \end{center}
+
+In this format `\TT{@}', `\TT{::=}', and the \TT{min::gen\_format}
+used to print {\em object-or-string} are parameters determined by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
+			  & \TT{map} Member	& \verb|//| Default
+\\[1ex]
+\verb|min::ustring map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
+			  & \verb|//|
+			    \TT{"\textbackslash x01\textbackslash x01" "@"}
+\LABEL{MIN::ID_MAP_ID_CHAR} \\
+\verb|min::ustring map->| & \TTMKEY{id\_assign}{of {\tt min::id\_map}}
+			  & \verb|//|
+			    \TT{"\textbackslash x03\textbackslash x03" "::="}
+\LABEL{MIN::ID_MAP_ID_ASSIGN} \\
+\verb|min::gen_format * map->| & \TTMKEY{id\_gen\_format}{of {\tt min::id\_map}}
+			       & \verb|//| \TT{min::id\_map\_gen\_format}
+\LABEL{MIN::ID_MAP_ID_GEN_FORMAT} \\
+\end{tabular}\end{indpar}
 
 This operation outputs smallest identifiers first and increments
 \TT{map->next} until it equals \TT{map->length}.  Outputting an
@@ -8872,21 +8891,6 @@ in place of an \TT{min::uns32} numeric identifier one uses a
 with or without the bracketting \TT{@}'s.
 
 TBD
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::ustring map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
-			  ~~~~ (defaults to \TT{"\textbackslash x01%
-			                         \textbackslash x01" "@"})
-\LABEL{MIN::ID_MAP_ID_CHAR} \\
-\verb|min::ustring map->| & \TTMKEY{id\_assign}{of {\tt min::id\_map}}
-			  ~~~~ (defaults to \TT{"\textbackslash x03%
-			                         \textbackslash x03" "::="})
-\LABEL{MIN::ID_MAP_ID_ASSIGN} \\
-\verb|min::ustring map->| & \TTMKEY{id\_paragraph}{of {\tt min::id\_map}}
-			  ~~~~ (defaults to \TT{"\textbackslash x02%
-			                         \textbackslash x02" "::"})
-\LABEL{MIN::ID_MAP_ID_PARAGRAPH} \\
-\end{tabular}\end{indpar}
 
 \subsection{Printers}
 \label{PRINTERS}
@@ -9046,9 +9050,6 @@ following printer parameters:
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::top_gen_format| \\
-\verb|        min::gen_format *|
-	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
-        & \verb|// min::id_map_gen_format| \\
 \verb|        min::uns32|
 	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
         & \verb|// 10| \\
