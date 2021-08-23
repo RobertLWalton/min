@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 18, 2021}
+\date{August 23, 2021}
  
 \maketitle
 
@@ -10671,11 +10671,11 @@ Here we have used the printer operations:
 \LABEL{MIN::TRAILING} \\
 \end{tabular}\end{indpar}
 
-Each of these denotes a space character with may be output or
+Each of these denotes a space character which may be output or
 not according to its context.
 
 To give as second example,
-consider the code, with \TT{min::\EOL FORCE\_\EOL PGEM} flag on:
+consider the code, with \TT{min::\EOL FORCE\_\EOL PGEN} flag on:
 \begin{indpar}\begin{verbatim}
 printer << "100" << min::trailing << "," << " " << "200";
 printer << "100" << min::trailing << "#" << " " << "200";
@@ -10687,7 +10687,7 @@ while we want the second line to output `\TT{100 \# 200}'
 in which \TT{min::\EOL trailing} \underline{does} output a space.
 
 And to consider one last example,
-consider the code, with \TT{min::\EOL FORCE\_\EOL PGEM} flag on:
+consider the code, with \TT{min::\EOL FORCE\_\EOL PGEN} flag on:
 \begin{indpar}\begin{verbatim}
 printer << "("   << min::leading << "100" << min::trailing <<  ")";
 printer << "(+"  << min::leading << "100" << min::trailing << "+)";
