@@ -21057,8 +21057,6 @@ These are in \verb|min_parameters.h|.
 	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}} \\
 \verb|          min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
-\verb|          min::gen_format *|
-	& \TTMKEY{id\_map\_gen\_format}{in {\tt min::print\_format}} \\
 \verb|        min::uns32|
 	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
 \verb|}                           | \\
@@ -24597,7 +24595,7 @@ Information Functions:
                    min::\MINKEY{embedded\_line\_obj\_format}:}%
 \LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::EMBEDDED_LINE                     // obj_op_flags|\ARGBREAK[0in]
+\verb|min::EMBEDDED_LINE                       // obj_op_flags|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|NULL                                     // obj_empty|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
@@ -24611,7 +24609,7 @@ Information Functions:
                    min::\MINKEY{isolated\_line\_obj\_format}:}%
 \LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ISOLATED_LINE                     // obj_op_flags|\ARGBREAK[0in]
+\verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK[0in]
 \verb|min::id_map_gen_format                   // element_format|\ARGBREAK[0in]
 \verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK[0in]
 \verb|NULL                                     // obj_empty|\ARGBREAK[0in]
