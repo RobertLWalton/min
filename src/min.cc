@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 24 04:32:36 EDT 2021
+// Date:	Tue Aug 24 06:23:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12294,7 +12294,6 @@ const min::print_format min::default_print_format =
 
     & ::standard_char_name_format,
     & ::top_gen_format,
-    & ::id_map_gen_format,
     10
 };
 
@@ -12421,8 +12420,7 @@ min::printer min::print_one_id
 	 id_map->next >= id_map->length )
         return printer;
 
-    if ( f == NULL )
-        f = printer->print_format.id_map_gen_format;
+    if ( f == NULL ) f = id_map->id_gen_format;
 
     min::uns32 ID = id_map->next;
     if ( ID >= id_map->length )
@@ -12461,8 +12459,7 @@ min::printer min::print_mapped_id
         id_map = printer->id_map;
     MIN_REQUIRE ( id_map != min::NULL_STUB );
 
-    if ( f == NULL )
-        f = printer->print_format.id_map_gen_format;
+    if ( f == NULL ) f = id_map->id_gen_format;
     MIN_REQUIRE ( f != NULL );
 
     MIN_REQUIRE ( ID < id_map->length );
@@ -12492,8 +12489,7 @@ min::printer min::print_mapped
         id_map = printer->id_map;
     }
 
-    if ( f == NULL )
-        f = printer->print_format.id_map_gen_format;
+    if ( f == NULL ) f = id_map->id_gen_format;
 
     min::uns32 ID = min::find_or_add ( id_map, v );
 

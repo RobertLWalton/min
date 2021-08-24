@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 24 04:22:10 EDT 2021
+// Date:	Tue Aug 24 06:24:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12354,7 +12354,6 @@ namespace min {
 
 	const min::char_name_format * char_name_format;
 	const min::gen_format *	      gen_format;
-	const min::gen_format *	      id_map_gen_format;
 	min::uns32                    max_depth;
     };
 
