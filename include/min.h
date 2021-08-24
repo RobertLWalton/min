@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 19 06:21:25 EDT 2021
+// Date:	Tue Aug 24 04:22:10 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6662,6 +6662,8 @@ min::printer operator <<
 
 namespace min {
 
+    struct gen_format;
+
     template < typename L >
     struct id_map_header
     {
@@ -6672,6 +6674,12 @@ namespace min {
 
 	L next;
 	const L occupied;
+
+	min::ustring id_char;
+	min::ustring id_assign;
+	const min::gen_format * id_gen_format;
+
+	min::Uchar id_Uchar;
 
 	L hash_multiplier;
 	L hash_max_offset;
@@ -6728,7 +6736,6 @@ namespace min {
             ( min::id_map map, min::gen g );
     uns32 find_or_add
             ( min::id_map map, min::gen g );
-    struct gen_format;
     inline min::gen get
 	    ( min::id_map map, min::uns32 id )
     {

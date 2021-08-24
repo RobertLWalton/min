@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 19 06:01:15 EDT 2021
+// Date:	Tue Aug 24 04:32:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3523,6 +3523,14 @@ inline min::packed_vec_ptr
     min::push ( map_insptr ) = min::NONE();
     * (L *) & map_insptr->occupied = 0;
     map_insptr->next = 1;
+    map_insptr->id_char =
+        (min::ustring) "\x01\x01" "@";
+    map_insptr->id_assign =
+        (min::ustring) "\x03\x03" "::=";
+    map_insptr->id_gen_format =
+        min::id_map_gen_format;
+    map_insptr->id_Uchar = U'@';
+
     return map;
 }
 
