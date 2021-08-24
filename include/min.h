@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 24 06:24:58 EDT 2021
+// Date:	Tue Aug 24 07:35:33 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13598,10 +13598,15 @@ namespace min {
 	    ( min::printer printer, min::uns32 ID )
 	{
 	    char buffer[100];
-	    min::uns32 n =
-	        sprintf ( buffer, "@%u", ID );
+	    min::ustring s = printer->id_map->id_char;
+	    min::uns32 c = min::ustring_columns ( s );
+	    min::uns32 n = min::ustring_length ( s );
+	    ::strcpy
+	        ( buffer, min::ustring_chars ( s ) );
+	    min::uns32 m =
+	        sprintf ( buffer + n, "%u", ID );
 	    return min::print_item
-	               ( printer, buffer, n, n );
+	        ( printer, buffer, c + m, n + m );
 	}
 
     }
