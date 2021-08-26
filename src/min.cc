@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 24 06:23:05 EDT 2021
+// Date:	Thu Aug 26 15:28:10 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9705,16 +9705,6 @@ static min::printer space_star_right_curly_pstring
 min::pstring min::space_star_right_curly_pstring =
     & ::space_star_right_curly_pstring;
 
-static min::printer space_less_than_equal_space_pstring
-	( min::printer printer )
-{
-    min::print_space_if_none ( printer );
-    min::print_chars ( printer, "<=", 2, 2 );
-    return min::print_space ( printer );
-}
-min::pstring min::space_less_than_equal_space_pstring =
-    & ::space_less_than_equal_space_pstring;
-
 static min::printer
     left_square_leading_always_pstring
 	( min::printer printer )
@@ -9742,7 +9732,7 @@ min::pstring
     & ::trailing_always_right_square_pstring;
 
 // const min::print_format min::default_print_format
-// defined below after top_gen_format.
+// defined below after compact_gen_format.
 
 static min::packed_vec<min::line_break>
     line_break_stack_type
@@ -11765,8 +11755,7 @@ const min::flag_format *
 
 static min::obj_format compact_obj_format =
 {
-      min::ENABLE_COMPACT   // obj_op_flags
-    + min::DEFERRED_ID,
+    min::ENABLE_COMPACT,    // obj_op_flags
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
@@ -11826,67 +11815,50 @@ static min::obj_format compact_obj_format =
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
 
-static min::obj_format top_obj_format =
+static min::obj_format id_obj_format =
 {
-    min::ENABLE_COMPACT,    // obj_op_flags
+    min::PREFERRED_ID,      // obj_op_flags
 
-    NULL,		    // element_format*
+    NULL,		    // element_format
     NULL,		    // top_element_format
-    NULL,		    // label_format*
-    NULL,		    // value_format*
+    NULL,		    // label_format
+    NULL,		    // value_format
 
-    NULL,		    // initiator_format*
-    NULL,		    // separator_format*
-    NULL,		    // terminator_format*
+    NULL,		    // initiator_format
+    NULL,		    // separator_format
+    NULL,		    // terminator_format
 
-    min::standard_str_classifier,
-    			    // mark_classifier
+    NULL,		    // mark_classifier
 
-    min::left_curly_right_curly_pstring,
-			    // obj_empty
+    NULL,		    // obj_empty
 
-    min::left_curly_leading_pstring,
-			    // obj_bra
-    min::trailing_vbar_leading_pstring,
-			    // obj_braend
-    min::trailing_vbar_leading_pstring,
-			    // obj_ketbegin
-    min::trailing_right_curly_pstring,
-			    // obj_ket
+    NULL,		    // obj_bra
+    NULL,		    // obj_braend
+    NULL,		    // obj_ketbegin
+    NULL,		    // obj_ket
 
-    min::space_if_none_pstring,
-			    // obj_sep
+    NULL,		    // obj_sep
 
-    min::trailing_always_colon_space_pstring,
-			    // obj_attrbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_attrsep
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
 
-    min::erase_all_space_colon_pstring,
-			    // obj_attreol
+    NULL,		    // obj_attreol
 
-    min::space_equal_space_pstring,
-			    // obj_attreq
+    NULL,		    // obj_attreq
 
-    min::no_space_pstring,  // obj_attrneg
+    NULL,		    // obj_attrneg
 
-    min::standard_attr_flag_format,
-    			    // flag_format
-    min::standard_attr_hide_flags,
-    			    // hide_flags
+    NULL,		    // flag_format
+    0,  		    // hide_flags
 
-    min::left_curly_star_space_pstring,
-			    // obj_valbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_valsep
-    min::space_star_right_curly_pstring,
-			    // obj_valend
+    NULL,		    // obj_valbegin
+    NULL,		    // obj_valsep
+    NULL,		    // obj_valend
 
-    min::space_equal_space_pstring,
-			    // obj_valreq
+    NULL,		    // obj_valreq
 };
-const min::obj_format * min::top_obj_format =
-    & ::top_obj_format;
+const min::obj_format * min::id_obj_format =
+    & ::id_obj_format;
 
 static min::obj_format line_obj_format =
 {
@@ -12133,7 +12105,7 @@ static min::obj_format isolated_line_obj_format =
 const min::obj_format * min::isolated_line_obj_format =
     & ::isolated_line_obj_format;
 
-static min::gen_format element_gen_format =
+static min::gen_format compact_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12143,21 +12115,21 @@ static min::gen_format element_gen_format =
     & ::compact_obj_format,
     NULL
 };
-const min::gen_format * min::element_gen_format =
-    & ::element_gen_format;
+const min::gen_format * min::compact_gen_format =
+    & ::compact_gen_format;
 
-static min::gen_format top_gen_format =
+static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_str_format,
+    & ::quote_separator_and_mark_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
-    & ::top_obj_format,
+    & ::id_obj_format,
     NULL
 };
-const min::gen_format * min::top_gen_format =
-    & ::top_gen_format;
+const min::gen_format * min::id_gen_format =
+    & ::id_gen_format;
 
 static min::gen_format value_gen_format =
 {
@@ -12171,6 +12143,19 @@ static min::gen_format value_gen_format =
 };
 const min::gen_format * min::value_gen_format =
     & ::value_gen_format;
+
+static min::gen_format id_value_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_all_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::id_obj_format,
+    NULL
+};
+const min::gen_format * min::id_value_gen_format =
+    & ::id_value_gen_format;
 
 static min::gen_format id_map_gen_format =
 {
@@ -12293,7 +12278,7 @@ const min::print_format min::default_print_format =
     min::break_after_space_break_control,
 
     & ::standard_char_name_format,
-    & ::top_gen_format,
+    & ::compact_gen_format,
     10
 };
 
@@ -12309,7 +12294,7 @@ static void init_pgen_formats ( void )
         min::standard_attr_flag_names;
 
     ::compact_obj_format.element_format =
-        min::element_gen_format;
+        min::compact_gen_format;
     ::compact_obj_format.label_format =
         min::name_gen_format;
     ::compact_obj_format.value_format =
@@ -12321,25 +12306,12 @@ static void init_pgen_formats ( void )
     ::compact_obj_format.terminator_format =
         min::trailing_always_gen_format;
 
-    ::top_obj_format.element_format =
-        min::element_gen_format;
-    ::top_obj_format.label_format =
-        min::name_gen_format;
-    ::top_obj_format.value_format =
-        min::value_gen_format;
-    ::top_obj_format.initiator_format =
-        min::leading_always_gen_format;
-    ::top_obj_format.separator_format =
-        min::trailing_always_gen_format;
-    ::top_obj_format.terminator_format =
-        min::trailing_always_gen_format;
-
     ::isolated_line_obj_format.element_format =
-        min::element_gen_format;
+        min::id_gen_format;
     ::isolated_line_obj_format.label_format =
         min::name_gen_format;
     ::isolated_line_obj_format.value_format =
-        min::value_gen_format;
+        min::id_value_gen_format;
     ::isolated_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::isolated_line_obj_format.separator_format =
@@ -12348,7 +12320,7 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
 
     ::embedded_line_obj_format.element_format =
-        min::element_gen_format;
+        min::compact_gen_format;
     ::embedded_line_obj_format.label_format =
         min::name_gen_format;
     ::embedded_line_obj_format.value_format =
@@ -12361,7 +12333,7 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
 
     ::line_obj_format.element_format =
-        min::element_gen_format;
+        min::compact_gen_format;
     ::line_obj_format.top_element_format =
         min::paragraph_gen_format;
     ::line_obj_format.label_format =
@@ -12376,7 +12348,7 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
 
     ::paragraph_obj_format.element_format =
-        min::element_gen_format;
+        min::compact_gen_format;
     ::paragraph_obj_format.top_element_format =
         min::line_gen_format;
     ::paragraph_obj_format.label_format =

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 17 11:01:37 EDT 2021
+// Date:	Thu Aug 26 15:27:36 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2289,7 +2289,7 @@ void test_packed_vectors ( void )
     min::pop ( pvip, 1, (pve *) NULL );
     MIN_CHECK ( pvip->length == 0 );
 
-    pvtype.increment_ratio = 3.5;
+    pvtype.increment_ratio = 2.5;
     pvtype.max_increment = 5;
     min::push ( pvip, 3, e2 );
     MIN_CHECK ( pvip->length == 3 );
@@ -2919,11 +2919,11 @@ void test_printer ( void )
             << min::eol;
     printer << min::pgen
                     ( min::new_special_gen (0x111),
-		      min::top_gen_format )
+		      min::compact_gen_format )
             << min::eol;
     printer << min::pgen
                     ( min::MISSING(),
-		      min::top_gen_format )
+		      min::compact_gen_format )
             << min::eol;
 
     min::gen preallocated_gen =

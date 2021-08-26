@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 25, 2021}
+\date{August 26, 2021}
  
 \maketitle
 
@@ -9078,7 +9078,7 @@ following printer parameters:
         & \verb|// min::standard_char_name_format| \\
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
-        & \verb|// min::top_gen_format| \\
+        & \verb|// min::element_gen_format| \\
 \verb|        min::uns32|
 	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
         & \verb|// 10| \\
@@ -11553,7 +11553,7 @@ to the value `\TT{f}'.  The default value of
 \begin{center}
 \TT{printer->\EOL print\_\EOL format.gen\_\EOL format} \\
 \end{center}
-is \ttkey{min::top\_gen\_format} (\pagref{MIN::TOP_GEN_FORMAT}).
+is \ttkey{min::element\_gen\_format} (\pagref{MIN::ELEMENT_GEN_FORMAT}).
 
 \TT{min::\EOL pgen\_\EOL name(v)},
 \TT{min::\EOL pgen\_\EOL quote(v)}, and
@@ -11631,14 +11631,6 @@ for general value formats is as follows:
 \verb|min::bracket_special_format             // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // non_standard|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{top\_gen\_format}:}
-\LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK
-\verb|min::top_obj_format                     // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -17064,8 +17056,7 @@ The format for printing object \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{compact\_obj\_format}:}%
 \LABEL{MIN::COMPACT_OBJ_FORMAT}\ARGBREAK
-\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
-\verb|+ min::DEFFERED_ID|\ARGBREAK
+\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -17127,21 +17118,6 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK
 \verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK
 \verb|min::space_equal_space_pstring           // obj_valreq|\ARGBREAK
-\end{tabular}
-
-\end{indpar}
-
-\begin{indpar}[1em]
-
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINLKEY{top}{\_obj\_format}:}%
-\LABEL{MIN::TOP_OBJ_FORMAT}\ARGBREAK
-\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -22150,16 +22126,6 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{top\_gen\_format}:}
-\LABEL{MIN::TOP_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
-\verb|min::top_obj_format                     // obj_format|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{value\_gen\_format}:}
 \LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::element_gen_format except for:|\ARGBREAK[0in]
@@ -24610,17 +24576,7 @@ Information Functions:
 \verb|min::left_curly_star_space_pstring       // obj_valbegin|\ARGBREAK[0in]
 \verb|min::trailing_always_comma_space_pstring // obj_valsep|\ARGBREAK[0in]
 \verb|min::space_star_right_curly_pstring      // obj_valend|\ARGBREAK[0in]
-\verb|min::space_less_than_equal_space_pstring // obj_valreq|\ARGBREAK[0in]
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{0.3in}
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINLKEY{top}{\_obj\_format}:}%
-\LABEL{MIN::TOP_OBJ_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|min::ENABLE_COMPACT                      // obj_op_flags|\ARGBREAK[0in]
+\verb|min::space_equal_space_pstring           // obj_valreq|\ARGBREAK[0in]
 \end{TABULAR}
 
 \bigskip

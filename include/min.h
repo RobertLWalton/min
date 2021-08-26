@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 24 07:35:33 EDT 2021
+// Date:	Thu Aug 26 15:24:17 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13197,8 +13197,6 @@ namespace min {
     extern min::pstring
     	space_star_right_curly_pstring;
     extern min::pstring
-    	space_less_than_equal_space_pstring;
-    extern min::pstring
     	left_square_leading_always_pstring;
     extern min::pstring
     	trailing_always_right_square_pstring;
@@ -13449,9 +13447,9 @@ namespace min {
     					  = ( 1 << 7 );
 
     extern const min::obj_format *
-        top_obj_format;
-    extern const min::obj_format *
         compact_obj_format;
+    extern const min::obj_format *
+        id_obj_format;
     extern const min::obj_format *
         isolated_line_obj_format;
     extern const min::obj_format *
@@ -13480,8 +13478,6 @@ namespace min {
     };
 
     extern const min::gen_format *
-        top_gen_format;
-    extern const min::gen_format *
         id_map_gen_format;
     extern const gen_format *
         name_gen_format;
@@ -13492,7 +13488,11 @@ namespace min {
     extern const min::gen_format *
         value_gen_format;
     extern const min::gen_format *
-        element_gen_format;
+        id_value_gen_format;
+    extern const min::gen_format *
+        compact_gen_format;
+    extern const min::gen_format *
+        id_gen_format;
     extern const gen_format *
         always_quote_gen_format;
     extern const gen_format *
