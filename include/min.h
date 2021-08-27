@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 26 15:24:17 EDT 2021
+// Date:	Fri Aug 27 17:27:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3618,7 +3618,7 @@ namespace min {
     extern const min::str_classifier
         quote_separator_str_classifier;
     extern const min::str_classifier
-        quote_separator_and_mark_str_classifier;
+        quote_non_word_str_classifier;
     extern const min::str_classifier
         quote_all_str_classifier;
     extern const min::str_classifier
@@ -13348,7 +13348,9 @@ namespace min {
     extern const min::str_format *
         quote_separator_str_format;
     extern const min::str_format *
-        quote_separator_and_mark_str_format;
+        quote_non_word_str_format;
+    extern const min::str_format *
+        quote_non_word_id_str_format;
     extern const min::str_format *
         quote_all_str_format;
     extern const min::str_format *
@@ -13449,6 +13451,8 @@ namespace min {
     extern const min::obj_format *
         compact_obj_format;
     extern const min::obj_format *
+        compact_id_obj_format;
+    extern const min::obj_format *
         id_obj_format;
     extern const min::obj_format *
         isolated_line_obj_format;
@@ -13486,11 +13490,15 @@ namespace min {
     extern const gen_format *
         trailing_always_gen_format;
     extern const min::gen_format *
-        value_gen_format;
+        compact_value_gen_format;
+    extern const min::gen_format *
+        compact_id_value_gen_format;
     extern const min::gen_format *
         id_value_gen_format;
     extern const min::gen_format *
         compact_gen_format;
+    extern const min::gen_format *
+        compact_id_gen_format;
     extern const min::gen_format *
         id_gen_format;
     extern const gen_format *

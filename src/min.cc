@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 26 15:28:10 EDT 2021
+// Date:	Fri Aug 27 17:30:15 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11147,7 +11147,7 @@ const min::str_classifier
     & ::quote_separator_str_classifier_function;
 
 static min::uns32
-    quote_separator_and_mark_str_classifier_function
+    quote_non_word_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
 	  min::unsptr n,
@@ -11156,20 +11156,14 @@ static min::uns32
     min::uns32 str_class =
         ::standard_str_classifier_function
 	    ( char_flags, sc, n, p );
-    if ( str_class & ( min::IS_LEADING
-                       |
-		       min::IS_TRAILING
-		       |
-		       min::IS_SEPARATOR
-		       |
-		       min::IS_MARK ) )
+    if ( ( str_class & min::IS_LETTER ) == 0 )
 	str_class |= min::NEEDS_QUOTES;
     return str_class;
 }
 const min::str_classifier
-    min::quote_separator_and_mark_str_classifier =
+    min::quote_non_word_str_classifier =
     &
-    ::quote_separator_and_mark_str_classifier_function;
+    ::quote_non_word_str_classifier_function;
 
 static min::uns32 quote_all_str_classifier_function
 	( const min::uns32 * char_flags,
@@ -11653,17 +11647,30 @@ const min::str_format *
 	& ::quote_separator_str_format;
 
 static min::str_format
-    quote_separator_and_mark_str_format =
+    quote_non_word_str_format =
 {
-    min::quote_separator_and_mark_str_classifier,
+    min::quote_non_word_str_classifier,
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     0xFFFFFFFF
 };
 const min::str_format *
-    min::quote_separator_and_mark_str_format =
-	& ::quote_separator_and_mark_str_format;
+    min::quote_non_word_str_format =
+	& ::quote_non_word_str_format;
+
+static min::str_format
+    quote_non_word_id_str_format =
+{
+    min::quote_non_word_str_classifier,
+    (min::ustring) "\x01\x01" "#",
+    (min::ustring) "\x01\x01" "#",
+    min::standard_quote_format,
+    0
+};
+const min::str_format *
+    min::quote_non_word_id_str_format =
+	& ::quote_non_word_id_str_format;
 
 static min::str_format quote_all_str_format =
 {
@@ -11671,7 +11678,7 @@ static min::str_format quote_all_str_format =
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    0
+    0xFFFFFFFF
 };
 const min::str_format * min::quote_all_str_format =
     & ::quote_all_str_format;
@@ -11682,7 +11689,7 @@ static min::str_format standard_str_format =
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
-    0
+    0xFFFFFFFF
 };
 const min::str_format * min::standard_str_format =
     & ::standard_str_format;
@@ -11814,6 +11821,69 @@ static min::obj_format compact_obj_format =
 };
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
+
+static min::obj_format compact_id_obj_format =
+{
+      min::ENABLE_COMPACT   // obj_op_flags
+    + min::DEFERRED_ID,
+
+    NULL,		    // element_format*
+    NULL,		    // top_element_format
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    NULL,		    // initiator_format*
+    NULL,		    // separator_format*
+    NULL,		    // terminator_format*
+
+    min::standard_str_classifier,
+    			    // mark_classifier
+
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
+
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_leading_pstring,
+			    // obj_braend
+    min::trailing_vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
+
+    min::space_if_none_pstring,
+			    // obj_sep
+
+    min::trailing_always_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_attrsep
+
+    min::erase_all_space_colon_pstring,
+			    // obj_attreol
+
+    min::space_equal_space_pstring,
+			    // obj_attreq
+
+    min::no_space_pstring,  // obj_attrneg
+
+    min::standard_attr_flag_format,
+    			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
+
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+
+    min::space_equal_space_pstring,
+			    // obj_valreq
+};
+const min::obj_format * min::compact_id_obj_format =
+    & ::compact_id_obj_format;
 
 static min::obj_format id_obj_format =
 {
@@ -12118,11 +12188,24 @@ static min::gen_format compact_gen_format =
 const min::gen_format * min::compact_gen_format =
     & ::compact_gen_format;
 
+static min::gen_format compact_id_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_separator_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::compact_id_obj_format,
+    NULL
+};
+const min::gen_format * min::compact_id_gen_format =
+    & ::compact_id_gen_format;
+
 static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_and_mark_str_format,
+    & ::quote_non_word_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -12131,24 +12214,39 @@ static min::gen_format id_gen_format =
 const min::gen_format * min::id_gen_format =
     & ::id_gen_format;
 
-static min::gen_format value_gen_format =
+static min::gen_format compact_value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
+    // & ::quote_non_word_str_format,
     & ::quote_all_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
     NULL
 };
-const min::gen_format * min::value_gen_format =
-    & ::value_gen_format;
+const min::gen_format * min::compact_value_gen_format =
+    & ::compact_value_gen_format;
+
+static min::gen_format compact_id_value_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_non_word_id_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::compact_id_obj_format,
+    NULL
+};
+const min::gen_format *
+	min::compact_id_value_gen_format =
+    & ::compact_id_value_gen_format;
 
 static min::gen_format id_value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_all_str_format,
+    & ::quote_non_word_id_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -12161,7 +12259,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_and_mark_str_format,
+    & ::quote_non_word_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_obj_format,
@@ -12174,7 +12272,7 @@ static min::gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_and_mark_str_format,
+    & ::quote_non_word_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -12298,12 +12396,25 @@ static void init_pgen_formats ( void )
     ::compact_obj_format.label_format =
         min::name_gen_format;
     ::compact_obj_format.value_format =
-        min::value_gen_format;
+        min::compact_value_gen_format;
     ::compact_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::compact_obj_format.separator_format =
         min::trailing_always_gen_format;
     ::compact_obj_format.terminator_format =
+        min::trailing_always_gen_format;
+
+    ::compact_id_obj_format.element_format =
+        min::compact_id_gen_format;
+    ::compact_id_obj_format.label_format =
+        min::name_gen_format;
+    ::compact_id_obj_format.value_format =
+        min::compact_id_value_gen_format;
+    ::compact_id_obj_format.initiator_format =
+        min::leading_always_gen_format;
+    ::compact_id_obj_format.separator_format =
+        min::trailing_always_gen_format;
+    ::compact_id_obj_format.terminator_format =
         min::trailing_always_gen_format;
 
     ::isolated_line_obj_format.element_format =
@@ -12324,7 +12435,7 @@ static void init_pgen_formats ( void )
     ::embedded_line_obj_format.label_format =
         min::name_gen_format;
     ::embedded_line_obj_format.value_format =
-        min::value_gen_format;
+        min::compact_value_gen_format;
     ::embedded_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::embedded_line_obj_format.separator_format =
@@ -12339,7 +12450,7 @@ static void init_pgen_formats ( void )
     ::line_obj_format.label_format =
         min::name_gen_format;
     ::line_obj_format.value_format =
-        min::value_gen_format;
+        min::compact_value_gen_format;
     ::line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::line_obj_format.separator_format =
@@ -12354,7 +12465,7 @@ static void init_pgen_formats ( void )
     ::paragraph_obj_format.label_format =
         min::name_gen_format;
     ::paragraph_obj_format.value_format =
-        min::value_gen_format;
+        min::compact_value_gen_format;
     ::paragraph_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::paragraph_obj_format.separator_format =
