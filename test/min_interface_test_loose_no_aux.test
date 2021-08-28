@@ -2663,7 +2663,7 @@ Start Object Printing Test!
     : T}
 A B C:
         .separator = ";"
-        .type = "T"
+        .type = T
 {T: number = 123, .separator = ";"|A B C|T}
     {T|A B C|
        number = 123,
@@ -2701,8 +2701,8 @@ A B C:
     }
 1 2 3 4 5:
         myattr[#Z,64,512] =
-            {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-               [< "MYATTR" "SECOND" "VALUE" >] *}
+            {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+               [< MYATTR SECOND VALUE >] *}
         .initiator = [< "{" "*" >]
         myreverse = @2 = myforward
         .separator = ","
@@ -2717,8 +2717,8 @@ A B C:
     }
 1 2 3 4 5:
         myattr[#HZ,64,512] =
-            {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-               [< "MYATTR" "SECOND" "VALUE" >] *}
+            {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+               [< MYATTR SECOND VALUE >] *}
         .initiator = [< "{" "*" >]
         myreverse = @2 = myforward
         .separator = ","
@@ -2734,8 +2734,8 @@ Flag Parse Errors: `(,)_,34,5'
 
 @1 = 1 2 3 4 5:
          myattr[#HZ,64,512] =
-             {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-                [< "MYATTR" "SECOND" "VALUE" >] *}
+             {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+                [< MYATTR SECOND VALUE >] *}
          .initiator = [< "{" "*" >]
          myreverse = @2 = myforward
          .separator = ","
@@ -2746,7 +2746,7 @@ Flag Parse Errors: `(,)_,34,5'
          .separator = ";"
          myforward[#aZ] = @1 = myreverse
          fraction
-         .type = "T"
+         .type = T
 
 @3 = e f g h:
          G = @4
@@ -2754,16 +2754,18 @@ Flag Parse Errors: `(,)_,34,5'
 @4 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 @5 = a @3 c d:
          F = @3 = H
-         D = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
-              "."'
-         E = @6 = F
-@6 =:
+         D = @6
+         E = @7 = F
+@6 = This contains a long "string:" @8 ".":
+         .terminator = "'"
+         .initiator = "`"
+@7 =:
          F = @5 = E
-         A = @7
+         A = @9
          B = "0123456789"
-         C = `This contains a long "string:" abcdefghijklmnopqrstuvwxyz
-              "."'
-@7 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
+         C = @6
+@8 = abcdefghijklmnopqrstuvwxyz
+@9 = ABCDEFGHIJKLMNOPQRSTUVWXYZ
 This is the top line:
     This is the first line "."
     This is the second line; This is the third line! This is the fourth

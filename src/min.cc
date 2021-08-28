@@ -12192,7 +12192,7 @@ static min::gen_format compact_id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_separator_str_format,
+    & ::quote_non_word_id_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_id_obj_format,
@@ -12205,7 +12205,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_str_format,
+    & ::quote_non_word_id_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
