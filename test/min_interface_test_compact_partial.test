@@ -3049,30 +3049,30 @@ A B C:
        .separator = ";"
     : T}
 {T: no scientific, number = 123, .separator = ";", fraction|A B C|T}
-{"": myattr = [< "MYATTR" "VALUE" >], .initiator = [< "{" "*" >],
+{"": myattr = [< MYATTR VALUE >], .initiator = [< "{" "*" >],
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
 {"": myattr =
-     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
+     {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+        [< MYATTR SECOND VALUE >] *}, .initiator = [< "{" "*" >],
      .separator = ",", .terminator = [< "*" "}" >]|1 2 3 4 5|}
 {T: no scientific, number = 123, .separator = ";", myforward = @1
      = myreverse, fraction|A B C|T}
 {"": myattr =
-     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
+     {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+        [< MYATTR SECOND VALUE >] *}, .initiator = [< "{" "*" >],
      myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
 {T: no scientific, number = 123, .separator = ";", myforward[#aZ] = @1
      = myreverse, fraction|A B C|T}
 {"": myattr[#Z,64,512] =
-     {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-        [< "MYATTR" "SECOND" "VALUE" >] *}, .initiator = [< "{" "*" >],
+     {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+        [< MYATTR SECOND VALUE >] *}, .initiator = [< "{" "*" >],
      myreverse = @2 = myforward, .separator = ",", .terminator =
      [< "*" "}" >]|1 2 3 4 5|}
     {|1 2 3 4 5|
       myattr[#Z,64,512] =
-          {* [< "MYATTR" "THIRD" "VALUE" >], [< "MYATTR" "VALUE" >],
-             [< "MYATTR" "SECOND" "VALUE" >] *},
+          {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+             [< MYATTR SECOND VALUE >] *},
       .initiator = [< "{" "*" >],
       myreverse = @2 = myforward,
       .separator = ",",
@@ -3109,7 +3109,7 @@ A B C:
 {{ X Y Z 0 0 0 }}
 {"<Q>"|X Y Z 0 0 0|"<Q>"}
 Flag Parse Errors: `(,)_,34,5'
-{T: A[*abcd,200] = "value"|X Y Z 0 0 0|T}
+{T: A[*abcd,200] = value|X Y Z 0 0 0|T}
 
 @1 = 1 2 3 4 5:
          myattr[#HZ,64,512] =

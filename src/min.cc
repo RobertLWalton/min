@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 27 17:30:15 EDT 2021
+// Date:	Sat Aug 28 13:16:43 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12218,8 +12218,7 @@ static min::gen_format compact_value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    // & ::quote_non_word_str_format,
-    & ::quote_all_str_format,
+    & ::quote_non_word_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
