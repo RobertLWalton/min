@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 28 13:16:43 EDT 2021
+// Date:	Mon Aug 30 05:13:29 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9219,7 +9219,8 @@ static int make_gtype
     if ( min::public_flag_of ( vp ) )
     {
         if ( min::gtype_flag_of ( vp ) )
-	    return min::int_of ( min::var ( vp, 0 ) );
+	    return (int) min::int_of
+	        ( min::var ( vp, 0 ) );
 	else
 	    return 0;
     }
@@ -9383,7 +9384,8 @@ min::gen min::new_context ( min::gen gtype )
                  "argument to new_context is not"
 		 " gtype" );
     min::unsgen index_limit =
-        min::int_of ( min::var ( vp, 0 ) );
+        (min::unsgen)
+	    min::int_of ( min::var ( vp, 0 ) );
 
     min::locatable_gen c
         ( min::new_obj_gen

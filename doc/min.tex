@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 27, 2021}
+\date{August 30, 2021}
  
 \maketitle
 
@@ -5174,7 +5174,7 @@ by the following protected functions:
 \verb|min::gen min::|
     & \MINKEY{new\_num\_gen\REL}  \verb|( min::float64 v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]
-\verb|int min::| & \MINKEY{int\_of} \verb|( min::gen v )|
+\verb|min::int64 min::| & \MINKEY{int\_of} \verb|( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of} \verb|( min::gen v )|
 \LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
@@ -5222,10 +5222,10 @@ In this last case the stub type code is checked by a \TT{MIN\_ASSERT}
 statement to be sure the stub is a number stub.
 
 The \TT{min::int\_of} function does the same thing as the
-\TT{min::float\_of} followed by conversion to an \TT{int} value,
+\TT{min::float\_of} followed by conversion to a \TT{min::int64} value,
 except that \TT{min::int\_of} includes a check that the result
 is a pure integer, without any fractional part, and is within the
-range of the \TT{int} type, and
+range of the \TT{min::int64} type, and
 \TT{min::int\_of} is more efficient when given a 32-bit direct integer
 \TT{min::gen} argument.
 
@@ -19493,7 +19493,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
     & \MINKEY{new\_num\_gen\REL}  \verb|( min::float64 v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]
-\verb|int min::| & \MINKEY{int\_of} \verb|( min::gen v )|
+\verb|min::int64 min::| & \MINKEY{int\_of} \verb|( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of} \verb|( min::gen v )|
 \LABEL{MIN::FLOAT_OF_GEN} \\[1ex]

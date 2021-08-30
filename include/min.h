@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug 27 17:27:58 EDT 2021
+// Date:	Mon Aug 30 05:01:51 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3762,7 +3762,7 @@ namespace min {
 	    return internal::
 		   new_num_stub_gen ( v );
 	}
-	inline int int_of ( min::gen g )
+	inline min::int64 int_of ( min::gen g )
 	{
 	    if ( is_stub ( g ) )
 	    {
@@ -3774,13 +3774,11 @@ namespace min {
 			     " type is not NUMBER" );
 		float64 f =
 		    unprotected::float_of ( s );
-		MIN_ASSERT (    INT_MIN <= f
-			     && f <= INT_MAX,
-			     "argument out of range" );
-		int i = (int) f;
+		int64 i = (int64) f;
 		MIN_ASSERT ( i == f,
 		             "argument has non-zero"
-			     " fractional part");
+			     " fractional part or"
+			     " too large a value" );
 		return i;
 	    }
 	    else if ( is_direct_int ( g ) )
@@ -3839,19 +3837,17 @@ namespace min {
 	{
 	    return new_direct_float_gen ( v );
 	}
-	inline int int_of ( min::gen g )
+	inline min::int64 int_of ( min::gen g )
 	{
 	    MIN_ASSERT ( is_num ( g ),
 	                 "argument is not number" );
 	    float64 f =
 	        unprotected::direct_float_of ( g );
-	    MIN_ASSERT
-		( INT_MIN <= f && f <= INT_MAX,
-		  "argument is out of range" );
-	    int i = (int) f;
+	    int64 i = (int64) f;
 	    MIN_ASSERT ( i == f,
-		         "argument has non-zero"
-			 " fractional part");
+			 "argument has non-zero"
+			 " fractional part or"
+			 " too large a value" );
 	    return i;
 	}
 	namespace unprotected {
