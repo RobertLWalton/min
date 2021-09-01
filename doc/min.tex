@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 30, 2021}
+\date{August 31, 2021}
  
 \maketitle
 
@@ -5546,7 +5546,7 @@ string consisting of an ASCII-whitespace surrounded number legal to the UNIX
 \TT{strtol}, \TT{strtoll},
 \TT{strtoul}, or \TT{strtoull} functions with given \TT{base} argument,
 or to the UNIX
-\TT{strtof}, or \TT{strtoud} functions, respectively,
+\TT{strtof}, or \TT{strtod} functions, respectively,
 \TT{true} is returned and the number is returned in the \TT{value}
 argument.  Otherwise \TT{false} is returned and the \TT{value}
 argument is left untouched.  This includes the case where the
@@ -5555,6 +5555,13 @@ argument is left untouched.  This includes the case where the
 and the case where the number that might be returned would be
 outside the range of
 numbers storable in the \TT{value} argument.
+It also includes the cases where the converted number is outside
+the range of the \TT{value} argument, including cases like
+\TT{1e+500} and \TT{1e-500} which produce numbers too large or
+too small to be represented in a {\tt min::float64} value.
+However, if the \TT{min::gen} argument is a string such as
+\TT{Inf} or \TT{NaN} representing a floating point infinity
+or not-a-number, conversion to floating point will succeed.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
@@ -5725,7 +5732,7 @@ ASCII whitespace followed by a number legal to the UNIX
 \TT{strtol}, \TT{strtoll},
 \TT{strtoul}, or \TT{strtoull} functions with the given
 \TT{base} argument, or to the UNIX
-\TT{strtof}, or \TT{strtoud} functions, respectively,
+\TT{strtof}, or \TT{strtod} functions, respectively,
 \TT{true} is returned, the number is returned in the
 \TT{value} argument, and the \TT{i} argument is updated to point
 just after the number.  Otherwise \TT{false} is returned and
@@ -5734,7 +5741,10 @@ case where the string pointer is in the \TT{NULL} state,
 the case where the \TT{base} argument does not have a legal value,
 and the case where the number that might be returned would be
 outside the range of
-numbers storable in the \TT{value} argument.
+numbers storable in the \TT{value} argument (e.g., \TT{1e+500}
+and \TT{1e-500}).  However, strings such as \TT{Inf} and \TT{Nan}
+representing floating point infinity of not-a-number will
+be converted.
 
 The following function makes a copy of a \underline{non-identifier}
 string pointed at
