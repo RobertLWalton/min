@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 31, 2021}
+\date{September 3, 2021}
  
 \maketitle
 
@@ -5551,17 +5551,21 @@ or to the UNIX
 argument.  Otherwise \TT{false} is returned and the \TT{value}
 argument is left untouched.  This includes the case where the
 \TT{min::gen} argument is not a string, the case where the
-\TT{base} argument does not have a legal value,
-and the case where the number that might be returned would be
-outside the range of
-numbers storable in the \TT{value} argument.
-It also includes the cases where the converted number is outside
-the range of the \TT{value} argument, including cases like
-\TT{1e+500} and \TT{1e-500} which produce numbers too large or
-too small to be represented in a {\tt min::float64} value.
-However, if the \TT{min::gen} argument is a string such as
-\TT{Inf} or \TT{NaN} representing a floating point infinity
-or not-a-number, conversion to floating point will succeed.
+\TT{base} argument does not have a legal value, and the
+case where the number is `empty' (the string is just
+whitespace).  For unsigned integers, it includes the case
+where the string begins with a minus sign.
+
+If the resulting number is outside the range of \TT{value},
+an approximation to that number is stored.
+For integer \TT{value}'s this is the maximum
+or minimum integer that can be stored.  For floating point
+it is plus or minus infinity for large numbers such as \TT{1e+500},
+and \TT{0} for tiny numbers such as \TT{1e-500}.
+
+For floating point \TT{value}'s, the \TT{min::gen} argument
+may be a string such as \TT{-Inf} or \TT{NaN}, with letter
+case ignored.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
@@ -5739,12 +5743,20 @@ just after the number.  Otherwise \TT{false} is returned and
 \TT{value} and \TT{i} are left untouched.  This includes the
 case where the string pointer is in the \TT{NULL} state,
 the case where the \TT{base} argument does not have a legal value,
-and the case where the number that might be returned would be
-outside the range of
-numbers storable in the \TT{value} argument (e.g., \TT{1e+500}
-and \TT{1e-500}).  However, strings such as \TT{Inf} and \TT{Nan}
-representing floating point infinity of not-a-number will
-be converted.
+and the case where the number is `empty' (the string is just
+whitespace).  For unsigned integers, it includes the case
+where the string begins with a minus sign.
+
+If the resulting number is outside the range of \TT{value},
+an approximation to that number is stored.
+For integer \TT{value}'s this is the maximum
+or minimum integer that can be stored.  For floating point
+it is plus or minus infinity for large numbers such as \TT{1e+500},
+and \TT{0} for tiny numbers such as \TT{1e-500}.
+
+For floating point \TT{value}'s, the string representing the number
+may be \TT{-Inf}, \TT{NaN}, or similar, with letter
+case ignored.
 
 The following function makes a copy of a \underline{non-identifier}
 string pointed at

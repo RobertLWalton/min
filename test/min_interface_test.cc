@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 26 15:27:36 EDT 2021
+// Date:	Fri Sep  3 17:27:20 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -57,10 +57,12 @@
 # include <sstream>
 # include <cstdlib>
 # include <cstring>
+# include <cmath>
 using std::cout;
 using std::endl;
 using std::hex;
 using std::dec;
+using std::isinf;
 
 bool debug = false;
 #define dout if ( debug ) cout
@@ -1748,21 +1750,30 @@ void test_strings ( void )
 	min::new_str_gen ( "12345678901234567890" );
     min::gen s123456789012345678900 =
 	min::new_str_gen ( "123456789012345678900" );
+    min::gen sminus1 =
+	min::new_str_gen ( "-1" );
     si = 0;
     MIN_CHECK ( min::strto ( si, s1234567890 ) );
     MIN_CHECK ( si == 1234567890 );
-    MIN_CHECK ( ! min::strto ( si, s12345678900 ) );
-    MIN_CHECK ( si == 1234567890 );
+    si = 0;
+    MIN_CHECK ( min::strto ( si, s12345678900 ) );
+    MIN_CHECK ( si == INT_MAX );
 
     min::uns64 sli = 0;
     MIN_CHECK
         ( min::strto ( sli, s12345678901234567890 ) );
     MIN_CHECK ( sli == 12345678901234567890ull );
+    sli = 0;
     MIN_CHECK
-        ( ! min::strto
+        ( min::strto
 		( sli, s123456789012345678900 ) );
+    MIN_CHECK ( sli == ULLONG_MAX );
+    sli = 0;
     MIN_CHECK ( ! min::strto ( sli, sempty ) );
-    MIN_CHECK ( sli == 12345678901234567890ull );
+    MIN_CHECK ( sli == 0 );
+    sli = 0;
+    MIN_CHECK ( ! min::strto ( sli, sminus1 ) );
+    MIN_CHECK ( sli == 0 );
 
     min::gen s1e38 = min::new_str_gen ( "1e38" );
     min::gen s1e39 = min::new_str_gen ( "1e39" );
@@ -1777,10 +1788,12 @@ void test_strings ( void )
     MIN_CHECK ( sf == 1e38f );
     MIN_CHECK ( min::strto ( sf, s1em37 ) );
     MIN_CHECK ( sf == 1e-37f );
-    MIN_CHECK ( ! min::strto ( sf, s1e39 ) );
-    MIN_CHECK ( ! min::strto ( sf, s1em46 ) );
+    MIN_CHECK ( min::strto ( sf, s1e39 ) );
+    MIN_CHECK ( isinf ( sf ) && sf > 0 );
+    MIN_CHECK ( min::strto ( sf, s1em46 ) );
+    MIN_CHECK ( sf == 0 );
     MIN_CHECK ( ! min::strto ( sf, sempty ) );
-    MIN_CHECK ( sf == 1e-37f );
+    MIN_CHECK ( sf == 0 );
 
     min::gen s1e308 = min::new_str_gen ( "1e308" );
     min::gen s1e308x = min::new_str_gen ( "1e308x" );
@@ -1796,11 +1809,16 @@ void test_strings ( void )
     MIN_CHECK ( sd == 1e308 );
     MIN_CHECK ( min::strto ( sd, s1em307 ) );
     MIN_CHECK ( sd == 1e-307 );
+    sd = 0;
     MIN_CHECK ( ! min::strto ( sd, s1e308x ) );
-    MIN_CHECK ( ! min::strto ( sd, s1e309 ) );
-    MIN_CHECK ( ! min::strto ( sd, s1em324 ) );
+    MIN_CHECK ( sd == 0 );
+    MIN_CHECK ( min::strto ( sd, s1e309 ) );
+    MIN_CHECK ( isinf ( sd ) && sd > 0 );
+    MIN_CHECK ( min::strto ( sd, s1em324 ) );
+    MIN_CHECK ( sd == 0 );
+    sd = 555;
     MIN_CHECK ( ! min::strto ( sd, sempty ) );
-    MIN_CHECK ( sd == 1e-307 );
+    MIN_CHECK ( sd == 555 );
 
     min::gen snums =
         min::new_str_gen ( "1 -2e 3e10 -4e-10X5" );
