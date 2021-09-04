@@ -5549,7 +5549,7 @@ or to the UNIX
 \TT{strtof}, or \TT{strtod} functions, respectively,
 \TT{true} is returned and the number is returned in the \TT{value}
 argument.  Otherwise \TT{false} is returned and the \TT{value}
-argument is left untouched.  This includes the case where the
+argument is left untouched.  This last includes the case where the
 \TT{min::gen} argument is not a string, the case where the
 \TT{base} argument does not have a legal value, and the
 case where the number is `empty' (the string is just
@@ -5564,7 +5564,7 @@ it is plus or minus infinity for large numbers such as \TT{1e+500},
 and \TT{0} for tiny numbers such as \TT{1e-500}.
 
 For floating point \TT{value}'s, the \TT{min::gen} argument
-may be a string such as \TT{-Inf} or \TT{NaN}, with letter
+may be a string such as \TT{"-Inf"} or \TT{"NaN"}, with letter
 case ignored.
 
 \subsubsection{Protected String Pointers}
@@ -5740,7 +5740,7 @@ ASCII whitespace followed by a number legal to the UNIX
 \TT{true} is returned, the number is returned in the
 \TT{value} argument, and the \TT{i} argument is updated to point
 just after the number.  Otherwise \TT{false} is returned and
-\TT{value} and \TT{i} are left untouched.  This includes the
+\TT{value} and \TT{i} are left untouched.  This last includes the
 case where the string pointer is in the \TT{NULL} state,
 the case where the \TT{base} argument does not have a legal value,
 and the case where the number is `empty' (the string is just
@@ -5755,7 +5755,7 @@ it is plus or minus infinity for large numbers such as \TT{1e+500},
 and \TT{0} for tiny numbers such as \TT{1e-500}.
 
 For floating point \TT{value}'s, the string representing the number
-may be \TT{-Inf}, \TT{NaN}, or similar, with letter
+may be \TT{"-Inf"}, \TT{"NaN"}, or similar, with letter
 case ignored.
 
 The following function makes a copy of a \underline{non-identifier}

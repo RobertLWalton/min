@@ -838,19 +838,25 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     si == 1234567890 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( si, s12345678900 ) => true
+    min::strto ( si, s12345678900 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    si == 1234567890 => true
+    si == INT_MAX => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( sli, s12345678901234567890 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     sli == 12345678901234567890ull => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( sli, s123456789012345678900 ) => true
+    min::strto ( sli, s123456789012345678900 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    sli == ULLONG_MAX => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sli, sempty ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sli == 12345678901234567890ull => true
+    sli == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::strto ( sli, sminus1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    sli == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( sf, s1e38 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -860,13 +866,17 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     sf == 1e-37f => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( sf, s1e39 ) => true
+    min::strto ( sf, s1e39 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( sf, s1em46 ) => true
+    isinf ( sf ) && sf > 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::strto ( sf, s1em46 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    sf == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sf, sempty ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sf == 1e-37f => true
+    sf == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( sd, s1e308 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -878,13 +888,19 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sd, s1e308x ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( sd, s1e309 ) => true
+    sd == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ! min::strto ( sd, s1em324 ) => true
+    min::strto ( sd, s1e309 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    isinf ( sd ) && sd > 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::strto ( sd, s1em324 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    sd == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ! min::strto ( sd, sempty ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    sd == 1e-307 => true
+    sd == 555 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::strto ( si, snumsp, j ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
