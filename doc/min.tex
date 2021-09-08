@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 3, 2021}
+\date{September 8, 2021}
  
 \maketitle
 
@@ -8773,13 +8773,11 @@ used to print {\em object-or-string} are parameters determined by:
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
 			  & \TT{map} Member	& \verb|//| Default
 \\[1ex]
-\verb|min::ustring map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}}
-			  & \verb|//|
-			    \TT{"\textbackslash x01\textbackslash x01" "@"}
-\LABEL{MIN::ID_MAP_ID_CHAR} \\
-\verb|min::ustring map->| & \TTMKEY{id\_assign}{of {\tt min::id\_map}}
-			  & \verb|//|
-			    \TT{"\textbackslash x03\textbackslash x03" "::="}
+\verb|min::Uchar map->| & \TTMKEY{ID\_character}{of {\tt min::id\_map}}
+			  & \verb|//| \TT{U'@'}
+\LABEL{MIN::ID_MAP_ID_CHARACTER} \\
+\verb|min::gen map->| & \TTMKEY{ID\_assign}{of {\tt min::id\_map}}
+			  & \verb|//| MIN string \TT{":="}
 \LABEL{MIN::ID_MAP_ID_ASSIGN} \\
 \verb|min::gen_format * map->| & \TTMKEY{id\_gen\_format}{of {\tt min::id\_map}}
 			       & \verb|//| \TT{min::id\_map\_gen\_format}
@@ -20954,13 +20952,11 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{2.4in}
-\verb|min::ustring map->| & \TTMKEY{id\_char}{of {\tt min::id\_map}} \\
-			  & \verb|// Default:|
-			    \TT{"\textbackslash x01\textbackslash x01" "@"}
-\LABEL{MIN::ID_MAP_ID_CHAR} \\
-\verb|min::ustring map->| & \TTMKEY{id\_assign}{of {\tt min::id\_map}} \\
-			  & \verb|// Default:|
-			    \TT{"\textbackslash x03\textbackslash x03" "::="}
+\verb|min::Uchar map->| & \TTMKEY{ID\_character}{of {\tt min::id\_map}} \\
+			& \verb|// Default:| \TT{U'@'}
+\LABEL{MIN::ID_MAP_ID_CHARACTER} \\
+\verb|min::gen map->| & \TTMKEY{ID\_assign}{of {\tt min::id\_map}} \\
+		      & \verb|// Default:| MIN string \TT{":="}
 \LABEL{MIN::ID_MAP_ID_ASSIGN} \\
 \verb|min::gen_format * map->| & \TTMKEY{id\_gen\_format}%
 					{of {\tt min::id\_map}} \\

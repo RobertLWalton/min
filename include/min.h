@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 30 05:01:51 EDT 2021
+// Date:	Wed Sep  8 15:06:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6671,11 +6671,9 @@ namespace min {
 	L next;
 	const L occupied;
 
-	min::ustring id_char;
-	min::ustring id_assign;
+	min::Uchar ID_character;
+	min::gen ID_assign;
 	const min::gen_format * id_gen_format;
-
-	min::Uchar id_Uchar;
 
 	L hash_multiplier;
 	L hash_max_offset;
@@ -6723,6 +6721,7 @@ namespace min {
 		  min::uns32 >
 	    id_map;
 
+    MIN_REF ( min::gen, ID_assign, id_map );
     MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
               id_map );
 
@@ -13601,16 +13600,11 @@ namespace min {
         inline min::printer print_id
 	    ( min::printer printer, min::uns32 ID )
 	{
-	    char buffer[100];
-	    min::ustring s = printer->id_map->id_char;
-	    min::uns32 c = min::ustring_columns ( s );
-	    min::uns32 n = min::ustring_length ( s );
-	    ::strcpy
-	        ( buffer, min::ustring_chars ( s ) );
-	    min::uns32 m =
-	        sprintf ( buffer + n, "%u", ID );
-	    return min::print_item
-	        ( printer, buffer, c + m, n + m );
+	    return printer
+	        << min::punicode
+		       ( printer->id_map
+		                ->ID_character )
+		<< ID;
 	}
 
     }
