@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 15:06:05 EDT 2021
+// Date:	Wed Sep  8 17:37:20 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13183,6 +13183,8 @@ namespace min {
     	trailing_always_comma_space_pstring;
     extern min::pstring
     	erase_all_space_colon_pstring;
+    extern min::pstring
+    	erase_all_space_double_colon_pstring;
     extern min::pstring
     	no_space_pstring;
     extern min::pstring

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 16:58:05 EDT 2021
+// Date:	Wed Sep  8 17:37:32 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9676,6 +9676,18 @@ static min::printer erase_all_space_colon_pstring
 min::pstring min::erase_all_space_colon_pstring =
     & ::erase_all_space_colon_pstring;
 
+static min::printer erase_all_space_double_colon_pstring
+	( min::printer printer )
+{
+    min::print_erase_space
+        ( printer, printer->column );
+    return min::print_item
+        ( printer, "::", 2, 2,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+}
+min::pstring min::erase_all_space_double_colon_pstring =
+    & ::erase_all_space_double_colon_pstring;
+
 static min::printer no_space_pstring
 	( min::printer printer )
 {
@@ -12162,7 +12174,7 @@ static min::obj_format isolated_line_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::erase_all_space_colon_pstring,
+    min::erase_all_space_double_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,
