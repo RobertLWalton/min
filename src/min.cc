@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 15:09:23 EDT 2021
+// Date:	Wed Sep  8 16:58:05 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12562,7 +12562,7 @@ min::printer min::print_mapped_id
     printer << min::bol;
     MINT::print_id ( printer, ID );
     min::print_space ( printer );
-    min::print_item ( printer, "=", 1, 1 );
+    printer << id_map->ID_assign;
     min::print_space ( printer );
 
     printer << min::save_indent;

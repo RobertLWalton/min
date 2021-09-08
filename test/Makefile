@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Jul  3 05:57:44 EDT 2020
+# Date:		Wed Sep  8 17:01:46 EDT 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -14,6 +14,8 @@
 # O3 is needed to inline functions.
 #
 OPTIMIZE = -O3
+
+DIFFOPT ?= -u
 
 WFLAGS = -Wall -Wextra \
          -Wno-unused-parameter \
@@ -113,7 +115,7 @@ diffs:
 	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
 	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
-            < $*.out | diff -u $*.test -
+            < $*.out | diff ${DIFFOPT} $*.test -
 
 %.out:	%
 	rm -f $*.out
@@ -224,18 +226,18 @@ min_unicode_test.diff:	../unicode/unicode_data.cc \
 			min_unicode_test.dump
 	@echo DIFFING ../unicode/unicode_data.cc \
 	              min_unicode_test.code
-	-@diff -u \
+	-@diff ${DIFFOPT} \
 	              ../unicode/unicode_data.cc \
 		      min_unicode_test.code
 	@echo DIFFING \
 		../unicode/unicode_data_support_sets.h \
 	        min_unicode_test.header
-	-@diff -u \
+	-@diff ${DIFFOPT} \
 	        ../unicode/unicode_data_support_sets.h \
 	        min_unicode_test.header
 	@echo DIFFING ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
-	-@diff -u \
+	-@diff ${DIFFOPT} \
 	              ../unicode/unicode_data.dump \
 	              min_unicode_test.dump
 
