@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 8, 2021}
+\date{September 9, 2021}
  
 \maketitle
 
@@ -16954,8 +16954,8 @@ The format for printing object \TT{min::gen} values is:
 \TT{obj\_format.obj\_op\_flags}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINKEY{PREFERRED\_ID}
-\LABEL{MIN::PREFERRED_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_ID}
+\LABEL{MIN::FORCE_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DEFERRED\_ID}
@@ -17250,7 +17250,7 @@ The format for printing object \TT{min::gen} values is:
 
 An object is printed as the ID `\TT{@}{\em <object-id>}' if
 \TT{printer->\EOL id\_\EOL map} exists
-and the \ttikey{PREFERRED\_\EOL ID}{PREFERRED\_ID}
+and the \ttikey{FORCE\_\EOL ID}{FORCE\_ID}
 object format operation flag is on.
 
 Otherwise the object is printed in `\mkey{compact format}{for printing object}'
@@ -17374,7 +17374,7 @@ This is the logical OR of any of the following flags:
 
 \begin{indpar}[0.2in]\begin{itemlist}[0.2in]
 
-\item[\ttmkey{PREFERRED\_ID}%
+\item[\ttmkey{FORCE\_ID}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
 \item[\ttmkey{ENABLE\_COMPACT}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}
@@ -24395,8 +24395,8 @@ Information Functions:
 \bigskip
 
 \begin{TABULAR}{2.0in}
-\verb|const min::uns32 min::| & \MINKEY{PREFERRED\_ID}
-\LABEL{MIN::PREFERRED_ID_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{FORCE\_ID}
+\LABEL{MIN::FORCE_ID_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_COMPACT}
 \LABEL{MIN::ENABLE_COMPACT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DEFERRED\_ID}

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 17:37:32 EDT 2021
+// Date:	Thu Sep  9 04:42:59 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11912,7 +11912,7 @@ const min::obj_format * min::compact_id_obj_format =
 
 static min::obj_format id_obj_format =
 {
-    min::PREFERRED_ID,      // obj_op_flags
+    min::FORCE_ID,          // obj_op_flags
 
     NULL,		    // element_format
     NULL,		    // top_element_format
@@ -12252,33 +12252,6 @@ static min::gen_format compact_value_gen_format =
 const min::gen_format * min::compact_value_gen_format =
     & ::compact_value_gen_format;
 
-static min::gen_format compact_id_value_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_non_word_id_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::compact_id_obj_format,
-    NULL
-};
-const min::gen_format *
-	min::compact_id_value_gen_format =
-    & ::compact_id_value_gen_format;
-
-static min::gen_format id_value_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_non_word_id_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::id_obj_format,
-    NULL
-};
-const min::gen_format * min::id_value_gen_format =
-    & ::id_value_gen_format;
-
 static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
@@ -12433,7 +12406,7 @@ static void init_pgen_formats ( void )
     ::compact_id_obj_format.label_format =
         min::name_gen_format;
     ::compact_id_obj_format.value_format =
-        min::compact_id_value_gen_format;
+        min::compact_id_gen_format;
     ::compact_id_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::compact_id_obj_format.separator_format =
@@ -12446,7 +12419,7 @@ static void init_pgen_formats ( void )
     ::isolated_line_obj_format.label_format =
         min::name_gen_format;
     ::isolated_line_obj_format.value_format =
-        min::id_value_gen_format;
+        min::id_gen_format;
     ::isolated_line_obj_format.initiator_format =
         min::leading_always_gen_format;
     ::isolated_line_obj_format.separator_format =
@@ -12983,7 +12956,7 @@ min::printer min::print_obj
 	    compact_format = false;
     }
 
-    if ( ( obj_op_flags & min::PREFERRED_ID )
+    if ( ( obj_op_flags & min::FORCE_ID )
          ||
 	 (    ! compact_format
            && ( obj_op_flags & min::DEFERRED_ID ) ) )

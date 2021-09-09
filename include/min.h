@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Sep  8 17:37:20 EDT 2021
+// Date:	Thu Sep  9 04:43:13 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13435,7 +13435,7 @@ namespace min {
 
 	min::pstring		  obj_valreq;
     };
-    const min::uns32 PREFERRED_ID  	  = ( 1 << 0 );
+    const min::uns32 FORCE_ID		  = ( 1 << 0 );
     const min::uns32 ENABLE_COMPACT	  = ( 1 << 1 );
     const min::uns32 DEFERRED_ID	  = ( 1 << 2 );
     const min::uns32 ISOLATED_LINE	  = ( 1 << 3 );
@@ -13488,10 +13488,6 @@ namespace min {
         trailing_always_gen_format;
     extern const min::gen_format *
         compact_value_gen_format;
-    extern const min::gen_format *
-        compact_id_value_gen_format;
-    extern const min::gen_format *
-        id_value_gen_format;
     extern const min::gen_format *
         compact_gen_format;
     extern const min::gen_format *
