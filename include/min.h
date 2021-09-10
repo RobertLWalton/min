@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep  9 04:43:13 EDT 2021
+// Date:	Fri Sep 10 04:07:30 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13452,7 +13452,7 @@ namespace min {
     extern const min::obj_format *
         id_obj_format;
     extern const min::obj_format *
-        isolated_line_obj_format;
+        isolated_line_id_obj_format;
     extern const min::obj_format *
         embedded_line_obj_format;
     extern const min::obj_format *

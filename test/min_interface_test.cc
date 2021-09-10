@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  3 17:27:20 EDT 2021
+// Date:	Fri Sep 10 04:08:39 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4947,7 +4947,7 @@ void test_object_printing ( void )
 		     min::embedded_line_obj_format,
                      min::EMBEDDED_LINE );
     min::print_obj ( printer, obj, f,
-		     min::isolated_line_obj_format,
+		     min::isolated_line_id_obj_format,
                      min::ISOLATED_LINE );
 
     {
@@ -5026,7 +5026,7 @@ void test_object_printing ( void )
     min::print_obj ( printer, obj3, f,
 		     min::embedded_line_obj_format );
     min::print_obj ( printer, obj3, f,
-		     min::isolated_line_obj_format );
+		     min::isolated_line_id_obj_format );
 
     {
 	min::obj_vec_insptr vp ( obj3 );
@@ -5121,7 +5121,7 @@ void test_object_printing ( void )
     min::print_obj ( printer, obj, f,
                      min::embedded_line_obj_format );
     min::print_obj ( printer, obj, f,
-                     min::isolated_line_obj_format );
+                     min::isolated_line_id_obj_format );
 
     {
 	min::obj_vec_insptr vp ( obj );
@@ -5138,7 +5138,7 @@ void test_object_printing ( void )
     min::print_obj ( printer, obj, f,
                      min::embedded_line_obj_format );
     min::print_obj ( printer, obj, f,
-                     min::isolated_line_obj_format );
+                     min::isolated_line_id_obj_format );
 
     min::gen obj4 = min::new_obj_gen ( 5, 5 );
     {

@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 9, 2021}
+\date{September 10, 2021}
  
 \maketitle
 
@@ -11667,7 +11667,7 @@ for general value formats is as follows:
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
 \verb|min::quote_non_word_str_format // str_format|\ARGBREAK
-\verb|min::isolated_line_obj_format           // obj_format|
+\verb|min::isolated_line_id_obj_format        // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -17212,7 +17212,7 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{isolated\_line\_obj\_format}:}%
+                   min::\MINKEY{isolated\_line\_id\_obj\_format}:}%
 \LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
 \end{tabular}
@@ -22156,7 +22156,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
 \verb|min::quote_non_word_str_format // str_format|\ARGBREAK[0in]
-\verb|min::isolated_line_obj_format           // obj_format|
+\verb|min::isolated_line_id_obj_format        // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -24636,7 +24636,7 @@ Information Functions:
 
 \begin{TABULAR}{0.3in}
 \multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{isolated\_line\_obj\_format}:}%
+                   min::\MINKEY{isolated\_line\_id\_obj\_format}:}%
 \LABEL{MIN::ISOLATED_LINE_OBJ_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
 \verb|min::ISOLATED_LINE                       // obj_op_flags|\ARGBREAK[0in]
