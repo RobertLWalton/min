@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 10 04:07:43 EDT 2021
+// Date:	Fri Sep 10 23:37:28 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11879,33 +11879,24 @@ static min::obj_format compact_id_obj_format =
     min::space_if_none_pstring,
 			    // obj_sep
 
-    min::trailing_always_colon_space_pstring,
-			    // obj_attrbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_attrsep
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
 
-    min::erase_all_space_colon_pstring,
-			    // obj_attreol
+    NULL,		    // obj_attreol
 
-    min::space_equal_space_pstring,
-			    // obj_attreq
+    NULL,		    // obj_attreq
 
-    min::no_space_pstring,  // obj_attrneg
+    NULL,		    // obj_attrneg
 
-    min::standard_attr_flag_format,
-    			    // flag_format
-    min::standard_attr_hide_flags,
-    			    // hide_flags
+    NULL,		    // flag_format
+    0,  		    // hide_flags
 
-    min::left_curly_star_space_pstring,
-			    // obj_valbegin
-    min::trailing_always_comma_space_pstring,
-			    // obj_valsep
-    min::space_star_right_curly_pstring,
-			    // obj_valend
+    NULL,		    // obj_valbegin
+    NULL,		    // obj_valsep
+    NULL,		    // obj_valend
 
-    min::space_equal_space_pstring,
-			    // obj_valreq
+    NULL,		    // obj_valreq
+
 };
 const min::obj_format * min::compact_id_obj_format =
     & ::compact_id_obj_format;
