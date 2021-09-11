@@ -17262,12 +17262,14 @@ object format operation flag is on.
 
 \item The object has no attributes other than \TT{.type},
 \TT{.initiator}, \TT{.terminator}, \TT{.sep\-a\-ra\-tor},
-and attributes with a \TT{hide\_\EOL flag}.
+attributes with a \TT{hide\_\EOL flag}, and attributes
+with no values or flags (where values associated with
+reverse attribute labels are counted as attribute values).
 
 \item No attribute other than those with a \TT{hide\_\EOL flag}
-has multiple values, flags, or reverse attributes (double arrows).
+has multiple values, flags, or reverse attribute (double arrows) values.
 
-\item The value of any attribute
+\item A value of any attribute
 that does not have a \TT{hide\_\EOL flag}
 is a string or label whose elements are all strings,
 except that:
@@ -17430,8 +17432,8 @@ any other kinds of objects.
 \item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{terminator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
-\TT{.initiator} and \TT{.terminator} in bracketed compact
-format, and the \TT{.separator} in compact or normal format.
+\TT{.initiator}, \TT{.separator}, and \TT{.terminator} in bracketed compact
+format.
 \TT{Separator\_\EOL format} should never be \TT{NULL}, and the
 other members must be not be \TT{NULL} if compact
 format is enabled.
@@ -17552,10 +17554,16 @@ then the object is printed in the format:
 where
 \begin{center}
 \begin{tabular}{rcl}
+\TT{[}			& is	& the \TT{.initiator} printed with
+                                  \TT{initiator\_format} \\
 $\ell$			& is	& \TT{min::leading} \\
 {\em ta}		& is	& \TT{min::trailing\_always} \\
+\TT{,}			& is	& the \TT{.separator} printed with
+                                  \TT{separator\_format} \\
 \TT{\textvisiblespace}	& is	& a single space character \\
-{\em t}			& is	& \TT{min::trailing}
+{\em t}			& is	& \TT{min::trailing} \\
+\TT{]}			& is	& the \TT{.terminator} printed with
+                                  \TT{terminator\_format}
 \\[1ex]
 {\em <element>}		& is	& printed by \TT{min::print\_gen} \\
 			&	& using the \TT{element\_format} \\
@@ -17570,8 +17578,7 @@ If the \TT{.separator} attribute is missing, then
 `{\em ta} \TT{,} \TT{\textvisiblespace}' is replaced by what
 is printed by \TT{obj\_sep}, which would be a single space
 character for all the above object formats for which compact
-printing is enabled.  If there is no \TT{.type} attribute,
-\TT{T} is omitted, as in `\TT{\{|\ldots|\}}'.
+printing is enabled.
 
 In \mkey{empty compact format}{of printed object}, where there are
 are no elements and no attributes other than \TT{.separator} and
@@ -17592,7 +17599,9 @@ A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
 
 If there is a \TT{.terminator} not equal to \TT{"<LF>"}, that
-is printed just after the line.
+is printed just after the line.  Specifically, it is preceeded
+by printing \TT{min::trailing} and then printed using the
+\TT{terminator\_format}.
 In this case the line is called a \key{terminated line}.
 
 Note that nothing is done before the first element to indent

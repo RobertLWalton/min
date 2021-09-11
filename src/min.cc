@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 10 23:37:28 EDT 2021
+// Date:	Sat Sep 11 14:32:41 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12599,9 +12599,14 @@ static bool print_attributes
     {
 	if ( info[i].flags & objf->hide_flags )
 	    continue;
+	min::unsptr vc = info[i].value_count;
+	min::unsptr rc = info[i].reverse_attr_count;
+	min::unsptr fc = info[i].flag_count;
+	if ( vc == 0 && rc == 0 && fc == 0 )
+	    continue;
 	else if ( info[i].name == min::dot_type
 		  &&
-		  info[i].value_count == 1
+		  vc == 1
 		  &&
 		  info[i].value == type )
 	    continue;
@@ -12643,9 +12648,6 @@ static bool print_attributes
 	    }
 	}
 
-	min::unsptr vc = info[i].value_count;
-	min::unsptr rc = info[i].reverse_attr_count;
-	min::unsptr fc = info[i].flag_count;
 	bool suppress_value =
 	    ( vc == 1 && rc == 0 && fc == 0 );
 	if ( suppress_value )
@@ -12891,10 +12893,13 @@ min::printer min::print_obj
     {
         if ( info[i].flags & objf->hide_flags )
 	    continue;
+	min::unsptr vc = info[i].value_count;
+	min::unsptr rc = info[i].reverse_attr_count;
+	min::unsptr fc = info[i].flag_count;
+	if ( vc == 0 && rc == 0 && fc == 0 )
+	    continue;
 
-	if (    info[i].value_count != 1
-	     || info[i].flag_count != 0
-	     || info[i].reverse_attr_count != 0 )
+	if ( vc != 1 || fc != 0 || rc != 0 )
 	    compact_format = false;
 	else if ( ! min::is_str ( info[i].value )
 	          &&
