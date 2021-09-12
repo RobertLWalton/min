@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 11 14:32:41 EDT 2021
+// Date:	Sun Sep 12 11:41:58 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11847,105 +11847,6 @@ static min::obj_format compact_obj_format =
 const min::obj_format * min::compact_obj_format =
     & ::compact_obj_format;
 
-static min::obj_format compact_id_obj_format =
-{
-      min::ENABLE_COMPACT   // obj_op_flags
-    + min::DEFERRED_ID,
-
-    NULL,		    // element_format*
-    NULL,		    // top_element_format
-    NULL,		    // label_format*
-    NULL,		    // value_format*
-
-    NULL,		    // initiator_format*
-    NULL,		    // separator_format*
-    NULL,		    // terminator_format*
-
-    min::standard_str_classifier,
-    			    // mark_classifier
-
-    min::left_curly_right_curly_pstring,
-			    // obj_empty
-
-    min::left_curly_leading_pstring,
-			    // obj_bra
-    min::trailing_vbar_leading_pstring,
-			    // obj_braend
-    min::trailing_vbar_leading_pstring,
-			    // obj_ketbegin
-    min::trailing_right_curly_pstring,
-			    // obj_ket
-
-    min::space_if_none_pstring,
-			    // obj_sep
-
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
-
-    NULL,		    // obj_attreol
-
-    NULL,		    // obj_attreq
-
-    NULL,		    // obj_attrneg
-
-    NULL,		    // flag_format
-    0,  		    // hide_flags
-
-    NULL,		    // obj_valbegin
-    NULL,		    // obj_valsep
-    NULL,		    // obj_valend
-
-    NULL,		    // obj_valreq
-
-};
-const min::obj_format * min::compact_id_obj_format =
-    & ::compact_id_obj_format;
-
-static min::obj_format id_obj_format =
-{
-    min::FORCE_ID,          // obj_op_flags
-
-    NULL,		    // element_format
-    NULL,		    // top_element_format
-    NULL,		    // label_format
-    NULL,		    // value_format
-
-    NULL,		    // initiator_format
-    NULL,		    // separator_format
-    NULL,		    // terminator_format
-
-    NULL,		    // mark_classifier
-
-    NULL,		    // obj_empty
-
-    NULL,		    // obj_bra
-    NULL,		    // obj_braend
-    NULL,		    // obj_ketbegin
-    NULL,		    // obj_ket
-
-    NULL,		    // obj_sep
-
-    NULL,		    // obj_attrbegin
-    NULL,		    // obj_attrsep
-
-    NULL,		    // obj_attreol
-
-    NULL,		    // obj_attreq
-
-    NULL,		    // obj_attrneg
-
-    NULL,		    // flag_format
-    0,  		    // hide_flags
-
-    NULL,		    // obj_valbegin
-    NULL,		    // obj_valsep
-    NULL,		    // obj_valend
-
-    NULL,		    // obj_valreq
-};
-const min::obj_format * min::id_obj_format =
-    & ::id_obj_format;
-
 static min::obj_format line_obj_format =
 {
       min::ENABLE_COMPACT   // obj_op_flags
@@ -12073,6 +11974,105 @@ static min::obj_format paragraph_obj_format =
 };
 const min::obj_format * min::paragraph_obj_format =
     & ::paragraph_obj_format;
+
+static min::obj_format compact_id_obj_format =
+{
+      min::ENABLE_COMPACT   // obj_op_flags
+    + min::DEFERRED_ID,
+
+    NULL,		    // element_format*
+    NULL,		    // top_element_format
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    NULL,		    // initiator_format*
+    NULL,		    // separator_format*
+    NULL,		    // terminator_format*
+
+    min::standard_str_classifier,
+    			    // mark_classifier
+
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
+
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_leading_pstring,
+			    // obj_braend
+    min::trailing_vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
+
+    min::space_if_none_pstring,
+			    // obj_sep
+
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
+
+    NULL,		    // obj_attreol
+
+    NULL,		    // obj_attreq
+
+    NULL,		    // obj_attrneg
+
+    NULL,		    // flag_format
+    0,  		    // hide_flags
+
+    NULL,		    // obj_valbegin
+    NULL,		    // obj_valsep
+    NULL,		    // obj_valend
+
+    NULL,		    // obj_valreq
+
+};
+const min::obj_format * min::compact_id_obj_format =
+    & ::compact_id_obj_format;
+
+static min::obj_format id_obj_format =
+{
+    min::FORCE_ID,          // obj_op_flags
+
+    NULL,		    // element_format
+    NULL,		    // top_element_format
+    NULL,		    // label_format
+    NULL,		    // value_format
+
+    NULL,		    // initiator_format
+    NULL,		    // separator_format
+    NULL,		    // terminator_format
+
+    NULL,		    // mark_classifier
+
+    NULL,		    // obj_empty
+
+    NULL,		    // obj_bra
+    NULL,		    // obj_braend
+    NULL,		    // obj_ketbegin
+    NULL,		    // obj_ket
+
+    NULL,		    // obj_sep
+
+    NULL,		    // obj_attrbegin
+    NULL,		    // obj_attrsep
+
+    NULL,		    // obj_attreol
+
+    NULL,		    // obj_attreq
+
+    NULL,		    // obj_attrneg
+
+    NULL,		    // flag_format
+    0,  		    // hide_flags
+
+    NULL,		    // obj_valbegin
+    NULL,		    // obj_valsep
+    NULL,		    // obj_valend
+
+    NULL,		    // obj_valreq
+};
+const min::obj_format * min::id_obj_format =
+    & ::id_obj_format;
 
 static min::obj_format embedded_line_obj_format =
 {
@@ -12393,6 +12393,36 @@ static void init_pgen_formats ( void )
     ::compact_obj_format.terminator_format =
         min::trailing_always_gen_format;
 
+    ::line_obj_format.element_format =
+        min::compact_gen_format;
+    ::line_obj_format.top_element_format =
+        min::paragraph_gen_format;
+    ::line_obj_format.label_format =
+        min::name_gen_format;
+    ::line_obj_format.value_format =
+        min::compact_value_gen_format;
+    ::line_obj_format.initiator_format =
+        min::leading_always_gen_format;
+    ::line_obj_format.separator_format =
+        min::trailing_always_gen_format;
+    ::line_obj_format.terminator_format =
+        min::trailing_always_gen_format;
+
+    ::paragraph_obj_format.element_format =
+        min::compact_gen_format;
+    ::paragraph_obj_format.top_element_format =
+        min::line_gen_format;
+    ::paragraph_obj_format.label_format =
+        min::name_gen_format;
+    ::paragraph_obj_format.value_format =
+        min::compact_value_gen_format;
+    ::paragraph_obj_format.initiator_format =
+        min::leading_always_gen_format;
+    ::paragraph_obj_format.separator_format =
+        min::trailing_always_gen_format;
+    ::paragraph_obj_format.terminator_format =
+        min::trailing_always_gen_format;
+
     ::compact_id_obj_format.element_format =
         min::compact_id_gen_format;
     ::compact_id_obj_format.label_format =
@@ -12430,36 +12460,6 @@ static void init_pgen_formats ( void )
     ::embedded_line_obj_format.separator_format =
         min::trailing_always_gen_format;
     ::embedded_line_obj_format.terminator_format =
-        min::trailing_always_gen_format;
-
-    ::line_obj_format.element_format =
-        min::compact_gen_format;
-    ::line_obj_format.top_element_format =
-        min::paragraph_gen_format;
-    ::line_obj_format.label_format =
-        min::name_gen_format;
-    ::line_obj_format.value_format =
-        min::compact_value_gen_format;
-    ::line_obj_format.initiator_format =
-        min::leading_always_gen_format;
-    ::line_obj_format.separator_format =
-        min::trailing_always_gen_format;
-    ::line_obj_format.terminator_format =
-        min::trailing_always_gen_format;
-
-    ::paragraph_obj_format.element_format =
-        min::compact_gen_format;
-    ::paragraph_obj_format.top_element_format =
-        min::line_gen_format;
-    ::paragraph_obj_format.label_format =
-        min::name_gen_format;
-    ::paragraph_obj_format.value_format =
-        min::compact_value_gen_format;
-    ::paragraph_obj_format.initiator_format =
-        min::leading_always_gen_format;
-    ::paragraph_obj_format.separator_format =
-        min::trailing_always_gen_format;
-    ::paragraph_obj_format.terminator_format =
         min::trailing_always_gen_format;
 }
 
