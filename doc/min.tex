@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 10, 2021}
+\date{September 12, 2021}
  
 \maketitle
 
@@ -10765,6 +10765,10 @@ String & Class \\[2ex]
 \TT{"~"} & \TT{0} \\
 \TT{"200"} & \TT{IS\_GRAPHIC} \\
 \TT{"\#"} & \TT{IS\_GRAPHIC} \\
+\TT{"("} & \TT{IS\_LEADING+IS\_GRAPHIC} \\
+\TT{")"} & \TT{IS\_GRAPHIC+IS\_TRAILING} \\
+\TT{"(+"} & \TT{IS\_GRAPHIC} \\
+\TT{"+)"} & \TT{IS\_GRAPHIC} \\
 \end{tabular}
 \end{center}
 
@@ -10804,8 +10808,7 @@ operations:
 \end{tabular}\end{indpar}
 
 which are just like \TT{min::leading/trailing} except they
-ignore the \TT{min::\EOL FORCE\_\EOL SPACE} flag.  So if
-the \TT{FORCE\_\EOL PGEN} flag is on:
+ignore the \TT{min::\EOL FORCE\_\EOL SPACE} flag.  So:
 
 \begin{indpar}\begin{verbatim}
 printer << "(" << min::leading
@@ -17263,11 +17266,11 @@ object format operation flag is on.
 \item The object has no attributes other than \TT{.type},
 \TT{.initiator}, \TT{.terminator}, \TT{.sep\-a\-ra\-tor},
 attributes with a \TT{hide\_\EOL flag}, and attributes
-with no values or flags (where values associated with
-reverse attribute labels are counted as attribute values).
+with no values, flags, or reverse attribute (double arrow)
+values.
 
 \item No attribute other than those with a \TT{hide\_\EOL flag}
-has multiple values, flags, or reverse attribute (double arrows) values.
+has multiple values, flags, or reverse attribute (double arrow) values.
 
 \item A value of any attribute
 that does not have a \TT{hide\_\EOL flag}
@@ -17405,38 +17408,30 @@ as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 \end{itemlist}\end{indpar}
 
 \item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]
-\item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+These are the \TT{min::gen\_format}'s used to print the
+object vector elements.  If the object is being printed in
+logical line compact or indented paragraph compact format,
+\TT{top\_element\_format} is used.  Otherwise \TT{element\_format}
+is used.
+
+\item[\ttmkey{label\_format}{in {\tt min::obj\_format}}]
 \item[\ttmkey{value\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
-object vector elements,
-attribute labels, and attribute values, respectively, whenever the
-object whose elements are being printed is \underline{not}
-begin printed in
-empty compact, quote compact, logical line compact,
-and indented paragraph compact format.
-
+object attribute labels and attribute values, respectively.
 \TT{Label\_\EOL format} is also used to print \TT{.type} values $T$
 printed as types, e.g., in the forms `\TT{\{$T$|}' and `\TT{|$T$\}}',
 and not as attribute values.
-
-\underline{None} of these members may be \TT{NULL}.
-
-\item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]~\\
-The is the \TT{min::gen\_format} used to print object elements
-in logical line and indented paragraph compact formats.
-No attributes are printed in these formats, which are used for
-objects that represent lines and paragraphs and are not inside
-any other kinds of objects.
 
 \item[\ttmkey{initiator\_format}{in {\tt min::obj\_format}}]
 \item[\ttmkey{separator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
 \item[\ttmkey{terminator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 \TT{.initiator}, \TT{.separator}, and \TT{.terminator} in bracketed compact
-format.
-\TT{Separator\_\EOL format} should never be \TT{NULL}, and the
-other members must be not be \TT{NULL} if compact
-format is enabled.
+format, and the \TT{.terminator} in logical line compact format.
+The \TT{.initiator} in indented paragraph compact format is
+printed using \TT{terminator\_format}, as it is in a terminator
+position.
 
 \item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
 \label{MARK_CLASSIFIER}
@@ -17599,7 +17594,7 @@ A break is set by
 \TT{min::set\_\EOL break} just before each element is printed.
 
 If there is a \TT{.terminator} not equal to \TT{"<LF>"}, that
-is printed just after the line.  Specifically, it is preceeded
+is printed just after the last line element.  Specifically, it is preceeded
 by printing \TT{min::trailing} and then printed using the
 \TT{terminator\_format}.
 In this case the line is called a \key{terminated line}.
@@ -17620,9 +17615,10 @@ the \TT{.terminator} is equal to \TT{min::\EOL INDENTED\_\EOL PARAGRAPH()},
 and the object is being printed as an element of a containing object
 that is being printed in logical line compact format.
 First single spaces are erased from the end of the
-current line by \TT{min::\EOL print\_\EOL erase\_\EOL space}, then 
-\TT{min::\EOL trailing\_\EOL always} is printed,
-followed by the \TT{.initiator}, followed by \TT{min::eol}, and lastly the
+current line by \TT{min::\EOL print\_\EOL erase\_\EOL space},
+then \TT{.initiator} is printed using
+\TT{terminator\_format} (as it is in a terminating position),
+then \TT{min::eol} is printed, and lastly the
 object elements are printed using \TT{top\_\EOL element\_\EOL format}.
 
 The paragraph indent is set to the indent of its containing logical line
