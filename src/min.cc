@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 12 11:41:58 EDT 2021
+// Date:	Mon Sep 13 04:12:35 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12087,8 +12087,7 @@ static min::obj_format embedded_line_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::null_str_classifier,
-    			    // mark_classifier
+    NULL,		    // mark_classifier
 
     NULL,                   // obj_empty
 
@@ -12149,8 +12148,7 @@ static min::obj_format isolated_line_id_obj_format =
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
 
-    min::null_str_classifier,
-    			    // mark_classifier
+    NULL,		    // mark_classifier
 
     NULL,		    // obj_empty
 
@@ -12436,19 +12434,6 @@ static void init_pgen_formats ( void )
     ::compact_id_obj_format.terminator_format =
         min::trailing_always_gen_format;
 
-    ::isolated_line_id_obj_format.element_format =
-        min::id_gen_format;
-    ::isolated_line_id_obj_format.label_format =
-        min::name_gen_format;
-    ::isolated_line_id_obj_format.value_format =
-        min::id_gen_format;
-    ::isolated_line_id_obj_format.initiator_format =
-        min::leading_always_gen_format;
-    ::isolated_line_id_obj_format.separator_format =
-        min::trailing_always_gen_format;
-    ::isolated_line_id_obj_format.terminator_format =
-        min::trailing_always_gen_format;
-
     ::embedded_line_obj_format.element_format =
         min::compact_gen_format;
     ::embedded_line_obj_format.label_format =
@@ -12460,6 +12445,19 @@ static void init_pgen_formats ( void )
     ::embedded_line_obj_format.separator_format =
         min::trailing_always_gen_format;
     ::embedded_line_obj_format.terminator_format =
+        min::trailing_always_gen_format;
+
+    ::isolated_line_id_obj_format.element_format =
+        min::id_gen_format;
+    ::isolated_line_id_obj_format.label_format =
+        min::name_gen_format;
+    ::isolated_line_id_obj_format.value_format =
+        min::id_gen_format;
+    ::isolated_line_id_obj_format.initiator_format =
+        min::leading_always_gen_format;
+    ::isolated_line_id_obj_format.separator_format =
+        min::trailing_always_gen_format;
+    ::isolated_line_id_obj_format.terminator_format =
         min::trailing_always_gen_format;
 }
 

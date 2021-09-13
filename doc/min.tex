@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 12, 2021}
+\date{September 13, 2021}
  
 \maketitle
 
@@ -17187,6 +17187,58 @@ The format for printing object \TT{min::gen} values is:
 
 \begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
 \multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{compact\_id\_obj\_format}:}%
+\LABEL{MIN::COMPACT_ID_OBJ_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
+\verb|+ min::DEFERRED_ID|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::compact_id_gen_format               // element_format|\ARGBREAK
+\verb|min::compact_id_gen_format               // value_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_attr|\ldots\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // flag_format|\ARGBREAK
+\verb|0                                        // hide_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|NULL                                     // obj_val|\ldots\ARGBREAK
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINKEY{id\_obj\_format}:}%
+\LABEL{MIN::ID_OBJ_FORMAT}\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|  min::FORCE_ID                          // obj_op_flags|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|// All other elements are NULL or 0|
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
                    min::\MINKEY{embedded\_line\_obj\_format}:}%
 \LABEL{MIN::EMBEDDED_LINE_OBJ_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK
@@ -17197,16 +17249,11 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
+\verb|NULL                                     // mark_classifier|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|NULL                                     // obj_empty|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::trailing_always_colon_space_pstring // obj_attrbegin|\ARGBREAK
-\verb|min::trailing_always_comma_pstring       // obj_attrsep|\ARGBREAK
 \end{tabular}
 
 \end{indpar}
@@ -17225,7 +17272,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::null_str_classifier                 // mark_classifier|\ARGBREAK
+\verb|NULL                                     // mark_classifier|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -17245,9 +17292,12 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|0                                        // hide_flags|\ARGBREAK
+\verb|min::erase_all_space_double_colon_pstring  // obj_attreol|\ARGBREAK
 \end{tabular}
 
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|0                                        // hide_flags|\ARGBREAK
+\end{tabular}
 
 \end{indpar}
 
