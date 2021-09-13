@@ -11658,10 +11658,44 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{value\_gen\_format}:}
-\LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK
+                   min::\MINLKEY{line}{\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_all_str_format               // str_format|
+\verb|min::line_obj_format                    // obj_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{paragraph\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::paragraph_obj_format               // obj_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{compact\_value\_gen\_format}:}
+\LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::quote_non_word_str_format          // str_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{compact\_id\_gen\_format}:}
+\LABEL{MIN::COMPACT_ID_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK
+\verb|min::compact_id_obj_format              // obj_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_gen\_format}:}
+\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK
+\verb|min::id_obj_format                      // obj_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11669,7 +11703,7 @@ for general value formats is as follows:
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_format // str_format|\ARGBREAK
+\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK
 \verb|min::isolated_line_id_obj_format        // obj_format|
 \end{tabular}\end{indpar}
 
@@ -11678,7 +11712,7 @@ for general value formats is as follows:
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_format // str_format|\ARGBREAK
+\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|
 \end{tabular}\end{indpar}
 
@@ -11716,22 +11750,6 @@ for general value formats is as follows:
 \verb|NULL                                    // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
 \verb|min::name_special_format                // special_format|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINLKEY{line}{\_gen\_format}:}
-\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::line_obj_format                    // obj_format|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::paragraph_obj_format               // obj_format|
 \end{tabular}\end{indpar}
 
 A general value format can be any structure whose first member
@@ -22197,10 +22215,52 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{value\_gen\_format}:}
-\LABEL{MIN::VALUE_GEN_FORMAT}\ARGBREAK[0in]
+                   min::\MINKEY{line\_gen\_format}:}
+\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_all_str_format               // str_format|
+\verb|min::line_obj_format                    // obj_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{paragraph\_gen\_format}:}
+\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::paragraph_obj_format               // obj_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{compact\_value\_gen\_format}:}
+\LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_non_word_str_format          // str_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{compact\_id\_gen\_format}:}
+\LABEL{MIN::COMPACT_ID_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK[0in]
+\verb|min::compact_id_obj_format              // obj_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{id\_gen\_format}:}
+\LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK[0in]
+\verb|min::id_obj_format                      // obj_format|
 \end{TABULAR}
 
 \bigskip
@@ -22210,7 +22270,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_str_format // str_format|\ARGBREAK[0in]
+\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK[0in]
 \verb|min::isolated_line_id_obj_format        // obj_format|
 \end{TABULAR}
 
@@ -22221,7 +22281,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_str_format // str_format|\ARGBREAK[0in]
+\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|
 \end{TABULAR}
 
@@ -22267,26 +22327,6 @@ These are in \verb|min_parameters.h|.
 \verb|NULL                                    // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
 \verb|min::name_special_format                // special_format|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{line\_gen\_format}:}
-\LABEL{MIN::LINE_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::line_obj_format                    // obj_format|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::paragraph_obj_format               // obj_format|
 \end{TABULAR}
 
 \bigskip

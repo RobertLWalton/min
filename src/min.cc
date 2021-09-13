@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 13 04:12:35 EDT 2021
+// Date:	Mon Sep 13 11:25:37 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12203,6 +12203,47 @@ static min::gen_format compact_gen_format =
 const min::gen_format * min::compact_gen_format =
     & ::compact_gen_format;
 
+static min::gen_format line_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_separator_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::line_obj_format,
+    NULL
+};
+const min::gen_format *
+	min::line_gen_format =
+    & ::line_gen_format;
+
+static min::gen_format paragraph_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_separator_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::paragraph_obj_format,
+    NULL
+};
+const min::gen_format *
+	min::paragraph_gen_format =
+    & ::paragraph_gen_format;
+
+static min::gen_format compact_value_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_non_word_str_format,
+    & ::bracket_lab_format,
+    & ::bracket_special_format,
+    & ::compact_obj_format,
+    NULL
+};
+const min::gen_format * min::compact_value_gen_format =
+    & ::compact_value_gen_format;
+
 static min::gen_format compact_id_gen_format =
 {
     & min::standard_pgen,
@@ -12228,19 +12269,6 @@ static min::gen_format id_gen_format =
 };
 const min::gen_format * min::id_gen_format =
     & ::id_gen_format;
-
-static min::gen_format compact_value_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_non_word_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::compact_obj_format,
-    NULL
-};
-const min::gen_format * min::compact_value_gen_format =
-    & ::compact_value_gen_format;
 
 static min::gen_format id_map_gen_format =
 {
@@ -12323,34 +12351,6 @@ static min::gen_format never_quote_gen_format =
 };
 const min::gen_format * min::never_quote_gen_format =
     & ::never_quote_gen_format;
-
-static min::gen_format paragraph_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_separator_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::paragraph_obj_format,
-    NULL
-};
-const min::gen_format *
-	min::paragraph_gen_format =
-    & ::paragraph_gen_format;
-
-static min::gen_format line_gen_format =
-{
-    & min::standard_pgen,
-    & ::long_num_format,
-    & ::quote_separator_str_format,
-    & ::bracket_lab_format,
-    & ::bracket_special_format,
-    & ::line_obj_format,
-    NULL
-};
-const min::gen_format *
-	min::line_gen_format =
-    & ::line_gen_format;
 
 const min::print_format min::default_print_format =
 {
