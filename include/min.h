@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 10 04:07:30 EDT 2021
+// Date:	Thu Sep 16 16:11:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6672,7 +6672,7 @@ namespace min {
 	const L occupied;
 
 	min::Uchar ID_character;
-	min::gen ID_assign;
+	const min::gen ID_assign;
 	const min::gen_format * id_gen_format;
 
 	L hash_multiplier;
