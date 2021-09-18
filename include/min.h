@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 16 16:11:12 EDT 2021
+// Date:	Sat Sep 18 03:04:12 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6675,6 +6675,8 @@ namespace min {
 	const min::gen ID_assign;
 	const min::gen_format * id_gen_format;
 
+	const min::gen symbol_table;
+
 	L hash_multiplier;
 	L hash_max_offset;
 	const min::packed_vec_insptr
@@ -6722,6 +6724,7 @@ namespace min {
 	    id_map;
 
     MIN_REF ( min::gen, ID_assign, id_map );
+    MIN_REF ( min::gen, symbol_table, id_map );
     MIN_REF ( min::packed_vec_insptr<uns32>, hash_table,
               id_map );
 

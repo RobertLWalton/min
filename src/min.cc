@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Sep 13 11:25:37 EDT 2021
+// Date:	Sat Sep 18 03:07:39 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3384,6 +3384,13 @@ static min::uns32 uns32_id_map_stub_disp[2] =
                        ::hash_table ),
       min::DISP_END };
 
+static min::uns32 uns32_id_map_gen_disp[3] =
+    { min::DISP ( & min::id_map_header<min::uns32>
+                       ::ID_assign ),
+      min::DISP ( & min::id_map_header<min::uns32>
+                       ::symbol_table ),
+      min::DISP_END };
+
 static min::uns32 id_map_element_gen_disp[2] =
     { 0, min::DISP_END };
 
@@ -3394,7 +3401,8 @@ static min::packed_vec
     uns32_id_map_type
     ( "uns32_id_map_type",
       ::id_map_element_gen_disp, NULL,
-      NULL, ::uns32_id_map_stub_disp );
+      ::uns32_id_map_gen_disp,
+      ::uns32_id_map_stub_disp );
 
 template < typename L >
 inline min::packed_vec_insptr
