@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 18, 2021}
+\date{September 19, 2021}
  
 \maketitle
 
@@ -8932,14 +8932,21 @@ are gotten and set by:
 \LABEL{MIN::MAP_CLEAR_OF_ID_MAP_SYMBOL} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINMKEY{map\_clear}{of symbolic id map}\ARGBREAK
+    \verb|( min::id_map map )|
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP} \\
+\end{tabular}\end{indpar}
+
 It is an error to use these functions if
 the identifier map has an output hash table.
 
 If symbolic identifiers are being input, \TT{min::map\_get}, \TT{min::map\_set},
-and \TT{min::map\_clear} can be used as for numeric identifiers, except that
-in place of an \TT{min::uns32} numeric identifier one uses a
-\TT{min::gen} MIN string identifer.  The string is the {\em symbol},
-with or without the bracketing \TT{@}'s.
+and 2-argument \TT{min::map\_clear} can be used as for numeric identifiers,
+except that in place of an \TT{min::uns32} numeric identifier one uses a
+\TT{min::gen} MIN string.  The string is the {\em symbol},
+with or without the bracketing \TT{@}'s.  1-argument \TT{min::map\_clear}
+erases the entire input hash table.
 
 \subsection{Printers}
 \label{PRINTERS}
@@ -21083,6 +21090,9 @@ These are in \verb|min_parameters.h|.
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol )|
 \LABEL{MIN::MAP_CLEAR_OF_ID_MAP_SYMBOL} \\
+\verb|void min::| & \MINMKEY{map\_clear}{of symbolic id map}\ARGBREAK
+    \verb|( min::id_map map )|
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP} \\
 \end{TABULAR}
 
 \end{indpar}
