@@ -1301,11 +1301,11 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::find ( ::id_map, g1 ) == 0 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::find_or_add ( ::id_map, g1 ) == 1 => true
-ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find ( ::id_map, g2 ) == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::find_or_add ( ::id_map, g2 ) == 3 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::find_or_add ( ::id_map, g1 ) == 2 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find ( ::id_map, g3 ) == 0 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1315,9 +1315,9 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map[0] == min::NONE() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ::id_map[1] == g1 => true
+    ::id_map[1] == min::NONE() => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    ::id_map[2] == min::NONE() => true
+    ::id_map[2] == g1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map[3] == g2 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
@@ -1327,7 +1327,7 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ::id_map->next == 1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
-    min::find ( ::id_map, g1 ) == 1 => true
+    min::find ( ::id_map, g1 ) == 2 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find ( ::id_map, g2 ) == 3 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 18 17:14:26 EDT 2021
+// Date:	Sun Sep 19 15:22:53 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2494,13 +2494,13 @@ void test_identifier_map ( void )
     min::locatable_gen g3 =
         min::new_obj_gen ( 10 );
 
-    MIN_CHECK
-        ( min::find ( ::id_map, g1 ) == 0 );
-    MIN_CHECK
-        ( min::find_or_add ( ::id_map, g1 ) == 1 );
+    min::map_set ( ::id_map, 2, g1 );
     MIN_CHECK
         ( min::find ( ::id_map, g2 ) == 0 );
-    min::map_set ( ::id_map, 3, g2 );
+    MIN_CHECK
+        ( min::find_or_add ( ::id_map, g2 ) == 3 );
+    MIN_CHECK
+        ( min::find_or_add ( ::id_map, g1 ) == 2 );
     MIN_CHECK
         ( min::find ( ::id_map, g3 ) == 0 );
     MIN_CHECK
@@ -2508,8 +2508,8 @@ void test_identifier_map ( void )
 
     MIN_CHECK ( ::id_map->length == 5 );
     MIN_CHECK ( ::id_map[0] == min::NONE() );
-    MIN_CHECK ( ::id_map[1] == g1 );
-    MIN_CHECK ( ::id_map[2] == min::NONE() );
+    MIN_CHECK ( ::id_map[1] == min::NONE() );
+    MIN_CHECK ( ::id_map[2] == g1 );
     MIN_CHECK ( ::id_map[3] == g2 );
     MIN_CHECK ( ::id_map[4] == g3 );
 
@@ -2517,7 +2517,7 @@ void test_identifier_map ( void )
     MIN_CHECK ( ::id_map->next == 1 );
 
     MIN_CHECK
-        ( min::find ( ::id_map, g1 ) == 1 );
+        ( min::find ( ::id_map, g1 ) == 2 );
     MIN_CHECK
         ( min::find ( ::id_map, g2 ) == 3 );
     MIN_CHECK

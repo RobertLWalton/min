@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 19 10:16:17 EDT 2021
+// Date:	Sun Sep 19 15:04:26 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6752,7 +6752,7 @@ namespace min {
     void map_set ( min::id_map map, min::gen name,
                    min::gen g );
     void map_clear ( min::id_map map, min::gen name );
-    inline void map_clear ( min::id_map map )
+    inline void map_clear_input ( min::id_map map )
     {
         input_hash_table_ref ( map ) = min::MISSING();
     }

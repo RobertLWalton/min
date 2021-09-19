@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 18 17:00:18 EDT 2021
+// Date:	Sun Sep 19 15:28:34 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3653,57 +3653,22 @@ inline void map_set
     		< min::gen,
 		  min::id_map_header<L>, L >
         id_map_insptr;
-    typedef min::packed_vec_insptr
-    		< L, min::packed_vec_header<L>, L >
-	output_hash_table_insptr;
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
+    MIN_ASSERT
+        ( map->output_hash_table == min::NULL_STUB,
+	  "numeric map_set called when map has"
+	  " an output hash table" );
     MIN_ASSERT ( id != 0, "id argument is zero" );
     MIN_ASSERT ( g != min::NONE(),
                  "value argument is NONE" );
 
     while ( id >= map->length )
         min::push(map_insptr) = min::NONE();
+    if ( map_insptr[id] == min::NONE() )
+	++ * (L *) & map_insptr->occupied;
     map_insptr[id] = g;
-    ++ * (L *) & map_insptr->occupied;
-        // We increment occupied even if map[id] was
-	// not previously NONE, in order to indicate
-	// there will now be both a new entry in the
-	// hash table and a stale entry.  Occupied
-	// will be recomputed when hash table is
-	// remade.
-
-    output_hash_table_insptr output_hash_table =
-        map->output_hash_table;
-
-    if ( output_hash_table == min::NULL_STUB ) return;
-    else if (   output_hash_table->length
-              < 2 * map->occupied )
-    {
-        output_hash_table_ref ( map ) = min::NULL_STUB;
-	    // Defer creation of a new hash table
-	    // to the next find or find_or_add.
-	return;
-    }
-        
-    L h = ::hash ( map, g );
-    L offset = 0;
-    while ( true )
-    {
-        if ( output_hash_table[h] == 0 ) break;
-	h = ( h + 1 ) % output_hash_table->length;
-	++ offset;
-    }
-    output_hash_table[h] = id;
-    if ( map->hash_max_offset < offset )
-        map_insptr->hash_max_offset = offset;
-
-    // Its OK if the previous map[id] value was not
-    // NONE and its entry is still in the hash table.
-    // Such stale hash table entries do no harm except
-    // for occupying space which will be collected
-    // when the hash table is resized.
 }
 
 template < typename L >
@@ -3713,6 +3678,11 @@ inline void map_clear
 		min::id_map_header<L> > map,
 	  L id )
 {
+    MIN_ASSERT
+        ( map->output_hash_table == min::NULL_STUB,
+	  "numeric map_clear called when map has"
+	  " an output hash table" );
+
     if ( id >= map->length ) return;
 
     typedef min::packed_vec_insptr
@@ -3722,6 +3692,8 @@ inline void map_clear
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
+    if ( map_insptr[id] != min::NONE() )
+	-- * (L *) & map_insptr->occupied;
     map_insptr[id] = min::NONE();
 }
 
