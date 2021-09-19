@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep 10 04:08:39 EDT 2021
+// Date:	Sat Sep 18 17:14:26 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2500,7 +2500,7 @@ void test_identifier_map ( void )
         ( min::find_or_add ( ::id_map, g1 ) == 1 );
     MIN_CHECK
         ( min::find ( ::id_map, g2 ) == 0 );
-    min::put ( ::id_map, 3, g2 );
+    min::map_set ( ::id_map, 3, g2 );
     MIN_CHECK
         ( min::find ( ::id_map, g3 ) == 0 );
     MIN_CHECK
@@ -2523,6 +2523,13 @@ void test_identifier_map ( void )
     MIN_CHECK
         ( min::find_or_add ( ::id_map, g3 ) == 4 );
 
+    min::init ( ::id_map );
+    min::map_set ( ::id_map, g2, g1 );
+    MIN_CHECK
+        ( min::map_get ( ::id_map, g2 ) == g1 );
+    min::map_clear ( ::id_map, g2 );
+    MIN_CHECK (    min::map_get ( ::id_map, g2 )
+                == min::NONE() );
 
     cout << endl;
     cout << "Finish Identifier Map Test!" << endl;

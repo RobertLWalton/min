@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 14, 2021}
+\date{September 18, 2021}
  
 \maketitle
 
@@ -8816,43 +8816,43 @@ map elements are
 read and written by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINMKEY{get}{of numeric id map}\ARGBREAK
+\verb|min::gen min::| & \MINMKEY{map\_get}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::GET_OF_ID_MAP_ID} \\
+\LABEL{MIN::MAP_GET_OF_ID_MAP_ID} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINMKEY{set\REL}{of numeric id map}\ARGBREAK
+\verb|void min::| & \MINMKEY{map\_set\REL}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id,|\ARGBREAK
     \verb|  min::gen g )|
-\LABEL{MIN::SET_OF_ID_MAP_ID} \\
+\LABEL{MIN::MAP_SET_OF_ID_MAP_ID} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINMKEY{clear}{of numeric id map}\ARGBREAK
+\verb|void min::| & \MINMKEY{map\_clear}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::CLEAR_OF_ID_MAP_ID} \\
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP_ID} \\
 \end{tabular}\end{indpar}
 
 These functions do not use any hash table; they just read and
 write the identifier map vector.  It is an error to use them if
 the identifier map has an output hash table.
 
-The \TT{min::get} function returns \TT{min::NONE()} if the \TT{id}
-is not mapped.  The \TT{min::set} function adds elements
+The \TT{min::map\_get} function returns \TT{min::NONE()} if the \TT{id}
+is not mapped.  The \TT{min::map\_\EOL set} function adds elements
 (containing \TT{min::NONE()}) to the map vector as neccessary
 until the vector has an element with index \TT{id}, and then
 sets this element equal to \TT{g}.  Here \TT{g} \underline{cannot}
-equal \TT{min::NONE()}.  The \TT{min::clear} function removes
+equal \TT{min::NONE()}.  The \TT{min::map\_clear} function removes
 \TT{id} from the map, by setting its element to \TT{min::NONE()}
 if it is in the vector, and by doing nothing if it is not.
 
 When a `\TT{@}{\em id}\,' token is encountered in the input
 and {\em id} is not in the map, normal procedure is
-to set the \TT{map[}{\em id}\TT{]} element using \TT{min::set}
+to set the \TT{map[}{\em id}\TT{]} element using \TT{min::map\_set}
 to a new preallocated stub (\itemref{PREALLOCATED-STUBS}).
 Then when a definition for
 `\TT{@}{\em id}\,' is encountered later in the input, the preallocated
@@ -8911,35 +8911,35 @@ that maps symbols to \TT{min::gen} values.  Elements in this table
 are gotten and set by:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINMKEY{get}{of symbolic id map}\ARGBREAK
+\verb|min::gen min::| & \MINMKEY{map\_get}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol )|
-\LABEL{MIN::GET_OF_ID_MAP_SYMBOL} \\
+\LABEL{MIN::MAP_GET_OF_ID_MAP_SYMBOL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINMKEY{set\REL}{of symbolic id map}\ARGBREAK
+\verb|void min::| & \MINMKEY{map\_set\REL}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol,|\ARGBREAK
     \verb|  min::gen g )|
-\LABEL{MIN::SET_OF_ID_MAP_SYMBOL} \\
+\LABEL{MIN::MAP_SET_OF_ID_MAP_SYMBOL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINMKEY{clear}{of symbolic id map}\ARGBREAK
+\verb|void min::| & \MINMKEY{map\_clear}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol )|
-\LABEL{MIN::CLEAR_OF_ID_MAP_SYMBOL} \\
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP_SYMBOL} \\
 \end{tabular}\end{indpar}
 
 It is an error to use these functions if
 the identifier map has an output hash table.
 
-If symbolic identifiers are being input, \TT{min::get}, \TT{min::set},
-and \TT{min::clear} can be used as for numeric identifiers, except that
+If symbolic identifiers are being input, \TT{min::map\_get}, \TT{min::map\_set},
+and \TT{min::map\_clear} can be used as for numeric identifiers, except that
 in place of an \TT{min::uns32} numeric identifier one uses a
 \TT{min::gen} MIN string identifer.  The string is the {\em symbol},
-with or without the bracketting \TT{@}'s.
+with or without the bracketing \TT{@}'s.
 
 \subsection{Printers}
 \label{PRINTERS}
@@ -21044,19 +21044,19 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINMKEY{get}{of numeric id map}\ARGBREAK
+\verb|min::gen min::| & \MINMKEY{map\_get}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::GET_OF_ID_MAP_ID} \\
-\verb|void min::| & \MINMKEY{set\REL}{of numeric id map}\ARGBREAK
+\LABEL{MIN::MAP_GET_OF_ID_MAP_ID} \\
+\verb|void min::| & \MINMKEY{map\_set\REL}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id,|\ARGBREAK
     \verb|  min::gen g )|
-\LABEL{MIN::SET_OF_ID_MAP_ID} \\
-\verb|void min::| & \MINMKEY{clear}{of numeric id map}\ARGBREAK
+\LABEL{MIN::MAP_SET_OF_ID_MAP_ID} \\
+\verb|void min::| & \MINMKEY{map\_clear}{of numeric id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id )|
-\LABEL{MIN::CLEAR_OF_ID_MAP_ID} \\
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP_ID} \\
 \end{TABULAR}
 
 \medskip
@@ -21070,19 +21070,19 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINMKEY{get}{of symbolic id map}\ARGBREAK
+\verb|min::gen min::| & \MINMKEY{map\_get}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol )|
-\LABEL{MIN::GET_OF_ID_MAP_SYMBOL} \\
-\verb|void min::| & \MINMKEY{set\REL}{of symbolic id map}\ARGBREAK
+\LABEL{MIN::MAP_GET_OF_ID_MAP_SYMBOL} \\
+\verb|void min::| & \MINMKEY{map\_set\REL}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol,|\ARGBREAK
     \verb|  min::gen g )|
-\LABEL{MIN::SET_OF_ID_MAP_SYMBOL} \\
-\verb|void min::| & \MINMKEY{clear}{of symbolic id map}\ARGBREAK
+\LABEL{MIN::MAP_SET_OF_ID_MAP_SYMBOL} \\
+\verb|void min::| & \MINMKEY{map\_clear}{of symbolic id map}\ARGBREAK
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::gen symbol )|
-\LABEL{MIN::CLEAR_OF_ID_MAP_SYMBOL} \\
+\LABEL{MIN::MAP_CLEAR_OF_ID_MAP_SYMBOL} \\
 \end{TABULAR}
 
 \end{indpar}

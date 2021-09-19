@@ -1332,6 +1332,10 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find ( ::id_map, g2 ) == 3 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::find_or_add ( ::id_map, g3 ) == 4 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::map_get ( ::id_map, g2 ) == g1 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::map_get ( ::id_map, g2 ) == min::NONE() => true
 
 Finish Identifier Map Test!
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep 18 03:07:39 EDT 2021
+// Date:	Sat Sep 18 17:00:18 EDT 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3381,14 +3381,14 @@ min::phrase_position_vec min::position_of
 
 static min::uns32 uns32_id_map_stub_disp[2] =
     { min::DISP ( & min::id_map_header<min::uns32>
-                       ::hash_table ),
+                       ::output_hash_table ),
       min::DISP_END };
 
 static min::uns32 uns32_id_map_gen_disp[3] =
     { min::DISP ( & min::id_map_header<min::uns32>
                        ::ID_assign ),
       min::DISP ( & min::id_map_header<min::uns32>
-                       ::symbol_table ),
+                       ::input_hash_table ),
       min::DISP_END };
 
 static min::uns32 id_map_element_gen_disp[2] =
@@ -3425,13 +3425,13 @@ inline min::packed_vec_insptr
 		< L,
 		  min::packed_vec_header<L>,
 		  L >
-    new_id_map_hash_table ( L length );
+    new_id_map_output_hash_table ( L length );
 template<> 
 inline min::packed_vec_insptr
 		< min::uns32,
 		  min::packed_vec_header<min::uns32>,
 		  min::uns32 >
-    new_id_map_hash_table<min::uns32>
+    new_id_map_output_hash_table<min::uns32>
 	( min::uns32 length )
 {
     return min::uns32_packed_vec_type.new_stub
@@ -3448,17 +3448,18 @@ inline L hash
 {
     typedef min::packed_vec_insptr
     		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
-    hash_table_insptr hash_table = map->hash_table;
-    MIN_REQUIRE ( hash_table != min::NULL_STUB );
+	output_hash_table_insptr;
+    output_hash_table_insptr output_hash_table =
+        map->output_hash_table;
+    MIN_REQUIRE ( output_hash_table != min::NULL_STUB );
     min::uns64 h0 = MUP::value_of ( g );
     h0 *= map->hash_multiplier;
-    h0 %= hash_table->length;
+    h0 %= output_hash_table->length;
     return (L) h0;
 }
 
 template < typename L >
-static void new_hash_table
+static void new_output_hash_table
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L>,
@@ -3470,7 +3471,12 @@ static void new_hash_table
 		  L > id_map_insptr;
     typedef min::packed_vec_insptr
     		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
+	output_hash_table_insptr;
+
+    MIN_ASSERT
+        ( map->input_hash_table == min::MISSING(),
+	  "id map cannot have both an output and an"
+	  " input hash table" );
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
@@ -3481,10 +3487,11 @@ static void new_hash_table
     length *= 4;
     if ( length < 128 ) length = 128;
 
-    hash_table_ref ( map ) =
-	::new_id_map_hash_table<L> ( length );
-    hash_table_insptr hash_table = map->hash_table;
-    min::push ( hash_table, length );
+    output_hash_table_ref ( map ) =
+	::new_id_map_output_hash_table<L> ( length );
+    output_hash_table_insptr output_hash_table =
+        map->output_hash_table;
+    min::push ( output_hash_table, length );
 
     map_insptr->hash_multiplier = 1103515245;
         // Used by gcc for linear congrential random
@@ -3500,12 +3507,12 @@ static void new_hash_table
 
 	L h = ::hash ( map, g );
 	L offset = 0;
-	while ( hash_table[h] != 0 )
+	while ( output_hash_table[h] != 0 )
 	{
-	    h = ( h + 1 ) % hash_table->length;
+	    h = ( h + 1 ) % output_hash_table->length;
 	    ++ offset;
 	}
-	hash_table[h] = id;
+	output_hash_table[h] = id;
 	if ( map->hash_max_offset < offset )
 	    map_insptr->hash_max_offset = offset;
     }
@@ -3535,7 +3542,7 @@ inline min::packed_vec_ptr
     }
     else
     {
-        hash_table_ref((min::id_map) map) =
+        output_hash_table_ref((min::id_map) map) =
 	    min::NULL_STUB;
 	min::pop ( map_insptr,
 	           (min::unsptr) map->length );
@@ -3549,6 +3556,8 @@ inline min::packed_vec_ptr
 	min::new_str_gen ( ":=" );
     map_insptr->id_gen_format =
         min::id_map_gen_format;
+    input_hash_table_ref((min::id_map) map) =
+	min::MISSING();
 
     return map;
 }
@@ -3562,23 +3571,24 @@ inline L find
 {
     typedef min::packed_vec_insptr
     		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
+	output_hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
     if ( map == min::NULL_STUB ) return 0;
 
-    if ( map->hash_table == min::NULL_STUB )
-	::new_hash_table ( map );
-    hash_table_insptr hash_table = map->hash_table;
+    if ( map->output_hash_table == min::NULL_STUB )
+	::new_output_hash_table ( map );
+    output_hash_table_insptr output_hash_table =
+        map->output_hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
     while ( true )
     {
-        L id = hash_table[h];
+        L id = output_hash_table[h];
 	if ( id == 0 ) return 0;
 	if ( map[id] == g ) return id;
 	if ( offset >= map->hash_max_offset ) return 0;
-	h = ( h + 1 ) % hash_table->length;
+	h = ( h + 1 ) % output_hash_table->length;
 	++ offset;
     }
 }
@@ -3596,42 +3606,43 @@ inline L find_or_add
 	id_map_insptr;
     typedef min::packed_vec_insptr
     		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
+	output_hash_table_insptr;
 
     if ( g == min::NONE() ) return 0;
     if ( map == min::NULL_STUB ) return 0;
 
-    if ( map->hash_table == min::NULL_STUB )
-	::new_hash_table ( map );
-    hash_table_insptr hash_table = map->hash_table;
+    if ( map->output_hash_table == min::NULL_STUB )
+	::new_output_hash_table ( map );
+    output_hash_table_insptr output_hash_table =
+        map->output_hash_table;
     L h = ::hash ( map, g );
     L offset = 0;
     while ( true )
     {
-        L id = hash_table[h];
+        L id = output_hash_table[h];
 	if ( id == 0 ) break;
 	if ( map[id] == g ) return id;
-	h = ( h + 1 ) % hash_table->length;
+	h = ( h + 1 ) % output_hash_table->length;
 	++ offset;
     }
     L id = map->length;
     id_map_insptr map_insptr =
         (id_map_insptr) (min::id_map) map;
     min::push ( map_insptr ) = g;
-    hash_table[h] = id;
+    output_hash_table[h] = id;
 
     if ( map->hash_max_offset < offset )
         map_insptr->hash_max_offset = offset;
 
     ++ * (L *) & map_insptr->occupied;
-    if ( hash_table->length < 2 * map->occupied )
-        hash_table_ref ( map ) = min::NULL_STUB;
+    if ( output_hash_table->length < 2 * map->occupied )
+        output_hash_table_ref ( map ) = min::NULL_STUB;
 
     return id;
 }
 
 template < typename L >
-inline void put
+inline void map_set
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L> > map,
@@ -3644,7 +3655,7 @@ inline void put
         id_map_insptr;
     typedef min::packed_vec_insptr
     		< L, min::packed_vec_header<L>, L >
-	hash_table_insptr;
+	output_hash_table_insptr;
 
     id_map_insptr map_insptr = (id_map_insptr) map;
 
@@ -3663,12 +3674,14 @@ inline void put
 	// will be recomputed when hash table is
 	// remade.
 
-    hash_table_insptr hash_table = map->hash_table;
+    output_hash_table_insptr output_hash_table =
+        map->output_hash_table;
 
-    if ( hash_table == min::NULL_STUB ) return;
-    else if ( hash_table->length < 2 * map->occupied )
+    if ( output_hash_table == min::NULL_STUB ) return;
+    else if (   output_hash_table->length
+              < 2 * map->occupied )
     {
-        hash_table_ref ( map ) = min::NULL_STUB;
+        output_hash_table_ref ( map ) = min::NULL_STUB;
 	    // Defer creation of a new hash table
 	    // to the next find or find_or_add.
 	return;
@@ -3678,11 +3691,11 @@ inline void put
     L offset = 0;
     while ( true )
     {
-        if ( hash_table[h] == 0 ) break;
-	h = ( h + 1 ) % hash_table->length;
+        if ( output_hash_table[h] == 0 ) break;
+	h = ( h + 1 ) % output_hash_table->length;
 	++ offset;
     }
-    hash_table[h] = id;
+    output_hash_table[h] = id;
     if ( map->hash_max_offset < offset )
         map_insptr->hash_max_offset = offset;
 
@@ -3694,7 +3707,7 @@ inline void put
 }
 
 template < typename L >
-inline void clear
+inline void map_clear
 	( min::packed_vec_ptr
 	      < min::gen,
 		min::id_map_header<L> > map,
@@ -3710,6 +3723,38 @@ inline void clear
     id_map_insptr map_insptr = (id_map_insptr) map;
 
     map_insptr[id] = min::NONE();
+}
+
+template < typename L >
+inline void map_set
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L> > map,
+	  min::gen symbol,
+	  min::gen g )
+{
+    if ( map->input_hash_table == min::MISSING() )
+    {
+	MIN_ASSERT
+	    ( map->output_hash_table == min::NULL_STUB,
+	      "id map cannot have both an output and an"
+	      " input hash table" );
+        input_hash_table_ref ( map ) =
+	    min::new_obj_gen ( 500, 100, 0, true );
+    }
+    min::set ( map->input_hash_table, symbol, g );
+}
+
+template < typename L >
+inline void map_clear
+	( min::packed_vec_ptr
+	      < min::gen,
+		min::id_map_header<L> > map,
+	  min::gen symbol )
+{
+    if ( map->input_hash_table != min::MISSING() )
+	min::set ( map->input_hash_table, symbol,
+	           min::NONE() );
 }
 
 min::id_map min::init
@@ -3730,18 +3775,29 @@ min::uns32 min::find_or_add
     return ::find_or_add ( map, g );
 }
 
-void min::put
+void min::map_set
 	( min::id_map map, min::uns32 id, min::gen g )
 {
-    ::put ( map, id, g );
+    ::map_set ( map, id, g );
 }
 
-void min::clear
+void min::map_clear
 	( min::id_map map, min::uns32 id )
 {
-    ::clear ( map, id );
+    ::map_clear ( map, id );
 }
 
+void min::map_set
+	( min::id_map map, min::gen symbol, min::gen g )
+{
+    ::map_set ( map, symbol, g );
+}
+
+void min::map_clear
+	( min::id_map map, min::gen symbol )
+{
+    ::map_clear ( map, symbol );
+}
 
 min::id_map min::set_id_map
 	( min::printer printer,
