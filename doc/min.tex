@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 19, 2021}
+\date{November 19, 2021}
  
 \maketitle
 
@@ -282,34 +282,53 @@ the Minimal Runtime System.
 This document is written for readers who wish to add C++ code
 to a MIN implementation, or who wish to maintain an implementation.
 
-A programming system provides run time and compile time support
+MIN might better be described as a `minimal complete' runtime system.
+It has a number of advanced features, such as support for objects
+that combine a vector with a hash table, support for an ephemeral
+real-time garbage collector, and advanced printing support.
+
+A runtime system provides run time and compile time support
 for programming languages.
-A programming system, such as MIN, is
-built on top of an underlying programming system provided by the
+A runtime system, such as MIN, is
+built on top of an underlying runtime system provided by the
 implementation language, in this case C++.
 MIN consists of a data store, of the single-thread execution system
 inherited from C++, and of MIN compatible threads.
 Other programming language specific
-programming systems can be built on top of MIN.
+runtime systems can be built on top of MIN.
 
 A modest number of \skey{abbreviation}s are used throughout this document
 and the corresponding code:
 
-\begin{center}
-\begin{tabular}{ll}
+\begin{indpar}
+\begin{tabular}{p{0.8in}l}
 \ttmkey{acc}{abbreviation}	& allocator/collector/compactor
 			          (\itemref{ACC-INTERFACE},\itemref{ACC}) \\
 \ttmkey{aux}{abbreviation}	& auxiliary (\itemref{AUXILIARY}) \\
 \ttmkey{attr}{abbreviation}	& attribute (\itemref{OBJECT-VECTOR-LEVEL}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{bra}{abbreviation}	& opening bracket (\pagref{OBJ_BRA}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{DISP}{abbreviation}	& displacement (\pagref{MIN::DISP}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{gen}{abbreviation}	& general value (\itemref{GENERAL-VALUES}) \\
 \ttmkey{gtyped}{abbreviation}	& graph typed (\itemref{GRAPH-TYPED-OBJECTS}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{insptr}{abbreviation}	& insertable pointer
 				  (read-write, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{ket}{abbreviation}	& closing bracket (\pagref{OBJ_KET}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{lab}{abbreviation}	& label (\itemref{LABELS}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{min}{abbreviation}	& the `\TT{min}' namespace (\pagref{min::}) \\
 \ttmkey{MACC}{abbreviation}	& \TT{min::acc} (\pagref{MACC}) \\
 \ttmkey{MIN\_}{abbreviation}	& the \TT{MIN\_} macro preface
@@ -317,21 +336,33 @@ and the corresponding code:
 \ttmkey{MINT}{abbreviation}	& \TT{min::internal} (\pagref{MINT}) \\
 \ttmkey{MOS}{abbreviation}	& \TT{min::os} (\pagref{MOS}) \\
 \ttmkey{MUP}{abbreviation}	& \TT{min::unprotected} (\pagref{MUP}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{ptr}{abbreviation}	& pointer (often read-only, see updptr and
                                   insptr) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{ref}{abbreviation}	& reference 
     (\pagref{BODY-REFERENCES-AND-POINTERS}) \\
 \ttmkey{sep}{abbreviation}	& separator (\pagref{OBJ_SEP}) \\
 \ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \ttmkey{updptr}{abbreviation}	& updatable pointer
                                   (i.e., read-write pointer) \\
+\end{tabular} \\
+\begin{tabular}{p{0.8in}l}
 \ttmkey{var}{abbreviation}	& variable (\itemref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{vec}{abbreviation}	& vector (\itemref{OBJECT-VECTOR-LEVEL}) \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 Also one of a small number of \skey{subscript}s may be attached to a
 function name to indicate that the function is of a certain class
