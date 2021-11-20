@@ -7,3 +7,5 @@ such as support for objects that combine a vector with
 a hash table, support for an ephemeral real-time garbage
 collector, and advanced printing support.
 
+See doc/min.pdf for a complete description.
+
