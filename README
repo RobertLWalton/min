@@ -1,0 +1,9 @@
+MIN is a runtime system that provides support for
+programming languages.
+
+MIN might best be described as a `minimal complete'
+runtime system.  It has a number of advanced features,
+such as support for objects that combine a vector with
+a hash table, support for an ephemeral real-time garbage
+collector, and advanced printing support.
+
