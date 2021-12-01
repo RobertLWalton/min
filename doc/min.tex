@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 20, 2021}
+\date{December 1, 2021}
  
 \maketitle
 
@@ -4881,8 +4881,8 @@ leading or trailing, and if the string is a mark that can be used as a type.
     & \MINLKEY{quote\_separator}{\_str\_classifier}
 \LABEL{MIN::QUOTE_SEPARATOR_STR_CLASSIFIER} \\
 \verb|const min::str_classifier min::|
-    & \MINLKEY{quote\_non\_word}{\_str\_classifier}
-\LABEL{MIN::QUOTE_NON_WORD_STR_CLASSIFIER} \\
+    & \MINLKEY{quote\_value}{\_str\_classifier}
+\LABEL{MIN::QUOTE_VALUE_STR_CLASSIFIER} \\
 \verb|const min::str_classifier min::| & \MINKEY{quote\_all\_str\_classifier}
 \LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
 \verb|const min::str_classifier min::| & \MINKEY{null\_str\_classifier}
@@ -5041,10 +5041,11 @@ result has any of the
 \TT{min::\EOL IS\_\EOL LEADING}, or
 \TT{min::\EOL IS\_\EOL TRAILING} flags.
 
-The \minlkey{quote\_non\_word}{\_str\_classifier} is just like the
+The \minlkey{quote\_value}{\_str\_classifier} is just like the
 \TT{min::\EOL standard\_\EOL str\_\EOL class\-ifier} except that
 it adds the \TT{min::\EOL NEEDS\_\EOL QUOTES} flag if the
-result does \underline{not} have the \TT{min::\EOL IS\_\EOL LETTER} flag.
+result does \underline{not} have either the \TT{min::\EOL IS\_\EOL LETTER} flag
+or the \TT{min::\EOL IS\_\EOL DIGIT} flag.
 
 The \minkey{quote\_all\_str\_classifier} always returns just the
 \TT{min::\EOL NEEDS\_\EOL QUOTES} flag.
@@ -11731,7 +11732,7 @@ for general value formats is as follows:
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_format          // str_format|
+\verb|min::quote_value_str_format             // str_format|
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11739,7 +11740,7 @@ for general value formats is as follows:
                    min::\MINKEY{compact\_id\_gen\_format}:}
 \LABEL{MIN::COMPACT_ID_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK
+\verb|min::quote_value_id_str_format          // str_format|\ARGBREAK
 \verb|min::compact_id_obj_format              // obj_format|
 \end{tabular}\end{indpar}
 
@@ -11748,7 +11749,7 @@ for general value formats is as follows:
                    min::\MINKEY{id\_gen\_format}:}
 \LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK
+\verb|min::quote_value_id_str_format          // str_format|\ARGBREAK
 \verb|min::id_obj_format                      // obj_format|
 \end{tabular}\end{indpar}
 
@@ -11757,7 +11758,7 @@ for general value formats is as follows:
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK
+\verb|min::quote_value_str_format             // str_format|\ARGBREAK
 \verb|min::isolated_line_id_obj_format        // obj_format|
 \end{tabular}\end{indpar}
 
@@ -11766,7 +11767,7 @@ for general value formats is as follows:
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK
+\verb|min::quote_value_str_format             // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|
 \end{tabular}\end{indpar}
 
@@ -12022,10 +12023,10 @@ The formats for printing string \TT{min::gen} values are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINLKEY{quote\_non\_word}{\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_WORD_STR_FORMAT}\ARGBREAK
+                   min::\MINLKEY{quote\_value}{\_str\_format}:}
+\LABEL{MIN::QUOTE_VALUE_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_classifier // str_classifier|\ARGBREAK
+\verb|min::quote_value_str_classifier // str_classifier|\ARGBREAK
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -19541,8 +19542,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::QUOTE_SEPARATOR_STR_CLASSIFIER} \\
 \multicolumn{2}{l}{\tt const min::str\_classifier} \\
 \verb|    min::|
-    & \MINKEY{quote\_non\_word\_str\_classifier}
-\LABEL{MIN::QUOTE_NON_WORD_STR_CLASSIFIER} \\
+    & \MINKEY{quote\_value\_str\_classifier}
+\LABEL{MIN::QUOTE_VALUE_STR_CLASSIFIER} \\
 \multicolumn{2}{l}{\tt const min::str\_classifier} \\
 \verb|    min::| & \MINKEY{quote\_all\_str\_classifier}
 \LABEL{MIN::QUOTE_ALL_STR_CLASSIFIER} \\
@@ -22298,7 +22299,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_str_format          // str_format|
+\verb|min::quote_value_str_format             // str_format|
 \end{TABULAR}
 
 \bigskip
@@ -22308,7 +22309,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{compact\_id\_gen\_format}:}
 \LABEL{MIN::COMPACT_ID_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK[0in]
+\verb|min::quote_value_id_str_format          // str_format|\ARGBREAK[0in]
 \verb|min::compact_id_obj_format              // obj_format|
 \end{TABULAR}
 
@@ -22319,7 +22320,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{id\_gen\_format}:}
 \LABEL{MIN::ID_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_id_str_format       // str_format|\ARGBREAK[0in]
+\verb|min::quote_value_id_str_format          // str_format|\ARGBREAK[0in]
 \verb|min::id_obj_format                      // obj_format|
 \end{TABULAR}
 
@@ -22330,7 +22331,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{id\_map\_gen\_format}:}
 \LABEL{MIN::ID_MAP_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK[0in]
+\verb|min::quote_value_str_format             // str_format|\ARGBREAK[0in]
 \verb|min::isolated_line_id_obj_format        // obj_format|
 \end{TABULAR}
 
@@ -22341,7 +22342,7 @@ These are in \verb|min_parameters.h|.
                    min::\MINKEY{name\_gen\_format}:}
 \LABEL{MIN::NAME_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::quote_non_word_str_format          // str_format|\ARGBREAK[0in]
+\verb|min::quote_value_str_format             // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|
 \end{TABULAR}
 
@@ -22539,10 +22540,10 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{0.1in}
 \multicolumn{2}{l}{const min::str\_format *
-                   min::\MINLKEY{quote\_non\_word}{\_str\_format}:}
-\LABEL{MIN::QUOTE_NON_WORD_STR_FORMAT}\ARGBREAK
+                   min::\MINLKEY{quote\_value}{\_str\_format}:}
+\LABEL{MIN::QUOTE_VALUE_STR_FORMAT}\ARGBREAK
 \verb|// Same as min::standard_str_format except for:|\ARGBREAK
-\verb|min::quote_non_word_str_classifier // str_classifier|\ARGBREAK
+\verb|min::quote_value_str_classifier // str_classifier|\ARGBREAK
 \end{TABULAR}
 
 \bigskip

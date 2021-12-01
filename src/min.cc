@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 19 15:28:34 EDT 2021
+// Date:	Wed Dec  1 13:32:10 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11208,7 +11208,7 @@ const min::str_classifier
     & ::quote_separator_str_classifier_function;
 
 static min::uns32
-    quote_non_word_str_classifier_function
+    quote_value_str_classifier_function
 	( const min::uns32 * char_flags,
 	  min::support_control sc,
 	  min::unsptr n,
@@ -11217,14 +11217,16 @@ static min::uns32
     min::uns32 str_class =
         ::standard_str_classifier_function
 	    ( char_flags, sc, n, p );
-    if ( ( str_class & min::IS_LETTER ) == 0 )
+    if ( ( str_class & min::IS_LETTER ) == 0
+         &&
+	 ( str_class & min::IS_DIGIT ) == 0 )
 	str_class |= min::NEEDS_QUOTES;
     return str_class;
 }
 const min::str_classifier
-    min::quote_non_word_str_classifier =
+    min::quote_value_str_classifier =
     &
-    ::quote_non_word_str_classifier_function;
+    ::quote_value_str_classifier_function;
 
 static min::uns32 quote_all_str_classifier_function
 	( const min::uns32 * char_flags,
@@ -11708,30 +11710,30 @@ const min::str_format *
 	& ::quote_separator_str_format;
 
 static min::str_format
-    quote_non_word_str_format =
+    quote_value_str_format =
 {
-    min::quote_non_word_str_classifier,
+    min::quote_value_str_classifier,
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     0xFFFFFFFF
 };
 const min::str_format *
-    min::quote_non_word_str_format =
-	& ::quote_non_word_str_format;
+    min::quote_value_str_format =
+	& ::quote_value_str_format;
 
 static min::str_format
-    quote_non_word_id_str_format =
+    quote_value_id_str_format =
 {
-    min::quote_non_word_str_classifier,
+    min::quote_value_str_classifier,
     (min::ustring) "\x01\x01" "#",
     (min::ustring) "\x01\x01" "#",
     min::standard_quote_format,
     0
 };
 const min::str_format *
-    min::quote_non_word_id_str_format =
-	& ::quote_non_word_id_str_format;
+    min::quote_value_id_str_format =
+	& ::quote_value_id_str_format;
 
 static min::str_format quote_all_str_format =
 {
@@ -12271,7 +12273,7 @@ static min::gen_format compact_value_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_str_format,
+    & ::quote_value_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,
@@ -12284,7 +12286,7 @@ static min::gen_format compact_id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_id_str_format,
+    & ::quote_value_id_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::compact_id_obj_format,
@@ -12297,7 +12299,7 @@ static min::gen_format id_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_id_str_format,
+    & ::quote_value_id_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::id_obj_format,
@@ -12310,7 +12312,7 @@ static min::gen_format id_map_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_str_format,
+    & ::quote_value_str_format,
     & ::bracket_lab_format,
     & ::bracket_special_format,
     & ::isolated_line_id_obj_format,
@@ -12323,7 +12325,7 @@ static min::gen_format name_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
-    & ::quote_non_word_str_format,
+    & ::quote_value_str_format,
     & ::name_lab_format,
     & ::bracket_special_format,
     & ::compact_obj_format,

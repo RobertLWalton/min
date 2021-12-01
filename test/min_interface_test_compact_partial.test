@@ -3161,7 +3161,7 @@ Flag Parse Errors: `(,)_,34,5'
 @7 :=::
           F = @5 = E
           A = @9
-          B = "0123456789"
+          B = 0123456789
           C = @6
 @8 := abcdefghijklmnopqrstuvwxyz
 @9 := ABCDEFGHIJKLMNOPQRSTUVWXYZ

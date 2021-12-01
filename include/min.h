@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 19 15:04:26 EDT 2021
+// Date:	Wed Dec  1 13:31:25 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3618,7 +3618,7 @@ namespace min {
     extern const min::str_classifier
         quote_separator_str_classifier;
     extern const min::str_classifier
-        quote_non_word_str_classifier;
+        quote_value_str_classifier;
     extern const min::str_classifier
         quote_all_str_classifier;
     extern const min::str_classifier
@@ -13361,9 +13361,9 @@ namespace min {
     extern const min::str_format *
         quote_separator_str_format;
     extern const min::str_format *
-        quote_non_word_str_format;
+        quote_value_str_format;
     extern const min::str_format *
-        quote_non_word_id_str_format;
+        quote_value_id_str_format;
     extern const min::str_format *
         quote_all_str_format;
     extern const min::str_format *
