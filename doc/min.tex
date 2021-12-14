@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 1, 2021}
+\date{December 14, 2021}
  
 \maketitle
 
@@ -12366,8 +12366,9 @@ The format for printing special \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 24 are:|\ARGBREAK
-\verb|//     first 13 unused: name SPECIAL(0xFFFFF...)|\ARGBREAK
+\verb|// Names of specials 0x1000000 - 0 .. 0x1000000 - 25 are:|\ARGBREAK
+\verb|//     first (does not exist): NULL|\ARGBREAK
+\verb|//     next 13 (unused): SPECIAL -1 ... SPECIAL -13|\ARGBREAK
 \verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
 \verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
 \verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
@@ -12381,22 +12382,23 @@ Let
 \begin{center}
 \begin{tabular}{l}
 \tt i = min::special\_index\_of ( v ) \\
-\tt j = 0xFFFFFF - i
+\tt j = 0x1000000 - i
 \end{tabular}
 \end{center}
-Here \TT{i} is the index of \TT{v} and \TT{0xFFFFFF} is the maximum possible
+Here \TT{i} is the index of \TT{v} and \TT{0x1000000 - 1}
+is the maximum possible
 value of \TT{i}.
 Then if \TT{sf->\EOL special\_\EOL names} is not \TT{min::\EOL NULL\_\EOL STUB},
 and
 \begin{center}
-\tt 0 <= j < sf->special\_names->length
+\tt 1 <= j < sf->special\_names->length
 \end{center}
 then \TT{sf->\EOL special\_\EOL names[j]} is the name of \TT{v}.
 
-Otherwise
-\TT{SPECIAL(}$i$\TT{)} is he name of \TT{v}, where $i$ is represented as
-a 6-digit hexadecimal integer (e.g., \TT{0x000000}, \TT{0x000001},
-\ldots, \TT{0xFFFFFF}).
+Otherwise the name of \TT{v} can be either
+`\TT{SPECIAL }$i$' or `\TT{SPECIAL }$-j$', where $i$ and $j$ are
+represented as decimal numbers.  Standardly the former is chosen
+if $i<$\TT{0x800000} and the latter if $j\le$\TT{0x800000}.
 
 \TT{NULL} values for
 \TT{sf->\EOL lab\_\EOL prefix/postfix} act like empty strings

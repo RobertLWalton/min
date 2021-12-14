@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 19 15:22:53 EDT 2021
+// Date:	Tue Dec 14 00:44:56 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2940,10 +2940,11 @@ void test_printer ( void )
     printer << min::pgen ( min::FAILURE() ) << min::eol;
     printer << min::pgen ( min::ERROR() ) << min::eol;
     printer << min::pgen
-                    ( min::new_special_gen (0xABCDEF) )
+                    ( min::new_special_gen
+		          (0x1000000 - 100) )
             << min::eol;
     printer << min::pgen
-                    ( min::new_special_gen (0x111),
+                    ( min::new_special_gen (200),
 		      min::compact_gen_format )
             << min::eol;
     printer << min::pgen

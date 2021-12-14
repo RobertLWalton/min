@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  1 13:32:10 EST 2021
+// Date:	Tue Dec 14 00:26:55 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,22 +115,23 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
       ::zero_disp );
 
 static const unsigned
-    standard_special_names_length = 25;
+    standard_special_names_length = 26;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
-    { (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFF)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFE)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFD)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFC)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFB)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFFA)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF9)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF8)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF7)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF6)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF5)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF4)",
-      (min::ustring) "\x11\x11" "SPECIAL(0xFFFFF3)",
+    { NULL,
+      (min::ustring) "\x0A\x0A" "SPECIAL -1",
+      (min::ustring) "\x0A\x0A" "SPECIAL -2",
+      (min::ustring) "\x0A\x0A" "SPECIAL -3",
+      (min::ustring) "\x0A\x0A" "SPECIAL -4",
+      (min::ustring) "\x0A\x0A" "SPECIAL -5",
+      (min::ustring) "\x0A\x0A" "SPECIAL -6",
+      (min::ustring) "\x0A\x0A" "SPECIAL -7",
+      (min::ustring) "\x0A\x0A" "SPECIAL -8",
+      (min::ustring) "\x0A\x0A" "SPECIAL -9",
+      (min::ustring) "\x0B\x0B" "SPECIAL -10",
+      (min::ustring) "\x0B\x0B" "SPECIAL -11",
+      (min::ustring) "\x0B\x0B" "SPECIAL -12",
+      (min::ustring) "\x0B\x0B" "SPECIAL -13",
       (min::ustring) "\x0C\x0C" "MULTI_VALUED",
       (min::ustring) "\x03\x03" "ANY",
       (min::ustring) "\x04\x04" "NONE",
@@ -13513,26 +13514,26 @@ min::printer min::standard_pgen
 
 	min::print_item_preface
 	    ( printer, min::IS_GRAPHIC );
+	min::unsgen j = 0x1000000 - index;
 	char buffer[64];
 	if ( special_names != min::NULL_STUB
 	     &&
-	         0xFFFFFF
-	       - special_names->length
-	     < index
+	     1 <= j
 	     &&
-	     index <= 0xFFFFFF )
+             j < special_names->length )
 	{
 	    min::print_item_preface
 	        ( printer, min::IS_GRAPHIC );
 	    min::print_ustring
-	        ( printer,
-		  special_names[0xFFFFFF - index] );
+	        ( printer, special_names[j] );
 	}
 	else
 	{
 	    min::uns32 n =
-	        sprintf ( buffer, "SPECIAL(0x%06llX)",
-		                  (min::uns64) index );
+	        sprintf ( buffer, "SPECIAL %ld",
+		          index < 0x800000 ?
+		          (long) index :
+			  - (long) j );
 	    min::print_item ( printer, buffer, n, n );
 	}
 
