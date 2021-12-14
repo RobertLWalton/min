@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 00:26:55 EST 2021
+// Date:	Tue Dec 14 06:56:24 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -115,7 +115,7 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
       ::zero_disp );
 
 static const unsigned
-    standard_special_names_length = 26;
+    standard_special_names_length = 27;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
     { NULL,
@@ -139,6 +139,7 @@ static min::ustring standard_special_names_value
       (min::ustring) "\x08\x08" "DISABLED",
       (min::ustring) "\x07\x07" "ENABLED",
       (min::ustring) "\x09\x09" "UNDEFINED",
+      (min::ustring) "\x06\x06" "UNUSED",
       (min::ustring) "\x07\x07" "SUCCESS",
       (min::ustring) "\x07\x07" "FAILURE",
       (min::ustring) "\x05\x05" "ERROR",

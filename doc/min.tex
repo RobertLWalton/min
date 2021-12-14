@@ -1691,6 +1691,9 @@ Specifies that a feature is enabled.
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
 (\itemref{GRAPH-TYPED-OBJECTS}) that has no value and can be indirected.
+\item[\TT{const min::gen min::}\MINKEY{UNUSED()}]~%
+	\LABEL{MIN::UNUSED}\\
+A value given to an object variable vector element that is never accessed.
 \item[\TT{const min::gen min::}\MINKEY{SUCCESS()}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
@@ -12366,12 +12369,12 @@ The format for printing special \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// Names of specials 0x1000000 - 0 .. 0x1000000 - 25 are:|\ARGBREAK
+\verb|// Names of specials 0x1000000 - 0 .. 0x1000000 - 27 are:|\ARGBREAK
 \verb|//     first (does not exist): NULL|\ARGBREAK
 \verb|//     next 13 (unused): SPECIAL -1 ... SPECIAL -13|\ARGBREAK
 \verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
 \verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
-\verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
+\verb|//     UNDEFINED  UNUSED  SUCCESS  FAILURE  ERROR|\ARGBREAK
 \verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
 \end{tabular}\end{indpar}
 
@@ -18720,6 +18723,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::MULTI_VALUED} \\
 \verb|min::gen min::| & \MINKEY{UNDEFINED()}
 \LABEL{MIN::UNDEFINED} \\
+\verb|min::gen min::| & \MINKEY{UNUSED()}
+\LABEL{MIN::UNUSED} \\
 \verb|min::gen min::| & \MINKEY{SUCCESS()}
 \LABEL{MIN::SUCCESS} \\
 \verb|min::gen min::| & \MINKEY{FAILURE()}
@@ -22752,9 +22757,12 @@ These are in \verb|min_parameters.h|.
 \multicolumn{2}{l}{\tt min::packed\_vec\_ptr<min::ustring>
     min::\MINKEY{standard\_\EOL special\_\EOL names}}
 \LABEL{MIN::STANDARD_SPECIAL_NAMES}\ARGBREAK
-\verb|// Names of specials 0xFFFFFF - 0 .. 0xFFFFFF - 9 are:|\ARGBREAK
-\verb|//     MISSING  NONE  DISABLED  ENABLED  ANY  MULTI_VALUED|\ARGBREAK
-\verb|//     UNDEFINED  SUCCESS  FAILURE  ERROR|\ARGBREAK
+\verb|// Names of specials 0x1000000 - 0 .. 0x1000000 - 27 are:|\ARGBREAK
+\verb|//     first (does not exist): NULL|\ARGBREAK
+\verb|//     next 13 (unused): SPECIAL -1 ... SPECIAL -13|\ARGBREAK
+\verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
+\verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
+\verb|//     UNDEFINED  UNUSED  SUCCESS  FAILURE  ERROR|\ARGBREAK
 \verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
 \end{TABULAR}
 

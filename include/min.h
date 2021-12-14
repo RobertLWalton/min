@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  1 13:31:25 EST 2021
+// Date:	Tue Dec 14 06:55:18 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -412,21 +412,24 @@ namespace min {
     inline min::gen UNDEFINED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 4 ); }
-    inline min::gen SUCCESS ( void )
+    inline min::gen UNUSED ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 5 ); }
-    inline min::gen FAILURE ( void )
+    inline min::gen SUCCESS ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 6 ); }
-    inline min::gen ERROR ( void )
+    inline min::gen FAILURE ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 7 ); }
-    inline min::gen LOGICAL_LINE ( void )
+    inline min::gen ERROR ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 8 ); }
-    inline min::gen INDENTED_PARAGRAPH ( void )
+    inline min::gen LOGICAL_LINE ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 9 ); }
+    inline min::gen INDENTED_PARAGRAPH ( void )
+	{ return min::unprotected::new_special_gen
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 10 ); }
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
