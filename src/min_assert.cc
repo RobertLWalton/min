@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 07:05:38 EDT 2015
+// Date:	Thu Oct 20 02:56:03 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -71,10 +71,13 @@ void min::standard_assert
 	    throw ( new min::assert_exception );
 	if ( min::assert_abort || expression == NULL )
 	{
-	    prctl ( PR_SET_DUMPABLE, 0, 0, 0 );
+	    // prctl ( PR_SET_DUMPABLE, 0, 0, 0 );
 	        // Added because even though corefile
 		// size set to 0, large core file was
 		// being piped to abrt-hook on Fedora.
+		//
+		// Removed because abort() no longer
+		// keeps core for gdb.
 	    fprintf ( assert_err, "    ABORTING"
 	              " (core dump disabled)\n" );
 	    abort();
