@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 06:56:24 EST 2021
+// Date:	Thu Oct 27 06:25:43 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12203,7 +12203,7 @@ static min::obj_format isolated_line_id_obj_format =
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
 
-    min::erase_all_space_double_colon_pstring,
+    min::erase_all_space_colon_pstring,
 			    // obj_attreol
 
     min::space_equal_space_pstring,

@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 14, 2021}
+\date{October 27, 2022}
  
 \maketitle
 
@@ -8808,10 +8808,10 @@ outputs the objects and strings referenced by these identifiers
 in the format:
 
 \begin{center}
-\TT{@}{\em identifier} \TT{::=} {\em object-or-string}
+\TT{@}{\em identifier} \TT{:=} {\em object-or-string}
 \end{center}
 
-In this format `\TT{@}', `\TT{::=}', and the \TT{min::gen\_format}
+In this format `\TT{@}', `\TT{:=}', and the \TT{min::gen\_format}
 used to print {\em object-or-string} are parameters determined by:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
@@ -17370,7 +17370,7 @@ The format for printing object \TT{min::gen} values is:
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::erase_all_space_double_colon_pstring  // obj_attreol|\ARGBREAK
+\verb|min::erase_all_space_colon_pstring       // obj_attreol|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -24832,7 +24832,7 @@ Information Functions:
 \verb|NULL                                     // obj_ket|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrbegin|\ARGBREAK[0in]
 \verb|NULL                                     // obj_attrsep|\ARGBREAK[0in]
-\verb|min::erase_all_space_double_colon_pstring // obj_attrsep|\ARGBREAK[0in]
+\verb|min::erase_all_space_colon_pstring       // obj_attrsep|\ARGBREAK[0in]
 \verb|0                                        // hide_flags|
 \end{TABULAR}
 
