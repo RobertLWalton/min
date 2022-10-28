@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 27 06:25:43 EDT 2022
+// Date:	Fri Oct 28 01:55:11 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3386,8 +3386,10 @@ static min::uns32 uns32_id_map_stub_disp[2] =
                        ::output_hash_table ),
       min::DISP_END };
 
-static min::uns32 uns32_id_map_gen_disp[3] =
+static min::uns32 uns32_id_map_gen_disp[4] =
     { min::DISP ( & min::id_map_header<min::uns32>
+                       ::ID_prefix ),
+      min::DISP ( & min::id_map_header<min::uns32>
                        ::ID_assign ),
       min::DISP ( & min::id_map_header<min::uns32>
                        ::input_hash_table ),
@@ -3554,6 +3556,8 @@ inline min::packed_vec_ptr
     * (L *) & map_insptr->occupied = 0;
     map_insptr->next = 1;
     map_insptr->ID_character = U'@';
+    ID_prefix_ref((min::id_map) map) =
+	min::new_str_gen ( "!" );
     ID_assign_ref((min::id_map) map) =
 	min::new_str_gen ( ":=" );
     map_insptr->id_gen_format =
@@ -12575,6 +12579,7 @@ min::printer min::print_mapped_id
     MIN_REQUIRE ( ID < id_map->length );
 
     printer << min::bol;
+    min::print_str ( printer, id_map->ID_prefix );
     MINT::print_id ( printer, ID );
     min::print_space ( printer );
     printer << id_map->ID_assign;

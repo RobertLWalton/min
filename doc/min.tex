@@ -8808,15 +8808,18 @@ outputs the objects and strings referenced by these identifiers
 in the format:
 
 \begin{center}
-\TT{@}{\em identifier} \TT{:=} {\em object-or-string}
+\TT{!@}{\em identifier} \TT{:=} {\em object-or-string}
 \end{center}
 
-In this format `\TT{@}', `\TT{:=}', and the \TT{min::gen\_format}
+In this format `\TT{!}', `\TT{@}', `\TT{:=}', and the \TT{min::gen\_format}
 used to print {\em object-or-string} are parameters determined by:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
 			  & \TT{map} Member	& \verb|//| Default
 \\[1ex]
+\verb|min::gen map->| & \TTMKEY{ID\_prefix}{of {\tt min::id\_map}}
+			  & \verb|//| MIN string \TT{"!"}
+\LABEL{MIN::ID_MAP_ID_PREFIX} \\
 \verb|min::Uchar map->| & \TTMKEY{ID\_character}{of {\tt min::id\_map}}
 			  & \verb|//| \TT{U'@'}
 \LABEL{MIN::ID_MAP_ID_CHARACTER} \\
@@ -8926,19 +8929,13 @@ can be output identifying precisely the input tokens that were
 left dangling.
 
 MIN does not provide input scanners to convert text to tokens,
-but the following identifier map parameter can be used by such
+but the \TT{ID\_character} identifier map parameter
+(\pagref{MIN::ID_MAP_ID_CHARACTER})
+can be used by such
 a scanner
 to determine whether a token has the form `\TT{@}{\em id}\,'
-where `\TT{@}' is the value of the following parameter and {\em id}
+where `\TT{@}' is the value of the \TT{ID\_character} parameter and {\em id}
 is a string of digits.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~~~~}l}
-			  & \TT{map} Member	& \verb|//| Default
-\\[1ex]
-\verb|min::Uchar map->| & \TTMKEY{id\_Uchar}{of {\tt min::id\_map}}
-			  & \verb|//| \TT{U'@'}
-\LABEL{MIN::ID_MAP_ID_UCHAR} \\
-\end{tabular}\end{indpar}
 
 \subsubsection{Input Using a Symbolic Identifier Map}
 \label{INPUT-USING-A-SYMBOLIC-IDENTIFIER-MAP}
@@ -21090,6 +21087,9 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{2.4in}
+\verb|min::gen map->| & \TTMKEY{ID\_prefix}{of {\tt min::id\_map}} \\
+		      & \verb|// Default:| MIN string \TT{"!"}
+\LABEL{MIN::ID_MAP_ID_PREFIX} \\
 \verb|min::Uchar map->| & \TTMKEY{ID\_character}{of {\tt min::id\_map}} \\
 			& \verb|// Default:| \TT{U'@'}
 \LABEL{MIN::ID_MAP_ID_CHARACTER} \\
@@ -21119,14 +21119,6 @@ These are in \verb|min_parameters.h|.
     \verb|( min::id_map map,|\ARGBREAK
     \verb|  min::uns32 id )|
 \LABEL{MIN::MAP_CLEAR_OF_ID_MAP_ID} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|min::Uchar map->| & \TTMKEY{id\_Uchar}{of {\tt min::id\_map}} \\
-			& \verb|// Default:| \TT{U'@'}
-\LABEL{MIN::ID_MAP_ID_UCHAR} \\
 \end{TABULAR}
 
 \medskip

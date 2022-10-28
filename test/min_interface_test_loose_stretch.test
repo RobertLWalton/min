@@ -3115,40 +3115,40 @@ A B C:
 Flag Parse Errors: `(,)_,34,5'
 {T: A[*abcd,200] = value|X Y Z 0 0 0|T}
 
-@1 := 1 2 3 4 5:
-          myattr[#HZ,64,512] =
-              {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
-                 [< MYATTR SECOND VALUE >] *}
-          .initiator = [< "{" "*" >]
-          myreverse = @2 = myforward
-          .separator = ","
-          .terminator = [< "*" "}" >]
-@2 := A B C:
-          no scientific
-          number = 123
-          .separator = ";"
-          myforward[#aZ] = @1 = myreverse
-          fraction
-          .type = T
+!@1 := 1 2 3 4 5:
+           myattr[#HZ,64,512] =
+               {* [< MYATTR THIRD VALUE >], [< MYATTR VALUE >],
+                  [< MYATTR SECOND VALUE >] *}
+           .initiator = [< "{" "*" >]
+           myreverse = @2 = myforward
+           .separator = ","
+           .terminator = [< "*" "}" >]
+!@2 := A B C:
+           no scientific
+           number = 123
+           .separator = ";"
+           myforward[#aZ] = @1 = myreverse
+           fraction
+           .type = T
 
-@3 := e f g h:
-          G = @4
-          H = @5 = F
-@4 := ABCDEFGHIJKLMNOPQRSTUVWXYZ
-@5 := a @3 c d:
-          F = @3 = H
-          D = @6
-          E = @7 = F
-@6 := This contains a long "string:" @8 ".":
-          .terminator = "'"
-          .initiator = "`"
-@7 :=:
-          F = @5 = E
-          A = @9
-          B = 0123456789
-          C = @6
-@8 := abcdefghijklmnopqrstuvwxyz
-@9 := ABCDEFGHIJKLMNOPQRSTUVWXYZ
+!@3 := e f g h:
+           G = @4
+           H = @5 = F
+!@4 := ABCDEFGHIJKLMNOPQRSTUVWXYZ
+!@5 := a @3 c d:
+           F = @3 = H
+           D = @6
+           E = @7 = F
+!@6 := This contains a long "string:" @8 ".":
+           .terminator = "'"
+           .initiator = "`"
+!@7 :=:
+           F = @5 = E
+           A = @9
+           B = 0123456789
+           C = @6
+!@8 := abcdefghijklmnopqrstuvwxyz
+!@9 := ABCDEFGHIJKLMNOPQRSTUVWXYZ
 This is the top line:
     This is the first line "."
     This is the second line; This is the third line! This is the fourth
