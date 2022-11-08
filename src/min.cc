@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 03:03:55 EST 2022
+// Date:	Tue Nov  8 12:38:16 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11209,7 +11209,8 @@ static min::uns32 standard_str_classifier_function
     const min::uns32 SELECTOR = min::IS_LETTER
                               | min::IS_DIGIT;
 
-    min::Uchar first = * p ++;
+    min::ptr<const min::Uchar> q = p;
+    min::Uchar first = * q ++;
     min::uns32 first_cflags =
 	    min::char_flags ( char_flags, sc, first );
     min::uns32 last_cflags = first_cflags;
@@ -11220,7 +11221,7 @@ static min::uns32 standard_str_classifier_function
 
     for ( min::unsptr i = 1; i < n; ++ i )
     {
-	min::Uchar c = * p ++;
+	min::Uchar c = * q ++;
 	last_cflags =
 	    min::char_flags ( char_flags, sc, c );
 	and_of_cflags &= last_cflags;
@@ -11252,9 +11253,7 @@ static min::uns32 standard_str_classifier_function
         return result | min::NEEDS_QUOTES;
     else if ( ! ( and_of_cflags & min::IS_GRAPHIC ) )
         return result | min::NEEDS_QUOTES;
-    else if ( ( result & min::IS_DIGIT )
-              &&
-	      min::is_number ( n, p ) )
+    else if ( min::is_number ( n, p ) )
 	return result | min::NEEDS_QUOTES;
     else if ( ( or_of_cflags & min::IS_SEPARATOR )
 	      ||
