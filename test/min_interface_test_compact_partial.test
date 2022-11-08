@@ -961,6 +961,30 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     Ubuffer2[6] == min::UNKNOWN_UCHAR => true
 ÀÁÂÃÄÅ�
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "123" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "+123" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "1.23" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "+nan" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "+inf" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( ".0009" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "+0.78e+56" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    is_number ( "+0.78e6" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! is_number ( "+" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! is_number ( "nan+" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! is_number ( "1e" ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! is_number ( "1e-" ) => true
 
 Finish Strings Test!
 

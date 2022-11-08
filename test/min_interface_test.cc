@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 14 00:44:56 EST 2021
+// Date:	Tue Nov  8 12:14:21 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1467,6 +1467,18 @@ void test_numbers ( void )
 
 // Strings
 
+bool is_number ( const char * s )
+{
+    int m = std::strlen ( s );
+    min::Uchar buffer[m];
+    min::Uchar * bp = buffer;
+    min::unsptr n = min::utf8_to_unicode
+        ( bp, buffer + m, s, s + m );
+    min::ptr<const min::Uchar> p =
+        min::new_ptr<const min::Uchar> ( buffer );
+    return min::is_number ( n, p );
+}
+
 void test_strings ( void )
 {
     cout << endl;
@@ -1902,6 +1914,19 @@ void test_strings ( void )
 	cout << sbuffer3 << endl;
 
     }
+
+    MIN_CHECK ( is_number ( "123" ) );
+    MIN_CHECK ( is_number ( "+123" ) );
+    MIN_CHECK ( is_number ( "1.23" ) );
+    MIN_CHECK ( is_number ( "+nan" ) );
+    MIN_CHECK ( is_number ( "+inf" ) );
+    MIN_CHECK ( is_number ( ".0009" ) );
+    MIN_CHECK ( is_number ( "+0.78e+56" ) );
+    MIN_CHECK ( is_number ( "+0.78e6" ) );
+    MIN_CHECK ( ! is_number ( "+" ) );
+    MIN_CHECK ( ! is_number ( "nan+" ) );
+    MIN_CHECK ( ! is_number ( "1e" ) );
+    MIN_CHECK ( ! is_number ( "1e-" ) );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
