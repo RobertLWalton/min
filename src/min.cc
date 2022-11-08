@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 22:53:24 EST 2022
+// Date:	Tue Nov  8 03:03:55 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11247,18 +11247,15 @@ static min::uns32 standard_str_classifier_function
         result |= min::IS_BREAKABLE;
 
     if ( result & min::IS_NATURAL )
-    {
-        if ( first != '0' || n == 1 )
-	    return result;
-	else
-	    return result & ~ min::IS_NATURAL;
-    }
+        return result | min::NEEDS_QUOTES;
     else if ( or_of_cflags & min::NEEDS_QUOTES )
         return result | min::NEEDS_QUOTES;
-    else if ( and_of_cflags & min::IS_VHSPACE )
-        return 0;
     else if ( ! ( and_of_cflags & min::IS_GRAPHIC ) )
         return result | min::NEEDS_QUOTES;
+    else if ( ( result & min::IS_DIGIT )
+              &&
+	      min::is_number ( n, p ) )
+	return result | min::NEEDS_QUOTES;
     else if ( ( or_of_cflags & min::IS_SEPARATOR )
 	      ||
               ( first_cflags & min::IS_LEADING )

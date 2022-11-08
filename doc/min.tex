@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 27, 2022}
+\date{November 8, 2022}
  
 \maketitle
 
@@ -4897,16 +4897,6 @@ to make printing decisions as follows:
 
 \begin{itemlist}[1.5in]
 
-\item[no flags (0 returned)]\label{NO_FLAGS_CLASSIFIER}
-The string is used just for formatting and contains no
-graphic characters.  In some contexts the string is printed
-as is and in others it is quoted.
-
-For \TT{min::\EOL standard\_\EOL str\_\EOL classifier} no flags
-are returned if the string is empty or contains only characters
-which have the \TT{IS\_\EOL VHSPACE} flag, and does not contain
-any characters with the \TT{NEEDS\_\EOL QUOTES} flag.
-
 \item[\ttmkey{NEEDS\_QUOTES}{{\tt min::str\_classifier} flag}]%
 \label{NEEDS_QUOTES_CLASSIFIER}
 The string needs to be quoted.
@@ -4917,9 +4907,27 @@ returned if \underline{any} of the following are true:
 \item
 The string contains any character with the \TT{NEEDS\_\EOL QUOTES} flag.
 \item
-The string contains a character that does not have the
-\TT{IS\_\EOL GRAPHIC} flag and a (possibly different) character that
-does not have the \TT{IS\_\EOL VHSPACE} flag.
+The string contains a character that does \underline{not} have the
+\TT{IS\_\EOL GRAPHIC} flag.
+\item
+The string has a format acceptable to {\tt strtod}.  Specifically,
+the string has one of the following syntaxes: \\
+\hspace*{3em}\{{\tt +}|{\tt -}\}\QMARK{}
+             $digit$\PLUS{} \{{\tt .}$digit$\STAR{}\}\QMARK{}
+             \{ \{{\tt e}|{\tt E}\} \{{\tt +}|{\tt -}\}\QMARK{} $digit$\PLUS{}
+	     \}\QMARK{} \\
+\hspace*{3em}\{{\tt +}|{\tt -}\}\QMARK{}
+              {\tt .}$digit$\PLUS{}
+             \{ \{{\tt e}|{\tt E}\} \{{\tt +}|{\tt -}\}\QMARK{} $digit$\PLUS{}
+	     \}\QMARK{} \\
+\hspace*{3em}\{{\tt +}|{\tt -}\}\QMARK{}
+             \{{\tt n}|{\tt N}\}
+             \{{\tt a}|{\tt a}\}
+             \{{\tt n}|{\tt N}\} \\
+\hspace*{3em}\{{\tt +}|{\tt -}\}\QMARK{}
+             \{{\tt i}|{\tt I}\}
+             \{{\tt n}|{\tt N}\}
+             \{{\tt f}|{\tt F}\}
 \item
 \underline{All} of the following are true:
 \begin{enumerate}
@@ -19557,8 +19565,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|const min::uns32 min::| & \MINKEY{0} (no flags)
-\LABEL{NO_FLAGS_CLASSIFIER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_GRAPHIC}
 \LABEL{IS_GRAPHIC_CLASSIFIER} \\
 \verb|const min::uns32 min::| & \MINKEY{NEEDS\_QUOTES}
