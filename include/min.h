@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 01:44:46 EDT 2022
+// Date:	Mon Nov  7 23:08:08 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3626,6 +3626,10 @@ namespace min {
         quote_all_str_classifier;
     extern const min::str_classifier
         null_str_classifier;
+
+    bool is_number
+	    ( min::unsptr n,
+	      min::ptr<const min::Uchar> p );
 
     void debug_str_class
 	    ( const char * header,

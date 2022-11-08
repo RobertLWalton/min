@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 01:55:11 EDT 2022
+// Date:	Mon Nov  7 22:53:24 EST 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11110,6 +11110,93 @@ void min::debug_str_class
               << std::endl;
 }
 
+bool min::is_number
+	( min::unsptr n,
+	  min::ptr<const min::Uchar> p )
+{
+    if ( n == 0 ) return false;
+    min::Uchar c = * p ++;
+	// n = number of characters left in p
+        //   + 1 (the character in c).
+	// When n == 0 there is no character in c.
+
+    if ( c == U'+' || c == U'-' )
+    {
+	if ( -- n == 0 ) return false;
+	    // "+" and "-" are not converted by strtod.
+        c = * p ++;
+    }
+
+    // Count digits and points.
+    //
+    min::unsptr digits = 0;
+    min::unsptr points = 0;
+    while ( true )
+    {
+        if ( U'0' <= c && c <= U'9' ) ++ digits;
+        else if ( c == U'.' )
+	{
+	    ++ points;
+	    if ( points > 1 ) return false;
+	}
+        else break;
+
+	if ( -- n == 0 ) break;
+        c = * p ++;
+    }
+
+    if ( digits == 0 )
+    {
+	if ( points > 0 ) return false;
+	if ( n != 3 ) return false;
+        if ( c == U'n' || c == U'N' )
+	{
+	    // Check for "nan".
+	    //
+	    c = * p ++;
+	    if ( c != U'a' && c != U'A' )
+		return false;
+	    c = * p ++;
+	    if ( c != U'n' && c != U'N' )
+		return false;
+	    return true;
+	}
+        if ( c == U'i' || c == U'I' )
+	{
+	    // Check for "inf".
+	    //
+	    c = * p ++;
+	    if ( c != U'n' && c != U'N' )
+		return false;
+	    c = * p ++;
+	    if ( c != U'f' && c != U'F' )
+		return false;
+	    return true;
+	}
+	return false;
+    }
+
+    if ( n == 0 ) return true;
+
+    // Check for exponent.
+    //
+    if ( c != U'e' && c != U'E' ) return false;
+    if ( -- n == 0 ) return false;
+    c = * p ++;
+    if ( c == U'+' || c == U'-' )
+    {
+        if ( -- n == 0 ) return false;
+	    // "e+" and "e-" are not accepted by strtod.
+        c = * p ++;
+    }
+    while ( true )
+    {
+        if ( c < U'0' || U'9' < c ) return false;
+	if ( -- n == 0 ) break;
+        c = * p ++;
+    }
+    return true;
+}
 
 static min::uns32 standard_str_classifier_function
 	( const min::uns32 * char_flags,
