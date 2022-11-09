@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 8, 2022}
+\date{November 9, 2022}
  
 \maketitle
 
@@ -5066,6 +5066,43 @@ The \minkey{null\_str\_classifier} is used when printing with a
 if \underline{all} characters
 in the string have the \TT{IS\_\EOL VHSPACE} flag, and just
 \TT{min::\EOL IS\_\EOL GRAPHIC} otherwise.
+
+The following function is used by the \TT{min::standard\_str\_classifier}:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::|
+    & \MINKEY{is\_number} \verb|( min::unsptr n, min::ptr<const min::Uchar> p )|
+\LABEL{MIN::IS_NUMBER} \\
+\end{tabular}
+\begin{indpar}
+Returns true iff the UNICODE {\tt n} character
+string pointed at by {\tt p} is acceptable to {\tt strtod}.
+This means that it has one of the following syntaxes:
+\begin{center}
+\begin{tabular}{l}
+\{{\tt +}|{\tt -}\}\QMARK{}
+$digit$\PLUS{} \{{\tt .}$digit$\STAR{}\}\QMARK{}
+\{ \{{\tt e}|{\tt E}\} \{{\tt +}|{\tt -}\}\QMARK{} $digit$\PLUS{}
+\}\QMARK{}
+\\
+\{{\tt +}|{\tt -}\}\QMARK{}
+{\tt .}$digit$\PLUS{}
+\{ \{{\tt e}|{\tt E}\} \{{\tt +}|{\tt -}\}\QMARK{} $digit$\PLUS{}
+\}\QMARK{}
+\\
+\{{\tt +}|{\tt -}\}\QMARK{}
+\{{\tt n}|{\tt N}\}
+\{{\tt a}|{\tt a}\}
+\{{\tt n}|{\tt N}\}
+\\
+\{{\tt +}|{\tt -}\}\QMARK{}
+\{{\tt i}|{\tt I}\}
+\{{\tt n}|{\tt N}\}
+\{{\tt f}|{\tt F}\}
+\end{tabular}
+\end{center}
+\end{indpar}
+\end{indpar}
 
 
 \subsubsection{UNICODE Strings}
@@ -19575,6 +19612,16 @@ These are in \verb|min_parameters.h|.
 \LABEL{IS_TRAILING_CLASSIFIER} \\
 \verb|const min::uns32 min::| & \MINKEY{IS\_MARK}
 \LABEL{IS_MARK_CLASSIFIER} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.4in}
+\verb|bool min::|
+    & \MINKEY{is\_number}\ARGBREAK
+      \verb|( min::unsptr n,|\ARGBREAK
+      \verb|  min::ptr<const min::Uchar> p )|
+\LABEL{MIN::IS_NUMBER} \\
 \end{TABULAR}
 
 \INDEXHEADER{UNICODE Strings}
