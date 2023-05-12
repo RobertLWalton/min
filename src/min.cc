@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 12 13:05:25 EDT 2023
+// Date:	Fri May 12 16:29:08 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12496,6 +12496,9 @@ const min::line_format min::default_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE",
+    "MIN-LINE-NUMBER",
+    "MIN-HIGHLIGHT",
     '^'
 };
 

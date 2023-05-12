@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 12 13:26:52 EDT 2023
+// Date:	Fri May 12 16:29:33 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12361,6 +12361,9 @@ namespace min {
 	const char * blank_line;
 	const char * end_of_file;
 	const char * unavailable_line;
+	const char * line_class;
+	const char * line_number_class;
+	const char * highlight_class;
 	const char mark;
     };
 
