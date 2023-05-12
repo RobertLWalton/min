@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 12:38:16 EST 2022
+// Date:	Fri May 12 13:05:25 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2830,11 +2830,10 @@ min::uns32 min::print_line
 	( min::printer printer,
 	  min::uns32 line_display,
 	  min::file file,
-	  min::uns32 line_number,
-	  const char * blank_line,
-	  const char * end_of_file,
-	  const char * unavailable_line )
+	  min::uns32 line_number )
 {
+    const min::line_format * line_format =
+	printer->print_format.line_format;
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
@@ -2848,7 +2847,7 @@ min::uns32 min::print_line
 	{
 	    length = partial_length ( file );
 	    if ( length == 0 )
-		message = end_of_file;
+		message = line_format->end_of_file;
 	    else
 	    {
 		offset = partial_offset ( file );
@@ -2856,7 +2855,7 @@ min::uns32 min::print_line
 	    }
 	}
 	else
-	    message = unavailable_line;
+	    message = line_format->unavailable_line;
 
 	if ( offset == min::NO_LINE )
 	{
@@ -2881,15 +2880,15 @@ min::uns32 min::print_line
 
     // Blank line check.
     //
-    if ( blank_line == NULL )
+    if ( line_format->blank_line == NULL )
         ; // do nothing
-    else if ( eof ? end_of_file != NULL :
+    else if ( eof ? line_format->end_of_file != NULL :
                   (   line_display
                     & min::DISPLAY_EOL ) )
         ; // do nothing
     else if ( buffer[0] == 0 )
     {
-	printer << blank_line << min::eol;
+	printer << line_format->blank_line << min::eol;
 	return 0;
     }
     else
@@ -2922,7 +2921,8 @@ min::uns32 min::print_line
 
 	if ( * p == 0 )
 	{
-	    printer << blank_line << min::eol;
+	    printer << line_format->blank_line
+	            << min::eol;
 	    return 0;
 	}
     }
@@ -2935,7 +2935,8 @@ min::uns32 min::print_line
     if ( eof )
     {
 	printer << min::restore_print_format;
-        if ( end_of_file ) printer << end_of_file;
+        if ( line_format->end_of_file )
+	    printer << line_format->end_of_file;
 	printer << min::eol;
     }
     else
@@ -3019,12 +3020,10 @@ min::uns32 min::print_phrase_lines
 	( min::printer printer,
 	  min::uns32 line_display,
 	  min::file file,
-	  const min::phrase_position & position,
-	  char mark,
-	  const char * blank_line,
-	  const char * end_of_file,
-	  const char * unavailable_line )
+	  const min::phrase_position & position )
 {
+    const min::line_format * line_format =
+	printer->print_format.line_format;
     MIN_REQUIRE
         ( position.end.line >= position.begin.line );
 
@@ -3043,12 +3042,11 @@ min::uns32 min::print_phrase_lines
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, line_display, file, line,
-	  blank_line, end_of_file, unavailable_line );
+	( printer, line_display, file, line );
 
     while ( true )
     {
-        if ( mark != 0 )
+        if ( line_format->mark != 0 )
 	{
 	    for ( uns32 i = 0; i < first_column; ++ i )
 		printer << ' ';
@@ -3060,7 +3058,7 @@ min::uns32 min::print_phrase_lines
 
 	    for ( uns32 i = first_column;
 		  i < next_column; ++ i )
-		printer << mark;
+		printer << line_format->mark;
 	    printer << min::eol;
 	}
 
@@ -3074,9 +3072,7 @@ min::uns32 min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, line_display, file, line,
-	      blank_line, end_of_file,
-	      unavailable_line );
+	    ( printer, line_display, file, line );
     }
 
     return begin_column;
@@ -12491,7 +12487,16 @@ const min::print_format min::default_print_format =
 
     & ::standard_char_name_format,
     & ::compact_gen_format,
+    & min::default_line_format,
     10
+};
+
+const min::line_format min::default_line_format =
+{
+    "<BLANK-LINE>",
+    "<END-OF-FILE>",
+    "<UNAVALABLE-LINE>",
+    '^'
 };
 
 static void init_pgen_formats ( void )

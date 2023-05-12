@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  8 12:14:21 EST 2022
+// Date:	Fri May 12 13:30:10 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3378,9 +3378,7 @@ void test_printer ( void )
     printer << "Phrase Print Test: "
             << min::pline_numbers ( file, ppos2 )
 	    << min::eol;
-    min::print_phrase_lines
-	( printer, file, ppos2,
-	  '#', "<EMPTY>", "<EOF>");
+    min::print_phrase_lines ( printer, file, ppos2 );
 
     file->line_display =
         min::DISPLAY_PICTURE + min::DISPLAY_EOL;
@@ -3396,9 +3394,7 @@ void test_printer ( void )
     printer << "Phrase Print Test: "
             << min::pline_numbers ( file, ppos2 )
 	    << min::eol;
-    min::print_phrase_lines
-	( printer, file, ppos2,
-	  '#', "<EMPTY>", "<EOF>");
+    min::print_phrase_lines ( printer, file, ppos2 );
 
     min::locatable_var<min::file> efile;
     min::init_input_named_file

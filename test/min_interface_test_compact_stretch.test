@@ -1583,11 +1583,11 @@ Line 3
 ^^^^
 Phrase Print Test: test_file: lines 3-5
 Line 3
-     #
-<EMPTY>
-#
-<EOF>
-#
+     ^
+<BLANK-LINE>
+^
+<END-OF-FILE>
+^
 Line 2␤
 ␤
 <END-OF-FILE>
@@ -1599,11 +1599,11 @@ Line 3␤
 ^^^^
 Phrase Print Test: test_file: lines 3-5
 Line 3␤
-     ##
+     ^^
 ␤
-#
-<EOF>
-#
+^
+<END-OF-FILE>
+^
 ERROR: During attempt to find the size of file min_non_existent_file:
        No such file or directory
 

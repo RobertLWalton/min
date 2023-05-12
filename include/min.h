@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 23:08:08 EST 2022
+// Date:	Fri May 12 13:26:52 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6562,29 +6562,16 @@ namespace min {
     	    ( min::printer,
 	      min::uns32 print_op_flags,
 	      min::file file,
-	      min::uns32 line_number,
-	      const char * blank_line =
-	          "<BLANK-LINE>",
-	      const char * end_of_file =
-	          "<END-OF-FILE>",
-	      const char * unavailable_line =
-	          "<UNAVALABLE-LINE>" );
+	      min::uns32 line_number );
 
     inline min::uns32 print_line
     	    ( min::printer printer,
 	      min::file file,
-	      min::uns32 line_number,
-	      const char * blank_line =
-	          "<BLANK-LINE>",
-	      const char * end_of_file =
-	          "<END-OF-FILE>",
-	      const char * unavailable_line =
-	          "<UNAVALABLE-LINE>" )
+	      min::uns32 line_number )
     {
         return print_line
 	    ( printer, file->line_display, file,
-	      line_number, blank_line, end_of_file,
-	      unavailable_line );
+	      line_number );
     }
 
     struct print_format;
@@ -6598,31 +6585,16 @@ namespace min {
 	    ( min::printer printer,
 	      min::uns32 line_display,
 	      min::file file,
-	      const min::phrase_position & position,
-	      char mark = '^',
-	      const char * blank_line =
-	          "<BLANK-LINE>",
-	      const char * end_of_file =
-	          "<END-OF-FILE>",
-	      const char * unavailable_line =
-	          "<UNAVALABLE-LINE>" );
+	      const min::phrase_position & position );
 
     inline min::uns32 print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
-	      const min::phrase_position & position,
-	      char mark = '^',
-	      const char * blank_line =
-	          "<BLANK-LINE>",
-	      const char * end_of_file =
-	          "<END-OF-FILE>",
-	      const char * unavailable_line =
-	          "<UNAVALABLE-LINE>" )
+	      const min::phrase_position & position )
     {
         return print_phrase_lines
 	    ( printer, file->line_display, file,
-	      position, mark, blank_line, end_of_file,
-	      unavailable_line );
+	      position );
     }
 
     struct pline_numbers
@@ -12362,6 +12334,7 @@ namespace min {
 	standard_char_name_format;
 
     struct gen_format;
+    struct line_format;
     struct print_format
     {
 	min::uns32		      op_flags;
@@ -12374,6 +12347,7 @@ namespace min {
 
 	const min::char_name_format * char_name_format;
 	const min::gen_format *	      gen_format;
+	const min::line_format *      line_format;
 	min::uns32                    max_depth;
     };
 
@@ -12381,6 +12355,16 @@ namespace min {
 
     typedef min::packed_vec_insptr<min::print_format>
         print_format_stack;
+
+    struct line_format
+    {
+	const char * blank_line;
+	const char * end_of_file;
+	const char * unavailable_line;
+	const char mark;
+    };
+
+    extern const line_format default_line_format;
 
     // Flags for printer->state.
     //
