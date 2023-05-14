@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 12 16:29:33 EDT 2023
+// Date:	Sun May 14 06:07:57 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13142,6 +13142,16 @@ namespace min {
 	      min::unsptr n,
 	      min::ptr<const min::Uchar> p,
 	      const min::str_format * );
+
+    min::printer html_print_unicode
+	    ( min::printer printer,
+	      min::unsptr n,
+	      min::ptr<const min::Uchar> p );
+
+    min::printer html_print_cstring
+	    ( min::printer printer,
+	      min::unsptr n,
+	      const char * p );
 
     inline min::printer print_ustring
     	    ( min::printer printer,
