@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 06:07:57 EDT 2023
+// Date:	Sun May 14 22:50:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6560,7 +6560,7 @@ namespace min {
 
     min::uns32 print_line
     	    ( min::printer,
-	      min::uns32 print_op_flags,
+	      min::uns32 line_display,
 	      min::file file,
 	      min::uns32 line_number );
 
@@ -6585,16 +6585,18 @@ namespace min {
 	    ( min::printer printer,
 	      min::uns32 line_display,
 	      min::file file,
-	      const min::phrase_position & position );
+	      const min::phrase_position & position,
+	      char mark = '^' );
 
     inline min::uns32 print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
-	      const min::phrase_position & position )
+	      const min::phrase_position & position,
+	      char mark = '^' )
     {
         return print_phrase_lines
 	    ( printer, file->line_display, file,
-	      position );
+	      position, mark );
     }
 
     struct pline_numbers
@@ -12363,11 +12365,9 @@ namespace min {
 	const char * unavailable_line;
 	const char * line_class;
 	const char * line_number_class;
-	const char * highlight_class;
-	const char mark;
     };
 
-    extern const line_format default_line_format;
+    extern const line_format standard_line_format;
 
     // Flags for printer->state.
     //

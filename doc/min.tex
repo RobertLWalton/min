@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 13, 2023}
+\date{May 14, 2023}
  
 \maketitle
 
@@ -9199,6 +9199,9 @@ following printer parameters:
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::compact_gen_format| \\
+\verb|        min::line_format *|
+	& \TTMKEY{line\_format}{in {\tt min::print\_format}} \\
+        & \verb|// min::standard_line_format| \\
 \verb|        min::uns32|
 	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
         & \verb|// 10| \\
@@ -9367,6 +9370,37 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 The \TT{ustring} members of \TT{min::char\_name\_format} \underline{must not}
 contain non-graphic characters (e.g., no spaces) and \underline{must}
 have non-zero numbers of columns encoded in their second bytes.
+
+\TT{print\_format.line\_format}:
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\verb|struct               min::|
+    & \MINKEY{line\_\EOL format}
+\LABEL{MIN::LINE_FORMAT_STRUCT} \\
+\verb|{                         | \\
+\verb|     const char * |
+	& \TTMKEY{blank\_line}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{end\_of\_file}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
+\verb|}                         | \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::line\_format
+    min::\MINKEY{standard\_line\_format} =}\ARGBREAK[1.0in]
+\verb|{ "<BLANK-LINE>",            // blank_line|\ARGBREAK[1.0in]
+\verb|  "<END-OF-FILE>",           // end_of_file|\ARGBREAK[1.0in]
+\verb|  "<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK[1.0in]
+\verb|  "MIN-LINE",                // line_class|\ARGBREAK[1.0in]
+\verb|  "MIN-LINE-NUMBER" };       // line_number_class|
+\LABEL{MIN::STANDARD_LINE_FORMAT} \\
+\end{tabular}\end{indpar}
 
 The basic algorithm for printing a UNICODE character \TT{c} is:
 
@@ -11165,13 +11199,7 @@ an error message:
     & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  min::uns32 line_number )|
 \LABEL{MIN::PRINT_LINE} \\
 \end{tabular}\end{indpar}
 
@@ -11190,14 +11218,19 @@ If a line is
 unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
 see \pagref{MIN::LINE_OF_FILE})
 and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
-then \TT{unavailable\_\EOL line} is printed on a line by itself instead, and
-\TT{0} is returned, if \TT{unavailable\_\EOL line} is not \TT{NULL}.
-But if \TT{unavailable\_\EOL line} is \TT{NULL}, nothing is done except
-to return \TT{min::\EOL NO\_\EOL LINE}.
+then \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+unavail\-able\_\EOL line} is
+printed on a line by itself instead, and \TT{0} is returned,
+if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+unavailable\_\EOL line} is not \TT{NULL}.
+But if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+unavailable\_\EOL line} is \TT{NULL},
+nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
 If a line would print as blank, and if
-\TT{blank\_\EOL line} is not \TT{NULL},
-\TT{blank\_\EOL line} is printed instead of the line, and \TT{0} is returned.
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is not \TT{NULL},
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is printed instead of
+the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
 ASCII and LATIN1 horizontal space characters (including horizontal tabs and
 single spaces, see \pagref{MIN::IS_HSPACE})
@@ -11206,17 +11239,20 @@ which when printed represent themselves or are suppressed.
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
 then any partial line at the end of the file buffer is printed,
-immediately followed by \TT{end\_\EOL of\_\EOL file}, all on one line,
+immediately followed by
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL end\_\EOL of\_\EOL file}, all on one line,
 and the number of columns used to print the partial line is returned.
-However, if \TT{end\_\EOL of\_\EOL file} is \TT{NULL}, then
+However, if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL end\_\EOL of\_\EOL file}
+is \TT{NULL}, then
 if there is a partial line, only that is printed, on a single line
 without any visible ending line feed, and if there is no partial line,
 nothing is printed and \TT{NO\_\EOL LINE} is returned.
 
 Note that
 \TT{file->\EOL line\_\EOL display} is not used to print
-\TT{unavailable\_\EOL line}, \TT{blank\_\EOL line}, or
-\TT{end\_\EOL of\_\EOL line} or any line feed following these,
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL for\-mat->\EOL
+\{unavailable\_\EOL line, blank\_\EOL line, end\_\EOL of\_\EOL file\}}
+or any line feed following these,
 and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
 Also, these ASCII strings may not be unprotected body pointers,
@@ -11395,22 +11431,14 @@ To print a phrase one can use the function:
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  char mark = '^' )|\ARGBREAK
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{tabular}\end{indpar}
 
 The lines containing the phrase are printed, and under each phrase
-character a \TT{mark} is printed.  The lines are printed
-as per \TT{min::\EOL print\_\EOL line} using the
-\TT{blank\_\EOL line},
-\TT{end\_\EOL of\_\EOL file}, and
-\TT{unavailable\_\EOL line} arguments.
+character a \TT{mark} is printed.
+The lines are printed
+as per \TT{min::\EOL print\_\EOL line}.
 An empty phrase is marked as if it were 1-column wide, that column
 being at the empty phrase position.
 
@@ -11493,13 +11521,7 @@ an extra \TT{line\_\EOL display} argument and use that in place of
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  min::uns32 line_number )|\ARGBREAK
 \LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -11510,13 +11532,7 @@ an extra \TT{line\_\EOL display} argument and use that in place of
       \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  char mark = '^' )|\ARGBREAK
 \LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
 \end{tabular}\end{indpar}
 
@@ -21531,6 +21547,41 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
+\TT{print\_format.line\_format}:
+
+\medskip
+
+\begin{TABULAR}{2.8in}
+\verb|struct               min::|
+    & \MINKEY{line\_\EOL format}
+\LABEL{MIN::LINE_FORMAT_STRUCT} \\
+\verb|{                         | \\
+\verb|     const char * |
+	& \TTMKEY{blank\_line}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{end\_of\_file}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
+\verb|}                         | \\
+\end{TABULAR}
+
+\begin{TABULAR}{0.0in}
+\multicolumn{2}{l}{\tt const min::line\_format
+    min::\MINKEY{standard\_line\_format} =}\ARGBREAK[1.0in]
+\verb|{ "<BLANK-LINE>",            // blank_line|\ARGBREAK[1.0in]
+\verb|  "<END-OF-FILE>",           // end_of_file|\ARGBREAK[1.0in]
+\verb|  "<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK[1.0in]
+\verb|  "MIN-LINE",                // line_class|\ARGBREAK[1.0in]
+\verb|  "MIN-LINE-NUMBER" };       // line_number_class|
+\LABEL{MIN::STANDARD_LINE_FORMAT} \\
+\end{TABULAR}
+
+\bigskip
+
 \begin{TABULAR}{1.2in}
 \verb|min::printer |
     & \TTOMKEY{<<}{<{}<\RESIZE}%
@@ -22059,13 +22110,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  min::uns32 line_number )|
 \LABEL{MIN::PRINT_LINE} \\
 \end{TABULAR}
 
@@ -22173,13 +22218,7 @@ These are in \verb|min_parameters.h|.
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  char mark = '^' )|\ARGBREAK
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{TABULAR}
 
@@ -22199,13 +22238,7 @@ These are in \verb|min_parameters.h|.
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  min::uns32 line_number )|\ARGBREAK
 \LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
 \end{TABULAR}
 
@@ -22216,13 +22249,7 @@ These are in \verb|min_parameters.h|.
       \verb|  min::uns32 line_display,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^',|\ARGBREAK
-      \verb|  const char * blank_line =|\ARGBREAK
-      \verb|      "<BLANK-LINE>",|\ARGBREAK
-      \verb|  const char * end_of_file =|\ARGBREAK
-      \verb|      "<END-OF-FILE>",|\ARGBREAK
-      \verb|  const char * unavailable_line =|\ARGBREAK
-      \verb|      "<UNAVAILABLE-LINE>" )|
+      \verb|  char mark = '^' )|\ARGBREAK
 \LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
 \end{TABULAR}
 

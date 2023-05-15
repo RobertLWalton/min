@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 06:08:19 EDT 2023
+// Date:	Sun May 14 22:47:23 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3020,10 +3020,9 @@ min::uns32 min::print_phrase_lines
 	( min::printer printer,
 	  min::uns32 line_display,
 	  min::file file,
-	  const min::phrase_position & position )
+	  const min::phrase_position & position,
+	  char mark )
 {
-    const min::line_format * line_format =
-	printer->print_format.line_format;
     MIN_REQUIRE
         ( position.end.line >= position.begin.line );
 
@@ -3046,7 +3045,7 @@ min::uns32 min::print_phrase_lines
 
     while ( true )
     {
-        if ( line_format->mark != 0 )
+        if ( mark != 0 )
 	{
 	    for ( uns32 i = 0; i < first_column; ++ i )
 		printer << ' ';
@@ -3058,7 +3057,7 @@ min::uns32 min::print_phrase_lines
 
 	    for ( uns32 i = first_column;
 		  i < next_column; ++ i )
-		printer << line_format->mark;
+		printer << mark;
 	    printer << min::eol;
 	}
 
@@ -12590,19 +12589,17 @@ const min::print_format min::default_print_format =
 
     & ::standard_char_name_format,
     & ::compact_gen_format,
-    & min::default_line_format,
+    & min::standard_line_format,
     10
 };
 
-const min::line_format min::default_line_format =
+const min::line_format min::standard_line_format =
 {
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
     "MIN-LINE",
-    "MIN-LINE-NUMBER",
-    "MIN-HIGHLIGHT",
-    '^'
+    "MIN-LINE-NUMBER"
 };
 
 static void init_pgen_formats ( void )
