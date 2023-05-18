@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 14, 2023}
+\date{May 17, 2023}
  
 \maketitle
 
@@ -9241,7 +9241,15 @@ following printer parameters:
 
 \TT{print\_format.op\_flags}:
 
+\begin{indpar}[1em]
+
+Flags shared with \TT{line\_format.op\_flags}
+(see \pagref{MIN::LINE_FORMAT_STRUCT}):%
+\label{LINE_FORMAT_OP_FLAGS}
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_LINE\_BREAKS}
+\LABEL{MIN::DISABLE_LINE_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EXPAND\_HT}
 \LABEL{MIN::EXPAND_HT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL}
@@ -9250,6 +9258,13 @@ following printer parameters:
 \LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_NON\_GRAPHIC}
 \LABEL{MIN::DISPLAY_NON_GRAPHIC_FLAG} \\
+\end{tabular}\end{indpar}
+
+Other flags:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{OUTPUT\_HTML}
+\LABEL{MIN::OUTPUT_HTML_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -9267,6 +9282,8 @@ following printer parameters:
 \verb|const min::uns32 min::| & \MINKEY{FORCE\_PGEN}
 \LABEL{MIN::FORCE_PGEN_FLAG} \\
 \end{tabular}\end{indpar}
+
+\end{indpar}
 
 \TT{print\_format.support\_control}:
 See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
@@ -9371,13 +9388,16 @@ The \TT{ustring} members of \TT{min::char\_name\_format} \underline{must not}
 contain non-graphic characters (e.g., no spaces) and \underline{must}
 have non-zero numbers of columns encoded in their second bytes.
 
-\TT{print\_format.line\_format}:
+\TT{print\_format.line\_format} (see also \TT{print\_format.op\_flags},
+\pagref{LINE_FORMAT_OP_FLAGS}):
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \verb|struct               min::|
     & \MINKEY{line\_\EOL format}
 \LABEL{MIN::LINE_FORMAT_STRUCT} \\
 \verb|{                         | \\
+\verb|       min::uns32 |
+	& \TTMKEY{op\_flags}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{blank\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
@@ -9394,7 +9414,9 @@ have non-zero numbers of columns encoded in their second bytes.
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::line\_format
     min::\MINKEY{standard\_line\_format} =}\ARGBREAK[1.0in]
-\verb|{ "<BLANK-LINE>",            // blank_line|\ARGBREAK[1.0in]
+\verb|{ min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK[1.0in]
+\verb|      + min::EXPAND_HT,|\ARGBREAK[1.0in]
+\verb|  "<BLANK-LINE>",            // blank_line|\ARGBREAK[1.0in]
 \verb|  "<END-OF-FILE>",           // end_of_file|\ARGBREAK[1.0in]
 \verb|  "<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK[1.0in]
 \verb|  "MIN-LINE",                // line_class|\ARGBREAK[1.0in]
@@ -9586,6 +9608,15 @@ The flags are listed immediately below.
 
 \begin{indpar}\begin{itemlist}[0.4in]
 
+\item[\ttmkey{DISABLE\_LINE\_BREAKS}%
+               {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+\label{DISABLE_LINE_BREAKS}
+If this flag is on, \TT{printer\_format.break\_control} is 
+ignored and automatic break points
+are not inserted
+(that is, step \ref{COMPUTE-AUTOMATIC-BREAK-POINTS}
+on \pagref{COMPUTE-AUTOMATIC-BREAK-POINTS} is skipped).
+
 \item[\ttmkey{EXPAND\_HT}{in {\tt print\_\EOL format.op\_\EOL flags}}]
 ~\\
 \TT{EXPAND\_HT} causes the character \TT{'\textbackslash t'}
@@ -9628,6 +9659,31 @@ If this flag is on, non-graphic characters (including single spaces and
 horizontal tabs) are \underline{not} displayed
 as themselves or suppressed,
 regardless of the setting of the display control.
+
+\item[\ttmkey{OUTPUT\_HTML}%
+               {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
+If this flag is on, HTML special characters that are displayed as
+per \TT{print\_\EOL for\-mat.display\_control}
+(see step \ref{COMPUTE-PRINTED-REPRESENTATION} on
+\pagref{COMPUTE-PRINTED-REPRESENTATION})
+are replaced in the
+printer output buffer as follows:
+\begin{center}
+\begin{tabular}{ll@{~~~~~}l}
+\bf HTML & & \\
+\bf Special & \bf Output & \bf Column \\
+\bf Character & & \bf Action
+\\\hline
+\TT{<}		& \TT{\&lt;}	& += 1 \\
+\TT{>}		& \TT{\&gt;}	& += 1 \\
+\TT{\&}		& \TT{\&amp;}	& += 1 \\
+\TT{<LF>}	& \TT{<CR>}	& = 0 \\
+\TT{<CR>}	& none		& none \\
+\TT{<FF>}	& \TT{<CR><CR>}	& = 0 \\
+\TT{<VT>}	& \TT{<CR><CR>}	& = 0 \\
+\TT{<HT>}	& \multicolumn{2}{c}{--- see \TT{EXPAND\_HT} ---} \\
+\end{tabular}
+\end{center}
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
 {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
