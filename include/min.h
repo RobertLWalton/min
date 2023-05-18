@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 14 22:50:14 EDT 2023
+// Date:	Thu May 18 02:13:53 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12269,15 +12269,17 @@ namespace min {
 
 namespace min {
 
-    const min::uns32 EXPAND_HT		  = ( 1 << 0 );
-    const min::uns32 DISPLAY_EOL	  = ( 1 << 1 );
-    const min::uns32 DISPLAY_PICTURE	  = ( 1 << 2 );
-    const min::uns32 DISPLAY_NON_GRAPHIC  = ( 1 << 3 );
-    const min::uns32 FLUSH_ON_EOL	  = ( 1 << 4 );
-    const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 5 );
-    const min::uns32 FORCE_SPACE	  = ( 1 << 6 );
-    const min::uns32 DISABLE_STR_BREAKS	  = ( 1 << 7 );
-    const min::uns32 FORCE_PGEN		  = ( 1 << 8 );
+    const min::uns32 DISABLE_LINE_BREAKS  = ( 1 << 0 );
+    const min::uns32 EXPAND_HT		  = ( 1 << 1 );
+    const min::uns32 DISPLAY_EOL	  = ( 1 << 2 );
+    const min::uns32 DISPLAY_PICTURE	  = ( 1 << 3 );
+    const min::uns32 DISPLAY_NON_GRAPHIC  = ( 1 << 4 );
+    const min::uns32 OUTPUT_HTML          = ( 1 << 5 );
+    const min::uns32 FLUSH_ON_EOL	  = ( 1 << 6 );
+    const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 7 );
+    const min::uns32 FORCE_SPACE	  = ( 1 << 8 );
+    const min::uns32 DISABLE_STR_BREAKS	  = ( 1 << 9 );
+    const min::uns32 FORCE_PGEN		  = ( 1 << 10 );
 
     struct line_break
     {
@@ -12360,6 +12362,7 @@ namespace min {
 
     struct line_format
     {
+	min::uns32   op_flags;
 	const char * blank_line;
 	const char * end_of_file;
 	const char * unavailable_line;
