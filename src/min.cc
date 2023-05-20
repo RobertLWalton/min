@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 20 03:10:16 EDT 2023
+// Date:	Sat May 20 03:32:09 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10074,27 +10074,6 @@ min::printer operator <<
     case min::op::CLEAR_PRINT_OP_FLAGS:
 	printer->print_format.op_flags &= ~ op.v1.u32;
 	return printer;
-    case min::op::SET_LINE_DISPLAY:
-    {
-        min::uns32 flags = op.v1.u32;
-	flags &= min::DISPLAY_EOL
-	       + min::DISPLAY_PICTURE
-	       + min::DISPLAY_NON_GRAPHIC;
-	printer->print_format.op_flags &=
-	    ~ (   min::DISPLAY_EOL
-	        + min::DISPLAY_PICTURE
-		+ min::DISPLAY_NON_GRAPHIC );
-	printer->print_format.op_flags |= flags;
-	printer->print_format.op_flags |=
-	    min::EXPAND_HT;
-	printer->print_format.display_control =
-	    flags & min::DISPLAY_NON_GRAPHIC ?
-	    min::graphic_only_display_control :
-	    min::graphic_and_hspace_display_control;
-	printer->print_format.break_control =
-	    min::no_auto_break_break_control;
-	return printer;
-    }
     case min::op::SET_SUPPORT_CONTROL:
         printer->print_format.support_control =
 	    * (const min::support_control *) op.v1.p;

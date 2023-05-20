@@ -8009,6 +8009,8 @@ The flags involved are:
 \begin{indpar}
 \tt
 \begin{tabular}{l}
+min::DISABLE\_LINE\_BREAKS \\
+min::EXPAND\_HT \\
 min::DISPLAY\_EOL \\
 min::DISPLAY\_PICTURE \\
 min::DISPLAY\_NON\_GRAPHIC \\
@@ -8031,12 +8033,11 @@ no \TT{min::DISPLAY\_PICTURE} & \TT{<CR>} & 4 columns \\
 \end{tabular}
 \end{center}
 
-The \TT{min::print\_line} function, and the other functions that use
-it, print file lines with the printer \TT{op\_flags} and \TT{print\_\EOL format}
-set by
-\begin{center}
-\tt printer <{}< min::set\_line\_display ( file->line\_display )
-\end{center}
+The \TT{min::print\_line} function
+(\pagref{MIN::PRINT_LINE}), and the other functions that use
+\TT{line\_\EOL display}s,
+print file lines with the \TT{line\_display} flags temporarily
+merged into the printer \TT{op\_flags}.
 
 \TT{line\_display} is set
 to \TT{0} when the file is created, and set to an argument
@@ -10389,35 +10390,6 @@ Also note that the operation to undo the results
 of \TT{min::\EOL verbatim} does not exist (you must save and restore
 \TT{print\_\EOL format}).
 
-The printer operation:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{set\_line\_display} \verb|( min::uns32 line_display )|
-\LABEL{MIN::SET_LINE_DISPLAY} \\
-\end{tabular}\end{indpar}
-
-is used when it is desired print a line in a file as part of an
-error message, and is used, for example, by the
-\TT{min::\EOL print\_\EOL line} function, \pagref{MIN::PRINT_LINE}.
-\TT{printer <{}< min::\EOL set\_\EOL line\_\EOL display ( line\_\EOL display )}
-is equivalent to:
-
-\begin{indpar}\begin{verbatim}
-min::uns32 flags = min::DISPLAY_EOL
-                 + min::DISPLAY_PICTURE
-                 + min::DISPLAY_NON_GRAPHIC;
-
-printer << min::clear_op_flags ( flags )
-        << min::set_op_flags ( flags & line_display )
-        << min::expand_ht
-        << min::set_display_control
-               ( line_display & min::DISPLAY_NON_GRAPHIC ?
-                 min::graphic_only_display_control :
-                 min::graphic_and_hspace_display_control )
-        << min::no_auto_break
-\end{verbatim}\end{indpar}
-
 \subsubsection{Printer Line Breaks}
 \label{PRINTER-LINE-BREAKS}
 
@@ -11260,12 +11232,11 @@ an error message:
 \end{tabular}\end{indpar}
 
 The \TT{file} line with the given \TT{line\_number}
-is printed on a single \TT{printer} line.
-\begin{center}
-\TT{printer <{}< min::set\_line\_display ( file->line\_display )}
-\end{center}
-is used to print this line
-(see \pagref{FILE_LINE_DISPLAY} and \pagref{MIN::SET_LINE_DISPLAY}),
+is printed on a single \TT{printer} line with the
+\TT{file->\EOL line\_\EOL display} flags
+temporarily merged into
+\TT{printer->\EOL print\_\EOL format.op\_\EOL flags} during the printing.
+(see \pagref{FILE_LINE_DISPLAY}),
 and the number of columns in the result,
 including any end of line representation printed by the
 \TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
@@ -11543,10 +11514,7 @@ and the print format, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line.  To do this, \TT{min::\EOL print\_\EOL line\_\EOL column}
 calls \TT{min::\EOL pwidth} with its \TT{print\_\EOL format} argument modified
-as per
-\begin{center}
-\TT{min::set\_line\_display ( line\_display )}
-\end{center}
+with the \TT{line\_\EOL display} flags.
 
 Some of the above functions use \TT{file->line\_display}
 to control how lines are printed and therefore which column
@@ -21958,17 +21926,6 @@ These are in \verb|min_parameters.h|.
 \verb|min::op min::|
     & \MINKEY{set\_max\_depth} \verb|( min::uns32 d )|
 \LABEL{MIN::SET_MAX_DEPTH} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|const min::op min::| & \MINKEY{verbatim}
-\LABEL{MIN::VERBATIM} \\
-\verb|min::op min::|
-    & \MINKEY{set\_line\_display}\ARGBREAK
-      \verb|( min::uns32 line_display )|
-\LABEL{MIN::SET_LINE_DISPLAY}
 \end{TABULAR}
 
 \INDEXHEADER{Printer Line Breaks}

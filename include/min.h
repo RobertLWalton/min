@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 18 22:29:53 EDT 2023
+// Date:	Sat May 20 03:15:01 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12275,7 +12275,7 @@ namespace min {
     const min::uns32 DISPLAY_PICTURE	  = ( 1 << 3 );
     const min::uns32 DISPLAY_NON_GRAPHIC  = ( 1 << 4 );
 
-    const min::uns32 LINE_OP_CODES =
+    const min::uns32 LINE_OP_FLAGS =
         min::DISABLE_LINE_BREAKS +
         min::EXPAND_HT +
         min::DISPLAY_EOL +
@@ -12509,8 +12509,6 @@ namespace min {
 
 	    SET_PRINT_OP_FLAGS,
 	    CLEAR_PRINT_OP_FLAGS,
-
-	    SET_LINE_DISPLAY,
 
 	    SAVE_LINE_BREAK,
 	    RESTORE_LINE_BREAK,
@@ -12764,13 +12762,6 @@ namespace min {
     {
         return op ( op::CLEAR_PRINT_OP_FLAGS,
 	            print_op_flags );
-    }
-
-    inline op set_line_display
-	    ( uns32 line_display )
-    {
-        return op ( op::SET_LINE_DISPLAY,
-	            line_display );
     }
 
     inline op set_support_control
