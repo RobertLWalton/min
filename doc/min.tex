@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 19, 2023}
+\date{May 20, 2023}
  
 \maketitle
 
@@ -9453,7 +9453,7 @@ min::display_control dc =
 if ( printer->print_format.op_flags & min::DISPLAY_NON_GRAPHIC )
 {
     dc.display_char &= min::IS_GRAPHIC;
-    dc.display_suppress = 0;
+    dc.display_suppress &= min::IS_GRAPHIC;
 }
 if ( cflags & dc.display_char )
     // Character represents itself, but if c == '\t', c is

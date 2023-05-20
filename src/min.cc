@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 19 04:43:30 EDT 2023
+// Date:	Sat May 20 03:10:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10714,7 +10714,7 @@ min::printer MINT::print_unicode
          & min::DISPLAY_NON_GRAPHIC )
     {
         dc.display_char &= min::IS_GRAPHIC;
-        dc.display_suppress = 0;
+        dc.display_suppress &= min::IS_GRAPHIC;
     }
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
@@ -11624,7 +11624,7 @@ min::uns32 min::pwidth ( min::uns32 & column,
          & min::DISPLAY_NON_GRAPHIC )
     {
         dc.display_char &= min::IS_GRAPHIC;
-        dc.display_suppress = 0;
+        dc.display_suppress &= min::IS_GRAPHIC;
     }
     const min::uns32 * char_flags =
 	print_format.char_flags;
