@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 18, 2023}
+\date{May 19, 2023}
  
 \maketitle
 
@@ -4274,7 +4274,7 @@ The assignment of these two flags in \TT{min::standard\_char\_flags} is:
 
 \begin{indpar}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::IS\_HSPACE}: & \TT{HT}, plus
+\ttkey{min::IS\_HSPACE}:\label{IS-HSPACE} & \TT{HT}, plus
                            characters in subcategory \TT{Zs} \\
 \ttkey{min::IS\_VHSPACE}: & \TT{FF} \TT{VT} \TT{LF} \TT{CR},
                             plus characters with the \TT{IS\_HSPACE} flag
@@ -9452,8 +9452,8 @@ min::display_control dc =
         printer->print_format.display_control;
 if ( printer->print_format.op_flags & min::DISPLAY_NON_GRAPHIC )
 {
-    dc.display_char &= ~ min::IS_NON_GRAPHIC;
-    dc.display_suppress &= ~ min::IS_NON_GRAPHIC;
+    dc.display_char &= min::IS_GRAPHIC;
+    dc.display_suppress = 0;
 }
 if ( cflags & dc.display_char )
     // Character represents itself, but if c == '\t', c is
@@ -11284,13 +11284,14 @@ unavailable\_\EOL line} is \TT{NULL},
 nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
 If a line would print as blank, and if
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is not \TT{NULL},
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is not \TT{NULL}, then
 \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is printed instead of
 the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
-ASCII and LATIN1 horizontal space characters (including horizontal tabs and
-single spaces, see \pagref{MIN::IS_HSPACE})
-which when printed represent themselves or are suppressed.
+horizontal space characters
+(characters with the \TT{min::\EOL IS\_\EOL HSPACE} flag:
+see \pagref{IS-HSPACE}) and \TT{min::DISPLAY\_\EOL NON\_\EOL GRAPHIC}
+is \underline{not} in effect.
 
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
