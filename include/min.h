@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 18 02:13:53 EDT 2023
+// Date:	Thu May 18 22:29:53 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12274,6 +12274,14 @@ namespace min {
     const min::uns32 DISPLAY_EOL	  = ( 1 << 2 );
     const min::uns32 DISPLAY_PICTURE	  = ( 1 << 3 );
     const min::uns32 DISPLAY_NON_GRAPHIC  = ( 1 << 4 );
+
+    const min::uns32 LINE_OP_CODES =
+        min::DISABLE_LINE_BREAKS +
+        min::EXPAND_HT +
+        min::DISPLAY_EOL +
+        min::DISPLAY_PICTURE +
+        min::DISPLAY_NON_GRAPHIC;
+
     const min::uns32 OUTPUT_HTML          = ( 1 << 5 );
     const min::uns32 FLUSH_ON_EOL	  = ( 1 << 6 );
     const min::uns32 FLUSH_ID_MAP_ON_EOM  = ( 1 << 7 );
@@ -12906,6 +12914,7 @@ namespace min {
 
 	min::printer print_unicode
 		( min::printer printer,
+		  min::uns32 line_op_flags,
 		  min::unsptr & n,
 		  min::ptr<const min::Uchar> & p,
 		  min::uns32 & width,
@@ -13131,7 +13140,9 @@ namespace min {
 
 	min::print_item_preface ( printer, str_class );
 	return internal::print_unicode
-		( printer, n, p, width );
+		( printer,
+		  printer->print_format.op_flags,
+		  n, p, width );
     }
 
     min::printer print_quoted_unicode
