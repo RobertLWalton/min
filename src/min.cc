@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 20 03:32:09 EDT 2023
+// Date:	Sun May 21 02:35:18 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12603,6 +12603,42 @@ const min::print_format min::default_print_format =
 const min::line_format min::standard_line_format =
 {
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT,
+    NULL,
+    "<END-OF-FILE>",
+    "<UNAVALABLE-LINE>",
+    "MIN-LINE",
+    "MIN-LINE-NUMBER"
+};
+
+const min::line_format min::picture_line_format =
+{
+    min::DISABLE_LINE_BREAKS + min::EXPAND_HT
+    			     + min::DISPLAY_PICTURE,
+    NULL,
+    "<END-OF-FILE>",
+    "<UNAVALABLE-LINE>",
+    "MIN-LINE",
+    "MIN-LINE-NUMBER"
+};
+
+const min::line_format min::non_graphic_line_format =
+{
+    min::DISABLE_LINE_BREAKS + min::EXPAND_HT
+    			     + min::DISPLAY_PICTURE
+    			     + min::DISPLAY_NON_GRAPHIC,
+    "<BLANK-LINE>",
+    "<END-OF-FILE>",
+    "<UNAVALABLE-LINE>",
+    "MIN-LINE",
+    "MIN-LINE-NUMBER"
+};
+
+const min::line_format min::eol_line_format =
+{
+    min::DISABLE_LINE_BREAKS + min::EXPAND_HT
+    			     + min::DISPLAY_PICTURE
+    			     + min::DISPLAY_NON_GRAPHIC
+    			     + min::DISPLAY_EOL,
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",

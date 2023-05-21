@@ -1557,7 +1557,7 @@ Line 2
 Line 3
 
 Line 2
-<BLANK-LINE>
+
 <END-OF-FILE>
 <UNAVALABLE-LINE>
 Phrase Print Test: test_file: lines 2-3
@@ -1568,7 +1568,7 @@ Line 3
 Phrase Print Test: test_file: lines 3-5
 Line 3
      ^
-<BLANK-LINE>
+
 ^
 <END-OF-FILE>
 ^

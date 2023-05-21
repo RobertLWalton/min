@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 20, 2023}
+\date{May 21, 2023}
  
 \maketitle
 
@@ -9414,15 +9414,50 @@ have non-zero numbers of columns encoded in their second bytes.
 
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::line\_format
-    min::\MINKEY{standard\_line\_format} =}\ARGBREAK[1.0in]
-\verb|{ min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK[1.0in]
-\verb|      + min::EXPAND_HT,|\ARGBREAK[1.0in]
-\verb|  "<BLANK-LINE>",            // blank_line|\ARGBREAK[1.0in]
-\verb|  "<END-OF-FILE>",           // end_of_file|\ARGBREAK[1.0in]
-\verb|  "<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK[1.0in]
-\verb|  "MIN-LINE",                // line_class|\ARGBREAK[1.0in]
+    min::\MINKEY{standard\_line\_format} =}\ARGBREAK
+\verb|{ min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
+\verb|      + min::EXPAND_HT,|\ARGBREAK
+\verb|  NULL,                      // blank_line|\ARGBREAK
+\verb|  "<END-OF-FILE>",           // end_of_file|\ARGBREAK
+\verb|  "<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
+\verb|  "MIN-LINE",                // line_class|\ARGBREAK
 \verb|  "MIN-LINE-NUMBER" };       // line_number_class|
 \LABEL{MIN::STANDARD_LINE_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::line\_format
+    min::\MINKEY{picture\_line\_format} =}\ARGBREAK
+\verb|// Same as min::standard_line_format except for:|\ARGBREAK
+\verb|  min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
+\verb|      + min::EXPAND_HT|\ARGBREAK
+\verb|      + min::DISPLAY_PICTURE|\ARGBREAK
+\LABEL{MIN::PICTURE_LINE_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::line\_format
+    min::\MINKEY{non\_graphic\_line\_format} =}\ARGBREAK
+\verb|// Same as min::standard_line_format except for:|\ARGBREAK
+\verb|  min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
+\verb|      + min::EXPAND_HT|\ARGBREAK
+\verb|      + min::DISPLAY_PICTURE|\ARGBREAK
+\verb|      + min::DISPLAY_NON_GRAPHIC|\ARGBREAK
+\verb|  "<BLANK-LINE>"             // blank_line|\ARGBREAK
+\LABEL{MIN::NON_GRAPHIC_LINE_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{rl}
+\multicolumn{2}{l}{\tt const min::line\_format
+    min::\MINKEY{eol\_line\_format} =}\ARGBREAK
+\verb|// Same as min::standard_line_format except for:|\ARGBREAK
+\verb|  min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
+\verb|      + min::EXPAND_HT|\ARGBREAK
+\verb|      + min::DISPLAY_PICTURE|\ARGBREAK
+\verb|      + min::DISPLAY_NON_GRAPHIC|\ARGBREAK
+\verb|      + min::DISPLAY_EOL|\ARGBREAK
+\verb|  "<BLANK-LINE>"             // blank_line|\ARGBREAK
+\LABEL{MIN::EOL_LINE_FORMAT} \\
 \end{tabular}\end{indpar}
 
 The basic algorithm for printing a UNICODE character \TT{c} is:
