@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 21 02:36:35 EDT 2023
+// Date:	Sun May 21 22:22:16 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12378,10 +12378,10 @@ namespace min {
 	const char * line_number_class;
     };
 
-    extern const line_format standard_line_format;
-    extern const line_format picture_line_format;
-    extern const line_format non_graphic_line_format;
-    extern const line_format eol_line_format;
+    extern const line_format * standard_line_format;
+    extern const line_format * picture_line_format;
+    extern const line_format * non_graphic_line_format;
+    extern const line_format * eol_line_format;
 
     // Flags for printer->state.
     //
