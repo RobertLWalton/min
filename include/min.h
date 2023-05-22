@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 21 22:22:16 EDT 2023
+// Date:	Mon May 22 10:12:58 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6266,6 +6266,7 @@ namespace min {
     struct file_struct;
     typedef min::packed_struct_updptr<file_struct> file;
 
+    struct line_format;
     struct file_struct
     {
         const min::uns32 control;
@@ -6280,7 +6281,7 @@ namespace min {
 	    line_index;
 
 	min::uns32 spool_lines;
-	min::uns32 line_display;
+	const min::line_format * line_format;
 
 	std::istream *		istream;
 	const min::file		ifile;
@@ -6390,9 +6391,9 @@ namespace min {
 
     void init ( min::ref<min::file> file );
 
-    void init_line_display
+    void init_line_format
 	    ( min::ref<min::file> file,
-	      min::uns32 line_display );
+	      const min::line_format * line_format );
 
     void init_file_name
 	    ( min::ref<min::file> file,
@@ -6412,53 +6413,60 @@ namespace min {
 
     void init_input
             ( min::ref<min::file> file,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_stream
 	    ( min::ref<min::file> file,
 	      std::istream & istream,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
 	    ( min::ref<min::file> file,
 	      min::file ifile,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
 	    ( min::ref<min::file> file,
 	      min::gen file_name,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( min::ref<min::file> file,
 	      min::ptr<const char> string,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     inline void init_input_string
 	    ( min::ref<min::file> file,
 	      min::ptr<char> string,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES )
     {
         init_input_string
 	    ( file, (min::ptr<const char>) string,
-	       line_display, spool_lines );
+	       line_format, spool_lines );
     }
 
     inline void init_input_string
 	    ( min::ref<min::file> file,
 	      const char * string,
-	      min::uns32 line_display = 0,
+	      const min::line_format * line_format
+	          = NULL,
 	      min::uns32 spool_lines = min::ALL_LINES )
     {
         init_input_string
 	    ( file, min::new_ptr ( string ),
-	       line_display, spool_lines );
+	       line_format, spool_lines );
     }
 
     inline void end_line ( min::file file )
@@ -6560,7 +6568,7 @@ namespace min {
 
     min::uns32 print_line
     	    ( min::printer,
-	      min::uns32 line_display,
+	      const min::line_format * line_format,
 	      min::file file,
 	      min::uns32 line_number );
 
@@ -6570,7 +6578,7 @@ namespace min {
 	      min::uns32 line_number )
     {
         return print_line
-	    ( printer, file->line_display, file,
+	    ( printer, file->line_format, file,
 	      line_number );
     }
 
@@ -6578,12 +6586,12 @@ namespace min {
     min::uns32 print_line_column
 	    ( min::file file,
 	      const min::position & position,
-	      min::uns32 line_display,
+	      const min::line_format * line_format,
 	      const min::print_format & print_format );
 
     min::uns32 print_phrase_lines
 	    ( min::printer printer,
-	      min::uns32 line_display,
+	      const min::line_format * line_format,
 	      min::file file,
 	      const min::phrase_position & position,
 	      char mark = '^' );
@@ -6595,7 +6603,7 @@ namespace min {
 	      char mark = '^' )
     {
         return print_phrase_lines
-	    ( printer, file->line_display, file,
+	    ( printer, file->line_format, file,
 	      position, mark );
     }
 

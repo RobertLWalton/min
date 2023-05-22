@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 21 22:22:30 EDT 2023
+// Date:	Mon May 22 10:18:22 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2473,12 +2473,12 @@ void min::init ( min::ref<min::file> file )
     }
 }
 
-void min::init_line_display
+void min::init_line_format
 	( min::ref<min::file> file,
-	  min::uns32 line_display )
+	  const min::line_format * line_format )
 {
     init ( file );
-    file->line_display = line_display;
+    file->line_format = line_format;
 }
 
 void min::init_file_name
@@ -2515,7 +2515,7 @@ void min::init_printer
 
 void min::init_input
 	( min::ref<min::file> file,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
     init ( file );
@@ -2529,7 +2529,7 @@ void min::init_input
     file->next_line_number = 0;
     file->next_offset = 0;
 
-    file->line_display = line_display;
+    file->line_format = line_format;
     file->spool_lines = spool_lines;
     if ( spool_lines != 0 )
     {
@@ -2560,30 +2560,30 @@ void min::init_input
 void min::init_input_stream
 	( min::ref<min::file> file,
 	  std::istream & istream,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, line_display, spool_lines );
+    init_input ( file, line_format, spool_lines );
     file->istream = & istream;
 }
 
 void min::init_input_file
 	( min::ref<min::file> file,
 	  min::file ifile,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, line_display, spool_lines );
+    init_input ( file, line_format, spool_lines );
     ifile_ref(file) = ifile;
 }
 
 void min::init_input_string
 	( min::ref<min::file> file,
 	  min::ptr<const char> string,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, line_display, spool_lines );
+    init_input ( file, line_format, spool_lines );
     load_string ( file, string );
     complete_file ( file );
 }
@@ -2613,10 +2613,10 @@ void min::load_string
 bool min::init_input_named_file
 	( min::ref<min::file> file,
 	  min::gen file_name,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::uns32 spool_lines )
 {
-    init_input ( file, line_display, spool_lines );
+    init_input ( file, line_format, spool_lines );
     file_name_ref(file) = file_name;
     if ( ! load_named_file ( file, file_name ) )
         return false;
@@ -2828,16 +2828,17 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::file file,
 	  min::uns32 line_number )
 {
-    min::uns32 saved_op_flags =
-        printer->print_format.op_flags;
-    printer->print_format.op_flags &=
-	~ ( min::DISPLAY_EOL + min::DISPLAY_PICTURE );
-    const min::line_format * line_format =
-	printer->print_format.line_format;
+    if ( line_format == NULL )
+        line_format = file->line_format;
+    if ( line_format == NULL )
+        line_format = printer->print_format.line_format;
+    MIN_ASSERT ( line_format != NULL,
+                 "printer->print_format.line_format"
+		 " == NULL" );
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
@@ -2866,8 +2867,6 @@ min::uns32 min::print_line
 	    if ( message == NULL ) return min::NO_LINE;
 
 	    printer << message << min::eol;
-	    printer->print_format.op_flags =
-	        saved_op_flags;
 	    return 0;
 	}
     }
@@ -2889,13 +2888,12 @@ min::uns32 min::print_line
     if ( line_format->blank_line == NULL )
         ; // do nothing
     else if ( eof ? line_format->end_of_file != NULL :
-                  (   line_display
+                  (   line_format->op_flags
                     & min::DISPLAY_EOL ) )
         ; // do nothing
     else if ( length == 0 )
     {
 	printer << line_format->blank_line << min::eol;
-	printer->print_format.op_flags = saved_op_flags;
 	return 0;
     }
     else
@@ -2904,7 +2902,8 @@ min::uns32 min::print_line
 	min::Uchar * endbp = bp + length;
 
 	min::uns32 blank_flags = min::IS_HSPACE;
-	if ( line_display & min::DISPLAY_NON_GRAPHIC )
+	if (   line_format->op_flags
+	     & min::DISPLAY_NON_GRAPHIC )
 	    blank_flags = 0;
 
 	for ( ; bp < endbp; ++ bp )
@@ -2921,8 +2920,6 @@ min::uns32 min::print_line
 	{
 	    printer << line_format->blank_line
 	            << min::eol;
-	    printer->print_format.op_flags =
-	        saved_op_flags;
 	    return 0;
 	}
     }
@@ -2932,9 +2929,7 @@ min::uns32 min::print_line
     min::uns32 width = (min::uns32) -1;
     MINT::print_unicode
 	( printer,
-	  line_display |
-	      min::DISABLE_LINE_BREAKS |
-	      min::EXPAND_HT,
+	  line_format->op_flags,
 	  length, p, width );
 
     width = printer->column;
@@ -2944,12 +2939,16 @@ min::uns32 min::print_line
         if ( line_format->end_of_file )
 	    printer << line_format->end_of_file;
     }
-    else if ( line_display & min::DISPLAY_EOL )
+    else if ( line_format->op_flags & min::DISPLAY_EOL )
     {
+	min::uns32 saved_op_flags =
+	    printer->print_format.op_flags;
+
 	printer->print_format.op_flags |=
 	    min::DISPLAY_EOL;
 
-	if ( line_display & min::DISPLAY_PICTURE )
+	if (   line_format->op_flags
+	     & min::DISPLAY_PICTURE )
 	{
 	    printer->print_format.op_flags |=
 		min::DISPLAY_PICTURE;
@@ -2978,13 +2977,14 @@ min::uns32 min::print_line
 				 + postfix_columns;
 		      // 2 is width of "NL"
 	} 
+	printer << min::eol;
+	    // min::eol handles min::DISPLAY_EOL
+	    // with printer->print_format.op_flags.
+
+	printer->print_format.op_flags = saved_op_flags;
     }
-
-    printer << min::eol;
-        // min::eol handles min::DISPLAY_EOL
-	// with printer->print_format.op_flags.
-
-    printer->print_format.op_flags = saved_op_flags;
+    else
+	printer << min::eol;
 
     return width;
 }
@@ -2992,9 +2992,16 @@ min::uns32 min::print_line
 min::uns32 min::print_line_column
 	( min::file file,
 	  const min::position & position,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  const min::print_format & print_format )
 {
+    if ( line_format == NULL )
+        line_format = file->line_format;
+    if ( line_format == NULL )
+        line_format = print_format.line_format;
+    MIN_ASSERT ( line_format != NULL,
+                 "print_format.line_format == NULL" );
+
     min::uns32 column = 0;
     min::uns32 offset =
         min::line ( file, position.line );
@@ -3016,17 +3023,9 @@ min::uns32 min::print_line_column
 	    ::strlen ( ~ ( file->buffer + offset ) );
 
     min::print_format pf = print_format;
-    min::uns32 flags = min::DISPLAY_EOL
-                     + min::DISPLAY_PICTURE
-		     + min::DISPLAY_NON_GRAPHIC;
-    pf.op_flags &= ~ flags;
-    pf.op_flags |= ( flags & line_display );
-    pf.op_flags |= min::EXPAND_HT;
-    pf.display_control =
-        ( line_display & min::DISPLAY_NON_GRAPHIC ?
-	  min::graphic_only_display_control :
-	  min::graphic_and_hspace_display_control );
-    pf.break_control = min::no_auto_break_break_control;
+    pf.op_flags &= ~ min::LINE_OP_FLAGS;
+    pf.op_flags |= ( min::LINE_OP_FLAGS
+                     & line_format->op_flags );
     min::pwidth ( column, ~ ( file->buffer + offset ),
     		  position.offset <= length ?
 		      position.offset : length, pf );
@@ -3035,7 +3034,7 @@ min::uns32 min::print_line_column
 
 min::uns32 min::print_phrase_lines
 	( min::printer printer,
-	  min::uns32 line_display,
+	  const min::line_format * line_format,
 	  min::file file,
 	  const min::phrase_position & position,
 	  char mark )
@@ -3047,18 +3046,18 @@ min::uns32 min::print_phrase_lines
     min::position end   = position.end;
     uns32 begin_column =
         print_line_column
-	    ( file, begin, line_display,
+	    ( file, begin, line_format,
 	                   printer->print_format );
     uns32 end_column =
         print_line_column
-	    ( file, end, line_display,
+	    ( file, end, line_format,
 	                 printer->print_format );
 
     uns32 line = begin.line;
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, line_display, file, line );
+	( printer, line_format, file, line );
 
     while ( true )
     {
@@ -3088,7 +3087,7 @@ min::uns32 min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, line_display, file, line );
+	    ( printer, line_format, file, line );
     }
 
     return begin_column;

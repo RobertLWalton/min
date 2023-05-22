@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 19 22:45:59 EDT 2023
+// Date:	Mon May 22 12:26:07 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3380,10 +3380,7 @@ void test_printer ( void )
 	    << min::eol;
     min::print_phrase_lines ( printer, file, ppos2 );
 
-    file->line_display =
-        min::DISPLAY_PICTURE +
-	min::DISPLAY_NON_GRAPHIC +
-	min::DISPLAY_EOL;
+    file->line_format = min::eol_line_format;
     min::print_line ( printer, file, 1 );
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );
