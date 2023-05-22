@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 22 10:18:22 EDT 2023
+// Date:	Mon May 22 14:56:11 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3022,13 +3022,10 @@ min::uns32 min::print_line_column
         length =
 	    ::strlen ( ~ ( file->buffer + offset ) );
 
-    min::print_format pf = print_format;
-    pf.op_flags &= ~ min::LINE_OP_FLAGS;
-    pf.op_flags |= ( min::LINE_OP_FLAGS
-                     & line_format->op_flags );
     min::pwidth ( column, ~ ( file->buffer + offset ),
     		  position.offset <= length ?
-		      position.offset : length, pf );
+		      position.offset : length,
+		  print_format, line_format );
     return column;
 }
 
@@ -11589,17 +11586,21 @@ min::printer operator <<
         ( printer, buffer, n, n, min::IS_GRAPHIC );
 }
 
-min::uns32 min::pwidth ( min::uns32 & column,
-                         const char * s, min::unsptr n,
-		         const min::print_format &
-		             print_format )
+min::uns32 min::pwidth
+	( min::uns32 & column,
+          const char * s, min::unsptr n,
+	  const min::print_format & print_format,
+	  const min::line_format * line_format )
 {
+    min::uns32 op_flags =
+        ( line_format != NULL ?
+	  line_format->op_flags :
+          print_format.op_flags );
     min::support_control sc =
         print_format.support_control;
     min::display_control dc =
         print_format.display_control;
-    if (   print_format.op_flags
-         & min::DISPLAY_NON_GRAPHIC )
+    if ( op_flags & min::DISPLAY_NON_GRAPHIC )
     {
         dc.display_char &= min::IS_GRAPHIC;
         dc.display_suppress &= min::IS_GRAPHIC;
@@ -11631,8 +11632,7 @@ min::uns32 min::pwidth ( min::uns32 & column,
 	}
 	else if ( cflags & dc.display_suppress )
 	    continue;
-	else if ( (   print_format.op_flags
-	            & min::DISPLAY_PICTURE )
+	else if ( ( op_flags & min::DISPLAY_PICTURE )
 		  &&
 		  unicode::picture[cindex] != NULL )
 	{

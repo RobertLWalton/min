@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 22 10:12:58 EDT 2023
+// Date:	Mon May 22 14:55:26 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13186,7 +13186,8 @@ namespace min {
     min::uns32 pwidth
 	( min::uns32 & column,
 	  const char * s, min::unsptr n,
-	  const min::print_format & print_format );
+	  const min::print_format & print_format,
+	  const min::line_format * line_format = NULL );
 
     typedef min::printer (* pstring )
 	    ( min::printer printer );

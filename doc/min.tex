@@ -10152,7 +10152,8 @@ after the string is printed.
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  const min::print_format & print_format )|
+         \verb|  const min::print_format & print_format,|\ARGBREAK
+         \verb|  const min::line_format * line_format = NULL )|
 \LABEL{MIN::PWIDTH_OF_STRING} \\
 \end{tabular}\end{indpar}
 
@@ -10161,6 +10162,10 @@ the \TT{n} byte string \TT{s} were printed with the given
 \TT{print\_\EOL format}.
 Here \TT{s} may be relocatable, as the \TT{min::\EOL pwidth}
 function does not allocate or resize objects.
+This function uses
+\TT{line\_\EOL format\EOL .op\_\EOL flags} if
+\TT{line\_\EOL format} is \underline{not} \TT{NULL}, and
+\TT{print\_\EOL format\EOL .op\_\EOL flags} otherwise.
 The number of columns added to `\TT{column}' is returned.
 
 A function and a constant that can be useful as arguments to
@@ -21846,7 +21851,8 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{pwidth}\ARGBREAK
          \verb|( min::uns32 & column,|\ARGBREAK
          \verb|  const char * s, min::unsptr n,|\ARGBREAK
-         \verb|  const min::print_format & print_format )|
+         \verb|  const min::print_format & print_format,|\ARGBREAK
+         \verb|  const min::line_format * line_format = NULL )|
 \LABEL{MIN::PWIDTH_OF_STRING}
 \end{TABULAR}
 
