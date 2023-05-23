@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 22 14:56:11 EDT 2023
+// Date:	Tue May 23 03:25:42 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2828,9 +2828,9 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
-	  const min::line_format * line_format,
 	  min::file file,
-	  min::uns32 line_number )
+	  min::uns32 line_number,
+	  const min::line_format * line_format )
 {
     if ( line_format == NULL )
         line_format = file->line_format;
@@ -2992,8 +2992,8 @@ min::uns32 min::print_line
 min::uns32 min::print_line_column
 	( min::file file,
 	  const min::position & position,
-	  const min::line_format * line_format,
-	  const min::print_format & print_format )
+	  const min::print_format & print_format,
+	  const min::line_format * line_format )
 {
     if ( line_format == NULL )
         line_format = file->line_format;
@@ -3031,9 +3031,9 @@ min::uns32 min::print_line_column
 
 min::uns32 min::print_phrase_lines
 	( min::printer printer,
-	  const min::line_format * line_format,
 	  min::file file,
 	  const min::phrase_position & position,
+	  const min::line_format * line_format,
 	  char mark )
 {
     MIN_REQUIRE
@@ -3043,18 +3043,18 @@ min::uns32 min::print_phrase_lines
     min::position end   = position.end;
     uns32 begin_column =
         print_line_column
-	    ( file, begin, line_format,
-	                   printer->print_format );
+	    ( file, begin,
+	      printer->print_format, line_format );
     uns32 end_column =
         print_line_column
-	    ( file, end, line_format,
-	                 printer->print_format );
+	    ( file, end,
+	      printer->print_format, line_format );
 
     uns32 line = begin.line;
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, line_format, file, line );
+	( printer, file, line, line_format );
 
     while ( true )
     {
@@ -3084,7 +3084,7 @@ min::uns32 min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, line_format, file, line );
+	    ( printer, file, line, line_format );
     }
 
     return begin_column;

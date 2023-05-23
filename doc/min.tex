@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 22, 2023}
+\date{May 23, 2023}
  
 \maketitle
 
@@ -7806,7 +7806,8 @@ The data types and members of a file are:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_SPOOL_LINES} \\
-\verb|min::line_format * file| & \TTARMKEY{line\_format}{in {\tt min::file}}
+\verb|const min::line_format * file| & \TTARMKEY{line\_format}%
+                                       {in {\tt min::file}}
 \LABEL{MIN::FILE_LINE_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -8114,7 +8115,7 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_line\_format\REL}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::line_format * line_format )|
+	  \verb|  const min::line_format * line_format )|
 \LABEL{MIN::INIT_LINE_FORMAT_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
@@ -8150,7 +8151,7 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -8160,7 +8161,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  std::istream & istream,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -8170,7 +8171,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::file ifile,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -8180,7 +8181,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::gen file_name,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -8190,21 +8191,21 @@ accomplished by the following:
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<const char> string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<char> string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  const char * string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -9171,7 +9172,7 @@ following printer parameters:
 \LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{rl}
+\begin{tabular}{rl}
 \verb|struct              min::| & \MINKEY{print\_\EOL format}
 \LABEL{MIN::PRINT_FORMAT_STRUCT} \\
 				 & \verb|// Defaults:| \\
@@ -9187,27 +9188,30 @@ following printer parameters:
         & \verb|// min::latin1_support_control| \\
 \verb|     min::display_control|
 	& \TTMKEY{display\_control}{in {\tt min::print\_format}} \\
-        & \verb|// min::graphic_and_hspace_display_control| \\
+        & \verb|// min::graphic_and_hspace_| \\
+        & \verb|//      display_control| \\
 \verb|     min::display_control|
 	& \TTMKEY{quoted\_display\_control}{in {\tt min::print\_format}} \\
-        & \verb|// min::graphic_and_sp_display_control| \\
+        & \verb|// min::graphic_and_sp_| \\
+        & \verb|//      display_control| \\
 \verb|       min::break_control|
 	& \TTMKEY{break\_control}{in {\tt min::print\_format}} \\
-        & \verb|// min::break_after_space_break_control| \\
+        & \verb|// min::break_after_space_| \\
+        & \verb|//      break_control| \\
 \verb|  min::char_name_format *|
 	& \TTMKEY{char\_name\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::standard_char_name_format| \\
 \verb|        min::gen_format *|
 	& \TTMKEY{gen\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::compact_gen_format| \\
-\verb|        min::line_format *|
+\verb|        const min::line_format *|
 	& \TTMKEY{line\_format}{in {\tt min::print\_format}} \\
         & \verb|// min::standard_line_format| \\
 \verb|        min::uns32|
 	& \TTMKEY{max\_depth}{in {\tt min::print\_format}} \\
         & \verb|// 10| \\
 \verb|}                        | \\
-\end{tabular}\end{indpar}
+\end{tabular}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::print_format printer->|
@@ -11267,13 +11271,14 @@ an error message:
     & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number )|
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const min::line_format * line_format = NULL )|
 \LABEL{MIN::PRINT_LINE} \\
 \end{tabular}\end{indpar}
 
 The \TT{file} line with the given \TT{line\_number}
 is printed on a single \TT{printer} line with
-\TT{file->\EOL line\_\EOL format\EOL .op\_\EOL flags}
+\TT{line\_\EOL format\EOL .op\_\EOL flags}
 temporarily merged into
 \TT{printer->\EOL print\_\EOL format.op\_\EOL flags} during the printing
 (see \pagref{FILE_LINE_FORMAT}),
@@ -11281,9 +11286,11 @@ and the number of columns in the result,
 including any end of line representation printed by the
 \TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
 
-If \TT{file->\EOL line\_\EOL format} is \TT{NULL},
-\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used in its
-place.
+If \TT{line\_\EOL format} is \TT{NULL},
+\TT{file->line\_\EOL format} is used in its place.  If that is also
+\TT{NULL},
+\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used (this
+last may \underline{not} be \TT{NULL}).
 
 If a line is
 unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
@@ -11503,6 +11510,7 @@ To print a phrase one can use the function:
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
       \verb|  char mark = '^' )|\ARGBREAK
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{tabular}\end{indpar}
@@ -11537,8 +11545,8 @@ makes the call:
 
 \begin{indpar}\begin{verbatim}
     min::print_line_column
-        ( file, position, file->line_format,
-          printer->print_format );
+        ( file, position,
+          printer->print_format, line_format );
 \end{verbatim}\end{indpar}
 
 which uses the function:
@@ -11548,27 +11556,22 @@ which uses the function:
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  const min::print_format & print_format )|
+      \verb|  const min::print_format & print_format,|\ARGBREAK
+      \verb|  const min::line_format * line_format = NULL )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
 
-that, given a file, a position within that file, a line format,
-and the print format, returns the number of
+that, given a file, a position within that file, print format,
+and a line format, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line.  To do this, \TT{min::\EOL print\_\EOL line\_\EOL column}
-calls \TT{min::\EOL pwidth} with its \TT{print\_\EOL format} argument modified
-with \TT{line\_\EOL format\EOL .op\_\EOL flags}.
-If the \TT{line\_format} argument is \TT{NULL},
-the \TT{print\_format} argument's \TT{line\_format} member (which must
-\underline{not} be \TT{NULL}) is used
-in its place.
+calls \TT{min::\EOL pwidth} (see \pagref{MIN::PWIDTH_OF_STRING}).
 
-
-The above functions use \TT{file->line\_format}
+The above functions use \TT{line\_format}
 to control how lines are printed and therefore which column
-a position corresponds to.  Specifically, if \TT{min::\EOL DISPLAY\_\EOL EOL}
-is on in \TT{file->line\_format}, \TT{<NL>} 
+a position corresponds to.
+Specifically, if \TT{min::\EOL DISPLAY\_\EOL EOL}
+is on in \TT{line\_format}, \TT{<NL>} 
 will print at the end of a line if
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} is off, and
 {\tiny $\stackrel{\textstyle N~}{~L}$} will print if
@@ -11585,30 +11588,11 @@ horizontal space characters will also print as pictures
 if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, and otherwise as
 as their names (e.g., \TT{<SP>} and \TT{<HT>}).
 
-The following are alternatives to the above functions that take
-an extra \TT{line\_\EOL format} argument and use that in place of
-\TT{file->\EOL line\_\EOL format}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number )|\ARGBREAK
-\LABEL{MIN::PRINT_LINE_WITH_LINE_FORMAT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^' )|\ARGBREAK
-\LABEL{MIN::PRINT_PHRASE_LINES_WITH_LINE_FORMAT} \\
-\end{tabular}\end{indpar}
+In the above functions, if the \TT{line\_format} is \TT{NULL},
+then \TT{file->\EOL line\_\EOL format} is used, but if that is
+also \TT{NULL}, then \TT{printer->\EOL print\_\EOL format\EOL
+.line\_\EOL format} is used (this last may \underline{not}
+be \TT{NULL}).
 
 There is a type of packed vector, the `\key{phrase position vector}\,',
 that is specialized to
@@ -20942,7 +20926,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{3.4in}
 \verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
 \LABEL{MIN::FILE_SPOOL_LINES} \\
-\verb|min::line_format * file| & \TTARMKEY{line\_format}{in {\tt min::file}}
+\verb|const min::line_format * file| & \TTARMKEY{line\_format}%
+                                       {in {\tt min::file}}
 \LABEL{MIN::FILE_LINE_FORMAT} \\
 \end{TABULAR}
 
@@ -20972,7 +20957,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
     & \MINKEY{init\_line\_format\REL}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::line_format * line_format )|
+	  \verb|  const min::line_format * line_format )|
 \LABEL{MIN::INIT_LINE_FORMAT_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
@@ -21011,7 +20996,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
 \end{TABULAR}
@@ -21021,7 +21006,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  std::istream & istream,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{TABULAR}
@@ -21031,7 +21016,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::file ifile,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{TABULAR}
@@ -21067,21 +21052,21 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<const char> string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::ptr<char> string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  const char * string,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CHAR_PTR_OF_FILE} \\
 \end{TABULAR}
@@ -21091,7 +21076,7 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb|( min::ref<min::file> file,|\ARGBREAK
 	  \verb|  min::gen file_name,|\ARGBREAK
-	  \verb|  min::line_format * line_format = NULL,|\ARGBREAK
+	  \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
 	  \verb|  min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{TABULAR}
@@ -22211,7 +22196,9 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number )|
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
 \LABEL{MIN::PRINT_LINE} \\
 \end{TABULAR}
 
@@ -22319,7 +22306,8 @@ These are in \verb|min_parameters.h|.
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^' )|\ARGBREAK
+      \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
+      \verb|  char mark = '^' )|
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{TABULAR}
 
@@ -22328,30 +22316,10 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb|( min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  const min::print_format & print_format )|
+      \verb|  const min::print_format & print_format,|\ARGBREAK
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number )|\ARGBREAK
-\LABEL{MIN::PRINT_LINE_WITH_LINE_FORMAT} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::line_format * line_format,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  char mark = '^' )|\ARGBREAK
-\LABEL{MIN::PRINT_PHRASE_LINES_WITH_LINE_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
