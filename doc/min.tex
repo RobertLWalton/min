@@ -9403,6 +9403,8 @@ have non-zero numbers of columns encoded in their second bytes.
 \verb|{                         | \\
 \verb|     min::uns32   |
 	& \TTMKEY{op\_flags}{in {\tt min::line\_format}} \\
+\verb|     char         |
+	& \TTMKEY{mark}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{blank\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
@@ -9422,6 +9424,7 @@ have non-zero numbers of columns encoded in their second bytes.
 \LABEL{MIN::STANDARD_LINE_FORMAT}\ARGBREAK
 \verb|min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
 \verb|    + min::EXPAND_HT,|\ARGBREAK
+\verb|'^' ,                      // mark|\ARGBREAK
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
@@ -11510,23 +11513,23 @@ To print a phrase one can use the function:
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
-      \verb|  char mark = '^' )|\ARGBREAK
+      \verb|  const min::line_format * line_format = NULL )|
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{tabular}\end{indpar}
 
 The lines containing the phrase are printed, and under each phrase
-character a \TT{mark} is printed.
+character a mark is printed.
 The lines are printed
 as per \TT{min::\EOL print\_\EOL line}.
 An empty phrase is marked as if it were 1-column wide, that column
 being at the empty phrase position.
 
-If the \TT{mark} argument is given as \TT{0}, the marking lines
-will be omitted.  This permits just printing the lines containing
+The mark is the character \TT{line\_\EOL format->mark}.
+If it is \TT{0}, marking lines will be omitted.
+This permits just printing the lines containing
 a phrase, without marking the phrase.
 
-The column number of position.begin is returned (this is \TT{0}
+The column number of \TT{position.begin} is returned (this is \TT{0}
 for the first column).  If position bounds the non-whitespace
 portion of some lines, this is the indent of that portion in
 the first of these lines.
@@ -21615,6 +21618,10 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{line\_\EOL format}
 \LABEL{MIN::LINE_FORMAT_STRUCT} \\
 \verb|{                         | \\
+\verb|     min::uns32   |
+	& \TTMKEY{op\_flags}{in {\tt min::line\_format}} \\
+\verb|     char         |
+	& \TTMKEY{mark}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{blank\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
@@ -21634,6 +21641,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STANDARD_LINE_FORMAT}\ARGBREAK
 \verb|min::DISABLE_LINE_BREAKS   // op_flags|\ARGBREAK
 \verb|    + min::EXPAND_HT,|\ARGBREAK
+\verb|'^' ,                      // mark|\ARGBREAK
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
@@ -22306,8 +22314,8 @@ These are in \verb|min_parameters.h|.
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
       \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  const min::line_format * line_format = NULL,|\ARGBREAK
-      \verb|  char mark = '^' )|
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{TABULAR}
 

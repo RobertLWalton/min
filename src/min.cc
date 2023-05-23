@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 03:25:42 EDT 2023
+// Date:	Tue May 23 04:57:41 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3033,11 +3033,18 @@ min::uns32 min::print_phrase_lines
 	( min::printer printer,
 	  min::file file,
 	  const min::phrase_position & position,
-	  const min::line_format * line_format,
-	  char mark )
+	  const min::line_format * line_format )
 {
     MIN_REQUIRE
         ( position.end.line >= position.begin.line );
+
+    if ( line_format == NULL )
+        line_format = file->line_format;
+    if ( line_format == NULL )
+        line_format = printer->print_format.line_format;
+    MIN_ASSERT ( line_format != NULL,
+                 "printer->print_format.line_format"
+		 " == NULL" );
 
     min::position begin = position.begin;
     min::position end   = position.end;
@@ -3058,7 +3065,7 @@ min::uns32 min::print_phrase_lines
 
     while ( true )
     {
-        if ( mark != 0 )
+        if ( line_format->mark != 0 )
 	{
 	    for ( uns32 i = 0; i < first_column; ++ i )
 		printer << ' ';
@@ -3070,7 +3077,7 @@ min::uns32 min::print_phrase_lines
 
 	    for ( uns32 i = first_column;
 		  i < next_column; ++ i )
-		printer << mark;
+		printer << line_format->mark;
 	    printer << min::eol;
 	}
 
@@ -12586,6 +12593,7 @@ const min::gen_format * min::never_quote_gen_format =
 static const min::line_format standard_line_format =
 {
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT,
+    '^',
     NULL,
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
@@ -12599,6 +12607,7 @@ static const min::line_format picture_line_format =
 {
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT
     			     + min::DISPLAY_PICTURE,
+    '^',
     NULL,
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
@@ -12613,6 +12622,7 @@ static const min::line_format non_graphic_line_format =
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT
     			     + min::DISPLAY_PICTURE
     			     + min::DISPLAY_NON_GRAPHIC,
+    '^',
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
@@ -12628,6 +12638,7 @@ static const min::line_format eol_line_format =
     			     + min::DISPLAY_PICTURE
     			     + min::DISPLAY_NON_GRAPHIC
     			     + min::DISPLAY_EOL,
+    '^',
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",

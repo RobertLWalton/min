@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 03:19:52 EDT 2023
+// Date:	Tue May 23 04:55:54 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6586,8 +6586,7 @@ namespace min {
 	      min::file file,
 	      const min::phrase_position & position,
 	      const min::line_format * line_format =
-	          NULL,
-	      char mark = '^' );
+	          NULL );
 
     struct pline_numbers
     {
@@ -12361,6 +12360,7 @@ namespace min {
     struct line_format
     {
 	min::uns32   op_flags;
+	char         mark;
 	const char * blank_line;
 	const char * end_of_file;
 	const char * unavailable_line;
