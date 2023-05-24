@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 21:39:08 EDT 2023
+// Date:	Wed May 24 06:35:20 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12609,7 +12609,7 @@ static const min::line_format marked_line_format =
 {
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT,
     '^',
-    NULL,
+    "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
     "MIN-LINE",
@@ -12623,13 +12623,13 @@ static const min::line_format picture_line_format =
 {
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT
     			     + min::DISPLAY_PICTURE,
-    0,
+    '^',
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
-    NULL
+    "MIN-LINE-MARK"
 };
 const min::line_format * min::picture_line_format =
     & ::picture_line_format;
@@ -12639,13 +12639,13 @@ static const min::line_format non_graphic_line_format =
     min::DISABLE_LINE_BREAKS + min::EXPAND_HT
     			     + min::DISPLAY_PICTURE
     			     + min::DISPLAY_NON_GRAPHIC,
-    0,
+    '^',
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
-    NULL
+    "MIN-LINE-MARK"
 };
 const min::line_format * min::non_graphic_line_format =
     & ::non_graphic_line_format;
@@ -12656,13 +12656,13 @@ static const min::line_format eol_line_format =
     			     + min::DISPLAY_PICTURE
     			     + min::DISPLAY_NON_GRAPHIC
     			     + min::DISPLAY_EOL,
-    0,
+    '^',
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
-    NULL
+    "MIN-LINE-MARK"
 };
 const min::line_format * min::eol_line_format =
     & ::eol_line_format;
