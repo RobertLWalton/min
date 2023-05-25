@@ -8,6 +8,7 @@
 
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage{wasysym}
 \usepackage{makeidx}
 % \usepackage{pictex} (obsolete? not available under CentOS 7)
 \usepackage{upquote} % (imported to local directory
@@ -198,7 +199,6 @@
 	 \end{minipage}
 	 \end{lrbox}
 
-	 \vspace*{-15ex}
 	 \centering
 	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
 	 \end{figure*}}
@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 23, 2023}
+\date{May 25, 2023}
  
 \maketitle
 
@@ -9716,28 +9716,43 @@ regardless of the setting of the display control.
 
 \item[\ttmkey{OUTPUT\_HTML}%
                {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, HTML special characters that are displayed as
+If this flag is on, HTML reserved characters that are displayed as
 per \TT{print\_\EOL for\-mat.display\_control}
 (see step \ref{COMPUTE-PRINTED-REPRESENTATION} on
 \pagref{COMPUTE-PRINTED-REPRESENTATION})
 are replaced in the
-printer output buffer as follows:
+printer output buffer as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
+
+\begin{boxedfigure}[t]
 \begin{center}
 \begin{tabular}{ll@{~~~~~}l}
-\bf HTML & & \\
-\bf Special & \bf Output & \bf Column \\
-\bf Character & & \bf Action
+\bf HTML \\
+\bf Reserved \\
+\bf Character & \bf Output
 \\\hline
-\TT{<}		& \TT{\&lt;}	& += 1 \\
-\TT{>}		& \TT{\&gt;}	& += 1 \\
-\TT{\&}		& \TT{\&amp;}	& += 1 \\
-\TT{<LF>}	& \TT{<CR>}	& = 0 \\
-\TT{<CR>}	& none		& none \\
-\TT{<FF>}	& \TT{<CR><CR>}	& = 0 \\
-\TT{<VT>}	& \TT{<CR><CR>}	& = 0 \\
-\TT{<HT>}	& \multicolumn{2}{c}{--- see \TT{EXPAND\_HT} ---} \\
+\TT{<}			& \TT{\&lt;} \\
+\TT{>}			& \TT{\&gt;} \\
+\TT{\&}			& \TT{\&amp;} \\
+\TT{"}			& \TT{\&quot;} \\
+\TT{<NBSP>}		& \TT{\&nbsp;} \\
+{\bf \textendash}        & \TT{\&ndash;} & en dash \\
+{\bf \textemdash}	& \TT{\&mdash;} & em dash \\
+{\bf \textcopyright}	& \TT{\&copy;} \\
+{\bf \texttrademark}	& \TT{\&trade;} \\
+{$\mathbf \approx$}	& \TT{\&asymp;} \\
+{$\mathbf \neq$}	& \TT{\&ne;} \\
+{\bf \pounds}		& \TT{\&pound;} \\
+{\bf \texteuro}		& \TT{\&euro;} \\
+{\bf \textdegree}	& \TT{\&deg;} & degree \\
 \end{tabular}
+
+\medskip
+
+See \TT{developer.mozilla.org/en-US/docs/Glossary/Entity}.
 \end{center}
+\caption{HTML Reserved Characters}
+\label{HTML-RESERVED-CHARACTERS}
+\end{boxedfigure}
 
 \item[\ttmkey{FLUSH\_ON\_EOL}%
 {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
@@ -10271,6 +10286,13 @@ Particular \TT{print\_format.op\_flags} may be set and cleared by the
 following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{disable\_line\_breaks}
+\LABEL{MIN::DISABLE_LINE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_line\_breaks}
+\LABEL{MIN::NODISABLE_LINE_BREAKS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{expand\_ht}
 \LABEL{MIN::EXPAND_HT} \\
 \verb|const min::op min::| & \MINKEY{noexpand\_ht}
@@ -10290,6 +10312,13 @@ following printer operations:
 \LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
 \LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{output\_html}
+\LABEL{MIN::OUTPUT_HTML} \\
+\verb|const min::op min::| & \MINKEY{nooutput\_html}
+\LABEL{MIN::NOOUTPUT_HTML} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -21480,7 +21509,12 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
+Flags shared with \TT{line\_format.op\_flags}
+(see \pagref{MIN::LINE_FORMAT_STRUCT}):
+
 \begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{DISABLE\_LINE\_BREAKS}
+\LABEL{MIN::DISABLE_LINE_BREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{EXPAND\_HT}
 \LABEL{MIN::EXPAND_HT_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_EOL}
@@ -21489,6 +21523,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISPLAY_PICTURE_FLAG} \\
 \verb|const min::uns32 min::| & \MINKEY{DISPLAY\_NON\_GRAPHIC}
 \LABEL{MIN::DISPLAY_NON_GRAPHIC_FLAG} \\
+\end{TABULAR}
+
+Other flags:
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINKEY{OUTPUT\_HTML}
+\LABEL{MIN::OUTPUT_HTML_FLAG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -21918,6 +21959,13 @@ These are in \verb|min_parameters.h|.
 \bigskip
 
 \begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{disable\_line\_breaks}
+\LABEL{MIN::DISABLE_LINE_BREAKS} \\
+\verb|const min::op min::| & \MINKEY{nodisable\_line\_breaks}
+\LABEL{MIN::NODISABLE_LINE_BREAKS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
 \verb|const min::op min::| & \MINKEY{expand\_ht}
 \LABEL{MIN::EXPAND_HT} \\
 \verb|const min::op min::| & \MINKEY{noexpand\_ht}
@@ -21937,6 +21985,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISPLAY_NON_GRAPHIC} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_non\_graphic}
 \LABEL{MIN::NODISPLAY_NON_GRAPHIC} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{output\_html}
+\LABEL{MIN::OUTPUT_HTML} \\
+\verb|const min::op min::| & \MINKEY{nooutput\_html}
+\LABEL{MIN::NOOUTPUT_HTML} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
