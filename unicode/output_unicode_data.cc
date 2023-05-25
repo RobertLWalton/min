@@ -2,7 +2,7 @@
 //
 // File:	output_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug 20 14:06:37 EDT 2020
+// Date:	Thu May 25 16:38:00 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -101,6 +101,8 @@ inline bool index_eq ( uns32 i1, uns32 i2 )
         && properties[i1] == properties[i2]
         && ustring_eq ( name[i1], name[i2] )
         && ustring_eq ( picture[i1], picture[i2] )
+        && ustring_eq
+	    ( html_reserved[i1], html_reserved[i2] )
         && support_sets[i1] == support_sets[i2];
 }
 
@@ -183,6 +185,10 @@ void print_index ( uns16 i, ostream & out = cout )
 
     indent = strlen ( line );
     linep = line + indent;
+
+    if ( html_reserved[i] != NULL )
+        putprop ( out,
+	          ustring_chars ( html_reserved[i] ) );
 
     if ( denominator[i] != 0 )
     {
@@ -835,6 +841,15 @@ void output_data ( const char * filename )
 
     out << endl << "# define UNICODE_PICTURE";
     ustring_output ( out, picture, index_limit );
+
+    out <<
+      "\n"
+      "// UNICODE_HTML_RESERVED is the list of\n"
+      "// element values of the `html_reserved'\n"
+      "// vector whose size is UNICODE_INDEX_LIMIT.\n";
+
+    out << endl << "# define UNICODE_HTML_RESERVED";
+    ustring_output ( out, html_reserved, index_limit );
 
     out <<
       "\n"

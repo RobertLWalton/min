@@ -2,7 +2,7 @@
 //
 // File:	make_unicode_data.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 15:22:42 EDT 2020
+// Date:	Thu May 25 16:24:44 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -90,6 +90,7 @@ char bidi_mirrored[index_size];
 uns64 properties[index_size];
 ustring name[index_size];
 ustring picture[index_size];
+ustring html_reserved[index_size];
 uns32 support_sets[index_size];
 uns32 reference_count[index_size];
 
@@ -123,6 +124,7 @@ inline void index_copy ( uns32 i1, uns32 i2 )
     properties[i1] = properties[i2];
     name[i1] = name[i2];
     picture[i1] = picture[i2];
+    html_reserved[i1] = html_reserved[i2];
     support_sets[i1] = support_sets[i2];
 }
 
@@ -189,6 +191,7 @@ void finalize ( void )
     assert ( ::properties[i] == 0 );
     assert ( ::name[i] == NULL );
     assert ( ::picture[i] == NULL );
+    assert ( ::html_reserved[i] == NULL );
     assert ( ::support_sets[i] == 0 );
 
 
@@ -968,6 +971,61 @@ void set_pictures ( void )
     }
 }
 
+// html_reserved[c] is set as follows:
+//
+//     c        c code          html_reserved[c]
+//     -        ------          ----------------
+//
+//     &        0x0026     ---> "&amp;"
+//     <	0x003C     ---> "&lt;"
+//     >	0x003E     ---> "&gt;"
+//     "        0x0022     ---> "&quot;"
+//     <NBSP>   0x00A0     ---> "&nbsp;"
+//     –        0x2013     ---> "&ndash;"   en dash
+//     —        0x2014     ---> "&mdash;"   em dash
+//     ©        0x00A9     ---> "&copy;"
+//     ®        0x00AE     ---> "&reg;"
+//     ™        0x2122     ---> "&trade;"
+//     ≈        0x2248     ---> "&asymp;"
+//     ≠        0x2260     ---> "&ne;"
+//     £        0x00A3     ---> "&pound;"
+//     €        0x20AC     ---> "&euro;"
+//     °        0x00B0     ---> "&deg;"
+//
+void set_html_reserved ( void )
+{
+    html_reserved[0x0026] =
+        (ustring) "\x05\x01" "&amp;";
+    html_reserved[0x003C] =
+        (ustring) "\x04\x01" "&lt;";
+    html_reserved[0x003E] =
+        (ustring) "\x04\x01" "&gt;";
+    html_reserved[0x0022] =
+        (ustring) "\x06\x01" "&quot;";
+    html_reserved[0x00A0] =
+        (ustring) "\x06\x01" "&nbsp;";
+    html_reserved[0x2013] =
+        (ustring) "\x07\x01" "&ndash;";
+    html_reserved[0x2014] =
+        (ustring) "\x07\x01" "&mdash;";
+    html_reserved[0x00A9] =
+        (ustring) "\x06\x01" "&copy;";
+    html_reserved[0x00AE] =
+        (ustring) "\x05\x01" "&reg;";
+    html_reserved[0x2122] =
+        (ustring) "\x07\x01" "&trade;";
+    html_reserved[0x2248] =
+        (ustring) "\x07\x01" "&asymp;";
+    html_reserved[0x2260] =
+        (ustring) "\x04\x01" "&ne;";
+    html_reserved[0x00A3] =
+        (ustring) "\x07\x01" "&pound;";
+    html_reserved[0x20AC] =
+        (ustring) "\x06\x01" "&euro;";
+    html_reserved[0x00B0] =
+        (ustring) "\x05\x01" "&deg;";
+}
+
 int main ( int argc, const char ** argv )
 {
     assert ( sizeof(Uchar) == 4 );
@@ -996,6 +1054,7 @@ int main ( int argc, const char ** argv )
 
     set_support_sets();
     set_pictures();
+    set_html_reserved();
 
     finalize();
     final_check();

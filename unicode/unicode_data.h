@@ -2,7 +2,7 @@
 //
 // File:	unicode_data.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 15:23:04 EDT 2020
+// Date:	Thu May 25 13:37:00 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -416,9 +416,33 @@ extern ustring const picture[];
     // pictures and are assigned as follows:
     //
     //     c < 0x20         ---> 0x2400 + c
-    //     0x20	            ---> 0x2423
-    //     0x7F	    	    ---> 0x2421
-    //     SOFTWARE_NL	    ---> 0x2424
+    //     0x20	            ---> 0x2423     SP
+    //     0xA0	            ---> 0x2422     NBSP
+    //     0x7F	    	    ---> 0x2421     DEL
+    //     SOFTWARE_NL	    ---> 0x2424     NL
+
+extern ustring const html_reserved[];
+    // html_reserved[index[c]] is the ustring used as
+    // the entity that represents c in HTML.  NULL
+    // if missing.
+    //
+    // Currently all html_reserved values are:
+    //
+    //     &        0x0026     ---> "&amp;"
+    //     <	    0x003C     ---> "&lt;"
+    //     >	    0x003E     ---> "&gt;"
+    //     "        0x0022     ---> "&quot;"
+    //     <NBSP>   0x00A0     ---> "&nbsp;"
+    //     –        0x2013     ---> "&ndash;"   en dash
+    //     —        0x2014     ---> "&mdash;"   em dash
+    //     ©        0x00A9     ---> "&copy;"
+    //     ®        0x00AE     ---> "&reg;"
+    //     ™        0x2122     ---> "&trade;"
+    //     ≈        0x2248     ---> "&asymp;"
+    //     ≠        0x2260     ---> "&ne;"
+    //     £        0x00A3     ---> "&pound;"
+    //     €        0x20AC     ---> "&euro;"
+    //     °        0x00B0     ---> "&deg;"
 
 extern uns32 const support_sets[];
     // support_sets[index[c]] & ( 1 << k ) != 0 if

@@ -42,11 +42,11 @@
   32 SP   ␣ Zs    0 WS   N ascii, Pattern_White_Space, White_Space, 20
   33        Po    0 ON   N ascii, Pattern_Syntax, Sentence_Terminal,
                            Terminal_Punctuation, 21
-  34        Po    0 ON   N ascii, Pattern_Syntax, Quotation_Mark, 22
+  34        Po    0 ON   N &quot;, ascii, Pattern_Syntax, Quotation_Mark, 22
   35        Po    0 ET   N ascii, Pattern_Syntax, 23
   36        Sc    0 ET   N ascii, Pattern_Syntax, 24
   37        Po    0 ET   N ascii, Pattern_Syntax, 25
-  38        Po    0 ON   N ascii, Pattern_Syntax, 26
+  38        Po    0 ON   N &amp;, ascii, Pattern_Syntax, 26
   39        Po    0 ON   N ascii, Pattern_Syntax, Quotation_Mark, 27
   40        Ps    0 ON   Y ascii, Pattern_Syntax, 28
   41        Pe    0 ON   Y ascii, Pattern_Syntax, 29
@@ -69,9 +69,9 @@
   57        Nd    0 EN   N 9, ascii, ASCII_Hex_Digit, Hex_Digit, 39
   58        Po    0 CS   N ascii, Pattern_Syntax, Terminal_Punctuation, 3A
   59        Po    0 ON   N ascii, Pattern_Syntax, Terminal_Punctuation, 3B
-  60        Sm    0 ON   Y ascii, Pattern_Syntax, 3C
+  60        Sm    0 ON   Y &lt;, ascii, Pattern_Syntax, 3C
   61        Sm    0 ON   N ascii, Pattern_Syntax, 3D
-  62        Sm    0 ON   Y ascii, Pattern_Syntax, 3E
+  62        Sm    0 ON   Y &gt;, ascii, Pattern_Syntax, 3E
   63        Po    0 ON   N ascii, Pattern_Syntax, Sentence_Terminal,
                            Terminal_Punctuation, 3F
   64        Po    0 ON   N ascii, Pattern_Syntax, 40
@@ -170,23 +170,23 @@
  157 OSC    Cc    0 BN   N 9D
  158 PM     Cc    0 BN   N 9E
  159 APC    Cc    0 BN   N 9F
- 160 NBSP ␢ Zs    0 CS   N latin1, White_Space, A0
+ 160 NBSP ␢ Zs    0 CS   N &nbsp;, latin1, White_Space, A0
  161        Po    0 ON   N latin1, Pattern_Syntax, A1
  162        Sc    0 ET   N latin1, Pattern_Syntax, A2
- 163        Sc    0 ET   N latin1, Pattern_Syntax, A3
+ 163        Sc    0 ET   N &pound;, latin1, Pattern_Syntax, A3
  164        Sc    0 ET   N latin1, Pattern_Syntax, A4
  165        Sc    0 ET   N latin1, Pattern_Syntax, A5
  166        So    0 ON   N latin1, Pattern_Syntax, A6
  167        Po    0 ON   N latin1, Pattern_Syntax, A7
  168        Sk    0 ON   N latin1, Diacritic, A8
- 169        So    0 ON   N latin1, Pattern_Syntax, A9
+ 169        So    0 ON   N &copy;, latin1, Pattern_Syntax, A9
  170        Lo    0 L    N latin1, Other_Lowercase, AA
  171        Pi    0 ON   Y latin1, Pattern_Syntax, Quotation_Mark, AB
  172        Sm    0 ON   N latin1, Pattern_Syntax, AC
  173 SHY    Cf    0 BN   N latin1, Hyphen, AD
- 174        So    0 ON   N latin1, Pattern_Syntax, AE
+ 174        So    0 ON   N &reg;, latin1, Pattern_Syntax, AE
  175        Sk    0 ON   N latin1, Diacritic, AF
- 176        So    0 ET   N latin1, Pattern_Syntax, B0
+ 176        So    0 ET   N &deg;, latin1, Pattern_Syntax, B0
  177        Sm    0 ET   N latin1, Pattern_Syntax, B1
  178        No    0 EN   N 2, latin1, B2
  179        No    0 EN   N 3, latin1, B3
@@ -11757,383 +11757,383 @@
                            19F3, 19F4, 19F5, 19F6, 19F7, 19F8, 19F9, 19FA, 19FB,
                            19FC, 19FD, 19FE, 19FF, 2100, 2101, 2103, 2104, 2105,
                            2106, 2108, 2109, 2114, 2116, 2117, 211E, 211F, 2120,
-                           2121, 2122, 2123, 2125, 2127, 213A, 213B, 214A, 214C,
-                           214D, 218A, 218B, 2CE5, 2CE6, 2CE7, 2CE8, 2CE9, 2CEA,
-                           3004, 3036, 3037, 303E, 303F, 31C0, 31C1, 31C2, 31C3,
-                           31C4, 31C5, 31C6, 31C7, 31C8, 31C9, 31CA, 31CB, 31CC,
-                           31CD, 31CE, 31CF, 31D0, 31D1, 31D2, 31D3, 31D4, 31D5,
-                           31D6, 31D7, 31D8, 31D9, 31DA, 31DB, 31DC, 31DD, 31DE,
-                           31DF, 31E0, 31E1, 31E2, 31E3, 321D, 321E, 3250, 327C,
-                           327D, 327E, 32CC, 32CD, 32CE, 32CF, 3377, 3378, 3379,
-                           337A, 33DE, 33DF, 33FF, 4DC0, 4DC1, 4DC2, 4DC3, 4DC4,
-                           4DC5, 4DC6, 4DC7, 4DC8, 4DC9, 4DCA, 4DCB, 4DCC, 4DCD,
-                           4DCE, 4DCF, 4DD0, 4DD1, 4DD2, 4DD3, 4DD4, 4DD5, 4DD6,
-                           4DD7, 4DD8, 4DD9, 4DDA, 4DDB, 4DDC, 4DDD, 4DDE, 4DDF,
-                           4DE0, 4DE1, 4DE2, 4DE3, 4DE4, 4DE5, 4DE6, 4DE7, 4DE8,
-                           4DE9, 4DEA, 4DEB, 4DEC, 4DED, 4DEE, 4DEF, 4DF0, 4DF1,
-                           4DF2, 4DF3, 4DF4, 4DF5, 4DF6, 4DF7, 4DF8, 4DF9, 4DFA,
-                           4DFB, 4DFC, 4DFD, 4DFE, 4DFF, A490, A491, A492, A493,
-                           A494, A495, A496, A497, A498, A499, A49A, A49B, A49C,
-                           A49D, A49E, A49F, A4A0, A4A1, A4A2, A4A3, A4A4, A4A5,
-                           A4A6, A4A7, A4A8, A4A9, A4AA, A4AB, A4AC, A4AD, A4AE,
-                           A4AF, A4B0, A4B1, A4B2, A4B3, A4B4, A4B5, A4B6, A4B7,
-                           A4B8, A4B9, A4BA, A4BB, A4BC, A4BD, A4BE, A4BF, A4C0,
-                           A4C1, A4C2, A4C3, A4C4, A4C5, A4C6, A828, A829, A82A,
-                           A82B, FDFD, FFE4, FFE8, FFED, FFEE, FFFC, 10179,
-                           1017A, 1017B, 1017C, 1017D, 1017E, 1017F, 10180,
-                           10181, 10182, 10183, 10184, 10185, 10186, 10187,
-                           10188, 10189, 1018C, 10190, 10191, 10192, 10193,
-                           10194, 10195, 10196, 10197, 10198, 10199, 1019A,
-                           1019B, 1019C, 101A0, 11FD5, 11FD6, 11FD7, 11FD8,
-                           11FD9, 11FDA, 11FDB, 11FDC, 11FE1, 11FE2, 11FE3,
-                           11FE4, 11FE5, 11FE6, 11FE7, 11FE8, 11FE9, 11FEA,
-                           11FEB, 11FEC, 11FED, 11FEE, 11FEF, 11FF0, 11FF1,
-                           1D200, 1D201, 1D202, 1D203, 1D204, 1D205, 1D206,
-                           1D207, 1D208, 1D209, 1D20A, 1D20B, 1D20C, 1D20D,
-                           1D20E, 1D20F, 1D210, 1D211, 1D212, 1D213, 1D214,
-                           1D215, 1D216, 1D217, 1D218, 1D219, 1D21A, 1D21B,
-                           1D21C, 1D21D, 1D21E, 1D21F, 1D220, 1D221, 1D222,
-                           1D223, 1D224, 1D225, 1D226, 1D227, 1D228, 1D229,
-                           1D22A, 1D22B, 1D22C, 1D22D, 1D22E, 1D22F, 1D230,
-                           1D231, 1D232, 1D233, 1D234, 1D235, 1D236, 1D237,
-                           1D238, 1D239, 1D23A, 1D23B, 1D23C, 1D23D, 1D23E,
-                           1D23F, 1D240, 1D241, 1D245, 1D300, 1D301, 1D302,
-                           1D303, 1D304, 1D305, 1D306, 1D307, 1D308, 1D309,
-                           1D30A, 1D30B, 1D30C, 1D30D, 1D30E, 1D30F, 1D310,
-                           1D311, 1D312, 1D313, 1D314, 1D315, 1D316, 1D317,
-                           1D318, 1D319, 1D31A, 1D31B, 1D31C, 1D31D, 1D31E,
-                           1D31F, 1D320, 1D321, 1D322, 1D323, 1D324, 1D325,
-                           1D326, 1D327, 1D328, 1D329, 1D32A, 1D32B, 1D32C,
-                           1D32D, 1D32E, 1D32F, 1D330, 1D331, 1D332, 1D333,
-                           1D334, 1D335, 1D336, 1D337, 1D338, 1D339, 1D33A,
-                           1D33B, 1D33C, 1D33D, 1D33E, 1D33F, 1D340, 1D341,
-                           1D342, 1D343, 1D344, 1D345, 1D346, 1D347, 1D348,
-                           1D349, 1D34A, 1D34B, 1D34C, 1D34D, 1D34E, 1D34F,
-                           1D350, 1D351, 1D352, 1D353, 1D354, 1D355, 1D356,
-                           1F000, 1F001, 1F002, 1F003, 1F004, 1F005, 1F006,
-                           1F007, 1F008, 1F009, 1F00A, 1F00B, 1F00C, 1F00D,
-                           1F00E, 1F00F, 1F010, 1F011, 1F012, 1F013, 1F014,
-                           1F015, 1F016, 1F017, 1F018, 1F019, 1F01A, 1F01B,
-                           1F01C, 1F01D, 1F01E, 1F01F, 1F020, 1F021, 1F022,
-                           1F023, 1F024, 1F025, 1F026, 1F027, 1F028, 1F029,
-                           1F02A, 1F02B, 1F030, 1F031, 1F032, 1F033, 1F034,
-                           1F035, 1F036, 1F037, 1F038, 1F039, 1F03A, 1F03B,
-                           1F03C, 1F03D, 1F03E, 1F03F, 1F040, 1F041, 1F042,
-                           1F043, 1F044, 1F045, 1F046, 1F047, 1F048, 1F049,
-                           1F04A, 1F04B, 1F04C, 1F04D, 1F04E, 1F04F, 1F050,
-                           1F051, 1F052, 1F053, 1F054, 1F055, 1F056, 1F057,
-                           1F058, 1F059, 1F05A, 1F05B, 1F05C, 1F05D, 1F05E,
-                           1F05F, 1F060, 1F061, 1F062, 1F063, 1F064, 1F065,
-                           1F066, 1F067, 1F068, 1F069, 1F06A, 1F06B, 1F06C,
-                           1F06D, 1F06E, 1F06F, 1F070, 1F071, 1F072, 1F073,
-                           1F074, 1F075, 1F076, 1F077, 1F078, 1F079, 1F07A,
-                           1F07B, 1F07C, 1F07D, 1F07E, 1F07F, 1F080, 1F081,
-                           1F082, 1F083, 1F084, 1F085, 1F086, 1F087, 1F088,
-                           1F089, 1F08A, 1F08B, 1F08C, 1F08D, 1F08E, 1F08F,
-                           1F090, 1F091, 1F092, 1F093, 1F0A0, 1F0A1, 1F0A2,
-                           1F0A3, 1F0A4, 1F0A5, 1F0A6, 1F0A7, 1F0A8, 1F0A9,
-                           1F0AA, 1F0AB, 1F0AC, 1F0AD, 1F0AE, 1F0B1, 1F0B2,
-                           1F0B3, 1F0B4, 1F0B5, 1F0B6, 1F0B7, 1F0B8, 1F0B9,
-                           1F0BA, 1F0BB, 1F0BC, 1F0BD, 1F0BE, 1F0BF, 1F0C1,
-                           1F0C2, 1F0C3, 1F0C4, 1F0C5, 1F0C6, 1F0C7, 1F0C8,
-                           1F0C9, 1F0CA, 1F0CB, 1F0CC, 1F0CD, 1F0CE, 1F0CF,
-                           1F0D1, 1F0D2, 1F0D3, 1F0D4, 1F0D5, 1F0D6, 1F0D7,
-                           1F0D8, 1F0D9, 1F0DA, 1F0DB, 1F0DC, 1F0DD, 1F0DE,
-                           1F0DF, 1F0E0, 1F0E1, 1F0E2, 1F0E3, 1F0E4, 1F0E5,
-                           1F0E6, 1F0E7, 1F0E8, 1F0E9, 1F0EA, 1F0EB, 1F0EC,
-                           1F0ED, 1F0EE, 1F0EF, 1F0F0, 1F0F1, 1F0F2, 1F0F3,
-                           1F0F4, 1F0F5, 1F10D, 1F10E, 1F10F, 1F12F, 1F16A,
-                           1F16B, 1F16C, 1F16D, 1F16E, 1F16F, 1F1AD, 1F260,
-                           1F261, 1F262, 1F263, 1F264, 1F265, 1F300, 1F301,
-                           1F302, 1F303, 1F304, 1F305, 1F306, 1F307, 1F308,
-                           1F309, 1F30A, 1F30B, 1F30C, 1F30D, 1F30E, 1F30F,
-                           1F310, 1F311, 1F312, 1F313, 1F314, 1F315, 1F316,
-                           1F317, 1F318, 1F319, 1F31A, 1F31B, 1F31C, 1F31D,
-                           1F31E, 1F31F, 1F320, 1F321, 1F322, 1F323, 1F324,
-                           1F325, 1F326, 1F327, 1F328, 1F329, 1F32A, 1F32B,
-                           1F32C, 1F32D, 1F32E, 1F32F, 1F330, 1F331, 1F332,
-                           1F333, 1F334, 1F335, 1F336, 1F337, 1F338, 1F339,
-                           1F33A, 1F33B, 1F33C, 1F33D, 1F33E, 1F33F, 1F340,
-                           1F341, 1F342, 1F343, 1F344, 1F345, 1F346, 1F347,
-                           1F348, 1F349, 1F34A, 1F34B, 1F34C, 1F34D, 1F34E,
-                           1F34F, 1F350, 1F351, 1F352, 1F353, 1F354, 1F355,
-                           1F356, 1F357, 1F358, 1F359, 1F35A, 1F35B, 1F35C,
-                           1F35D, 1F35E, 1F35F, 1F360, 1F361, 1F362, 1F363,
-                           1F364, 1F365, 1F366, 1F367, 1F368, 1F369, 1F36A,
-                           1F36B, 1F36C, 1F36D, 1F36E, 1F36F, 1F370, 1F371,
-                           1F372, 1F373, 1F374, 1F375, 1F376, 1F377, 1F378,
-                           1F379, 1F37A, 1F37B, 1F37C, 1F37D, 1F37E, 1F37F,
-                           1F380, 1F381, 1F382, 1F383, 1F384, 1F385, 1F386,
-                           1F387, 1F388, 1F389, 1F38A, 1F38B, 1F38C, 1F38D,
-                           1F38E, 1F38F, 1F390, 1F391, 1F392, 1F393, 1F394,
-                           1F395, 1F396, 1F397, 1F398, 1F399, 1F39A, 1F39B,
-                           1F39C, 1F39D, 1F39E, 1F39F, 1F3A0, 1F3A1, 1F3A2,
-                           1F3A3, 1F3A4, 1F3A5, 1F3A6, 1F3A7, 1F3A8, 1F3A9,
-                           1F3AA, 1F3AB, 1F3AC, 1F3AD, 1F3AE, 1F3AF, 1F3B0,
-                           1F3B1, 1F3B2, 1F3B3, 1F3B4, 1F3B5, 1F3B6, 1F3B7,
-                           1F3B8, 1F3B9, 1F3BA, 1F3BB, 1F3BC, 1F3BD, 1F3BE,
-                           1F3BF, 1F3C0, 1F3C1, 1F3C2, 1F3C3, 1F3C4, 1F3C5,
-                           1F3C6, 1F3C7, 1F3C8, 1F3C9, 1F3CA, 1F3CB, 1F3CC,
-                           1F3CD, 1F3CE, 1F3CF, 1F3D0, 1F3D1, 1F3D2, 1F3D3,
-                           1F3D4, 1F3D5, 1F3D6, 1F3D7, 1F3D8, 1F3D9, 1F3DA,
-                           1F3DB, 1F3DC, 1F3DD, 1F3DE, 1F3DF, 1F3E0, 1F3E1,
-                           1F3E2, 1F3E3, 1F3E4, 1F3E5, 1F3E6, 1F3E7, 1F3E8,
-                           1F3E9, 1F3EA, 1F3EB, 1F3EC, 1F3ED, 1F3EE, 1F3EF,
-                           1F3F0, 1F3F1, 1F3F2, 1F3F3, 1F3F4, 1F3F5, 1F3F6,
-                           1F3F7, 1F3F8, 1F3F9, 1F3FA, 1F400, 1F401, 1F402,
-                           1F403, 1F404, 1F405, 1F406, 1F407, 1F408, 1F409,
-                           1F40A, 1F40B, 1F40C, 1F40D, 1F40E, 1F40F, 1F410,
-                           1F411, 1F412, 1F413, 1F414, 1F415, 1F416, 1F417,
-                           1F418, 1F419, 1F41A, 1F41B, 1F41C, 1F41D, 1F41E,
-                           1F41F, 1F420, 1F421, 1F422, 1F423, 1F424, 1F425,
-                           1F426, 1F427, 1F428, 1F429, 1F42A, 1F42B, 1F42C,
-                           1F42D, 1F42E, 1F42F, 1F430, 1F431, 1F432, 1F433,
-                           1F434, 1F435, 1F436, 1F437, 1F438, 1F439, 1F43A,
-                           1F43B, 1F43C, 1F43D, 1F43E, 1F43F, 1F440, 1F441,
-                           1F442, 1F443, 1F444, 1F445, 1F446, 1F447, 1F448,
-                           1F449, 1F44A, 1F44B, 1F44C, 1F44D, 1F44E, 1F44F,
-                           1F450, 1F451, 1F452, 1F453, 1F454, 1F455, 1F456,
-                           1F457, 1F458, 1F459, 1F45A, 1F45B, 1F45C, 1F45D,
-                           1F45E, 1F45F, 1F460, 1F461, 1F462, 1F463, 1F464,
-                           1F465, 1F466, 1F467, 1F468, 1F469, 1F46A, 1F46B,
-                           1F46C, 1F46D, 1F46E, 1F46F, 1F470, 1F471, 1F472,
-                           1F473, 1F474, 1F475, 1F476, 1F477, 1F478, 1F479,
-                           1F47A, 1F47B, 1F47C, 1F47D, 1F47E, 1F47F, 1F480,
-                           1F481, 1F482, 1F483, 1F484, 1F485, 1F486, 1F487,
-                           1F488, 1F489, 1F48A, 1F48B, 1F48C, 1F48D, 1F48E,
-                           1F48F, 1F490, 1F491, 1F492, 1F493, 1F494, 1F495,
-                           1F496, 1F497, 1F498, 1F499, 1F49A, 1F49B, 1F49C,
-                           1F49D, 1F49E, 1F49F, 1F4A0, 1F4A1, 1F4A2, 1F4A3,
-                           1F4A4, 1F4A5, 1F4A6, 1F4A7, 1F4A8, 1F4A9, 1F4AA,
-                           1F4AB, 1F4AC, 1F4AD, 1F4AE, 1F4AF, 1F4B0, 1F4B1,
-                           1F4B2, 1F4B3, 1F4B4, 1F4B5, 1F4B6, 1F4B7, 1F4B8,
-                           1F4B9, 1F4BA, 1F4BB, 1F4BC, 1F4BD, 1F4BE, 1F4BF,
-                           1F4C0, 1F4C1, 1F4C2, 1F4C3, 1F4C4, 1F4C5, 1F4C6,
-                           1F4C7, 1F4C8, 1F4C9, 1F4CA, 1F4CB, 1F4CC, 1F4CD,
-                           1F4CE, 1F4CF, 1F4D0, 1F4D1, 1F4D2, 1F4D3, 1F4D4,
-                           1F4D5, 1F4D6, 1F4D7, 1F4D8, 1F4D9, 1F4DA, 1F4DB,
-                           1F4DC, 1F4DD, 1F4DE, 1F4DF, 1F4E0, 1F4E1, 1F4E2,
-                           1F4E3, 1F4E4, 1F4E5, 1F4E6, 1F4E7, 1F4E8, 1F4E9,
-                           1F4EA, 1F4EB, 1F4EC, 1F4ED, 1F4EE, 1F4EF, 1F4F0,
-                           1F4F1, 1F4F2, 1F4F3, 1F4F4, 1F4F5, 1F4F6, 1F4F7,
-                           1F4F8, 1F4F9, 1F4FA, 1F4FB, 1F4FC, 1F4FD, 1F4FE,
-                           1F4FF, 1F500, 1F501, 1F502, 1F503, 1F504, 1F505,
-                           1F506, 1F507, 1F508, 1F509, 1F50A, 1F50B, 1F50C,
-                           1F50D, 1F50E, 1F50F, 1F510, 1F511, 1F512, 1F513,
-                           1F514, 1F515, 1F516, 1F517, 1F518, 1F519, 1F51A,
-                           1F51B, 1F51C, 1F51D, 1F51E, 1F51F, 1F520, 1F521,
-                           1F522, 1F523, 1F524, 1F525, 1F526, 1F527, 1F528,
-                           1F529, 1F52A, 1F52B, 1F52C, 1F52D, 1F52E, 1F52F,
-                           1F530, 1F531, 1F532, 1F533, 1F534, 1F535, 1F536,
-                           1F537, 1F538, 1F539, 1F53A, 1F53B, 1F53C, 1F53D,
-                           1F53E, 1F53F, 1F540, 1F541, 1F542, 1F543, 1F544,
-                           1F545, 1F546, 1F547, 1F548, 1F549, 1F54A, 1F54B,
-                           1F54C, 1F54D, 1F54E, 1F54F, 1F550, 1F551, 1F552,
-                           1F553, 1F554, 1F555, 1F556, 1F557, 1F558, 1F559,
-                           1F55A, 1F55B, 1F55C, 1F55D, 1F55E, 1F55F, 1F560,
-                           1F561, 1F562, 1F563, 1F564, 1F565, 1F566, 1F567,
-                           1F568, 1F569, 1F56A, 1F56B, 1F56C, 1F56D, 1F56E,
-                           1F56F, 1F570, 1F571, 1F572, 1F573, 1F574, 1F575,
-                           1F576, 1F577, 1F578, 1F579, 1F57A, 1F57B, 1F57C,
-                           1F57D, 1F57E, 1F57F, 1F580, 1F581, 1F582, 1F583,
-                           1F584, 1F585, 1F586, 1F587, 1F588, 1F589, 1F58A,
-                           1F58B, 1F58C, 1F58D, 1F58E, 1F58F, 1F590, 1F591,
-                           1F592, 1F593, 1F594, 1F595, 1F596, 1F597, 1F598,
-                           1F599, 1F59A, 1F59B, 1F59C, 1F59D, 1F59E, 1F59F,
-                           1F5A0, 1F5A1, 1F5A2, 1F5A3, 1F5A4, 1F5A5, 1F5A6,
-                           1F5A7, 1F5A8, 1F5A9, 1F5AA, 1F5AB, 1F5AC, 1F5AD,
-                           1F5AE, 1F5AF, 1F5B0, 1F5B1, 1F5B2, 1F5B3, 1F5B4,
-                           1F5B5, 1F5B6, 1F5B7, 1F5B8, 1F5B9, 1F5BA, 1F5BB,
-                           1F5BC, 1F5BD, 1F5BE, 1F5BF, 1F5C0, 1F5C1, 1F5C2,
-                           1F5C3, 1F5C4, 1F5C5, 1F5C6, 1F5C7, 1F5C8, 1F5C9,
-                           1F5CA, 1F5CB, 1F5CC, 1F5CD, 1F5CE, 1F5CF, 1F5D0,
-                           1F5D1, 1F5D2, 1F5D3, 1F5D4, 1F5D5, 1F5D6, 1F5D7,
-                           1F5D8, 1F5D9, 1F5DA, 1F5DB, 1F5DC, 1F5DD, 1F5DE,
-                           1F5DF, 1F5E0, 1F5E1, 1F5E2, 1F5E3, 1F5E4, 1F5E5,
-                           1F5E6, 1F5E7, 1F5E8, 1F5E9, 1F5EA, 1F5EB, 1F5EC,
-                           1F5ED, 1F5EE, 1F5EF, 1F5F0, 1F5F1, 1F5F2, 1F5F3,
-                           1F5F4, 1F5F5, 1F5F6, 1F5F7, 1F5F8, 1F5F9, 1F5FA,
-                           1F5FB, 1F5FC, 1F5FD, 1F5FE, 1F5FF, 1F600, 1F601,
-                           1F602, 1F603, 1F604, 1F605, 1F606, 1F607, 1F608,
-                           1F609, 1F60A, 1F60B, 1F60C, 1F60D, 1F60E, 1F60F,
-                           1F610, 1F611, 1F612, 1F613, 1F614, 1F615, 1F616,
-                           1F617, 1F618, 1F619, 1F61A, 1F61B, 1F61C, 1F61D,
-                           1F61E, 1F61F, 1F620, 1F621, 1F622, 1F623, 1F624,
-                           1F625, 1F626, 1F627, 1F628, 1F629, 1F62A, 1F62B,
-                           1F62C, 1F62D, 1F62E, 1F62F, 1F630, 1F631, 1F632,
-                           1F633, 1F634, 1F635, 1F636, 1F637, 1F638, 1F639,
-                           1F63A, 1F63B, 1F63C, 1F63D, 1F63E, 1F63F, 1F640,
-                           1F641, 1F642, 1F643, 1F644, 1F645, 1F646, 1F647,
-                           1F648, 1F649, 1F64A, 1F64B, 1F64C, 1F64D, 1F64E,
-                           1F64F, 1F650, 1F651, 1F652, 1F653, 1F654, 1F655,
-                           1F656, 1F657, 1F658, 1F659, 1F65A, 1F65B, 1F65C,
-                           1F65D, 1F65E, 1F65F, 1F660, 1F661, 1F662, 1F663,
-                           1F664, 1F665, 1F666, 1F667, 1F668, 1F669, 1F66A,
-                           1F66B, 1F66C, 1F66D, 1F66E, 1F66F, 1F670, 1F671,
-                           1F672, 1F673, 1F674, 1F675, 1F676, 1F677, 1F678,
-                           1F679, 1F67A, 1F67B, 1F67C, 1F67D, 1F67E, 1F67F,
-                           1F680, 1F681, 1F682, 1F683, 1F684, 1F685, 1F686,
-                           1F687, 1F688, 1F689, 1F68A, 1F68B, 1F68C, 1F68D,
-                           1F68E, 1F68F, 1F690, 1F691, 1F692, 1F693, 1F694,
-                           1F695, 1F696, 1F697, 1F698, 1F699, 1F69A, 1F69B,
-                           1F69C, 1F69D, 1F69E, 1F69F, 1F6A0, 1F6A1, 1F6A2,
-                           1F6A3, 1F6A4, 1F6A5, 1F6A6, 1F6A7, 1F6A8, 1F6A9,
-                           1F6AA, 1F6AB, 1F6AC, 1F6AD, 1F6AE, 1F6AF, 1F6B0,
-                           1F6B1, 1F6B2, 1F6B3, 1F6B4, 1F6B5, 1F6B6, 1F6B7,
-                           1F6B8, 1F6B9, 1F6BA, 1F6BB, 1F6BC, 1F6BD, 1F6BE,
-                           1F6BF, 1F6C0, 1F6C1, 1F6C2, 1F6C3, 1F6C4, 1F6C5,
-                           1F6C6, 1F6C7, 1F6C8, 1F6C9, 1F6CA, 1F6CB, 1F6CC,
-                           1F6CD, 1F6CE, 1F6CF, 1F6D0, 1F6D1, 1F6D2, 1F6D3,
-                           1F6D4, 1F6D5, 1F6D6, 1F6D7, 1F6E0, 1F6E1, 1F6E2,
-                           1F6E3, 1F6E4, 1F6E5, 1F6E6, 1F6E7, 1F6E8, 1F6E9,
-                           1F6EA, 1F6EB, 1F6EC, 1F6F0, 1F6F1, 1F6F2, 1F6F3,
-                           1F6F4, 1F6F5, 1F6F6, 1F6F7, 1F6F8, 1F6F9, 1F6FA,
-                           1F6FB, 1F6FC, 1F700, 1F701, 1F702, 1F703, 1F704,
-                           1F705, 1F706, 1F707, 1F708, 1F709, 1F70A, 1F70B,
-                           1F70C, 1F70D, 1F70E, 1F70F, 1F710, 1F711, 1F712,
-                           1F713, 1F714, 1F715, 1F716, 1F717, 1F718, 1F719,
-                           1F71A, 1F71B, 1F71C, 1F71D, 1F71E, 1F71F, 1F720,
-                           1F721, 1F722, 1F723, 1F724, 1F725, 1F726, 1F727,
-                           1F728, 1F729, 1F72A, 1F72B, 1F72C, 1F72D, 1F72E,
-                           1F72F, 1F730, 1F731, 1F732, 1F733, 1F734, 1F735,
-                           1F736, 1F737, 1F738, 1F739, 1F73A, 1F73B, 1F73C,
-                           1F73D, 1F73E, 1F73F, 1F740, 1F741, 1F742, 1F743,
-                           1F744, 1F745, 1F746, 1F747, 1F748, 1F749, 1F74A,
-                           1F74B, 1F74C, 1F74D, 1F74E, 1F74F, 1F750, 1F751,
-                           1F752, 1F753, 1F754, 1F755, 1F756, 1F757, 1F758,
-                           1F759, 1F75A, 1F75B, 1F75C, 1F75D, 1F75E, 1F75F,
-                           1F760, 1F761, 1F762, 1F763, 1F764, 1F765, 1F766,
-                           1F767, 1F768, 1F769, 1F76A, 1F76B, 1F76C, 1F76D,
-                           1F76E, 1F76F, 1F770, 1F771, 1F772, 1F773, 1F780,
-                           1F781, 1F782, 1F783, 1F784, 1F785, 1F786, 1F787,
-                           1F788, 1F789, 1F78A, 1F78B, 1F78C, 1F78D, 1F78E,
-                           1F78F, 1F790, 1F791, 1F792, 1F793, 1F794, 1F795,
-                           1F796, 1F797, 1F798, 1F799, 1F79A, 1F79B, 1F79C,
-                           1F79D, 1F79E, 1F79F, 1F7A0, 1F7A1, 1F7A2, 1F7A3,
-                           1F7A4, 1F7A5, 1F7A6, 1F7A7, 1F7A8, 1F7A9, 1F7AA,
-                           1F7AB, 1F7AC, 1F7AD, 1F7AE, 1F7AF, 1F7B0, 1F7B1,
-                           1F7B2, 1F7B3, 1F7B4, 1F7B5, 1F7B6, 1F7B7, 1F7B8,
-                           1F7B9, 1F7BA, 1F7BB, 1F7BC, 1F7BD, 1F7BE, 1F7BF,
-                           1F7C0, 1F7C1, 1F7C2, 1F7C3, 1F7C4, 1F7C5, 1F7C6,
-                           1F7C7, 1F7C8, 1F7C9, 1F7CA, 1F7CB, 1F7CC, 1F7CD,
-                           1F7CE, 1F7CF, 1F7D0, 1F7D1, 1F7D2, 1F7D3, 1F7D4,
-                           1F7D5, 1F7D6, 1F7D7, 1F7D8, 1F7E0, 1F7E1, 1F7E2,
-                           1F7E3, 1F7E4, 1F7E5, 1F7E6, 1F7E7, 1F7E8, 1F7E9,
-                           1F7EA, 1F7EB, 1F800, 1F801, 1F802, 1F803, 1F804,
-                           1F805, 1F806, 1F807, 1F808, 1F809, 1F80A, 1F80B,
-                           1F810, 1F811, 1F812, 1F813, 1F814, 1F815, 1F816,
-                           1F817, 1F818, 1F819, 1F81A, 1F81B, 1F81C, 1F81D,
-                           1F81E, 1F81F, 1F820, 1F821, 1F822, 1F823, 1F824,
-                           1F825, 1F826, 1F827, 1F828, 1F829, 1F82A, 1F82B,
-                           1F82C, 1F82D, 1F82E, 1F82F, 1F830, 1F831, 1F832,
-                           1F833, 1F834, 1F835, 1F836, 1F837, 1F838, 1F839,
-                           1F83A, 1F83B, 1F83C, 1F83D, 1F83E, 1F83F, 1F840,
-                           1F841, 1F842, 1F843, 1F844, 1F845, 1F846, 1F847,
-                           1F850, 1F851, 1F852, 1F853, 1F854, 1F855, 1F856,
-                           1F857, 1F858, 1F859, 1F860, 1F861, 1F862, 1F863,
-                           1F864, 1F865, 1F866, 1F867, 1F868, 1F869, 1F86A,
-                           1F86B, 1F86C, 1F86D, 1F86E, 1F86F, 1F870, 1F871,
-                           1F872, 1F873, 1F874, 1F875, 1F876, 1F877, 1F878,
-                           1F879, 1F87A, 1F87B, 1F87C, 1F87D, 1F87E, 1F87F,
-                           1F880, 1F881, 1F882, 1F883, 1F884, 1F885, 1F886,
-                           1F887, 1F890, 1F891, 1F892, 1F893, 1F894, 1F895,
-                           1F896, 1F897, 1F898, 1F899, 1F89A, 1F89B, 1F89C,
-                           1F89D, 1F89E, 1F89F, 1F8A0, 1F8A1, 1F8A2, 1F8A3,
-                           1F8A4, 1F8A5, 1F8A6, 1F8A7, 1F8A8, 1F8A9, 1F8AA,
-                           1F8AB, 1F8AC, 1F8AD, 1F8B0, 1F8B1, 1F900, 1F901,
-                           1F902, 1F903, 1F904, 1F905, 1F906, 1F907, 1F908,
-                           1F909, 1F90A, 1F90B, 1F90C, 1F90D, 1F90E, 1F90F,
-                           1F910, 1F911, 1F912, 1F913, 1F914, 1F915, 1F916,
-                           1F917, 1F918, 1F919, 1F91A, 1F91B, 1F91C, 1F91D,
-                           1F91E, 1F91F, 1F920, 1F921, 1F922, 1F923, 1F924,
-                           1F925, 1F926, 1F927, 1F928, 1F929, 1F92A, 1F92B,
-                           1F92C, 1F92D, 1F92E, 1F92F, 1F930, 1F931, 1F932,
-                           1F933, 1F934, 1F935, 1F936, 1F937, 1F938, 1F939,
-                           1F93A, 1F93B, 1F93C, 1F93D, 1F93E, 1F93F, 1F940,
-                           1F941, 1F942, 1F943, 1F944, 1F945, 1F946, 1F947,
-                           1F948, 1F949, 1F94A, 1F94B, 1F94C, 1F94D, 1F94E,
-                           1F94F, 1F950, 1F951, 1F952, 1F953, 1F954, 1F955,
-                           1F956, 1F957, 1F958, 1F959, 1F95A, 1F95B, 1F95C,
-                           1F95D, 1F95E, 1F95F, 1F960, 1F961, 1F962, 1F963,
-                           1F964, 1F965, 1F966, 1F967, 1F968, 1F969, 1F96A,
-                           1F96B, 1F96C, 1F96D, 1F96E, 1F96F, 1F970, 1F971,
-                           1F972, 1F973, 1F974, 1F975, 1F976, 1F977, 1F978,
-                           1F97A, 1F97B, 1F97C, 1F97D, 1F97E, 1F97F, 1F980,
-                           1F981, 1F982, 1F983, 1F984, 1F985, 1F986, 1F987,
-                           1F988, 1F989, 1F98A, 1F98B, 1F98C, 1F98D, 1F98E,
-                           1F98F, 1F990, 1F991, 1F992, 1F993, 1F994, 1F995,
-                           1F996, 1F997, 1F998, 1F999, 1F99A, 1F99B, 1F99C,
-                           1F99D, 1F99E, 1F99F, 1F9A0, 1F9A1, 1F9A2, 1F9A3,
-                           1F9A4, 1F9A5, 1F9A6, 1F9A7, 1F9A8, 1F9A9, 1F9AA,
-                           1F9AB, 1F9AC, 1F9AD, 1F9AE, 1F9AF, 1F9B0, 1F9B1,
-                           1F9B2, 1F9B3, 1F9B4, 1F9B5, 1F9B6, 1F9B7, 1F9B8,
-                           1F9B9, 1F9BA, 1F9BB, 1F9BC, 1F9BD, 1F9BE, 1F9BF,
-                           1F9C0, 1F9C1, 1F9C2, 1F9C3, 1F9C4, 1F9C5, 1F9C6,
-                           1F9C7, 1F9C8, 1F9C9, 1F9CA, 1F9CB, 1F9CD, 1F9CE,
-                           1F9CF, 1F9D0, 1F9D1, 1F9D2, 1F9D3, 1F9D4, 1F9D5,
-                           1F9D6, 1F9D7, 1F9D8, 1F9D9, 1F9DA, 1F9DB, 1F9DC,
-                           1F9DD, 1F9DE, 1F9DF, 1F9E0, 1F9E1, 1F9E2, 1F9E3,
-                           1F9E4, 1F9E5, 1F9E6, 1F9E7, 1F9E8, 1F9E9, 1F9EA,
-                           1F9EB, 1F9EC, 1F9ED, 1F9EE, 1F9EF, 1F9F0, 1F9F1,
-                           1F9F2, 1F9F3, 1F9F4, 1F9F5, 1F9F6, 1F9F7, 1F9F8,
-                           1F9F9, 1F9FA, 1F9FB, 1F9FC, 1F9FD, 1F9FE, 1F9FF,
-                           1FA00, 1FA01, 1FA02, 1FA03, 1FA04, 1FA05, 1FA06,
-                           1FA07, 1FA08, 1FA09, 1FA0A, 1FA0B, 1FA0C, 1FA0D,
-                           1FA0E, 1FA0F, 1FA10, 1FA11, 1FA12, 1FA13, 1FA14,
-                           1FA15, 1FA16, 1FA17, 1FA18, 1FA19, 1FA1A, 1FA1B,
-                           1FA1C, 1FA1D, 1FA1E, 1FA1F, 1FA20, 1FA21, 1FA22,
-                           1FA23, 1FA24, 1FA25, 1FA26, 1FA27, 1FA28, 1FA29,
-                           1FA2A, 1FA2B, 1FA2C, 1FA2D, 1FA2E, 1FA2F, 1FA30,
-                           1FA31, 1FA32, 1FA33, 1FA34, 1FA35, 1FA36, 1FA37,
-                           1FA38, 1FA39, 1FA3A, 1FA3B, 1FA3C, 1FA3D, 1FA3E,
-                           1FA3F, 1FA40, 1FA41, 1FA42, 1FA43, 1FA44, 1FA45,
-                           1FA46, 1FA47, 1FA48, 1FA49, 1FA4A, 1FA4B, 1FA4C,
-                           1FA4D, 1FA4E, 1FA4F, 1FA50, 1FA51, 1FA52, 1FA53,
-                           1FA60, 1FA61, 1FA62, 1FA63, 1FA64, 1FA65, 1FA66,
-                           1FA67, 1FA68, 1FA69, 1FA6A, 1FA6B, 1FA6C, 1FA6D,
-                           1FA70, 1FA71, 1FA72, 1FA73, 1FA74, 1FA78, 1FA79,
-                           1FA7A, 1FA80, 1FA81, 1FA82, 1FA83, 1FA84, 1FA85,
-                           1FA86, 1FA90, 1FA91, 1FA92, 1FA93, 1FA94, 1FA95,
-                           1FA96, 1FA97, 1FA98, 1FA99, 1FA9A, 1FA9B, 1FA9C,
-                           1FA9D, 1FA9E, 1FA9F, 1FAA0, 1FAA1, 1FAA2, 1FAA3,
-                           1FAA4, 1FAA5, 1FAA6, 1FAA7, 1FAA8, 1FAB0, 1FAB1,
-                           1FAB2, 1FAB3, 1FAB4, 1FAB5, 1FAB6, 1FAC0, 1FAC1,
-                           1FAC2, 1FAD0, 1FAD1, 1FAD2, 1FAD3, 1FAD4, 1FAD5,
-                           1FAD6, 1FB00, 1FB01, 1FB02, 1FB03, 1FB04, 1FB05,
-                           1FB06, 1FB07, 1FB08, 1FB09, 1FB0A, 1FB0B, 1FB0C,
-                           1FB0D, 1FB0E, 1FB0F, 1FB10, 1FB11, 1FB12, 1FB13,
-                           1FB14, 1FB15, 1FB16, 1FB17, 1FB18, 1FB19, 1FB1A,
-                           1FB1B, 1FB1C, 1FB1D, 1FB1E, 1FB1F, 1FB20, 1FB21,
-                           1FB22, 1FB23, 1FB24, 1FB25, 1FB26, 1FB27, 1FB28,
-                           1FB29, 1FB2A, 1FB2B, 1FB2C, 1FB2D, 1FB2E, 1FB2F,
-                           1FB30, 1FB31, 1FB32, 1FB33, 1FB34, 1FB35, 1FB36,
-                           1FB37, 1FB38, 1FB39, 1FB3A, 1FB3B, 1FB3C, 1FB3D,
-                           1FB3E, 1FB3F, 1FB40, 1FB41, 1FB42, 1FB43, 1FB44,
-                           1FB45, 1FB46, 1FB47, 1FB48, 1FB49, 1FB4A, 1FB4B,
-                           1FB4C, 1FB4D, 1FB4E, 1FB4F, 1FB50, 1FB51, 1FB52,
-                           1FB53, 1FB54, 1FB55, 1FB56, 1FB57, 1FB58, 1FB59,
-                           1FB5A, 1FB5B, 1FB5C, 1FB5D, 1FB5E, 1FB5F, 1FB60,
-                           1FB61, 1FB62, 1FB63, 1FB64, 1FB65, 1FB66, 1FB67,
-                           1FB68, 1FB69, 1FB6A, 1FB6B, 1FB6C, 1FB6D, 1FB6E,
-                           1FB6F, 1FB70, 1FB71, 1FB72, 1FB73, 1FB74, 1FB75,
-                           1FB76, 1FB77, 1FB78, 1FB79, 1FB7A, 1FB7B, 1FB7C,
-                           1FB7D, 1FB7E, 1FB7F, 1FB80, 1FB81, 1FB82, 1FB83,
-                           1FB84, 1FB85, 1FB86, 1FB87, 1FB88, 1FB89, 1FB8A,
-                           1FB8B, 1FB8C, 1FB8D, 1FB8E, 1FB8F, 1FB90, 1FB91,
-                           1FB92, 1FB94, 1FB95, 1FB96, 1FB97, 1FB98, 1FB99,
-                           1FB9A, 1FB9B, 1FB9C, 1FB9D, 1FB9E, 1FB9F, 1FBA0,
-                           1FBA1, 1FBA2, 1FBA3, 1FBA4, 1FBA5, 1FBA6, 1FBA7,
-                           1FBA8, 1FBA9, 1FBAA, 1FBAB, 1FBAC, 1FBAD, 1FBAE,
-                           1FBAF, 1FBB0, 1FBB1, 1FBB2, 1FBB3, 1FBB4, 1FBB5,
-                           1FBB6, 1FBB7, 1FBB8, 1FBB9, 1FBBA, 1FBBB, 1FBBC,
-                           1FBBD, 1FBBE, 1FBBF, 1FBC0, 1FBC1, 1FBC2, 1FBC3,
-                           1FBC4, 1FBC5, 1FBC6, 1FBC7, 1FBC8, 1FBC9, 1FBCA
+                           2121, 2123, 2125, 2127, 213A, 213B, 214A, 214C, 214D,
+                           218A, 218B, 2CE5, 2CE6, 2CE7, 2CE8, 2CE9, 2CEA, 3004,
+                           3036, 3037, 303E, 303F, 31C0, 31C1, 31C2, 31C3, 31C4,
+                           31C5, 31C6, 31C7, 31C8, 31C9, 31CA, 31CB, 31CC, 31CD,
+                           31CE, 31CF, 31D0, 31D1, 31D2, 31D3, 31D4, 31D5, 31D6,
+                           31D7, 31D8, 31D9, 31DA, 31DB, 31DC, 31DD, 31DE, 31DF,
+                           31E0, 31E1, 31E2, 31E3, 321D, 321E, 3250, 327C, 327D,
+                           327E, 32CC, 32CD, 32CE, 32CF, 3377, 3378, 3379, 337A,
+                           33DE, 33DF, 33FF, 4DC0, 4DC1, 4DC2, 4DC3, 4DC4, 4DC5,
+                           4DC6, 4DC7, 4DC8, 4DC9, 4DCA, 4DCB, 4DCC, 4DCD, 4DCE,
+                           4DCF, 4DD0, 4DD1, 4DD2, 4DD3, 4DD4, 4DD5, 4DD6, 4DD7,
+                           4DD8, 4DD9, 4DDA, 4DDB, 4DDC, 4DDD, 4DDE, 4DDF, 4DE0,
+                           4DE1, 4DE2, 4DE3, 4DE4, 4DE5, 4DE6, 4DE7, 4DE8, 4DE9,
+                           4DEA, 4DEB, 4DEC, 4DED, 4DEE, 4DEF, 4DF0, 4DF1, 4DF2,
+                           4DF3, 4DF4, 4DF5, 4DF6, 4DF7, 4DF8, 4DF9, 4DFA, 4DFB,
+                           4DFC, 4DFD, 4DFE, 4DFF, A490, A491, A492, A493, A494,
+                           A495, A496, A497, A498, A499, A49A, A49B, A49C, A49D,
+                           A49E, A49F, A4A0, A4A1, A4A2, A4A3, A4A4, A4A5, A4A6,
+                           A4A7, A4A8, A4A9, A4AA, A4AB, A4AC, A4AD, A4AE, A4AF,
+                           A4B0, A4B1, A4B2, A4B3, A4B4, A4B5, A4B6, A4B7, A4B8,
+                           A4B9, A4BA, A4BB, A4BC, A4BD, A4BE, A4BF, A4C0, A4C1,
+                           A4C2, A4C3, A4C4, A4C5, A4C6, A828, A829, A82A, A82B,
+                           FDFD, FFE4, FFE8, FFED, FFEE, FFFC, 10179, 1017A,
+                           1017B, 1017C, 1017D, 1017E, 1017F, 10180, 10181,
+                           10182, 10183, 10184, 10185, 10186, 10187, 10188,
+                           10189, 1018C, 10190, 10191, 10192, 10193, 10194,
+                           10195, 10196, 10197, 10198, 10199, 1019A, 1019B,
+                           1019C, 101A0, 11FD5, 11FD6, 11FD7, 11FD8, 11FD9,
+                           11FDA, 11FDB, 11FDC, 11FE1, 11FE2, 11FE3, 11FE4,
+                           11FE5, 11FE6, 11FE7, 11FE8, 11FE9, 11FEA, 11FEB,
+                           11FEC, 11FED, 11FEE, 11FEF, 11FF0, 11FF1, 1D200,
+                           1D201, 1D202, 1D203, 1D204, 1D205, 1D206, 1D207,
+                           1D208, 1D209, 1D20A, 1D20B, 1D20C, 1D20D, 1D20E,
+                           1D20F, 1D210, 1D211, 1D212, 1D213, 1D214, 1D215,
+                           1D216, 1D217, 1D218, 1D219, 1D21A, 1D21B, 1D21C,
+                           1D21D, 1D21E, 1D21F, 1D220, 1D221, 1D222, 1D223,
+                           1D224, 1D225, 1D226, 1D227, 1D228, 1D229, 1D22A,
+                           1D22B, 1D22C, 1D22D, 1D22E, 1D22F, 1D230, 1D231,
+                           1D232, 1D233, 1D234, 1D235, 1D236, 1D237, 1D238,
+                           1D239, 1D23A, 1D23B, 1D23C, 1D23D, 1D23E, 1D23F,
+                           1D240, 1D241, 1D245, 1D300, 1D301, 1D302, 1D303,
+                           1D304, 1D305, 1D306, 1D307, 1D308, 1D309, 1D30A,
+                           1D30B, 1D30C, 1D30D, 1D30E, 1D30F, 1D310, 1D311,
+                           1D312, 1D313, 1D314, 1D315, 1D316, 1D317, 1D318,
+                           1D319, 1D31A, 1D31B, 1D31C, 1D31D, 1D31E, 1D31F,
+                           1D320, 1D321, 1D322, 1D323, 1D324, 1D325, 1D326,
+                           1D327, 1D328, 1D329, 1D32A, 1D32B, 1D32C, 1D32D,
+                           1D32E, 1D32F, 1D330, 1D331, 1D332, 1D333, 1D334,
+                           1D335, 1D336, 1D337, 1D338, 1D339, 1D33A, 1D33B,
+                           1D33C, 1D33D, 1D33E, 1D33F, 1D340, 1D341, 1D342,
+                           1D343, 1D344, 1D345, 1D346, 1D347, 1D348, 1D349,
+                           1D34A, 1D34B, 1D34C, 1D34D, 1D34E, 1D34F, 1D350,
+                           1D351, 1D352, 1D353, 1D354, 1D355, 1D356, 1F000,
+                           1F001, 1F002, 1F003, 1F004, 1F005, 1F006, 1F007,
+                           1F008, 1F009, 1F00A, 1F00B, 1F00C, 1F00D, 1F00E,
+                           1F00F, 1F010, 1F011, 1F012, 1F013, 1F014, 1F015,
+                           1F016, 1F017, 1F018, 1F019, 1F01A, 1F01B, 1F01C,
+                           1F01D, 1F01E, 1F01F, 1F020, 1F021, 1F022, 1F023,
+                           1F024, 1F025, 1F026, 1F027, 1F028, 1F029, 1F02A,
+                           1F02B, 1F030, 1F031, 1F032, 1F033, 1F034, 1F035,
+                           1F036, 1F037, 1F038, 1F039, 1F03A, 1F03B, 1F03C,
+                           1F03D, 1F03E, 1F03F, 1F040, 1F041, 1F042, 1F043,
+                           1F044, 1F045, 1F046, 1F047, 1F048, 1F049, 1F04A,
+                           1F04B, 1F04C, 1F04D, 1F04E, 1F04F, 1F050, 1F051,
+                           1F052, 1F053, 1F054, 1F055, 1F056, 1F057, 1F058,
+                           1F059, 1F05A, 1F05B, 1F05C, 1F05D, 1F05E, 1F05F,
+                           1F060, 1F061, 1F062, 1F063, 1F064, 1F065, 1F066,
+                           1F067, 1F068, 1F069, 1F06A, 1F06B, 1F06C, 1F06D,
+                           1F06E, 1F06F, 1F070, 1F071, 1F072, 1F073, 1F074,
+                           1F075, 1F076, 1F077, 1F078, 1F079, 1F07A, 1F07B,
+                           1F07C, 1F07D, 1F07E, 1F07F, 1F080, 1F081, 1F082,
+                           1F083, 1F084, 1F085, 1F086, 1F087, 1F088, 1F089,
+                           1F08A, 1F08B, 1F08C, 1F08D, 1F08E, 1F08F, 1F090,
+                           1F091, 1F092, 1F093, 1F0A0, 1F0A1, 1F0A2, 1F0A3,
+                           1F0A4, 1F0A5, 1F0A6, 1F0A7, 1F0A8, 1F0A9, 1F0AA,
+                           1F0AB, 1F0AC, 1F0AD, 1F0AE, 1F0B1, 1F0B2, 1F0B3,
+                           1F0B4, 1F0B5, 1F0B6, 1F0B7, 1F0B8, 1F0B9, 1F0BA,
+                           1F0BB, 1F0BC, 1F0BD, 1F0BE, 1F0BF, 1F0C1, 1F0C2,
+                           1F0C3, 1F0C4, 1F0C5, 1F0C6, 1F0C7, 1F0C8, 1F0C9,
+                           1F0CA, 1F0CB, 1F0CC, 1F0CD, 1F0CE, 1F0CF, 1F0D1,
+                           1F0D2, 1F0D3, 1F0D4, 1F0D5, 1F0D6, 1F0D7, 1F0D8,
+                           1F0D9, 1F0DA, 1F0DB, 1F0DC, 1F0DD, 1F0DE, 1F0DF,
+                           1F0E0, 1F0E1, 1F0E2, 1F0E3, 1F0E4, 1F0E5, 1F0E6,
+                           1F0E7, 1F0E8, 1F0E9, 1F0EA, 1F0EB, 1F0EC, 1F0ED,
+                           1F0EE, 1F0EF, 1F0F0, 1F0F1, 1F0F2, 1F0F3, 1F0F4,
+                           1F0F5, 1F10D, 1F10E, 1F10F, 1F12F, 1F16A, 1F16B,
+                           1F16C, 1F16D, 1F16E, 1F16F, 1F1AD, 1F260, 1F261,
+                           1F262, 1F263, 1F264, 1F265, 1F300, 1F301, 1F302,
+                           1F303, 1F304, 1F305, 1F306, 1F307, 1F308, 1F309,
+                           1F30A, 1F30B, 1F30C, 1F30D, 1F30E, 1F30F, 1F310,
+                           1F311, 1F312, 1F313, 1F314, 1F315, 1F316, 1F317,
+                           1F318, 1F319, 1F31A, 1F31B, 1F31C, 1F31D, 1F31E,
+                           1F31F, 1F320, 1F321, 1F322, 1F323, 1F324, 1F325,
+                           1F326, 1F327, 1F328, 1F329, 1F32A, 1F32B, 1F32C,
+                           1F32D, 1F32E, 1F32F, 1F330, 1F331, 1F332, 1F333,
+                           1F334, 1F335, 1F336, 1F337, 1F338, 1F339, 1F33A,
+                           1F33B, 1F33C, 1F33D, 1F33E, 1F33F, 1F340, 1F341,
+                           1F342, 1F343, 1F344, 1F345, 1F346, 1F347, 1F348,
+                           1F349, 1F34A, 1F34B, 1F34C, 1F34D, 1F34E, 1F34F,
+                           1F350, 1F351, 1F352, 1F353, 1F354, 1F355, 1F356,
+                           1F357, 1F358, 1F359, 1F35A, 1F35B, 1F35C, 1F35D,
+                           1F35E, 1F35F, 1F360, 1F361, 1F362, 1F363, 1F364,
+                           1F365, 1F366, 1F367, 1F368, 1F369, 1F36A, 1F36B,
+                           1F36C, 1F36D, 1F36E, 1F36F, 1F370, 1F371, 1F372,
+                           1F373, 1F374, 1F375, 1F376, 1F377, 1F378, 1F379,
+                           1F37A, 1F37B, 1F37C, 1F37D, 1F37E, 1F37F, 1F380,
+                           1F381, 1F382, 1F383, 1F384, 1F385, 1F386, 1F387,
+                           1F388, 1F389, 1F38A, 1F38B, 1F38C, 1F38D, 1F38E,
+                           1F38F, 1F390, 1F391, 1F392, 1F393, 1F394, 1F395,
+                           1F396, 1F397, 1F398, 1F399, 1F39A, 1F39B, 1F39C,
+                           1F39D, 1F39E, 1F39F, 1F3A0, 1F3A1, 1F3A2, 1F3A3,
+                           1F3A4, 1F3A5, 1F3A6, 1F3A7, 1F3A8, 1F3A9, 1F3AA,
+                           1F3AB, 1F3AC, 1F3AD, 1F3AE, 1F3AF, 1F3B0, 1F3B1,
+                           1F3B2, 1F3B3, 1F3B4, 1F3B5, 1F3B6, 1F3B7, 1F3B8,
+                           1F3B9, 1F3BA, 1F3BB, 1F3BC, 1F3BD, 1F3BE, 1F3BF,
+                           1F3C0, 1F3C1, 1F3C2, 1F3C3, 1F3C4, 1F3C5, 1F3C6,
+                           1F3C7, 1F3C8, 1F3C9, 1F3CA, 1F3CB, 1F3CC, 1F3CD,
+                           1F3CE, 1F3CF, 1F3D0, 1F3D1, 1F3D2, 1F3D3, 1F3D4,
+                           1F3D5, 1F3D6, 1F3D7, 1F3D8, 1F3D9, 1F3DA, 1F3DB,
+                           1F3DC, 1F3DD, 1F3DE, 1F3DF, 1F3E0, 1F3E1, 1F3E2,
+                           1F3E3, 1F3E4, 1F3E5, 1F3E6, 1F3E7, 1F3E8, 1F3E9,
+                           1F3EA, 1F3EB, 1F3EC, 1F3ED, 1F3EE, 1F3EF, 1F3F0,
+                           1F3F1, 1F3F2, 1F3F3, 1F3F4, 1F3F5, 1F3F6, 1F3F7,
+                           1F3F8, 1F3F9, 1F3FA, 1F400, 1F401, 1F402, 1F403,
+                           1F404, 1F405, 1F406, 1F407, 1F408, 1F409, 1F40A,
+                           1F40B, 1F40C, 1F40D, 1F40E, 1F40F, 1F410, 1F411,
+                           1F412, 1F413, 1F414, 1F415, 1F416, 1F417, 1F418,
+                           1F419, 1F41A, 1F41B, 1F41C, 1F41D, 1F41E, 1F41F,
+                           1F420, 1F421, 1F422, 1F423, 1F424, 1F425, 1F426,
+                           1F427, 1F428, 1F429, 1F42A, 1F42B, 1F42C, 1F42D,
+                           1F42E, 1F42F, 1F430, 1F431, 1F432, 1F433, 1F434,
+                           1F435, 1F436, 1F437, 1F438, 1F439, 1F43A, 1F43B,
+                           1F43C, 1F43D, 1F43E, 1F43F, 1F440, 1F441, 1F442,
+                           1F443, 1F444, 1F445, 1F446, 1F447, 1F448, 1F449,
+                           1F44A, 1F44B, 1F44C, 1F44D, 1F44E, 1F44F, 1F450,
+                           1F451, 1F452, 1F453, 1F454, 1F455, 1F456, 1F457,
+                           1F458, 1F459, 1F45A, 1F45B, 1F45C, 1F45D, 1F45E,
+                           1F45F, 1F460, 1F461, 1F462, 1F463, 1F464, 1F465,
+                           1F466, 1F467, 1F468, 1F469, 1F46A, 1F46B, 1F46C,
+                           1F46D, 1F46E, 1F46F, 1F470, 1F471, 1F472, 1F473,
+                           1F474, 1F475, 1F476, 1F477, 1F478, 1F479, 1F47A,
+                           1F47B, 1F47C, 1F47D, 1F47E, 1F47F, 1F480, 1F481,
+                           1F482, 1F483, 1F484, 1F485, 1F486, 1F487, 1F488,
+                           1F489, 1F48A, 1F48B, 1F48C, 1F48D, 1F48E, 1F48F,
+                           1F490, 1F491, 1F492, 1F493, 1F494, 1F495, 1F496,
+                           1F497, 1F498, 1F499, 1F49A, 1F49B, 1F49C, 1F49D,
+                           1F49E, 1F49F, 1F4A0, 1F4A1, 1F4A2, 1F4A3, 1F4A4,
+                           1F4A5, 1F4A6, 1F4A7, 1F4A8, 1F4A9, 1F4AA, 1F4AB,
+                           1F4AC, 1F4AD, 1F4AE, 1F4AF, 1F4B0, 1F4B1, 1F4B2,
+                           1F4B3, 1F4B4, 1F4B5, 1F4B6, 1F4B7, 1F4B8, 1F4B9,
+                           1F4BA, 1F4BB, 1F4BC, 1F4BD, 1F4BE, 1F4BF, 1F4C0,
+                           1F4C1, 1F4C2, 1F4C3, 1F4C4, 1F4C5, 1F4C6, 1F4C7,
+                           1F4C8, 1F4C9, 1F4CA, 1F4CB, 1F4CC, 1F4CD, 1F4CE,
+                           1F4CF, 1F4D0, 1F4D1, 1F4D2, 1F4D3, 1F4D4, 1F4D5,
+                           1F4D6, 1F4D7, 1F4D8, 1F4D9, 1F4DA, 1F4DB, 1F4DC,
+                           1F4DD, 1F4DE, 1F4DF, 1F4E0, 1F4E1, 1F4E2, 1F4E3,
+                           1F4E4, 1F4E5, 1F4E6, 1F4E7, 1F4E8, 1F4E9, 1F4EA,
+                           1F4EB, 1F4EC, 1F4ED, 1F4EE, 1F4EF, 1F4F0, 1F4F1,
+                           1F4F2, 1F4F3, 1F4F4, 1F4F5, 1F4F6, 1F4F7, 1F4F8,
+                           1F4F9, 1F4FA, 1F4FB, 1F4FC, 1F4FD, 1F4FE, 1F4FF,
+                           1F500, 1F501, 1F502, 1F503, 1F504, 1F505, 1F506,
+                           1F507, 1F508, 1F509, 1F50A, 1F50B, 1F50C, 1F50D,
+                           1F50E, 1F50F, 1F510, 1F511, 1F512, 1F513, 1F514,
+                           1F515, 1F516, 1F517, 1F518, 1F519, 1F51A, 1F51B,
+                           1F51C, 1F51D, 1F51E, 1F51F, 1F520, 1F521, 1F522,
+                           1F523, 1F524, 1F525, 1F526, 1F527, 1F528, 1F529,
+                           1F52A, 1F52B, 1F52C, 1F52D, 1F52E, 1F52F, 1F530,
+                           1F531, 1F532, 1F533, 1F534, 1F535, 1F536, 1F537,
+                           1F538, 1F539, 1F53A, 1F53B, 1F53C, 1F53D, 1F53E,
+                           1F53F, 1F540, 1F541, 1F542, 1F543, 1F544, 1F545,
+                           1F546, 1F547, 1F548, 1F549, 1F54A, 1F54B, 1F54C,
+                           1F54D, 1F54E, 1F54F, 1F550, 1F551, 1F552, 1F553,
+                           1F554, 1F555, 1F556, 1F557, 1F558, 1F559, 1F55A,
+                           1F55B, 1F55C, 1F55D, 1F55E, 1F55F, 1F560, 1F561,
+                           1F562, 1F563, 1F564, 1F565, 1F566, 1F567, 1F568,
+                           1F569, 1F56A, 1F56B, 1F56C, 1F56D, 1F56E, 1F56F,
+                           1F570, 1F571, 1F572, 1F573, 1F574, 1F575, 1F576,
+                           1F577, 1F578, 1F579, 1F57A, 1F57B, 1F57C, 1F57D,
+                           1F57E, 1F57F, 1F580, 1F581, 1F582, 1F583, 1F584,
+                           1F585, 1F586, 1F587, 1F588, 1F589, 1F58A, 1F58B,
+                           1F58C, 1F58D, 1F58E, 1F58F, 1F590, 1F591, 1F592,
+                           1F593, 1F594, 1F595, 1F596, 1F597, 1F598, 1F599,
+                           1F59A, 1F59B, 1F59C, 1F59D, 1F59E, 1F59F, 1F5A0,
+                           1F5A1, 1F5A2, 1F5A3, 1F5A4, 1F5A5, 1F5A6, 1F5A7,
+                           1F5A8, 1F5A9, 1F5AA, 1F5AB, 1F5AC, 1F5AD, 1F5AE,
+                           1F5AF, 1F5B0, 1F5B1, 1F5B2, 1F5B3, 1F5B4, 1F5B5,
+                           1F5B6, 1F5B7, 1F5B8, 1F5B9, 1F5BA, 1F5BB, 1F5BC,
+                           1F5BD, 1F5BE, 1F5BF, 1F5C0, 1F5C1, 1F5C2, 1F5C3,
+                           1F5C4, 1F5C5, 1F5C6, 1F5C7, 1F5C8, 1F5C9, 1F5CA,
+                           1F5CB, 1F5CC, 1F5CD, 1F5CE, 1F5CF, 1F5D0, 1F5D1,
+                           1F5D2, 1F5D3, 1F5D4, 1F5D5, 1F5D6, 1F5D7, 1F5D8,
+                           1F5D9, 1F5DA, 1F5DB, 1F5DC, 1F5DD, 1F5DE, 1F5DF,
+                           1F5E0, 1F5E1, 1F5E2, 1F5E3, 1F5E4, 1F5E5, 1F5E6,
+                           1F5E7, 1F5E8, 1F5E9, 1F5EA, 1F5EB, 1F5EC, 1F5ED,
+                           1F5EE, 1F5EF, 1F5F0, 1F5F1, 1F5F2, 1F5F3, 1F5F4,
+                           1F5F5, 1F5F6, 1F5F7, 1F5F8, 1F5F9, 1F5FA, 1F5FB,
+                           1F5FC, 1F5FD, 1F5FE, 1F5FF, 1F600, 1F601, 1F602,
+                           1F603, 1F604, 1F605, 1F606, 1F607, 1F608, 1F609,
+                           1F60A, 1F60B, 1F60C, 1F60D, 1F60E, 1F60F, 1F610,
+                           1F611, 1F612, 1F613, 1F614, 1F615, 1F616, 1F617,
+                           1F618, 1F619, 1F61A, 1F61B, 1F61C, 1F61D, 1F61E,
+                           1F61F, 1F620, 1F621, 1F622, 1F623, 1F624, 1F625,
+                           1F626, 1F627, 1F628, 1F629, 1F62A, 1F62B, 1F62C,
+                           1F62D, 1F62E, 1F62F, 1F630, 1F631, 1F632, 1F633,
+                           1F634, 1F635, 1F636, 1F637, 1F638, 1F639, 1F63A,
+                           1F63B, 1F63C, 1F63D, 1F63E, 1F63F, 1F640, 1F641,
+                           1F642, 1F643, 1F644, 1F645, 1F646, 1F647, 1F648,
+                           1F649, 1F64A, 1F64B, 1F64C, 1F64D, 1F64E, 1F64F,
+                           1F650, 1F651, 1F652, 1F653, 1F654, 1F655, 1F656,
+                           1F657, 1F658, 1F659, 1F65A, 1F65B, 1F65C, 1F65D,
+                           1F65E, 1F65F, 1F660, 1F661, 1F662, 1F663, 1F664,
+                           1F665, 1F666, 1F667, 1F668, 1F669, 1F66A, 1F66B,
+                           1F66C, 1F66D, 1F66E, 1F66F, 1F670, 1F671, 1F672,
+                           1F673, 1F674, 1F675, 1F676, 1F677, 1F678, 1F679,
+                           1F67A, 1F67B, 1F67C, 1F67D, 1F67E, 1F67F, 1F680,
+                           1F681, 1F682, 1F683, 1F684, 1F685, 1F686, 1F687,
+                           1F688, 1F689, 1F68A, 1F68B, 1F68C, 1F68D, 1F68E,
+                           1F68F, 1F690, 1F691, 1F692, 1F693, 1F694, 1F695,
+                           1F696, 1F697, 1F698, 1F699, 1F69A, 1F69B, 1F69C,
+                           1F69D, 1F69E, 1F69F, 1F6A0, 1F6A1, 1F6A2, 1F6A3,
+                           1F6A4, 1F6A5, 1F6A6, 1F6A7, 1F6A8, 1F6A9, 1F6AA,
+                           1F6AB, 1F6AC, 1F6AD, 1F6AE, 1F6AF, 1F6B0, 1F6B1,
+                           1F6B2, 1F6B3, 1F6B4, 1F6B5, 1F6B6, 1F6B7, 1F6B8,
+                           1F6B9, 1F6BA, 1F6BB, 1F6BC, 1F6BD, 1F6BE, 1F6BF,
+                           1F6C0, 1F6C1, 1F6C2, 1F6C3, 1F6C4, 1F6C5, 1F6C6,
+                           1F6C7, 1F6C8, 1F6C9, 1F6CA, 1F6CB, 1F6CC, 1F6CD,
+                           1F6CE, 1F6CF, 1F6D0, 1F6D1, 1F6D2, 1F6D3, 1F6D4,
+                           1F6D5, 1F6D6, 1F6D7, 1F6E0, 1F6E1, 1F6E2, 1F6E3,
+                           1F6E4, 1F6E5, 1F6E6, 1F6E7, 1F6E8, 1F6E9, 1F6EA,
+                           1F6EB, 1F6EC, 1F6F0, 1F6F1, 1F6F2, 1F6F3, 1F6F4,
+                           1F6F5, 1F6F6, 1F6F7, 1F6F8, 1F6F9, 1F6FA, 1F6FB,
+                           1F6FC, 1F700, 1F701, 1F702, 1F703, 1F704, 1F705,
+                           1F706, 1F707, 1F708, 1F709, 1F70A, 1F70B, 1F70C,
+                           1F70D, 1F70E, 1F70F, 1F710, 1F711, 1F712, 1F713,
+                           1F714, 1F715, 1F716, 1F717, 1F718, 1F719, 1F71A,
+                           1F71B, 1F71C, 1F71D, 1F71E, 1F71F, 1F720, 1F721,
+                           1F722, 1F723, 1F724, 1F725, 1F726, 1F727, 1F728,
+                           1F729, 1F72A, 1F72B, 1F72C, 1F72D, 1F72E, 1F72F,
+                           1F730, 1F731, 1F732, 1F733, 1F734, 1F735, 1F736,
+                           1F737, 1F738, 1F739, 1F73A, 1F73B, 1F73C, 1F73D,
+                           1F73E, 1F73F, 1F740, 1F741, 1F742, 1F743, 1F744,
+                           1F745, 1F746, 1F747, 1F748, 1F749, 1F74A, 1F74B,
+                           1F74C, 1F74D, 1F74E, 1F74F, 1F750, 1F751, 1F752,
+                           1F753, 1F754, 1F755, 1F756, 1F757, 1F758, 1F759,
+                           1F75A, 1F75B, 1F75C, 1F75D, 1F75E, 1F75F, 1F760,
+                           1F761, 1F762, 1F763, 1F764, 1F765, 1F766, 1F767,
+                           1F768, 1F769, 1F76A, 1F76B, 1F76C, 1F76D, 1F76E,
+                           1F76F, 1F770, 1F771, 1F772, 1F773, 1F780, 1F781,
+                           1F782, 1F783, 1F784, 1F785, 1F786, 1F787, 1F788,
+                           1F789, 1F78A, 1F78B, 1F78C, 1F78D, 1F78E, 1F78F,
+                           1F790, 1F791, 1F792, 1F793, 1F794, 1F795, 1F796,
+                           1F797, 1F798, 1F799, 1F79A, 1F79B, 1F79C, 1F79D,
+                           1F79E, 1F79F, 1F7A0, 1F7A1, 1F7A2, 1F7A3, 1F7A4,
+                           1F7A5, 1F7A6, 1F7A7, 1F7A8, 1F7A9, 1F7AA, 1F7AB,
+                           1F7AC, 1F7AD, 1F7AE, 1F7AF, 1F7B0, 1F7B1, 1F7B2,
+                           1F7B3, 1F7B4, 1F7B5, 1F7B6, 1F7B7, 1F7B8, 1F7B9,
+                           1F7BA, 1F7BB, 1F7BC, 1F7BD, 1F7BE, 1F7BF, 1F7C0,
+                           1F7C1, 1F7C2, 1F7C3, 1F7C4, 1F7C5, 1F7C6, 1F7C7,
+                           1F7C8, 1F7C9, 1F7CA, 1F7CB, 1F7CC, 1F7CD, 1F7CE,
+                           1F7CF, 1F7D0, 1F7D1, 1F7D2, 1F7D3, 1F7D4, 1F7D5,
+                           1F7D6, 1F7D7, 1F7D8, 1F7E0, 1F7E1, 1F7E2, 1F7E3,
+                           1F7E4, 1F7E5, 1F7E6, 1F7E7, 1F7E8, 1F7E9, 1F7EA,
+                           1F7EB, 1F800, 1F801, 1F802, 1F803, 1F804, 1F805,
+                           1F806, 1F807, 1F808, 1F809, 1F80A, 1F80B, 1F810,
+                           1F811, 1F812, 1F813, 1F814, 1F815, 1F816, 1F817,
+                           1F818, 1F819, 1F81A, 1F81B, 1F81C, 1F81D, 1F81E,
+                           1F81F, 1F820, 1F821, 1F822, 1F823, 1F824, 1F825,
+                           1F826, 1F827, 1F828, 1F829, 1F82A, 1F82B, 1F82C,
+                           1F82D, 1F82E, 1F82F, 1F830, 1F831, 1F832, 1F833,
+                           1F834, 1F835, 1F836, 1F837, 1F838, 1F839, 1F83A,
+                           1F83B, 1F83C, 1F83D, 1F83E, 1F83F, 1F840, 1F841,
+                           1F842, 1F843, 1F844, 1F845, 1F846, 1F847, 1F850,
+                           1F851, 1F852, 1F853, 1F854, 1F855, 1F856, 1F857,
+                           1F858, 1F859, 1F860, 1F861, 1F862, 1F863, 1F864,
+                           1F865, 1F866, 1F867, 1F868, 1F869, 1F86A, 1F86B,
+                           1F86C, 1F86D, 1F86E, 1F86F, 1F870, 1F871, 1F872,
+                           1F873, 1F874, 1F875, 1F876, 1F877, 1F878, 1F879,
+                           1F87A, 1F87B, 1F87C, 1F87D, 1F87E, 1F87F, 1F880,
+                           1F881, 1F882, 1F883, 1F884, 1F885, 1F886, 1F887,
+                           1F890, 1F891, 1F892, 1F893, 1F894, 1F895, 1F896,
+                           1F897, 1F898, 1F899, 1F89A, 1F89B, 1F89C, 1F89D,
+                           1F89E, 1F89F, 1F8A0, 1F8A1, 1F8A2, 1F8A3, 1F8A4,
+                           1F8A5, 1F8A6, 1F8A7, 1F8A8, 1F8A9, 1F8AA, 1F8AB,
+                           1F8AC, 1F8AD, 1F8B0, 1F8B1, 1F900, 1F901, 1F902,
+                           1F903, 1F904, 1F905, 1F906, 1F907, 1F908, 1F909,
+                           1F90A, 1F90B, 1F90C, 1F90D, 1F90E, 1F90F, 1F910,
+                           1F911, 1F912, 1F913, 1F914, 1F915, 1F916, 1F917,
+                           1F918, 1F919, 1F91A, 1F91B, 1F91C, 1F91D, 1F91E,
+                           1F91F, 1F920, 1F921, 1F922, 1F923, 1F924, 1F925,
+                           1F926, 1F927, 1F928, 1F929, 1F92A, 1F92B, 1F92C,
+                           1F92D, 1F92E, 1F92F, 1F930, 1F931, 1F932, 1F933,
+                           1F934, 1F935, 1F936, 1F937, 1F938, 1F939, 1F93A,
+                           1F93B, 1F93C, 1F93D, 1F93E, 1F93F, 1F940, 1F941,
+                           1F942, 1F943, 1F944, 1F945, 1F946, 1F947, 1F948,
+                           1F949, 1F94A, 1F94B, 1F94C, 1F94D, 1F94E, 1F94F,
+                           1F950, 1F951, 1F952, 1F953, 1F954, 1F955, 1F956,
+                           1F957, 1F958, 1F959, 1F95A, 1F95B, 1F95C, 1F95D,
+                           1F95E, 1F95F, 1F960, 1F961, 1F962, 1F963, 1F964,
+                           1F965, 1F966, 1F967, 1F968, 1F969, 1F96A, 1F96B,
+                           1F96C, 1F96D, 1F96E, 1F96F, 1F970, 1F971, 1F972,
+                           1F973, 1F974, 1F975, 1F976, 1F977, 1F978, 1F97A,
+                           1F97B, 1F97C, 1F97D, 1F97E, 1F97F, 1F980, 1F981,
+                           1F982, 1F983, 1F984, 1F985, 1F986, 1F987, 1F988,
+                           1F989, 1F98A, 1F98B, 1F98C, 1F98D, 1F98E, 1F98F,
+                           1F990, 1F991, 1F992, 1F993, 1F994, 1F995, 1F996,
+                           1F997, 1F998, 1F999, 1F99A, 1F99B, 1F99C, 1F99D,
+                           1F99E, 1F99F, 1F9A0, 1F9A1, 1F9A2, 1F9A3, 1F9A4,
+                           1F9A5, 1F9A6, 1F9A7, 1F9A8, 1F9A9, 1F9AA, 1F9AB,
+                           1F9AC, 1F9AD, 1F9AE, 1F9AF, 1F9B0, 1F9B1, 1F9B2,
+                           1F9B3, 1F9B4, 1F9B5, 1F9B6, 1F9B7, 1F9B8, 1F9B9,
+                           1F9BA, 1F9BB, 1F9BC, 1F9BD, 1F9BE, 1F9BF, 1F9C0,
+                           1F9C1, 1F9C2, 1F9C3, 1F9C4, 1F9C5, 1F9C6, 1F9C7,
+                           1F9C8, 1F9C9, 1F9CA, 1F9CB, 1F9CD, 1F9CE, 1F9CF,
+                           1F9D0, 1F9D1, 1F9D2, 1F9D3, 1F9D4, 1F9D5, 1F9D6,
+                           1F9D7, 1F9D8, 1F9D9, 1F9DA, 1F9DB, 1F9DC, 1F9DD,
+                           1F9DE, 1F9DF, 1F9E0, 1F9E1, 1F9E2, 1F9E3, 1F9E4,
+                           1F9E5, 1F9E6, 1F9E7, 1F9E8, 1F9E9, 1F9EA, 1F9EB,
+                           1F9EC, 1F9ED, 1F9EE, 1F9EF, 1F9F0, 1F9F1, 1F9F2,
+                           1F9F3, 1F9F4, 1F9F5, 1F9F6, 1F9F7, 1F9F8, 1F9F9,
+                           1F9FA, 1F9FB, 1F9FC, 1F9FD, 1F9FE, 1F9FF, 1FA00,
+                           1FA01, 1FA02, 1FA03, 1FA04, 1FA05, 1FA06, 1FA07,
+                           1FA08, 1FA09, 1FA0A, 1FA0B, 1FA0C, 1FA0D, 1FA0E,
+                           1FA0F, 1FA10, 1FA11, 1FA12, 1FA13, 1FA14, 1FA15,
+                           1FA16, 1FA17, 1FA18, 1FA19, 1FA1A, 1FA1B, 1FA1C,
+                           1FA1D, 1FA1E, 1FA1F, 1FA20, 1FA21, 1FA22, 1FA23,
+                           1FA24, 1FA25, 1FA26, 1FA27, 1FA28, 1FA29, 1FA2A,
+                           1FA2B, 1FA2C, 1FA2D, 1FA2E, 1FA2F, 1FA30, 1FA31,
+                           1FA32, 1FA33, 1FA34, 1FA35, 1FA36, 1FA37, 1FA38,
+                           1FA39, 1FA3A, 1FA3B, 1FA3C, 1FA3D, 1FA3E, 1FA3F,
+                           1FA40, 1FA41, 1FA42, 1FA43, 1FA44, 1FA45, 1FA46,
+                           1FA47, 1FA48, 1FA49, 1FA4A, 1FA4B, 1FA4C, 1FA4D,
+                           1FA4E, 1FA4F, 1FA50, 1FA51, 1FA52, 1FA53, 1FA60,
+                           1FA61, 1FA62, 1FA63, 1FA64, 1FA65, 1FA66, 1FA67,
+                           1FA68, 1FA69, 1FA6A, 1FA6B, 1FA6C, 1FA6D, 1FA70,
+                           1FA71, 1FA72, 1FA73, 1FA74, 1FA78, 1FA79, 1FA7A,
+                           1FA80, 1FA81, 1FA82, 1FA83, 1FA84, 1FA85, 1FA86,
+                           1FA90, 1FA91, 1FA92, 1FA93, 1FA94, 1FA95, 1FA96,
+                           1FA97, 1FA98, 1FA99, 1FA9A, 1FA9B, 1FA9C, 1FA9D,
+                           1FA9E, 1FA9F, 1FAA0, 1FAA1, 1FAA2, 1FAA3, 1FAA4,
+                           1FAA5, 1FAA6, 1FAA7, 1FAA8, 1FAB0, 1FAB1, 1FAB2,
+                           1FAB3, 1FAB4, 1FAB5, 1FAB6, 1FAC0, 1FAC1, 1FAC2,
+                           1FAD0, 1FAD1, 1FAD2, 1FAD3, 1FAD4, 1FAD5, 1FAD6,
+                           1FB00, 1FB01, 1FB02, 1FB03, 1FB04, 1FB05, 1FB06,
+                           1FB07, 1FB08, 1FB09, 1FB0A, 1FB0B, 1FB0C, 1FB0D,
+                           1FB0E, 1FB0F, 1FB10, 1FB11, 1FB12, 1FB13, 1FB14,
+                           1FB15, 1FB16, 1FB17, 1FB18, 1FB19, 1FB1A, 1FB1B,
+                           1FB1C, 1FB1D, 1FB1E, 1FB1F, 1FB20, 1FB21, 1FB22,
+                           1FB23, 1FB24, 1FB25, 1FB26, 1FB27, 1FB28, 1FB29,
+                           1FB2A, 1FB2B, 1FB2C, 1FB2D, 1FB2E, 1FB2F, 1FB30,
+                           1FB31, 1FB32, 1FB33, 1FB34, 1FB35, 1FB36, 1FB37,
+                           1FB38, 1FB39, 1FB3A, 1FB3B, 1FB3C, 1FB3D, 1FB3E,
+                           1FB3F, 1FB40, 1FB41, 1FB42, 1FB43, 1FB44, 1FB45,
+                           1FB46, 1FB47, 1FB48, 1FB49, 1FB4A, 1FB4B, 1FB4C,
+                           1FB4D, 1FB4E, 1FB4F, 1FB50, 1FB51, 1FB52, 1FB53,
+                           1FB54, 1FB55, 1FB56, 1FB57, 1FB58, 1FB59, 1FB5A,
+                           1FB5B, 1FB5C, 1FB5D, 1FB5E, 1FB5F, 1FB60, 1FB61,
+                           1FB62, 1FB63, 1FB64, 1FB65, 1FB66, 1FB67, 1FB68,
+                           1FB69, 1FB6A, 1FB6B, 1FB6C, 1FB6D, 1FB6E, 1FB6F,
+                           1FB70, 1FB71, 1FB72, 1FB73, 1FB74, 1FB75, 1FB76,
+                           1FB77, 1FB78, 1FB79, 1FB7A, 1FB7B, 1FB7C, 1FB7D,
+                           1FB7E, 1FB7F, 1FB80, 1FB81, 1FB82, 1FB83, 1FB84,
+                           1FB85, 1FB86, 1FB87, 1FB88, 1FB89, 1FB8A, 1FB8B,
+                           1FB8C, 1FB8D, 1FB8E, 1FB8F, 1FB90, 1FB91, 1FB92,
+                           1FB94, 1FB95, 1FB96, 1FB97, 1FB98, 1FB99, 1FB9A,
+                           1FB9B, 1FB9C, 1FB9D, 1FB9E, 1FB9F, 1FBA0, 1FBA1,
+                           1FBA2, 1FBA3, 1FBA4, 1FBA5, 1FBA6, 1FBA7, 1FBA8,
+                           1FBA9, 1FBAA, 1FBAB, 1FBAC, 1FBAD, 1FBAE, 1FBAF,
+                           1FBB0, 1FBB1, 1FBB2, 1FBB3, 1FBB4, 1FBB5, 1FBB6,
+                           1FBB7, 1FBB8, 1FBB9, 1FBBA, 1FBBB, 1FBBC, 1FBBD,
+                           1FBBE, 1FBBF, 1FBC0, 1FBC1, 1FBC2, 1FBC3, 1FBC4,
+                           1FBC5, 1FBC6, 1FBC7, 1FBC8, 1FBC9, 1FBCA
  294        Sc    0 ET   N 58F, 9F2, 9F3, 9FB, AF1, BF9, E3F, 17DB, 20A0, 20A1,
                            20A2, 20A3, 20A4, 20A5, 20A6, 20A7, 20A8, 20A9, 20AA,
-                           20AB, 20AC, 20AD, 20AE, 20AF, 20B0, 20B1, 20B2, 20B3,
-                           20B4, 20B5, 20B6, 20B7, 20B8, 20B9, 20BA, 20BB, 20BC,
-                           20BD, 20BE, 20BF, A838, FE69, FF04, FFE0, FFE1, FFE5,
-                           FFE6, 11FDD, 11FDE, 11FDF, 11FE0, 1E2FF
+                           20AB, 20AD, 20AE, 20AF, 20B0, 20B1, 20B2, 20B3, 20B4,
+                           20B5, 20B6, 20B7, 20B8, 20B9, 20BA, 20BB, 20BC, 20BD,
+                           20BE, 20BF, A838, FE69, FF04, FFE0, FFE1, FFE5, FFE6,
+                           11FDD, 11FDE, 11FDF, 11FE0, 1E2FF
  295        Mn  222 NSM  N Diacritic, 59A, 5AD, 1939, 302D
  296        Mn  228 NSM  N Diacritic, 5AE, 1DF7, 1DF8, 302B
  297        Mn   10 NSM  N Diacritic, Other_Alphabetic, 5B0
@@ -12895,10 +12895,12 @@
  509 LRM    Cf    0 L    N Bidi_Control, Pattern_White_Space, 200E
  510 RLM    Cf    0 R    N Bidi_Control, Pattern_White_Space, 200F
  511        Pd    0 ON   N Dash, Hyphen, Pattern_Syntax, 2010, 2011, 2E17
- 512        Pd    0 ON   N Dash, Pattern_Syntax, 2012, 2013, 2014, 2015, 2E1A,
-                           2E3A, 2E3B, 2E40, 301C, 3030
- 513        Po    0 ON   N Other_Math, Pattern_Syntax, 2016
- 514        Po    0 ON   N Pattern_Syntax, 2017, 2020, 2021, 2022, 2023, 2024,
+ 512        Pd    0 ON   N Dash, Pattern_Syntax, 2012, 2015, 2E1A, 2E3A, 2E3B,
+                           2E40, 301C, 3030
+ 513        Pd    0 ON   N &ndash;, Dash, Pattern_Syntax, 2013
+ 514        Pd    0 ON   N &mdash;, Dash, Pattern_Syntax, 2014
+ 515        Po    0 ON   N Other_Math, Pattern_Syntax, 2016
+ 516        Po    0 ON   N Pattern_Syntax, 2017, 2020, 2021, 2022, 2023, 2024,
                            2025, 2026, 2027, 2035, 2036, 2037, 2038, 203B, 203E,
                            2041, 2042, 2043, 204A, 204B, 204C, 204D, 204E, 204F,
                            2050, 2051, 2055, 2056, 2057, 2058, 2059, 205A, 205B,
@@ -12908,36 +12910,36 @@
                            2E30, 2E31, 2E32, 2E33, 2E34, 2E35, 2E36, 2E37, 2E38,
                            2E39, 2E3D, 2E3E, 2E3F, 2E43, 2E44, 2E45, 2E46, 2E47,
                            2E48, 2E49, 2E4A, 2E4B, 2E4D, 2E52, 3003, FE45, FE46
- 515        Pi    0 ON   N Pattern_Syntax, Quotation_Mark, 2018, 201B, 201C,
+ 517        Pi    0 ON   N Pattern_Syntax, Quotation_Mark, 2018, 201B, 201C,
                            201F
- 516        Pf    0 ON   N Pattern_Syntax, Quotation_Mark, 2019, 201D
- 517        Ps    0 ON   N Pattern_Syntax, Quotation_Mark, 201A, 201E, 2E42,
+ 518        Pf    0 ON   N Pattern_Syntax, Quotation_Mark, 2019, 201D
+ 519        Ps    0 ON   N Pattern_Syntax, Quotation_Mark, 201A, 201E, 2E42,
                            301D
- 518        Zl    0 WS   N Pattern_White_Space, White_Space, 2028
- 519        Zp    0 B    N Pattern_White_Space, White_Space, 2029
- 520 LRE    Cf    0 LRE  N Bidi_Control, 202A
- 521 RLE    Cf    0 RLE  N Bidi_Control, 202B
- 522 PDF    Cf    0 PDF  N Bidi_Control, 202C
- 523 LRO    Cf    0 LRO  N Bidi_Control, 202D
- 524 RLO    Cf    0 RLO  N Bidi_Control, 202E
- 525 NNBSP   Zs    0 CS   N White_Space, 202F
- 526        Po    0 ET   N Pattern_Syntax, 2030, 2031
- 527        Po    0 ET   N Other_Math, Pattern_Syntax, 2032, 2033, 2034
- 528        Pi    0 ON   Y Pattern_Syntax, Quotation_Mark, 2039
- 529        Pf    0 ON   Y Pattern_Syntax, Quotation_Mark, 203A
- 530        Po    0 ON   N Pattern_Syntax, Sentence_Terminal,
+ 520        Zl    0 WS   N Pattern_White_Space, White_Space, 2028
+ 521        Zp    0 B    N Pattern_White_Space, White_Space, 2029
+ 522 LRE    Cf    0 LRE  N Bidi_Control, 202A
+ 523 RLE    Cf    0 RLE  N Bidi_Control, 202B
+ 524 PDF    Cf    0 PDF  N Bidi_Control, 202C
+ 525 LRO    Cf    0 LRO  N Bidi_Control, 202D
+ 526 RLO    Cf    0 RLO  N Bidi_Control, 202E
+ 527 NNBSP   Zs    0 CS   N White_Space, 202F
+ 528        Po    0 ET   N Pattern_Syntax, 2030, 2031
+ 529        Po    0 ET   N Other_Math, Pattern_Syntax, 2032, 2033, 2034
+ 530        Pi    0 ON   Y Pattern_Syntax, Quotation_Mark, 2039
+ 531        Pf    0 ON   Y Pattern_Syntax, Quotation_Mark, 203A
+ 532        Po    0 ON   N Pattern_Syntax, Sentence_Terminal,
                            Terminal_Punctuation, 203C, 203D, 2047, 2048, 2049,
                            2E2E, 2E3C, 3002
- 531        Pc    0 ON   N 203F, 2054, FE33, FE34, FE4D, FE4E, FE4F, FF3F
- 532        Pc    0 ON   N Other_Math, 2040
- 533        Sm    0 CS   N Pattern_Syntax, 2044
- 534        Ps    0 ON   Y Pattern_Syntax, 2045, 2768, 276A, 276C, 276E, 2770,
+ 533        Pc    0 ON   N 203F, 2054, FE33, FE34, FE4D, FE4E, FE4F, FF3F
+ 534        Pc    0 ON   N Other_Math, 2040
+ 535        Sm    0 CS   N Pattern_Syntax, 2044
+ 536        Ps    0 ON   Y Pattern_Syntax, 2045, 2768, 276A, 276C, 276E, 2770,
                            2772, 2774, 2E22, 2E24, 2E26, 2E28, 3008, 300A, 3010,
                            3014, 3016, 3018, 301A
- 535        Pe    0 ON   Y Pattern_Syntax, 2046, 2769, 276B, 276D, 276F, 2771,
+ 537        Pe    0 ON   Y Pattern_Syntax, 2046, 2769, 276B, 276D, 276F, 2771,
                            2773, 2775, 2E23, 2E25, 2E27, 2E29, 3009, 300B, 3011,
                            3015, 3017, 3019, 301B
- 536        Sm    0 ON   N Pattern_Syntax, 2052, 2190, 2191, 2192, 2193, 2194,
+ 538        Sm    0 ON   N Pattern_Syntax, 2052, 2190, 2191, 2192, 2193, 2194,
                            219A, 219B, 21A0, 21A3, 21A6, 21AE, 21CE, 21CF, 21D2,
                            21D4, 21F4, 21F5, 21F6, 21F7, 21F8, 21F9, 21FA, 21FB,
                            21FC, 21FD, 21FE, 21FF, 2200, 2205, 2206, 2207, 220E,
@@ -12993,104 +12995,106 @@
                            2B37, 2B38, 2B39, 2B3A, 2B3B, 2B3C, 2B3D, 2B3E, 2B3F,
                            2B40, 2B41, 2B42, 2B43, 2B44, 2B47, 2B48, 2B49, 2B4A,
                            2B4B, 2B4C
- 537        Po    0 ON   N Dash, Pattern_Syntax, 2053
- 538 MMSP   Zs    0 WS   N White_Space, 205F
- 539 WJ     Cf    0 BN   N 2060
- 540        Cf    0 BN   N Other_Math, 2061, 2062, 2063, 2064
- 541                       Other_Default_Ignorable_Code_Point, 2065, FFF0, FFF1,
+ 539        Po    0 ON   N Dash, Pattern_Syntax, 2053
+ 540 MMSP   Zs    0 WS   N White_Space, 205F
+ 541 WJ     Cf    0 BN   N 2060
+ 542        Cf    0 BN   N Other_Math, 2061, 2062, 2063, 2064
+ 543                       Other_Default_Ignorable_Code_Point, 2065, FFF0, FFF1,
                            FFF2, FFF3, FFF4, FFF5, FFF6, FFF7, FFF8
- 542 LRI    Cf    0 LRI  N Bidi_Control, 2066
- 543 RLI    Cf    0 RLI  N Bidi_Control, 2067
- 544 FSI    Cf    0 FSI  N Bidi_Control, 2068
- 545 PDI    Cf    0 PDI  N Bidi_Control, 2069
- 546        Cf    0 BN   N Deprecated, 206A, 206B, 206C, 206D, 206E, 206F
- 547        No    0 EN   N 0, 2070, 2080, 1F100, 1F101
- 548        No    0 EN   N 4, 2074, 2084, 248B, 102E4, 1F105
- 549        No    0 EN   N 5, 2075, 2085, 248C, 102E5, 1F106
- 550        No    0 EN   N 6, 2076, 2086, 248D, 102E6, 1F107
- 551        No    0 EN   N 7, 2077, 2087, 248E, 102E7, 1F108
- 552        No    0 EN   N 8, 2078, 2088, 248F, 102E8, 1F109
- 553        No    0 EN   N 9, 2079, 2089, 2490, 102E9, 1F10A
- 554        Sm    0 ES   N 207A, 208A, FB29, FE62, FF0B
- 555        Sm    0 ES   N Dash, 207B, 208B
- 556        Ps    0 ON   Y Other_Math, 207D, 208D
- 557        Pe    0 ON   Y Other_Math, 207E, 208E
- 558        No    0 EN   N 1, 2081, 2488, 102E1, 1F102
- 559        No    0 EN   N 2, 2082, 2489, 102E2, 1F103
- 560        No    0 EN   N 3, 2083, 248A, 102E3, 1F104
- 561        Mn  230 NSM  N Other_Math, 20D0, 20D1, 20D4, 20D5, 20D6, 20D7, 20DB,
+ 544 LRI    Cf    0 LRI  N Bidi_Control, 2066
+ 545 RLI    Cf    0 RLI  N Bidi_Control, 2067
+ 546 FSI    Cf    0 FSI  N Bidi_Control, 2068
+ 547 PDI    Cf    0 PDI  N Bidi_Control, 2069
+ 548        Cf    0 BN   N Deprecated, 206A, 206B, 206C, 206D, 206E, 206F
+ 549        No    0 EN   N 0, 2070, 2080, 1F100, 1F101
+ 550        No    0 EN   N 4, 2074, 2084, 248B, 102E4, 1F105
+ 551        No    0 EN   N 5, 2075, 2085, 248C, 102E5, 1F106
+ 552        No    0 EN   N 6, 2076, 2086, 248D, 102E6, 1F107
+ 553        No    0 EN   N 7, 2077, 2087, 248E, 102E7, 1F108
+ 554        No    0 EN   N 8, 2078, 2088, 248F, 102E8, 1F109
+ 555        No    0 EN   N 9, 2079, 2089, 2490, 102E9, 1F10A
+ 556        Sm    0 ES   N 207A, 208A, FB29, FE62, FF0B
+ 557        Sm    0 ES   N Dash, 207B, 208B
+ 558        Ps    0 ON   Y Other_Math, 207D, 208D
+ 559        Pe    0 ON   Y Other_Math, 207E, 208E
+ 560        No    0 EN   N 1, 2081, 2488, 102E1, 1F102
+ 561        No    0 EN   N 2, 2082, 2489, 102E2, 1F103
+ 562        No    0 EN   N 3, 2083, 248A, 102E3, 1F104
+ 563        Sc    0 ET   N &euro;, 20AC
+ 564        Mn  230 NSM  N Other_Math, 20D0, 20D1, 20D4, 20D5, 20D6, 20D7, 20DB,
                            20DC, 20E1
- 562        Mn    1 NSM  N Other_Math, 20D2, 20D3, 20D8, 20D9, 20DA, 20E5, 20E6,
+ 565        Mn    1 NSM  N Other_Math, 20D2, 20D3, 20D8, 20D9, 20DA, 20E5, 20E6,
                            20EB
- 563        Mn    1 NSM  N 20EA, 10A39
- 564        Mn  220 NSM  N Other_Math, 20EC, 20ED, 20EE, 20EF
- 565        Sm    0 ON   N Other_ID_Start, 2118
- 566        So    0 ON   N Other_Math, 2129
- 567        So    0 ET   N Other_ID_Start, 212E
- 568        Lo    0 L    N Other_Math, 2135, 2136, 2137, 2138
- 569        Sm    0 ON   Y 2140, FE64, FE65, FF1C, FF1E, 1D6DB, 1D715, 1D74F,
+ 566        Mn    1 NSM  N 20EA, 10A39
+ 567        Mn  220 NSM  N Other_Math, 20EC, 20ED, 20EE, 20EF
+ 568        Sm    0 ON   N Other_ID_Start, 2118
+ 569        So    0 ON   N &trade;, 2122
+ 570        So    0 ON   N Other_Math, 2129
+ 571        So    0 ET   N Other_ID_Start, 212E
+ 572        Lo    0 L    N Other_Math, 2135, 2136, 2137, 2138
+ 573        Sm    0 ON   Y 2140, FE64, FE65, FF1C, FF1E, 1D6DB, 1D715, 1D74F,
                            1D789, 1D7C3
- 570        Ll    0 L    N Other_Math, Soft_Dotted, 2148, 2149, 1D422, 1D423,
+ 574        Ll    0 L    N Other_Math, Soft_Dotted, 2148, 2149, 1D422, 1D423,
                            1D456, 1D457, 1D48A, 1D48B, 1D4BE, 1D4BF, 1D4F2,
                            1D4F3, 1D526, 1D527, 1D55A, 1D55B, 1D58E, 1D58F,
                            1D5C2, 1D5C3, 1D5F6, 1D5F7, 1D62A, 1D62B, 1D65E,
                            1D65F, 1D692, 1D693
- 571        No    0 ON   N 1/7, 2150
- 572        No    0 ON   N 1/9, 2151
- 573        No    0 ON   N 1/10, 2152
- 574        No    0 ON   N 1/3, 2153
- 575        No    0 ON   N 2/3, 2154, 10177
- 576        No    0 ON   N 1/5, 2155
- 577        No    0 ON   N 2/5, 2156
- 578        No    0 ON   N 3/5, 2157
- 579        No    0 ON   N 4/5, 2158
- 580        No    0 ON   N 1/6, 2159
- 581        No    0 ON   N 5/6, 215A
- 582        No    0 ON   N 1/8, 215B
- 583        No    0 ON   N 3/8, 215C
- 584        No    0 ON   N 5/8, 215D
- 585        No    0 ON   N 7/8, 215E
- 586        Nl    0 L    N 1, Other_Uppercase, 2160
- 587        Nl    0 L    N 2, Other_Uppercase, 2161
- 588        Nl    0 L    N 3, Other_Uppercase, 2162
- 589        Nl    0 L    N 4, Other_Uppercase, 2163
- 590        Nl    0 L    N 5, Other_Uppercase, 2164
- 591        Nl    0 L    N 6, Other_Uppercase, 2165
- 592        Nl    0 L    N 7, Other_Uppercase, 2166
- 593        Nl    0 L    N 8, Other_Uppercase, 2167
- 594        Nl    0 L    N 9, Other_Uppercase, 2168
- 595        Nl    0 L    N 10, Other_Uppercase, 2169
- 596        Nl    0 L    N 11, Other_Uppercase, 216A
- 597        Nl    0 L    N 12, Other_Uppercase, 216B
- 598        Nl    0 L    N 50, Other_Uppercase, 216C
- 599        Nl    0 L    N 100, Other_Uppercase, 216D
- 600        Nl    0 L    N 500, Other_Uppercase, 216E
- 601        Nl    0 L    N 1000, Other_Uppercase, 216F
- 602        Nl    0 L    N 1, Other_Lowercase, 2170
- 603        Nl    0 L    N 2, Other_Lowercase, 2171
- 604        Nl    0 L    N 3, Other_Lowercase, 2172
- 605        Nl    0 L    N 4, Other_Lowercase, 2173
- 606        Nl    0 L    N 5, Other_Lowercase, 2174
- 607        Nl    0 L    N 6, Other_Lowercase, 2175
- 608        Nl    0 L    N 7, Other_Lowercase, 2176
- 609        Nl    0 L    N 8, Other_Lowercase, 2177
- 610        Nl    0 L    N 9, Other_Lowercase, 2178
- 611        Nl    0 L    N 10, Other_Lowercase, 2179
- 612        Nl    0 L    N 11, Other_Lowercase, 217A
- 613        Nl    0 L    N 12, Other_Lowercase, 217B
- 614        Nl    0 L    N 50, Other_Lowercase, 217C
- 615        Nl    0 L    N 100, Other_Lowercase, 217D
- 616        Nl    0 L    N 500, Other_Lowercase, 217E
- 617        Nl    0 L    N 1000, Other_Lowercase, 217F
- 618        Nl    0 L    N 1000, 2180
- 619        Nl    0 L    N 5000, 2181
- 620        Nl    0 L    N 10000, 2182
- 621        Nl    0 L    N 6, 2185, A6EB, 12404, 1240B, 12411, 1241A, 12428,
+ 575        No    0 ON   N 1/7, 2150
+ 576        No    0 ON   N 1/9, 2151
+ 577        No    0 ON   N 1/10, 2152
+ 578        No    0 ON   N 1/3, 2153
+ 579        No    0 ON   N 2/3, 2154, 10177
+ 580        No    0 ON   N 1/5, 2155
+ 581        No    0 ON   N 2/5, 2156
+ 582        No    0 ON   N 3/5, 2157
+ 583        No    0 ON   N 4/5, 2158
+ 584        No    0 ON   N 1/6, 2159
+ 585        No    0 ON   N 5/6, 215A
+ 586        No    0 ON   N 1/8, 215B
+ 587        No    0 ON   N 3/8, 215C
+ 588        No    0 ON   N 5/8, 215D
+ 589        No    0 ON   N 7/8, 215E
+ 590        Nl    0 L    N 1, Other_Uppercase, 2160
+ 591        Nl    0 L    N 2, Other_Uppercase, 2161
+ 592        Nl    0 L    N 3, Other_Uppercase, 2162
+ 593        Nl    0 L    N 4, Other_Uppercase, 2163
+ 594        Nl    0 L    N 5, Other_Uppercase, 2164
+ 595        Nl    0 L    N 6, Other_Uppercase, 2165
+ 596        Nl    0 L    N 7, Other_Uppercase, 2166
+ 597        Nl    0 L    N 8, Other_Uppercase, 2167
+ 598        Nl    0 L    N 9, Other_Uppercase, 2168
+ 599        Nl    0 L    N 10, Other_Uppercase, 2169
+ 600        Nl    0 L    N 11, Other_Uppercase, 216A
+ 601        Nl    0 L    N 12, Other_Uppercase, 216B
+ 602        Nl    0 L    N 50, Other_Uppercase, 216C
+ 603        Nl    0 L    N 100, Other_Uppercase, 216D
+ 604        Nl    0 L    N 500, Other_Uppercase, 216E
+ 605        Nl    0 L    N 1000, Other_Uppercase, 216F
+ 606        Nl    0 L    N 1, Other_Lowercase, 2170
+ 607        Nl    0 L    N 2, Other_Lowercase, 2171
+ 608        Nl    0 L    N 3, Other_Lowercase, 2172
+ 609        Nl    0 L    N 4, Other_Lowercase, 2173
+ 610        Nl    0 L    N 5, Other_Lowercase, 2174
+ 611        Nl    0 L    N 6, Other_Lowercase, 2175
+ 612        Nl    0 L    N 7, Other_Lowercase, 2176
+ 613        Nl    0 L    N 8, Other_Lowercase, 2177
+ 614        Nl    0 L    N 9, Other_Lowercase, 2178
+ 615        Nl    0 L    N 10, Other_Lowercase, 2179
+ 616        Nl    0 L    N 11, Other_Lowercase, 217A
+ 617        Nl    0 L    N 12, Other_Lowercase, 217B
+ 618        Nl    0 L    N 50, Other_Lowercase, 217C
+ 619        Nl    0 L    N 100, Other_Lowercase, 217D
+ 620        Nl    0 L    N 500, Other_Lowercase, 217E
+ 621        Nl    0 L    N 1000, Other_Lowercase, 217F
+ 622        Nl    0 L    N 1000, 2180
+ 623        Nl    0 L    N 5000, 2181
+ 624        Nl    0 L    N 10000, 2182
+ 625        Nl    0 L    N 6, 2185, A6EB, 12404, 1240B, 12411, 1241A, 12428,
                            12440, 1244E, 1246B
- 622        Nl    0 L    N 50, 2186, 12468
- 623        Nl    0 L    N 50000, 2187
- 624        Nl    0 L    N 100000, 2188
- 625        So    0 ON   N Other_Math, Pattern_Syntax, 2195, 2196, 2197, 2198,
+ 626        Nl    0 L    N 50, 2186, 12468
+ 627        Nl    0 L    N 50000, 2187
+ 628        Nl    0 L    N 100000, 2188
+ 629        So    0 ON   N Other_Math, Pattern_Syntax, 2195, 2196, 2197, 2198,
                            2199, 219C, 219D, 219E, 219F, 21A1, 21A2, 21A4, 21A5,
                            21A7, 21A9, 21AA, 21AB, 21AC, 21AD, 21B0, 21B1, 21B6,
                            21B7, 21BC, 21BD, 21BE, 21BF, 21C0, 21C1, 21C2, 21C3,
@@ -13102,7 +13106,7 @@
                            25C7, 25CA, 25CB, 25CF, 25D0, 25D1, 25D2, 25D3, 25E2,
                            25E4, 25E7, 25E8, 25E9, 25EA, 25EB, 25EC, 2605, 2606,
                            2640, 2642, 2660, 2661, 2662, 2663, 266D, 266E
- 626        So    0 ON   N Pattern_Syntax, 21A8, 21AF, 21B2, 21B3, 21B4, 21B5,
+ 630        So    0 ON   N Pattern_Syntax, 21A8, 21AF, 21B2, 21B3, 21B4, 21B5,
                            21B8, 21B9, 21BA, 21BB, 21DC, 21DE, 21DF, 21E0, 21E1,
                            21E2, 21E3, 21E6, 21E7, 21E8, 21E9, 21EA, 21EB, 21EC,
                            21ED, 21EE, 21EF, 21F0, 21F1, 21F2, 21F3, 2300, 2301,
@@ -13220,62 +13224,64 @@
                            2BEB, 2BEC, 2BED, 2BEE, 2BEF, 2BF0, 2BF1, 2BF2, 2BF3,
                            2BF4, 2BF5, 2BF6, 2BF7, 2BF8, 2BF9, 2BFA, 2BFB, 2BFC,
                            2BFD, 2BFF, 2E50, 2E51, 3012, 3013, 3020
- 627        Sm    0 ON   Y Pattern_Syntax, 2201, 2202, 2203, 2204, 2208, 2209,
+ 631        Sm    0 ON   Y Pattern_Syntax, 2201, 2202, 2203, 2204, 2208, 2209,
                            220A, 220B, 220C, 220D, 2211, 2215, 2216, 221A, 221B,
                            221C, 221D, 221F, 2220, 2221, 2222, 2224, 2226, 222B,
                            222C, 222D, 222E, 222F, 2230, 2231, 2232, 2233, 2239,
                            223B, 223C, 223D, 223E, 223F, 2240, 2241, 2242, 2243,
-                           2244, 2245, 2246, 2247, 2248, 2249, 224A, 224B, 224C,
-                           2252, 2253, 2254, 2255, 225F, 2260, 2262, 2264, 2265,
-                           2266, 2267, 2268, 2269, 226A, 226B, 226E, 226F, 2270,
-                           2271, 2272, 2273, 2274, 2275, 2276, 2277, 2278, 2279,
-                           227A, 227B, 227C, 227D, 227E, 227F, 2280, 2281, 2282,
-                           2283, 2284, 2285, 2286, 2287, 2288, 2289, 228A, 228B,
-                           228C, 228F, 2290, 2291, 2292, 2298, 22A2, 22A3, 22A6,
-                           22A7, 22A8, 22A9, 22AA, 22AB, 22AC, 22AD, 22AE, 22AF,
-                           22B0, 22B1, 22B2, 22B3, 22B4, 22B5, 22B6, 22B7, 22B8,
-                           22BE, 22BF, 22C9, 22CA, 22CB, 22CC, 22CD, 22D0, 22D1,
-                           22D6, 22D7, 22D8, 22D9, 22DA, 22DB, 22DC, 22DD, 22DE,
-                           22DF, 22E0, 22E1, 22E2, 22E3, 22E4, 22E5, 22E6, 22E7,
-                           22E8, 22E9, 22EA, 22EB, 22EC, 22ED, 22F0, 22F1, 22F2,
-                           22F3, 22F4, 22F5, 22F6, 22F7, 22F8, 22F9, 22FA, 22FB,
-                           22FC, 22FD, 22FE, 22FF, 2320, 2321, 27C0, 27C3, 27C4,
-                           27C8, 27C9, 27CB, 27CC, 27CD, 27D3, 27D4, 27D5, 27D6,
-                           27DC, 27DD, 27DE, 27E2, 27E3, 27E4, 27E5, 299B, 299C,
-                           299D, 299E, 299F, 29A0, 29A2, 29A3, 29A4, 29A5, 29A6,
-                           29A7, 29A8, 29A9, 29AA, 29AB, 29AC, 29AD, 29AE, 29AF,
-                           29B8, 29C0, 29C1, 29C2, 29C3, 29C4, 29C5, 29C9, 29CE,
-                           29CF, 29D0, 29D1, 29D2, 29D4, 29D5, 29DC, 29E1, 29E3,
-                           29E4, 29E5, 29E8, 29E9, 29F4, 29F5, 29F6, 29F7, 29F8,
-                           29F9, 2A0A, 2A0B, 2A0C, 2A0D, 2A0E, 2A0F, 2A10, 2A11,
-                           2A12, 2A13, 2A14, 2A15, 2A16, 2A17, 2A18, 2A19, 2A1A,
-                           2A1B, 2A1C, 2A1E, 2A1F, 2A20, 2A21, 2A24, 2A26, 2A29,
-                           2A2B, 2A2C, 2A2D, 2A2E, 2A34, 2A35, 2A3C, 2A3D, 2A3E,
-                           2A57, 2A58, 2A64, 2A65, 2A6A, 2A6B, 2A6C, 2A6D, 2A6F,
-                           2A70, 2A73, 2A74, 2A79, 2A7A, 2A7B, 2A7C, 2A7D, 2A7E,
-                           2A7F, 2A80, 2A81, 2A82, 2A83, 2A84, 2A85, 2A86, 2A87,
-                           2A88, 2A89, 2A8A, 2A8B, 2A8C, 2A8D, 2A8E, 2A8F, 2A90,
-                           2A91, 2A92, 2A93, 2A94, 2A95, 2A96, 2A97, 2A98, 2A99,
-                           2A9A, 2A9B, 2A9C, 2A9D, 2A9E, 2A9F, 2AA0, 2AA1, 2AA2,
-                           2AA3, 2AA6, 2AA7, 2AA8, 2AA9, 2AAA, 2AAB, 2AAC, 2AAD,
-                           2AAF, 2AB0, 2AB1, 2AB2, 2AB3, 2AB4, 2AB5, 2AB6, 2AB7,
-                           2AB8, 2AB9, 2ABA, 2ABB, 2ABC, 2ABD, 2ABE, 2ABF, 2AC0,
-                           2AC1, 2AC2, 2AC3, 2AC4, 2AC5, 2AC6, 2AC7, 2AC8, 2AC9,
-                           2ACA, 2ACB, 2ACC, 2ACD, 2ACE, 2ACF, 2AD0, 2AD1, 2AD2,
-                           2AD3, 2AD4, 2AD5, 2AD6, 2ADC, 2ADE, 2AE2, 2AE3, 2AE4,
-                           2AE5, 2AE6, 2AEC, 2AED, 2AEE, 2AF3, 2AF7, 2AF8, 2AF9,
-                           2AFA, 2AFB, 2AFD
- 628        Sm    0 ES   N Dash, Pattern_Syntax, 2212
- 629        Sm    0 ET   N Pattern_Syntax, 2213
- 630        Ps    0 ON   Y Other_Math, Pattern_Syntax, 2308, 230A, 27C5, 27E6,
+                           2244, 2245, 2246, 2247, 2249, 224A, 224B, 224C, 2252,
+                           2253, 2254, 2255, 225F, 2262, 2264, 2265, 2266, 2267,
+                           2268, 2269, 226A, 226B, 226E, 226F, 2270, 2271, 2272,
+                           2273, 2274, 2275, 2276, 2277, 2278, 2279, 227A, 227B,
+                           227C, 227D, 227E, 227F, 2280, 2281, 2282, 2283, 2284,
+                           2285, 2286, 2287, 2288, 2289, 228A, 228B, 228C, 228F,
+                           2290, 2291, 2292, 2298, 22A2, 22A3, 22A6, 22A7, 22A8,
+                           22A9, 22AA, 22AB, 22AC, 22AD, 22AE, 22AF, 22B0, 22B1,
+                           22B2, 22B3, 22B4, 22B5, 22B6, 22B7, 22B8, 22BE, 22BF,
+                           22C9, 22CA, 22CB, 22CC, 22CD, 22D0, 22D1, 22D6, 22D7,
+                           22D8, 22D9, 22DA, 22DB, 22DC, 22DD, 22DE, 22DF, 22E0,
+                           22E1, 22E2, 22E3, 22E4, 22E5, 22E6, 22E7, 22E8, 22E9,
+                           22EA, 22EB, 22EC, 22ED, 22F0, 22F1, 22F2, 22F3, 22F4,
+                           22F5, 22F6, 22F7, 22F8, 22F9, 22FA, 22FB, 22FC, 22FD,
+                           22FE, 22FF, 2320, 2321, 27C0, 27C3, 27C4, 27C8, 27C9,
+                           27CB, 27CC, 27CD, 27D3, 27D4, 27D5, 27D6, 27DC, 27DD,
+                           27DE, 27E2, 27E3, 27E4, 27E5, 299B, 299C, 299D, 299E,
+                           299F, 29A0, 29A2, 29A3, 29A4, 29A5, 29A6, 29A7, 29A8,
+                           29A9, 29AA, 29AB, 29AC, 29AD, 29AE, 29AF, 29B8, 29C0,
+                           29C1, 29C2, 29C3, 29C4, 29C5, 29C9, 29CE, 29CF, 29D0,
+                           29D1, 29D2, 29D4, 29D5, 29DC, 29E1, 29E3, 29E4, 29E5,
+                           29E8, 29E9, 29F4, 29F5, 29F6, 29F7, 29F8, 29F9, 2A0A,
+                           2A0B, 2A0C, 2A0D, 2A0E, 2A0F, 2A10, 2A11, 2A12, 2A13,
+                           2A14, 2A15, 2A16, 2A17, 2A18, 2A19, 2A1A, 2A1B, 2A1C,
+                           2A1E, 2A1F, 2A20, 2A21, 2A24, 2A26, 2A29, 2A2B, 2A2C,
+                           2A2D, 2A2E, 2A34, 2A35, 2A3C, 2A3D, 2A3E, 2A57, 2A58,
+                           2A64, 2A65, 2A6A, 2A6B, 2A6C, 2A6D, 2A6F, 2A70, 2A73,
+                           2A74, 2A79, 2A7A, 2A7B, 2A7C, 2A7D, 2A7E, 2A7F, 2A80,
+                           2A81, 2A82, 2A83, 2A84, 2A85, 2A86, 2A87, 2A88, 2A89,
+                           2A8A, 2A8B, 2A8C, 2A8D, 2A8E, 2A8F, 2A90, 2A91, 2A92,
+                           2A93, 2A94, 2A95, 2A96, 2A97, 2A98, 2A99, 2A9A, 2A9B,
+                           2A9C, 2A9D, 2A9E, 2A9F, 2AA0, 2AA1, 2AA2, 2AA3, 2AA6,
+                           2AA7, 2AA8, 2AA9, 2AAA, 2AAB, 2AAC, 2AAD, 2AAF, 2AB0,
+                           2AB1, 2AB2, 2AB3, 2AB4, 2AB5, 2AB6, 2AB7, 2AB8, 2AB9,
+                           2ABA, 2ABB, 2ABC, 2ABD, 2ABE, 2ABF, 2AC0, 2AC1, 2AC2,
+                           2AC3, 2AC4, 2AC5, 2AC6, 2AC7, 2AC8, 2AC9, 2ACA, 2ACB,
+                           2ACC, 2ACD, 2ACE, 2ACF, 2AD0, 2AD1, 2AD2, 2AD3, 2AD4,
+                           2AD5, 2AD6, 2ADC, 2ADE, 2AE2, 2AE3, 2AE4, 2AE5, 2AE6,
+                           2AEC, 2AED, 2AEE, 2AF3, 2AF7, 2AF8, 2AF9, 2AFA, 2AFB,
+                           2AFD
+ 632        Sm    0 ES   N Dash, Pattern_Syntax, 2212
+ 633        Sm    0 ET   N Pattern_Syntax, 2213
+ 634        Sm    0 ON   Y &asymp;, Pattern_Syntax, 2248
+ 635        Sm    0 ON   Y &ne;, Pattern_Syntax, 2260
+ 636        Ps    0 ON   Y Other_Math, Pattern_Syntax, 2308, 230A, 27C5, 27E6,
                            27E8, 27EA, 27EC, 27EE, 2983, 2985, 2987, 2989, 298B,
                            298D, 298F, 2991, 2993, 2995, 2997, 29D8, 29DA, 29FC
- 631        Pe    0 ON   Y Other_Math, Pattern_Syntax, 2309, 230B, 27C6, 27E7,
+ 637        Pe    0 ON   Y Other_Math, Pattern_Syntax, 2309, 230B, 27C6, 27E7,
                            27E9, 27EB, 27ED, 27EF, 2984, 2986, 2988, 298A, 298C,
                            298E, 2990, 2992, 2994, 2996, 2998, 29D9, 29DB, 29FD
- 632        Ps    0 ON   Y Deprecated, Pattern_Syntax, 2329
- 633        Pe    0 ON   Y Deprecated, Pattern_Syntax, 232A
- 634        So    0 L    N Pattern_Syntax, 2336, 2337, 2338, 2339, 233A, 233B,
+ 638        Ps    0 ON   Y Deprecated, Pattern_Syntax, 2329
+ 639        Pe    0 ON   Y Deprecated, Pattern_Syntax, 232A
+ 640        So    0 L    N Pattern_Syntax, 2336, 2337, 2338, 2339, 233A, 233B,
                            233C, 233D, 233E, 233F, 2340, 2341, 2342, 2343, 2344,
                            2345, 2346, 2347, 2348, 2349, 234A, 234B, 234C, 234D,
                            234E, 234F, 2350, 2351, 2352, 2353, 2354, 2355, 2356,
@@ -13312,7 +13318,7 @@
                            28E8, 28E9, 28EA, 28EB, 28EC, 28ED, 28EE, 28EF, 28F0,
                            28F1, 28F2, 28F3, 28F4, 28F5, 28F6, 28F7, 28F8, 28F9,
                            28FA, 28FB, 28FC, 28FD, 28FE, 28FF
- 635                       Pattern_Syntax, 2427, 2428, 2429, 242A, 242B, 242C,
+ 641                       Pattern_Syntax, 2427, 2428, 2429, 242A, 242B, 242C,
                            242D, 242E, 242F, 2430, 2431, 2432, 2433, 2434, 2435,
                            2436, 2437, 2438, 2439, 243A, 243B, 243C, 243D, 243E,
                            243F, 244B, 244C, 244D, 244E, 244F, 2450, 2451, 2452,
@@ -13323,29 +13329,29 @@
                            2E67, 2E68, 2E69, 2E6A, 2E6B, 2E6C, 2E6D, 2E6E, 2E6F,
                            2E70, 2E71, 2E72, 2E73, 2E74, 2E75, 2E76, 2E77, 2E78,
                            2E79, 2E7A, 2E7B, 2E7C, 2E7D, 2E7E, 2E7F
- 636        No    0 ON   N 10, 2469, 247D, 24FE, 277F, 2789, 2793, 1105B
- 637        No    0 ON   N 11, 246A, 247E, 24EB
- 638        No    0 ON   N 12, 246B, 247F, 24EC
- 639        No    0 ON   N 13, 246C, 2480, 24ED
- 640        No    0 ON   N 14, 246D, 2481, 24EE
- 641        No    0 ON   N 15, 246E, 2482, 24EF
- 642        No    0 ON   N 16, 246F, 2483, 24F0
- 643        No    0 ON   N 17, 2470, 2484, 24F1
- 644        No    0 ON   N 18, 2471, 2485, 24F2
- 645        No    0 ON   N 19, 2472, 2486, 24F3
- 646        No    0 ON   N 20, 2473, 2487, 24F4, 1105C
- 647        No    0 EN   N 10, 2491, 102EA
- 648        No    0 EN   N 11, 2492
- 649        No    0 EN   N 12, 2493
- 650        No    0 EN   N 13, 2494
- 651        No    0 EN   N 14, 2495
- 652        No    0 EN   N 15, 2496
- 653        No    0 EN   N 16, 2497
- 654        No    0 EN   N 17, 2498
- 655        No    0 EN   N 18, 2499
- 656        No    0 EN   N 19, 249A
- 657        No    0 EN   N 20, 249B, 102EB
- 658        So    0 L    N Other_Alphabetic, Other_Uppercase, 24B6, 24B7, 24B8,
+ 642        No    0 ON   N 10, 2469, 247D, 24FE, 277F, 2789, 2793, 1105B
+ 643        No    0 ON   N 11, 246A, 247E, 24EB
+ 644        No    0 ON   N 12, 246B, 247F, 24EC
+ 645        No    0 ON   N 13, 246C, 2480, 24ED
+ 646        No    0 ON   N 14, 246D, 2481, 24EE
+ 647        No    0 ON   N 15, 246E, 2482, 24EF
+ 648        No    0 ON   N 16, 246F, 2483, 24F0
+ 649        No    0 ON   N 17, 2470, 2484, 24F1
+ 650        No    0 ON   N 18, 2471, 2485, 24F2
+ 651        No    0 ON   N 19, 2472, 2486, 24F3
+ 652        No    0 ON   N 20, 2473, 2487, 24F4, 1105C
+ 653        No    0 EN   N 10, 2491, 102EA
+ 654        No    0 EN   N 11, 2492
+ 655        No    0 EN   N 12, 2493
+ 656        No    0 EN   N 13, 2494
+ 657        No    0 EN   N 14, 2495
+ 658        No    0 EN   N 15, 2496
+ 659        No    0 EN   N 16, 2497
+ 660        No    0 EN   N 17, 2498
+ 661        No    0 EN   N 18, 2499
+ 662        No    0 EN   N 19, 249A
+ 663        No    0 EN   N 20, 249B, 102EB
+ 664        So    0 L    N Other_Alphabetic, Other_Uppercase, 24B6, 24B7, 24B8,
                            24B9, 24BA, 24BB, 24BC, 24BD, 24BE, 24BF, 24C0, 24C1,
                            24C2, 24C3, 24C4, 24C5, 24C6, 24C7, 24C8, 24C9, 24CA,
                            24CB, 24CC, 24CD, 24CE, 24CF, 1F130, 1F131, 1F132,
@@ -13360,18 +13366,18 @@
                            1F177, 1F178, 1F179, 1F17A, 1F17B, 1F17C, 1F17D,
                            1F17E, 1F17F, 1F180, 1F181, 1F182, 1F183, 1F184,
                            1F185, 1F186, 1F187, 1F188, 1F189
- 659        So    0 L    N Other_Alphabetic, Other_Lowercase, 24D0, 24D1, 24D2,
+ 665        So    0 L    N Other_Alphabetic, Other_Lowercase, 24D0, 24D1, 24D2,
                            24D3, 24D4, 24D5, 24D6, 24D7, 24D8, 24D9, 24DA, 24DB,
                            24DC, 24DD, 24DE, 24DF, 24E0, 24E1, 24E2, 24E3, 24E4,
                            24E5, 24E6, 24E7, 24E8, 24E9
- 660        So    0 ON   Y Pattern_Syntax, 2BFE
- 661        No    0 ON   N 1/2, 2CFD, 10175, 10176
- 662        Pi    0 ON   Y Pattern_Syntax, 2E02, 2E04, 2E09, 2E0C, 2E1C, 2E20
- 663        Pf    0 ON   Y Pattern_Syntax, 2E03, 2E05, 2E0A, 2E0D, 2E1D, 2E21
- 664        Lm    0 ON   N Diacritic, Pattern_Syntax, 2E2F
- 665        Po    0 ON   N Pattern_Syntax, Terminal_Punctuation, 2E41, 2E4C,
+ 666        So    0 ON   Y Pattern_Syntax, 2BFE
+ 667        No    0 ON   N 1/2, 2CFD, 10175, 10176
+ 668        Pi    0 ON   Y Pattern_Syntax, 2E02, 2E04, 2E09, 2E0C, 2E1C, 2E20
+ 669        Pf    0 ON   Y Pattern_Syntax, 2E03, 2E05, 2E0A, 2E0D, 2E1D, 2E21
+ 670        Lm    0 ON   N Diacritic, Pattern_Syntax, 2E2F
+ 671        Po    0 ON   N Pattern_Syntax, Terminal_Punctuation, 2E41, 2E4C,
                            2E4E, 2E4F, 3001
- 666        So    0 ON   N Radical, 2E80, 2E81, 2E82, 2E83, 2E84, 2E85, 2E86,
+ 672        So    0 ON   N Radical, 2E80, 2E81, 2E82, 2E83, 2E84, 2E85, 2E86,
                            2E87, 2E88, 2E89, 2E8A, 2E8B, 2E8C, 2E8D, 2E8E, 2E8F,
                            2E90, 2E91, 2E92, 2E93, 2E94, 2E95, 2E96, 2E97, 2E98,
                            2E99, 2E9B, 2E9C, 2E9D, 2E9E, 2E9F, 2EA0, 2EA1, 2EA2,
@@ -13408,10 +13414,10 @@
                            2FBD, 2FBE, 2FBF, 2FC0, 2FC1, 2FC2, 2FC3, 2FC4, 2FC5,
                            2FC6, 2FC7, 2FC8, 2FC9, 2FCA, 2FCB, 2FCC, 2FCD, 2FCE,
                            2FCF, 2FD0, 2FD1, 2FD2, 2FD3, 2FD4, 2FD5
- 667        So    0 ON   N IDS_Binary_Operator, 2FF0, 2FF1, 2FF4, 2FF5, 2FF6,
+ 673        So    0 ON   N IDS_Binary_Operator, 2FF0, 2FF1, 2FF4, 2FF5, 2FF6,
                            2FF7, 2FF8, 2FF9, 2FFA, 2FFB
- 668        So    0 ON   N IDS_Trinary_Operator, 2FF2, 2FF3
- 669        Lo    0 L    N Ideographic, 3006, F900, F901, F902, F903, F904,
+ 674        So    0 ON   N IDS_Trinary_Operator, 2FF2, 2FF3
+ 675        Lo    0 L    N Ideographic, 3006, F900, F901, F902, F903, F904,
                            F905, F906, F907, F908, F909, F90A, F90B, F90C, F90D,
                            F90E, F90F, F910, F911, F912, F913, F914, F915, F916,
                            F917, F918, F919, F91A, F91B, F91C, F91D, F91E, F91F,
@@ -13774,80 +13780,80 @@
                            2FA0F, 2FA10, 2FA11, 2FA12, 2FA13, 2FA14, 2FA15,
                            2FA16, 2FA17, 2FA18, 2FA19, 2FA1A, 2FA1B, 2FA1C,
                            2FA1D
- 670        Nl    0 L    N 0, Ideographic, 3007
- 671        Ps    0 ON   Y Pattern_Syntax, Quotation_Mark, 300C, 300E
- 672        Pe    0 ON   Y Pattern_Syntax, Quotation_Mark, 300D, 300F
- 673        Pe    0 ON   N Pattern_Syntax, Quotation_Mark, 301E, 301F
- 674        Nl    0 L    N 1, Ideographic, 3021
- 675        Nl    0 L    N 2, Ideographic, 3022
- 676        Nl    0 L    N 3, Ideographic, 3023
- 677        Nl    0 L    N 4, Ideographic, 3024
- 678        Nl    0 L    N 5, Ideographic, 3025
- 679        Nl    0 L    N 6, Ideographic, 3026
- 680        Nl    0 L    N 7, Ideographic, 3027
- 681        Nl    0 L    N 8, Ideographic, 3028
- 682        Nl    0 L    N 9, Ideographic, 3029
- 683        Mn  218 NSM  N Diacritic, 302A
- 684        Mc  224 L    N Diacritic, Other_Grapheme_Extend, 302E, 302F
- 685        Nl    0 L    N 10, Ideographic, 3038
- 686        Nl    0 L    N 20, Ideographic, 3039
- 687        Nl    0 L    N 30, Ideographic, 303A
- 688        Mn    8 NSM  N Diacritic, 3099, 309A
- 689        Sk    0 ON   N Diacritic, Other_ID_Start, 309B, 309C
- 690        Po    0 ON   N Hyphen, 30FB, FF65
- 691        No    0 L    N 1, 3192, 3220, 3280, 10107, 10320, 111E1, 11C5A,
+ 676        Nl    0 L    N 0, Ideographic, 3007
+ 677        Ps    0 ON   Y Pattern_Syntax, Quotation_Mark, 300C, 300E
+ 678        Pe    0 ON   Y Pattern_Syntax, Quotation_Mark, 300D, 300F
+ 679        Pe    0 ON   N Pattern_Syntax, Quotation_Mark, 301E, 301F
+ 680        Nl    0 L    N 1, Ideographic, 3021
+ 681        Nl    0 L    N 2, Ideographic, 3022
+ 682        Nl    0 L    N 3, Ideographic, 3023
+ 683        Nl    0 L    N 4, Ideographic, 3024
+ 684        Nl    0 L    N 5, Ideographic, 3025
+ 685        Nl    0 L    N 6, Ideographic, 3026
+ 686        Nl    0 L    N 7, Ideographic, 3027
+ 687        Nl    0 L    N 8, Ideographic, 3028
+ 688        Nl    0 L    N 9, Ideographic, 3029
+ 689        Mn  218 NSM  N Diacritic, 302A
+ 690        Mc  224 L    N Diacritic, Other_Grapheme_Extend, 302E, 302F
+ 691        Nl    0 L    N 10, Ideographic, 3038
+ 692        Nl    0 L    N 20, Ideographic, 3039
+ 693        Nl    0 L    N 30, Ideographic, 303A
+ 694        Mn    8 NSM  N Diacritic, 3099, 309A
+ 695        Sk    0 ON   N Diacritic, Other_ID_Start, 309B, 309C
+ 696        Po    0 ON   N Hyphen, 30FB, FF65
+ 697        No    0 L    N 1, 3192, 3220, 3280, 10107, 10320, 111E1, 11C5A,
                            16E81, 16E94, 1D2E1, 1D360, 1D372, 1D377
- 692        No    0 L    N 2, 3193, 3221, 3281, 10108, 111E2, 11C5B, 16E82,
+ 698        No    0 L    N 2, 3193, 3221, 3281, 10108, 111E2, 11C5B, 16E82,
                            16E95, 1D2E2, 1D361, 1D373
- 693        No    0 L    N 3, 3194, 3222, 3282, 10109, 111E3, 11C5C, 16E83,
+ 699        No    0 L    N 3, 3194, 3222, 3282, 10109, 111E3, 11C5C, 16E83,
                            16E96, 1D2E3, 1D362, 1D374
- 694        No    0 L    N 4, 3195, 3223, 3283, 1010A, 111E4, 11C5D, 16E84,
+ 700        No    0 L    N 4, 3195, 3223, 3283, 1010A, 111E4, 11C5D, 16E84,
                            1D2E4, 1D363, 1D375
- 695        No    0 L    N 5, 3224, 3284, 1010B, 10321, 111E5, 11C5E, 16E85,
+ 701        No    0 L    N 5, 3224, 3284, 1010B, 10321, 111E5, 11C5E, 16E85,
                            1D2E5, 1D364, 1D376, 1D378
- 696        No    0 L    N 6, 3225, 3285, 1010C, 111E6, 11C5F, 16E86, 1D2E6,
+ 702        No    0 L    N 6, 3225, 3285, 1010C, 111E6, 11C5F, 16E86, 1D2E6,
                            1D365
- 697        No    0 L    N 7, 3226, 3286, 1010D, 111E7, 11C60, 16E87, 1D2E7,
+ 703        No    0 L    N 7, 3226, 3286, 1010D, 111E7, 11C60, 16E87, 1D2E7,
                            1D366
- 698        No    0 L    N 8, 3227, 3287, 1010E, 111E8, 11C61, 16E88, 1D2E8,
+ 704        No    0 L    N 8, 3227, 3287, 1010E, 111E8, 11C61, 16E88, 1D2E8,
                            1D367
- 699        No    0 L    N 9, 3228, 3288, 1010F, 111E9, 11C62, 16E89, 1D2E9,
+ 705        No    0 L    N 9, 3228, 3288, 1010F, 111E9, 11C62, 16E89, 1D2E9,
                            1D368
- 700        No    0 ON   N 21, 3251
- 701        No    0 ON   N 22, 3252
- 702        No    0 ON   N 23, 3253
- 703        No    0 ON   N 24, 3254
- 704        No    0 ON   N 25, 3255
- 705        No    0 ON   N 26, 3256
- 706        No    0 ON   N 27, 3257
- 707        No    0 ON   N 28, 3258
- 708        No    0 ON   N 29, 3259
- 709        No    0 ON   N 30, 325A, 1105D
- 710        No    0 ON   N 31, 325B
- 711        No    0 ON   N 32, 325C
- 712        No    0 ON   N 33, 325D
- 713        No    0 ON   N 34, 325E
- 714        No    0 ON   N 35, 325F
- 715        No    0 ON   N 36, 32B1
- 716        No    0 ON   N 37, 32B2
- 717        No    0 ON   N 38, 32B3
- 718        No    0 ON   N 39, 32B4
- 719        No    0 ON   N 40, 32B5, 1105E
- 720        No    0 ON   N 41, 32B6
- 721        No    0 ON   N 42, 32B7
- 722        No    0 ON   N 43, 32B8
- 723        No    0 ON   N 44, 32B9
- 724        No    0 ON   N 45, 32BA
- 725        No    0 ON   N 46, 32BB
- 726        No    0 ON   N 47, 32BC
- 727        No    0 ON   N 48, 32BD
- 728        No    0 ON   N 49, 32BE
- 729        No    0 ON   N 50, 32BF, 1105F
- 730        Lo    0 L    N Ideographic, Unified_Ideograph, 3400, 4DBF, 4E00,
+ 706        No    0 ON   N 21, 3251
+ 707        No    0 ON   N 22, 3252
+ 708        No    0 ON   N 23, 3253
+ 709        No    0 ON   N 24, 3254
+ 710        No    0 ON   N 25, 3255
+ 711        No    0 ON   N 26, 3256
+ 712        No    0 ON   N 27, 3257
+ 713        No    0 ON   N 28, 3258
+ 714        No    0 ON   N 29, 3259
+ 715        No    0 ON   N 30, 325A, 1105D
+ 716        No    0 ON   N 31, 325B
+ 717        No    0 ON   N 32, 325C
+ 718        No    0 ON   N 33, 325D
+ 719        No    0 ON   N 34, 325E
+ 720        No    0 ON   N 35, 325F
+ 721        No    0 ON   N 36, 32B1
+ 722        No    0 ON   N 37, 32B2
+ 723        No    0 ON   N 38, 32B3
+ 724        No    0 ON   N 39, 32B4
+ 725        No    0 ON   N 40, 32B5, 1105E
+ 726        No    0 ON   N 41, 32B6
+ 727        No    0 ON   N 42, 32B7
+ 728        No    0 ON   N 43, 32B8
+ 729        No    0 ON   N 44, 32B9
+ 730        No    0 ON   N 45, 32BA
+ 731        No    0 ON   N 46, 32BB
+ 732        No    0 ON   N 47, 32BC
+ 733        No    0 ON   N 48, 32BD
+ 734        No    0 ON   N 49, 32BE
+ 735        No    0 ON   N 50, 32BF, 1105F
+ 736        Lo    0 L    N Ideographic, Unified_Ideograph, 3400, 4DBF, 4E00,
                            9FFC, FA0E, FA0F, FA11, FA13, FA14, FA1F, FA21, FA23,
                            FA24, FA27, FA28, FA29, 20000, 2A6DD, 2A700, 2B734,
                            2B740, 2B81D, 2B820, 2CEA1, 2CEB0, 2EBE0
- 731                       Ideographic, Unified_Ideograph, 3401, 3402, 3403,
+ 737                       Ideographic, Unified_Ideograph, 3401, 3402, 3403,
                            3404, 3405, 3406, 3407, 3408, 3409, 340A, 340B, 340C,
                            340D, 340E, 340F, 3410, 3411, 3412, 3413, 3414, 3415,
                            3416, 3417, 3418, 3419, 341A, 341B, 341C, 341D, 341E,
@@ -25529,232 +25535,232 @@
                            2EBD1, 2EBD2, 2EBD3, 2EBD4, 2EBD5, 2EBD6, 2EBD7,
                            2EBD8, 2EBD9, 2EBDA, 2EBDB, 2EBDC, 2EBDD, 2EBDE,
                            2EBDF
- 732        Nl    0 L    N 1, A6E6, 103D1, 12415, 1241E, 1242C, 12434, 1244F,
+ 738        Nl    0 L    N 1, A6E6, 103D1, 12415, 1241E, 1242C, 12434, 1244F,
                            12458
- 733        Nl    0 L    N 2, A6E7, 103D2, 12400, 12416, 1241F, 12423, 1242D,
+ 739        Nl    0 L    N 2, A6E7, 103D2, 12400, 12416, 1241F, 12423, 1242D,
                            12435, 1244A, 12450, 12456, 12459
- 734        Nl    0 L    N 3, A6E8, 12401, 12408, 12417, 12420, 12424, 12425,
+ 740        Nl    0 L    N 3, A6E8, 12401, 12408, 12417, 12420, 12424, 12425,
                            1242E, 1242F, 12436, 12437, 1243A, 1243B, 1244B,
                            12451, 12457
- 735        Nl    0 L    N 4, A6E9, 12402, 12409, 1240F, 12418, 12421, 12426,
+ 741        Nl    0 L    N 4, A6E9, 12402, 12409, 1240F, 12418, 12421, 12426,
                            12430, 12438, 1243C, 1243D, 1243E, 1243F, 1244C,
                            12452, 12453, 12469
- 736        Nl    0 L    N 5, A6EA, 12403, 1240A, 12410, 12419, 12422, 12427,
+ 742        Nl    0 L    N 5, A6EA, 12403, 1240A, 12410, 12419, 12422, 12427,
                            12431, 12439, 1244D, 12454, 12455, 1246A
- 737        Nl    0 L    N 7, A6EC, 12405, 1240C, 12412, 1241B, 12429, 12441,
+ 743        Nl    0 L    N 7, A6EC, 12405, 1240C, 12412, 1241B, 12429, 12441,
                            12442, 12443, 1246C
- 738        Nl    0 L    N 8, A6ED, 12406, 1240D, 12413, 1241C, 1242A, 12444,
+ 744        Nl    0 L    N 8, A6ED, 12406, 1240D, 12413, 1241C, 1242A, 12444,
                            12445, 1246D
- 739        Nl    0 L    N 9, A6EE, 12407, 1240E, 12414, 1241D, 1242B, 12446,
+ 745        Nl    0 L    N 9, A6EE, 12407, 1240E, 12414, 1241D, 1242B, 12446,
                            12447, 12448, 12449, 1246E
- 740        Nl    0 L    N 0, A6EF
- 741        Sk    0 L    N Diacritic, A789, A78A, AB5B
- 742        So    0 ET   N A839
- 743        Lo    0 L    N Diacritic, AAC0, AAC2
- 744        Cs    0 L    N D800, DB7F, DB80, DBFF, DC00, DFFF
- 745        Co    0 L    N E000, F8FF
- 746 SWNL ␤                F0FF
- 747        Lo    0 L    N 3, Ideographic, F96B
- 748        Lo    0 L    N 10, Ideographic, F973, F9FD
- 749        Lo    0 L    N 2, Ideographic, F978
- 750        Lo    0 L    N 0, Ideographic, F9B2
- 751        Lo    0 L    N 6, Ideographic, F9D1, F9D3
- 752        Mn   26 NSM  N Diacritic, Other_Alphabetic, FB1E
- 753        Sk    0 AL   N FBB2, FBB3, FBB4, FBB5, FBB6, FBB7, FBB8, FBB9, FBBA,
+ 746        Nl    0 L    N 0, A6EF
+ 747        Sk    0 L    N Diacritic, A789, A78A, AB5B
+ 748        So    0 ET   N A839
+ 749        Lo    0 L    N Diacritic, AAC0, AAC2
+ 750        Cs    0 L    N D800, DB7F, DB80, DBFF, DC00, DFFF
+ 751        Co    0 L    N E000, F8FF
+ 752 SWNL ␤                F0FF
+ 753        Lo    0 L    N 3, Ideographic, F96B
+ 754        Lo    0 L    N 10, Ideographic, F973, F9FD
+ 755        Lo    0 L    N 2, Ideographic, F978
+ 756        Lo    0 L    N 0, Ideographic, F9B2
+ 757        Lo    0 L    N 6, Ideographic, F9D1, F9D3
+ 758        Mn   26 NSM  N Diacritic, Other_Alphabetic, FB1E
+ 759        Sk    0 AL   N FBB2, FBB3, FBB4, FBB5, FBB6, FBB7, FBB8, FBB9, FBBA,
                            FBBB, FBBC, FBBD, FBBE, FBBF, FBC0, FBC1
- 754        Pe    0 ON   N Pattern_Syntax, FD3E
- 755        Ps    0 ON   N Pattern_Syntax, FD3F
- 756                       Noncharacter_Code_Point, FDD0, FDD1, FDD2, FDD3,
+ 760        Pe    0 ON   N Pattern_Syntax, FD3E
+ 761        Ps    0 ON   N Pattern_Syntax, FD3F
+ 762                       Noncharacter_Code_Point, FDD0, FDD1, FDD2, FDD3,
                            FDD4, FDD5, FDD6, FDD7, FDD8, FDD9, FDDA, FDDB, FDDC,
                            FDDD, FDDE, FDDF, FDE0, FDE1, FDE2, FDE3, FDE4, FDE5,
                            FDE6, FDE7, FDE8, FDE9, FDEA, FDEB, FDEC, FDED, FDEE,
                            FDEF, FFFE, FFFF, 1FFFE, 1FFFF, 2FFFE, 2FFFF
- 757 VS1    Mn    0 NSM  N Variation_Selector, FE00
- 758 VS2    Mn    0 NSM  N Variation_Selector, FE01
- 759 VS3    Mn    0 NSM  N Variation_Selector, FE02
- 760 VS4    Mn    0 NSM  N Variation_Selector, FE03
- 761 VS5    Mn    0 NSM  N Variation_Selector, FE04
- 762 VS6    Mn    0 NSM  N Variation_Selector, FE05
- 763 VS7    Mn    0 NSM  N Variation_Selector, FE06
- 764 VS8    Mn    0 NSM  N Variation_Selector, FE07
- 765 VS9    Mn    0 NSM  N Variation_Selector, FE08
- 766 VS10   Mn    0 NSM  N Variation_Selector, FE09
- 767 VS11   Mn    0 NSM  N Variation_Selector, FE0A
- 768 VS12   Mn    0 NSM  N Variation_Selector, FE0B
- 769 VS13   Mn    0 NSM  N Variation_Selector, FE0C
- 770 VS14   Mn    0 NSM  N Variation_Selector, FE0D
- 771 VS15   Mn    0 NSM  N Variation_Selector, FE0E
- 772 VS16   Mn    0 NSM  N Variation_Selector, FE0F
- 773        Ps    0 ON   N FE17, FE35, FE37, FE39, FE3B, FE3D, FE3F, FE47
- 774        Pe    0 ON   N FE18, FE36, FE38, FE3A, FE3C, FE3E, FE40, FE48
- 775        Ps    0 ON   N Quotation_Mark, FE41, FE43
- 776        Pe    0 ON   N Quotation_Mark, FE42, FE44
- 777        Po    0 CS   N Sentence_Terminal, Terminal_Punctuation, FE52, FF0E
- 778        Po    0 ON   N Other_Math, FE61, FE68, FF3C
- 779        Pd    0 ES   N Dash, Hyphen, Other_Math, FE63
- 780 BOM    Cf    0 BN   N FEFF
- 781        Po    0 ON   N Quotation_Mark, FF02, FF07
- 782        Pd    0 ES   N Dash, Hyphen, FF0D
- 783        Po    0 CS   N FF0F
- 784        Nd    0 EN   N 0, Hex_Digit, FF10
- 785        Nd    0 EN   N 1, Hex_Digit, FF11
- 786        Nd    0 EN   N 2, Hex_Digit, FF12
- 787        Nd    0 EN   N 3, Hex_Digit, FF13
- 788        Nd    0 EN   N 4, Hex_Digit, FF14
- 789        Nd    0 EN   N 5, Hex_Digit, FF15
- 790        Nd    0 EN   N 6, Hex_Digit, FF16
- 791        Nd    0 EN   N 7, Hex_Digit, FF17
- 792        Nd    0 EN   N 8, Hex_Digit, FF18
- 793        Nd    0 EN   N 9, Hex_Digit, FF19
- 794        Lu    0 L    N Hex_Digit, FF21, FF22, FF23, FF24, FF25, FF26
- 795        Sk    0 ON   N Diacritic, Other_Math, FF3E
- 796        Ll    0 L    N Hex_Digit, FF41, FF42, FF43, FF44, FF45, FF46
- 797        Ps    0 ON   Y Quotation_Mark, FF62
- 798        Pe    0 ON   Y Quotation_Mark, FF63
- 799        Lm    0 L    N Diacritic, Other_Grapheme_Extend, FF9E, FF9F
- 800        Cf    0 ON   N FFF9, FFFA, FFFB
- 801 UUC  ␥ So    0 ON   N FFFD
- 802        No    0 L    N 200, 1011A
- 803        No    0 L    N 300, 1011B
- 804        No    0 L    N 400, 1011C
- 805        No    0 L    N 500, 1011D
- 806        No    0 L    N 600, 1011E
- 807        No    0 L    N 700, 1011F
- 808        No    0 L    N 800, 10120
- 809        No    0 L    N 900, 10121
- 810        No    0 L    N 2000, 10123
- 811        No    0 L    N 3000, 10124
- 812        No    0 L    N 4000, 10125
- 813        No    0 L    N 5000, 10126
- 814        No    0 L    N 6000, 10127
- 815        No    0 L    N 7000, 10128
- 816        No    0 L    N 8000, 10129
- 817        No    0 L    N 9000, 1012A
- 818        No    0 L    N 20000, 1012C
- 819        No    0 L    N 30000, 1012D
- 820        No    0 L    N 40000, 1012E
- 821        No    0 L    N 50000, 1012F
- 822        No    0 L    N 60000, 10130
- 823        No    0 L    N 70000, 10131
- 824        No    0 L    N 80000, 10132
- 825        No    0 L    N 90000, 10133
- 826        Nl    0 ON   N 1/4, 10140
- 827        Nl    0 ON   N 1/2, 10141
- 828        Nl    0 ON   N 1, 10142, 10158, 10159, 1015A
- 829        Nl    0 ON   N 5, 10143, 10148, 1014F, 1015F, 10173
- 830        Nl    0 ON   N 50, 10144, 1014A, 10151, 10166, 10167, 10168, 10169,
+ 763 VS1    Mn    0 NSM  N Variation_Selector, FE00
+ 764 VS2    Mn    0 NSM  N Variation_Selector, FE01
+ 765 VS3    Mn    0 NSM  N Variation_Selector, FE02
+ 766 VS4    Mn    0 NSM  N Variation_Selector, FE03
+ 767 VS5    Mn    0 NSM  N Variation_Selector, FE04
+ 768 VS6    Mn    0 NSM  N Variation_Selector, FE05
+ 769 VS7    Mn    0 NSM  N Variation_Selector, FE06
+ 770 VS8    Mn    0 NSM  N Variation_Selector, FE07
+ 771 VS9    Mn    0 NSM  N Variation_Selector, FE08
+ 772 VS10   Mn    0 NSM  N Variation_Selector, FE09
+ 773 VS11   Mn    0 NSM  N Variation_Selector, FE0A
+ 774 VS12   Mn    0 NSM  N Variation_Selector, FE0B
+ 775 VS13   Mn    0 NSM  N Variation_Selector, FE0C
+ 776 VS14   Mn    0 NSM  N Variation_Selector, FE0D
+ 777 VS15   Mn    0 NSM  N Variation_Selector, FE0E
+ 778 VS16   Mn    0 NSM  N Variation_Selector, FE0F
+ 779        Ps    0 ON   N FE17, FE35, FE37, FE39, FE3B, FE3D, FE3F, FE47
+ 780        Pe    0 ON   N FE18, FE36, FE38, FE3A, FE3C, FE3E, FE40, FE48
+ 781        Ps    0 ON   N Quotation_Mark, FE41, FE43
+ 782        Pe    0 ON   N Quotation_Mark, FE42, FE44
+ 783        Po    0 CS   N Sentence_Terminal, Terminal_Punctuation, FE52, FF0E
+ 784        Po    0 ON   N Other_Math, FE61, FE68, FF3C
+ 785        Pd    0 ES   N Dash, Hyphen, Other_Math, FE63
+ 786 BOM    Cf    0 BN   N FEFF
+ 787        Po    0 ON   N Quotation_Mark, FF02, FF07
+ 788        Pd    0 ES   N Dash, Hyphen, FF0D
+ 789        Po    0 CS   N FF0F
+ 790        Nd    0 EN   N 0, Hex_Digit, FF10
+ 791        Nd    0 EN   N 1, Hex_Digit, FF11
+ 792        Nd    0 EN   N 2, Hex_Digit, FF12
+ 793        Nd    0 EN   N 3, Hex_Digit, FF13
+ 794        Nd    0 EN   N 4, Hex_Digit, FF14
+ 795        Nd    0 EN   N 5, Hex_Digit, FF15
+ 796        Nd    0 EN   N 6, Hex_Digit, FF16
+ 797        Nd    0 EN   N 7, Hex_Digit, FF17
+ 798        Nd    0 EN   N 8, Hex_Digit, FF18
+ 799        Nd    0 EN   N 9, Hex_Digit, FF19
+ 800        Lu    0 L    N Hex_Digit, FF21, FF22, FF23, FF24, FF25, FF26
+ 801        Sk    0 ON   N Diacritic, Other_Math, FF3E
+ 802        Ll    0 L    N Hex_Digit, FF41, FF42, FF43, FF44, FF45, FF46
+ 803        Ps    0 ON   Y Quotation_Mark, FF62
+ 804        Pe    0 ON   Y Quotation_Mark, FF63
+ 805        Lm    0 L    N Diacritic, Other_Grapheme_Extend, FF9E, FF9F
+ 806        Cf    0 ON   N FFF9, FFFA, FFFB
+ 807 UUC  ␥ So    0 ON   N FFFD
+ 808        No    0 L    N 200, 1011A
+ 809        No    0 L    N 300, 1011B
+ 810        No    0 L    N 400, 1011C
+ 811        No    0 L    N 500, 1011D
+ 812        No    0 L    N 600, 1011E
+ 813        No    0 L    N 700, 1011F
+ 814        No    0 L    N 800, 10120
+ 815        No    0 L    N 900, 10121
+ 816        No    0 L    N 2000, 10123
+ 817        No    0 L    N 3000, 10124
+ 818        No    0 L    N 4000, 10125
+ 819        No    0 L    N 5000, 10126
+ 820        No    0 L    N 6000, 10127
+ 821        No    0 L    N 7000, 10128
+ 822        No    0 L    N 8000, 10129
+ 823        No    0 L    N 9000, 1012A
+ 824        No    0 L    N 20000, 1012C
+ 825        No    0 L    N 30000, 1012D
+ 826        No    0 L    N 40000, 1012E
+ 827        No    0 L    N 50000, 1012F
+ 828        No    0 L    N 60000, 10130
+ 829        No    0 L    N 70000, 10131
+ 830        No    0 L    N 80000, 10132
+ 831        No    0 L    N 90000, 10133
+ 832        Nl    0 ON   N 1/4, 10140
+ 833        Nl    0 ON   N 1/2, 10141
+ 834        Nl    0 ON   N 1, 10142, 10158, 10159, 1015A
+ 835        Nl    0 ON   N 5, 10143, 10148, 1014F, 1015F, 10173
+ 836        Nl    0 ON   N 50, 10144, 1014A, 10151, 10166, 10167, 10168, 10169,
                            10174
- 831        Nl    0 ON   N 500, 10145, 1014C, 10153, 1016C, 1016D, 1016E, 1016F,
+ 837        Nl    0 ON   N 500, 10145, 1014C, 10153, 1016C, 1016D, 1016E, 1016F,
                            10170
- 832        Nl    0 ON   N 5000, 10146, 1014E, 10172
- 833        Nl    0 ON   N 50000, 10147, 10156
- 834        Nl    0 ON   N 10, 10149, 10150, 10157, 10160, 10161, 10162, 10163,
+ 838        Nl    0 ON   N 5000, 10146, 1014E, 10172
+ 839        Nl    0 ON   N 50000, 10147, 10156
+ 840        Nl    0 ON   N 10, 10149, 10150, 10157, 10160, 10161, 10162, 10163,
                            10164
- 835        Nl    0 ON   N 100, 1014B, 10152, 1016A
- 836        Nl    0 ON   N 1000, 1014D, 10154, 10171
- 837        Nl    0 ON   N 10000, 10155
- 838        Nl    0 ON   N 2, 1015B, 1015C, 1015D, 1015E
- 839        Nl    0 ON   N 30, 10165
- 840        Nl    0 ON   N 300, 1016B
- 841        No    0 ON   N 3/4, 10178
- 842        No    0 ON   N 1/4, 1018B
- 843        No    0 EN   N 30, 102EC
- 844        No    0 EN   N 40, 102ED
- 845        No    0 EN   N 50, 102EE
- 846        No    0 EN   N 60, 102EF
- 847        No    0 EN   N 70, 102F0
- 848        No    0 EN   N 80, 102F1
- 849        No    0 EN   N 90, 102F2
- 850        No    0 EN   N 100, 102F3
- 851        No    0 EN   N 200, 102F4
- 852        No    0 EN   N 300, 102F5
- 853        No    0 EN   N 400, 102F6
- 854        No    0 EN   N 500, 102F7
- 855        No    0 EN   N 600, 102F8
- 856        No    0 EN   N 700, 102F9
- 857        No    0 EN   N 800, 102FA
- 858        No    0 EN   N 900, 102FB
- 859        Nl    0 L    N 90, 10341
- 860        Nl    0 L    N 900, 1034A
- 861        Nl    0 L    N 10, 103D3
- 862        Nl    0 L    N 20, 103D4
- 863        Nl    0 L    N 100, 103D5
- 864        No    0 R    N 1, 10858, 10879, 108A7, 108FB, 10916, 109C0, 10A40,
+ 841        Nl    0 ON   N 100, 1014B, 10152, 1016A
+ 842        Nl    0 ON   N 1000, 1014D, 10154, 10171
+ 843        Nl    0 ON   N 10000, 10155
+ 844        Nl    0 ON   N 2, 1015B, 1015C, 1015D, 1015E
+ 845        Nl    0 ON   N 30, 10165
+ 846        Nl    0 ON   N 300, 1016B
+ 847        No    0 ON   N 3/4, 10178
+ 848        No    0 ON   N 1/4, 1018B
+ 849        No    0 EN   N 30, 102EC
+ 850        No    0 EN   N 40, 102ED
+ 851        No    0 EN   N 50, 102EE
+ 852        No    0 EN   N 60, 102EF
+ 853        No    0 EN   N 70, 102F0
+ 854        No    0 EN   N 80, 102F1
+ 855        No    0 EN   N 90, 102F2
+ 856        No    0 EN   N 100, 102F3
+ 857        No    0 EN   N 200, 102F4
+ 858        No    0 EN   N 300, 102F5
+ 859        No    0 EN   N 400, 102F6
+ 860        No    0 EN   N 500, 102F7
+ 861        No    0 EN   N 600, 102F8
+ 862        No    0 EN   N 700, 102F9
+ 863        No    0 EN   N 800, 102FA
+ 864        No    0 EN   N 900, 102FB
+ 865        Nl    0 L    N 90, 10341
+ 866        Nl    0 L    N 900, 1034A
+ 867        Nl    0 L    N 10, 103D3
+ 868        Nl    0 L    N 20, 103D4
+ 869        Nl    0 L    N 100, 103D5
+ 870        No    0 R    N 1, 10858, 10879, 108A7, 108FB, 10916, 109C0, 10A40,
                            10A7D, 10A9D, 10AEB, 10B58, 10B78, 10BA9, 10CFA,
                            10F1D, 10FC5, 1E8C7
- 865        No    0 R    N 2, 10859, 1087A, 108A8, 1091A, 109C1, 10A41, 10B59,
+ 871        No    0 R    N 2, 10859, 1087A, 108A8, 1091A, 109C1, 10A41, 10B59,
                            10B79, 10BAA, 10F1E, 10FC6, 1E8C8
- 866        No    0 R    N 3, 1085A, 1087B, 108A9, 1091B, 109C2, 10A42, 10B5A,
+ 872        No    0 R    N 3, 1085A, 1087B, 108A9, 1091B, 109C2, 10A42, 10B5A,
                            10B7A, 10BAB, 10F1F, 10FC7, 1E8C9
- 867        No    0 R    N 10, 1085B, 1087E, 108AD, 108FD, 10917, 109C9, 10A44,
+ 873        No    0 R    N 10, 1085B, 1087E, 108AD, 108FD, 10917, 109C9, 10A44,
                            10A9E, 10AED, 10B5C, 10B7C, 10BAD, 10CFC, 10F22,
                            10FC9
- 868        No    0 R    N 20, 1085C, 1087F, 108AE, 108FE, 10918, 109CA, 10A45,
+ 874        No    0 R    N 20, 1085C, 1087F, 108AE, 108FE, 10918, 109CA, 10A45,
                            10A9F, 10AEE, 10B5D, 10B7D, 10BAE, 10F23, 10FCA
- 869        No    0 R    N 100, 1085D, 108AF, 108FF, 10919, 109D2, 10A46, 10AEF,
+ 875        No    0 R    N 100, 1085D, 108AF, 108FF, 10919, 109D2, 10A46, 10AEF,
                            10B5E, 10B7E, 10BAF, 10CFE, 10F25, 10FCB
- 870        No    0 R    N 1000, 1085E, 109DB, 10A47, 10B5F, 10B7F, 10CFF
- 871        No    0 R    N 10000, 1085F, 109E4
- 872        So    0 R    N 10877, 10878, 10AC8
- 873        No    0 R    N 4, 1087C, 108AA, 108AB, 109C3, 10A43, 10B5B, 10B7B,
+ 876        No    0 R    N 1000, 1085E, 109DB, 10A47, 10B5F, 10B7F, 10CFF
+ 877        No    0 R    N 10000, 1085F, 109E4
+ 878        So    0 R    N 10877, 10878, 10AC8
+ 879        No    0 R    N 4, 1087C, 108AA, 108AB, 109C3, 10A43, 10B5B, 10B7B,
                            10BAC, 10F20, 10FC8, 1E8CA
- 874        No    0 R    N 5, 1087D, 108AC, 108FC, 109C4, 10AEC, 10CFB, 10F21,
+ 880        No    0 R    N 5, 1087D, 108AC, 108FC, 109C4, 10AEC, 10CFB, 10F21,
                            1E8CB
- 875        No    0 R    N 11/12, 109BC
- 876        No    0 R    N 1/2, 109BD, 10A48, 10F26
- 877        No    0 R    N 6, 109C5, 1E8CC
- 878        No    0 R    N 7, 109C6, 1E8CD
- 879        No    0 R    N 8, 109C7, 1E8CE
- 880        No    0 R    N 9, 109C8, 1E8CF
- 881        No    0 R    N 30, 109CB, 10F24
- 882        No    0 R    N 40, 109CC
- 883        No    0 R    N 50, 109CD, 10A7E, 10CFD
- 884        No    0 R    N 60, 109CE
- 885        No    0 R    N 70, 109CF
- 886        No    0 R    N 200, 109D3
- 887        No    0 R    N 300, 109D4
- 888        No    0 R    N 400, 109D5
- 889        No    0 R    N 500, 109D6
- 890        No    0 R    N 600, 109D7
- 891        No    0 R    N 700, 109D8
- 892        No    0 R    N 800, 109D9
- 893        No    0 R    N 900, 109DA
- 894        No    0 R    N 2000, 109DC
- 895        No    0 R    N 3000, 109DD
- 896        No    0 R    N 4000, 109DE
- 897        No    0 R    N 5000, 109DF
- 898        No    0 R    N 6000, 109E0
- 899        No    0 R    N 7000, 109E1
- 900        No    0 R    N 8000, 109E2
- 901        No    0 R    N 9000, 109E3
- 902        No    0 R    N 20000, 109E5
- 903        No    0 R    N 30000, 109E6
- 904        No    0 R    N 40000, 109E7
- 905        No    0 R    N 50000, 109E8
- 906        No    0 R    N 60000, 109E9
- 907        No    0 R    N 70000, 109EA
- 908        No    0 R    N 80000, 109EB
- 909        No    0 R    N 90000, 109EC
- 910        No    0 R    N 100000, 109ED
- 911        No    0 R    N 200000, 109EE
- 912        No    0 R    N 300000, 109EF
- 913        No    0 R    N 400000, 109F0
- 914        No    0 R    N 500000, 109F1
- 915        No    0 R    N 600000, 109F2
- 916        No    0 R    N 700000, 109F3
- 917        No    0 R    N 800000, 109F4
- 918        No    0 R    N 900000, 109F5
- 919        No    0 R    N 1/12, 109F6
- 920        No    0 R    N 2/12, 109F7
- 921        No    0 R    N 3/12, 109F8
- 922        No    0 R    N 4/12, 109F9
- 923        No    0 R    N 5/12, 109FA
- 924        No    0 R    N 6/12, 109FB
- 925        No    0 R    N 7/12, 109FC
- 926        No    0 R    N 8/12, 109FD
- 927        No    0 R    N 9/12, 109FE
- 928        No    0 R    N 10/12, 109FF
- 929        Lu    0 R    N 10C80, 10C81, 10C82, 10C83, 10C84, 10C85, 10C86,
+ 881        No    0 R    N 11/12, 109BC
+ 882        No    0 R    N 1/2, 109BD, 10A48, 10F26
+ 883        No    0 R    N 6, 109C5, 1E8CC
+ 884        No    0 R    N 7, 109C6, 1E8CD
+ 885        No    0 R    N 8, 109C7, 1E8CE
+ 886        No    0 R    N 9, 109C8, 1E8CF
+ 887        No    0 R    N 30, 109CB, 10F24
+ 888        No    0 R    N 40, 109CC
+ 889        No    0 R    N 50, 109CD, 10A7E, 10CFD
+ 890        No    0 R    N 60, 109CE
+ 891        No    0 R    N 70, 109CF
+ 892        No    0 R    N 200, 109D3
+ 893        No    0 R    N 300, 109D4
+ 894        No    0 R    N 400, 109D5
+ 895        No    0 R    N 500, 109D6
+ 896        No    0 R    N 600, 109D7
+ 897        No    0 R    N 700, 109D8
+ 898        No    0 R    N 800, 109D9
+ 899        No    0 R    N 900, 109DA
+ 900        No    0 R    N 2000, 109DC
+ 901        No    0 R    N 3000, 109DD
+ 902        No    0 R    N 4000, 109DE
+ 903        No    0 R    N 5000, 109DF
+ 904        No    0 R    N 6000, 109E0
+ 905        No    0 R    N 7000, 109E1
+ 906        No    0 R    N 8000, 109E2
+ 907        No    0 R    N 9000, 109E3
+ 908        No    0 R    N 20000, 109E5
+ 909        No    0 R    N 30000, 109E6
+ 910        No    0 R    N 40000, 109E7
+ 911        No    0 R    N 50000, 109E8
+ 912        No    0 R    N 60000, 109E9
+ 913        No    0 R    N 70000, 109EA
+ 914        No    0 R    N 80000, 109EB
+ 915        No    0 R    N 90000, 109EC
+ 916        No    0 R    N 100000, 109ED
+ 917        No    0 R    N 200000, 109EE
+ 918        No    0 R    N 300000, 109EF
+ 919        No    0 R    N 400000, 109F0
+ 920        No    0 R    N 500000, 109F1
+ 921        No    0 R    N 600000, 109F2
+ 922        No    0 R    N 700000, 109F3
+ 923        No    0 R    N 800000, 109F4
+ 924        No    0 R    N 900000, 109F5
+ 925        No    0 R    N 1/12, 109F6
+ 926        No    0 R    N 2/12, 109F7
+ 927        No    0 R    N 3/12, 109F8
+ 928        No    0 R    N 4/12, 109F9
+ 929        No    0 R    N 5/12, 109FA
+ 930        No    0 R    N 6/12, 109FB
+ 931        No    0 R    N 7/12, 109FC
+ 932        No    0 R    N 8/12, 109FD
+ 933        No    0 R    N 9/12, 109FE
+ 934        No    0 R    N 10/12, 109FF
+ 935        Lu    0 R    N 10C80, 10C81, 10C82, 10C83, 10C84, 10C85, 10C86,
                            10C87, 10C88, 10C89, 10C8A, 10C8B, 10C8C, 10C8D,
                            10C8E, 10C8F, 10C90, 10C91, 10C92, 10C93, 10C94,
                            10C95, 10C96, 10C97, 10C98, 10C99, 10C9A, 10C9B,
@@ -25767,7 +25773,7 @@
                            1E913, 1E914, 1E915, 1E916, 1E917, 1E918, 1E919,
                            1E91A, 1E91B, 1E91C, 1E91D, 1E91E, 1E91F, 1E920,
                            1E921
- 930        Ll    0 R    N 10CC0, 10CC1, 10CC2, 10CC3, 10CC4, 10CC5, 10CC6,
+ 936        Ll    0 R    N 10CC0, 10CC1, 10CC2, 10CC3, 10CC4, 10CC5, 10CC6,
                            10CC7, 10CC8, 10CC9, 10CCA, 10CCB, 10CCC, 10CCD,
                            10CCE, 10CCF, 10CD0, 10CD1, 10CD2, 10CD3, 10CD4,
                            10CD5, 10CD6, 10CD7, 10CD8, 10CD9, 10CDA, 10CDB,
@@ -25780,86 +25786,86 @@
                            1E935, 1E936, 1E937, 1E938, 1E939, 1E93A, 1E93B,
                            1E93C, 1E93D, 1E93E, 1E93F, 1E940, 1E941, 1E942,
                            1E943
- 931        Lo    0 AL   N Diacritic, 10D22, 10D23
- 932        No    0 AN   N 1, 10E60
- 933        No    0 AN   N 2, 10E61
- 934        No    0 AN   N 3, 10E62
- 935        No    0 AN   N 4, 10E63
- 936        No    0 AN   N 5, 10E64
- 937        No    0 AN   N 6, 10E65
- 938        No    0 AN   N 7, 10E66
- 939        No    0 AN   N 8, 10E67
- 940        No    0 AN   N 9, 10E68
- 941        No    0 AN   N 10, 10E69
- 942        No    0 AN   N 20, 10E6A
- 943        No    0 AN   N 30, 10E6B
- 944        No    0 AN   N 40, 10E6C
- 945        No    0 AN   N 50, 10E6D
- 946        No    0 AN   N 60, 10E6E
- 947        No    0 AN   N 70, 10E6F
- 948        No    0 AN   N 80, 10E70
- 949        No    0 AN   N 90, 10E71
- 950        No    0 AN   N 100, 10E72
- 951        No    0 AN   N 200, 10E73
- 952        No    0 AN   N 300, 10E74
- 953        No    0 AN   N 400, 10E75
- 954        No    0 AN   N 500, 10E76
- 955        No    0 AN   N 600, 10E77
- 956        No    0 AN   N 700, 10E78
- 957        No    0 AN   N 800, 10E79
- 958        No    0 AN   N 900, 10E7A
- 959        No    0 AN   N 1/2, 10E7B
- 960        No    0 AN   N 1/4, 10E7C
- 961        No    0 AN   N 1/3, 10E7D
- 962        No    0 AN   N 2/3, 10E7E
- 963        No    0 AL   N 1, 10F51, 1EC71, 1ECA3, 1ECB1, 1ED01
- 964        No    0 AL   N 10, 10F52, 1EC7A, 1ED0A, 1ED37
- 965        No    0 AL   N 20, 10F53, 1EC7B, 1ED0B
- 966        No    0 AL   N 100, 10F54, 1EC83, 1ED13
- 967        No    0 ON   N 60, 11060
- 968        No    0 ON   N 70, 11061
- 969        No    0 ON   N 80, 11062
- 970        No    0 ON   N 90, 11063
- 971        No    0 ON   N 100, 11064
- 972        No    0 ON   N 1000, 11065
- 973        Cf    0 L    N Prepended_Concatenation_Mark, 110BD, 110CD
- 974        Lo    0 L    N Extender, 1135D
- 975        Po    0 L    N Extender, 115C6, 115C7, 115C8
- 976        Mn    0 NSM  N Extender, 11A98
- 977        Mn    9 L    N Diacritic, 11C3F
- 978        No    0 L    N 1/320, 11FC0, 11FD4
- 979        No    0 L    N 1/80, 11FC2
- 980        No    0 L    N 1/64, 11FC3
- 981        No    0 L    N 1/32, 11FC5
- 982        No    0 L    N 3/64, 11FC7
- 983        Nl    0 L    N 216000, 12432
- 984        Nl    0 L    N 432000, 12433
- 985        Nl    0 L    N 1/3, 1245A, 1245D, 12465
- 986        Nl    0 L    N 2/3, 1245B, 1245E, 12466
- 987        Nl    0 L    N 5/6, 1245C
- 988        Nl    0 L    N 1/8, 1245F
- 989        Nl    0 L    N 1/4, 12460, 12462, 12463
- 990        Nl    0 L    N 1/6, 12461
- 991        Nl    0 L    N 1/2, 12464
- 992        Nl    0 L    N 40, 12467
- 993        Cf    0 L    N 13430, 13431, 13432, 13433, 13434, 13435, 13436,
+ 937        Lo    0 AL   N Diacritic, 10D22, 10D23
+ 938        No    0 AN   N 1, 10E60
+ 939        No    0 AN   N 2, 10E61
+ 940        No    0 AN   N 3, 10E62
+ 941        No    0 AN   N 4, 10E63
+ 942        No    0 AN   N 5, 10E64
+ 943        No    0 AN   N 6, 10E65
+ 944        No    0 AN   N 7, 10E66
+ 945        No    0 AN   N 8, 10E67
+ 946        No    0 AN   N 9, 10E68
+ 947        No    0 AN   N 10, 10E69
+ 948        No    0 AN   N 20, 10E6A
+ 949        No    0 AN   N 30, 10E6B
+ 950        No    0 AN   N 40, 10E6C
+ 951        No    0 AN   N 50, 10E6D
+ 952        No    0 AN   N 60, 10E6E
+ 953        No    0 AN   N 70, 10E6F
+ 954        No    0 AN   N 80, 10E70
+ 955        No    0 AN   N 90, 10E71
+ 956        No    0 AN   N 100, 10E72
+ 957        No    0 AN   N 200, 10E73
+ 958        No    0 AN   N 300, 10E74
+ 959        No    0 AN   N 400, 10E75
+ 960        No    0 AN   N 500, 10E76
+ 961        No    0 AN   N 600, 10E77
+ 962        No    0 AN   N 700, 10E78
+ 963        No    0 AN   N 800, 10E79
+ 964        No    0 AN   N 900, 10E7A
+ 965        No    0 AN   N 1/2, 10E7B
+ 966        No    0 AN   N 1/4, 10E7C
+ 967        No    0 AN   N 1/3, 10E7D
+ 968        No    0 AN   N 2/3, 10E7E
+ 969        No    0 AL   N 1, 10F51, 1EC71, 1ECA3, 1ECB1, 1ED01
+ 970        No    0 AL   N 10, 10F52, 1EC7A, 1ED0A, 1ED37
+ 971        No    0 AL   N 20, 10F53, 1EC7B, 1ED0B
+ 972        No    0 AL   N 100, 10F54, 1EC83, 1ED13
+ 973        No    0 ON   N 60, 11060
+ 974        No    0 ON   N 70, 11061
+ 975        No    0 ON   N 80, 11062
+ 976        No    0 ON   N 90, 11063
+ 977        No    0 ON   N 100, 11064
+ 978        No    0 ON   N 1000, 11065
+ 979        Cf    0 L    N Prepended_Concatenation_Mark, 110BD, 110CD
+ 980        Lo    0 L    N Extender, 1135D
+ 981        Po    0 L    N Extender, 115C6, 115C7, 115C8
+ 982        Mn    0 NSM  N Extender, 11A98
+ 983        Mn    9 L    N Diacritic, 11C3F
+ 984        No    0 L    N 1/320, 11FC0, 11FD4
+ 985        No    0 L    N 1/80, 11FC2
+ 986        No    0 L    N 1/64, 11FC3
+ 987        No    0 L    N 1/32, 11FC5
+ 988        No    0 L    N 3/64, 11FC7
+ 989        Nl    0 L    N 216000, 12432
+ 990        Nl    0 L    N 432000, 12433
+ 991        Nl    0 L    N 1/3, 1245A, 1245D, 12465
+ 992        Nl    0 L    N 2/3, 1245B, 1245E, 12466
+ 993        Nl    0 L    N 5/6, 1245C
+ 994        Nl    0 L    N 1/8, 1245F
+ 995        Nl    0 L    N 1/4, 12460, 12462, 12463
+ 996        Nl    0 L    N 1/6, 12461
+ 997        Nl    0 L    N 1/2, 12464
+ 998        Nl    0 L    N 40, 12467
+ 999        Cf    0 L    N 13430, 13431, 13432, 13433, 13434, 13435, 13436,
                            13437, 13438
- 994        No    0 L    N 1000000, 16B5E
- 995        No    0 L    N 100000000, 16B5F
- 996        No    0 L    N 10000000000, 16B60
- 997        No    0 L    N 1000000000000, 16B61
- 998        No    0 L    N 0, 16E80, 1D2E0
- 999        No    0 L    N 11, 16E8B, 1D2EB
-1000        No    0 L    N 12, 16E8C, 1D2EC
-1001        No    0 L    N 13, 16E8D, 1D2ED
-1002        No    0 L    N 14, 16E8E, 1D2EE
-1003        No    0 L    N 15, 16E8F, 1D2EF
-1004        No    0 L    N 17, 16E91, 1D2F1
-1005        No    0 L    N 18, 16E92, 1D2F2
-1006        No    0 L    N 19, 16E93, 1D2F3
-1007        Mn    0 NSM  N Ideographic, 16FE4
-1008        Mc    6 L    N Diacritic, Other_Alphabetic, 16FF0, 16FF1
-1009                       Ideographic, 17001, 17002, 17003, 17004, 17005,
+1000        No    0 L    N 1000000, 16B5E
+1001        No    0 L    N 100000000, 16B5F
+1002        No    0 L    N 10000000000, 16B60
+1003        No    0 L    N 1000000000000, 16B61
+1004        No    0 L    N 0, 16E80, 1D2E0
+1005        No    0 L    N 11, 16E8B, 1D2EB
+1006        No    0 L    N 12, 16E8C, 1D2EC
+1007        No    0 L    N 13, 16E8D, 1D2ED
+1008        No    0 L    N 14, 16E8E, 1D2EE
+1009        No    0 L    N 15, 16E8F, 1D2EF
+1010        No    0 L    N 17, 16E91, 1D2F1
+1011        No    0 L    N 18, 16E92, 1D2F2
+1012        No    0 L    N 19, 16E93, 1D2F3
+1013        Mn    0 NSM  N Ideographic, 16FE4
+1014        Mc    6 L    N Diacritic, Other_Alphabetic, 16FF0, 16FF1
+1015                       Ideographic, 17001, 17002, 17003, 17004, 17005,
                            17006, 17007, 17008, 17009, 1700A, 1700B, 1700C,
                            1700D, 1700E, 1700F, 17010, 17011, 17012, 17013,
                            17014, 17015, 17016, 17017, 17018, 17019, 1701A,
@@ -26737,76 +26743,76 @@
                            187EC, 187ED, 187EE, 187EF, 187F0, 187F1, 187F2,
                            187F3, 187F4, 187F5, 187F6, 18D01, 18D02, 18D03,
                            18D04, 18D05, 18D06, 18D07
-1010        Mn    1 NSM  N Other_Alphabetic, 1BC9E
-1011        Cf    0 BN   N 1BCA0, 1BCA1, 1BCA2, 1BCA3, 1D173, 1D174, 1D175,
+1016        Mn    1 NSM  N Other_Alphabetic, 1BC9E
+1017        Cf    0 BN   N 1BCA0, 1BCA1, 1BCA2, 1BCA3, 1D173, 1D174, 1D175,
                            1D176, 1D177, 1D178, 1D179, 1D17A
-1012        Mc  216 L    N Other_Grapheme_Extend, 1D165
-1013        Mc  216 L    N 1D166
-1014        Mc  226 L    N Diacritic, 1D16D
-1015        Mc  216 L    N Diacritic, Other_Grapheme_Extend, 1D16E, 1D16F,
+1018        Mc  216 L    N Other_Grapheme_Extend, 1D165
+1019        Mc  216 L    N 1D166
+1020        Mc  226 L    N Diacritic, 1D16D
+1021        Mc  216 L    N Diacritic, Other_Grapheme_Extend, 1D16E, 1D16F,
                            1D170, 1D171, 1D172
-1016        Sm    0 L    N 1D6C1, 1D6FB, 1D735, 1D76F, 1D7A9
-1017        Nd    0 EN   N 0, Other_Math, 1D7CE, 1D7D8, 1D7E2, 1D7EC, 1D7F6
-1018        Nd    0 EN   N 1, Other_Math, 1D7CF, 1D7D9, 1D7E3, 1D7ED, 1D7F7
-1019        Nd    0 EN   N 2, Other_Math, 1D7D0, 1D7DA, 1D7E4, 1D7EE, 1D7F8
-1020        Nd    0 EN   N 3, Other_Math, 1D7D1, 1D7DB, 1D7E5, 1D7EF, 1D7F9
-1021        Nd    0 EN   N 4, Other_Math, 1D7D2, 1D7DC, 1D7E6, 1D7F0, 1D7FA
-1022        Nd    0 EN   N 5, Other_Math, 1D7D3, 1D7DD, 1D7E7, 1D7F1, 1D7FB
-1023        Nd    0 EN   N 6, Other_Math, 1D7D4, 1D7DE, 1D7E8, 1D7F2, 1D7FC
-1024        Nd    0 EN   N 7, Other_Math, 1D7D5, 1D7DF, 1D7E9, 1D7F3, 1D7FD
-1025        Nd    0 EN   N 8, Other_Math, 1D7D6, 1D7E0, 1D7EA, 1D7F4, 1D7FE
-1026        Nd    0 EN   N 9, Other_Math, 1D7D7, 1D7E1, 1D7EB, 1D7F5, 1D7FF
-1027        Mn  230 NSM  N Diacritic, Extender, 1E944, 1E945, 1E946
-1028        No    0 AL   N 2, 1EC72, 1ECA4, 1ECB2, 1ED02, 1ED2F
-1029        No    0 AL   N 3, 1EC73, 1ECA5, 1ED03, 1ED30
-1030        No    0 AL   N 4, 1EC74, 1ECA6, 1ED04, 1ED31
-1031        No    0 AL   N 5, 1EC75, 1ECA7, 1ED05, 1ED32
-1032        No    0 AL   N 6, 1EC76, 1ECA8, 1ED06, 1ED33
-1033        No    0 AL   N 7, 1EC77, 1ECA9, 1ED07, 1ED34
-1034        No    0 AL   N 8, 1EC78, 1ECAA, 1ED08, 1ED35
-1035        No    0 AL   N 9, 1EC79, 1ECAB, 1ED09, 1ED36
-1036        No    0 AL   N 30, 1EC7C, 1ED0C
-1037        No    0 AL   N 40, 1EC7D, 1ED0D
-1038        No    0 AL   N 50, 1EC7E, 1ED0E
-1039        No    0 AL   N 60, 1EC7F, 1ED0F
-1040        No    0 AL   N 70, 1EC80, 1ED10
-1041        No    0 AL   N 80, 1EC81, 1ED11
-1042        No    0 AL   N 90, 1EC82, 1ED12
-1043        No    0 AL   N 200, 1EC84, 1ED14
-1044        No    0 AL   N 300, 1EC85, 1ED15
-1045        No    0 AL   N 400, 1EC86, 1ED16, 1ED38
-1046        No    0 AL   N 500, 1EC87, 1ED17
-1047        No    0 AL   N 600, 1EC88, 1ED18, 1ED39
-1048        No    0 AL   N 700, 1EC89, 1ED19
-1049        No    0 AL   N 800, 1EC8A, 1ED1A
-1050        No    0 AL   N 900, 1EC8B, 1ED1B
-1051        No    0 AL   N 1000, 1EC8C, 1ED1C
-1052        No    0 AL   N 2000, 1EC8D, 1ED1D, 1ED3A
-1053        No    0 AL   N 3000, 1EC8E, 1ED1E
-1054        No    0 AL   N 4000, 1EC8F, 1ED1F
-1055        No    0 AL   N 5000, 1EC90, 1ED20
-1056        No    0 AL   N 6000, 1EC91, 1ED21
-1057        No    0 AL   N 7000, 1EC92, 1ED22
-1058        No    0 AL   N 8000, 1EC93, 1ED23
-1059        No    0 AL   N 9000, 1EC94, 1ED24
-1060        No    0 AL   N 10000, 1EC95, 1ECB3, 1ED25, 1ED3B
-1061        No    0 AL   N 20000, 1EC96, 1ED26
-1062        No    0 AL   N 30000, 1EC97, 1ED27
-1063        No    0 AL   N 40000, 1EC98, 1ED28
-1064        No    0 AL   N 50000, 1EC99, 1ED29
-1065        No    0 AL   N 60000, 1EC9A, 1ED2A
-1066        No    0 AL   N 70000, 1EC9B, 1ED2B
-1067        No    0 AL   N 80000, 1EC9C, 1ED2C
-1068        No    0 AL   N 90000, 1EC9D, 1ED2D
-1069        No    0 AL   N 100000, 1EC9E, 1ECA0, 1ECB4
-1070        No    0 AL   N 200000, 1EC9F
-1071        No    0 AL   N 10000000, 1ECA1
-1072        No    0 AL   N 20000000, 1ECA2
-1073        No    0 AL   N 1/4, 1ECAD
-1074        No    0 AL   N 1/2, 1ECAE, 1ED3C
-1075        No    0 AL   N 3/4, 1ECAF
-1076        No    0 AL   N 1/6, 1ED3D
-1077        Lo    0 AL   N Other_Math, 1EE00, 1EE01, 1EE02, 1EE03, 1EE05, 1EE06,
+1022        Sm    0 L    N 1D6C1, 1D6FB, 1D735, 1D76F, 1D7A9
+1023        Nd    0 EN   N 0, Other_Math, 1D7CE, 1D7D8, 1D7E2, 1D7EC, 1D7F6
+1024        Nd    0 EN   N 1, Other_Math, 1D7CF, 1D7D9, 1D7E3, 1D7ED, 1D7F7
+1025        Nd    0 EN   N 2, Other_Math, 1D7D0, 1D7DA, 1D7E4, 1D7EE, 1D7F8
+1026        Nd    0 EN   N 3, Other_Math, 1D7D1, 1D7DB, 1D7E5, 1D7EF, 1D7F9
+1027        Nd    0 EN   N 4, Other_Math, 1D7D2, 1D7DC, 1D7E6, 1D7F0, 1D7FA
+1028        Nd    0 EN   N 5, Other_Math, 1D7D3, 1D7DD, 1D7E7, 1D7F1, 1D7FB
+1029        Nd    0 EN   N 6, Other_Math, 1D7D4, 1D7DE, 1D7E8, 1D7F2, 1D7FC
+1030        Nd    0 EN   N 7, Other_Math, 1D7D5, 1D7DF, 1D7E9, 1D7F3, 1D7FD
+1031        Nd    0 EN   N 8, Other_Math, 1D7D6, 1D7E0, 1D7EA, 1D7F4, 1D7FE
+1032        Nd    0 EN   N 9, Other_Math, 1D7D7, 1D7E1, 1D7EB, 1D7F5, 1D7FF
+1033        Mn  230 NSM  N Diacritic, Extender, 1E944, 1E945, 1E946
+1034        No    0 AL   N 2, 1EC72, 1ECA4, 1ECB2, 1ED02, 1ED2F
+1035        No    0 AL   N 3, 1EC73, 1ECA5, 1ED03, 1ED30
+1036        No    0 AL   N 4, 1EC74, 1ECA6, 1ED04, 1ED31
+1037        No    0 AL   N 5, 1EC75, 1ECA7, 1ED05, 1ED32
+1038        No    0 AL   N 6, 1EC76, 1ECA8, 1ED06, 1ED33
+1039        No    0 AL   N 7, 1EC77, 1ECA9, 1ED07, 1ED34
+1040        No    0 AL   N 8, 1EC78, 1ECAA, 1ED08, 1ED35
+1041        No    0 AL   N 9, 1EC79, 1ECAB, 1ED09, 1ED36
+1042        No    0 AL   N 30, 1EC7C, 1ED0C
+1043        No    0 AL   N 40, 1EC7D, 1ED0D
+1044        No    0 AL   N 50, 1EC7E, 1ED0E
+1045        No    0 AL   N 60, 1EC7F, 1ED0F
+1046        No    0 AL   N 70, 1EC80, 1ED10
+1047        No    0 AL   N 80, 1EC81, 1ED11
+1048        No    0 AL   N 90, 1EC82, 1ED12
+1049        No    0 AL   N 200, 1EC84, 1ED14
+1050        No    0 AL   N 300, 1EC85, 1ED15
+1051        No    0 AL   N 400, 1EC86, 1ED16, 1ED38
+1052        No    0 AL   N 500, 1EC87, 1ED17
+1053        No    0 AL   N 600, 1EC88, 1ED18, 1ED39
+1054        No    0 AL   N 700, 1EC89, 1ED19
+1055        No    0 AL   N 800, 1EC8A, 1ED1A
+1056        No    0 AL   N 900, 1EC8B, 1ED1B
+1057        No    0 AL   N 1000, 1EC8C, 1ED1C
+1058        No    0 AL   N 2000, 1EC8D, 1ED1D, 1ED3A
+1059        No    0 AL   N 3000, 1EC8E, 1ED1E
+1060        No    0 AL   N 4000, 1EC8F, 1ED1F
+1061        No    0 AL   N 5000, 1EC90, 1ED20
+1062        No    0 AL   N 6000, 1EC91, 1ED21
+1063        No    0 AL   N 7000, 1EC92, 1ED22
+1064        No    0 AL   N 8000, 1EC93, 1ED23
+1065        No    0 AL   N 9000, 1EC94, 1ED24
+1066        No    0 AL   N 10000, 1EC95, 1ECB3, 1ED25, 1ED3B
+1067        No    0 AL   N 20000, 1EC96, 1ED26
+1068        No    0 AL   N 30000, 1EC97, 1ED27
+1069        No    0 AL   N 40000, 1EC98, 1ED28
+1070        No    0 AL   N 50000, 1EC99, 1ED29
+1071        No    0 AL   N 60000, 1EC9A, 1ED2A
+1072        No    0 AL   N 70000, 1EC9B, 1ED2B
+1073        No    0 AL   N 80000, 1EC9C, 1ED2C
+1074        No    0 AL   N 90000, 1EC9D, 1ED2D
+1075        No    0 AL   N 100000, 1EC9E, 1ECA0, 1ECB4
+1076        No    0 AL   N 200000, 1EC9F
+1077        No    0 AL   N 10000000, 1ECA1
+1078        No    0 AL   N 20000000, 1ECA2
+1079        No    0 AL   N 1/4, 1ECAD
+1080        No    0 AL   N 1/2, 1ECAE, 1ED3C
+1081        No    0 AL   N 3/4, 1ECAF
+1082        No    0 AL   N 1/6, 1ED3D
+1083        Lo    0 AL   N Other_Math, 1EE00, 1EE01, 1EE02, 1EE03, 1EE05, 1EE06,
                            1EE07, 1EE08, 1EE09, 1EE0A, 1EE0B, 1EE0C, 1EE0D,
                            1EE0E, 1EE0F, 1EE10, 1EE11, 1EE12, 1EE13, 1EE14,
                            1EE15, 1EE16, 1EE17, 1EE18, 1EE19, 1EE1A, 1EE1B,
@@ -26827,10 +26833,10 @@
                            1EEAC, 1EEAD, 1EEAE, 1EEAF, 1EEB0, 1EEB1, 1EEB2,
                            1EEB3, 1EEB4, 1EEB5, 1EEB6, 1EEB7, 1EEB8, 1EEB9,
                            1EEBA, 1EEBB
-1078        So    0 L    N Regional_Indicator, 1F1E6, 1F1E7, 1F1E8, 1F1E9,
+1084        So    0 L    N Regional_Indicator, 1F1E6, 1F1E7, 1F1E8, 1F1E9,
                            1F1EA, 1F1EB, 1F1EC, 1F1ED, 1F1EE, 1F1EF, 1F1F0,
                            1F1F1, 1F1F2, 1F1F3, 1F1F4, 1F1F5, 1F1F6, 1F1F7,
                            1F1F8, 1F1F9, 1F1FA, 1F1FB, 1F1FC, 1F1FD, 1F1FE,
                            1F1FF
-1079        Sk    0 ON   N 1F3FB, 1F3FC, 1F3FD, 1F3FE, 1F3FF
-1080        Lo    0 L    N 9, Ideographic, 2F890
+1085        Sk    0 ON   N 1F3FB, 1F3FC, 1F3FD, 1F3FE, 1F3FF
+1086        Lo    0 L    N 9, Ideographic, 2F890
