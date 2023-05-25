@@ -2,7 +2,7 @@
 //
 // File:	min_unicode.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  5 16:21:41 EDT 2015
+// Date:	Thu May 25 16:59:59 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,6 +85,9 @@ UNI::extra_name const
 UNI::ustring const
     UNI::picture[UNI::index_limit] =
         { UNICODE_PICTURE };
+UNI::ustring const
+    UNI::html_reserved[UNI::index_limit] =
+        { UNICODE_HTML_RESERVED };
 const UNI::uns32
     UNI::support_sets[UNI::index_limit] =
         { UNICODE_SUPPORT_SETS };

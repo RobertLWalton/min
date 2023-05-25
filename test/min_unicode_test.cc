@@ -2,7 +2,7 @@
 //
 // File:	min_unicode_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  4 16:28:36 EDT 2020
+// Date:	Thu May 25 16:58:45 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,6 +79,7 @@ using UNI::bidi_mirrored;
 using UNI::properties;
 using UNI::name;
 using UNI::picture;
+using UNI::html_reserved;
 using UNI::support_sets;
 using UNI::reference_count;
 
