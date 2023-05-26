@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 24 06:35:20 EDT 2023
+// Date:	Thu May 25 22:26:40 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10349,6 +10349,13 @@ const min::op min::erase_space
 const min::op min::erase_all_space
     ( min::op::ERASE_ALL_SPACE );
 
+const min::op min::disable_line_breaks
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::DISABLE_LINE_BREAKS );
+const min::op min::nodisable_line_breaks
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::DISABLE_LINE_BREAKS );
+
 const min::op min::expand_ht
     ( min::op::SET_PRINT_OP_FLAGS,
       min::EXPAND_HT );
@@ -10376,6 +10383,13 @@ const min::op min::display_non_graphic
 const min::op min::nodisplay_non_graphic
     ( min::op::CLEAR_PRINT_OP_FLAGS,
       min::DISPLAY_NON_GRAPHIC );
+
+const min::op min::output_html
+    ( min::op::SET_PRINT_OP_FLAGS,
+      min::OUTPUT_HTML );
+const min::op min::nooutput_html
+    ( min::op::CLEAR_PRINT_OP_FLAGS,
+      min::OUTPUT_HTML );
 
 const min::op min::flush_on_eol
     ( min::op::SET_PRINT_OP_FLAGS,

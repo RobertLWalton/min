@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 21:40:23 EDT 2023
+// Date:	Thu May 25 22:26:57 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12828,6 +12828,9 @@ namespace min {
     extern const op flush_one_id;
     extern const op flush_id_map;
 
+    extern const op disable_line_breaks;
+    extern const op nodisable_line_breaks;
+
     extern const op expand_ht;
     extern const op noexpand_ht;
     extern const op display_eol;
@@ -12836,6 +12839,9 @@ namespace min {
     extern const op nodisplay_picture;
     extern const op display_non_graphic;
     extern const op nodisplay_non_graphic;
+
+    extern const op output_html;
+    extern const op nooutput_html;
 
     extern const op flush_on_eol;
     extern const op noflush_on_eol;
