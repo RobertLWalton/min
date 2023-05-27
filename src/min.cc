@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu May 25 22:26:40 EDT 2023
+// Date:	Sat May 27 01:54:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2826,6 +2826,8 @@ min::uns32 min::line
 		        - line_number)];
 }
 
+static min::uns32 end_line
+        ( min::printer printer, min::uns32 op_flags );
 min::uns32 min::print_line
 	( min::printer printer,
 	  min::file file,
@@ -2942,47 +2944,13 @@ min::uns32 min::print_line
     }
     else if ( line_format->op_flags & min::DISPLAY_EOL )
     {
-	min::uns32 saved_op_flags =
-	    printer->print_format.op_flags;
-
-	printer->print_format.op_flags |=
-	    min::DISPLAY_EOL;
-
-	if (   line_format->op_flags
-	     & min::DISPLAY_PICTURE )
-	{
-	    printer->print_format.op_flags |=
-		min::DISPLAY_PICTURE;
-	    ++ width;
-	}
-	else
-	{
-	    min::uns32 prefix_columns =
-		min::ustring_columns
-		    ( printer->print_format
-			      .char_name_format
-			     ->char_name_prefix );
-	    MIN_ASSERT ( prefix_columns > 0,
-			 "char_name_prefix"
-			 " ustring_columns is zero" );
-	    min::uns32 postfix_columns =
-		min::ustring_columns
-		    ( printer->print_format
-			      .char_name_format
-			     ->char_name_postfix );
-	    MIN_ASSERT ( postfix_columns > 0,
-			 "char_name_postfix"
-			 " ustring_columns is zero" );
-	    width +=
-		  prefix_columns + 2
-				 + postfix_columns;
-		      // 2 is width of "NL"
-	} 
-	printer << min::eol;
-	    // min::eol handles min::DISPLAY_EOL
-	    // with printer->print_format.op_flags.
-
-	printer->print_format.op_flags = saved_op_flags;
+	// Mimic min::eol with different op_flags.
+	//
+        width = ::end_line
+	    ( printer, line_format->op_flags );
+	if (   printer->print_format.op_flags
+	     & min::FLUSH_ON_EOL )
+	    min::flush_file ( printer->file );
     }
     else
 	printer << min::eol;
@@ -9895,7 +9863,8 @@ inline void push
     min::push ( buffer, length, p );
 }
 
-static void end_line ( min::printer printer )
+static min::uns32 end_line
+        ( min::printer printer, min::uns32 op_flags )
 {
     // Remove line ending horizontal spaces.
     //
@@ -9912,40 +9881,20 @@ static void end_line ( min::printer printer )
 
     // Add displayed eol.
     //
-    if (   printer->print_format.op_flags
-         & min::DISPLAY_EOL )
+    if ( op_flags & min::DISPLAY_EOL )
     {
         min::Uchar c = min::unicode::SOFTWARE_NL;
-	MIN_REQUIRE ( c < min::unicode::index_size );
-        min::uns16 cindex = min::unicode::index[c];
-	MIN_ASSERT
-	    ( min::unicode::picture[cindex] != NULL,
-	     "SOFTWARE_NL has no unicode::picture" );
-	MIN_ASSERT
-	    ( min::unicode::name[cindex] != NULL,
-	     "SOFTWARE_NL has no unicode::name" );
-
-	if ( printer->print_format.op_flags
-	     &
-	     min::DISPLAY_PICTURE )
-	    ::push ( buffer,
-	             min::unicode::picture [cindex] );
-	else
-	{
-	    ::push ( buffer,
-	             printer->print_format
-		     	     .char_name_format
-			    ->char_name_prefix );
-	    ::push ( buffer,
-	             min::unicode::name [cindex] );
-	    ::push ( buffer,
-	             printer->print_format
-		     	     .char_name_format
-			    ->char_name_postfix );
-	}
+	min::ptr<const min::Uchar> p =
+	    min::new_ptr<const min::Uchar> ( & c );
+	min::uns32 width = (min::uns32) -1;
+	min::unsptr length = 1;
+	MINT::print_unicode
+	    ( printer, op_flags, length, p, width );
     }
 
     min::end_line ( printer->file );
+
+    min::uns32 width = printer->column;
 
     printer->column = 0;
     printer->line_break.offset = buffer->length;
@@ -9953,6 +9902,8 @@ static void end_line ( min::printer printer )
     printer->state &= min::AFTER_PARAGRAPH
                     + min::AFTER_LINE_TERMINATOR;
     printer->last_str_class = 0;
+
+    return width;
 }
 
 min::printer operator <<
@@ -10151,7 +10102,9 @@ min::printer operator <<
 	    min::pop ( printer->line_break_stack );
         if ( printer->column != 0 )
 	{
-	    ::end_line ( printer );
+	    ::end_line
+	        ( printer,
+	          printer->print_format.op_flags );
 	    if (   printer->print_format.op_flags
 		 & min::FLUSH_ON_EOL )
 		min::flush_file ( printer->file );
@@ -10173,7 +10126,9 @@ min::printer operator <<
 	MIN_FALLTHROUGH // to EOL.
     eol:
     case min::op::EOL:
-	::end_line ( printer );
+	::end_line
+	    ( printer,
+	      printer->print_format.op_flags );
 	if (   printer->print_format.op_flags
 	     & min::FLUSH_ON_EOL )
 	    min::flush_file ( printer->file );
@@ -10268,7 +10223,9 @@ min::printer operator <<
     case min::op::INDENT:
         if (   printer->column
 	     > printer->line_break.indent )
-	    ::end_line ( printer );
+	    ::end_line
+		( printer,
+		  printer->print_format.op_flags );
     execute_indent:
 	if (   printer->column
 	     < printer->line_break.indent )
