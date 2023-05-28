@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 27 17:58:57 EDT 2023
+// Date:	Sun May 28 01:28:55 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9529,8 +9529,10 @@ const min::break_control
 
 static min::char_name_format standard_char_name_format =
 {
-    (min::ustring) "\x01\x01" "<",
+    (min::ustring) "\x01\x01" "<"
+                   "\x04\x01" "&lt;",
     (min::ustring) "\x01\x01" ">"
+                   "\x04\x01" "&gt;"
 };
 const min::char_name_format *
 	min::standard_char_name_format =
@@ -10931,6 +10933,15 @@ min::printer print_quoted_unicode
     min::ustring postfix = qf.str_postfix;
     min::ustring replacement =
         qf.str_postfix_replacement;
+    MIN_ASSERT ( prefix != NULL,
+                 "str_prefix is NULL" );
+    MIN_ASSERT ( postfix != NULL,
+                 "str_postfix is NULL" );
+    MIN_ASSERT ( replacement != NULL,
+                 "str_postfix_replacement is NULL" );
+
+    min::ustring break_begin = sf->str_break_begin;
+    min::ustring break_end = sf->str_break_end;
 
     if (   printer->print_format.op_flags
          & min::OUTPUT_HTML )
@@ -10945,6 +10956,18 @@ min::printer print_quoted_unicode
 	p = replacement + 2
 	  + min::ustring_length ( replacement );
 	if ( * p ) replacement = p;
+	if ( break_begin != NULL )
+	{
+	    p = break_begin + 2
+	      + min::ustring_length ( break_begin );
+	    if ( * p ) break_begin = p;
+	}
+	if ( break_end != NULL )
+	{
+	    p = break_end + 2
+	      + min::ustring_length ( break_end );
+	    if ( * p ) break_end = p;
+	}
     }
 
     min::line_break_stack line_break_stack =
@@ -10980,13 +11003,11 @@ min::printer print_quoted_unicode
 		 " is zero" );
 
     min::uns32 break_begin_columns =
-        ( sf->str_break_begin == NULL ? 0 :
-	  min::ustring_columns
-	      ( sf->str_break_begin ) );
+        ( break_begin == NULL ? 0 :
+	  min::ustring_columns ( break_begin ) );
     min::uns32 break_end_columns =
-        ( sf->str_break_end == NULL ? 0 :
-	  min::ustring_columns
-	      ( sf->str_break_end ) );
+        ( break_end == NULL ? 0 :
+	  min::ustring_columns ( break_end ) );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
@@ -11034,11 +11055,11 @@ min::printer print_quoted_unicode
 
 	min::print_ustring ( printer, postfix );
 	min::print_ustring
-	        ( printer, sf->str_break_begin );
+	        ( printer, break_begin );
 	min::print_space ( printer );
 	printer << min::set_break;
 	min::print_ustring
-	        ( printer, sf->str_break_end );
+	        ( printer, break_end );
 	min::print_ustring ( printer, prefix );
 
 	width = reduced_width - break_begin_columns;
@@ -11054,6 +11075,28 @@ min::printer print_breakable_unicode
 	  min::ptr<const min::Uchar> p,
 	  const min::str_format * sf )
 {
+
+    min::ustring break_begin = sf->str_break_begin;
+    min::ustring break_end = sf->str_break_end;
+
+    if (   printer->print_format.op_flags
+         & min::OUTPUT_HTML )
+    {
+	min::ustring p;
+	if ( break_begin != NULL )
+	{
+	    p = break_begin + 2
+	      + min::ustring_length ( break_begin );
+	    if ( * p ) break_begin = p;
+	}
+	if ( break_end != NULL )
+	{
+	    p = break_end + 2
+	      + min::ustring_length ( break_end );
+	    if ( * p ) break_end = p;
+	}
+    }
+
     min::print_item_preface
         ( printer, min::IS_GRAPHIC );
 
@@ -11079,13 +11122,11 @@ min::printer print_breakable_unicode
     }
 
     min::uns32 break_begin_columns =
-        ( sf->str_break_begin == NULL ? 0 :
-	  min::ustring_columns
-	      ( sf->str_break_begin ) );
+        ( break_begin == NULL ? 0 :
+	  min::ustring_columns ( break_begin ) );
     min::uns32 break_end_columns =
-        ( sf->str_break_end == NULL ? 0 :
-	  min::ustring_columns
-	      ( sf->str_break_end ) );
+        ( break_end == NULL ? 0 :
+	  min::ustring_columns ( break_end ) );
 
     min::uns32 reduced_width =
           printer->line_break.line_length
@@ -11107,12 +11148,10 @@ min::printer print_breakable_unicode
 
 	if ( length == 0 ) break;
 
-	min::print_ustring
-	        ( printer, sf->str_break_begin );
+	min::print_ustring ( printer, break_begin );
 	min::print_space ( printer );
 	printer << min::set_break;
-	min::print_ustring
-	        ( printer, sf->str_break_end );
+	min::print_ustring ( printer, break_end );
 
 	width = reduced_width - break_begin_columns;
     }
@@ -11916,9 +11955,12 @@ min::printer min::print_num
 
 const min::quote_format min::standard_quote_format =
 {
-    (min::ustring) "\x01\x01" "\"",
-    (min::ustring) "\x01\x01" "\"",
-    (min::ustring) "\x03\x03" "<Q>",
+    (min::ustring) "\x01\x01" "\""
+                   "\x06\x01" "&quot;",
+    (min::ustring) "\x01\x01" "\""
+                   "\x06\x01" "&quot;",
+    (min::ustring) "\x03\x03" "<Q>"
+                   "\x09\x03" "&lt;Q&gt;",
 };
 
 static min::str_format quote_separator_str_format =
