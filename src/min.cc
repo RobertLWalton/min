@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 28 01:28:55 EDT 2023
+// Date:	Sun May 28 16:26:19 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11157,109 +11157,6 @@ min::printer print_breakable_unicode
     }
 
     return printer;
-}
-
-min::printer min::html_print_unicode
-	( min::printer printer,
-	  min::unsptr n,
-	  min::ptr<const min::Uchar> p )
-{
-    if ( n == 0 ) return printer;
-
-    const min::uns32 * char_flags =
-	printer->print_format.char_flags;
-
-    min::packed_vec_insptr<char> buffer =
-        printer->file->buffer;
-
-    for ( ; n > 0; n --, p ++ )
-    {
-        min::Uchar c = * p;
-
-	if ( 32 <= c && c < 127 )
-	{
-	    // Most common case.
-	    //
-	    if ( c == '<' )
-		min::push ( buffer, 4, "&lt;" );
-	    else if ( c == '>' )
-		min::push ( buffer, 4, "&gt;" );
-	    else if ( c == '&' )
-		min::push ( buffer, 5, "&amp;" );
-	    else
-	    {
-		char rep[1] = { (char) c };
-		min::push ( buffer, 1, rep );
-	    }
-	    printer->column += 1;
-	}
-	else if ( c == '\t' )
-	{
-	    min::uns32 spaces =
-		8 - printer->column % 8;
-	    min::push ( buffer, spaces, "        " );
-	    printer->column += spaces;
-	}
-	else
-	{
-	    min::uns16 cindex = min::Uindex ( c );
-	    min::uns32 cflags = char_flags[cindex];
-
-	    if ( cflags & min::IS_CONTROL )
-	    {
-	        char rep[20];
-		int len = sprintf ( rep, "<0%02X>", c );
-		min::push ( buffer, len, rep );
-	    }
-	    else
-	    {
-	        char rep[20];
-		char * p = rep;
-		min::unicode_to_utf8 ( p, c );
-		min::push ( buffer, p - rep, rep );
-	    }
-
-	    if ( ( cflags & min::IS_NON_SPACING ) == 0 )
-		printer->column += 1;
-	}
-    }
-
-    return printer;
-}
-
-// NOTE: Importantly this function copies s to the
-// stack BEFORE calling anything that might relocate
-// memory.
-//
-min::printer min::html_print_cstring
-	( min::printer printer,
-	  min::unsptr n,
-	  const char * s )
-{
-    const char * ends = s + n;
-
-    min::Uchar buffer[n+1];
-    min::unsptr i = 0;
-
-    while ( s < ends )
-    {
-	min::Uchar c = (min::uns8) * s ++;
-        if ( c >= 0x80 )
-	{
-	    // UTF-8 encoded character.  Might be
-	    // overlong encoded ASCII character such
-	    // as NUL.
-
-	    -- s;
-	    c = min::utf8_to_unicode ( s, ends );
-	}
-	buffer[i++] = c;
-    }
-
-    min::ptr<const min::Uchar> p =
-        min::new_ptr<const min::Uchar> ( buffer );
-
-    return min::html_print_unicode ( printer, i, p );
 }
 
 void min::debug_str_class

@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 25, 2023}
+\date{May 28, 2023}
  
 \maketitle
 
@@ -11714,54 +11714,6 @@ which is being used to access the object elements; see
 If the object has no \TT{.position} attribute, or if the attribute is
 not a \TT{min::\EOL phrase\_\EOL position\_\EOL vec} value,
 \TT{min::\EOL NULL\_\EOL STUB} is returned.
-
-\subsubsection{Printing File Lines and Phrases to HTML}
-\label{PRINTING-FILE-LINES-AND-PHRASES-TO-HTML}
-
-UTF-8 encoded file lines and part lines may be printed in a form suitable
-for including in HTML \TT{<pre>} tagged text.  The UTF-8 string
-is printed as is except:
-\begin{enumerate}
-\item \TT{<} is printed as \TT{\&lt;}.
-\item \TT{>} is printed as \TT{\&gt;}.
-\item \TT{\&} is printed as \TT{\&amp;}.
-\item A horizontal tab is expanded to single spaces.
-\item A control character (in UNICODE class C) that
-is not a horizontal tab, line feed, or carriage return
-is printed as \TT{<0xxxx>} where \TT{xxxx} is the hexadecimal
-represention of the character's code.
-\end{enumerate}
-
-\TT{printer->columns} is updated by adding one for characters
-without the \TT{min::IS\_NON\_\EOL SPACING} character flag
-(\pagref{MIN::IS_NON_SPACING}), except for
-horizontal tabs which update the column assuming
-tab stops every 8 columns.
-
-The HTML printing functions are:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{html\_print\_unicode}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n,|\ARGBREAK
-    \verb|  min::ptr<const min::Uchar> p )|
-\LABEL{MIN::HTML_PRINT_UNICODE} \\
-\end{tabular}\end{indpar}
-
-Note the vector of \TT{min::Uchar}'s may be in a relocatable body.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{html\_print\_cstring}\ARGBREAK
-    \verb|( min::printer printer,|\ARGBREAK
-    \verb|  min::unsptr n,|\ARGBREAK
-    \verb|  const char * str )|
-\LABEL{MIN::HTML_PRINT_CSTRING} \\
-\end{tabular}\end{indpar}
-
-Note the string length {\tt n} is explicitly given.
-
-The various printer flags and formats are ignored by these
-functions.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
