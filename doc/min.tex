@@ -9384,8 +9384,10 @@ See \pagref{MIN::SUPPORT_CONTROL_STRUCT}.
 \begin{indpar}[1em]\begin{tabular}{rl}
 \multicolumn{2}{l}{\tt const min::char\_name\_format
     min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
-\verb|{ (min::ustring) "\x01\x01" "<",|\ARGBREAK[1.0in]
-\verb|  (min::ustring) "\x01\x01" ">" };|
+\verb|{ (min::ustring) "\x01\x01" "<"|\ARGBREAK[1.0in]
+\verb|                 "\x04\x01" "&lt;",|\ARGBREAK[1.0in]
+\verb|  (min::ustring) "\x01\x01" ">"|\ARGBREAK[1.0in]
+\verb|                 "\x04\x01" "&gt;" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -12219,8 +12221,11 @@ The formats for printing string \TT{min::gen} values are:
 \multicolumn{2}{l}{\tt const min::quote\_format
                    min::\MINKEY{standard\_quote\_format}:}\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|               "\x06\x01" "&quot;"|\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|               "\x06\x01" "&quot;"|\ARGBREAK
 \verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|               "\x09\x01" "&lt;Q&gt;"|
 \LABEL{MIN::STANDARD_QUOTE_FORMAT}
 \end{tabular}\end{indpar}
 
@@ -21607,8 +21612,10 @@ Other flags:
 \begin{TABULAR}{0.0in}
 \multicolumn{2}{l}{\tt const min::char\_name\_format
     min::\MINKEY{standard\_char\_name\_format} =}\ARGBREAK[1.0in]
-\verb|{ (min::ustring) "\x01\x01" "<",|\ARGBREAK[1.0in]
-\verb|  (min::ustring) "\x01\x01" ">" };|
+\verb|{ (min::ustring) "\x01\x01" "<"|\ARGBREAK[1.0in]
+\verb|                 "\x04\x01" "&lt;",|\ARGBREAK[1.0in]
+\verb|  (min::ustring) "\x01\x01" ">"|\ARGBREAK[1.0in]
+\verb|                 "\x04\x01" "&gt;" };|
 \LABEL{MIN::STANDARD_CHAR_NAME_FORMAT} \\
 \end{TABULAR}
 
@@ -22811,8 +22818,11 @@ Other flags:
                    min::\MINKEY{standard\_quote\_format}:}
 \LABEL{MIN::STANDARD_QUOTE_FORMAT}\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_prefix|\ARGBREAK
+\verb|               "\x06\x01" "&quot;"|\ARGBREAK
 \verb|(min::ustring) "\x01\x01" "\""   // str_postfix|\ARGBREAK
+\verb|               "\x06\x01" "&quot;"|\ARGBREAK
 \verb|(min::ustring) "\x03\x03" "<Q>"  // str_postfix_name|\ARGBREAK
+\verb|               "\x09\x01" "&lt;Q&gt;"|
 \end{TABULAR}
 
 \bigskip
