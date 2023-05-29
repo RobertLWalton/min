@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 28 16:26:19 EDT 2023
+// Date:	Mon May 29 17:49:38 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,6 +67,10 @@ min::locatable_stub_ptr *
     MINT::locatable_stub_ptr_last = NULL;
 min::locatable_gen *
     MINT::locatable_gen_last = NULL;
+
+static const char * html_reserved_table[256];
+    // See MINT::initialize and ::file_write_ostream
+    // below.
 
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
@@ -371,6 +375,15 @@ void MINT::initialize ( void )
     PTR_CHECK ( min::packed_vec_ptr<int,int> );
     PTR_CHECK ( min::packed_vec_updptr<int,int> );
     PTR_CHECK ( min::packed_vec_insptr<int,int> );
+
+    // See ::file_write_ostream below.
+    //
+    ::html_reserved_table['&'] = "&amp;";
+    ::html_reserved_table['<'] = "&lt;";
+    ::html_reserved_table['>'] = "&gt;";
+    ::html_reserved_table['"'] = "&quot;";
+    ::html_reserved_table[0xC2] = "";
+    ::html_reserved_table[0xE2] = "";
 
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";
@@ -2491,10 +2504,12 @@ void min::init_file_name
 
 void min::init_ostream
 	( min::ref<min::file> file,
-	  std::ostream & ostream )
+	  std::ostream & ostream,
+	  min::uns32 flags )
 {
     init ( file );
     file->ostream = & ostream;
+    file->flags = flags;
 }
 
 void min::init_ofile
@@ -3108,6 +3123,99 @@ void min::flush_file
 	min::complete_file (file->ofile );
 }
 
+inline void file_write_ostream
+    ( min::file file, min::uns32 offset,
+                      min::uns32 length )
+{
+    const char * q = ~ ( file->buffer + offset );
+
+    if ( file->flags & min::HTML_OSTREAM )
+    {
+        const char * p = q;
+	const char * endp = q + length;
+
+	for ( ; p < endp; ++ p )
+	{
+	    min::uns8 c = (min::uns8) * p;
+	    const char * r = ::html_reserved_table[c];
+	    if ( r == NULL ) continue;
+
+	    if ( c < 127 )
+	    {
+	        // Most common case.
+		//
+	        if ( p > q )
+		    (*file->ostream).write ( q, p - q );
+		* file->ostream << r;
+		q = p + 1;
+		continue;
+	    }
+
+	    const char * pnext = p;
+	    if ( c == 0xC2 )
+	    {
+	        if ( p + 1 >= endp ) continue;
+
+	        c = (min::uns8) p[1];
+		if      ( c == 0xA0 ) r = "&nbsp;";
+		else if ( c == 0xA9 ) r = "&copy;";
+		else if ( c == 0xAE ) r = "&reg";
+		else if ( c == 0xA3 ) r = "&pound";
+		else if ( c == 0xB0 ) r = "&deg";
+		else continue;
+		++ pnext;
+	    }
+	    else if ( c == 0xE2 )
+	    {
+	        if ( p + 2 >= endp ) continue;
+
+	        c = (min::uns8) p[1];
+		if ( c == 0x80 )
+		{
+		    c = (min::uns8) p[2];
+		    if      ( c == 0x93 ) r = "&ndash";
+		    else if ( c == 0x94 ) r = "&mdash;";
+		    else continue;
+		}
+		else if ( c == 0x84 )
+		{
+		    c = (min::uns8) p[2];
+		    if ( c == 0xA2 )      r = "&trade";
+		    else continue;
+		}
+		else if ( c == 0x89 )
+		{
+		    c = (min::uns8) p[2];
+		    if      ( c == 0x88 ) r = "&asymp";
+		    else if ( c == 0xA9 ) r = "&ne";
+		    else continue;
+		}
+		else if ( c == 0x82 )
+		{
+		    c = (min::uns8) p[2];
+		    if ( c == 0xAC )      r = "&euro";
+		    else continue;
+		}
+		else continue;
+
+		pnext += 2;
+	    }
+	    else continue;
+
+	    if ( p > q )
+		(*file->ostream).write ( q, p - q );
+	    * file->ostream << r;
+	    p = pnext;
+	    q = p + 1;
+	    continue;
+	}
+	if ( q < endp )
+	    (*file->ostream).write ( q, endp - q );
+    }
+    else
+	(*file->ostream).write ( q, length );
+}
+
 void min::flush_line
 	( min::file file, min::uns32 offset )
 {
@@ -3116,8 +3224,12 @@ void min::flush_line
 		 " beyond end of file" );
 
     if ( file->ostream != NULL )
-        * file->ostream << ~ ( file->buffer + offset )
-	                << std::endl;
+    {
+        uns32 length =
+	    ::strlen ( ~ ( file->buffer + offset ) );
+	::file_write_ostream ( file, offset, length );
+        * file->ostream << std::endl;
+    }
 
     if ( file->ofile != NULL_STUB )
     {
@@ -3147,7 +3259,7 @@ void min::flush_remaining ( min::file file )
 
     if ( file->ostream != NULL )
     {
-        * file->ostream << ~ ( file->buffer + offset );
+	::file_write_ostream ( file, offset, length );
 	std::flush ( * file->ostream );
     }
 
