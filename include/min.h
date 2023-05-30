@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 06:28:11 EDT 2023
+// Date:	Tue May 30 16:23:00 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12893,6 +12893,7 @@ namespace min {
 	    va_list va;
 	    va_start ( va, format );
 	    vsprintf ( buffer, format, va );
+	    va_end ( va );
 	}
     };
 
@@ -13172,6 +13173,12 @@ namespace min {
 	  const char * s, min::unsptr n,
 	  const min::print_format & print_format,
 	  const min::line_format * line_format = NULL );
+
+    inline std::ostream & tag ( min::printer printer )
+    {
+        min::flush_file ( printer->file );
+	return * printer->file->ostream;
+    }
 
     typedef min::printer (* pstring )
 	    ( min::printer printer );

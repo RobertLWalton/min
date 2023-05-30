@@ -11713,6 +11713,42 @@ If the object has no \TT{.position} attribute, or if the attribute is
 not a \TT{min::\EOL phrase\_\EOL position\_\EOL vec} value,
 \TT{min::\EOL NULL\_\EOL STUB} is returned.
 
+\subsubsection{Printing HTML Tags}
+\label{PRINTING-HTML-TAGS}
+
+When a printer \TT{min::OUTPUT\_HTML} flag is set,
+reserved characters that are printed in the normal ways
+are replaced as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
+However it is necessary to avoid replacing characters when
+printing HTML tags.  This can be done with the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & min::| & \MINKEY{tag}
+    \verb|( min::printer printer )|
+\LABEL{MIN::TAG} \\
+\end{tabular}\end{indpar}
+
+which first flushes the printer buffer and then returns
+\TT{printer->\EOL file->\EOL ostream}.  Elements printed
+using this \TT{ostream} do not have their characters
+replaced.  But it is important to flush the printer buffer
+between any operations that put characters into the buffer
+and any use of the \TT{min::tag} \TT{ostream}.
+
+Some example uses are:
+
+\begin{indpar}\begin{verbatim}
+min::tag(printer) << "<pre>\n";
+min::tag(printer) << "<p class='" << p_class << "'>\n";
+\end{verbatim}\end{indpar}
+
+Note that printing tags with \TT{min::tag} does not
+update \TT{printer->column} and other printer parameters
+used to insert spaces between print items.
+Thus tags are invisible to print formatting.
+For example, printing an end of line by sending \TT{'\textbackslash n'}
+to \TT{min::tag} does not set \TT{printer->\EOL column} to \TT{0}.
+
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
 
