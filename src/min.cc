@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 29 23:19:15 EDT 2023
+// Date:	Tue May 30 04:55:39 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9641,10 +9641,8 @@ const min::break_control
 
 static min::char_name_format standard_char_name_format =
 {
-    (min::ustring) "\x01\x01" "<"
-                   "\x04\x01" "&lt;",
+    (min::ustring) "\x01\x01" "<",
     (min::ustring) "\x01\x01" ">"
-                   "\x04\x01" "&gt;"
 };
 const min::char_name_format *
 	min::standard_char_name_format =
@@ -11964,12 +11962,9 @@ min::printer min::print_num
 
 const min::quote_format min::standard_quote_format =
 {
-    (min::ustring) "\x01\x01" "\""
-                   "\x06\x01" "&quot;",
-    (min::ustring) "\x01\x01" "\""
-                   "\x06\x01" "&quot;",
+    (min::ustring) "\x01\x01" "\"",
+    (min::ustring) "\x01\x01" "\"",
     (min::ustring) "\x03\x03" "<Q>"
-                   "\x09\x03" "&lt;Q&gt;",
 };
 
 static min::str_format quote_separator_str_format =
