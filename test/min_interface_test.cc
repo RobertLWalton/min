@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 29 22:47:05 EDT 2023
+// Date:	Tue May 30 04:46:05 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3413,6 +3413,7 @@ void test_printer ( void )
     printer << line << min::eol;
     printer->file->flags |= min::HTML_OSTREAM;
     printer << line << min::eol;
+    printer << "A B C 0 1 8 9 . , + x y z" << min::eol;
     printer->file->flags &= ~ min::HTML_OSTREAM;
 
     printer << min::set_display_control

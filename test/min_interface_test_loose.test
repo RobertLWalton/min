@@ -1593,6 +1593,7 @@ ERROR: During attempt to find the size of file min_non_existent_file:
 HTML Print Test:
 < > & "   <2013> <2014> © ® <2122> <2248> <2260> £ <20AC> °
 &lt; &gt; &amp; &quot; &nbsp; &lt;2013&gt; &lt;2014&gt; &copy; &reg; &lt;2122&gt; &lt;2248&gt; &lt;2260&gt; &pound; &lt;20AC&gt; &deg;
+A B C 0 1 8 9 . , + x y z
 < > & "   – — © ® ™ ≈ ≠ £ € °
 &lt; &gt; &amp; &quot; &nbsp; &ndash; &mdash; &copy; &reg; &trade; &asymp; &ne; &pound; &euro; &deg;
 
