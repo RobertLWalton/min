@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 05:21:14 EDT 2023
+// Date:	Tue May 30 06:50:18 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2504,12 +2504,10 @@ void min::init_file_name
 
 void min::init_ostream
 	( min::ref<min::file> file,
-	  std::ostream & ostream,
-	  min::uns32 flags )
+	  std::ostream & ostream )
 {
     init ( file );
     file->ostream = & ostream;
-    file->flags = flags;
 }
 
 void min::init_ofile
@@ -3129,7 +3127,7 @@ inline void file_write_ostream
 {
     const char * q = ~ ( file->buffer + offset );
 
-    if ( file->flags & min::HTML_OSTREAM )
+    if ( file->op_flags & min::OUTPUT_HTML )
     {
         const char * p = q;
 	const char * endp = q + length;
@@ -9950,6 +9948,8 @@ min::printer min::init
     printer->column = 0;
     printer->line_break = min::default_line_break;
     printer->print_format = min::default_print_format;
+    printer->file->op_flags =
+	printer->print_format.op_flags;
     printer->state = 0;
     printer->last_str_class = 0;
     * (min::uns32 *) & printer->depth = 0;
@@ -10137,9 +10137,13 @@ min::printer operator <<
 	return printer;
     case min::op::SET_PRINT_OP_FLAGS:
 	printer->print_format.op_flags |= op.v1.u32;
+	printer->file->op_flags =
+	    printer->print_format.op_flags;
 	return printer;
     case min::op::CLEAR_PRINT_OP_FLAGS:
 	printer->print_format.op_flags &= ~ op.v1.u32;
+	printer->file->op_flags =
+	    printer->print_format.op_flags;
 	return printer;
     case min::op::SET_SUPPORT_CONTROL:
         printer->print_format.support_control =
@@ -10163,6 +10167,8 @@ min::printer operator <<
     case min::op::VERBATIM:
 	printer->print_format.op_flags &=
 	    ~ min::EXPAND_HT;
+	printer->file->op_flags =
+	    printer->print_format.op_flags;
 	printer->print_format.support_control =
 	    min::support_all_support_control;
 	printer->print_format.display_control =
@@ -10204,6 +10210,8 @@ min::printer operator <<
     restore_print_format:
 	printer->print_format =
 	    min::pop ( printer->print_format_stack );
+	printer->file->op_flags =
+	    printer->print_format.op_flags;
 	return printer;
     case min::op::BOM:
         min::push ( printer->print_format_stack ) =

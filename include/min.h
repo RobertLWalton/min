@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 29 13:37:15 EDT 2023
+// Date:	Tue May 30 06:28:11 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6266,8 +6266,6 @@ namespace min {
     struct file_struct;
     typedef min::packed_struct_updptr<file_struct> file;
 
-    const min::uns32 HTML_OSTREAM	  = ( 1 << 0 );
-
     struct line_format;
     struct file_struct
     {
@@ -6292,7 +6290,9 @@ namespace min {
 	const min::file		ofile;
 	const min::gen		file_name;
 
-	min::uns32		flags;
+	min::uns32		op_flags;
+	    // Mirrors printer->print_format.op_flags
+	    // when file is printer->file.
     };
 
     MIN_REF ( min::packed_vec_insptr<char>,
@@ -6405,8 +6405,7 @@ namespace min {
 
     void init_ostream
 	    ( min::ref<min::file> file,
-	      std::ostream & ostream,
-	      min::uns32 flags = 0 );
+	      std::ostream & ostream );
 
     void init_ofile
 	    ( min::ref<min::file> file,
