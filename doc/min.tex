@@ -9716,12 +9716,11 @@ regardless of the setting of the display control.
 
 \item[\ttmkey{OUTPUT\_HTML}%
                {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, HTML reserved characters that are displayed as
-per \TT{print\_\EOL for\-mat.display\_control}
-(see step \ref{COMPUTE-PRINTED-REPRESENTATION} on
-\pagref{COMPUTE-PRINTED-REPRESENTATION})
-are replaced in the
-printer output buffer as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
+If this flag is on, HTML reserved characters that are output to
+\TT{printer->\EOL file->\EOL ostream}
+are replaced as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
+It is a \TT{MIN\_\EOL ASSERT} error if this flag is on and
+\TT{printer->\EOL file->\EOL ostream} is \TT{NULL}.
 
 \begin{boxedfigure}[t]
 \begin{center}

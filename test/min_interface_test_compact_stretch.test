@@ -1540,6 +1540,7 @@ The line being flushed
 a<SOH>  <DEL><2400><UUC>
 a<SOH><SP><HT><DEL><2400><UUC>
 a␁␣␉␡<2400>␥
+One 1 Two Point Five 2.5   Char X Text Hi There
 [ aaa, bbb, ccc, ddd, eee, fff, ggg ]
 [ aaa, bbb,
   ccc, ddd,

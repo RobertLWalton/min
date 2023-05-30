@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 06:44:22 EDT 2023
+// Date:	Tue May 30 15:35:57 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3100,6 +3100,15 @@ void test_printer ( void )
     printer << min::eol;
 
     printer << min::restore_print_format;
+
+    printer << min::printf_op<100>
+                   ( "One %d Two Point Five %.1f",
+		     1, 2.5 )
+            << "   "
+	    << min::printf_op<100>
+	           ( "Char %c Text %s",
+		     'X', "Hi There" )
+	    << min::eol;
 
     // Test of non-simultaneous line breaks.
 
