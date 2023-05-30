@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 04:55:39 EDT 2023
+// Date:	Tue May 30 05:21:14 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10792,9 +10792,6 @@ min::printer MINT::print_unicode
         printer->file->buffer;
     min::uns32 expand_ht =
         line_op_flags & min::EXPAND_HT;
-    min::uns32 output_html =
-          printer->print_format.op_flags
-	& min::OUTPUT_HTML;
 
     bool no_line_break_enabled = false;
         // This prevents repeated checks for an enabled
@@ -10842,25 +10839,7 @@ min::printer MINT::print_unicode
 	}
 	else if ( cflags & dc.display_char )
 	{
-	    if ( output_html
-	         && min::unicode
-		       ::html_reserved[cindex] != NULL )
-	    {
-		min::ustring html_reserved =
-		    min::unicode::html_reserved[cindex];
-
-		length = min::ustring_length
-		    ( html_reserved );
-		columns = min::ustring_columns
-		    ( html_reserved );
-		MIN_ASSERT
-		    ( columns > 0,
-		      "html_reserved ustring_columns"
-		      " is zero" );
-		rep = min::ustring_chars
-		    ( html_reserved );
-	    }
-	    else if ( c == '\t' )
+	    if ( c == '\t' )
 	    {
 		rep_is_space = true;
 
@@ -10935,16 +10914,6 @@ min::printer MINT::print_unicode
 	    postfix = printer->print_format
 		     	     .char_name_format
 			    ->char_name_postfix;
-	    if ( output_html )
-	    {
-		min::ustring p;
-		p = prefix + 2
-	          + min::ustring_length(prefix);
-		if ( * p ) prefix = p;
-		p = postfix + 2
-		  + min::ustring_length(postfix);
-		if ( * p ) postfix = p;
-	    }
 
 	    min::uns32 prefix_columns =
 	        min::ustring_columns ( prefix );
@@ -11052,33 +11021,6 @@ min::printer print_quoted_unicode
 
     min::ustring break_begin = sf->str_break_begin;
     min::ustring break_end = sf->str_break_end;
-
-    if (   printer->print_format.op_flags
-         & min::OUTPUT_HTML )
-    {
-        min::ustring p;
-	p = prefix + 2
-	  + min::ustring_length ( prefix );
-	if ( * p ) prefix = p;
-	p = postfix + 2
-	  + min::ustring_length ( postfix );
-	if ( * p ) postfix = p;
-	p = replacement + 2
-	  + min::ustring_length ( replacement );
-	if ( * p ) replacement = p;
-	if ( break_begin != NULL )
-	{
-	    p = break_begin + 2
-	      + min::ustring_length ( break_begin );
-	    if ( * p ) break_begin = p;
-	}
-	if ( break_end != NULL )
-	{
-	    p = break_end + 2
-	      + min::ustring_length ( break_end );
-	    if ( * p ) break_end = p;
-	}
-    }
 
     min::line_break_stack line_break_stack =
         printer->line_break_stack;
@@ -11188,24 +11130,6 @@ min::printer print_breakable_unicode
 
     min::ustring break_begin = sf->str_break_begin;
     min::ustring break_end = sf->str_break_end;
-
-    if (   printer->print_format.op_flags
-         & min::OUTPUT_HTML )
-    {
-	min::ustring p;
-	if ( break_begin != NULL )
-	{
-	    p = break_begin + 2
-	      + min::ustring_length ( break_begin );
-	    if ( * p ) break_begin = p;
-	}
-	if ( break_end != NULL )
-	{
-	    p = break_end + 2
-	      + min::ustring_length ( break_end );
-	    if ( * p ) break_end = p;
-	}
-    }
 
     min::print_item_preface
         ( printer, min::IS_GRAPHIC );
