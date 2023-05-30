@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 29 17:49:38 EDT 2023
+// Date:	Mon May 29 23:19:15 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3159,9 +3159,9 @@ inline void file_write_ostream
 	        c = (min::uns8) p[1];
 		if      ( c == 0xA0 ) r = "&nbsp;";
 		else if ( c == 0xA9 ) r = "&copy;";
-		else if ( c == 0xAE ) r = "&reg";
-		else if ( c == 0xA3 ) r = "&pound";
-		else if ( c == 0xB0 ) r = "&deg";
+		else if ( c == 0xAE ) r = "&reg;";
+		else if ( c == 0xA3 ) r = "&pound;";
+		else if ( c == 0xB0 ) r = "&deg;";
 		else continue;
 		++ pnext;
 	    }
@@ -3173,27 +3173,27 @@ inline void file_write_ostream
 		if ( c == 0x80 )
 		{
 		    c = (min::uns8) p[2];
-		    if      ( c == 0x93 ) r = "&ndash";
+		    if      ( c == 0x93 ) r = "&ndash;";
 		    else if ( c == 0x94 ) r = "&mdash;";
 		    else continue;
 		}
 		else if ( c == 0x84 )
 		{
 		    c = (min::uns8) p[2];
-		    if ( c == 0xA2 )      r = "&trade";
+		    if ( c == 0xA2 )      r = "&trade;";
 		    else continue;
 		}
 		else if ( c == 0x89 )
 		{
 		    c = (min::uns8) p[2];
-		    if      ( c == 0x88 ) r = "&asymp";
-		    else if ( c == 0xA9 ) r = "&ne";
+		    if      ( c == 0x88 ) r = "&asymp;";
+		    else if ( c == 0xA0 ) r = "&ne;";
 		    else continue;
 		}
 		else if ( c == 0x82 )
 		{
 		    c = (min::uns8) p[2];
-		    if ( c == 0xAC )      r = "&euro";
+		    if ( c == 0xAC )      r = "&euro;";
 		    else continue;
 		}
 		else continue;

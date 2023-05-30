@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 23 22:12:24 EDT 2023
+// Date:	Mon May 29 22:47:05 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3405,6 +3405,25 @@ void test_printer ( void )
 	  min::new_str_gen
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
+
+    printer << "HTML Print Test: " << min::eol;
+    printer << min::bom;
+    const char * line = "< > & \"   – — © ®"
+                        " ™ ≈ ≠ £ € °";
+    printer << line << min::eol;
+    printer->file->flags |= min::HTML_OSTREAM;
+    printer << line << min::eol;
+    printer->file->flags &= ~ min::HTML_OSTREAM;
+
+    printer << min::set_display_control
+        ( min::display_all_display_control );
+
+    printer << line << min::eol;
+    printer->file->flags |= min::HTML_OSTREAM;
+    printer << line << min::eol;
+    printer->file->flags &= ~ min::HTML_OSTREAM;
+
+    printer << min::eom;
 
     min::assert_print = true;
     cout << endl;
