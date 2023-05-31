@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 16:08:50 EDT 2023
+// Date:	Wed May 31 05:43:58 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10136,18 +10136,21 @@ min::printer operator <<
 	    (const min::gen_format *) op.v1.p;
 	return printer;
     case min::op::SET_PRINT_OP_FLAGS:
-        MIN_ASSERT
-	    ( ( op.v1.u32 & min::OUTPUT_HTML ) == 0
-	      ||
-	      printer->file->ostream != NULL,
-	      "setting printer OUTPUT_HTML when"
-	      " printer->file->ostream = NULL" );
-
+	if ( op.v1.u32 & min::OUTPUT_HTML )
+	{
+	    MIN_ASSERT
+		( printer->file->ostream != NULL,
+	          "setting printer OUTPUT_HTML when"
+	          " printer->file->ostream = NULL" );
+	    min::flush_file ( printer->file );
+	}
 	printer->print_format.op_flags |= op.v1.u32;
 	printer->file->op_flags =
 	    printer->print_format.op_flags;
 	return printer;
     case min::op::CLEAR_PRINT_OP_FLAGS:
+	if ( op.v1.u32 & min::OUTPUT_HTML )
+	    min::flush_file ( printer->file );
 	printer->print_format.op_flags &= ~ op.v1.u32;
 	printer->file->op_flags =
 	    printer->print_format.op_flags;

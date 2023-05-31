@@ -9716,11 +9716,16 @@ regardless of the setting of the display control.
 
 \item[\ttmkey{OUTPUT\_HTML}%
                {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-If this flag is on, HTML reserved characters that are output to
-\TT{printer->\EOL file->\EOL ostream}
+If this flag is on, when HTML reserved characters are copied from the
+printer buffer to \TT{printer->\EOL file->\EOL ostream}, they
 are replaced as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
-It is a \TT{MIN\_\EOL ASSERT} error if this flag is on and
+
+It is a \TT{MIN\_\EOL ASSERT} error to set this flag when
 \TT{printer->\EOL file->\EOL ostream} is \TT{NULL}.
+Setting or clearing this flag flushes the printer buffer
+before the flag change is made.
+
+Also see \TT{min::tag} on \pagref{MIN::TAG}.
 
 \begin{boxedfigure}[t]
 \begin{center}
@@ -11732,22 +11737,27 @@ which first flushes the printer buffer and then returns
 \TT{printer->\EOL file->\EOL ostream}.  Elements printed
 using this \TT{ostream} do not have their characters
 replaced.  But it is important to flush the printer buffer
-between any operations that put characters into the buffer
-and any use of the \TT{min::tag} \TT{ostream}.
+between any operations that put characters into the \TT{ostream}
+retured by \TT{min::tag}.
 
 Some example uses are:
 
 \begin{indpar}\begin{verbatim}
-min::tag(printer) << "<pre>\n";
-min::tag(printer) << "<p class='" << p_class << "'>\n";
+const char * pre_class = ...
+min::tag(printer) << "<pre class='" << pre_class << "'>" << std::endl;
+printer << "The color of the sign lettering must be ";
+min::tag(printer) << "<strong class='blue'>";
+printer << "blue";
+min::tag(printer) << "</strong>";
+printer << "!" << min::eol;
 \end{verbatim}\end{indpar}
 
 Note that printing tags with \TT{min::tag} does not
 update \TT{printer->column} and other printer parameters
 used to insert spaces between print items.
 Thus tags are invisible to print formatting.
-For example, printing an end of line by sending \TT{'\textbackslash n'}
-to \TT{min::tag} does not set \TT{printer->\EOL column} to \TT{0}.
+For example, printing an end of line by using \TT{std::endl}
+with \TT{min::tag} does not set \TT{printer->\EOL column} to \TT{0}.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -22441,6 +22451,14 @@ Other flags:
 \verb|min::phrase_position_vec min::| & \MINKEY{position\_of}\ARGBREAK
     \verb|( min::obj_vec_ptr & vp )|
 \LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.6in}
+\verb|std::ostream & min::| & \MINKEY{tag}
+    \verb|( min::printer printer )|
+\LABEL{MIN::TAG} \\
 \end{TABULAR}
 
 \end{indpar}

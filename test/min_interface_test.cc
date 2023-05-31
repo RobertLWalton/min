@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 15:35:57 EDT 2023
+// Date:	Wed May 31 05:25:38 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3415,7 +3415,7 @@ void test_printer ( void )
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
 
-    printer << "HTML Print Test: " << min::eol;
+    printer << min::eol << "HTML Print Test: " << min::eol;
     printer << min::bom;
     const char * line = "< > & \"   – — © ®"
                         " ™ ≈ ≠ £ € °";
@@ -3432,6 +3432,15 @@ void test_printer ( void )
     printer << min::output_html;
     printer << line << min::eol;
     printer << min::nooutput_html;
+
+    const char * pre_class = "pre-class";
+    min::tag(printer) << "<pre class='" << pre_class << "'>" << std::endl;
+    printer << "The color of the sign lettering must be ";
+    min::tag(printer) << "<strong class='blue'>";
+    printer << "blue";
+    min::tag(printer) << "</strong>";
+    printer << "!" << min::eol;
+    printer << min::output_html;
 
     printer << min::eom;
 

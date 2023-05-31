@@ -1607,12 +1607,15 @@ Line␣3␤
 ^
 ERROR: During attempt to find the size of file min_non_existent_file:
        No such file or directory
+
 HTML Print Test:
 < > & "   <2013> <2014> © ® <2122> <2248> <2260> £ <20AC> °
 &lt; &gt; &amp; &quot; &nbsp; &lt;2013&gt; &lt;2014&gt; &copy; &reg; &lt;2122&gt; &lt;2248&gt; &lt;2260&gt; &pound; &lt;20AC&gt; &deg;
 A B C 0 1 8 9 . , + x y z
 < > & "   – — © ® ™ ≈ ≠ £ € °
 &lt; &gt; &amp; &quot; &nbsp; &ndash; &mdash; &copy; &reg; &trade; &asymp; &ne; &pound; &euro; &deg;
+<pre class='pre-class'>
+The color of the sign lettering must be <strong class='blue'>blue</strong>!
 
 Finish Printer Test!
 
