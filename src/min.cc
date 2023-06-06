@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 05:43:58 EDT 2023
+// Date:	Tue Jun  6 02:44:44 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2854,11 +2854,29 @@ min::uns32 min::print_line
     MIN_ASSERT ( line_format != NULL,
                  "printer->print_format.line_format"
 		 " == NULL" );
+    min::uns32 op_flags = line_format->op_flags;
+
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
     unsptr length;
     bool eof = false;
+
+    bool html = printer->print_format.op_flags
+              & min::OUTPUT_HTML;
+
+    if ( html )
+    {
+        min::tag(printer)
+	    << "<td class='"
+	    << line_format->line_number_class
+	    << "'>";
+	printer << line_number << ":";
+        min::tag(printer)
+	    << "</td><td class='"
+	    << line_format->line_class
+	    << "'>";
+    }
     
     if ( offset == min::NO_LINE )
     {
@@ -2871,6 +2889,7 @@ min::uns32 min::print_line
 	    else
 	    {
 		offset = partial_offset ( file );
+		op_flags &= ~ min::DISPLAY_EOL;
 		eof = true;
 	    }
 	}
@@ -2881,94 +2900,93 @@ min::uns32 min::print_line
 	{
 	    if ( message == NULL ) return min::NO_LINE;
 
-	    printer << message << min::eol;
-	    return 0;
+	    printer << message;
+	    op_flags &= ~ min::DISPLAY_EOL;
+	    goto EOL;
 	}
     }
     else
         length =
 	    ::strlen ( ~ ( file->buffer + offset ) );
 
-    // Move line to stack and convert to Uchars.
-    //
-    min::Uchar buffer[length+1];
-        // +1 not really necessary
-    min::Uchar * bp = buffer;
-    const char * cp = ~ ( file->buffer + offset );
-    length = min::utf8_to_unicode
-        ( bp, buffer + length, cp, cp + length );
-
-    // Blank line check.
-    //
-    if ( line_format->blank_line == NULL )
-        ; // do nothing
-    else if ( eof ? line_format->end_of_file != NULL :
-                  (   line_format->op_flags
-                    & min::DISPLAY_EOL ) )
-        ; // do nothing
-    else if ( length == 0 )
     {
-	printer << line_format->blank_line << min::eol;
-	return 0;
-    }
-    else
-    {
-	bp = buffer;
-	min::Uchar * endbp = bp + length;
-
-	min::uns32 blank_flags = min::IS_HSPACE;
-	if (   line_format->op_flags
-	     & min::DISPLAY_NON_GRAPHIC )
-	    blank_flags = 0;
-
-	for ( ; bp < endbp; ++ bp )
-	{
-	    uns16 i = min::Uindex ( *bp );
-	    min::uns32 cflags = char_flags[i];
-	    if ( cflags & blank_flags )
-	        continue;
-	    else
-	        break;
-	}
-
-	if ( bp >= endbp )
-	{
-	    printer << line_format->blank_line
-	            << min::eol;
-	    return 0;
-	}
-    }
-
-    min::ptr<const min::Uchar> p =
-        min::new_ptr<const min::Uchar> ( buffer );
-    min::uns32 width = (min::uns32) -1;
-    MINT::print_unicode
-	( printer,
-	  line_format->op_flags,
-	  length, p, width );
-
-    width = printer->column;
-
-    if ( eof )
-    {
-        if ( line_format->end_of_file )
-	    printer << line_format->end_of_file
-	            << min::eol;
-    }
-    else if ( line_format->op_flags & min::DISPLAY_EOL )
-    {
-	// Mimic min::eol with different op_flags.
+	// Move line to stack and convert to Uchars.
 	//
-        width = ::end_line
-	    ( printer, line_format->op_flags );
-	if (   printer->print_format.op_flags
-	     & min::FLUSH_ON_EOL )
-	    min::flush_file ( printer->file );
-    }
-    else
-	printer << min::eol;
+	min::Uchar buffer[length+1];
+	    // +1 not really necessary
+	min::Uchar * bp = buffer;
+	const char * cp = ~ ( file->buffer + offset );
+	length = min::utf8_to_unicode
+	    ( bp, buffer + length, cp, cp + length );
 
-    return width;
+	// Blank line check.
+	//
+	if ( line_format->blank_line == NULL )
+	    ; // do nothing
+	else if ( eof ?
+	          line_format->end_of_file != NULL :
+		  op_flags & min::DISPLAY_EOL )
+	    ; // do nothing
+	else if ( length == 0 )
+	{
+	    printer << line_format->blank_line;
+	    goto EOL;
+	}
+	else
+	{
+	    bp = buffer;
+	    min::Uchar * endbp = bp + length;
+
+	    min::uns32 blank_flags = min::IS_HSPACE;
+	    if ( op_flags & min::DISPLAY_NON_GRAPHIC )
+		blank_flags = 0;
+
+	    for ( ; bp < endbp; ++ bp )
+	    {
+		uns16 i = min::Uindex ( *bp );
+		min::uns32 cflags = char_flags[i];
+		if ( cflags & blank_flags )
+		    continue;
+		else
+		    break;
+	    }
+
+	    if ( bp >= endbp )
+	    {
+		printer << line_format->blank_line;
+		goto EOL;
+	    }
+	}
+
+	// Print line Uchars.
+	//
+	min::ptr<const min::Uchar> p =
+	    min::new_ptr<const min::Uchar> ( buffer );
+	min::uns32 width = (min::uns32) -1;
+	MINT::print_unicode
+	    ( printer, op_flags, length, p, width );
+    }
+
+EOL:
+
+
+    if ( eof && line_format->end_of_file != NULL )
+	printer << line_format->end_of_file;
+
+    // Mimic min::eol with different op_flags.
+    //
+    min::uns32 column = ::end_line
+	( printer, op_flags );
+
+    if ( html )
+    {
+    }
+    else if (   printer->print_format.op_flags
+	      & min::FLUSH_ON_EOL )
+	min::flush_file ( printer->file );
+
+    return column;
+
 }
 
 min::uns32 min::print_line_column
