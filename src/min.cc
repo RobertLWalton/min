@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  6 02:44:44 EDT 2023
+// Date:	Tue Jun  6 16:55:00 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2868,6 +2868,7 @@ min::uns32 min::print_line
     if ( html )
     {
         min::tag(printer)
+	    << "<tr>"
 	    << "<td class='"
 	    << line_format->line_number_class
 	    << "'>";
@@ -2889,7 +2890,6 @@ min::uns32 min::print_line
 	    else
 	    {
 		offset = partial_offset ( file );
-		op_flags &= ~ min::DISPLAY_EOL;
 		eof = true;
 	    }
 	}
@@ -2901,7 +2901,6 @@ min::uns32 min::print_line
 	    if ( message == NULL ) return min::NO_LINE;
 
 	    printer << message;
-	    op_flags &= ~ min::DISPLAY_EOL;
 	    goto EOL;
 	}
     }
@@ -2967,26 +2966,36 @@ min::uns32 min::print_line
 	    ( printer, op_flags, length, p, width );
     }
 
+    if ( eof && line_format->end_of_file != NULL )
+	printer << line_format->end_of_file;
+    else if ( op_flags & min::DISPLAY_EOL )
+    {
+        min::Uchar c = min::unicode::SOFTWARE_NL;
+	min::ptr<const min::Uchar> p =
+	    min::new_ptr<const min::Uchar> ( & c );
+	min::uns32 width = (min::uns32) -1;
+	min::unsptr length = 1;
+	MINT::print_unicode
+	    ( printer, op_flags, length, p, width );
+    }
+
+    if ( html ) min::tag(printer) << "</td></tr>";
+
 EOL:
 
 
-    if ( eof && line_format->end_of_file != NULL )
-	printer << line_format->end_of_file;
-
     // Mimic min::eol with different op_flags.
     //
+    op_flags &= ~ min::DISPLAY_EOL;
+        // EOL was displayed above if nessary to get
+	// it inside <td>...</td> when html is true.
     min::uns32 column = ::end_line
 	( printer, op_flags );
-
-    if ( html )
-    {
-    }
-    else if (   printer->print_format.op_flags
-	      & min::FLUSH_ON_EOL )
+    if (   printer->print_format.op_flags
+         & min::FLUSH_ON_EOL )
 	min::flush_file ( printer->file );
 
     return column;
-
 }
 
 min::uns32 min::print_line_column
