@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 30, 2023}
+\date{June 7, 2023}
  
 \maketitle
 
@@ -11519,8 +11519,13 @@ a `\key{phrase}', and its positions are encoded in a
     \verb|};|
 \ttmindex{begin}{in {\tt min::phrase\_position}}
 \ttmindex{end}{in {\tt min::phrase\_position}}
-\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
-\end{tabular}\end{indpar}
+\LABEL{MIN::PHRASE_POSITION_STRUCT}
+\end{tabular}
+\\[1ex]
+\verb|const min::phrase_position| \MINKEY{MISSING\_PHRASE\_POSITION} =\\
+\verb|    { min::MISSING_POSITION, min::MISSING_POSITION }|%
+\LABEL{MIN::MISSING_PHRASE_POSITION}
+\end{indpar}
 
 Here `\TT{begin}' encodes the position of the first character
 of the phrase in the file, and `\TT{end}' encodes the position
@@ -11552,7 +11557,7 @@ then \TT{position.end.line - 1} is used in place of
 To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|void min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK
@@ -11572,11 +11577,6 @@ The mark is the character \TT{line\_\EOL format->mark}.
 If it is \TT{0}, marking lines will be omitted.
 This permits just printing the lines containing
 a phrase, without marking the phrase.
-
-The column number of \TT{position.begin} is returned (this is \TT{0}
-for the first column).  If position bounds the non-whitespace
-portion of some lines, this is the indent of that portion in
-the first of these lines.
 
 An example using a \TT{phrase\_position} is
 
@@ -22369,6 +22369,12 @@ Other flags:
 \LABEL{MIN::PHRASE_POSITION_STRUCT} \\
 \end{TABULAR}
 
+\verb|const min::phrase_position| \MINKEY{MISSING\_PHRASE\_POSITION} =\\
+\verb|    { min::MISSING_POSITION, min::MISSING_POSITION }|%
+\LABEL{MIN::MISSING_PHRASE_POSITION}
+
+\bigskip
+
 \begin{TABULAR}{1.7in}
 \verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
     \verb|( min::file file,|\ARGBREAK
@@ -22380,7 +22386,7 @@ Other flags:
 \bigskip
 
 \begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
+\verb|void min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb|( min::printer printer,|\ARGBREAK
       \verb|  min::file file,|\ARGBREAK

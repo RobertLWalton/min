@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  6 16:55:00 EDT 2023
+// Date:	Wed Jun  7 04:21:09 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2438,6 +2438,9 @@ const min::stub * MINT::packed_struct_new_stub
 const min::position min::MISSING_POSITION =
     { 0xFFFFFFFF, 0xFFFFFFFF };
 
+const min::phrase_position min::MISSING_PHRASE_POSITION =
+    { min::MISSING_POSITION, min::MISSING_POSITION };
+
 static min::uns32 file_gen_disp[2] =
     { min::DISP ( & min::file_struct::file_name ),
       min::DISP_END };
@@ -2845,7 +2848,8 @@ min::uns32 min::print_line
 	( min::printer printer,
 	  min::file file,
 	  min::uns32 line_number,
-	  const min::line_format * line_format )
+	  const min::line_format * line_format,
+	  const min::phrase_position & position )
 {
     if ( line_format == NULL )
         line_format = file->line_format;
@@ -2995,6 +2999,41 @@ EOL:
          & min::FLUSH_ON_EOL )
 	min::flush_file ( printer->file );
 
+    if ( ! position.begin ) return column;
+
+    if ( line_number < position.begin.line
+         ||
+	 line_number > position.end.line )
+        return column;
+
+    if ( line_format->mark == 0 )
+        return column;
+
+    min::uns32 first_column = 0;
+    min::uns32 end_column = column;
+
+    if ( line_number == position.begin.line )
+	first_column =
+	    print_line_column
+		( file, position.begin,
+		  printer->print_format, line_format );
+    if ( line_number == position.end.line )
+	end_column =
+	    print_line_column
+		( file, position.end,
+		  printer->print_format, line_format );
+
+    if ( end_column <= first_column )
+        end_column = first_column + 1;
+
+    for ( uns32 i = 0; i < first_column; ++ i )
+	printer << ' ';
+
+    for ( uns32 i = first_column; i < end_column; ++ i )
+	printer << line_format->mark;
+
+    printer << min::eol;
+
     return column;
 }
 
@@ -3038,7 +3077,7 @@ min::uns32 min::print_line_column
     return column;
 }
 
-min::uns32 min::print_phrase_lines
+void min::print_phrase_lines
 	( min::printer printer,
 	  min::file file,
 	  const min::phrase_position & position,
@@ -3057,53 +3096,25 @@ min::uns32 min::print_phrase_lines
 
     min::position begin = position.begin;
     min::position end   = position.end;
-    uns32 begin_column =
-        print_line_column
-	    ( file, begin,
-	      printer->print_format, line_format );
-    uns32 end_column =
-        print_line_column
-	    ( file, end,
-	      printer->print_format, line_format );
 
     uns32 line = begin.line;
-    uns32 first_column = begin_column;
 
-    uns32 width = min::print_line
-	( printer, file, line, line_format );
+    min::print_line
+        ( printer, file, line, line_format, position );
 
     while ( true )
     {
-        if ( line_format->mark != 0 )
-	{
-	    for ( uns32 i = 0; i < first_column; ++ i )
-		printer << ' ';
-
-	    uns32 next_column =
-		end.line == line ? end_column : width;
-	    if ( next_column <= first_column )
-		next_column = first_column + 1;
-
-	    for ( uns32 i = first_column;
-		  i < next_column; ++ i )
-		printer << line_format->mark;
-	    printer << min::eol;
-	}
-
 	if ( line == end.line )
 	    break;
 
 	++ line;
 
-	if ( line == end.line && end_column == 0 )
+	if ( line == end.line && end.offset == 0 )
 	    break;
 
-	first_column = 0;
-	width = min::print_line
-	    ( printer, file, line, line_format );
+	min::print_line
+	    ( printer, file, line, line_format, position );
     }
-
-    return begin_column;
 }
 
 min::printer operator <<

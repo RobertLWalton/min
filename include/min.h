@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May 30 16:23:00 EDT 2023
+// Date:	Wed Jun  7 04:20:19 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6359,6 +6359,9 @@ namespace min {
         min::position end;
     };
 
+    extern const phrase_position
+        MISSING_PHRASE_POSITION;
+
     struct phrase_position_vec_header
     {
         const min::uns32 control;
@@ -6575,7 +6578,9 @@ namespace min {
 	      min::file file,
 	      min::uns32 line_number,
 	      const min::line_format * line_format =
-	          NULL );
+	          NULL,
+	      const min::phrase_position & position =
+	          min::MISSING_PHRASE_POSITION );
 
     struct print_format;
     min::uns32 print_line_column
@@ -6585,7 +6590,7 @@ namespace min {
 	      const min::line_format * line_format =
 	          NULL );
 
-    min::uns32 print_phrase_lines
+    void print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
 	      const min::phrase_position & position,
