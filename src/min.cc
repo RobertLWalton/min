@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  7 04:21:09 EDT 2023
+// Date:	Wed Jun  7 17:02:33 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2866,8 +2866,12 @@ min::uns32 min::print_line
     unsptr length;
     bool eof = false;
 
-    bool html = printer->print_format.op_flags
-              & min::OUTPUT_HTML;
+    bool html = (   printer->print_format.op_flags
+                  & min::OUTPUT_HTML )
+		&&
+		line_format->line_class != NULL
+		&&
+		line_format->line_number_class != NULL;
 
     if ( html )
     {
@@ -2999,15 +3003,23 @@ EOL:
          & min::FLUSH_ON_EOL )
 	min::flush_file ( printer->file );
 
-    if ( ! position.begin ) return column;
+    if ( html ) return column;
+        // html highlight not yet implemented.
+
+    if ( ! position.begin
+	 ||
+         line_format->mark == 0 )
+        return column;
 
     if ( line_number < position.begin.line
          ||
 	 line_number > position.end.line )
-        return column;
-
-    if ( line_format->mark == 0 )
-        return column;
+    {
+        // Blank line of `marks' for this file line.
+	//
+        printer << min::eol;
+	return column;
+    }
 
     min::uns32 first_column = 0;
     min::uns32 end_column = column;
