@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun  7 17:02:33 EDT 2023
+// Date:	Thu Jun  8 03:11:46 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3109,6 +3109,21 @@ void min::print_phrase_lines
     min::position begin = position.begin;
     min::position end   = position.end;
 
+    bool html = (   printer->print_format.op_flags
+                  & min::OUTPUT_HTML )
+		&&
+		line_format->line_group_class != NULL
+		&&
+		line_format->line_class != NULL
+		&&
+		line_format->line_number_class != NULL;
+
+    if ( html )
+        min::tag(printer)
+	    << "<table class='"
+	    << line_format->line_group_class
+	    << "'>" << std::endl;
+
     uns32 line = begin.line;
 
     min::print_line
@@ -3127,6 +3142,9 @@ void min::print_phrase_lines
 	min::print_line
 	    ( printer, file, line, line_format, position );
     }
+
+    if ( html )
+        min::tag(printer) << "</table>" << std::endl;
 }
 
 min::printer operator <<
@@ -12659,6 +12677,7 @@ static const min::line_format standard_line_format =
     NULL,
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE-GROUP",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
     NULL
@@ -12673,6 +12692,7 @@ static const min::line_format marked_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE-GROUP",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
@@ -12688,6 +12708,7 @@ static const min::line_format picture_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE-GROUP",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
@@ -12704,6 +12725,7 @@ static const min::line_format non_graphic_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE-GROUP",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
@@ -12721,6 +12743,7 @@ static const min::line_format eol_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
+    "MIN-LINE-GROUP",
     "MIN-LINE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"

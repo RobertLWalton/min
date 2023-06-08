@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 7, 2023}
+\date{June 8, 2023}
  
 \maketitle
 
@@ -8035,6 +8035,25 @@ no \TT{min::DISPLAY\_PICTURE} & \TT{<BS>} & 4 columns \\
 \end{tabular}
 \end{center}
 
+A \TT{line\_format} also contains the following parameters:
+\begin{center}
+\begin{tabular}{rl@{~~~~~}l}
+\verb|const char *| & \TT{blank\_line} & \pagref{LINE_FORMAT_BLANK_LINE} \\
+\verb|const char *| & \TT{end\_of\_file} & \pagref{LINE_FORMAT_END_OF_FILE} \\
+\verb|const char *| & \TT{unavailalable\_line}
+                    & \pagref{LINE_FORMAT_UNAVAILABLE_LINE} \\
+\verb|const char *| & \TT{line\_group\_class}
+                    & \pagref{LINE_FORMAT_LINE_GROUP_CLASS} \\
+\verb|const char *| & \TT{line\_class} & \pagref{LINE_FORMAT_LINE_CLASS} \\
+\verb|const char *| & \TT{line\_number\_class}
+                    & \pagref{LINE_FORMAT_LINE_NUMBER_CLASS} \\
+\verb|char| & \TT{mark} & \pagref{LINE_FORMAT_MARK} \\
+\verb|const char *| & \TT{line\_mark\_class}
+                    & \pagref{LINE_FORMAT_LINE_MARK_CLASS} \\
+\end{tabular}
+\end{center}
+
+
 \TT{line\_format} is set
 to \TT{NULL} when the file is created, and set to an argument
 that defaults to \TT{NULL}
@@ -9412,6 +9431,8 @@ have non-zero numbers of columns encoded in their second bytes.
 \verb|     const char * |
 	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
+	& \TTMKEY{line\_group\_class}{in {\tt min::line\_format}} \\
+\verb|     const char * |
 	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
@@ -9430,6 +9451,7 @@ have non-zero numbers of columns encoded in their second bytes.
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
+\verb|"MIN-LINE-GROUP",          // line_group_class|\ARGBREAK
 \verb|"MIN-LINE",                // line_class|\ARGBREAK
 \verb|"MIN-LINE-NUMBER"          // line_number_class|\ARGBREAK
 \verb|NULL                       // line_mark_class|
@@ -11343,7 +11365,8 @@ If a line is
 unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
 see \pagref{MIN::LINE_OF_FILE})
 and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
-then \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+then \label{LINE_FORMAT_UNAVAILABLE_LINE}
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
 unavail\-able\_\EOL line} is
 printed on a line by itself instead, and \TT{0} is returned,
 if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
@@ -11352,9 +11375,11 @@ But if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
 unavailable\_\EOL line} is \TT{NULL},
 nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
-If a line would print as blank, and if
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is not \TT{NULL}, then
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL blank\_\EOL line} is printed instead of
+If a line would print as blank\label{LINE_FORMAT_BLANK_LINE}, and if
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+blank\_\EOL line} is not \TT{NULL}, then
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+blank\_\EOL line} is printed instead of
 the line, and \TT{0} is returned.
 More specifically, a line is deemed to print as blank if it only contains
 horizontal space characters
@@ -11365,10 +11390,12 @@ is \underline{not} in effect.
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
 then any partial line at the end of the file buffer is printed,
-immediately followed by
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL end\_\EOL of\_\EOL file}, all on one line,
+immediately followed by\label{LINE_FORMAT_END_OF_FILE}
+\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
+end\_\EOL of\_\EOL file}, all on one line,
 and the number of columns used to print the partial line is returned.
-However, if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL end\_\EOL of\_\EOL file}
+However, if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL
+format->\EOL end\_\EOL of\_\EOL file}
 is \TT{NULL}, then
 if there is a partial line, only that is printed, on a single line
 without any visible ending line feed, and if there is no partial line,
@@ -21678,9 +21705,13 @@ Other flags:
 \verb|     const char * |
 	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
+	& \TTMKEY{line\_group\_class}{in {\tt min::line\_format}} \\
+\verb|     const char * |
 	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
+\verb|     const char * |
+	& \TTMKEY{line\_mark\_class}{in {\tt min::line\_format}} \\
 \verb|}                         | \\
 \end{TABULAR}
 
@@ -21694,8 +21725,10 @@ Other flags:
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
+\verb|"MIN-LINE-GROUP",          // line_group_class|\ARGBREAK
 \verb|"MIN-LINE",                // line_class|\ARGBREAK
-\verb|NULL                       // line_number_class|
+\verb|"MIN-LINE-NUMBER",         // line_number_class|\ARGBREAK
+\verb|NULL                       // line_mark_class|
 \end{TABULAR}
 
 \begin{TABULAR}{0.0in}

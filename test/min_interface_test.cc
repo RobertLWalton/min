@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 31 05:25:38 EDT 2023
+// Date:	Thu Jun  8 04:07:33 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3433,6 +3433,7 @@ void test_printer ( void )
     printer << line << min::eol;
     printer << min::nooutput_html;
 
+    printer << min::output_html;
     const char * pre_class = "pre-class";
     min::tag(printer) << "<pre class='" << pre_class << "'>" << std::endl;
     printer << "The color of the sign lettering must be ";
@@ -3440,7 +3441,18 @@ void test_printer ( void )
     printer << "blue";
     min::tag(printer) << "</strong>";
     printer << "!" << min::eol;
+    printer << min::nooutput_html;
+
     printer << min::output_html;
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos1 )
+	    << min::eol;
+    min::print_phrase_lines ( printer, file, ppos1 );
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos2 )
+	    << min::eol;
+    min::print_phrase_lines ( printer, file, ppos2 );
+    printer << min::nooutput_html;
 
     printer << min::eom;
 

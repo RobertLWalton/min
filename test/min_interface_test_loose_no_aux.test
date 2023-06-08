@@ -1600,6 +1600,17 @@ A B C 0 1 8 9 . , + x y z
 &lt; &gt; &amp; &quot; &nbsp; &ndash; &mdash; &copy; &reg; &trade; &asymp; &ne; &pound; &euro; &deg;
 <pre class='pre-class'>
 The color of the sign lettering must be <strong class='blue'>blue</strong>!
+Phrase Print Test: test_file: lines 2-3
+<table class='MIN-LINE-GROUP'>
+<tr><td class='MIN-LINE-NUMBER'>1:</td><td class='MIN-LINE'>Line␣2␤</td></tr>
+<tr><td class='MIN-LINE-NUMBER'>2:</td><td class='MIN-LINE'>Line␣3␤</td></tr>
+</table>
+Phrase Print Test: test_file: lines 3-5
+<table class='MIN-LINE-GROUP'>
+<tr><td class='MIN-LINE-NUMBER'>2:</td><td class='MIN-LINE'>Line␣3␤</td></tr>
+<tr><td class='MIN-LINE-NUMBER'>3:</td><td class='MIN-LINE'>␤</td></tr>
+<tr><td class='MIN-LINE-NUMBER'>4:</td><td class='MIN-LINE'>&lt;END-OF-FILE&gt;
+</table>
 
 Finish Printer Test!
 
