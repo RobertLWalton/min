@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 03:11:46 EDT 2023
+// Date:	Thu Jun  8 16:25:20 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2864,7 +2864,6 @@ min::uns32 min::print_line
 	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
     unsptr length;
-    bool eof = false;
 
     bool html = (   printer->print_format.op_flags
                   & min::OUTPUT_HTML )
@@ -2887,30 +2886,26 @@ min::uns32 min::print_line
 	    << "'>";
     }
     
+    const char * message = NULL;
     if ( offset == min::NO_LINE )
     {
-	const char * message = NULL;
 	if ( line_number == file->file_lines )
 	{
+	    message = line_format->end_of_file;
 	    length = partial_length ( file );
-	    if ( length == 0 )
-		message = line_format->end_of_file;
-	    else
-	    {
+	    if ( length != 0 )
 		offset = partial_offset ( file );
-		eof = true;
-	    }
+	    else
+	        offset = 0;
 	}
 	else
-	    message = line_format->unavailable_line;
-
-	if ( offset == min::NO_LINE )
 	{
-	    if ( message == NULL ) return min::NO_LINE;
-
-	    printer << message;
-	    goto EOL;
+	    length = 0;
+	    offset = 0;
+	    message = line_format->unavailable_line;
 	}
+	op_flags &= ~ min::DISPLAY_EOL;
+
     }
     else
         length =
@@ -2919,8 +2914,9 @@ min::uns32 min::print_line
     {
 	// Move line to stack and convert to Uchars.
 	//
-	min::Uchar buffer[length+1];
-	    // +1 not really necessary
+	min::Uchar buffer[length+40];
+	    // +40 for message length and possible
+	    // end of line
 	min::Uchar * bp = buffer;
 	const char * cp = ~ ( file->buffer + offset );
 	length = min::utf8_to_unicode
@@ -2930,15 +2926,12 @@ min::uns32 min::print_line
 	//
 	if ( line_format->blank_line == NULL )
 	    ; // do nothing
-	else if ( eof ?
-	          line_format->end_of_file != NULL :
-		  op_flags & min::DISPLAY_EOL )
+	else if ( message != NULL )
+	    ; // do nothing
+	else if ( op_flags & min::DISPLAY_EOL )
 	    ; // do nothing
 	else if ( length == 0 )
-	{
-	    printer << line_format->blank_line;
-	    goto EOL;
-	}
+	    message = line_format->blank_line;
 	else
 	{
 	    bp = buffer;
@@ -2959,11 +2952,21 @@ min::uns32 min::print_line
 	    }
 
 	    if ( bp >= endbp )
-	    {
-		printer << line_format->blank_line;
-		goto EOL;
-	    }
+		message = line_format->blank_line;
 	}
+
+	if ( message != NULL )
+	{
+	    // Add message to line.
+	    //
+	    const char * p = message;
+	    while ( * p )
+	        buffer[length++] = (min::Uchar) * p ++;
+	}
+
+	if ( op_flags & min::DISPLAY_EOL )
+	    buffer[length++] =
+	        min::unicode::SOFTWARE_NL;
 
 	// Print line Uchars.
 	//
@@ -2974,22 +2977,8 @@ min::uns32 min::print_line
 	    ( printer, op_flags, length, p, width );
     }
 
-    if ( eof && line_format->end_of_file != NULL )
-	printer << line_format->end_of_file;
-    else if ( op_flags & min::DISPLAY_EOL )
-    {
-        min::Uchar c = min::unicode::SOFTWARE_NL;
-	min::ptr<const min::Uchar> p =
-	    min::new_ptr<const min::Uchar> ( & c );
-	min::uns32 width = (min::uns32) -1;
-	min::unsptr length = 1;
-	MINT::print_unicode
-	    ( printer, op_flags, length, p, width );
-    }
 
     if ( html ) min::tag(printer) << "</td></tr>";
-
-EOL:
 
 
     // Mimic min::eol with different op_flags.

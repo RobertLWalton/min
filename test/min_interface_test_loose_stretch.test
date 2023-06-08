@@ -1609,7 +1609,7 @@ Phrase Print Test: test_file: lines 3-5
 <table class='MIN-LINE-GROUP'>
 <tr><td class='MIN-LINE-NUMBER'>2:</td><td class='MIN-LINE'>Line␣3␤</td></tr>
 <tr><td class='MIN-LINE-NUMBER'>3:</td><td class='MIN-LINE'>␤</td></tr>
-<tr><td class='MIN-LINE-NUMBER'>4:</td><td class='MIN-LINE'>&lt;END-OF-FILE&gt;
+<tr><td class='MIN-LINE-NUMBER'>4:</td><td class='MIN-LINE'>&lt;END-OF-FILE&gt;</td></tr>
 </table>
 
 Finish Printer Test!
