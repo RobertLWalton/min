@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 16:25:20 EDT 2023
+// Date:	Thu Jun  8 16:32:42 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2863,7 +2863,7 @@ min::uns32 min::print_line
     const min::uns32 * char_flags =
 	printer->print_format.char_flags;
     uns32 offset = min::line ( file, line_number );
-    unsptr length;
+    unsptr file_line_length;
 
     bool html = (   printer->print_format.op_flags
                   & min::OUTPUT_HTML )
@@ -2879,7 +2879,7 @@ min::uns32 min::print_line
 	    << "<td class='"
 	    << line_format->line_number_class
 	    << "'>";
-	printer << line_number << ":";
+	printer << line_number + 1 << ":";
         min::tag(printer)
 	    << "</td><td class='"
 	    << line_format->line_class
@@ -2892,15 +2892,15 @@ min::uns32 min::print_line
 	if ( line_number == file->file_lines )
 	{
 	    message = line_format->end_of_file;
-	    length = partial_length ( file );
-	    if ( length != 0 )
+	    file_line_length = partial_length ( file );
+	    if ( file_line_length != 0 )
 		offset = partial_offset ( file );
 	    else
 	        offset = 0;
 	}
 	else
 	{
-	    length = 0;
+	    file_line_length = 0;
 	    offset = 0;
 	    message = line_format->unavailable_line;
 	}
@@ -2908,71 +2908,152 @@ min::uns32 min::print_line
 
     }
     else
-        length =
+        file_line_length =
 	    ::strlen ( ~ ( file->buffer + offset ) );
 
+    // Move line to stack and convert to Uchars.
+    //
+    min::Uchar buffer[file_line_length+40];
+	// +40 for message length and possible
+	// end of line
+    min::Uchar * bp = buffer;
+    const char * cp = ~ ( file->buffer + offset );
+    min::unsptr length = min::utf8_to_unicode
+	( bp, buffer + file_line_length,
+	  cp, cp + file_line_length );
+
+    // Blank line check.
+    //
+    if ( line_format->blank_line == NULL )
+	; // do nothing
+    else if ( message != NULL )
+	; // do nothing
+    else if ( op_flags & min::DISPLAY_EOL )
+	; // do nothing
+    else if ( length == 0 )
+	message = line_format->blank_line;
+    else
     {
-	// Move line to stack and convert to Uchars.
-	//
-	min::Uchar buffer[length+40];
-	    // +40 for message length and possible
-	    // end of line
-	min::Uchar * bp = buffer;
-	const char * cp = ~ ( file->buffer + offset );
-	length = min::utf8_to_unicode
-	    ( bp, buffer + length, cp, cp + length );
+	bp = buffer;
+	min::Uchar * endbp = bp + length;
 
-	// Blank line check.
-	//
-	if ( line_format->blank_line == NULL )
-	    ; // do nothing
-	else if ( message != NULL )
-	    ; // do nothing
-	else if ( op_flags & min::DISPLAY_EOL )
-	    ; // do nothing
-	else if ( length == 0 )
+	min::uns32 blank_flags = min::IS_HSPACE;
+	if ( op_flags & min::DISPLAY_NON_GRAPHIC )
+	    blank_flags = 0;
+
+	for ( ; bp < endbp; ++ bp )
+	{
+	    uns16 i = min::Uindex ( *bp );
+	    min::uns32 cflags = char_flags[i];
+	    if ( cflags & blank_flags )
+		continue;
+	    else
+		break;
+	}
+
+	if ( bp >= endbp )
 	    message = line_format->blank_line;
-	else
-	{
-	    bp = buffer;
-	    min::Uchar * endbp = bp + length;
+    }
 
-	    min::uns32 blank_flags = min::IS_HSPACE;
-	    if ( op_flags & min::DISPLAY_NON_GRAPHIC )
-		blank_flags = 0;
-
-	    for ( ; bp < endbp; ++ bp )
-	    {
-		uns16 i = min::Uindex ( *bp );
-		min::uns32 cflags = char_flags[i];
-		if ( cflags & blank_flags )
-		    continue;
-		else
-		    break;
-	    }
-
-	    if ( bp >= endbp )
-		message = line_format->blank_line;
-	}
-
-	if ( message != NULL )
-	{
-	    // Add message to line.
-	    //
-	    const char * p = message;
-	    while ( * p )
-	        buffer[length++] = (min::Uchar) * p ++;
-	}
-
-	if ( op_flags & min::DISPLAY_EOL )
-	    buffer[length++] =
-	        min::unicode::SOFTWARE_NL;
-
-	// Print line Uchars.
+    if ( message != NULL )
+    {
+	// Add message to line.
 	//
-	min::ptr<const min::Uchar> p =
-	    min::new_ptr<const min::Uchar> ( buffer );
-	min::uns32 width = (min::uns32) -1;
+	const char * p = message;
+	while ( * p )
+	    buffer[length++] = (min::Uchar) * p ++;
+    }
+
+    if ( op_flags & min::DISPLAY_EOL )
+	buffer[length++] =
+	    min::unicode::SOFTWARE_NL;
+
+    // Print line Uchars.
+    //
+    min::ptr<const min::Uchar> p =
+	min::new_ptr<const min::Uchar> ( buffer );
+    min::uns32 width = (min::uns32) -1;
+
+    if ( html
+         &&
+	 line_format->line_mark_class != NULL
+	 &&
+	 position.begin
+	 &&
+	 line_number >= position.begin.line
+	 &&
+	 line_number <= position.end.line )
+    {
+        // Add <span class='...'>...</span> to line.
+	//
+	unsptr first = 0;
+	unsptr last = length;
+	if ( file_line_length > 0 )
+	{
+	    min::unsptr index = 0;
+	    const char * beginp = ~ ( file->buffer + offset );
+	    const char * endp = beginp + file_line_length;
+	    const char * cp = beginp;
+	    if ( line_number == position.begin.line )
+	    {
+		const char * pp =
+		    beginp + position.begin.offset;
+		while ( cp < endp )
+		{
+		    min::utf8_to_unicode ( cp, endp );
+		    ++ index;
+		    if ( pp < cp )
+		    {
+		        first = index - 1;
+			break;
+		    }
+		}
+	    }
+	    if ( line_number == position.end.line )
+	    {
+		const char * pp =
+		    beginp + position.end.offset;
+		if ( pp < cp )
+		    last = index;
+		else while ( cp < endp )
+		{
+		    min::utf8_to_unicode ( cp, endp );
+		    ++ index;
+		    if ( pp < cp )
+		    {
+		        last = index - 1;
+			break;
+		    }
+		}
+	    }
+	}
+
+	min::unsptr n;
+	if ( first > 0 )
+	{
+	    n = first;
+	    MINT::print_unicode
+		( printer, op_flags, n, p, width );
+	}
+	min::tag(printer) << "<span class='"
+	                  << line_format->line_mark_class
+			  << "'>";
+	n = last - first;
+	MINT::print_unicode
+	    ( printer, op_flags, n, p, width );
+	min::tag(printer) << "</span>";
+	if ( last < length )
+	{
+	    n = length - last;
+	    MINT::print_unicode
+		( printer, op_flags, n, p, width );
+	}
+    }
+    else
+    {
+        // Do NOT add <span class='...'>...</span>
+	// to line.
+	//
 	MINT::print_unicode
 	    ( printer, op_flags, length, p, width );
     }
@@ -2993,7 +3074,7 @@ min::uns32 min::print_line
 	min::flush_file ( printer->file );
 
     if ( html ) return column;
-        // html highlight not yet implemented.
+        // html highlight implemented above.
 
     if ( ! position.begin
 	 ||
