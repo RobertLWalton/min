@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 06:23:30 EDT 2023
+// Date:	Sat Jun 10 17:15:01 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2438,7 +2438,8 @@ const min::stub * MINT::packed_struct_new_stub
 const min::position min::MISSING_POSITION =
     { 0xFFFFFFFF, 0xFFFFFFFF };
 
-const min::phrase_position min::MISSING_PHRASE_POSITION =
+const min::phrase_position
+	min::MISSING_PHRASE_POSITION =
     { min::MISSING_POSITION, min::MISSING_POSITION };
 
 static min::uns32 file_gen_disp[2] =
@@ -2870,21 +2871,6 @@ min::uns32 min::print_line
 		&&
 		line_format->line_table_class != NULL;
 
-    if ( html )
-    {
-        min::tag(printer) << "<tr>";
-	if ( line_format->line_number_class != NULL )
-	{
-	    min::tag(printer)
-	        << "<td class='"
-		<< line_format->line_number_class
-		<< "'>";
-	    printer << line_number + 1 << ":";
-	    min::tag(printer) << "</td>";
-	}
-        min::tag(printer) << "<td>";
-    }
-    
     const char * message = NULL;
     if ( offset == min::NO_LINE )
     {
@@ -2894,15 +2880,21 @@ min::uns32 min::print_line
 	    file_line_length = partial_length ( file );
 	    if ( file_line_length != 0 )
 		offset = partial_offset ( file );
-	    else
+	    else if ( message != NULL )
 	        offset = 0;
+	    else
+	        return min::NO_LINE;
 	}
-	else
+	else if (    line_format->unavailable_line
+	          != NULL )
 	{
 	    file_line_length = 0;
 	    offset = 0;
 	    message = line_format->unavailable_line;
 	}
+	else
+	    return min::NO_LINE;
+
 	op_flags &= ~ min::DISPLAY_EOL;
 
     }
@@ -2967,6 +2959,21 @@ min::uns32 min::print_line
 	buffer[length++] =
 	    min::unicode::SOFTWARE_NL;
 
+    if ( html )
+    {
+        min::tag(printer) << "<tr>";
+	if ( line_format->line_number_class != NULL )
+	{
+	    min::tag(printer)
+	        << "<td class='"
+		<< line_format->line_number_class
+		<< "'>";
+	    printer << line_number + 1 << ":";
+	    min::tag(printer) << "</td>";
+	}
+        min::tag(printer) << "<td>";
+    }
+
     // Print line Uchars.
     //
     min::ptr<const min::Uchar> p =
@@ -2990,8 +2997,10 @@ min::uns32 min::print_line
 	if ( file_line_length > 0 )
 	{
 	    min::unsptr index = 0;
-	    const char * beginp = ~ ( file->buffer + offset );
-	    const char * endp = beginp + file_line_length;
+	    const char * beginp =
+	        ~ ( file->buffer + offset );
+	    const char * endp =
+	        beginp + file_line_length;
 	    const char * cp = beginp;
 	    if ( line_number == position.begin.line )
 	    {
@@ -3034,9 +3043,10 @@ min::uns32 min::print_line
 	    MINT::print_unicode
 		( printer, op_flags, n, p, width );
 	}
-	min::tag(printer) << "<span class='"
-	                  << line_format->line_mark_class
-			  << "'>";
+	min::tag(printer)
+	    << "<span class='"
+	    << line_format->line_mark_class
+	    << "'>";
 	n = last - first;
 	MINT::print_unicode
 	    ( printer, op_flags, n, p, width );
@@ -3205,7 +3215,8 @@ void min::print_phrase_lines
 	    break;
 
 	min::print_line
-	    ( printer, file, line, line_format, position );
+	    ( printer, file, line, line_format,
+	      position );
     }
 
     if ( html )

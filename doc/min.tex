@@ -11328,7 +11328,9 @@ uses the length and number of columns encoded in the
 \subsubsection{Printing File Lines and Phrases}
 \label{PRINTING-FILE-LINES-AND-PHRASES}
 
-The following function uses \TT{min::line} to print a line as part of
+The following function uses
+\TT{min::line ( file, line\_number )} (\pagref{MIN::LINE_OF_FILE})
+to print a line as part of
 an error message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11364,20 +11366,23 @@ and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
 then \label{LINE_FORMAT_UNAVAILABLE_LINE}
 \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
 unavail\-able\_\EOL line} is
-printed on a line by itself instead, and \TT{0} is returned,
+printed on a line by itself instead, without any visible line feed,
 if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
 unavailable\_\EOL line} is not \TT{NULL}.
 But if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-unavailable\_\EOL line} is \TT{NULL},
+unavail\-able\_\EOL line} is \TT{NULL},
 nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
 If a line would print as blank\label{LINE_FORMAT_BLANK_LINE}, and if
 \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
 blank\_\EOL line} is not \TT{NULL}, then
 \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-blank\_\EOL line} is printed instead of
-the line, and \TT{0} is returned.
-More specifically, a line is deemed to print as blank if it only contains
+blank\_\EOL line} is printed at the end of the line after any
+whitespace characters.
+More specifically, a line is deemed to print as blank if
+\TT{min::DISPLAY\_\EOL EOL} is not in effect and either it contains
+no characters, or 
+it contains only
 horizontal space characters
 (characters with the \TT{min::\EOL IS\_\EOL HSPACE} flag:
 see \pagref{IS-HSPACE}) and \TT{min::DISPLAY\_\EOL NON\_\EOL GRAPHIC}
@@ -11385,11 +11390,13 @@ is \underline{not} in effect.
 
 If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
-then any partial line at the end of the file buffer is printed,
-immediately followed by\label{LINE_FORMAT_END_OF_FILE}
+then any partial line at the end of the file buffer is printed if
+there is a partial line, and then \label{LINE_FORMAT_END_OF_FILE}
 \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-end\_\EOL of\_\EOL file}, all on one line,
-and the number of columns used to print the partial line is returned.
+end\_\EOL of\_\EOL file} is printed, all on one line, without an visible
+line feed, if
+if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL
+format->\EOL end\_\EOL of\_\EOL file} is not \TT{NULL}.
 However, if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL
 format->\EOL end\_\EOL of\_\EOL file}
 is \TT{NULL}, then
@@ -11401,7 +11408,6 @@ Note that the \TT{line\_\EOL format} is not used to print
 \TT{line\_\EOL for\-mat->\EOL unavailable\_\EOL line},
 \TT{line\_\EOL for\-mat->\EOL blank\_\EOL line}, or
 \TT{line\_\EOL for\-mat->\EOL end\_\EOL of\_\EOL file},
-or any line feed following these,
 and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
 Also, these ASCII strings may not be unprotected body pointers,
