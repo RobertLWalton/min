@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 16:32:42 EDT 2023
+// Date:	Sat Jun 10 06:23:30 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2868,22 +2868,21 @@ min::uns32 min::print_line
     bool html = (   printer->print_format.op_flags
                   & min::OUTPUT_HTML )
 		&&
-		line_format->line_class != NULL
-		&&
-		line_format->line_number_class != NULL;
+		line_format->line_table_class != NULL;
 
     if ( html )
     {
-        min::tag(printer)
-	    << "<tr>"
-	    << "<td class='"
-	    << line_format->line_number_class
-	    << "'>";
-	printer << line_number + 1 << ":";
-        min::tag(printer)
-	    << "</td><td class='"
-	    << line_format->line_class
-	    << "'>";
+        min::tag(printer) << "<tr>";
+	if ( line_format->line_number_class != NULL )
+	{
+	    min::tag(printer)
+	        << "<td class='"
+		<< line_format->line_number_class
+		<< "'>";
+	    printer << line_number + 1 << ":";
+	    min::tag(printer) << "</td>";
+	}
+        min::tag(printer) << "<td>";
     }
     
     const char * message = NULL;
@@ -3182,16 +3181,12 @@ void min::print_phrase_lines
     bool html = (   printer->print_format.op_flags
                   & min::OUTPUT_HTML )
 		&&
-		line_format->line_group_class != NULL
-		&&
-		line_format->line_class != NULL
-		&&
-		line_format->line_number_class != NULL;
+		line_format->line_table_class != NULL;
 
     if ( html )
         min::tag(printer)
 	    << "<table class='"
-	    << line_format->line_group_class
+	    << line_format->line_table_class
 	    << "'>" << std::endl;
 
     uns32 line = begin.line;
@@ -12747,8 +12742,7 @@ static const min::line_format standard_line_format =
     NULL,
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
-    "MIN-LINE-GROUP",
-    "MIN-LINE",
+    "MIN-LINE-TABLE",
     "MIN-LINE-NUMBER",
     NULL
 };
@@ -12762,8 +12756,7 @@ static const min::line_format marked_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
-    "MIN-LINE-GROUP",
-    "MIN-LINE",
+    "MIN-LINE-TABLE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
 };
@@ -12778,8 +12771,7 @@ static const min::line_format picture_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
-    "MIN-LINE-GROUP",
-    "MIN-LINE",
+    "MIN-LINE-TABLE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
 };
@@ -12795,8 +12787,7 @@ static const min::line_format non_graphic_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
-    "MIN-LINE-GROUP",
-    "MIN-LINE",
+    "MIN-LINE-TABLE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
 };
@@ -12813,8 +12804,7 @@ static const min::line_format eol_line_format =
     "<BLANK-LINE>",
     "<END-OF-FILE>",
     "<UNAVALABLE-LINE>",
-    "MIN-LINE-GROUP",
-    "MIN-LINE",
+    "MIN-LINE-TABLE",
     "MIN-LINE-NUMBER",
     "MIN-LINE-MARK"
 };

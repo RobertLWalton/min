@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 8, 2023}
+\date{June 10, 2023}
  
 \maketitle
 
@@ -8042,9 +8042,8 @@ A \TT{line\_format} also contains the following parameters:
 \verb|const char *| & \TT{end\_of\_file} & \pagref{LINE_FORMAT_END_OF_FILE} \\
 \verb|const char *| & \TT{unavailalable\_line}
                     & \pagref{LINE_FORMAT_UNAVAILABLE_LINE} \\
-\verb|const char *| & \TT{line\_group\_class}
-                    & \pagref{LINE_FORMAT_LINE_GROUP_CLASS} \\
-\verb|const char *| & \TT{line\_class} & \pagref{LINE_FORMAT_LINE_CLASS} \\
+\verb|const char *| & \TT{line\_table\_class}
+                    & \pagref{LINE_FORMAT_LINE_TABLE_CLASS} \\
 \verb|const char *| & \TT{line\_number\_class}
                     & \pagref{LINE_FORMAT_LINE_NUMBER_CLASS} \\
 \verb|char| & \TT{mark} & \pagref{LINE_FORMAT_MARK} \\
@@ -9431,9 +9430,7 @@ have non-zero numbers of columns encoded in their second bytes.
 \verb|     const char * |
 	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
-	& \TTMKEY{line\_group\_class}{in {\tt min::line\_format}} \\
-\verb|     const char * |
-	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
+	& \TTMKEY{line\_table\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
@@ -9451,8 +9448,7 @@ have non-zero numbers of columns encoded in their second bytes.
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
-\verb|"MIN-LINE-GROUP",          // line_group_class|\ARGBREAK
-\verb|"MIN-LINE",                // line_class|\ARGBREAK
+\verb|"MIN-LINE-TABLE",          // line_table_class|\ARGBREAK
 \verb|"MIN-LINE-NUMBER"          // line_number_class|\ARGBREAK
 \verb|NULL                       // line_mark_class|
 \end{tabular}\end{indpar}
@@ -21705,9 +21701,7 @@ Other flags:
 \verb|     const char * |
 	& \TTMKEY{unavailable\_line}{in {\tt min::line\_format}} \\
 \verb|     const char * |
-	& \TTMKEY{line\_group\_class}{in {\tt min::line\_format}} \\
-\verb|     const char * |
-	& \TTMKEY{line\_class}{in {\tt min::line\_format}} \\
+	& \TTMKEY{line\_table\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
 	& \TTMKEY{line\_number\_class}{in {\tt min::line\_format}} \\
 \verb|     const char * |
@@ -21725,8 +21719,7 @@ Other flags:
 \verb|NULL,                      // blank_line|\ARGBREAK
 \verb|"<END-OF-FILE>",           // end_of_file|\ARGBREAK
 \verb|"<UNAVAILABLE-LINE>",      // unavailable_line|\ARGBREAK
-\verb|"MIN-LINE-GROUP",          // line_group_class|\ARGBREAK
-\verb|"MIN-LINE",                // line_class|\ARGBREAK
+\verb|"MIN-LINE-TABLE",          // line_table_class|\ARGBREAK
 \verb|"MIN-LINE-NUMBER",         // line_number_class|\ARGBREAK
 \verb|NULL                       // line_mark_class|
 \end{TABULAR}

@@ -1601,15 +1601,15 @@ A B C 0 1 8 9 . , + x y z
 <pre class='pre-class'>
 The color of the sign lettering must be <strong class='blue'>blue</strong>!
 Phrase Print Test: test_file: lines 2-3
-<table class='MIN-LINE-GROUP'>
-<tr><td class='MIN-LINE-NUMBER'>2:</td><td class='MIN-LINE'>Line␣<span class='MIN-LINE-MARK'>2␤</span></td></tr>
-<tr><td class='MIN-LINE-NUMBER'>3:</td><td class='MIN-LINE'><span class='MIN-LINE-MARK'>Line</span>␣3␤</td></tr>
+<table class='MIN-LINE-TABLE'>
+<tr><td class='MIN-LINE-NUMBER'>2:</td><td>Line␣<span class='MIN-LINE-MARK'>2␤</span></td></tr>
+<tr><td class='MIN-LINE-NUMBER'>3:</td><td><span class='MIN-LINE-MARK'>Line</span>␣3␤</td></tr>
 </table>
 Phrase Print Test: test_file: lines 3-5
-<table class='MIN-LINE-GROUP'>
-<tr><td class='MIN-LINE-NUMBER'>3:</td><td class='MIN-LINE'>Line␣<span class='MIN-LINE-MARK'>3␤</span></td></tr>
-<tr><td class='MIN-LINE-NUMBER'>4:</td><td class='MIN-LINE'><span class='MIN-LINE-MARK'>␤</span></td></tr>
-<tr><td class='MIN-LINE-NUMBER'>5:</td><td class='MIN-LINE'><span class='MIN-LINE-MARK'>&lt;END-OF-FILE&gt;</span></td></tr>
+<table class='MIN-LINE-TABLE'>
+<tr><td class='MIN-LINE-NUMBER'>3:</td><td>Line␣<span class='MIN-LINE-MARK'>3␤</span></td></tr>
+<tr><td class='MIN-LINE-NUMBER'>4:</td><td><span class='MIN-LINE-MARK'>␤</span></td></tr>
+<tr><td class='MIN-LINE-NUMBER'>5:</td><td><span class='MIN-LINE-MARK'>&lt;END-OF-FILE&gt;</span></td></tr>
 </table>
 
 Finish Printer Test!
