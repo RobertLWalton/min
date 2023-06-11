@@ -11523,8 +11523,7 @@ not a \TT{min::\EOL phrase\_\EOL position\_\EOL vec} value,
 
 The following function uses
 \TT{min::line ( file, line\_number )} (\pagref{MIN::LINE_OF_FILE})
-to print a line as part of
-an error message:
+to print a file line:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -11544,13 +11543,13 @@ temporarily merged into
 (see \pagref{FILE_LINE_FORMAT}),
 and the number of columns in the result,
 including any end of line representation printed by the
-\TT{min::\EOL DISPLAY\_\EOL EOL}, is returned.
+\TT{min::\EOL DISPLAY\_\EOL EOL} flag, is returned.
 
 If \TT{line\_\EOL format} is \TT{NULL},
 \TT{file->line\_\EOL format} is used in its place.  If that is also
 \TT{NULL},
-\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used (at
-least one of these must \underline{not} be \TT{NULL}).
+\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used (the
+end result of this must \underline{not} be \TT{NULL}).
 
 If a line is
 unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
@@ -11559,7 +11558,8 @@ and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
 then \label{LINE_FORMAT_UNAVAILABLE_LINE}
 \TT{line\_\EOL format->\EOL unavail\-able\_\EOL line} is
 printed on a line by itself instead, without any visible line feed,
-if \TT{line\_\EOL format->\EOL unavailable\_\EOL line} is not \TT{NULL}.
+provided that
+\TT{line\_\EOL format->\EOL unavailable\_\EOL line} is not \TT{NULL}.
 But if \TT{line\_\EOL format->\EOL unavail\-able\_\EOL line} is \TT{NULL},
 nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
@@ -11582,21 +11582,21 @@ because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
 then any partial line at the end of the file buffer is printed if
 there is a partial line, and then \label{LINE_FORMAT_END_OF_FILE}
 \TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file} is printed,
-all on one line, without an visible line feed, if
-if \TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file} is not \TT{NULL}.
+all on one line, without an visible line feed, provided that
+\TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file} is not \TT{NULL}.
 However, if \TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file}
 is \TT{NULL}, then
 if there is a partial line, only that is printed, on a single line
 without any visible ending line feed, and if there is no partial line,
 nothing is printed and \TT{NO\_\EOL LINE} is returned.
 
-Note that the \TT{line\_\EOL format} is not used to print
+Note that \TT{line\_\EOL format->\EOL op\_\EOL flags} is used to print
 \TT{line\_\EOL for\-mat->\EOL unavailable\_\EOL line},
 \TT{line\_\EOL for\-mat->\EOL blank\_\EOL line}, or
 \TT{line\_\EOL for\-mat->\EOL end\_\EOL of\_\EOL file},
 and it is best if these special strings consist of nothing but
-graphic ASCII characters and single spaces.
-Also, these ASCII strings may not be unprotected body pointers,
+\underline{graphic} characters.
+Also, these strings may not be unprotected body pointers,
 as printing may relocate bodies.
 
 In all cases where anything is printed, exactly one complete print line is
@@ -11644,7 +11644,7 @@ accompanied by the file lines involved printed with the above function.
 Typically the error is associated with a phrase in the file
 (see \itemref{FILE-POSITIONS-AND-PHRASES}).  If the phrase is
 specified by the \TT{position} argument to \TT{min::\EOL print\_\EOL line},
-the phrase will be marked.
+the phrase may be marked.
 
 If a line is \underline{not} being wrapped in HTML tags,
 a line containing marks is printed after the line,
@@ -11654,10 +11654,11 @@ being the character after the empty phrase position.
 
 The mark is the character
 \TT{line\_\EOL format->mark}\label{LINE_FORMAT_MARK}.
-If it is \TT{0}, marking lines will be omitted.
+If it is \TT{0}, marking lines will be omitted, and the
+phrase will not be marked.
 
 If instead the line \underline{is} being wrapped in HTML tags,
-the characters in the line to be marked are wrapped in
+the phrase characters are wrapped in
 \begin{center}
 \TT{<span class='}{\em line-mark-class}\TT{'>}\ldots\ldots\ldots\ldots%
 \TT{</span>}
@@ -11665,7 +11666,7 @@ the characters in the line to be marked are wrapped in
 where {\em line-mark-class} is the value of \TT{line\_\EOL format->\EOL
 line\_\EOL mark\_\EOL class}.\label{LINE_FORMAT_LINE_MARK_CLASS}
 If this value is \TT{NULL},
-the characters are not wrapped and are not marked in any way.
+the phrase characters are not wrapped and the phrase is not marked.
 
 If the \TT{position} argument to \TT{min::\EOL print\_\EOL line} has
 the value \TT{MIN::\EOL MISSING\_\EOL PHRASE\_\EOL POSITION}
@@ -11688,19 +11689,19 @@ passing the \TT{position} and \TT{line\_\EOL format} parameters
 to the \TT{min::\EOL print\_\EOL line} function.
 If the \TT{min::\EOL OUTPUT\_\EOL HTML} flag is on in
 \TT{printer->\EOL print\_\EOL format\EOL .op\_\EOL flags} and
-\TT{line\_EOL format->\EOL line\_\EOL table\_\EOL class}
+\TT{line\_\EOL format->\EOL line\_\EOL table\_\EOL class}
 is not \TT{NULL}, then the printed lines are wrapped in
 \begin{center}
 \TT{<table class='}{\em line-table-class}\TT{'>}\ldots\ldots\ldots\ldots%
 \TT{</table>}
 \end{center}
-HTML tags, where {\em line-table-class} is the value of
+where {\em line-table-class} is the value of
 \TT{line\_\EOL format->\EOL line\_\EOL table\_\EOL class}.
 
 When printing an error message associated with lines printed
 by \TT{min::\EOL print\_\EOL phrase\_\EOL lines}, line numbers
 need to be printed unless they are being output using HTML tags
-and \TT{line\_EOL format->\EOL line\_\EOL number\_\EOL class}.s
+and \TT{line\_\EOL format->\EOL line\_\EOL number\_\EOL class}.
 This can be done with the constructor:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11717,20 +11718,28 @@ This can be done with the constructor:
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
 
-which uses \TT{position.begin.line} + 1 and
-\TT{position.end.line} + 1 as
-line numbers, except that when
+which outputs:
 \begin{center}
-\TT{position.end.offset == 0} \\
-and \\
-\TT{position.end.line > position.begin.line}
+{\em file-name}\TT{: lines }{\em M}\TT{-}{\em N}
 \end{center}
+where {\em file-name} is the value of \TT{file->\EOL file\_\EOL name},
+{\em M} = \TT{position.begin.line} + 1, and
+{\em N} = \TT{position.end.line} + 1, with the following modifications:
+\begin{itemize}
+\item
+If \TT{position.end.offset == 0} and
+\TT{position.end.line > position.begin.line},
 then \TT{position.end.line} is used in place of
 \TT{position.end.line} + 1.
-The \TT{file->\EOL name}, if not \TT{min::\EOL MISSING()},
-is printed before the line numbers.
+\item
+If {\em M} = {\em N}, \TT{lines }{\em M}\TT{-}{\em N} is
+replaced by \TT{line }{\em M}.
+\item
+If \TT{file->\EOL file\_\EOL name} is \TT{min::\EOL MISSING()},
+`{\em file-name}\TT{: }' is omited.
+\end{itemize}
 
-An example using a \TT{phrase\_position} is
+An example using the above to print an error message is:
 
 \begin{indpar}\begin{verbatim}
     printer << ... error description ...
@@ -11749,7 +11758,8 @@ constructor calls the constructor:
 \LABEL{MIN::PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
 
-Internally \TT{min::\EOL print\_\EOL phrase\_\EOL lines}
+Internally, when it uses \TT{line\_\EOL format->\EOL mark},
+the \TT{min::\EOL print\_\EOL phrase\_\EOL lines} function
 calls the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -11762,7 +11772,7 @@ calls the function:
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
 \end{tabular}\end{indpar}
 
-that, given a file, a position within that file, print format,
+which, given a file, a position within that file, print format,
 and a line format, returns the number of
 columns before the position in a \TT{min::\EOL print\_\EOL line}
 printout of the line.  To do this, \TT{min::\EOL print\_\EOL line\_\EOL column}
@@ -11784,7 +11794,7 @@ will print at the end of a line if
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} is off, and
 {\tiny $\stackrel{\textstyle N~}{~L}$} will print if
 \TT{min::\EOL DISPLAY\_\EOL PICTURE} is on.  Also,
-non-graphic, non-horizontal-space characters always print as pictures
+non-graphic, non-horizontal-space characters usually print as pictures
 (e.g., {\tiny $\stackrel{\textstyle F~}{~F}$})
 if \TT{min::\EOL DISPLAY\_\EOL PICTURE} is on, and otherwise as
 their names with prefix and postfix determined by
@@ -11799,9 +11809,12 @@ as their names (e.g., \TT{<SP>} and \TT{<HT>}).
 \subsubsection{Printing HTML Tags}
 \label{PRINTING-HTML-TAGS}
 
-When a printer \TT{min::OUTPUT\_HTML} flag is set,
-reserved characters that are printed in the normal ways
-are replaced as per Figure~\ref{HTML-RESERVED-CHARACTERS}.
+When the \TT{min::OUTPUT\_HTML} flag is set in
+\TT{printer->\EOL print\_\EOL format\EOL .op\_\EOL flags},
+HTML reserved characters (e.g., \TT{<}, \TT{>}, \TT{\&})
+are replaced as per Figure~\ref{HTML-RESERVED-CHARACTERS}
+(e.g., by \TT{\&lt;}, \TT{\&gt;}, \TT{\&amp;}) when
+the printed text is output to \TT{printer->\EOL file->\EOL ostream}.
 However it is necessary to avoid replacing characters when
 printing HTML tags.  This can be done with the function:
 
@@ -11811,12 +11824,14 @@ printing HTML tags.  This can be done with the function:
 \LABEL{MIN::TAG} \\
 \end{tabular}\end{indpar}
 
-which first flushes the printer buffer and then returns
-\TT{printer->\EOL file->\EOL ostream}.  Elements printed
-using this \TT{ostream} do not have their characters
+which first flushes the printer buffer by calling
+\TT{min::\EOL flush\_\EOL file ( printer->\EOL file )},
+and then returns
+\TT{* printer->\EOL file->\EOL ostream}.  Elements printed
+directly to this \TT{ostream} do not have any characters
 replaced.  But it is important to flush the printer buffer
-between any operations that put characters into the \TT{ostream}
-retured by \TT{min::tag}.
+before any operation that puts characters into the \TT{ostream}
+returned by \TT{min::tag}.
 
 Some example uses are:
 
@@ -11833,7 +11848,7 @@ printer << "!" << min::eol;
 Note that printing tags with \TT{min::tag} does not
 update \TT{printer->column} and other printer parameters
 used to insert spaces between print items.
-Thus tags are invisible to print formatting.
+Thus tags are invisible to normal printing.
 For example, printing an end of line by using \TT{std::endl}
 with \TT{min::tag} does not set \TT{printer->\EOL column} to \TT{0}.
 
@@ -22499,34 +22514,6 @@ Other flags:
 \LABEL{MIN::PRINT_LINE} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  min::uns32 first, min::uns32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.7in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position|\ARGBREAK
-    \verb|        & position )|
-\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|min::printer |
-    & \TTOMKEY{<<}{<{}<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::pline_numbers const & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
-\end{TABULAR}
-
 \bigskip
 
 \begin{TABULAR}{1.6in}
@@ -22539,6 +22526,36 @@ Other flags:
       \verb|                           NULL )|
 \LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.7in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  const min::phrase_position|\ARGBREAK
+    \verb|        & position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pline_numbers const & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  min::uns32 first, min::uns32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{1.6in}
 \verb|min::uns32 min::|
