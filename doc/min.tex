@@ -11409,6 +11409,37 @@ as printing may relocate bodies.
 In all cases where anything is printed, exactly one complete print line is
 printed.
 
+If
+\begin{center}
+\TT{min::OUTPUT\_HTML} is set in \TT{printer->print.format.op\_flags}
+\\
+and
+\\
+\TT{line\_format->line\_table\_class} is \underline{not} \TT{NULL}%
+\label{LINE_FORMAT_LINE_TABLE_CLASS}
+\end{center}
+then what is printed to \TT{printer->file->ostream} is
+\begin{center}
+\TT{<tr><td>}{\em filtered-printed-line}\TT{</td></tr>}
+\end{center}
+
+Here {\em filtered-printed-line} is the line as it is printed
+but with HTML special characters replaced by their corresponding HTML entities
+(e.g., \TT{<} is replaced by \TT{\&lt;}), and it is required that
+\TT{line\_\EOL format->\EOL line\_\EOL number\_\EOL class} be \TT{NULL}.
+
+If instead \TT{line\_\EOL format->\EOL line\_\EOL number\_\EOL class} is
+\underline{not} \TT{NULL},\label{LINE_FORMAT_LINE_NUMBER_CLASS}
+the above is replaced by
+\begin{center}
+\TT{<tr><td class='}{\em line-number-class}\TT{'>}%
+{\em N}\TT{:}\TT{</td><td>}{\em filtered-printed-line}\TT{</td></tr>}
+\end{center}
+
+where {\em N} = \TT{line\_number} + 1 and {\em line-number-class}
+is the character string value of \TT{line\_\EOL format->\EOL
+line\_\EOL number\_\EOL class}.
+
 Error messages typically consist of a description of the error
 followed by the lines involved printed with the above function.
 Often the portions of the lines involved are marked by printing
