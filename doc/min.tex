@@ -11328,9 +11328,9 @@ uses the length and number of columns encoded in the
 \subsubsection{File Positions and Phrases}
 \label{FILE-POSITIONS-AND-PHRASES}
 
-The lines of an input file are typically saved an can be accessed
-by the \TT{min::line} (\pagref{MIN::LINE_OF_FILE})
-function.  A position in such a file is defined as the point
+The lines of an input file are typically saved and can be accessed
+by the \TT{min::line} function (\pagref{MIN::LINE_OF_FILE}).
+A position in such a file is defined as the point
 \underline{between} to UTF-8 characters in the file, or the point
 at the beginning of the file, or the point at the end of the file.
 A position is encode in a \TT{min::position} structure:
@@ -11487,7 +11487,7 @@ A phrase position vector is associated with some other data vector.
 For example, a phrase position vector may be the value of the
 \TT{.position} attribute of an object
 (see \itemref{OBJECTS}), in which case it will be associated with
-the attribute vector of the object.
+the attribute vector of the object (\pagref{ATTRIBUTE-VECTOR}).
 If \TT{vpp} is a phrase position vector pointer, \TT{vpp->\EOL position}
 is the position of the phrase that is encoded in the data vector,
 \TT{vp[i]} is the position of the phrase that is encoded in
@@ -11502,7 +11502,7 @@ and sets the \TT{file}, \TT{position}, and initial maximum length
 of the phrase position vector.
 
 If a MIN object has a \TT{.position} attribute equal to a
-phrase position vector, the phrase position
+phrase position vector, its phrase position
 pointer is returned by the following function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -13069,7 +13069,8 @@ The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
 stores attribute name/value pairs, for attributes whose names do not
 begin with small unsigned integers.
-The \mkey{attribute vector}{of object} stores attribute values
+The \mkey{attribute vector}{of object}\label{ATTRIBUTE-VECTOR}
+stores attribute values
 for attributes whose names begin with small unsigned integers.
 The \mkey{auxiliary area}{of object}
 stores elements of lists headed by hash table and attribute vector
@@ -22347,29 +22348,9 @@ Other flags:
 
 \bigskip
 
-\INDEXHEADER{Printing File Lines and Phrases}
+\INDEXHEADER{File Positions and Phrases}
 
 \begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.8in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::uns32 line_number,|\ARGBREAK
-      \verb|  const min::line_format * line_format =|\ARGBREAK
-      \verb|                           NULL )|
-\LABEL{MIN::PRINT_LINE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  min::uns32 first, min::uns32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{TABULAR}
-
-\bigskip
 
 \begin{TABULAR}{1.2in}
 \verb|struct min::| & \MINKEY{position}\ARGBREAK
@@ -22379,6 +22360,8 @@ Other flags:
     \verb|};|
 \LABEL{MIN::POSITION_STRUCT} \\
 \end{TABULAR}
+
+\bigskip
 
 \begin{TABULAR}{2.2in}
 \verb|const min::position min::| & \MINKEY{MISSING\_POSITION}\ARGBREAK
@@ -22430,6 +22413,8 @@ Other flags:
 \LABEL{OPERATOR(bool)_OF_POSITION} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.2in}
 \verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -22442,51 +22427,6 @@ Other flags:
 \verb|const min::phrase_position| \MINKEY{MISSING\_PHRASE\_POSITION} =\\
 \verb|    { min::MISSING_POSITION, min::MISSING_POSITION }|%
 \LABEL{MIN::MISSING_PHRASE_POSITION}
-
-\bigskip
-
-\begin{TABULAR}{1.7in}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb|( min::file file,|\ARGBREAK
-    \verb|  const min::phrase_position|\ARGBREAK
-    \verb|        & position )|
-\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|min::printer |
-    & \TTOMKEY{<<}{<{}<\RESIZE}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::pline_numbers const & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
-      \verb|( min::printer printer,|\ARGBREAK
-      \verb|  min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  const min::line_format * line_format =|\ARGBREAK
-      \verb|                           NULL )|
-\LABEL{MIN::PRINT_PHRASE_LINES} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
-      \verb|( min::file file,|\ARGBREAK
-      \verb|  min::phrase_position const & position,|\ARGBREAK
-      \verb|  const min::print_format & print_format,|\ARGBREAK
-      \verb|  const min::line_format * line_format =|\ARGBREAK
-      \verb|                           NULL )|
-\LABEL{MIN::PRINT_LINE_COLUMN} \\
-\end{TABULAR}
 
 \bigskip
 
@@ -22540,7 +22480,84 @@ Other flags:
 \LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
 \end{TABULAR}
 
+\end{indpar}
+
 \bigskip
+
+\INDEXHEADER{Printing File Lines and Phrases}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::uns32 line_number,|\ARGBREAK
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
+\LABEL{MIN::PRINT_LINE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  min::uns32 first, min::uns32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.7in}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb|( min::file file,|\ARGBREAK
+    \verb|  const min::phrase_position|\ARGBREAK
+    \verb|        & position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::printer |
+    & \TTOMKEY{<<}{<{}<\RESIZE}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::pline_numbers const & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.6in}
+\verb|void min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
+      \verb|( min::printer printer,|\ARGBREAK
+      \verb|  min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
+\LABEL{MIN::PRINT_PHRASE_LINES} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
+      \verb|( min::file file,|\ARGBREAK
+      \verb|  min::phrase_position const & position,|\ARGBREAK
+      \verb|  const min::print_format & print_format,|\ARGBREAK
+      \verb|  const min::line_format * line_format =|\ARGBREAK
+      \verb|                           NULL )|
+\LABEL{MIN::PRINT_LINE_COLUMN} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Printing HTML Tags}
+
+\begin{indpar}[0.2in]
 
 \begin{TABULAR}{2.6in}
 \verb|std::ostream & min::| & \MINKEY{tag}
