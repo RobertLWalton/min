@@ -11356,28 +11356,24 @@ including any end of line representation printed by the
 If \TT{line\_\EOL format} is \TT{NULL},
 \TT{file->line\_\EOL format} is used in its place.  If that is also
 \TT{NULL},
-\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used (this
-last may \underline{not} be \TT{NULL}).
+\TT{printer->\EOL print\_\EOL format.line\_\EOL format} is used (at
+least one of these must \underline{not} be \TT{NULL}).
 
 If a line is
 unavailable (i.e., \TT{min::\EOL line} returns \TT{min::\EOL NO\_\EOL LINE},
 see \pagref{MIN::LINE_OF_FILE})
 and \TT{line\_\EOL number} is not equal \TT{file->\EOL file\_\EOL lines},
 then \label{LINE_FORMAT_UNAVAILABLE_LINE}
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-unavail\-able\_\EOL line} is
+\TT{line\_\EOL format->\EOL unavail\-able\_\EOL line} is
 printed on a line by itself instead, without any visible line feed,
-if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-unavailable\_\EOL line} is not \TT{NULL}.
-But if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-unavail\-able\_\EOL line} is \TT{NULL},
+if \TT{line\_\EOL format->\EOL unavailable\_\EOL line} is not \TT{NULL}.
+But if \TT{line\_\EOL format->\EOL unavail\-able\_\EOL line} is \TT{NULL},
 nothing is done except to return \TT{min::\EOL NO\_\EOL LINE}.
 
 If a line would print as blank\label{LINE_FORMAT_BLANK_LINE}, and if
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-blank\_\EOL line} is not \TT{NULL}, then
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-blank\_\EOL line} is printed at the end of the line after any
+\TT{line\_\EOL format->\EOL blank\_\EOL line} is not \TT{NULL}, then
+\TT{line\_\EOL format->\EOL blank\_\EOL line}
+is printed at the end of the line after any
 whitespace characters.
 More specifically, a line is deemed to print as blank if
 \TT{min::DISPLAY\_\EOL EOL} is not in effect and either it contains
@@ -11392,13 +11388,10 @@ If there is no line
 because \TT{line\_\EOL number == file->\EOL file\_\EOL lines},
 then any partial line at the end of the file buffer is printed if
 there is a partial line, and then \label{LINE_FORMAT_END_OF_FILE}
-\TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL format->\EOL
-end\_\EOL of\_\EOL file} is printed, all on one line, without an visible
-line feed, if
-if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL
-format->\EOL end\_\EOL of\_\EOL file} is not \TT{NULL}.
-However, if \TT{printer->\EOL print\_\EOL format\EOL .line\_\EOL
-format->\EOL end\_\EOL of\_\EOL file}
+\TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file} is printed,
+all on one line, without an visible line feed, if
+if \TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file} is not \TT{NULL}.
+However, if \TT{line\_\EOL format->\EOL end\_\EOL of\_\EOL file}
 is \TT{NULL}, then
 if there is a partial line, only that is printed, on a single line
 without any visible ending line feed, and if there is no partial line,
