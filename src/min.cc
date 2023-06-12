@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 17:15:01 EDT 2023
+// Date:	Mon Jun 12 15:32:04 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3220,7 +3220,7 @@ void min::print_phrase_lines
     }
 
     if ( html )
-        min::tag(printer) << "</table>" << std::endl;
+        min::tag(printer) << "</table>";
 }
 
 min::printer operator <<

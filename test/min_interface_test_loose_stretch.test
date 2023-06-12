@@ -1604,14 +1604,12 @@ Phrase Print Test: test_file: lines 2-3
 <table class='MIN-LINE-TABLE'>
 <tr><td class='MIN-LINE-NUMBER'>2:</td><td>Line␣<span class='MIN-LINE-MARK'>2␤</span></td></tr>
 <tr><td class='MIN-LINE-NUMBER'>3:</td><td><span class='MIN-LINE-MARK'>Line</span>␣3␤</td></tr>
-</table>
-Phrase Print Test: test_file: lines 3-5
+</table>Phrase Print Test: test_file: lines 3-5
 <table class='MIN-LINE-TABLE'>
 <tr><td class='MIN-LINE-NUMBER'>3:</td><td>Line␣<span class='MIN-LINE-MARK'>3␤</span></td></tr>
 <tr><td class='MIN-LINE-NUMBER'>4:</td><td><span class='MIN-LINE-MARK'>␤</span></td></tr>
 <tr><td class='MIN-LINE-NUMBER'>5:</td><td><span class='MIN-LINE-MARK'>&lt;END-OF-FILE&gt;</span></td></tr>
 </table>
-
 Finish Printer Test!
 
 Start Objects Test!

@@ -260,7 +260,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 11, 2023}
+\date{June 12, 2023}
  
 \maketitle
 
@@ -11697,6 +11697,10 @@ is not \TT{NULL}, then the printed lines are wrapped in
 \end{center}
 where {\em line-table-class} is the value of
 \TT{line\_\EOL format->\EOL line\_\EOL table\_\EOL class}.
+However \underline{no} line-feed (no \TT{std::endl}) will be
+output after \TT{</table>}, as in certain contexts, e.g. a
+\TT{<table>} inside a \TT{<pre>}, a line-feed would cause
+a blank line after the \TT{<table>}.
 
 When printing an error message associated with lines printed
 by \TT{min::\EOL print\_\EOL phrase\_\EOL lines}, line numbers
