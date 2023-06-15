@@ -10,15 +10,7 @@
 \usepackage{lmodern}
 \usepackage{wasysym}
 \usepackage{makeidx}
-% \usepackage{pictex} (obsolete? not available under CentOS 7)
-\usepackage{upquote} % (imported to local directory
-                     % ; not available under CentOS 7)
-    % Modifies \verb and \verbatim to print ' with
-    % the Computer Modern Typewrite font.
-    % Also includes the textcomp package.
-    % Modifies \verb and \verbatim to print ' with
-    % the Computer Modern Typewrite font.
-    % Also includes the textcomp package.
+\usepackage{upquote}
 
 \makeindex
 
@@ -277,10 +269,7 @@
 
 \section{Introduction}
 
-This document describes the internal design of MIN,
-the Minimal Runtime System.
-This document is written for readers who wish to add C++ code
-to a MIN implementation, or who wish to maintain an implementation.
+This document describes MIN, the Minimal Runtime System.
 
 MIN might better be described as a `minimal complete' runtime system.
 It has a number of advanced features, such as support for objects
