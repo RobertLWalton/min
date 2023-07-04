@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 12, 2023}
+\date{July 4, 2023}
  
 \maketitle
 
@@ -863,8 +863,21 @@ at specific points in the code.  The inline function
 checks an interrupt
 flag, and if that is set, calls an out-of-line function to process
 the interrupt.  The function returns \TT{true} if and only if
-there was actually an interrupt (this should be used only
-for optimization).
+there was an actual interrupt that might have relocated bodies.
+If it returns \TT{false}, no bodies were relocated.
+
+The inline function
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{pending} \verb|( void )|
+\LABEL{MIN::PENDING} \\
+\end{tabular}\end{indpar}%
+\index{interrupt!pending}
+checks an interrupt
+flag, returns \TT{true} if that is set, and returns \TT{false}
+otherwise.  It \underline{never} calls an out-of-line function
+and \underline{never} relocates bodies.  If it returns \TT{true},
+code should prepare for bodies to be relocated and then call
+\TT{min::interrupt()}.
 
 A body may be \mkey{deallocated}{by moving}
 by moving it to unimplemented memory.  When this is done the
@@ -11412,12 +11425,20 @@ a `\key{phrase}', and its positions are encoded in a
     \verb|};|
 \ttmindex{begin}{in {\tt min::phrase\_position}}
 \ttmindex{end}{in {\tt min::phrase\_position}}
-\LABEL{MIN::PHRASE_POSITION_STRUCT}
+\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
 \end{tabular}
 \\[1ex]
 \verb|const min::phrase_position| \MINKEY{MISSING\_PHRASE\_POSITION} =\\
 \verb|    { min::MISSING_POSITION, min::MISSING_POSITION }|%
 \LABEL{MIN::MISSING_PHRASE_POSITION}
+\\[1ex]
+\begin{tabular}{r@{}l}
+\verb|bool |
+    & \TTOMKEY{(bool)}{(bool)}%
+              {of {\tt min::phrase\_position}}\ARGBREAK
+      \verb|( const min::phrase_position & pp )|
+\LABEL{OPERATOR(bool)_OF_PHRASE_POSITION} \\
+\end{tabular}
 \end{indpar}
 
 Here `\TT{begin}' encodes the position before the first character
@@ -11426,6 +11447,14 @@ after the last character of the phrase in the file.
 If the phrase is empty, \TT{begin == end}, and the position
 referenced by both `\TT{begin}' and `\TT{end}'
 is the position of the empty phrase in the file.
+
+A \TT{phrase\_\EOL position} converts to \TT{false} if
+it equals \TT{MISSING\_\EOL PHRASE\_\EOL POSITION}, and converts
+to \TT{true} in other typical cases.  More specifically, a
+\TT{phrase\_\EOL position} \TT{pp} converts to:
+\begin{center}
+\tt pp.begin.line != 0xFFFFFFFF
+\end{center}
 
 Positions are recorded when an input file is scanned for lexemes
 and subexpressions.  Such scanning is not a part of the MIN system.
@@ -18744,6 +18773,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
 \verb|void min::| & \MINKEY{interrupt\REL} \verb|( void )|
 \LABEL{MIN::INTERRUPT} \\
+\verb|bool min::| & \MINKEY{pending} \verb|( void )|
+\LABEL{MIN::PENDING} \\
 \verb|void min::| & \MINKEY{deallocate\REL} \verb|( const min::stub * s )|
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated} \verb|( const min::stub * s )|
@@ -22435,6 +22466,16 @@ Other flags:
 \verb|const min::phrase_position| \MINKEY{MISSING\_PHRASE\_POSITION} =\\
 \verb|    { min::MISSING_POSITION, min::MISSING_POSITION }|%
 \LABEL{MIN::MISSING_PHRASE_POSITION}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
+\verb|bool |
+    & \TTOMKEY{(bool)}{(bool)}%
+              {of {\tt min::phrase\_position}}\ARGBREAK
+      \verb|( const min::phrase_position & pp )|
+\LABEL{OPERATOR(bool)_OF_PHRASE_POSITION} \\
+\end{TABULAR}
 
 \bigskip
 

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 10 06:23:08 EDT 2023
+// Date:	Tue Jul  4 12:40:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1727,6 +1727,12 @@ namespace min {
 	     >= internal::acc_stack_limit )
 	    return internal::acc_interrupt();
 	else return false;
+    }
+
+    inline bool pending ( void )
+    {
+        return    internal::acc_stack
+	       >= internal::acc_stack_limit;
     }
 }
 
@@ -6357,6 +6363,10 @@ namespace min {
     {
         min::position begin;
         min::position end;
+	operator bool ( void ) const
+	{
+	    return begin;
+	}
     };
 
     extern const phrase_position
