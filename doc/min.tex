@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 4, 2023}
+\date{July 12, 2023}
  
 \maketitle
 
@@ -6595,31 +6595,30 @@ output.
 
 \item[\ttmkey{gen\_\EOL disp}{in {\tt min::packed\_struct}}]
 This C vector is a list of the displacements (in bytes) of all
-the \TT{min::gen} members of \TT{S},
+the \TT{const min::gen} members of \TT{S},
 terminated by the value \TT{min::DISP\_END}\minindex{DISP\_END}.
 The displacement of member \TT{m} in structure type \TT{S} should
 be computed by \TT{min::\EOL DISP(\&S::m)}.
 
 This displacements vector should not
-be given (its address should be \TT{NULL}) if there are no \TT{min::gen}
-values in \TT{S}.  But if there are \TT{min::gen} members, this
+be given (its address should be \TT{NULL}) if there are no \TT{const min::gen}
+values in \TT{S}.  But if there are \TT{const min::gen} members, this
 displacements vector must be given for garbage collection purposes.
 
-\TT{const min::gen} members are treated like \TT{min::gen}
-members for these purposes.
-
 \item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]\label{STUB_DISP}
-Ditto but for \TT{const min::stub *} members of \TT{S}
-instead of \TT{min::gen} members.  The following member types are
-treated as \TT{const min::stub *} members for these purposes:
+Ditto but for \TT{const min::stub * const} members of \TT{S}
+instead of \TT{const min::\EOL gen} members.  The following member types are
+treated as \TT{const min::\EOL stub * const} members for these purposes:
 \begin{center}
 \tt
 \begin{tabular}{l}
-const min::stub * const \\
-min::packed\_struct\_xxxptr<S> \\
-min::packed\_vec\_xxxptr<E,H,L> \\
+const min::packed\_struct\_xxxptr<T> \\
+const min::packed\_vec\_xxxptr<E,H,L> \\
 \end{tabular}
 \end{center}
+
+
+
 
 \end{itemlist}
 
@@ -6635,8 +6634,36 @@ displacement in bytes of the member \TT{m} of a structure
 of \TT{struct} type \TT{S}.  This should be used instead of
 assuming that \TT{struct} layouts are tightly packed, as often
 they are not.  The type of the \TT{S::m} member must be one of
-the types mentioned above: \TT{min::gen}, \TT{const min::stub~*},
-\TT{min::\EOL packed\_\EOL \ldots{}ptr<\ldots>}, etc.
+the types mentioned above: \TT{const min::gen}, \TT{const min::stub~* const},
+\TT{const min::\EOL packed\_\EOL \ldots{}ptr<\ldots>}, etc.
+
+However a member does not have to be \TT{const}, as non-\TT{const}
+members will be converted to \TT{const} members implicitely.
+Thus members of type \TT{min::gen} and \TT{const min::stub~*} will
+work, but \underline{not} one of type \TT{min::stub~*}, as that
+is a different type from \TT{const min::stub~*}.
+
+If you have a structure type \TT{T} containing a member \TT{m} of one of these
+types, and at most one such member, you can define the following
+that allows a structure \TT{S} to have members of type \TT{const T}:
+
+\begin{indpar}\begin{verbatim}
+template<typename S>
+min::uns32 DISP ( const T S::* d )
+{
+    return min::OFFSETOF ( d ) + min::DISP ( & T::m );
+}
+\end{verbatim}\end{indpar}
+
+The function call \TT{min::OFFSETOF\footnotemark ( \& S::m )}
+returns the offset
+of member \TT{m} in structs of type \TT{S}, but this may not
+be what you want if \TT{m} contains a \TT{const min::gen} or a
+\TT{const min::stub~* const} at offsets other than zero.  Hence the
+second term \TT{min::\EOL DISP ( \& T::m )} is needed.
+\footnotetext{The C/C++ macro \TT{offsetof} does not seem to
+be reliable, so \TT{min::\EOL OFFSETOF} has been defined to
+be used instead.}
 
 \TT{pstype.subtype}, \TT{pstype.name},
 \TT{pstype.gen\_\EOL disp},

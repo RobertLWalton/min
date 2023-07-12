@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  8 04:07:33 EDT 2023
+// Date:	Wed Jul 12 15:39:18 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2144,7 +2144,7 @@ struct ps1 {
     const min::uns32 control;
     min::uns32 i;
     min::gen g;
-    min::stub * s;
+    const min::stub * s;
     ps1ptr psp;
 };
 
@@ -2254,7 +2254,7 @@ struct pve {
 
     min::gen g1;  // 2 min::gen's to avoid padding
     min::gen g2;  // before s.
-    min::stub * s;
+    const min::stub * s;
     min::uns8 j;
 
     min::uns8 padding
