@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 12, 2023}
+\date{July 13, 2023}
  
 \maketitle
 
@@ -6879,7 +6879,7 @@ typedef min::packed_struct_updptr<ps> psupdptr;
     // Note: pointers can be defined before struct is defined.
 
 struct ps {
-    min::uns32 control;
+    const min::uns32 control;
     min::uns32 i;
     min::uns32 j;
     const min::gen g;
