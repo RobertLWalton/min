@@ -8284,7 +8284,7 @@ input to the file will come from some outside source.  It empties the
 and \TT{file\_\EOL name} to \TT{min::\EOL MISSING()}.
 For example,\label{WRITING-FILE-BUFFER}
 \begin{indpar}\begin{verbatim}
-min::locatable_ptr<min::file> file;
+min::locatable_var<min::file> file;
 init_input ( file );
 ...
 const char * my_string = ...;
@@ -8327,7 +8327,7 @@ by making it the \TT{ofile} of another file and flushing this other file
 (see \TT{min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
 For example,
 \begin{indpar}\begin{verbatim}
-min::locatable_ptr<min::file> file1, file2;
+min::locatable_var<min::file> file1, file2;
 init_input ( file1 );
 init_input_... ( file2, ... );
 init_ofile ( file2, file1 );
