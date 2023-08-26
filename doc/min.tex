@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 13, 2023}
+\date{August 26, 2023}
  
 \maketitle
 
@@ -10931,25 +10931,9 @@ in effect just before \TT{min::\EOL eom}
 is executed govern all the operations executed by
 \TT{min::\EOL eom}.
 
-For example, the following might be used to print an error message:
-\begin{indpar}\begin{verbatim}
-    printer << "ERROR: " << min::bom;
-    . . . . . .
-    // Print contents of error message
-    . . . . . .
-    printer << min::eom;
-\end{verbatim}\end{indpar}
-
-Here the error message will be indented by the number of columns
-consumed by `\TT{ERROR:~}', and any format parameters changed
-while printing the error message body will be restored at the end
-of the message by the \TT{min::\EOL eom}.
-
-\TT{min::bom} will set \TT{line\_\EOL break.indent}
-to the current value of \TT{column},
-but if a different indent is desired, it can be set by following
-\TT{min::\EOL bom} with \TT{min::\EOL set\_\EOL indent}
-(\pagref{MIN::SET_INDENT}) or one of the operations:
+\TT{min::bom} should be output before any part of the message is
+output.  Then the indent can be set to any point in the message
+using one of the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
@@ -10966,6 +10950,24 @@ the printer `\TT{column}' for \TT{min::\EOL place\_\EOL indent}
 or the indent itself for \TT{min::\EOL adjust\_\EOL indent}.
 If the indent would be set to a negative value,
 \TT{0} is used instead.
+
+For example, the following might be used to print an error message:
+\begin{indpar}\begin{verbatim}
+    printer << min::bol << min::bom <<"ERROR: "
+            << min::place_indent ( 0 );
+    . . . . . .
+    // Print contents of error message
+    . . . . . .
+    printer << min::eom;
+\end{verbatim}\end{indpar}
+
+Here the contents of the error message will be indented by
+the number of columns
+consumed by `\TT{ERROR:~}', and any format parameters changed
+while printing the error message body will be restored at the end
+of the message by the \TT{min::\EOL eom}.  Here \TT{min::bol} is used
+only because one might not be sure whether the printer was at
+the beginning of a line when the error message is printed.
 
 \subsubsection{Leading and Trailing Separators}
 \label{LEADING-AND-TRAILING-SEPARATORS}
