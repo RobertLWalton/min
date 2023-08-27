@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 12 15:32:04 EDT 2023
+// Date:	Sun Aug 27 01:04:33 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10368,6 +10368,15 @@ min::printer operator <<
 	    printer->print_format.op_flags;
 	return printer;
     case min::op::BOM:
+        if ( printer->column != 0 )
+	{
+	    ::end_line
+		( printer,
+		  printer->print_format.op_flags );
+	    if (   printer->print_format.op_flags
+		 & min::FLUSH_ON_EOL )
+		min::flush_file ( printer->file );
+	}
         min::push ( printer->print_format_stack ) =
 	    printer->print_format;
 	goto save_indent;

@@ -10916,9 +10916,10 @@ to surround the body of an error message or other message:
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
-\TT{min::bom} executes both
+\TT{min::bom} executes a \TT{min::bol} and then both
 a \TT{min::\EOL save\_\EOL indent}
 and a \TT{min::\EOL save\_\EOL print\_\EOL format} operation.
+
 \TT{min::\EOL eom} executes in order a
 \TT{min::\EOL restore\_\EOL indent},
 a \TT{min::\EOL bol},
@@ -10931,8 +10932,7 @@ in effect just before \TT{min::\EOL eom}
 is executed govern all the operations executed by
 \TT{min::\EOL eom}.
 
-\TT{min::bom} should be output before any part of the message is
-output.  Then the indent can be set to any point in the message
+After \TT{min::bom} the indent can be set to any point in the message
 using one of the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -10953,7 +10953,7 @@ If the indent would be set to a negative value,
 
 For example, the following might be used to print an error message:
 \begin{indpar}\begin{verbatim}
-    printer << min::bol << min::bom <<"ERROR: "
+    printer << min::bom <<"ERROR: "
             << min::place_indent ( 0 );
     . . . . . .
     // Print contents of error message
@@ -10965,9 +10965,7 @@ Here the contents of the error message will be indented by
 the number of columns
 consumed by `\TT{ERROR:~}', and any format parameters changed
 while printing the error message body will be restored at the end
-of the message by the \TT{min::\EOL eom}.  Here \TT{min::bol} is used
-only because one might not be sure whether the printer was at
-the beginning of a line when the error message is printed.
+of the message by the \TT{min::\EOL eom}.
 
 \subsubsection{Leading and Trailing Separators}
 \label{LEADING-AND-TRAILING-SEPARATORS}
