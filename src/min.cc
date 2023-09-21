@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 27 01:04:33 EDT 2023
+// Date:	Thu Sep 21 15:52:32 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -59,6 +59,13 @@ void min::no_return ( void ) { abort(); }
 
 // Initialization
 // --------------
+
+bool MINT::exit_called = false;
+
+static void exit_called ( void )
+{
+    MINT::exit_called = true;
+}
 
 min::initializer * MINT::last_initializer = NULL;
 bool MINT::initialization_done = false;
@@ -368,7 +375,11 @@ static void init_standard_char_flags ( void );
 static void init_pgen_formats ( void );
 void MINT::initialize ( void )
 {
+    // Not called if MINT::initialization_done is true.
+ 
     MINT::initialization_done = true;
+
+    std::atexit ( ::exit_called );
 
     PTR_CHECK ( min::packed_struct_ptr<int> );
     PTR_CHECK ( min::packed_struct_updptr<int> );

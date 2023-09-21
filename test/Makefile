@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Sep  8 17:01:46 EDT 2021
+# Date:		Thu Sep 21 16:26:05 EDT 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -250,6 +250,18 @@ ${INTERFACE_PROGRAMS}:		\
 	    -o $@ \
 	    min_interface_test.cc \
 	    ../src/min.cc ../src/min_os.cc \
+	    min_assert.o min_unicode.o
+
+min_exit_test:		\
+		min_exit_test.cc ../src/min.cc \
+		min_assert.o min_unicode.o \
+		${INCLUDE_FILES} Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -o $@ \
+	    min_exit_test.cc \
+	    ../src/min.cc ../src/min_os.cc \
+	    ../src/min_acc.cc \
 	    min_assert.o min_unicode.o
 
 min_os_test:		\

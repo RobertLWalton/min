@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 12 16:04:32 EDT 2023
+// Date:	Thu Sep 21 15:52:17 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -77,6 +77,12 @@
 # define MIN_FALLTHROUGH __attribute__ ((fallthrough));
 
 namespace min { namespace internal {
+
+    extern bool exit_called;
+        // True if std::exit() called.  Disables some
+	// MIN_REQUIRE statements that fail because
+	// variables are not deallocated in good
+	// order when exit() called.
 
     // Return j such that (1<<(j-1)) < u <= (1<<j),
     // assuming 0 < u <= (1<<31).
@@ -3380,7 +3386,9 @@ namespace min {
 	      min::locatable_var<T> * previous )
 	{
 	    MIN_REQUIRE
-		(    locatable_stub_ptr_last
+		( min::internal::exit_called
+		  ||
+		     locatable_stub_ptr_last
 		  == (min::locatable_stub_ptr *) var );
 
 	    locatable_stub_ptr_last =
@@ -3392,7 +3400,9 @@ namespace min {
 		  min::locatable_gen * previous )
 	{
 	    MIN_REQUIRE
-		(    locatable_gen_last
+		( min::internal::exit_called
+		  ||
+		     locatable_gen_last
 		  == (min::locatable_gen *) var );
 
 	    locatable_gen_last = previous;
