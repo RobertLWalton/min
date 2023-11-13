@@ -1011,6 +1011,14 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::body_size_of ( s ) == 3 * sizeof ( min::gen ) + sizeof ( MINT::lab_header ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::labfind ( labv1[0], lab ) == 0 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::labfind ( labv1[1], lab ) == 1 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::labfind ( labv1[2], lab ) == 2 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::labfind ( min::new_str_gen ( "NONE" ), lab ) == -1 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::hash ( lab ) == labhash1 => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::labncpy ( labv2, s, 5 ) == 3 => true

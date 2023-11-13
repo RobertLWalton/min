@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 21 15:52:32 EDT 2023
+// Date:	Mon Nov 13 04:40:02 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2407,6 +2407,18 @@ min::gen min::new_lab_gen
     min::locatable_gen g5 = min::new_str_gen ( s5 );
     min::gen elements[5] = { g1, g2, g3, g4, g5 };
     return min::new_lab_gen ( elements, 5 );
+}
+
+int min::labfind ( min::gen key, min::gen lab )
+{
+    min::lab_ptr labp = lab;
+    if ( labp == min::NULL_STUB ) return -1;
+    min::uns32 len = min::lablen ( labp );
+    for ( min::uns32 i = 0; i < len; ++ i )
+    {
+        if ( labp[i] == key ) return i;
+    }
+    return -1;
 }
 
 // Return true if v is a label with all string elements.

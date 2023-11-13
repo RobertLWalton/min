@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 12 15:39:18 EDT 2023
+// Date:	Mon Nov 13 04:45:41 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1966,6 +1966,15 @@ void test_labels ( void )
 		 3 * sizeof ( min::gen )
 		 +
 		 sizeof ( MINT::lab_header ) );
+
+    MIN_CHECK ( min::labfind ( labv1[0], lab ) == 0 );
+    MIN_CHECK ( min::labfind ( labv1[1], lab ) == 1 );
+    MIN_CHECK ( min::labfind ( labv1[2], lab ) == 2 );
+    MIN_CHECK
+        ( min::labfind
+	      ( min::new_str_gen ( "NONE" ),
+	        lab ) == -1 );
+
     MIN_CHECK ( min::hash ( lab ) == labhash1 );
     MIN_CHECK
 	( min::labncpy ( labv2, s, 5 ) == 3 );

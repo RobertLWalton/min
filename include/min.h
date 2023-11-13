@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Sep 21 15:52:17 EDT 2023
+// Date:	Mon Nov 13 04:39:37 EST 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4829,6 +4829,8 @@ namespace min {
 	  const char * s3,
 	  const char * s4,
 	  const char * s5 );
+
+    int labfind ( min::gen key, min::gen lab );
 }
 
 // Names

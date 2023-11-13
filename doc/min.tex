@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 26, 2023}
+\date{November 13, 2023}
  
 \maketitle
 
@@ -6266,6 +6266,18 @@ and furthermore do not check subscript ranges:
 	& \MINKEY{labhash} \verb|( MUP::lab_ptr & labp )|
 \LABEL{MIN::HASH_OF_MUP_LAB_PTR} \\
 \end{tabular}\end{indpar}
+
+Labels are sometimes used to list names (e.g., strings).  The following
+returns the index (\TT{0}, \TT{1}, \TT{2}, etc.)
+of the first occurence of the \TT{key} as an element of
+the \TT{label}:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|int min::| & \MINKEY{labfind} \verb|( min::gen key, min::gen label )|
+\LABEL{MIN::LABFIND} \\
+\end{tabular}\end{indpar}
+
+If \TT{key} is not in \TT{label}, \TT{-1} is returned. 
 
 \subsection{Names}
 \label{NAMES}
