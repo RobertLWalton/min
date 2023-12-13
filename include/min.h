@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 04:39:37 EST 2023
+// Date:	Wed Dec 13 05:31:59 UTC 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2961,6 +2961,7 @@ namespace min {
 	    write_update<T> X ( this->s, v );
 	    return * this;
 	}
+	ref ( const ref<T> & r ) = default;
 
 	T & operator ~ ( void ) const
 	{
@@ -3107,6 +3108,7 @@ namespace min {
 	    new ( this ) ptr<T> ( p.s, p.offset );
 	    return * this;
 	}
+        ptr ( const ptr<T> & p ) = default;
 
 	T * operator -> ( void ) const
 	{
@@ -3494,6 +3496,12 @@ namespace min {
 	        ( min::unprotected::ZERO_STUB,
 		  (T *) this );
 	}
+	static min::uns32 offset_of_previous ( void)
+	    // Needed because previous is private.
+	{
+	    return OFFSETOF
+		( & locatable_var<T>::previous );
+	}
 
     private:
 
@@ -3518,10 +3526,10 @@ namespace min {
 	inline void locatable_var_check ( void )
 	{
 	    MIN_ASSERT
-	      (    OFFSETOF
-		     ( & locatable_var<T>::previous )
-	        == OFFSETOF
-		     ( & locatable_stub_ptr::previous ),
+	      (    locatable_var<T>
+			::offset_of_previous()
+	        == locatable_stub_ptr
+			::offset_of_previous(),
 		"system programmer error"
 	      );
 	}
@@ -4112,6 +4120,7 @@ namespace min {
 		s = sp.s;
 	    return * this;
 	}
+	str_ptr ( const str_ptr & sp ) = default;
 
 	friend const char * min::unprotected::str_of
 	    ( const str_ptr & sp );
@@ -5130,6 +5139,9 @@ namespace min {
 		    ( g );
 	    return * this;
 	}
+	packed_struct_ptr & operator =
+		( const packed_struct_ptr & p ) =
+		    default;
 
 	static min::uns32 DISP ( void )
 	{
@@ -5191,6 +5203,9 @@ namespace min {
 	    new ( this ) packed_struct_ptr<S> ( g );
 	    return * this;
 	}
+	packed_struct_updptr & operator =
+		( const packed_struct_updptr & p ) =
+		    default;
 
 	static min::uns32 DISP ( void )
 	{
@@ -5595,6 +5610,8 @@ namespace min {
 		    ( g );
 	    return * this;
 	}
+	packed_vec_ptr & operator =
+		( const packed_vec_ptr & p ) = default;
 
 	static min::uns32 DISP ( void )
 	{
@@ -5717,6 +5734,9 @@ namespace min {
 	    new ( this ) packed_vec_ptr<E,H,L> ( g );
 	    return * this;
 	}
+	packed_vec_updptr & operator =
+		( const packed_vec_updptr & p ) =
+		    default;
 
 	static min::uns32 DISP ( void )
 	{
@@ -5802,6 +5822,9 @@ namespace min {
 	    new ( this ) packed_vec_updptr<E,H,L> ( g );
 	    return * this;
 	}
+	packed_vec_insptr & operator =
+		( const packed_vec_insptr & p ) =
+		    default;
 
 	static min::uns32 DISP ( void )
 	{

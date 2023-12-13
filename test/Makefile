@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Sep 21 16:26:05 EDT 2023
+# Date:		Wed Dec 13 05:30:31 UTC 2023
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -119,7 +119,7 @@ diffs:
 
 %.out:	%
 	rm -f $*.out
-	${RUNENV} $* > $*.out
+	${RUNENV} ./$* > $*.out
 
 # Note: MIN_STUB_BASE if set must be LESS than any
 #       data address.
@@ -170,7 +170,7 @@ min_os_test.dump:	\
 
 min_os_test.dump:	min_os_test
 	rm -f min_os_test.out
-	${RUNENV} min_os_test dump
+	${RUNENV} ./min_os_test dump
 
 min_acc_test.out:	\
 	RUNENV = \
@@ -213,7 +213,7 @@ min_unicode_test.dump:	min_unicode_test
 	       min_unicode_test.dump \
 	       unicode_data.cc \
 	       unicode_data_support_sets.h
-	min_unicode_test
+	./min_unicode_test
 	mv unicode_data.cc min_unicode_test.code
 	mv unicode_data_support_sets.h \
 	   min_unicode_test.header
