@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 17 22:12:44 UTC 2023
+// Date:	Fri Nov 25 10:09:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -123,7 +123,7 @@
 //
 # ifndef MIN_DEFAULT_SPACE_FACTOR
 #    define MIN_DEFAULT_SPACE_FACTOR \
-	( MIN_PTR_BITS <= 32 ? 4 : 16 )
+	( MIN_PTR_BITS <= 32 ? 16 : 64 )
 # endif
 
 // cache_line_size
