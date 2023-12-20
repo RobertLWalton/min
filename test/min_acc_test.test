@@ -5,18 +5,18 @@ TRACE: stub_allocator_initializer()
 TRACE: new_pool_between ( 16777216, 0x0, 0xfffffffffff )
 TRACE: new_pool ( 32 )
 TRACE: block_allocator_initializer()
-TRACE: new_pool ( 4096 )
-TRACE: inaccess_pool ( 4096, 0xXXXXXXXX )
+TRACE: new_pool ( 256 )
+TRACE: inaccess_pool ( 256, 0xXXXXXXXX )
 TRACE: new_pool ( 896 )
 TRACE: allocate_new_superregion()
-TRACE: new_paged_block_region (1073741824, 4)
-TRACE: new_pool ( 262144 )
+TRACE: new_paged_block_region (67108864, 4)
+TRACE: new_pool ( 16384 )
 TRACE: new_paged_block_region returns & region_table[1]
 TRACE: new_pool ( 257 )
 TRACE: inaccess_pool ( 1, 0xXXXXXXXX )
 TRACE: allocate_new_superregion()
-TRACE: new_paged_block_region (1073741824, 4)
-TRACE: new_pool ( 262144 )
+TRACE: new_paged_block_region (67108864, 4)
+TRACE: new_pool ( 16384 )
 TRACE: new_paged_block_region returns & region_table[2]
 TRACE: allocating new subregion for 16 byte fixed size blocks
 TRACE: allocating new subregion for 32 byte fixed size blocks
@@ -56,7 +56,7 @@ ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     stub4 == MINT::last_allocated_stub => true
 
 Test body allocator functions:
-MINT::min_fixed_block_size = 16 MINT::max_fixed_block_size = 262144
+MINT::min_fixed_block_size = 16 MINT::max_fixed_block_size = 65536
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     memcmp ( p1, p2, 128 ) == 0 => true
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
@@ -123,11 +123,11 @@ After Random Deallocation
                 256 Byte Blocks:            60           196           256
                 512 Byte Blocks:            93           163           256
                1024 Byte Blocks:           212           108           320
-               2048 Byte Blocks:           437            75           512
+               2048 Byte Blocks:           437            74           511
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
               65536 Byte Blocks:             1             0             1
-     Bytes in Fixed Size Blocks:       1913008        905040       2818048
+     Bytes in Fixed Size Blocks:       1913008        902992       2816000
 START COLLECTOR level 2 generation counts:
     0/0,0,0,0,0/0,0,0,0,101020
 END COLLECTOR INITING level 2 collectible 101020 root 0
@@ -154,11 +154,11 @@ After Highest Level GC
                 256 Byte Blocks:            60           196           256
                 512 Byte Blocks:            93           163           256
                1024 Byte Blocks:           212           108           320
-               2048 Byte Blocks:           437            75           512
+               2048 Byte Blocks:           437            74           511
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
               65536 Byte Blocks:             1             0             1
-     Bytes in Fixed Size Blocks:       1913008        905040       2818048
+     Bytes in Fixed Size Blocks:       1913008        902992       2816000
 ASSERT SUCCEEDED: min_acc_test.cc:XXXX:
     ::teststr == min::new_str_gen ( "this is a test str" ) => true
 
