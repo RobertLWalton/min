@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 04:40:02 EST 2023
+// Date:	Sat May 11 04:37:17 EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13512,9 +13512,7 @@ min::printer min::print_obj
 
 	if ( obj_op_flags & min::ENABLE_LOGICAL_LINE
 	     &&
-	     initiator == min::LOGICAL_LINE()
-	     &&
-	     separator == min::NONE() )
+	     initiator == min::LOGICAL_LINE() )
 	{
 	    min::uns32 state = min::IN_LOGICAL_LINE;
 	        // Add min::CONTAINS_PARAGRAPH when
@@ -13532,8 +13530,16 @@ min::printer min::print_obj
 			    min::CONTAINS_PARAGRAPH;
 		        printer << min::indent;
 		    }
+		    else if ( separator == min::NONE() )
+			printer << objf->obj_sep;
 		    else
+		    {
+			min::print_trailing_always ( printer );
+			min::print_gen
+			    ( printer, separator,
+			      objf->separator_format );
 			min::print_space ( printer );
+		    }
 
 		    if ( i == vsize - 1
 		         &&
