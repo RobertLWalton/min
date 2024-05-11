@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 13, 2023}
+\date{May 11, 2024}
  
 \maketitle
 
@@ -17825,7 +17825,6 @@ is translated to
 
 \item The `\key{logical line compact format}' is used if
 the object has an \TT{.initiator} equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
-the object has no \TT{.separator},
 and the \ttikey{ENABLE\_\EOL LOGICAL\_\EOL LINE}%
                {ENABLE\_LOGICAL\_LINE}
 object format operation
@@ -17915,7 +17914,8 @@ and not as attribute values.
 \item[\ttmkey{terminator\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 \TT{.initiator}, \TT{.separator}, and \TT{.terminator} in bracketed compact
-format, and the \TT{.terminator} in logical line compact format.
+format, and the \TT{.terminator} and \TT{.separator}
+in logical line compact format.
 The \TT{.initiator} in indented paragraph compact format is
 printed using \TT{terminator\_format}, as it is in a terminator
 position.
@@ -18072,6 +18072,7 @@ In \mkey{logical line compact format}{of printed object},%
 \label{LOGICAL-LINE-COMPACT-FORMAT}
 where there are
 are no attributes other than \TT{.initiator}, \TT{.terminator},
+\TT{.separator},
 and attributes with a \TT{hide\_\EOL flag},
 the \TT{.initiator} is equal to \TT{min::\EOL LOGICAL\_\EOL LINE()},
 the object elements are just printed using
