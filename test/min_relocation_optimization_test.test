@@ -111,5 +111,5 @@ _GLOBAL__sub_I__Z5test1PKN3min4stubEi:
 	.local	_ZStL8__ioinit
 	.comm	_ZStL8__ioinit,1,1
 	.hidden	__dso_handle
-	.ident	"GCC: (GNU) 11.4.1 20230605 (Red Hat 11.4.1-2)"
+	.ident	"GCC: (GNU) 11.4.1 20231218 (Red Hat 11.4.1-3)"
 	.section	.note.GNU-stack,"",@progbits

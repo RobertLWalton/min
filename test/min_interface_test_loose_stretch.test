@@ -573,6 +573,8 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     n3hash == min::hash ( n3 ) => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     min::new_num_gen ( 1 << 30 ) == n3 => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    plus_zero != minus_zero => true
 
 Finish Numbers Test!
 

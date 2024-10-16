@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 13 04:45:41 EST 2023
+// Date:	Wed Oct 16 02:22:21 AM EDT 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1460,6 +1460,14 @@ void test_numbers ( void )
 	( n3hash == min::hash ( n3 ) );
     MIN_CHECK
 	( min::new_num_gen ( 1 << 30 ) == n3 );
+
+#   if MIN_IS_LOOSE
+	min::gen plus_zero =
+	    min::new_num_gen ( +0.000 );
+	min::gen minus_zero =
+	    min::new_num_gen ( -0.000 );
+	MIN_CHECK ( plus_zero != minus_zero );
+#   endif
 
     cout << endl;
     cout << "Finish Numbers Test!" << endl;
