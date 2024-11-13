@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 13 05:31:59 UTC 2023
+// Date:	Wed Nov 13 12:58:26 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -436,6 +436,12 @@ namespace min {
     inline min::gen INDENTED_PARAGRAPH ( void )
 	{ return min::unprotected::new_special_gen
 	    ( internal::ATTR_ILLEGAL_SPECIAL - 10 ); }
+    inline min::gen TRUE ( void )
+	{ return min::unprotected::new_special_gen
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 11 ); }
+    inline min::gen FALSE ( void )
+	{ return min::unprotected::new_special_gen
+	    ( internal::ATTR_ILLEGAL_SPECIAL - 12 ); }
 }
 
 inline bool operator == ( min::gen g1, min::gen g2 )
@@ -13272,6 +13278,8 @@ namespace min {
     	left_square_leading_always_pstring;
     extern min::pstring
     	trailing_always_right_square_pstring;
+    extern min::pstring
+    	asterisk_pstring;
 }
 
 min::printer operator <<
@@ -13764,8 +13772,6 @@ namespace min {
         return op ( op::SET_GEN_FORMAT, gen_format );
     }
 
-    extern min::locatable_gen TRUE;
-    extern min::locatable_gen FALSE;
     extern min::locatable_gen empty_str;
     extern min::locatable_gen empty_lab;
     extern min::locatable_gen doublequote;

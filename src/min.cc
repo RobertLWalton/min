@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 11 04:37:17 EDT 2024
+// Date:	Wed Nov 13 01:11:33 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -82,8 +82,6 @@ static const char * html_reserved_table[256];
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
 
-min::locatable_gen min::TRUE;
-min::locatable_gen min::FALSE;
 min::locatable_gen min::empty_str;
 min::locatable_gen min::empty_lab;
 min::locatable_gen min::doublequote;
@@ -126,7 +124,7 @@ min::packed_vec<min::gen> min::gen_packed_vec_type
       ::zero_disp );
 
 static const unsigned
-    standard_special_names_length = 27;
+    standard_special_names_length = 29;
 static min::ustring standard_special_names_value
 		  [::standard_special_names_length] =
     { NULL,
@@ -155,7 +153,9 @@ static min::ustring standard_special_names_value
       (min::ustring) "\x07\x07" "FAILURE",
       (min::ustring) "\x05\x05" "ERROR",
       (min::ustring) "\x0C\x0C" "LOGICAL_LINE",
-      (min::ustring) "\x12\x12" "INDENTED_PARAGRAPH" };
+      (min::ustring) "\x12\x12" "INDENTED_PARAGRAPH",
+      (min::ustring) "\x04\x04" "TRUE",
+      (min::ustring) "\x05\x05" "FALSE" };
 min::packed_vec_ptr<min::ustring>
     min::standard_special_names;
 static min::locatable_var
@@ -521,10 +521,6 @@ void MINT::initialize ( void )
     MINT::scavenger_routines[HUGE_OBJ]
     	= & obj_scavenger_routine;
 
-    min::TRUE =
-        min::new_str_gen ( "TRUE" );
-    min::FALSE =
-        min::new_str_gen ( "FALSE" );
     min::empty_str =
         min::new_str_gen ( "" );
     min::empty_lab =
@@ -10059,6 +10055,14 @@ min::pstring
     	min::trailing_always_right_square_pstring =
     & ::trailing_always_right_square_pstring;
 
+static min::printer asterisk_pstring
+	( min::printer printer )
+{
+    return min::print_chars ( printer, "*", 1, 1 );
+}
+min::pstring min::asterisk_pstring =
+    & ::asterisk_pstring;
+
 // const min::print_format min::default_print_format
 // defined below after compact_gen_format.
 
@@ -12185,7 +12189,8 @@ const min::lab_format *
 
 static min::special_format name_special_format =
 {
-    NULL, NULL,
+    min::asterisk_pstring,
+    min::asterisk_pstring,
     min::NULL_STUB	    // special_names*
 };
 const min::special_format * min::name_special_format =
@@ -12622,7 +12627,7 @@ static min::gen_format compact_gen_format =
     & ::long_num_format,
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_obj_format,
     NULL
 };
@@ -12635,7 +12640,7 @@ static min::gen_format line_gen_format =
     & ::long_num_format,
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::line_obj_format,
     NULL
 };
@@ -12649,7 +12654,7 @@ static min::gen_format paragraph_gen_format =
     & ::long_num_format,
     & ::quote_separator_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::paragraph_obj_format,
     NULL
 };
@@ -12663,7 +12668,7 @@ static min::gen_format compact_value_gen_format =
     & ::long_num_format,
     & ::quote_value_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_obj_format,
     NULL
 };
@@ -12676,7 +12681,7 @@ static min::gen_format compact_id_gen_format =
     & ::long_num_format,
     & ::quote_value_id_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_id_obj_format,
     NULL
 };
@@ -12689,7 +12694,7 @@ static min::gen_format id_gen_format =
     & ::long_num_format,
     & ::quote_value_id_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::id_obj_format,
     NULL
 };
@@ -12702,7 +12707,7 @@ static min::gen_format id_map_gen_format =
     & ::long_num_format,
     & ::quote_value_str_format,
     & ::bracket_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::isolated_line_id_obj_format,
     NULL
 };
@@ -12715,7 +12720,7 @@ static min::gen_format name_gen_format =
     & ::long_num_format,
     & ::quote_value_str_format,
     & ::name_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_obj_format,
     NULL
 };
@@ -12729,7 +12734,7 @@ static min::gen_format
     & ::long_num_format,
     & ::standard_str_format,
     & ::leading_always_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_obj_format,
     NULL
 };
@@ -12743,7 +12748,7 @@ static min::gen_format
     & ::long_num_format,
     & ::standard_str_format,
     & ::trailing_always_lab_format,
-    & ::bracket_special_format,
+    & ::name_special_format,
     & ::compact_obj_format,
     NULL
 };
@@ -13154,9 +13159,9 @@ static bool print_attributes
 	    ( vc == 1 && rc == 0 && fc == 0 );
 	if ( suppress_value )
 	{
-	    if ( info[i].value == min::FALSE )
+	    if ( info[i].value == min::FALSE() )
 		printer << objf->obj_attrneg;
-	    else if ( info[i].value != min::TRUE )
+	    else if ( info[i].value != min::TRUE() )
 		suppress_value = false;
 	}
 
@@ -13534,7 +13539,8 @@ min::printer min::print_obj
 			printer << objf->obj_sep;
 		    else
 		    {
-			min::print_trailing_always ( printer );
+			min::print_trailing_always
+			    ( printer );
 			min::print_gen
 			    ( printer, separator,
 			      objf->separator_format );

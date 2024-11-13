@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 16 02:22:21 AM EDT 2024
+// Date:	Wed Nov 13 01:21:44 AM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3036,7 +3036,7 @@ void test_printer ( void )
     printer << min::bom
             << min::pgen ( min::MISSING() )
 	    << " "
-	    << min::pgen_never_quote ( min::MISSING() )
+	    << min::pgen_quote ( min::MISSING() )
 	    << " "
 	    << min::pgen ( min::MISSING() )
             << min::eom;
@@ -3432,7 +3432,8 @@ void test_printer ( void )
 	      ( "min_non_existent_file" ) );
     std::cout << min::error_message;
 
-    printer << min::eol << "HTML Print Test: " << min::eol;
+    printer << min::eol << "HTML Print Test: "
+            << min::eol;
     printer << min::bom;
     const char * line = "< > & \"   – — © ®"
                         " ™ ≈ ≠ £ € °";
@@ -3452,8 +3453,11 @@ void test_printer ( void )
 
     printer << min::output_html;
     const char * pre_class = "pre-class";
-    min::tag(printer) << "<pre class='" << pre_class << "'>" << std::endl;
-    printer << "The color of the sign lettering must be ";
+    min::tag(printer)
+        << "<pre class='" << pre_class << "'>"
+	<< std::endl;
+    printer
+        << "The color of the sign lettering must be ";
     min::tag(printer) << "<strong class='blue'>";
     printer << "blue";
     min::tag(printer) << "</strong>";
@@ -5145,11 +5149,11 @@ void test_object_printing ( void )
 	min::locatable_gen fraction =
 	    min::new_str_gen ( "fraction" );
 	min::locate ( ap, fraction );
-	min::set ( ap, min::new_str_gen ( "TRUE" ) );
+	min::set ( ap, min::TRUE() );
 	min::locatable_gen scientific =
 	    min::new_str_gen ( "scientific" );
 	min::locate ( ap, scientific );
-	min::set ( ap, min::new_str_gen ( "FALSE" ) );
+	min::set ( ap, min::FALSE() );
     }
     printer << min::pgen ( obj3 ) << min::eol;
 

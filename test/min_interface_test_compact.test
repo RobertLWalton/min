@@ -450,7 +450,7 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MINT::acc_stack == ::acc_stack + 2 => true
 
 Test stub allocator functions:
-initial stubs allocated = 33
+initial stubs allocated = 29
 MINT::acc_expand_stub_free_list (1) called
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     stub1 == begin_stub_region + sbase => true
@@ -1519,29 +1519,29 @@ this-is-very-very-very-very-very-very-very-very-very-very-very-very#
     #very-very-very-very-very-very-long-symbol
 [< 5.6 [< 1.234 "str 1" >] "str 2" >]
 A "," B / [< A "," B >]
-MISSING
-NONE
-ANY
-MULTI_VALUED
-UNDEFINED
-SUCCESS
-FAILURE
-ERROR
-SPECIAL -100
-[$ SPECIAL 200 $]
-[$ MISSING $]
+*MISSING*
+*NONE*
+*ANY*
+*MULTI_VALUED*
+*UNDEFINED*
+*SUCCESS*
+*FAILURE*
+*ERROR*
+*SPECIAL -100*
+*SPECIAL 200*
+*MISSING*
 PREALLOCATED(1*123)
 PREALLOCATED(2*123)
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)
-[$ LIST_AUX(0x00000A) $]
-[$ SUBLIST_AUX(0x000014) $]
-[$ INDIRECT_AUX(0x00001E) $]
-[$ INDEX(0x000028) $]
-[$ CONTROL_CODE(0xFEDCBA) $]
-[$ UNDEFINED_GEN(0xF7000000) $]
-[$ MISSING $] MISSING [$ MISSING $]
+*LIST_AUX(0x00000A)*
+*SUBLIST_AUX(0x000014)*
+*INDIRECT_AUX(0x00001E)*
+*INDEX(0x000028)*
+*CONTROL_CODE(0xFEDCBA)*
+*UNDEFINED_GEN(0xF7000000)*
+*MISSING* [$ MISSING $] *MISSING*
 A flush is next:
 The line being flushed
 a␁      ␡<2400>␥

@@ -135,7 +135,7 @@ TRACE: new_paged_block_region (262144, 8)
 TRACE: new_pool ( 64 )
 TRACE: new_paged_block_region returns & region_table[3]
 END COLLECTOR SCAVENGING level 2
-          scanned 155253 stubs scanned 1029 scavenged 1006 thrashed 1
+          scanned 155249 stubs scanned 1029 scavenged 1006 thrashed 1
 END COLLECTOR COLLECTING level 2
           AUX HASH: kept 10 collected 0
           NON-HASH: kept 1009 collected 100001
