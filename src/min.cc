@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 01:11:33 AM EST 2024
+// Date:	Thu Nov 14 01:16:14 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12757,7 +12757,7 @@ const min::gen_format *
     & ::trailing_always_gen_format;
 
 static min::gen_format
-	always_quote_gen_format =
+	bracket_quote_gen_format =
 {
     & min::standard_pgen,
     & ::long_num_format,
@@ -12767,8 +12767,22 @@ static min::gen_format
     & ::compact_obj_format,
     NULL
 };
-const min::gen_format * min::always_quote_gen_format =
-    & ::always_quote_gen_format;
+const min::gen_format * min::bracket_quote_gen_format =
+    & ::bracket_quote_gen_format;
+
+static min::gen_format
+	quote_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::quote_all_str_format,
+    & ::bracket_lab_format,
+    & ::name_special_format,
+    & ::compact_obj_format,
+    NULL
+};
+const min::gen_format * min::quote_gen_format =
+    & ::quote_gen_format;
 
 static min::gen_format never_quote_gen_format =
 {

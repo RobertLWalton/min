@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 13 12:58:26 AM EST 2024
+// Date:	Thu Nov 14 01:07:27 PM EST 2024
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13578,7 +13578,9 @@ namespace min {
     extern const min::gen_format *
         id_gen_format;
     extern const gen_format *
-        always_quote_gen_format;
+        bracket_quote_gen_format;
+    extern const gen_format *
+        quote_gen_format;
     extern const gen_format *
         never_quote_gen_format;
     extern const gen_format *
@@ -13754,10 +13756,16 @@ namespace min {
 	            min::name_gen_format );
     }
 
+    inline op pgen_bracket_quote ( min::gen v )
+    {
+        return op ( op::PGEN_FORMAT, v,
+	            min::bracket_quote_gen_format );
+    }
+
     inline op pgen_quote ( min::gen v )
     {
         return op ( op::PGEN_FORMAT, v,
-	            min::always_quote_gen_format );
+	            min::quote_gen_format );
     }
 
     inline op pgen_never_quote ( min::gen v )
