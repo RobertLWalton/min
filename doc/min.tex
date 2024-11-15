@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 11, 2024}
+\date{November 15, 2024}
  
 \maketitle
 
@@ -1716,6 +1716,12 @@ see \pagref{LOGICAL-LINE-COMPACT-FORMAT}.
 	\LABEL{MIN::INDENTED_PARAGRAPH}\\
 The value of the \TT{.terminator} attribute of an indented paragraph:
 see \pagref{INDENTED-PARAGRAPH-COMPACT-FORMAT}.
+\item[\TT{const min::gen min::}\MINKEY{TRUE()}]~%
+	\LABEL{MIN::TRUE}\\
+Used to represent the `true' truth value.
+\item[\TT{const min::gen min::}\MINKEY{FALSE()}]~%
+	\LABEL{MIN::FALSE}\\
+Used to represent the `true' truth value.
 \end{list}
 \end{indpar}
 
@@ -6361,12 +6367,6 @@ If there are no components,  a label with zero elements is returned.
 The following names are defined for general use:
 
 \begin{indpar}\begin{tabular}{r@{}ll}
-\verb|min::gen min::| & \MINKEY{TRUE}
-		      & \verb|= min::new_str_gen ( "TRUE" )|
-\LABEL{MIN::TRUE} \\
-\verb|min::gen min::| & \MINKEY{FALSE}
-		      & \verb|= min::new_str_gen ( "FALSE" )|
-\LABEL{MIN::FALSE} \\
 \verb|min::gen min::| & \MINKEY{empty\_str}
 		      & \verb|= min::new_str_gen ( "" )|
 \LABEL{MIN::EMPTY_STR} \\
@@ -11995,14 +11995,16 @@ to the value `\TT{f}'.  The default value of
 is \ttkey{min::compact\_gen\_format} (\pagref{MIN::COMPACT_GEN_FORMAT}).
 
 \TT{min::\EOL pgen\_\EOL name(v)},
-\TT{min::\EOL pgen\_\EOL quote(v)}, and
+\TT{min::\EOL pgen\_\EOL quote(v)},
+\TT{min::\EOL pgen\_\EOL bracket\_\EOL quote(v)}, and
 \TT{min::\EOL pgen\_\EOL never\_\EOL quote(v)} are respectively
 shorthand for
 \begin{center}
 \tt
 \begin{tabular}{l}
 min::pgen ( v, min::name\_gen\_format ) \\
-min::pgen ( v, min::always\_quote\_gen\_format ) \\
+min::pgen ( v, min::quote\_gen\_format ) \\
+min::pgen ( v, min::bracket\_quote\_gen\_format ) \\
 min::pgen ( v, min::never\_quote\_gen\_format ) \\
 \end{tabular}
 \end{center}
@@ -12067,7 +12069,7 @@ for general value formats is as follows:
 \verb|min::long_num_format                    // num_format|\ARGBREAK
 \verb|min::quote_separator_str_format         // str_format|\ARGBREAK
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK
-\verb|min::bracket_special_format             // special_format|\ARGBREAK
+\verb|min::name_special_format                // special_format|\ARGBREAK
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK
 \verb|NULL                                    // non_standard|
 \end{tabular}\end{indpar}
@@ -12152,8 +12154,17 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{always\_quote\_gen\_format}:}
-\LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK
+                   min::\MINKEY{bracket\_quote\_gen\_format}:}
+\LABEL{MIN::BRACKET_QUOTE_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::quote_all_str_format               // str_format|\ARGBREAK
+\verb|min::bracket_special_format             // special_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{quote\_gen\_format}:}
+\LABEL{MIN::QUOTE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
 \verb|min::quote_all_str_format               // str_format|
 \end{tabular}\end{indpar}
@@ -12165,7 +12176,6 @@ for general value formats is as follows:
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
 \verb|NULL                                    // str_format|\ARGBREAK
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK
-\verb|min::name_special_format                // special_format|
 \end{tabular}\end{indpar}
 
 A general value format can be any structure whose first member
@@ -12708,8 +12718,8 @@ The format for printing special \TT{min::gen} values is:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}\ARGBREAK
-\verb|NULL                                     // special_prefix|\ARGBREAK
-\verb|NULL                                     // special_postfix|\ARGBREAK
+\verb|min::asterisk_pstring                    // special_prefix   "*"|\ARGBREAK
+\verb|min::asterisk_pstring                    // special_postfix  "*"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \LABEL{MIN::NAME_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
@@ -12733,7 +12743,7 @@ The format for printing special \TT{min::gen} values is:
 \verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
 \verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
 \verb|//     UNDEFINED  UNUSED  SUCCESS  FAILURE  ERROR|\ARGBREAK
-\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
+\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH TRUE FALSE|
 \end{tabular}\end{indpar}
 
 Given a special format \TT{sf},
@@ -17968,10 +17978,10 @@ separate an attribute label from its value.  E.g., `\TT{=}'.
 
 \item[\ttmkey{obj\_attrneg}{in {\tt min::obj\_format}}]~\\
 This is the \TT{min::pstring} printed to indicate
-negation of attributes whose value is \TT{FALSE}.
-Attributes with value \TT{TRUE} are printed as just
+negation of attributes whose value is \TT{min::FALSE()}.
+Attributes with value \TT{min::TRUE()} are printed as just
 the attribute label with no following \TT{obj\_\EOL attreq} or value.
-Attributes with value \TT{FALSE} are printed as just
+Attributes with value \TT{min::FALSE()} are printed as just
 \TT{obj\_\EOL attrneg} followed by
 the attribute label with no following \TT{obj\_\EOL attreq} or value.
 E.g., `\TT{no\textvisiblespace}'.
@@ -18280,10 +18290,12 @@ Here
 \begin{enumerate}
 \item
 An {\em <attribute>} that is just `{\em attribute-label}'
-is equivalent to `{\em attribute-label} \TT{= TRUE}'.
+is equivalent to\\
+\hspace*{1in}`{\em attribute-label} \TT{= *TRUE*}'.
 \item
 An {\em <attribute>} that is just `\TT{no }{\em attribute-label}'
-is equivalent to `{\em attribute-label} \TT{= FALSE}'.
+is equivalent to \\
+\hspace*{1in}`{\em attribute-label} \TT{= *FALSE*}'.
 \item
 An {\em attribute-label} may appear in more that one {\em <attribute>},
 but at most one without any {\em reverse-attribute-label}, and in
@@ -19097,6 +19109,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LOGICAL_LINE} \\
 \verb|min::gen min::| & \MINKEY{INDENTED\_PARAGRAPH()}
 \LABEL{MIN::INDENTED_PARAGRAPH} \\
+\verb|min::gen min::| & \MINKEY{TRUE()}
+\LABEL{MIN::TRUE} \\
+\verb|min::gen min::| & \MINKEY{FALSE()}
+\LABEL{MIN::FALSE} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -20543,10 +20559,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::gen min::| & \MINKEY{TRUE}
-\LABEL{MIN::TRUE} \\
-\verb|min::gen min::| & \MINKEY{FALSE}
-\LABEL{MIN::FALSE} \\
 \verb|min::gen min::| & \MINKEY{empty\_str}
 \LABEL{MIN::EMPTY_STR} \\
 \verb|min::gen min::| & \MINKEY{empty\_lab}
@@ -22745,7 +22757,7 @@ Other flags:
 \verb|min::long_num_format                    // num_format|\ARGBREAK[0in]
 \verb|min::quote_separator_str_format         // str_format|\ARGBREAK[0in]
 \verb|min::bracket_lab_format                 // lab_format|\ARGBREAK[0in]
-\verb|min::bracket_special_format             // special_format|\ARGBREAK[0in]
+\verb|min::name_special_format                // special_format|\ARGBREAK[0in]
 \verb|min::compact_obj_format                 // obj_format|\ARGBREAK[0in]
 \verb|NULL                                    // non_standard|
 \end{TABULAR}
@@ -22850,8 +22862,19 @@ Other flags:
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{always\_quote\_gen\_format}:}
-\LABEL{MIN::ALWAYS_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
+                   min::\MINKEY{bracket\_quote\_gen\_format}:}
+\LABEL{MIN::BRACKET_QUOTE_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::quote_all_str_format               // str_format|\ARGBREAK[0in]
+\verb|min::bracket_special_format             // special_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{quote\_gen\_format}:}
+\LABEL{MIN::QUOTE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
 \verb|min::quote_all_str_format               // str_format|
 \end{TABULAR}
@@ -22865,7 +22888,6 @@ Other flags:
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
 \verb|NULL                                    // str_format|\ARGBREAK[0in]
 \verb|min::name_lab_format                    // lab_format|\ARGBREAK[0in]
-\verb|min::name_special_format                // special_format|
 \end{TABULAR}
 
 \bigskip
@@ -23206,8 +23228,8 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}
 \LABEL{MIN::NAME_SPECIAL_FORMAT}\ARGBREAK
-\verb|NULL                                     // special_prefix|\ARGBREAK
-\verb|NULL                                     // special_postfix|\ARGBREAK
+\verb|min::asterisk_pstring                    // special_prefix   "*"|\ARGBREAK
+\verb|min::asterisk_pstring                    // special_postfix  "*"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \end{TABULAR}
 
@@ -23234,7 +23256,7 @@ Other flags:
 \verb|//     MULTI_VALUED ANY  NONE|\ARGBREAK
 \verb|//     MISSING  DISABLED  ENABLED|\ARGBREAK
 \verb|//     UNDEFINED  UNUSED  SUCCESS  FAILURE  ERROR|\ARGBREAK
-\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH|
+\verb|//     LOGICAL_LINE INDENTED_PARAGRAPH TRUE FALSE|
 \end{TABULAR}
 
 \end{indpar}
