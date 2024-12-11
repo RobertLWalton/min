@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 15, 2024}
+\date{December 11, 2024}
  
 \maketitle
 
@@ -14024,8 +14024,9 @@ area.
 
 There are two versions of each push or pop: one that
 returns either a \TT{min::\EOL ref<min::gen>} reference to
-a single \TT{min::gen} value,%
+a single \TT{min::gen} value (push),%
 \label{OBJ_VEC_INSPTR_PUSH_REF}
+of a \TT{min:gen} value (pop),
 and one that handles
 \TT{n} values stored in a C/C++ vector pointed at by \TT{p}.
 These latter push and pop functions preserve the order of the values in memory,
