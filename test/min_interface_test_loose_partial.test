@@ -1686,6 +1686,20 @@ ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     ts == vo + hs + as + us + auxs => true
 ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
     MUP::body_size_of ( s ) == ts * sizeof ( min::gen ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::private_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::private_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::private_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::public_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    ! min::public_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    min::public_flag_of ( obj1 ) => true
+ASSERT SUCCEEDED: min_interface_test.cc:XXXX:
+    insvp1 == min::NULL_STUB => true
 
 Finish Objects Test!
 

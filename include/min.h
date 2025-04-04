@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 01:07:27 PM EST 2024
+// Date:	Thu Apr  3 08:18:28 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7638,9 +7638,15 @@ namespace min {
 		internal::tiny_obj * p =
 		    (internal::tiny_obj *) body_p;
 
-		p->total_size &= ~ OBJ_PRIVATE;
 		if ( this->type == INSERTABLE )
 		{
+		    MIN_REQUIRE
+		        (    (p->total_size >> SHIFT)
+			  == total_size - 1 );
+		    p->total_size =
+		        (    ( total_size - 1 )
+			  << SHIFT )
+		      + ( total_size_flags & MASK );
 		    p->unused_offset =
 		        (    ( unused_offset - 1 )
 			  << SHIFT )
@@ -7650,6 +7656,8 @@ namespace min {
 			  << SHIFT )
 		      + ( aux_offset_flags & MASK );
 		}
+		else
+		    p->total_size &= ~ OBJ_PRIVATE;
 	    }
 	        break;
 	    case SHORT_OBJ:
@@ -7657,9 +7665,15 @@ namespace min {
 		internal::short_obj * p =
 		    (internal::short_obj *) body_p;
 
-		p->total_size &= ~ OBJ_PRIVATE;
 		if ( this->type == INSERTABLE )
 		{
+		    MIN_REQUIRE
+		        (    (p->total_size >> SHIFT)
+			  == total_size - 1 );
+		    p->total_size =
+		        (    ( total_size - 1 )
+			  << SHIFT )
+		      + ( total_size_flags & MASK );
 		    p->unused_offset =
 		        (    ( unused_offset - 1 )
 			  << SHIFT )
@@ -7669,6 +7683,8 @@ namespace min {
 			  << SHIFT )
 		      + ( aux_offset_flags & MASK );
 		}
+		else
+		    p->total_size &= ~ OBJ_PRIVATE;
 	    }
 	        break;
 	    case LONG_OBJ:
@@ -7676,9 +7692,15 @@ namespace min {
 		internal::long_obj * p =
 		    (internal::long_obj *) body_p;
 
-		p->total_size &= ~ OBJ_PRIVATE;
 		if ( this->type == INSERTABLE )
 		{
+		    MIN_REQUIRE
+		        (    (p->total_size >> SHIFT)
+			  == total_size - 1 );
+		    p->total_size =
+		        (    ( total_size - 1 )
+			  << SHIFT )
+		      + ( total_size_flags & MASK );
 		    p->unused_offset =
 		        (    ( unused_offset - 1 )
 			  << SHIFT )
@@ -7688,6 +7710,8 @@ namespace min {
 			  << SHIFT )
 		      + ( aux_offset_flags & MASK );
 		}
+		else
+		    p->total_size &= ~ OBJ_PRIVATE;
 	    }
 	        break;
 	    case HUGE_OBJ:
@@ -7695,9 +7719,15 @@ namespace min {
 		internal::huge_obj * p =
 		    (internal::huge_obj *) body_p;
 
-		p->total_size &= ~ OBJ_PRIVATE;
 		if ( this->type == INSERTABLE )
 		{
+		    MIN_REQUIRE
+		        (    (p->total_size >> SHIFT)
+			  == total_size - 1 );
+		    p->total_size =
+		        (    ( total_size - 1 )
+			  << SHIFT )
+		      + ( total_size_flags & MASK );
 		    p->unused_offset =
 		        (    ( unused_offset - 1 )
 			  << SHIFT )
@@ -7707,6 +7737,8 @@ namespace min {
 			  << SHIFT )
 		      + ( aux_offset_flags & MASK );
 		}
+		else
+		    p->total_size &= ~ OBJ_PRIVATE;
 	    }
 	        break;
 	    }
@@ -7899,11 +7931,6 @@ namespace min {
 	( min::obj_vec_insptr & vp )
     {
         vp.total_size_flags |= OBJ_AUX;
-    }
-    inline bool private_flag_of
-	( min::obj_vec_ptr & vp )
-    {
-        return vp.total_size_flags & OBJ_PRIVATE;
     }
     inline bool public_flag_of
 	( min::obj_vec_ptr & vp )

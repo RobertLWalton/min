@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 06:38:58 PM EST 2024
+// Date:	Thu Apr  3 08:28:31 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3561,6 +3561,20 @@ void test_objects ( void )
     MIN_CHECK ( test_gen == pre_obj_gen );
     check_object
         ( pre_obj_gen, min::SHORT_OBJ, 500, 100 );
+
+    min::gen obj1 = min::new_obj_gen ( 5, 4 );
+    MIN_CHECK ( ! min::private_flag_of ( obj1 ) );
+    min::obj_vec_ptr vp1 = obj1;
+    MIN_CHECK ( min::private_flag_of ( obj1 ) );
+    vp1 = min::NULL_STUB;
+    MIN_CHECK ( ! min::private_flag_of ( obj1 ) );
+
+    MIN_CHECK ( ! min::public_flag_of ( obj1 ) );
+    min::obj_vec_insptr insvp1 = obj1;
+    MIN_CHECK ( ! min::public_flag_of ( obj1 ) );
+    min::set_public_flag_of ( insvp1 );
+    MIN_CHECK ( min::public_flag_of ( obj1 ) );
+    MIN_CHECK ( insvp1 == min::NULL_STUB );
 
     cout << endl;
     cout << "Finish Objects Test!" << endl;
