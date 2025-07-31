@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Apr  3 08:18:28 PM EDT 2025
+// Date:	Thu Jul 31 05:39:44 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5445,7 +5445,7 @@ namespace min {
 
 		  initial_max_length ( 128 ),
 		  increment_ratio (0.5),
-		  max_increment ( 4096 ) {}
+		  max_increment ( 1 << 24 ) {}
 	};
 
 	template < typename E, typename H, typename L >
@@ -6170,8 +6170,8 @@ void min::packed_vec_insptr<E,H,L>::reserve
 	(*internal::packed_subtypes)[subtype];
 	
     L new_length =
-          (L) pvdescriptor->increment_ratio
-	* hp->max_length;
+          (L) (   pvdescriptor->increment_ratio
+	        * hp->max_length );
     if (   new_length
 	 > pvdescriptor->max_increment )
 	new_length =
