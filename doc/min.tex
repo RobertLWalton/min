@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 3, 2025}
+\date{August 2, 2025}
  
 \maketitle
 
@@ -657,15 +657,18 @@ If \TT{min::assert\_print} is \TT{true}, or if
 is false, this function prints a message containing
 \TT{file\_\EOL name} and \TT{line\_\EOL number},
 \TT{function\_\EOL name} if that is not \TT{NULL},
-\TT{expression} and \TT{value} if \TT{expression} is not \TT{NULL}
-or the word `\TT{abort}' if \TT{expression} is \TT{NULL},
+\TT{expression} with \TT{value} if \TT{expression} is not \TT{NULL},
 and \TT{message\_\EOL format} and subsequent arguments
 as per \TT{printf} if \TT{message\_\EOL format} is not \TT{NULL}.
+In addition if \TT{value}, \TT{min::\EOL assert\_\EOL throw},
+and \TT{min::\EOL assert\_\EOL print} are \underline{all} \TT{false},
+a backtrace is printed.
 
 Then if \TT{value} is \TT{false} this function throws a
 \TT{min::\EOL assert\_\EOL exception} if 
 \TT{min::\EOL assert\_\EOL throw} is \TT{true}, else
-calls \TT{abort()} if \TT{min::\EOL assert\_\EOL abort} is \TT{true},
+calls \TT{abort()} if \TT{min::\EOL assert\_\EOL abort} is \TT{true}
+or \TT{expression} is \TT{NULL},
 else just returns.
 
 On a call from \TT{MIN\_ABORT}, \TT{value} is \TT{false} and

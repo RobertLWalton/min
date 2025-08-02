@@ -2,7 +2,7 @@
 //
 // File:	min_assert.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 20 02:56:03 EDT 2022
+// Date:	Sat Aug  2 05:32:59 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,12 +17,15 @@
 // -----
 
 # include <min_parameters.h>
+# include <min_os.h>
 # include <cstdlib>
 # include <cstdio>
 # include <cstdarg>
 extern "C" {
 # include <sys/prctl.h>
 }
+
+# define MOS min::os
 
 
 // Assert
@@ -63,6 +66,8 @@ void min::standard_assert
 	    vfprintf ( assert_err, message_format, ap );
 	    fprintf ( assert_err, "\n" );
 	}
+	if ( ! min::assert_print )
+	    MOS::backtrace ( assert_err );
     }
 
     if ( ! value )

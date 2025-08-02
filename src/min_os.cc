@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 25 14:42:13 EDT 2014
+// Date:	Sat Aug  2 04:35:30 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents:
 //
 //	Setup
+//	Debugging
 //	Parameters
 //	Memory Management
 //	File Management
@@ -26,6 +27,7 @@ extern "C" {
 #   include <unistd.h>
 #   include <errno.h>
 #   include <sys/mman.h>
+#   include <execinfo.h>
 }
 # define MUP min::unprotected
 # define MINT min::internal
@@ -69,6 +71,32 @@ static void fatal_error ( int errno_code )
 		  << endl;
     exit ( errno_code );
 }
+
+// Debugging
+// ---------
+
+void MOS::backtrace ( FILE * out )
+{
+    void * buffer[100];
+    int nptrs = ::backtrace ( buffer, 100 );
+    fprintf ( out,
+              "backtrace() returned %d addresses\n",
+              nptrs );
+
+    char ** strings =
+        ::backtrace_symbols ( buffer, nptrs );
+    for ( int i = 0; i < nptrs; ++ i )
+    {
+	if ( strings != NULL )
+	    fprintf ( out, "%s\n", strings[i] );
+	else
+	    fprintf ( out, "  [0x%lx]\n",
+	                   (long unsigned) buffer[i] );
+    }
+    if ( strings != NULL ) free ( strings );
+}
+
+
 
 // Parameters
 // ----------

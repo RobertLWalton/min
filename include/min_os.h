@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 11 13:44:42 EDT 2014
+// Date:	Sat Aug  2 04:45:04 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,6 +11,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Debugging
 //	Parameters
 //	Memory Management
 //	File Management
@@ -23,6 +24,17 @@
 
 # include <min.h>
 # include <iostream>
+
+// Debugging
+// ---------
+
+namespace min { namespace os {
+
+    // Output a C/C++ stack backtrace to s.
+    //
+    void backtrace ( FILE * out );
+
+} }
 
 // Parameters
 // ----------

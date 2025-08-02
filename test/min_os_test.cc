@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 24 11:09:34 EDT 2015
+// Date:	Sat Aug  2 05:02:57 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,7 +12,10 @@
 //
 //	Setup
 //	Memory Management Functions
+//	Debugging Tests
+//	Parameter Tests
 //	Memory Management Tests
+//	Memory File Tests
 
 // Setup
 // -----
@@ -407,6 +410,11 @@ int main ( int argc, const char ** argv )
     min::assert_err = stdout;
     min::assert_print = true;
     cout << "Start min_os Test" << endl;
+
+// Debugging Tests
+// --------- -----
+
+   MOS::backtrace ( stdout );
 
 // Parameter Tests
 // --------- -----
