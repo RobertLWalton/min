@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 14 01:16:14 PM EST 2024
+// Date:	Mon Aug  4 02:28:08 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10161,6 +10161,8 @@ static min::uns32 end_line
 	      buffer[offset-1] == '\t' ) )
 	-- offset;
     min::pop ( buffer, buffer->length - offset );
+    if ( printer->file->next_offset > buffer->length )
+	printer->file->next_offset = buffer->length;
 
     // Add displayed eol.
     //
