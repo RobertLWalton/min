@@ -14637,6 +14637,10 @@ The index is \underline{not} a body vector index.
 This function returns the value of the first
 element of the list, or returns \TT{min::\EOL LIST\_\EOL END()}
 if the list is empty.
+It the hash table does not exist (its size is 0)
+\TT{min::\EOL start\_\EOL hash} sets the list pointer
+to point to \TT{min::LIST\_END()}.
+
 
 The \TT{min::\EOL start\_\EOL attr} function is analogous except it is given
 an index within the object attribute vector and positions the list pointer
@@ -14645,6 +14649,9 @@ at that index.  Index 0 refers to the first element of the attribute vector,
 and the maximum index is the size of the attribute vector minus 1.
 The size of the attribute vector may be obtained from the
 \TT{min::\EOL attr\_\EOL size\_\EOL of} function.
+It the index is not less than the attribute vector size,
+\TT{min::\EOL start\_\EOL attr} sets the list pointer
+to point to \TT{min::LIST\_END()}.
 The index is \underline{not} a body vector index and is \underline{not} mod'ed
 by the attribute vector size.
 

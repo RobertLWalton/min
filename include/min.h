@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 31 05:39:44 PM EDT 2025
+// Date:	Thu Aug  7 04:42:02 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9345,12 +9345,23 @@ namespace min {
 	lp.total_size = total_size_of ( lp.vecp );
 
 	unsptr hsize = hash_size_of ( lp );
-	MIN_ASSERT ( hsize > 0,
-	             "object hash size is 0" );
-	index %= hsize;
+	if ( hsize == 0 )
+	{
+	    lp.current = LIST_END();
+	    lp.current_index = 0;
+	    lp.head_index = 0;
+#           if MIN_USE_OBJ_AUX_STUBS
+	        lp.current_stub = NULL;
+#           endif
+	    return LIST_END();
+	}
+	else
+	{
+	    index %= hsize;
 
-	lp.head_index = lp.hash_offset + index;
-	return lp.forward ( lp.head_index );
+	    lp.head_index = lp.hash_offset + index;
+	    return lp.forward ( lp.head_index );
+	}
     }
 
     template < class vecptr >
@@ -9368,12 +9379,20 @@ namespace min {
 	lp.head_index =
 	      unprotected::attr_offset_of ( lp.vecp )
 	    + index;
-	MIN_ASSERT
-	    (   lp.head_index
-	      < unprotected::unused_offset_of
-	            ( lp.vecp ),
-	      "index argument too large" );
-	return lp.forward ( lp.head_index );
+	if (    lp.head_index
+	     >= unprotected::unused_offset_of
+	            ( lp.vecp ) )
+	{
+	    lp.current = LIST_END();
+	    lp.current_index = 0;
+	    lp.head_index = 0;
+#           if MIN_USE_OBJ_AUX_STUBS
+	        lp.current_stub = NULL;
+#           endif
+	    return LIST_END();
+	}
+	else
+	    return lp.forward ( lp.head_index );
     }
 
     // start_copy is declared as a friend only for
