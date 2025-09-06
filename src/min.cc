@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  4 02:56:44 AM EDT 2025
+// Date:	Sat Sep  6 05:25:31 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9827,6 +9827,14 @@ static min::printer space_if_none_pstring
 min::pstring min::space_if_none_pstring =
     & ::space_if_none_pstring;
 
+static min::printer space_if_needed_pstring
+	( min::printer printer )
+{
+    return min::print_space_if_needed ( printer );
+}
+min::pstring min::space_if_needed_pstring =
+    & ::space_if_needed_pstring;
+
 static min::printer leading_always_pstring
 	( min::printer printer )
 {
@@ -10564,6 +10572,8 @@ min::printer operator <<
 	return printer;
     case min::op::SPACE_IF_NONE:
 	return min::print_space_if_none ( printer );
+    case min::op::SPACE_IF_NEEDED:
+	return min::print_space_if_needed ( printer );
     case min::op::ERASE_SPACE:
 	return min::print_erase_space ( printer );
     case min::op::ERASE_ALL_SPACE:
@@ -10618,6 +10628,8 @@ const min::op min::space_if_after_indent
     ( min::op::SPACE_IF_AFTER_INDENT );
 const min::op min::space_if_none
     ( min::op::SPACE_IF_NONE );
+const min::op min::space_if_needed
+    ( min::op::SPACE_IF_NEEDED );
 const min::op min::erase_space
     ( min::op::ERASE_SPACE );
 const min::op min::erase_all_space
