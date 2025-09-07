@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  6 05:25:31 AM EDT 2025
+// Date:	Sun Sep  7 06:03:55 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12171,6 +12171,7 @@ const min::str_format * min::standard_str_format =
 static min::lab_format name_lab_format =
 {
     NULL,
+    NULL,
     min::space_if_none_pstring,
     NULL
 };
@@ -12179,6 +12180,7 @@ const min::lab_format * min::name_lab_format =
 
 static min::lab_format bracket_lab_format =
 {
+    NULL,
     min::left_square_angle_space_pstring,
     min::space_if_none_pstring,
     min::space_right_angle_square_pstring
@@ -12189,6 +12191,7 @@ const min::lab_format * min::bracket_lab_format =
 static min::lab_format leading_always_lab_format =
 {
     NULL,
+    NULL,
     min::leading_always_pstring,
     NULL
 };
@@ -12198,6 +12201,7 @@ const min::lab_format *
 
 static min::lab_format trailing_always_lab_format =
 {
+    NULL,
     NULL,
     min::trailing_always_pstring,
     NULL
@@ -12919,6 +12923,10 @@ static void init_pgen_formats ( void )
     ::standard_attr_flag_format.flag_names =
         min::standard_attr_flag_names;
 
+
+    ::bracket_lab_format.element_format =
+        min::compact_value_gen_format;
+
     ::compact_obj_format.element_format =
         min::compact_gen_format;
     ::compact_obj_format.label_format =
@@ -13000,6 +13008,8 @@ static void init_pgen_formats ( void )
         min::trailing_always_gen_format;
     ::isolated_line_id_obj_format.terminator_format =
         min::trailing_always_gen_format;
+
+
 }
 
 const min::op min::flush_one_id
@@ -13995,12 +14005,15 @@ min::printer min::standard_pgen
 	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::lablen ( labp );
 
+	const min::gen_format * ef = lf->element_format;
+	if ( ef == NULL ) ef = f;
+
 	printer << lf->lab_prefix;
 
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) printer << lf->lab_separator;
-	    min::print_gen ( printer, labp[i], f );
+	    min::print_gen ( printer, labp[i], ef );
 	}
 
 	printer << lf->lab_postfix;

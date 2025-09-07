@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Sep  6 05:26:16 AM EDT 2025
+// Date:	Sun Sep  7 06:03:09 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13478,9 +13478,10 @@ namespace min {
 
     struct lab_format
     {
-	min::pstring	lab_prefix;
-	min::pstring	lab_separator;
-	min::pstring	lab_postfix;
+	const min::gen_format *   element_format;
+	min::pstring	          lab_prefix;
+	min::pstring	          lab_separator;
+	min::pstring	          lab_postfix;
     };
 
     extern const min::lab_format *
