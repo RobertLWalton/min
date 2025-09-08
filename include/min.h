@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  7 06:03:09 AM EDT 2025
+// Date:	Sun Sep  7 08:09:08 PM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12625,6 +12625,7 @@ namespace min {
 	    SPACE_IF_AFTER_INDENT,
 	    SPACE_IF_NONE,
 	    SPACE_IF_NEEDED,
+	    SPACE_IF_NEEDED_ALWAYS,
 	    ERASE_SPACE,
 	    ERASE_ALL_SPACE,
 
@@ -12925,6 +12926,7 @@ namespace min {
     extern const op space_if_after_indent;
     extern const op space_if_none;
     extern const op space_if_needed;
+    extern const op space_if_needed_always;
     extern const op erase_space;
     extern const op erase_all_space;
 
@@ -13184,6 +13186,14 @@ namespace min {
 	return printer;
     }
 
+    inline min::printer print_space_if_needed_always
+	    ( min::printer printer )
+    {
+	printer->state |= min::AFTER_LEADING
+	               |  min::AFTER_TRAILING;
+	return printer;
+    }
+
     namespace internal {
 
 	min::printer print_cstring
@@ -13275,6 +13285,8 @@ namespace min {
     	space_if_none_pstring;
     extern min::pstring
     	space_if_needed_pstring;
+    extern min::pstring
+    	space_if_needed_always_pstring;
     extern min::pstring
     	leading_always_pstring;
     extern min::pstring
