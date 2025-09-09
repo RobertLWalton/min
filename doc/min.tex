@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 2, 2025}
+\date{September 9, 2025}
  
 \maketitle
 
@@ -9834,7 +9834,8 @@ a \TT{min::\EOL flush\_\EOL id\_\EOL map} operation
 
 \item[\ttmkey{FORCE\_SPACE}%
     {in {\tt print\_\EOL format.op\_\EOL flags}}]~\\
-This flag forces the \TT{min::leading} and \TT{min::trailing}
+This flag forces the \TT{min::leading}, \TT{min::trailing},
+and \TT{min::space\_\EOL if\_\EOL needed}
 printer operations to output a single space character.
 See \pagref{FORCE_SPACE}.
 
@@ -9856,7 +9857,7 @@ and \TT{min::\EOL punicode} are \underline{not} affected.
 Non-operator printing functions with names of the form
 \TT{min::\EOL print\_\ldots} are also not affected.
 This flag is used mostly for debugging and demonstrations of
-\TT{min::\EOL leading/\EOL trailing}.
+\TT{min::\EOL leading/\EOL trailing/space\_\EOL if\_\EOL needed}.
 
 \end{itemlist}\end{indpar}
 
@@ -10561,15 +10562,11 @@ printer->line_break.offset = printer->buffer->length;
 printer->line_break.column = printer->column;
 \end{verbatim}\end{indpar}
 
-If a \TT{min::set\_break} operation is executed as a non-initial
-member of a sequence of
-\TT{min::\EOL leading\ldots},
-\TT{min::\EOL trailing\ldots},
-\TT{min::\EOL save\_\EOL indent},
-and \TT{min::\EOL set\_\EOL break} operations, then the
-\TT{min::\EOL set\_\EOL break} operation is delayed until
-after the other operations in the sequence have executed.  See
-\pagref{LEADING-TRAILING-SET-BREAK} for details.
+The \TT{min::\EOL set\_\EOL break} operation may be delayed until
+after a preceeding
+\TT{min::\EOL leading/\EOL trailing/\EOL space\_\EOL if\_\EOL needed} operation
+has executed.  See
+\pagref{DELAYED-SET-BREAK} for details.
 
 Recall from the description of \TT{line\_\EOL break.line\_\EOL length} on
 \pagref{LINE-LENGTH}
@@ -10911,15 +10908,11 @@ break point before the first `\TT{h}' is used.  At this point the
 current \TT{indent} is that which was saved in and restore from the
 second element, and this indent is just after `\TT{[~}'.
 
-If a \TT{min::save\_indent} operation is executed as a non-initial
-member of a sequence of
-\TT{min::\EOL leading\ldots},
-\TT{min::\EOL trailing\ldots},
-\TT{min::\EOL set\_\EOL break},
-and \TT{min::\EOL save\_\EOL indent} operations, then the
-\TT{min::\EOL save\_\EOL indent} operation is delayed until
-after the other operations in the sequence have executed.  See
-\pagref{LEADING-TRAILING-SAVE-INDENT} for details.
+The \TT{min::\EOL set\_\EOL indent} operation may be delayed until
+after a preceeding
+\TT{min::\EOL leading/\EOL trailing/\EOL space\_\EOL if\_\EOL needed} operation
+has executed.  See
+\pagref{DELAYED-SET-BREAK} for details.
 
 The \key{begin message} and \key{end message} operations can be used
 to surround the body of an error message or other message:
@@ -11161,7 +11154,7 @@ and the whole quoted string is treated as a single print item with just the
 \TT{IS\_\EOL GRAPHIC} flag.
 
 In general print items may be separated by
-consecutive sequences of one \underline{or more} of the print operations
+one of the following print operations
 \label{LEADING-TRAILING-RULES}:
 \begin{center}
 \TTALL
@@ -11170,6 +11163,14 @@ min::leading \\
 min::leading\_always \\
 min::trailing \\
 min::trailing\_always \\
+min::space\_if\_needed \\
+min::space\_if\_needed\_always \\
+\end{tabular}
+\end{center}
+followed by either or both of the operations
+\begin{center}
+\TTALL
+\begin{tabular}{l}
 min::save\_indent \\
 min::set\_break \\
 \end{tabular}
@@ -11179,28 +11180,53 @@ nothing according to the following rules:
 \begin{enumerate}
 \item If either the preceding or following print items do not have the
 \TT{IS\_\EOL GRAPHIC} flag, no space is emitted.
-\item Otherwise if either \TT{min::leading} or \TT{min::trailing}
-is in the sequence and the \TT{FORCE\_\EOL SPACE} printer\label{FORCE_SPACE}
+\item Otherwise if the sequence begins with
+\begin{center}
+\TTALL
+\begin{tabular}{l}
+min::leading \\
+min::trailing \\
+min::space\_if\_needed \\
+\end{tabular}
+\end{center}
+and the \TT{FORCE\_\EOL SPACE} printer\label{FORCE_SPACE}
 operation flag is on, a space is output.
-\item Otherwise if either \TT{min::leading} or \TT{min::leading\_\EOL always}
-is in the sequence and the preceding print item has the \TT{IS\_\EOL LEADING}
+\item Otherwise if the sequence begins with
+\begin{center}
+\TTALL
+\begin{tabular}{l}
+min::leading \\
+min::leading\_always \\
+min::space\_if\_needed \\
+min::space\_if\_needed\_always \\
+\end{tabular}
+\end{center}
+and the preceding print item has the \TT{IS\_\EOL LEADING}
 flag, no space is output.
-\item Otherwise if either \TT{min::trailing} or \TT{min::trailing\_\EOL always}
-is in the sequence and the following print item has the \TT{IS\_\EOL TRAILING}
+\item Otherwise if the sequence begins with
+\begin{center}
+\TTALL
+\begin{tabular}{l}
+min::trailing \\
+min::trailing\_always \\
+min::space\_if\_needed \\
+min::space\_if\_needed\_always \\
+\end{tabular}
+\end{center}
+and the following print item has the \TT{IS\_\EOL TRAILING}
 flag, no space is output.
 \item Otherwise a space is output.
 \end{enumerate}
 
-If the operation sequence contains a
-\TT{min::save\_indent}\label{LEADING-TRAILING-SAVE-INDENT}
-or \TT{min::set\_break} operation\label{LEADING-TRAILING-SET-BREAK}
-that is preceded by a \TT{min::leading\ldots} or \TT{min::trailing\ldots}
-operation in the sequence, this
-\TT{min::save\_indent} or \TT{min::set\_break} operation
-is delayed until the space is output or a decision not to output
+For an operation sequence as described above%
+\label{DELAYED-SAVE-INDENT}%
+\label{DELAYED-SET-BREAK}
+the \TT{min::\EOL save\_\EOL indent} and/or \TT{min::\EOL set\_\EOL break}
+operations
+are delayed until the space is output or a decision not to output
 the space has been made.
 The sequence must not contain more than one \TT{min::save\_indent}
-operation, not counting the first operation in the sequence,
+operation
 due to implementation limitations.
 
 
@@ -11255,12 +11281,18 @@ string functions:
 \verb|min::printer min::| & \MINKEY{print\_trailing}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING} \\
+\verb|min::printer min::| & \MINKEY{print\_space\_if\_needed}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NEEDED} \\
 \verb|min::printer min::| & \MINKEY{print\_leading\_always}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_LEADING_ALWAYS} \\
 \verb|min::printer min::| & \MINKEY{print\_trailing\_always}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
+\verb|min::printer min::| & \MINLKEY{print\_space\_}{if\_needed\_always}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NEEDED_ALWAYS} \\
 \end{tabular}\end{indpar}
 
 WARNING: The character string \TT{p} argument to \TT{min::\EOL print\_\EOL item}
@@ -11320,8 +11352,10 @@ the end of the current line, decrementing \TT{printer->column} by the
 number of spaces erased.  It erases at most \TT{n} spaces, and stops
 when the current line does not end in a single space.
 
-The \TT{min::print\_leading/trailing\ldots} functions do the same thing as the
-corresponding \TT{min::\EOL leading/\EOL trailing\ldots} printer operations.
+The \TT{min::print\_leading/trailing/space\_if\_needed\ldots}
+functions do the same thing as the corresponding
+\TT{min::\EOL leading/\EOL trailing/\EOL space\_\EOL if\_\EOL needed\ldots}
+printer operations.
 
 Sometimes it is useful to perform parts of \TT{min::\EOL print\_\EOL item}
 using the functions:
