@@ -11163,8 +11163,9 @@ min::leading \\
 min::leading\_always \\
 min::trailing \\
 min::trailing\_always \\
-min::space\_if\_needed \\
-min::space\_if\_needed\_always \\
+\TT{min::}\MINKEY{space\_if\_needed}\label{MIN::SPACE_IF_NEEDED} \\
+\TT{min::}\MINKEY{space\_if\_needed\_always}%
+    \label{MIN::SPACE_IF_NEEDED_ALWAYS} \\
 \end{tabular}
 \end{center}
 followed by either or both of the operations
@@ -11290,7 +11291,8 @@ string functions:
 \verb|min::printer min::| & \MINKEY{print\_trailing\_always}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
-\verb|min::printer min::| & \MINLKEY{print\_space\_}{if\_needed\_always}\ARGBREAK
+\verb|min::printer min::| & \MINLKEY{print\_space\_}{if\_needed\_always}%
+							\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_SPACE_IF_NEEDED_ALWAYS} \\
 \end{tabular}\end{indpar}
@@ -22388,6 +22390,8 @@ Other flags:
 \LABEL{MIN::LEADING} \\
 \verb|min::op min::| & \MINKEY{trailing}
 \LABEL{MIN::TRAILING} \\
+\verb|min::op min::| & \MINKEY{space\_if\_needed}
+\LABEL{MIN::SPACE_IF_NEEDED} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -22395,6 +22399,8 @@ Other flags:
 \LABEL{MIN::LEADING_ALWAYS} \\
 \verb|min::op min::| & \MINKEY{trailing\_always}
 \LABEL{MIN::TRAILING_ALWAYS} \\
+\verb|min::op min::| & \MINKEY{space\_if\_needed\_always}
+\LABEL{MIN::SPACE_IF_NEEDED_ALWAYS} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -22435,22 +22441,29 @@ Other flags:
 \verb|min::printer min::| & \MINKEY{print\_space\_if\_none}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_SPACE_IF_NONE} \\
-\verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
-	\verb|( min::printer printer )|
-\LABEL{MIN::PRINT_LEADING} \\
 \verb|min::printer min::| & \MINKEY{print\_erase\_space}\ARGBREAK
 	\verb|( min::printer printer,|\ARGBREAK
 	\verb|  min::uns32 n = 1 )|
 \LABEL{MIN::PRINT_ERASE_SPACE} \\
+\verb|min::printer min::| & \MINKEY{print\_leading}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_LEADING} \\
 \verb|min::printer min::| & \MINKEY{print\_trailing}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING} \\
+\verb|min::printer min::| & \MINKEY{print\_space\_if\_needed}\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NEEDED} \\
 \verb|min::printer min::| & \MINKEY{print\_leading\_always}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_LEADING_ALWAYS} \\
 \verb|min::printer min::| & \MINKEY{print\_trailing\_always}\ARGBREAK
 	\verb|( min::printer printer )|
 \LABEL{MIN::PRINT_TRAILING_ALWAYS} \\
+\verb|min::printer min::| & \MINLKEY{print\_space\_}{if\_needed\_always}%
+							\ARGBREAK
+	\verb|( min::printer printer )|
+\LABEL{MIN::PRINT_SPACE_IF_NEEDED_ALWAYS} \\
 \end{TABULAR}
 
 \bigskip
