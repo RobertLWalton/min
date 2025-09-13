@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  7 08:12:01 PM EDT 2025
+// Date:	Sat Sep 13 07:24:56 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12318,7 +12318,8 @@ const min::obj_format * min::compact_obj_format =
 static min::obj_format line_obj_format =
 {
       min::ENABLE_COMPACT   // obj_op_flags
-    + min::ENABLE_LOGICAL_LINE,
+    + min::ENABLE_LOGICAL_LINE
+    + min::ENABLE_INDENTED_PARAGRAPH,
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
@@ -12957,7 +12958,7 @@ static void init_pgen_formats ( void )
     ::line_obj_format.element_format =
         min::compact_gen_format;
     ::line_obj_format.top_element_format =
-        min::paragraph_gen_format;
+        min::line_gen_format;
     ::line_obj_format.label_format =
         min::name_gen_format;
     ::line_obj_format.value_format =
@@ -13500,6 +13501,17 @@ min::printer min::print_obj
 	    terminator = info[i].value;
 	else compact_format = false;
     }
+
+    // Do not print paragraph in compact format if it
+    // has a separator or is not inside a logical line.
+    //
+    if ( terminator == min::INDENTED_PARAGRAPH()
+         &&
+	 ( separator != min::NONE()
+	   ||
+	   !  (   saved_printer_state
+	       & min::IN_LOGICAL_LINE ) ) )
+	compact_format = false;
 
     // Compact_ok does not allow just one of initiator
     // and terminator.
