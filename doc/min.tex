@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 9, 2025}
+\date{September 13, 2025}
  
 \maketitle
 
@@ -12677,11 +12677,13 @@ The format for printing label \TT{min::gen} values is:
                        min::\MINKEY{lab\_format}}
 \LABEL{MIN::LAB_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::pstring         lab_prefix;|%
+    \verb|  const min::gen_format *   element_format;|%
+\ttmindex{element\_format}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  min::pstring              lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  min::pstring         lab_separator;|%
+    \verb|  min::pstring              lab_separator;|%
 \ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  min::pstring         lab_postfix;|%
+    \verb|  min::pstring              lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \end{tabular}\end{indpar}
@@ -12690,6 +12692,7 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
@@ -12699,9 +12702,10 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{leading\_always\_lab\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|min::leading_always_pstring              // lab_separator|\ARGBREAK
-\verb|     // Equivalent to printer << min::leading|\ARGBREAK
+\verb|min::space_if_needed_pstring             // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::space_if_needed|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -12709,9 +12713,10 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{trailing\_always\_lab\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
-\verb|min::trailing_always_pstring             // lab_separator|\ARGBREAK
-\verb|     // Equivalent to printer << min::trailing|\ARGBREAK
+\verb|min::space_if_needed_pstring             // lab_separator|\ARGBREAK
+\verb|     // Equivalent to printer << min::space_if_needed|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
 \end{tabular}\end{indpar}
 
@@ -12719,6 +12724,7 @@ The format for printing label \TT{min::gen} values is:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
+\verb|min::compact_value_gen_format            // element_format|\ARGBREAK
 \verb|min::left_square_angle_space_pstring     // lab_prefix    "[< "|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|min::space_right_angle_square_pstring    // lab_postfix   " >]"|\ARGBREAK
@@ -12727,12 +12733,23 @@ The format for printing label \TT{min::gen} values is:
 A label format is only of use as part of a \TT{min::\EOL gen\_\EOL format},
 as the latter is needed to print the elements of the label.
 
-Given a label format \TT{lf}, a \TT{min::gen} label value is printed as
-\TT{lf->\EOL lab\_\EOL prefix}, followed by the label elements separated by
-\TT{lf->\EOL lab\_\EOL separator}'s, followed by
-\TT{lf->\EOL lab\_\EOL postfix}.  Note that \TT{NULL} values for
+Given a label format \TT{lf = f->lab\_format},
+a \TT{min::gen} label value is printed as:
+\begin{enumerate}
+\item
+\TT{lf->\EOL lab\_\EOL prefix},
+\item
+followed by the label elements separated by
+\TT{lf->\EOL lab\_\EOL separator}'s,
+\item
+followed by \TT{lf->\EOL lab\_\EOL postfix}. 
+\end{enumerate}
+Label elements are printed by \TT{lf->element\_format} if that is not
+\TT{NULL}, and \TT{f} otherwise.
+\TT{NULL} values for
 \TT{lf->\EOL lab\_\EOL prefix/separator/postfix} act like empty strings
-that print nothing, and a \TT{NULL} value for \TT{lf} acts like
+that print nothing.
+A \TT{NULL} value for \TT{lf} acts like
 \TT{min::\EOL bracket\_\EOL lab\_\EOL format}.
 
 \subsubsection{Printing Special General Values}
@@ -23200,11 +23217,13 @@ Other flags:
                        min::\MINKEY{lab\_format}}
 \LABEL{MIN::LAB_FORMAT}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::pstring         lab_prefix;|%
+    \verb|  const min::gen_format *   element_format;|%
+\ttmindex{element\_format}{in {\tt min::lab\_format}}\ARGBREAK
+    \verb|  min::pstring              lab_prefix;|%
 \ttmindex{lab\_prefix}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  min::pstring         lab_separator;|%
+    \verb|  min::pstring              lab_separator;|%
 \ttmindex{lab\_separator}{in {\tt min::lab\_format}}\ARGBREAK
-    \verb|  min::pstring         lab_postfix;|%
+    \verb|  min::pstring              lab_postfix;|%
 \ttmindex{lab\_postfix}{in {\tt min::lab\_format}}\ARGBREAK
     \verb|};|
 \end{TABULAR}
@@ -23215,6 +23234,7 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{name\_lab\_format}:}
 \LABEL{MIN::NAME_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|NULL                                     // lab_postfix|\ARGBREAK
@@ -23226,6 +23246,7 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{leading\_always\_lab\_format}:}
 \LABEL{MIN::LEADING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|min::leading_always_pstring              // lab_separator|\ARGBREAK
 \verb|     // Equivalent to printer << min::leading|\ARGBREAK
@@ -23238,6 +23259,7 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{trailing\_always\_lab\_format}:}
 \LABEL{MIN::TRAILING_ALWAYS_LAB_FORMAT}\ARGBREAK
+\verb|NULL                                     // element_format|\ARGBREAK
 \verb|NULL                                     // lab_prefix|\ARGBREAK
 \verb|min::trailing_always_pstring             // lab_separator|\ARGBREAK
 \verb|     // Equivalent to printer << min::trailing|\ARGBREAK
@@ -23250,6 +23272,7 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::lab\_format
                    min::\MINKEY{bracket\_lab\_format}:}
 \LABEL{MIN::BRACKET_LAB_FORMAT}\ARGBREAK
+\verb|min::compact_value_gen_format            // element_format|\ARGBREAK
 \verb|min::left_square_angle_space_pstring     // lab_prefix    "[< "|\ARGBREAK
 \verb|min::space_if_none_pstring               // lab_separator " "|\ARGBREAK
 \verb|min::space_angle_right_square_pstring    // lab_postfix   " >]"|\ARGBREAK
