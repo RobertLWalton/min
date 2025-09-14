@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep  7 08:09:08 PM EDT 2025
+// Date:	Sun Sep 14 03:09:10 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13593,8 +13593,6 @@ namespace min {
         embedded_line_obj_format;
     extern const min::obj_format *
         line_obj_format;
-    extern const min::obj_format *
-        paragraph_obj_format;
 
     typedef min::printer ( * pgen_function )
 	    ( min::printer printer,
@@ -13636,8 +13634,6 @@ namespace min {
         quote_gen_format;
     extern const gen_format *
         never_quote_gen_format;
-    extern const gen_format *
-        paragraph_gen_format;
     extern const gen_format *
         line_gen_format;
 

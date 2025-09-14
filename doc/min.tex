@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 13, 2025}
+\date{September 14, 2025}
  
 \maketitle
 
@@ -12123,14 +12123,6 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
-\verb|min::paragraph_obj_format               // obj_format|
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
@@ -17663,30 +17655,11 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
 \verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK
+\verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK
-\end{tabular}
-
-\end{indpar}
-
-\begin{indpar}[1em]
-
-\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{paragraph\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_OBJ_FORMAT}\ARGBREAK
-\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
-\verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK
-\end{tabular}
-
-\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
-\verb|min::line_gen_format                     // top_element_format|\ARGBREAK
+\verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \end{tabular}
 
 \end{indpar}
@@ -17848,6 +17821,10 @@ flag is on.
 
 \item If the object has an \TT{.initiator} or \TT{.terminator}
 attribute, it has \underline{both}, and has no \TT{.type}.
+
+\item If the object has \TT{min::INDENTED\_PARAGRAPH()}
+as its \TT{.terminator}, the object has no \TT{.separator}
+and is an element of a logical line that is being printed in compact format.
 
 \end{enumerate}
 
@@ -22848,16 +22825,6 @@ Other flags:
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
-                   min::\MINKEY{paragraph\_gen\_format}:}
-\LABEL{MIN::PARAGRAPH_GEN_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
-\verb|min::paragraph_obj_format               // obj_format|
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.0in}
-\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
@@ -25336,15 +25303,6 @@ Information Functions:
 \verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
 \verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
 \verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK[0in]
-\verb|min::paragraph_gen_format                // top_element_format|\ARGBREAK[0in]
-\end{TABULAR}
-
-\begin{TABULAR}{0.3in}
-\multicolumn{2}{l}{\tt const min::obj\_format
-                   min::\MINKEY{paragraph\_obj\_format}:}%
-\LABEL{MIN::PARAGRAPH_OBJ_FORMAT}\ARGBREAK[0in]
-\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
-\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
 \verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
 \end{TABULAR}
