@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 14 03:09:10 AM EDT 2025
+// Date:	Tue Sep 16 03:50:20 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13330,7 +13330,9 @@ namespace min {
     extern min::pstring
     	trailing_always_right_square_pstring;
     extern min::pstring
-    	asterisk_pstring;
+    	leading_asterisk_pstring;
+    extern min::pstring
+    	trailing_asterisk_pstring;
 }
 
 min::printer operator <<
@@ -13580,6 +13582,7 @@ namespace min {
     const min::uns32 ENABLE_LOGICAL_LINE  = ( 1 << 6 );
     const min::uns32 ENABLE_INDENTED_PARAGRAPH
     					  = ( 1 << 7 );
+    const min::uns32 ENABLE_TEXT	  = ( 1 << 8 );
 
     extern const min::obj_format *
         compact_obj_format;
@@ -13593,6 +13596,8 @@ namespace min {
         embedded_line_obj_format;
     extern const min::obj_format *
         line_obj_format;
+    extern const min::obj_format *
+        text_obj_format;
 
     typedef min::printer ( * pgen_function )
 	    ( min::printer printer,
@@ -13636,6 +13641,8 @@ namespace min {
         never_quote_gen_format;
     extern const gen_format *
         line_gen_format;
+    extern const gen_format *
+        text_gen_format;
 
     extern packed_vec_ptr<min::ustring>
            standard_special_names;

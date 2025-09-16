@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Sep 14 03:10:05 AM EDT 2025
+// Date:	Tue Sep 16 03:50:32 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -10077,13 +10077,27 @@ min::pstring
     	min::trailing_always_right_square_pstring =
     & ::trailing_always_right_square_pstring;
 
-static min::printer asterisk_pstring
+static min::printer leading_asterisk_pstring
 	( min::printer printer )
 {
-    return min::print_chars ( printer, "*", 1, 1 );
+    return min::print_item
+        ( printer, "*", 1, 1,
+	  min::IS_LEADING + min::IS_GRAPHIC );
+    // Used to preface a word or words.
 }
-min::pstring min::asterisk_pstring =
-    & ::asterisk_pstring;
+min::pstring min::leading_asterisk_pstring =
+    & ::leading_asterisk_pstring;
+
+static min::printer trailing_asterisk_pstring
+	( min::printer printer )
+{
+    return min::print_item
+        ( printer, "*", 1, 1,
+	  min::IS_TRAILING + min::IS_GRAPHIC );
+    // Used to follow a word or words.
+}
+min::pstring min::trailing_asterisk_pstring =
+    & ::trailing_asterisk_pstring;
 
 // const min::print_format min::default_print_format
 // defined below after compact_gen_format.
@@ -12226,8 +12240,8 @@ const min::lab_format *
 
 static min::special_format name_special_format =
 {
-    min::asterisk_pstring,
-    min::asterisk_pstring,
+    min::leading_asterisk_pstring,
+    min::trailing_asterisk_pstring,
     min::NULL_STUB	    // special_names*
 };
 const min::special_format * min::name_special_format =
@@ -12379,6 +12393,72 @@ static min::obj_format line_obj_format =
 const min::obj_format *
 	min::line_obj_format =
     & ::line_obj_format;
+
+static min::obj_format text_obj_format =
+{
+      min::ENABLE_COMPACT   // obj_op_flags
+    + min::ENABLE_LOGICAL_LINE
+    + min::ENABLE_INDENTED_PARAGRAPH
+    + min::ENABLE_TEXT,
+
+    NULL,		    // element_format*
+    NULL,		    // top_element_format*
+    NULL,		    // label_format*
+    NULL,		    // value_format*
+
+    NULL,		    // initiator_format*
+    NULL,		    // separator_format*
+    NULL,		    // terminator_format*
+
+    min::standard_str_classifier,
+    			    // mark_classifier
+
+    min::left_curly_right_curly_pstring,
+			    // obj_empty
+
+    min::left_curly_leading_pstring,
+			    // obj_bra
+    min::trailing_vbar_leading_pstring,
+			    // obj_braend
+    min::trailing_vbar_leading_pstring,
+			    // obj_ketbegin
+    min::trailing_right_curly_pstring,
+			    // obj_ket
+
+    min::space_if_needed_pstring,
+			    // obj_sep
+
+    min::trailing_always_colon_space_pstring,
+			    // obj_attrbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_attrsep
+
+    min::erase_all_space_colon_pstring,
+			    // obj_attreol
+
+    min::space_equal_space_pstring,
+			    // obj_attreq
+
+    min::no_space_pstring,  // obj_attrneg
+
+    min::standard_attr_flag_format,
+    			    // flag_format
+    min::standard_attr_hide_flags,
+    			    // hide_flags
+
+    min::left_curly_star_space_pstring,
+			    // obj_valbegin
+    min::trailing_always_comma_space_pstring,
+			    // obj_valsep
+    min::space_star_right_curly_pstring,
+			    // obj_valend
+
+    min::space_equal_space_pstring,
+			    // obj_valreq
+};
+const min::obj_format *
+	min::text_obj_format =
+    & ::text_obj_format;
 
 static min::obj_format compact_id_obj_format =
 {
@@ -12621,6 +12701,20 @@ static min::gen_format line_gen_format =
 const min::gen_format *
 	min::line_gen_format =
     & ::line_gen_format;
+
+static min::gen_format text_gen_format =
+{
+    & min::standard_pgen,
+    & ::long_num_format,
+    & ::standard_str_format,
+    & ::bracket_lab_format,
+    & ::name_special_format,
+    & ::text_obj_format,
+    NULL
+};
+const min::gen_format *
+	min::text_gen_format =
+    & ::text_gen_format;
 
 static min::gen_format compact_value_gen_format =
 {
@@ -12890,6 +12984,21 @@ static void init_pgen_formats ( void )
     ::line_obj_format.separator_format =
         min::trailing_always_gen_format;
     ::line_obj_format.terminator_format =
+        min::trailing_always_gen_format;
+
+    ::text_obj_format.element_format =
+        min::compact_gen_format;
+    ::text_obj_format.top_element_format =
+        min::text_gen_format;
+    ::text_obj_format.label_format =
+        min::name_gen_format;
+    ::text_obj_format.value_format =
+        min::compact_value_gen_format;
+    ::text_obj_format.initiator_format =
+        min::leading_always_gen_format;
+    ::text_obj_format.separator_format =
+        min::trailing_always_gen_format;
+    ::text_obj_format.terminator_format =
         min::trailing_always_gen_format;
 
     ::compact_id_obj_format.element_format =
