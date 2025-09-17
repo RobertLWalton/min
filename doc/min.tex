@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 14, 2025}
+\date{September 17, 2025}
  
 \maketitle
 
@@ -12123,6 +12123,15 @@ for general value formats is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINLKEY{text}{\_gen\_format}:}
+\LABEL{MIN::TEXT_GEN_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK
+\verb|min::standard_str_format                // str_format|\ARGBREAK
+\verb|min::text_obj_format                    // obj_format|
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK
@@ -12766,8 +12775,8 @@ The format for printing special \TT{min::gen} values is:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}\ARGBREAK
-\verb|min::asterisk_pstring                    // special_prefix   "*"|\ARGBREAK
-\verb|min::asterisk_pstring                    // special_postfix  "*"|\ARGBREAK
+\verb|min::leading_asterisk_pstring            // special_prefix   "*"|\ARGBREAK
+\verb|min::trailing_asterisk_pstring           // special_postfix  "*"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \LABEL{MIN::NAME_SPECIAL_FORMAT}
 \end{tabular}\end{indpar}
@@ -17660,6 +17669,29 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[1em]
+
+\begin{tabular}{r@{}l}\hspace*{0.1in} \\[-3ex]
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{text}{\_obj\_format}:}%
+\LABEL{MIN::TEXT_OBJ_FORMAT}\ARGBREAK
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK
+\verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK
+\verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK
+\verb|+ min::ENABLE_TEXT|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::text_gen_format                     // top_element_format|\ARGBREAK
+\verb|min::space_if_needed_pstring             // obj_sep|
 \end{tabular}
 
 \end{indpar}
@@ -22825,6 +22857,17 @@ Other flags:
 
 \begin{TABULAR}{1.0in}
 \multicolumn{2}{l}{\tt const min::gen\_format *
+                   min::\MINKEY{text\_gen\_format}:}
+\LABEL{MIN::TEXT_GEN_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
+\verb|min::standard_str_format                // str_format|\ARGBREAK[0in]
+\verb|min::text_obj_format                    // obj_format|
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.0in}
+\multicolumn{2}{l}{\tt const min::gen\_format *
                    min::\MINKEY{compact\_value\_gen\_format}:}
 \LABEL{MIN::COMPACT_VALUE_GEN_FORMAT}\ARGBREAK[0in]
 \verb|// Same as min::compact_gen_format except for:|\ARGBREAK[0in]
@@ -23273,8 +23316,8 @@ Other flags:
 \multicolumn{2}{l}{\tt const min::special\_format
                    min::\MINKEY{name\_special\_format}:}
 \LABEL{MIN::NAME_SPECIAL_FORMAT}\ARGBREAK
-\verb|min::asterisk_pstring                    // special_prefix   "*"|\ARGBREAK
-\verb|min::asterisk_pstring                    // special_postfix  "*"|\ARGBREAK
+\verb|min::leading_asterisk_pstring            // special_prefix   "*"|\ARGBREAK
+\verb|min::trailing_asterisk_pstring           // special_postfix  "*"|\ARGBREAK
 \verb|min::standard_special_names              // special_names|\ARGBREAK
 \end{TABULAR}
 
@@ -25305,6 +25348,19 @@ Information Functions:
 \verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK[0in]
 \verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
 \verb|min::line_gen_format                     // top_element_format|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in}
+\multicolumn{2}{l}{\tt const min::obj\_format
+                   min::\MINLKEY{text}{\_obj\_format}:}%
+\LABEL{MIN::TEXT_OBJ_FORMAT}\ARGBREAK[0in]
+\verb|// Same as min::compact_obj_format except for:|\ARGBREAK[0in]
+\verb|  min::ENABLE_COMPACT                    // obj_op_flags|\ARGBREAK[0in]
+\verb|+ min::ENABLE_LOGICAL_LINE|\ARGBREAK[0in]
+\verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
+\verb|+ min::ENABLE_TEXT|\ARGBREAK[0in]
+\verb|min::text_gen_format                     // top_element_format|\ARGBREAK[0in]
+\verb|min::space_if_needed_pstring             // obj_sep|
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in}
