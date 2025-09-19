@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 16 03:50:32 AM EDT 2025
+// Date:	Fri Sep 19 04:23:28 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12273,12 +12273,15 @@ static min::obj_format compact_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
+    NULL,		    // text_element_format
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     min::standard_str_classifier,
     			    // mark_classifier
@@ -12297,6 +12300,7 @@ static min::obj_format compact_obj_format =
 
     min::space_if_none_pstring,
 			    // obj_sep
+    NULL,		    // obj_textsep
 
     min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
@@ -12337,12 +12341,15 @@ static min::obj_format line_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
+    NULL,		    // text_element_format
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     min::standard_str_classifier,
     			    // mark_classifier
@@ -12361,6 +12368,7 @@ static min::obj_format line_obj_format =
 
     min::space_if_none_pstring,
 			    // obj_sep
+    NULL,		    // obj_textsep
 
     min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
@@ -12403,12 +12411,15 @@ static min::obj_format text_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format*
+    NULL,		    // text_element_format*
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     min::standard_str_classifier,
     			    // mark_classifier
@@ -12425,8 +12436,10 @@ static min::obj_format text_obj_format =
     min::trailing_right_curly_pstring,
 			    // obj_ket
 
-    min::space_if_needed_pstring,
+    min::space_if_none_pstring,
 			    // obj_sep
+    min::space_if_needed_pstring,
+			    // obj_textsep
 
     min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
@@ -12467,12 +12480,15 @@ static min::obj_format compact_id_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
+    NULL,		    // text_element_format
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     min::standard_str_classifier,
     			    // mark_classifier
@@ -12491,6 +12507,7 @@ static min::obj_format compact_id_obj_format =
 
     min::space_if_none_pstring,
 			    // obj_sep
+    NULL,		    // obj_textsep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
@@ -12520,12 +12537,15 @@ static min::obj_format id_obj_format =
 
     NULL,		    // element_format
     NULL,		    // top_element_format
+    NULL,		    // text_element_format
     NULL,		    // label_format
     NULL,		    // value_format
 
     NULL,		    // initiator_format
     NULL,		    // separator_format
     NULL,		    // terminator_format
+
+    min::NULL_STUB,         // text_type_table
 
     NULL,		    // mark_classifier
 
@@ -12537,6 +12557,7 @@ static min::obj_format id_obj_format =
     NULL,		    // obj_ket
 
     NULL,		    // obj_sep
+    NULL,		    // obj_textsep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
@@ -12565,12 +12586,15 @@ static min::obj_format embedded_line_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
+    NULL,		    // text_element_format
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     NULL,		    // mark_classifier
 
@@ -12587,6 +12611,7 @@ static min::obj_format embedded_line_obj_format =
 
     min::space_if_none_pstring,
 			    // obj_sep
+    NULL,		    // obj_textsep
 
     min::trailing_always_colon_space_pstring,
 			    // obj_attrbegin
@@ -12626,12 +12651,15 @@ static min::obj_format isolated_line_id_obj_format =
 
     NULL,		    // element_format*
     NULL,		    // top_element_format
+    NULL,		    // text_element_format
     NULL,		    // label_format*
     NULL,		    // value_format*
 
     NULL,		    // initiator_format*
     NULL,		    // separator_format*
     NULL,		    // terminator_format*
+
+    min::NULL_STUB,         // text_type_table
 
     NULL,		    // mark_classifier
 
@@ -12644,6 +12672,7 @@ static min::obj_format isolated_line_id_obj_format =
 
     min::space_if_none_pstring,
 			    // obj_sep
+    NULL,		    // obj_textsep
 
     NULL,		    // obj_attrbegin
     NULL,		    // obj_attrsep
@@ -12989,6 +13018,8 @@ static void init_pgen_formats ( void )
     ::text_obj_format.element_format =
         min::compact_gen_format;
     ::text_obj_format.top_element_format =
+        min::text_gen_format;
+    ::text_obj_format.text_element_format =
         min::text_gen_format;
     ::text_obj_format.label_format =
         min::name_gen_format;
@@ -13429,15 +13460,6 @@ min::printer min::print_obj
 	  bool disable_mapping,
 	  min::unsptr max_attrs )
 {
-    min::uns32 saved_printer_state = printer->state;
-    printer->state &=
-        ~ (   min::IN_PARAGRAPH
-	    + min::IN_LOGICAL_LINE
-	    + min::AT_LOGICAL_LINE_END
-	    + min::AFTER_LINE_TERMINATOR
-	    + min::AFTER_PARAGRAPH 
-	    + min::CONTAINS_PARAGRAPH );
-
     min::obj_vec_ptr vp ( v );
     min::unsptr vsize = min::size_of ( vp );
     min::attr_ptr ap ( vp );
@@ -13449,6 +13471,15 @@ min::printer min::print_obj
         return min::print_obj
 	    ( printer, v, f, objf, obj_op_flags,
 	      disable_mapping, m );
+
+    min::uns32 saved_printer_state = printer->state;
+    printer->state &=
+        ~ (   min::IN_PARAGRAPH
+	    + min::IN_LOGICAL_LINE
+	    + min::AT_LOGICAL_LINE_END
+	    + min::AFTER_LINE_TERMINATOR
+	    + min::AFTER_PARAGRAPH 
+	    + min::CONTAINS_PARAGRAPH );
 
     min::gen separator = min::NONE();
     min::gen initiator = min::NONE();
@@ -13607,6 +13638,13 @@ min::printer min::print_obj
 	    min::uns32 state = min::IN_LOGICAL_LINE;
 	        // Add min::CONTAINS_PARAGRAPH when
 		// appropriate.
+	    const min::gen_format * ef =
+		( obj_op_flags & min::ENABLE_TEXT ?
+		  objf->text_element_format :
+		  objf->top_element_format );
+	    min::pstring sep = 
+		( obj_op_flags & min::ENABLE_TEXT ?
+		  objf->obj_textsep : objf->obj_sep );
 	    for ( min::unsptr i = 0; i < vsize; ++ i )
 	    {
 		if ( i != 0 )
@@ -13621,7 +13659,7 @@ min::printer min::print_obj
 		        printer << min::indent;
 		    }
 		    else if ( separator == min::NONE() )
-			printer << objf->obj_sep;
+			printer << sep;
 		    else
 		    {
 			min::print_trailing_always
@@ -13642,9 +13680,7 @@ min::printer min::print_obj
 
 		printer->state |= state;
 
-		min::print_gen
-		    ( printer,
-		      vp[i], objf->top_element_format );
+		min::print_gen ( printer, vp[i], ef );
 	    }
 	    printer->state &=
 	        ~ (   min::IN_LOGICAL_LINE
@@ -13676,6 +13712,11 @@ min::printer min::print_obj
 		  (   saved_printer_state
 		    & min::IN_LOGICAL_LINE ) )
 	{
+	    const min::gen_format * ef =
+		( obj_op_flags & min::ENABLE_TEXT ?
+		  objf->text_element_format :
+		  objf->top_element_format );
+
 	    min::print_erase_space
 		( printer, printer->column );
 	    min::print_gen
@@ -13720,9 +13761,7 @@ min::printer min::print_obj
 		}
 
 		printer->state |= min::IN_PARAGRAPH;
-		min::print_gen
-		    ( printer,
-		      vp[i], objf->top_element_format );
+		min::print_gen ( printer, vp[i], ef );
 	    }
 	    printer->state &=
 	        ~ (   min::IN_PARAGRAPH

@@ -170,6 +170,7 @@
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
+\newcommand{\pagnote}[1]{$\,^{p\pageref{#1}}$}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -252,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 17, 2025}
+\date{September 19, 2025}
  
 \maketitle
 
@@ -17355,6 +17356,8 @@ The format for printing object \TT{min::gen} values is:
 \ttmindex{element\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              top_element_format;|%
 \ttmindex{top\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  const min::gen_format *              text_element_format;|%
+\ttmindex{text\_element\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              label_format;|%
 \ttmindex{label\_format}{in {\tt min::obj\_format}}\ARGBREAK
     \verb|  const min::gen_format *              value_format;|%
@@ -17375,8 +17378,15 @@ The format for printing object \TT{min::gen} values is:
 \bigskip
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+    \verb|  const min::stub *                    text_type_table;|%
+\ttmindex{text\_type\_table}{in {\tt min::obj\_format}}
+\end{tabular}
+
+\bigskip
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::str_classifier                  mark_classifier;|%
-\ttmindex{mark\_classifier}{in {\tt min::obj\_format}}\ARGBREAK
+\ttmindex{mark\_classifier}{in {\tt min::obj\_format}}
 \end{tabular}
 
 \bigskip
@@ -17406,7 +17416,9 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
     \verb|  min::pstring                         obj_sep;|%
 \label{OBJ_SEP}%
-\ttmindex{obj\_sep}{in {\tt min::obj\_format}}
+\ttmindex{obj\_sep}{in {\tt min::obj\_format}}\ARGBREAK
+    \verb|  min::pstring                         obj_textsep;|
+\ttmindex{obj\_textsep}{in {\tt min::obj\_format}}
 \end{tabular}
 
 \bigskip
@@ -17482,6 +17494,8 @@ The format for printing object \TT{min::gen} values is:
 \LABEL{MIN::ENABLE_LOGICAL_LINE} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_INDENTED\_PARAGRAPH}
 \LABEL{MIN::ENABLE_INDENTED_PARAGRAPH} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_TEXT}
+\LABEL{MIN::ENABLE_TEXT} \\
 \end{tabular}\end{indpar}
 
 
@@ -17592,6 +17606,7 @@ The format for printing object \TT{min::gen} values is:
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::compact_gen_format                  // element_format|\ARGBREAK
 \verb|NULL                                     // top_element_format|\ARGBREAK
+\verb|NULL                                     // text_element_format|\ARGBREAK
 \verb|min::compact_value_gen_format            // value_format|\ARGBREAK
 \verb|min::name_gen_format                     // label_format|\ARGBREAK
 \end{tabular}
@@ -17600,6 +17615,10 @@ The format for printing object \TT{min::gen} values is:
 \verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK
 \verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK
 \verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK
+\end{tabular}
+
+\vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
+\verb|min::NULL_STUB                           // text_type_table|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -17619,6 +17638,7 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::space_if_none_pstring               // obj_sep|\ARGBREAK
+\verb|NULL                                     // obj_textsep|\ARGBREAK
 \end{tabular}
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
@@ -17691,7 +17711,8 @@ The format for printing object \TT{min::gen} values is:
 
 \vspace{-4ex}\begin{tabular}{r@{}l}\hspace*{0.1in}\ARGBREAK
 \verb|min::text_gen_format                     // top_element_format|\ARGBREAK
-\verb|min::space_if_needed_pstring             // obj_sep|
+\verb|min::text_gen_format                     // text_element_format|\ARGBREAK
+\verb|min::space_if_needed_pstring             // obj_textsep|
 \end{tabular}
 
 \end{indpar}
@@ -17934,6 +17955,37 @@ no \TT{.terminator}, but may have a \TT{.separator}.
 
 \end{enumerate}
 
+Most of the compact format variants may or may not be in
+`\key{text mode}'\label{TEXT-MODE}:
+\begin{enumerate}
+\item
+A logical line compact format or indended paragraph compact format
+is in text mode if and only if the \TT{ENABLE\_\EOL TEXT}
+object format operation flag is on.
+\item
+A bracketed compact format
+is in text mode if and only if the \TT{ENABLE\_\EOL TEXT}
+object format operation flag is on and the object's \TT{.initiator}
+has an entry in the object text type table
+(see \itemref{OBJECT-TEXT-TYPE-TABLE}).
+\item
+A default compact format
+is in text mode if and only if the \TT{ENABLE\_\EOL TEXT}
+object format operation flag is on and the object has a \TT{.type} that
+has an entry in the object text type table
+(see \itemref{OBJECT-TEXT-TYPE-TABLE}).
+\end{enumerate}
+
+Text mode causes \TT{obj\_textsep} object format element to be
+used in place of the \TT{obj\_\EOL sep} object format element (see below),
+and causes the
+\TT{text\_\EOL element\_\EOL format} object format element to be
+used in place of either the \TT{element\_\EOL format}
+object format element or \TT{top\_\EOL format} object format element.
+If the printer's print format \TT{OUTPUT\_\EOL HTML} operation flag is on,
+text mode also uses any object text type table entry to output
+HTML tags before and after the object compact format printout:
+see \itemref{OBJECT-TEXT-TYPE-TABLE}.
 
 Keeping these formats and variants in mind,
 the members of a \TT{min::obj\_format} are:
@@ -17962,6 +18014,11 @@ This is the logical OR of any of the following flags:
 These flags determine the format the object is printed in.
 See text above.
 
+\item[\ttmkey{ENABLE\_TEXT}%
+    {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]\vspace{-1ex}~\\
+If an object is being printed in compact format, this flag allows the
+object to be printed in text mode\pagnote{TEXT-MODE}.
+
 \item[\ttmkey{NO\_TRAILING\_TYPE}%
     {in {\tt obj\_\EOL format.obj\_\EOL op\_\EOL flags}}]~\\
 This flag suppresses printing the type in the closing bracket
@@ -17974,9 +18031,12 @@ as \TT{\{T\ldots T\}} without any `\TT{|}'s.
 \end{itemlist}\end{indpar}
 
 \item[\ttmkey{element\_format}{in {\tt min::obj\_format}}]
-\item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+\item[\ttmkey{top\_element\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}
+\item[\ttmkey{text\_element\_format}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
 These are the \TT{min::gen\_format}'s used to print the
 object vector elements.  If the object is being printed in
+text mode compact format, \TT{text\_element\_format} is used.
+Otherwise if the object is being printed in
 logical line compact or indented paragraph compact format,
 \TT{top\_element\_format} is used.  Otherwise \TT{element\_format}
 is used.
@@ -17999,6 +18059,12 @@ in logical line compact format.
 The \TT{.initiator} in indented paragraph compact format is
 printed using \TT{terminator\_format}, as it is in a terminator
 position.
+
+\item[\ttmkey{text\_type\_table}{in {\tt min::obj\_format}}]~\\
+\label{TEXT_TYPE_TABLE}
+Used to determine whether a compact format object is in
+text mode\pagnote{TEXT-MODE} and to determine HTML tags for
+text mode objects (see \itemref{OBJECT-TEXT-TYPE-TABLE}).
 
 \item[\ttmkey{mark\_classifier}{in {\tt min::obj\_format}}]~\\
 \label{MARK_CLASSIFIER}
@@ -18025,10 +18091,13 @@ These are the \TT{min::pstring}'s printed to bracket
 object elements and attributes in compact, normal, and embedded line format.
 E.g., `\TT{\{}', `\TT{|}', `\TT{|}', and `\TT{\}}'.
 
-\item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]~\\
-This member serves as the object element separator in compact
+\item[\ttmkey{obj\_sep}{in {\tt min::obj\_format}}]
+\item[\ttmkey{obj\_textsep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
+\TT{Obj\_sep} serves as the object element separator in compact
 or normal format when the object does
 not have a \TT{.separator} attribute.  E.g., a single space.
+\TT{Obj\_\EOL textsep} replaces \TT{obj\_\EOL sep}
+in compact format text mode\pagnote{TEXT-MODE}.
 
 \item[\ttmkey{obj\_attrbegin}{in {\tt min::obj\_format}}]
 \item[\ttmkey{obj\_attrsep}{in {\tt min::obj\_format}}]\vspace{-2ex}~\\
@@ -18622,6 +18691,10 @@ The expression `\TT{printer~<{}<~min::pgen(v)}' is equivalent to
 \end{center}
 if \TT{v} is an object.
 
+\subsubsubsection{The Object Text Type Table}
+\label{OBJECT-TEXT-TYPE-TABLE}
+
+TBD
 
 \clearpage
 
@@ -25107,11 +25180,13 @@ Information Functions:
     \verb|  min::uns32                           obj_op_flags;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              element_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              top_element_format;|\ARGBREAK[0in]
+    \verb|  const min::gen_format *              text_element_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              label_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              value_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              initiator_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              separator_format;|\ARGBREAK[0in]
     \verb|  const min::gen_format *              terminator_format;|\ARGBREAK[0in]
+    \verb|  const min::stub *                    text_type_table;|\ARGBREAK[0in]
     \verb|  min::str_classifier                  mark_classifier;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_empty;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_bra;|\ARGBREAK[0in]
@@ -25119,6 +25194,7 @@ Information Functions:
     \verb|  min::pstring                         obj_ketbegin;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_ket;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_sep;|\ARGBREAK[0in]
+    \verb|  min::pstring                         obj_textsep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attrbegin;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attrsep;|\ARGBREAK[0in]
     \verb|  min::pstring                         obj_attreol;|\ARGBREAK[0in]
@@ -25155,6 +25231,8 @@ Information Functions:
 \LABEL{MIN::ENABLE_LOGICAL_LINE} \\
 \verb|const min::uns32 min::| & \MINKEY{ENABLE\_INDENTED\_PARAGRAPH}
 \LABEL{MIN::ENABLE_INDENTED_PARAGRAPH} \\
+\verb|const min::uns32 min::| & \MINKEY{ENABLE\_TEXT}
+\LABEL{MIN::ENABLE_TEXT} \\
 \end{TABULAR}
 
 \bigskip
@@ -25279,6 +25357,7 @@ Information Functions:
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::compact_gen_format                  // element_format|\ARGBREAK[0in]
 \verb|NULL                                     // top_element_format|\ARGBREAK[0in]
+\verb|NULL                                     // text_element_format|\ARGBREAK[0in]
 \verb|min::compact_value_gen_format            // value_format|\ARGBREAK[0in]
 \verb|min::name_gen_format                     // label_format|\ARGBREAK[0in]
 \end{TABULAR}
@@ -25287,6 +25366,10 @@ Information Functions:
 \verb|min::leading_always_gen_format           // initiator_format|\ARGBREAK[0in]
 \verb|min::trailing_always_gen_format          // separator_format|\ARGBREAK[0in]
 \verb|min::trailing_always_gen_format          // terminator_format|\ARGBREAK[0in]
+\end{TABULAR}
+
+\begin{TABULAR}{0.3in} & \hspace*{0in}
+\verb|min::NULL_STUB                           // text_type_table|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -25306,6 +25389,7 @@ Information Functions:
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
 \verb|min::space_if_none_pstring               // obj_sep|\ARGBREAK[0in]
+\verb|NULL                                     // obj_textsep|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in} & \hspace*{0in}
@@ -25360,7 +25444,8 @@ Information Functions:
 \verb|+ min::ENABLE_INDENTED_PARAGRAPH|\ARGBREAK[0in]
 \verb|+ min::ENABLE_TEXT|\ARGBREAK[0in]
 \verb|min::text_gen_format                     // top_element_format|\ARGBREAK[0in]
-\verb|min::space_if_needed_pstring             // obj_sep|
+\verb|min::text_gen_format                     // text_element_format|\ARGBREAK[0in]
+\verb|min::space_if_needed_pstring             // obj_textsep|\ARGBREAK[0in]
 \end{TABULAR}
 
 \begin{TABULAR}{0.3in}

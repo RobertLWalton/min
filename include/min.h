@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Sep 16 03:50:20 AM EDT 2025
+// Date:	Fri Sep 19 04:23:08 AM EDT 2025
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -13537,12 +13537,15 @@ namespace min {
 
 	const min::gen_format *   element_format;
 	const min::gen_format *   top_element_format;
+	const min::gen_format *   text_element_format;
         const min::gen_format *	  label_format;
 	const min::gen_format *   value_format;
 
 	const min::gen_format *   initiator_format;
         const min::gen_format *	  separator_format;
 	const min::gen_format *   terminator_format;
+
+	const min::stub *	  text_type_table;
 
 	min::str_classifier	  mark_classifier;
 
@@ -13554,6 +13557,7 @@ namespace min {
 	min::pstring		  obj_ket;
 
 	min::pstring		  obj_sep;
+	min::pstring		  obj_textsep;
 
 	min::pstring		  obj_attrbegin;
 	min::pstring		  obj_attrsep;
